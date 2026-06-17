@@ -1,0 +1,196 @@
+---
+description: Comprehensive error handling, logging, and monitoring standards
+autoAttach:
+  globs:
+    - "src/**/*.{ts,tsx}"
+    - "src/app/api/**/*.ts"
+    - "src/app/**/error.tsx"
+---
+
+# Error Handling & Logging Standards
+
+## Philosophy
+- **User-facing errors**: Clear, actionable, never expose internals
+- **Developer errors**: Rich context, stack traces, debugging info
+- **Security-first**: Never log sensitive data (passwords, tokens, PII)
+- **Fail gracefully**: Always provide fallback UI and recovery paths
+
+## Error Taxonomy
+
+| Error Code | HTTP | Usage |
+|------------|------|-------|
+| `VALIDATION_ERROR` | 400 | Input validation failed |
+| `INVALID_FORMAT` | 400 | Data format incorrect |
+| `MISSING_REQUIRED_FIELD` | 400 | Required field not provided |
+| `UNAUTHORIZED` | 401 | Not authenticated |
+| `FORBIDDEN` | 403 | Lacks permission |
+| `SESSION_EXPIRED` | 401 | Auth session expired |
+| `NOT_FOUND` | 404 | Resource doesn't exist |
+| `CONFLICT` | 409 | Resource already exists |
+| `GONE` | 410 | Permanently deleted |
+| `RATE_LIMITED` | 429 | Too many requests |
+| `QUOTA_EXCEEDED` | 429 | API quota exceeded |
+| `INTERNAL_ERROR` | 500 | Unexpected server error |
+| `DATABASE_ERROR` | 500 | Database operation failed |
+| `EXTERNAL_API_ERROR` | 502 | Third-party API failed |
+| `TIMEOUT` | 504 | Operation timed out |
+| `SUPABASE_AUTH_ERROR` | 401 | Supabase auth failure |
+| `SUPABASE_RLS_ERROR` | 403 | Row Level Security rejection |
+| `SUPABASE_CONNECTION_ERROR` | 500 | Cannot connect to Supabase |
+
+## Response Envelopes
+
+**Success:**
+```typescript
+NextResponse.json({ success: true, data: result }, { status: 200 })
+```
+
+**Error:**
+```typescript
+NextResponse.json(
+  { success: false, error: { message: 'User-friendly error message', code: 'VALIDATION_ERROR' } },
+  { status: 400 }
+)
+```
+
+**Server Actions:** Same structure, return objects instead of NextResponse
+
+## Logging (canonical)
+
+**No `@/utils/logger` module** — use prefixed `console.*` so Vercel Functions logs are searchable (see AGENTS.md).
+
+```typescript
+// Server actions / services — bracket tag matches file or feature
+console.error('[process-recipe] Unexpected error', error)
+console.log(`[skill-generation] Starting recipeId=${recipeId}`)
+```
+
+**Conventions:**
+- **Tag:** `[kebab-case-source]` in the message string (e.g. `[retry-recipe-skill]`, `[anthropic-client]`)
+- **Errors:** pass the `Error` or Supabase error as a second argument when useful
+- **Never log:** passwords, tokens, API keys, full request bodies (see Security section below)
+- **Client:** prefer UI error states; optional `console.error('[component-name] …', error)` in dev only
+
+**Reference implementations:** `src/app/recipes/actions/process-recipe.ts`, `src/services/skill-generation-service.ts`
+
+## Error Handling Patterns
+
+### API Routes
+
+**Key principles:**
+- Wrap all async operations in try/catch
+- Log with `[api/resource]` prefix and error object; map to taxonomy `code` in the response envelope
+- Return generic user-friendly messages (never expose stack traces)
+- Use appropriate HTTP status codes
+
+Apply the same try/catch, logging, and response-envelope patterns used by existing handlers under `src/app/api/` in this repo.
+
+### Server Actions
+Follow same pattern as API routes, return objects instead of NextResponse.
+
+### Client Components (React Query)
+
+- Surface errors in UI (`ErrorDisplay`, inline copy, or query `isError` state)
+- See `.cursor/rules/react-tanstack-query.mdc` for hook patterns
+
+### Error Boundaries
+```typescript
+import { ErrorBoundary } from '@/components/error-boundary'
+import { ErrorFallback } from '@/components/error-fallback'
+
+<ErrorBoundary fallback={<ErrorFallback />} source="app/posts/page.tsx">
+  <PostList />
+</ErrorBoundary>
+```
+
+## Supabase Error Handling
+
+### Common Supabase Error Codes
+- `PGRST116` → `NOT_FOUND` (row not found)
+- `23505` → `CONFLICT` (unique constraint violation)
+- `23503` → `VALIDATION_ERROR` (foreign key violation)
+- `42501` → `FORBIDDEN` (RLS policy violation)
+
+### Database Errors
+
+- Map Supabase `error.code` to taxonomy (`PGRST116` → `NOT_FOUND`, `42501` → `FORBIDDEN`, etc.)
+- Log: `console.error('[source-tag] …', { postId, supabaseCode: error.code })` — no raw PII
+- Return user-safe message in the error envelope
+
+**Auth Errors:**
+- Never leak user existence ("Invalid credentials" not "User doesn't exist")
+- Log with context but generic user messages
+
+**Reference:** See `.cursor/rules/security.mdc` for detailed auth patterns
+
+## Security: What NOT to Log
+
+**Never log:** Passwords, API keys, auth tokens, credit cards, SSNs, full request/response bodies
+
+**Safe to log:** User IDs, request paths, error codes, non-sensitive metadata (avoid logging email unless required for auth debugging)
+
+## User-Facing Error Messages
+
+**Good Examples:**
+- "We couldn't find that post. It may have been deleted."
+- "Your session expired. Please sign in again."
+- "Something went wrong. Please try again, or contact support if this continues."
+
+**Bad Examples:**
+- "Error: ECONNREFUSED" (too technical)
+- "An error occurred" (too vague)
+- "Internal server error at line 42" (leaks internals)
+
+**Guidelines:** Be clear, actionable, empathetic, honest, and concise (1-2 sentences max)
+
+## Error UI Components
+
+### ErrorDisplay
+```typescript
+import { ErrorDisplay } from '@/components/error-display'
+
+<ErrorDisplay message="Failed to load posts" code="DATABASE_ERROR" variant="destructive" />
+```
+
+### ErrorFallback
+```typescript
+import { ErrorFallback } from '@/components/error-fallback'
+
+<ErrorBoundary fallback={<ErrorFallback />}>
+  <YourComponent />
+</ErrorBoundary>
+```
+
+## Production Logging
+
+**Vercel:** `console.log` / `console.error` from server actions and route handlers appear in Vercel Dashboard → Project → Logs. Use consistent `[tags]` for filtering.
+
+**Client:** avoid noisy production logging; rely on error UI.
+
+## Testing Error Scenarios
+
+**See `.cursor/rules/testing.mdc` for comprehensive testing patterns.**
+
+```typescript
+it('should handle errors gracefully', async () => {
+  vi.mocked(fetchPosts).mockRejectedValue(new Error('DB error'))
+  const response = await GET(mockRequest)
+  const data = await response.json()
+  
+  expect(response.status).toBe(500)
+  expect(data.success).toBe(false)
+  expect(data.error.code).toBe('INTERNAL_ERROR')
+})
+```
+
+## Quick Checklist
+
+Before shipping error handling code:
+- [ ] All async operations wrapped in try/catch
+- [ ] Errors logged with source and code
+- [ ] User-friendly error messages (not internal details)
+- [ ] Appropriate HTTP status codes
+- [ ] No sensitive data in logs
+- [ ] Error boundaries for critical UI sections
+- [ ] Tests cover error scenarios
+- [ ] Error codes use standard taxonomy

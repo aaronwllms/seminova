@@ -1,0 +1,170 @@
+---
+description: Tailwind CSS styling, responsive design, and theming conventions
+globs:
+  - 'src/components/**/*.tsx'
+  - 'src/app/**/*.tsx'
+---
+
+# UI Styling with Tailwind CSS
+
+## Tailwind CSS Best Practices
+- Use utility-first approach for styling
+- Follow mobile-first responsive design approach
+- Use Tailwind's spacing scale consistently (4, 8, 12, 16, etc.)
+- Use semantic color names from Tailwind config
+- Implement responsive design with Tailwind CSS utility classes
+- Use concise syntax; avoid unnecessary curly braces in conditionals
+
+## Using cn() Utility for Conditional Classes
+The `cn()` utility merges Tailwind classes intelligently:
+
+```typescript
+import { cn } from '@/utils/tailwind'
+
+export function Component({ className, isActive }) {
+  return (
+    <div
+      className={cn(
+        'base-classes rounded-md p-4',
+        isActive && 'bg-blue-600 text-white',
+        !isActive && 'bg-gray-100 text-gray-900',
+        className // User's classes take precedence
+      )}
+    >
+      Content
+    </div>
+  )
+}
+```
+
+## Dark Mode with next-themes
+- Dark mode handled by `next-themes` via `ThemeProvider`
+- Already configured in `src/providers/ThemeProvider.tsx`
+- shadcn/ui uses **CSS variables** for theming (configured in `components.json`)
+- Theme colors defined in `src/app/globals.css` with automatic dark mode support
+
+**How it works:**
+- Colors use CSS variables: `bg-background`, `text-foreground`, etc.
+- Variables automatically switch based on dark/light mode
+- Manual dark mode classes rarely needed with shadcn components
+
+**Custom dark mode styling:**
+```typescript
+// shadcn components handle dark mode automatically
+<Button>Works in both modes</Button>
+
+// For custom components, use dark: prefix
+<div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+  Custom component
+</div>
+```
+
+**Accessing theme in components:**
+```typescript
+'use client'
+import { useTheme } from 'next-themes'
+
+export const ThemeAwareComponent = () => {
+  const { theme, setTheme } = useTheme()
+  
+  return (
+    <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+      Toggle theme
+    </button>
+  )
+}
+```
+
+## Responsive Design
+Follow mobile-first approach with Tailwind CSS:
+
+```typescript
+<div className="w-full md:w-1/2 lg:w-1/3">
+  {/* Scales from mobile to desktop */}
+</div>
+
+// Use responsive utility classes
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  {/* Responsive grid layout */}
+</div>
+```
+
+### Breakpoint Reference
+- Default (mobile): 0px
+- `sm`: 640px
+- `md`: 768px
+- `lg`: 1024px
+- `xl`: 1280px
+- `2xl`: 1536px
+
+### Common Responsive Patterns
+```typescript
+// Responsive text sizing
+<h1 className="text-2xl md:text-4xl lg:text-5xl">
+  Responsive Heading
+</h1>
+
+// Responsive spacing
+<div className="p-4 md:p-6 lg:p-8">
+  Content
+</div>
+
+// Responsive flex direction
+<div className="flex flex-col md:flex-row gap-4">
+  <div>Item 1</div>
+  <div>Item 2</div>
+</div>
+
+// Hide/show at breakpoints
+<div className="hidden md:block">
+  Desktop only content
+</div>
+```
+
+## Component Structure and Organization
+- Keep components under 150 lines maximum
+- Extract subcomponents if larger
+- Use composition for complex UIs
+- Organize UI components clearly:
+  - Reusable components in `/src/components`
+  - shadcn/ui components in `/src/components/ui`
+  - Page-specific components in `/src/app/[page]/_components`
+
+## Image Optimization
+- Use Next.js Image component for all images
+- Include size data (width/height) to prevent layout shift
+- Implement lazy loading for below-the-fold images
+- Optimize images for Web Vitals (LCP)
+
+```typescript
+import Image from 'next/image'
+
+// Good: Specified dimensions and optimization
+<Image
+  src="/hero.jpg"
+  alt="Hero image"
+  width={1200}
+  height={600}
+  priority // For above-the-fold images
+/>
+
+// Good: Lazy loading for below-the-fold
+<Image
+  src="/feature.jpg"
+  alt="Feature"
+  width={800}
+  height={400}
+  loading="lazy"
+/>
+```
+
+## Best Practices
+- ✅ Use CSS variables for theming (already configured)
+- ✅ Use `cn()` utility for conditional classes
+- ✅ Follow mobile-first responsive approach
+- ✅ Use semantic spacing scale
+- ✅ Optimize images with Next.js Image component
+- ✅ Keep components under 150 lines
+- ❌ Don't fight the CSS variables system for theming
+- ❌ Don't hardcode colors; use theme variables
+- ❌ Don't skip image dimensions (causes layout shift)

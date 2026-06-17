@@ -1,0 +1,100 @@
+---
+description: TanStack Query v5 patterns for client-side data fetching
+globs:
+  - 'src/hooks/**/*.ts'
+  - 'src/components/**/*.tsx'
+  - 'src/providers/ReactQueryProvider.tsx'
+---
+
+# TanStack Query v5 (React Query) Patterns
+
+**Note:** For error handling patterns and logging, see `.cursor/rules/error-handling.mdc`
+
+## When to Use
+- Client-side data fetching and caching
+- Real-time data that needs frequent updates
+- Data with complex caching requirements
+- Client-side mutations with optimistic updates
+
+## Custom Hooks Pattern
+Create custom hooks in `src/hooks/` for all queries. Prefer **repository functions** + Supabase client (RLS-scoped) — see `src/hooks/use-recipe-list.ts`:
+
+```typescript
+'use client'
+
+import { useQuery } from '@tanstack/react-query'
+import { createClient } from '@/supabase/client'
+import { RECIPE_LIST_QUERY_KEY } from '@/hooks/recipe-query-keys'
+import { getRecipesWithIngredients } from '@/services/recipe-repository'
+
+export function useRecipeList() {
+  return useQuery({
+    queryKey: RECIPE_LIST_QUERY_KEY,
+    queryFn: () => getRecipesWithIngredients(createClient()),
+  })
+}
+```
+
+**Key points:**
+- Call repository/service functions from `queryFn`; let Supabase errors propagate for React Query to catch
+- Use shared query keys from `src/hooks/*-query-keys.ts` where the repo defines them
+- For rare `fetch` to a route handler, check `response.ok` and parse `{ success, data?, error? }` before returning
+
+## Query Key Conventions
+- Use descriptive arrays: `['resource', id]` or `['resource', 'list', filters]`
+- Examples:
+  - `['user', userId]`
+  - `['posts', 'list', { status: 'published' }]`
+  - `['post', postId, 'comments']`
+
+## Error Handling
+
+**See `.cursor/rules/error-handling.mdc` for complete error handling patterns.**
+
+In components using queries:
+- Show user-visible error UI (`ErrorDisplay`, inline message, or empty state) when `isError`
+- Optional dev-only: `console.error('[my-component] Failed to fetch data', error)`
+- Include retry logic in query configuration where appropriate
+- Server-side logging uses prefixed `console.*` — see `.cursor/rules/error-handling.mdc`
+
+For critical errors, wrap in ErrorBoundary:
+```typescript
+import { ErrorBoundary } from '@/components/error-boundary'
+import { ErrorFallback } from '@/components/error-fallback'
+
+<ErrorBoundary fallback={<ErrorFallback />} source="components/data-list.tsx">
+  <DataList />
+</ErrorBoundary>
+```
+
+## Mutations
+```typescript
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+
+export function useUpdateUser() {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: async (userData) => {
+      const response = await fetch('/api/user', {
+        method: 'PUT',
+        body: JSON.stringify(userData),
+      })
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user'] })
+    },
+  })
+}
+```
+
+## Configuration
+- QueryClient is already configured in `src/providers/ReactQueryProvider.tsx`
+- Configure `staleTime` and `gcTime` based on data characteristics
+- Use optimistic updates where appropriate
+
+## Reference Examples
+- Mutation hook (server action + cache invalidation): `src/hooks/use-process-recipe.ts`
+- Query hook (Supabase repository): `src/hooks/use-recipe-list.ts`
+- Error handling patterns: `.cursor/rules/error-handling.mdc`

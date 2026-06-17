@@ -1,0 +1,344 @@
+---
+description: Testing conventions with Jest, React Testing Library, and MSW v2
+globs:
+  - '**/*.test.ts'
+  - '**/*.test.tsx'
+  - '**/*.unit.test.ts'
+  - '**/*.unit.test.tsx'
+  - '**/*.integration.test.ts'
+  - '**/*.integration.test.tsx'
+  - 'src/mocks/**/*.ts'
+  - 'src/test/**/*.tsx'
+alwaysApply: true
+---
+
+# Testing with Jest + React Testing Library + MSW v2
+
+## Core Principle: Minimalism
+
+**Write the MINIMUM number of tests needed to catch real bugs.**
+
+Before writing each test, ask:
+- "What bug would this catch that other tests won't?"
+- "Will this test fail when actual user-facing behavior breaks?"
+- "Is this testing my code or the framework/library?"
+
+If you can't answer confidently, skip the test.
+
+### Test File Size Guidelines
+- **Target**: <300 lines per test file
+- **Maximum**: 500 lines (complex features may justify more)
+- **Red flag**: >800 lines indicates over-testing or testing too many concerns in one file
+
+When a test file grows beyond 400 lines, review for:
+- Redundant test cases
+- Testing edge cases that don't matter
+- Over-mocking that creates brittle tests
+
+## Goals
+- Keep tests **as simple as possible** while catching real bugs
+- Test **behavior over implementation details**
+- Never change dependencies/lockfiles to "fix" tests
+- Keep tests fast (<1s each) and reliable
+- Prefer fewer high-value tests over comprehensive coverage of every edge case
+
+## Testing Philosophy
+- Write tests for components with logic or user interactions
+- Test user behavior and outcomes, not implementation details
+- Follow Arrange-Act-Assert pattern
+- Use descriptive test names that explain expected behavior
+- Cover Happy, Invalid, and Boundary cases with **1-2 representative tests each**
+
+## Test Pyramid Guidelines
+Balance your testing efforts across layers:
+- **E2E (≤15%)**: Only top user journeys and critical paths
+- **Integration (25-45%)**: API routes, auth flows, database interactions
+- **Unit (remainder)**: Pure functions, hooks, component logic
+
+These are guidelines, not strict quotas. Adjust based on what provides the most value.
+
+## Test Structure
+```typescript
+import { render, screen, waitFor } from '@/test/test-utils'
+import userEvent from '@testing-library/user-event'
+
+describe('ComponentName', () => {
+  it('should describe the expected behavior', async () => {
+    // Arrange
+    render(<Component prop="value" />)
+    
+    // Act
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }))
+    
+    // Assert
+    await waitFor(() => {
+      expect(screen.getByText(/success/i)).toBeInTheDocument()
+    })
+  })
+})
+```
+
+## Import from Test Utils
+Always use the custom render function that includes providers:
+
+```typescript
+import { render, screen, waitFor } from '@/test/test-utils'
+```
+
+This automatically wraps components with:
+- ReactQueryProvider
+- ThemeProvider
+- Other necessary context providers
+
+## Mocking Policy
+**Only mock system boundaries** - not your own business logic:
+- ✅ **Do mock**: External APIs, auth providers, time/randomness, network requests
+- ❌ **Don't mock**: Your own functions, utilities, or business logic in integration tests
+- Mock at the system boundary, not internal implementation
+
+### Mock Service Worker (MSW v2)
+- Mock external API calls in `src/mocks/handlers.ts`
+- MSW is configured for testing only (not in production)
+- Server setup in `src/mocks/server.ts`
+
+Example handler:
+```typescript
+import { http, HttpResponse } from 'msw'
+
+export const handlers = [
+  http.get('/api/your-route', () => {
+    return HttpResponse.json({ success: true, data: { id: '1' } })
+  }),
+]
+```
+
+### Mocking Supabase
+- Mock Supabase client only at the system boundary when necessary
+- For integration tests, prefer using a test database over mocking
+- Mock auth state for client components testing user-specific behavior
+
+## Running Tests
+
+**Agents and automation must use non-watch mode** — bare `pnpm test` starts Jest in watch mode and never exits in agent terminals.
+
+| Context | Command |
+|---------|---------|
+| Agents / CI / quality checks | `pnpm test:ci` |
+| Human local dev (watch) | `pnpm test` |
+| Single file | `pnpm test:ci -- path/to/file.unit.test.ts` |
+
+```bash
+# Full suite (agents, pre-push, CI)
+pnpm test:ci
+
+# Watch mode — human dev only
+pnpm test
+
+# Targeted run
+pnpm test:ci -- src/utils/foo.unit.test.ts
+```
+
+**Do not** run bare `pnpm test` in agent terminals — it hangs waiting for file changes.
+
+## H/I/B Pattern: Quality Over Quantity
+
+Test these three scenarios with **1-3 representative cases each**:
+
+- **Happy Path**: The main success flow (1-2 tests)
+  - Example: User submits valid form → sees success message
+  - Complex flows may need more than one success case
+
+- **Invalid Input**: Common failure cases (1-3 tests)
+  - Example: User submits empty required field → sees validation error
+  - Test distinct error messages users will see, but don't test every validation rule individually
+
+- **Boundary Case**: Edge cases that matter to users (1-2 tests)
+  - Example: Empty list displays "no items" message
+  - Don't test: empty string, whitespace, unicode, emoji, special chars unless specifically relevant
+
+**Typical range: 5-10 tests per function/component.** If you exceed 15 tests, review for redundancy.
+
+**Exception**: Complex, security-critical, or high-risk code may justify more comprehensive testing. The goal is to catch real bugs efficiently, not to hit arbitrary limits.
+
+### What NOT to Test
+
+#### Skip These:
+- **Framework behavior**: Don't test that React renders, Next.js routes work, or React Query caches
+- **Third-party libraries**: Don't test that Supabase queries work or TipTap editors function
+- **Trivial code**: Don't test simple getters/setters, pass-through functions, or type definitions
+- **Every validation rule**: If you have 10 form validations, test 1-2 representative cases, not all 10
+- **Every edge case**: Don't test empty string AND whitespace AND unicode AND emoji AND special chars
+- **Combinations of edge cases**: Don't test "empty string with whitespace" or "unicode emoji"
+- **Implementation details**: Don't test internal state, private methods, or CSS classes
+- **Multiple ways to trigger the same behavior**: Don't test keyboard AND mouse if they do the same thing
+
+#### Test These Instead:
+- **User-facing behavior**: What the user sees and experiences
+- **Business logic**: Calculations, validations, transformations unique to your app
+- **Error states**: What happens when critical operations fail
+- **Integration points**: How your components/functions work together
+- **Accessibility**: Screen reader support, keyboard navigation for interactive elements
+
+### Examples of Over-Testing
+
+#### ❌ Bad: Testing Every Edge Case
+```typescript
+describe('Boundary Cases', () => {
+  it('should handle empty string', ...)
+  it('should handle whitespace only', ...)
+  it('should handle special characters', ...)
+  it('should handle unicode characters', ...)
+  it('should handle emoji', ...)
+  it('should handle very long strings', ...)
+  it('should handle null', ...)
+  it('should handle undefined', ...)
+})
+```
+
+#### ✅ Good: One Representative Edge Case
+```typescript
+describe('Boundary Cases', () => {
+  it('should handle invalid input gracefully', () => {
+    expect(validateInput('')).toMatchObject({ valid: false })
+    expect(validateInput('!!!')).toMatchObject({ valid: false })
+    expect(validateInput(null)).toMatchObject({ valid: false })
+  })
+})
+```
+
+#### ❌ Bad: Testing Every Validation Rule Individually
+```typescript
+it('should require name field', ...)
+it('should require email field', ...)
+it('should validate email format', ...)
+it('should require message field', ...)
+it('should enforce minimum message length', ...)
+it('should enforce maximum message length', ...)
+// 6 tests for validation - too granular
+```
+
+#### ✅ Good: Test Distinct User-Facing Error Messages
+```typescript
+it('should show validation errors for missing required fields', () => {
+  render(<ContactForm />)
+  fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+  
+  expect(screen.getByText(/email is required/i)).toBeInTheDocument()
+  expect(screen.getByText(/message is required/i)).toBeInTheDocument()
+})
+
+it('should show validation errors for invalid format', () => {
+  render(<ContactForm />)
+  await userEvent.type(emailInput, 'invalid-email')
+  await userEvent.type(messageInput, 'short')
+  fireEvent.click(submitButton)
+  
+  expect(screen.getByText(/invalid email format/i)).toBeInTheDocument()
+  expect(screen.getByText(/message too short/i)).toBeInTheDocument()
+})
+// 2 tests covering all validation scenarios - efficient
+```
+
+#### ❌ Bad: Testing Implementation Details
+```typescript
+it('should set loading state to true', ...)
+it('should call handleSubmit function', ...)
+it('should update internal counter', ...)
+```
+
+#### ✅ Good: Testing User-Visible Behavior
+```typescript
+it('should show loading indicator while submitting', () => {
+  render(<Form />)
+  fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+  
+  expect(screen.getByText(/submitting/i)).toBeInTheDocument()
+})
+```
+
+## Test Authoring by Type
+
+### UI Components & Pages
+- **Typical range**: 5-10 tests per component (simple components may need fewer, complex ones may need more)
+- Use Jest + React Testing Library
+- Use role/name/text queries (e.g., `getByRole`, `getByText`)
+- Include at least one user interaction (e.g., `userEvent.click`)
+- Assert accessibility attributes for interactive elements only
+- No snapshot tests - write explicit assertions
+- Test loading and error states only if they're critical to UX
+- **Don't test**: Every possible prop combination, internal state changes, CSS classes
+
+### API Routes & Handlers
+- **Typical range**: 3-6 tests per route
+- Test success path with valid input
+- Test authentication/authorization failures
+- Validate request/response shapes for key scenarios
+- Assert proper HTTP status codes
+- Use MSW to mock external API dependencies
+- **Don't test**: Every validation error scenario, database errors (unless route-specific behavior)
+
+### Hooks & Utilities
+- **Typical range**: 4-8 tests per hook/utility
+- Test happy path with typical inputs
+- Test common failure cases
+- Test critical edge cases (null, empty, boundary values)
+- Mock external boundaries only (network requests, browser APIs)
+- Ensure type safety is maintained
+- **Don't test**: Every possible input combination, TypeScript type checking
+- **Exception**: Security-critical utilities (like sanitization, validation) may need exhaustive edge case coverage
+
+## Coverage Requirements
+**Enforced in CI** via `pnpm test:ci` (`jest --ci --coverage`):
+- **Statements: 80%**
+- **Branches: 70%**
+- **Functions: 70%**
+- **Lines: 80%**
+
+Before merge: run `pnpm test:ci`. For local gap analysis: `pnpm test:coverage`.
+
+If thresholds fail, add targeted high-value tests (see minimalism principles above)—not per-file 80% crusades.
+
+## Performance & Reliability
+- Keep tests fast: aim for <1 second per test
+- Avoid flaky tests - if a test is unreliable, fix or quarantine it
+- Use `describe.skip()` with "QUARANTINE: reason" for temporarily disabled tests
+- Always link to a GitHub issue when quarantining tests
+
+## Examples
+- Unit tests: `src/components/__tests__/AdminSidebar.unit.test.tsx`, `src/components/__tests__/login-form.unit.test.tsx`
+- Integration tests: `src/components/react-query-example.test.tsx`
+
+## File Naming Conventions
+Test files should be co-located with source files using these naming patterns:
+
+- **Unit tests**: `.unit.test.tsx` or `.unit.test.ts`
+  - Pure functions, isolated component logic, custom hooks, components without external dependencies
+  - Example: `utils/format-date.unit.test.ts`, `hooks/use-toggle.unit.test.ts`, `components/counter.unit.test.tsx`
+
+- **Integration tests**: `.integration.test.tsx` or `.integration.test.ts`
+  - Components with external dependencies, API routes, auth flows, database interactions
+  - Example: `components/auth-form.integration.test.tsx`, `app/api/users/route.integration.test.ts`
+
+The file naming helps identify test scope at a glance and organize test runs (e.g., running only unit tests for quick feedback loops).
+
+## Best Practices
+- **Minimize test count**: Write the fewest tests that catch the most bugs
+- **Co-locate test files** with source files for easy discovery
+- **Use appropriate file naming** convention based on test scope (unit vs integration)
+- **Test accessibility** for interactive elements (screen reader support, keyboard navigation)
+- **Write behavior-level assertions**, not implementation details
+- **Keep tests simple and focused** on one behavior per test
+- **Consolidate similar tests**: Combine related assertions into one test rather than many micro-tests
+- **Prefer fewer high-value tests** over comprehensive coverage of every edge case
+
+## Authoring Checklist
+Before submitting a PR with tests:
+- [ ] Typically 5-10 tests per function/component? (If 15+, review for redundancy)
+- [ ] Test file under 500 lines? (If 800+, likely over-testing or split needed)
+- [ ] Happy, Invalid, and Boundary cases covered with 1-3 tests each?
+- [ ] Behavior-level assertions (not implementation details)?
+- [ ] Not testing framework/library behavior?
+- [ ] Only system boundaries mocked?
+- [ ] Tests run fast (<1s each)?
+- [ ] Coverage thresholds met?
+- [ ] No flaky or skipped tests without issue links?

@@ -1,0 +1,217 @@
+# Seminova — Planning Brief
+
+**Purpose:** Dual-use — planning reference for the builder (PM) and context for coding agents. Seminova is currently a **template**: a curated foundation that real products are built from. It is written in product shape so that the structure itself is inherited by every project spun off it. Agents: read this file for living state; build-time workflow and authoritative schema live in [AGENTS.md](AGENTS.md); shipped phase detail in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md).
+
+**Last updated:** 2026-06-17
+**Status:** Phase 1 — Foundation (in progress). Nothing shipped yet.
+**Migrations:** none yet — no custom schema; Supabase `auth.users` only.
+
+**Shipped phase detail →** [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md)
+
+---
+
+## File Management Rules
+
+These rules apply to anyone updating this file — PM or coding agent.
+
+- **The ACTIVE section is the source of truth for what is planned but not yet shipped.** Cursor has access to the codebase and can verify live state independently. This file should never contradict the repo.
+- **Authoritative schema and the build-time agent workflow live in [AGENTS.md](AGENTS.md).** Do not duplicate per-table schema or Cursor/rules/skills detail here.
+- **When a phase ships in full**, append its epic/story detail to [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md) (append-only — never edit existing archive entries), then update the Roadmap status and the Status line here and remove the shipped ACTIVE content.
+- **Resolved open-question one-liners** append to `## Resolved decisions` in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md); remove from this file.
+- **HTML mockups:** save new explorations as `.mockups/*.html`. When a mockup is superseded or tied to a shipped phase, move it to `.mockups/archive/`.
+- **Stub sections are intentional.** Sections that are empty now (e.g. AI Architecture) are kept as stubs so the structure is inherited by every product built from this template. Do not delete them.
+
+---
+
+## 1. What Is Seminova?
+
+Seminova is an opinionated, AI-native starter for building SaaS products. It is built on the `supa-next-starter` foundation (Next.js, Supabase, Tailwind, shadcn/ui) and adds the layer that starter deliberately leaves out: a real design-system structure, primitive-first UI conventions, accessibility defaults, and a documented agent workflow.
+
+Its purpose is to give product managers who build with AI coding tools (Cursor, Claude) a starting point that already has good bones — so a vibe-coded project begins curated instead of blank, and doesn't drift into inconsistency or generic AI-generated sameness.
+
+Seminova is a template today, but it is shaped like a product foundation on purpose. Every convention, file, and section here is meant to be **inherited** by the products built from it — including this planning brief, which doubles as the CONTEXT.md pattern each new project starts from.
+
+**It is not:** a finished product; a heavy boilerplate stuffed with billing, teams, or other features (those belong to individual products, not the template); or a fixed visual identity. The *structure* is fixed and inherited — semantic tokens, primitive-first components, accessibility, the agent workflow. The *theme* — colors, type, radius — is meant to be re-skinned per product.
+
+**Core differentiator:** A curated starting point, not a blank one. Codified design-system structure, UI conventions, and Cursor rules and skills mean the foundation enforces good patterns from the first commit — while leaving each product free to define its own identity and features on top.
+
+---
+
+## 2. Who It's For
+
+**Primary builder:** A product manager who builds with AI coding tools rather than writing most code by hand. Comfortable directing Cursor/Claude, making product and design decisions, and reviewing output — but relies on the template to encode engineering and design best practices so they don't have to hold them all in their head.
+
+**Contributors:** Seminova is intended to be public and open to contribution. The conventions, rules, and skills are documented precisely so that others can adopt the template, understand its opinions, and improve it.
+
+**Per-product end users:** Each product built from Seminova defines its own end user. The template stays user-agnostic; only the User/Profile primitives (section 5) are assumed to exist everywhere.
+
+---
+
+## 3. Locked Rules / Principles (planning must not violate)
+
+These are the conventions the template enforces. Consumption detail lives in `.cursor/rules`; this is the canonical summary.
+
+- **Package manager:** pnpm only — never npm or yarn. One lockfile (`pnpm-lock.yaml`); no `package-lock.json`.
+- **UI is primitive-first:** own shadcn/ui components in `src/components/ui`; extend via the `cva` variant pattern; compose with Radix `asChild`/`Slot`. Never install shadcn as an npm package. Build composite components from primitives rather than reinventing.
+- **Theming via semantic tokens only:** colors come from CSS-variable tokens (`bg-background`, `text-foreground`, `ring-ring`, `text-destructive`, etc.). Never hardcode colors — no raw hex and no `color-500` utilities for themeable color. Tokens are defined in `src/app/globals.css`.
+- **Structure is fixed; theme is swappable:** the token *architecture*, primitive bias, and accessibility rules are inherited and stable across all products. The token *values* (palette, fonts, radius) are meant to be re-skinned per product.
+- **Mobile-first responsive:** design from the smallest breakpoint up.
+- **Component size:** keep components ≤150 lines; extract subcomponents when larger.
+- **Accessibility is WCAG 2.1 AA:** semantic HTML first, ARIA only when needed; visible `focus-visible` states using token rings; preserve Radix accessibility when customizing.
+- **shadcn CLI is always non-interactive:** `pnpm dlx shadcn@latest add <component> -y -o`. Never run the bare CLI or pipe `yes` in agent terminals; use `--dry-run`/`--diff` before overwriting locally-customized components.
+- **Images via `next/image`** with explicit dimensions to prevent layout shift.
+- **Auth boundary:** public routes are `/` (landing) and `/auth/**` only — all other routes require a session, enforced in the proxy/middleware layer (`proxy.ts`). Matches the starter's `protected/` pattern.
+- **Agent guidance lives in `.cursor`** (rules + skills) and is documented in [AGENTS.md](AGENTS.md) — not duplicated into product code.
+
+---
+
+## 4. Tech Stack
+
+| Tool | Purpose |
+| ---- | ------- |
+| Next.js 16 (App Router) | Framework — React 19, TypeScript |
+| Supabase | Auth, Database, Storage — via `supabase-ssr` |
+| Tailwind CSS + shadcn/ui | Styling + owned component collection (Radix primitives) |
+| TanStack Query v5 | Client-side data fetching |
+| next-themes | Light/dark theming over CSS variables |
+| Vitest + React Testing Library + MSW | Testing + request mocking |
+| pnpm | Package manager (exclusive) |
+| Cursor | IDE / coding agent |
+| Vercel | Deployment + Web Analytics |
+| Anthropic API | AI-native foundation — runtime AI architecture defined per product |
+
+---
+
+## 5. Conceptual Data Model
+
+Seminova ships a deliberately minimal model — only what every product needs in order for users to exist. Products extend this; the template does not presume a product schema.
+
+- **User** — backed by Supabase's built-in `auth.users`. Available as soon as auth is wired (the starter already is).
+- **Profile** — `public.profiles`, 1:1 with `auth.users`. Holds app-level user data (e.g. `display_name`, `avatar_url`, `role`). Conventionally auto-created on signup via a database trigger, with owner-scoped RLS. **Not yet built** — this is the first planned schema entity (see Roadmap).
+
+**Relationships:**
+
+- Profile → belongs to one User (1:1, `profiles.id = auth.users.id`)
+
+---
+
+## 6. AI Architecture
+
+_Stub — kept intentionally._
+
+Seminova is an AI-native foundation, but it does not prescribe a product's runtime AI architecture; that is defined per project. The **build-time** agent workflow (Cursor + rules + skills + this file) is documented in [AGENTS.md](AGENTS.md). When a product adds runtime AI, this section is populated using the same shape as a product CONTEXT.md (invocation points, prompt handling, output format, logging conventions).
+
+---
+
+## 7. DB Schema — Current State
+
+No custom schema or migrations exist yet. The only user-bearing table is Supabase's built-in `auth.users`.
+
+- **First planned migration:** `profiles` table + signup trigger + owner-scoped RLS (see Roadmap — Data Model Foundation).
+- **Authoritative schema** will live in [AGENTS.md](AGENTS.md) **Data model (summary)** once the first migration ships. Do not keep per-table detail in this file.
+- **Storage buckets:** none yet.
+
+---
+
+## 8. Roadmap
+
+| Phase | Name | Status |
+| ----- | ---- | ------ |
+| 1 | Foundation & Cleanup | `In progress` |
+| 2 | Design-System Token Layer | `Draft` |
+| 3 | App Shell (Admin sidebar) + Auth restyle | `Draft` |
+| 4 | Landing Page | `Draft` |
+| 5 | Reference Implementations | `Draft` |
+| 6 | Data Model Foundation (profiles) | `Draft` |
+| 7 | Agent Tooling: Skills Suite | `Draft` |
+
+---
+
+# ACTIVE
+
+## Phase 1 — Foundation & Cleanup `In progress`
+
+Get the cloned starter into a clean, opinionated baseline, make the inherited rule set correct and project-agnostic, and stand up the documentation layer. The rules work lands here (not at the end) because everything built in Phases 2–6 is expected to comply with these rules — they must be correct before they govern downstream work.
+
+### Epic 1A — Foundation cleanup
+
+- **1A.1 — Remove starter scaffolding.** Delete the `tutorial/` components and any demo/test-example pages so projects spun from the template start clean.
+- **1A.2 — Standardize on pnpm.** Delete `package-lock.json` (created by an accidental `npm install`); use pnpm exclusively. Confirm `pnpm install` produces a clean tree.
+- **1A.3 — Dependency security pass.** Resolve the `npm audit` advisories by updating dev tooling **forward** (vitest / vite / esbuild to current; keep Next.js on its latest patch to clear the bundled `postcss` issue). **Do not** run `npm audit fix --force` — it would downgrade Next.js to 9 and break the app. Verify build + tests pass after.
+
+### Epic 1B — Rules correctness & de-specialization
+
+The `.cursor/rules` set was copied in from a prior product (Cookloop/Localfront) and still carries that project's identity, some stale stack facts, and a few examples that contradict each other or the locked principles above. This epic makes the rule set internally consistent, stack-accurate, and project-agnostic so it inherits cleanly.
+
+- **1B.1 — Rules describe the template's actual stack and structure.** As the template, the rules must state the real stack and file layout, with no rule contradicting another or CONTEXT/AGENTS — so Cursor generates code against the true starter rather than a stale or imagined one. Covers: test runner is **Vitest, not Jest** (`testing.mdc` and the rules-dir README currently say Jest); **Next.js is 16, not 14** (`nextjs.mdc`, README); the Supabase client **import path and call signature disagree across rules** (`@/utils/supabase` vs `@/supabase/client`; `createServerClient(cookies())` vs `await createServerClient()`) and must be reconciled to whatever the starter actually exposes; rules referencing `src/middleware.ts` must reconcile with the `proxy.ts` auth boundary in section 3; verify the `cn()` import path against the code. **Constraint:** this is verify-against-codebase work — where a claim is checkable in the repo, check it rather than guessing.
+
+- **1B.2 — Rule examples are project-agnostic and obey the locked principles.** As the template, no rule should carry the prior project's identity, point at files that don't exist here, or model a pattern the rules themselves forbid — so the guidance inherits cleanly. Covers: strip Cookloop domain residue (recipe/appliance references and reference-implementation file paths in `react-tanstack-query`, `security`, `error-handling`) and replace with neutral examples that teach the same pattern; reduce the rules-dir `README` from old-project provenance narrative to a description of what the rule set actually is; drop the `refactor-cleaner` subagent reference in `git-workflow` unless that subagent ships with the template; replace hardcoded-color examples (`bg-blue-600`, `bg-purple-600`, `text-red-600`) with semantic tokens. **Constraint:** keep the lesson, swap only the project-specific carrier.
+
+### Epic 1C — Docs
+
+- **1C.1 — Establish docs.** `CONTEXT.md` (this file), `AGENTS.md` (doc map, agent workflow, schema authority), and a public-facing root `README.md`. The rules-dir README is owned by 1B.2; 1C owns only the root README.
+
+---
+
+# DRAFT — Upcoming Phases
+
+## Phase 2 — Design-System Token Layer `Draft`
+Define the token *definition* layer the rules already assume exists: semantic color tokens (light + dark), spacing, radius, shadow, and type scales in `src/app/globals.css`, plus a `DESIGN.md` documenting the system and the structure-vs-theme split. This is the heart of the template.
+
+## Phase 3 — App Shell (Admin sidebar) + Auth restyle `Draft`
+Establish the canonical authenticated layout using the shadcn sidebar template (to be provided). Restyle the existing `/auth/**` screens to match the token system.
+
+## Phase 4 — Landing Page `Draft`
+A styled public landing/marketing page as the canonical public entry point.
+
+## Phase 5 — Reference Implementations `Draft`
+Working examples that demonstrate the patterns: a dashboard with widgets, a data table, a standard form (forms stack TBD — see Open Questions), and canonical loading / error / empty / toast states. A settings page pattern.
+
+## Phase 6 — Data Model Foundation `Draft`
+First real migration: `profiles` table, signup trigger, owner-scoped RLS. Seed AGENTS.md **Data model (summary)** as the authoritative schema source.
+
+## Phase 7 — Agent Tooling: Skills Suite `Draft`
+Finalize the generic (de-specialized) skills suite: a design-critique skill, a design-system skill (establish-structure + audit + AI-slop detection), and a separate theme "regenerate" skill. Skills land at the end because they operate on the token layer (Phase 2) and the reference surfaces (Phases 3–5). Rules correctness is handled in Phase 1; this phase includes only a light final pass to confirm the rules set is still complete and project-agnostic.
+
+---
+
+# OPEN QUESTIONS / DEFERRED DECISIONS
+
+Nothing here is blocking current work unless noted.
+
+---
+
+**Forms stack**
+**Problem:** The starter ships no form library. Reference implementations and product forms need a standard.
+**Solution:** Likely adopt `react-hook-form` + `zod` as the canonical stack and bake it into the template. Confirm before Phase 5.
+_Defer until: Phase 5_
+
+---
+
+**Auth screens — restyle vs rebuild**
+**Problem:** The starter's `/auth/**` screens are in the stock Supabase look.
+**Solution:** Decide whether to restyle in place against the new tokens or rebuild against the design system. Depends on Phase 2 output.
+_Defer until: Phase 3_
+
+---
+
+**Profiles in template vs per-product**
+**Problem:** Should the template ship the `profiles` migration by default, or leave it for each product to add?
+**Solution:** Leaning toward shipping it as the one assumed primitive, since "users must exist" is universal. Confirm in Phase 6.
+_Defer until: Phase 6_
+
+---
+
+**Theme regeneration as skill vs mode**
+**Problem:** The "put a new spin on the design for this project" capability should not regenerate structure, only theme values.
+**Solution:** Implement as a separate, theme-only skill distinct from the structure-establishing design-system skill.
+_Defer until: Phase 7_
+
+---
+
+**Name / domain finalization**
+**Problem:** Name is Seminova; `.com` is contested (out-of-lane semiconductor/agriculture firms).
+**Solution:** Plan to claim `seminova.dev` (or similar) and carry keywords in the repo description/topics rather than the name. Low priority.
+_Defer until: opportunistic_
+
+---

@@ -1,0 +1,175 @@
+---
+description: General project conventions and coding standards
+alwaysApply: true
+globs:
+  - '**/*.ts'
+  - '**/*.tsx'
+---
+
+# Project Standards & Conventions
+
+## Development Philosophy
+- Write concise, maintainable, and strongly typed code with accurate examples
+- Use functional and declarative programming; avoid classes and OOP
+- Favor composition over inheritance
+- Follow DRY (Don't Repeat Yourself) principle: avoid code duplication by abstracting repeated logic
+- Follow SOLID principles:
+  - **Single Responsibility**: Each function/component should have one reason to change
+  - **Open/Closed**: Code should be open for extension but closed for modification
+  - **Liskov Substitution**: Subtypes should be substitutable for base types
+  - **Interface Segregation**: Prefer small, specific interfaces over large ones
+  - **Dependency Inversion**: Depend on abstractions, not concretions
+- Prefer iteration and modularization over code duplication
+- Break down complex logic into smaller, testable, pure functions
+- Use pure functions and avoid side effects where possible
+
+## File Naming & Organization
+- Use **kebab-case** for files: `auth-button.tsx`, `use-get-message.ts`
+- Use **lowercase with dashes** for directories: `components/auth-wizard`
+- Co-locate test files with source files: `component.tsx` + `component.test.tsx`
+
+## File Structure Order
+1. Imports (external, then internal with @/ alias)
+2. Types/Interfaces
+3. Main exported component/function
+4. Subcomponents (if small and not reusable)
+5. Helper functions
+6. Static content/constants
+
+## Import Conventions
+Always use `@/` alias for internal imports:
+
+```typescript
+// Good
+import { Button } from '@/components/ui/button'
+import { createClient } from '@/utils/supabase'
+
+// Bad
+import { Button } from '../../components/ui/button'
+```
+
+## File and Component Organization
+- Keep files focused on a single responsibility
+- If a file feels too complex or hard to navigate, consider refactoring:
+  - Extract reusable logic into utility functions or custom hooks
+  - Break large components into smaller subcomponents when they have distinct concerns
+- Aim for files under 300-400 lines, but prioritize clarity over arbitrary limits
+
+## Component Structure
+
+```typescript
+// 1. Imports
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+
+// 2. Types
+interface UserProfileProps {
+  userId: string
+  onUpdate?: () => void
+}
+
+// 3. Main Component
+export function UserProfile({ userId, onUpdate }: UserProfileProps) {
+  // hooks
+  const [isEditing, setIsEditing] = useState(false)
+  
+  // derived state
+  const canSave = isEditing && hasChanges
+  
+  // event handlers
+  const handleSave = () => {
+    // implementation
+  }
+  
+  // render
+  return <div>{/* JSX */}</div>
+}
+
+// 4. Subcomponents (if needed)
+function ProfileAvatar() {
+  return <img />
+}
+```
+
+## Naming Conventions
+Use descriptive names with auxiliary verbs:
+- **Boolean**: `isLoading`, `hasError`, `canSubmit`, `shouldShow`
+- **Functions**: `handleClick`, `fetchData`, `validateEmail`
+- **Arrays**: `users`, `posts`, `items` (plural)
+- **Objects**: `user`, `post`, `config` (singular)
+
+## React Patterns
+- Use functional components exclusively with arrow functions
+- Destructure props in function parameters
+- Use descriptive variable names with auxiliary verbs (isLoading, hasError, canSubmit)
+- Extract complex logic into custom hooks in `src/hooks/`
+- Keep components focused and single-responsibility
+- Prefer Server Components over Client Components when possible
+- Minimize use of useEffect; consider if logic can be done server-side
+- Use declarative JSX patterns
+- Favor named exports for all components
+
+## RORO Pattern for Functions
+For complex functions with multiple parameters, use RORO (Receive an Object, Return an Object):
+```typescript
+// Good: RORO pattern
+interface ProcessDataParams {
+  data: string[]
+  options?: ProcessOptions
+  onComplete?: () => void
+}
+
+export const processData = (params: ProcessDataParams) => {
+  // Implementation
+}
+
+// Avoid: Too many individual parameters
+export const processData = (data: string[], options?: ProcessOptions, onComplete?: () => void) => {
+  // Harder to maintain
+}
+```
+
+## Performance
+- Use React.memo() judiciously for expensive components
+- Prefer Server Components over Client Components
+- Use dynamic imports for heavy components
+- Implement proper loading states
+- Keep bundle size reasonable
+
+## Error Handling
+- Use try/catch for async operations
+- Implement error boundaries with `error.tsx`
+- Provide user-friendly error messages
+- Log errors appropriately for debugging
+
+## Documentation
+- Add JSDoc comments for complex functions and custom hooks
+- Document non-obvious code with inline comments
+- Keep AGENTS.md updated with architectural decisions
+
+## Security
+- Never commit secrets or API keys
+- Use environment variables for sensitive data (.env.local)
+- Validate and sanitize user inputs
+- Implement proper authentication checks
+- Follow OWASP security guidelines
+
+## Package Manager
+- This project uses **pnpm** (not npm or yarn)
+- Commands: `pnpm install`, `pnpm dev`, `pnpm build`, `pnpm test` (watch), `pnpm test:ci` (run once)
+
+## Quality Standards
+Before committing:
+1. `pnpm type-check` - TypeScript validation
+2. `pnpm lint` - ESLint validation
+3. `pnpm format` - Prettier formatting
+4. `pnpm test:ci` - Run all tests once (agents: never bare `pnpm test` — watch mode hangs)
+
+## Anti-patterns to Avoid
+- Don't use classes or OOP patterns
+- Don't create deeply nested component hierarchies
+- Don't skip error handling for async operations
+- Don't hardcode values that should be environment variables
+- Don't ignore TypeScript errors
+- Don't skip writing tests for complex logic
+- Don't create one-off utility files; add to existing utilities

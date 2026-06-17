@@ -1,0 +1,69 @@
+---
+description: Next.js 14 App Router patterns and conventions
+globs:
+  - 'src/app/**/*.tsx'
+  - 'src/app/**/*.ts'
+  - 'src/components/**/*.tsx'
+---
+
+# Next.js 14 App Router Best Practices
+
+## Server vs Client Components
+- **Default to Server Components** for all components
+- **Minimize use of 'use client'**: Favor server components and Next.js SSR
+- **Only use 'use client' when necessary:**
+  - Event handlers (onClick, onChange, etc.)
+  - React hooks (useState, useEffect, useContext, etc.)
+  - Browser APIs (localStorage, window, document, etc.)
+  - Third-party libraries requiring client-side rendering
+  - Use only for Web API access in small components
+  - Avoid for data fetching or state management
+
+## File Conventions
+- Use `error.tsx` for error boundaries
+- Use `loading.tsx` for loading states
+- Use `route.ts` for API endpoints in `app/api/`
+- Use proper metadata exports for SEO
+
+## Data Fetching
+- Fetch directly in Server Components when possible
+- Use TanStack Query for client-side data fetching
+- Leverage Next.js built-in caching and revalidation
+- Implement proper loading and error states
+
+## Performance Optimization
+- Minimize 'use client' directives; favor React Server Components (RSC)
+- Minimize use of useEffect and useState; prefer server-side data fetching
+- Use dynamic imports for heavy components: `const Heavy = dynamic(() => import('./Heavy'))`
+- Wrap client components in Suspense with meaningful fallbacks
+- Use Next.js Image component with proper sizing, size data, and lazy loading
+- Optimize Web Vitals (LCP, CLS, FID) for better user experience
+- Implement efficient caching and revalidation strategies using Next.js built-in features
+
+## API Routes
+- Place in `src/app/api/` directory
+- Export named functions (GET, POST, PUT, DELETE)
+- Return proper HTTP status codes
+- Validate request data
+- Handle errors gracefully
+- Follow patterns from existing route handlers under `src/app/api/` in this repo
+
+## Project Structure Best Practices
+- Place both `/app` and `/components` under `/src` directory (already done)
+- Organize components by feature or type within `/src/components`
+- Create `_components` folder within `/app` subdirectories for page-specific components
+- Keep shared/reusable components in `/src/components`
+- Adopt modular structure where each feature has its own folder
+
+## Data Fetching Best Practices
+- Follow Next.js App Router conventions for data fetching and routing
+- Use route handlers (`route.ts`) for API routes
+- Implement efficient caching and revalidation
+- Prefer server-side data fetching over client-side when possible
+- Use TanStack Query for complex client-side data fetching needs
+
+## Anti-patterns to Avoid
+- Don't use 'use client' at the top of every file by default
+- Don't fetch data with useEffect when Server Components can be used
+- Don't create deeply nested component hierarchies
+- Don't use 'use client' for data fetching or state management
