@@ -41,7 +41,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       className={`${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body className="font-sans antialiased">
-        <NextTopLoader showSpinner={false} height={2} color="#2acf80" />
+        <NextTopLoader showSpinner={false} height={2} color="var(--primary)" />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
