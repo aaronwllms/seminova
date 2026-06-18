@@ -3,7 +3,7 @@
 **Purpose:** Dual-use — planning reference for the builder (PM) and context for coding agents. Seminova is currently a **template**: a curated foundation that real products are built from. It is written in product shape so that the structure itself is inherited by every project spun off it. Agents: read this file for living state; build-time workflow and authoritative schema live in [AGENTS.md](AGENTS.md); shipped phase detail in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md).
 
 **Last updated:** 2026-06-18
-**Status:** Phase 1 — Foundation (in progress). Epics 1A, 1B, and 1C shipped; 1D remains.
+**Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer is next.
 **Migrations:** none yet — no custom schema; Supabase `auth.users` only.
 
 **Shipped phase detail →** [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md)
@@ -109,7 +109,7 @@ No custom schema or migrations exist yet. The only user-bearing table is Supabas
 
 | Phase | Name | Status |
 | ----- | ---- | ------ |
-| 1 | Foundation & Cleanup | `In progress` |
+| 1 | Foundation & Cleanup | `Shipped` |
 | 2 | Design-System Token Layer | `Draft` |
 | 3 | App Shell (Admin sidebar) + Auth restyle | `Draft` |
 | 4 | Landing Page | `Draft` |
@@ -121,34 +121,7 @@ No custom schema or migrations exist yet. The only user-bearing table is Supabas
 
 # ACTIVE
 
-## Phase 1 — Foundation & Cleanup `In progress`
-
-Get the cloned starter into a clean, opinionated baseline, make the inherited rule set correct and project-agnostic, and stand up the documentation layer. The rules work lands here (not at the end) because everything built in Phases 2–6 is expected to comply with these rules — they must be correct before they govern downstream work.
-
-### Epic 1A — Foundation cleanup `Shipped`
-
-- [x] **1A.1 — Remove starter scaffolding.** Delete the `tutorial/` components and any demo/test-example pages so projects spun from the template start clean.
-- [x] **1A.2 — Standardize on pnpm.** Delete `package-lock.json` (created by an accidental `npm install`); use pnpm exclusively. Confirm `pnpm install` produces a clean tree.
-- [x] **1A.3 — Dependency security pass.** Resolve the `npm audit` advisories by updating dev tooling **forward** (vitest / vite / esbuild to current; keep Next.js on its latest patch to clear the bundled `postcss` issue). **Do not** run `npm audit fix --force` — it would downgrade Next.js to 9 and break the app. Verify build + tests pass after.
-
-### Epic 1B — Rules correctness & de-specialization `Shipped`
-
-- [x] **1B.1 — Rules describe the template's actual stack and structure.** Vitest (not Jest), Next.js 16, `@/supabase/client` + `@/supabase/server`, `proxy.ts` auth boundary, `cn()` from `@/utils/tailwind`.
-- [x] **1B.2 — Rule examples are project-agnostic and obey the locked principles.** Prior-project residue removed; rules-dir README de-specialized; semantic token examples throughout.
-
-### Epic 1C — Docs `Shipped`
-
-- [x] **1C.1 — Establish docs.** [CONTEXT.md](CONTEXT.md) (this file), [AGENTS.md](AGENTS.md) (doc map, agent workflow, schema authority), and a public-facing root [README.md](README.md). The rules-dir README is owned by 1B.2; 1C owns only the root README.
-
-### Epic 1D — Dev tooling hygiene
-
-Ensure commits and pushes can't silently introduce broken or inconsistent code, and that CI and local hooks enforce exactly the same bar. This epic must ship before significant feature work begins — hooks should be in place from the first commit onward.
-
-- **1D.1 — Husky hooks.** Configure a pre-commit hook and a pre-push hook. Pre-commit runs lint-staged: Prettier (fix + re-stage) and ESLint (fix + re-stage) on staged files only, so fixed files are included in the commit automatically. Pre-push runs the full CI suite in order: type-check → lint → format check → tests with coverage. Pre-push must mirror CI exactly so a passing push always passes CI.
-
-- **1D.2 — Coverage thresholds.** Set 80% minimum thresholds (lines, functions, branches, statements) in the Vitest config. Tests must fail — locally and in CI — if coverage drops below 80%. Add coverage enforcement to the existing GitHub Actions workflow (`.github/workflows/`) so it runs alongside the existing type-check, lint, format, and test steps.
-
-- **1D.3 — `.prettierignore` and `.gitignore` audit.** Review both files against the actual repo structure. `.prettierignore` should exclude build output, generated files, and any files Prettier should never touch. `.gitignore` should be clean and correct for a Next.js + Supabase + pnpm project with no stale or missing entries.
+_No active epics — Phase 1 shipped. See [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md). Next: Phase 2 in DRAFT below._
 
 ---
 

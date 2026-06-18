@@ -95,17 +95,23 @@ import { createClient } from '@/supabase/client'
 
 ## Contributing and quality
 
-**Pre-commit** (Husky): lint-staged on staged JS/TS files (ESLint + Prettier) plus full-project type-check.
+**Pre-commit** (Husky): lint-staged on staged files — ESLint + Prettier for JS/TS; Prettier for markdown, JSON, YAML, and CSS (agent-authored docs in `.prettierignore` are skipped) — plus full-project type-check.
 
-**CI** (pull requests to `main`): type-check → lint → format-check → `test:ci`. See [.github/workflows/pull-request.yaml](.github/workflows/pull-request.yaml).
+**Pre-push** (Husky): `pnpm pre-push` — type-check → lint → format-check → `test:ci` (with 80% coverage thresholds). Mirrors CI exactly.
+
+**CI** (pull requests to `main`): same order as pre-push. See [.github/workflows/pull-request.yaml](.github/workflows/pull-request.yaml).
 
 Before opening a PR, run locally:
 
 ```bash
-pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci
+pnpm pre-push
 ```
 
-> **Note:** Pre-push hook mirroring CI and 80% test coverage thresholds are planned (Phase 1 Epic 1D) — not enforced yet.
+Or step by step:
+
+```bash
+pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci
+```
 
 ---
 

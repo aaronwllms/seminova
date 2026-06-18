@@ -10,6 +10,32 @@ export default defineConfig({
     setupFiles: ['./vitest.setup.ts'],
     include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     passWithNoTests: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html'],
+      include: ['src/**/*.{ts,tsx}', 'proxy.ts'],
+      exclude: [
+        'src/components/ui/**',
+        'src/mocks/**',
+        'src/test/**',
+        'src/app/globals.css',
+        'src/app/**/page.tsx',
+        'src/app/**/layout.tsx',
+        'src/providers/**',
+        'src/supabase/client.ts',
+        'src/supabase/server.ts',
+        'src/components/theme-switcher.tsx',
+        'src/components/auth-button.tsx',
+        'proxy.ts',
+        '**/*.d.ts',
+      ],
+      thresholds: {
+        lines: 80,
+        functions: 80,
+        branches: 80,
+        statements: 80,
+      },
+    },
   },
   resolve: {
     alias: {

@@ -25,7 +25,8 @@
     "type-check": "tsc --pretty --noEmit",
     "prepare": "husky",
     "test": "vitest",
-    "test:ci": "vitest run",
+    "test:ci": "vitest run --coverage",
+    "pre-push": "pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci",
     "test:ui": "vitest --ui",
     "analyze": "ANALYZE=true pnpm build"
   },
@@ -62,6 +63,7 @@
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "^4.7.0",
+    "@vitest/coverage-v8": "^3.2.6",
     "@vitest/ui": "^3.2.6",
     "eslint": "9.39.2",
     "eslint-config-next": "16.1.1",

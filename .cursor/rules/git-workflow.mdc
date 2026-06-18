@@ -89,15 +89,21 @@ test(components): add tests for AuthButton component
 - `type-check` — TypeScript across the whole project (`tsc --noEmit`)
 
 **pre-push** (before every push) — see [`.husky/pre-push`](../../.husky/pre-push):
-- `pnpm pre-push` → `format-check` + `lint` (repo-wide; catches markdown and other files lint-staged may not touch on a given commit)
+- `pnpm pre-push` → type-check → lint → format-check → `test:ci` (with coverage thresholds)
 
-Before opening a PR, also run `pnpm test:ci` locally — CI runs the full suite:
+Mirrors CI exactly — a passing push should pass CI.
+
+```bash
+pnpm pre-push
+```
+
+Equivalent manual run:
 
 ```bash
 pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci
 ```
 
-**CI** (pull requests) — [`.github/workflows/pull-request.yaml`](../../.github/workflows/pull-request.yaml): type-check, lint, format-check, `test:ci`.
+**CI** (pull requests) — [`.github/workflows/pull-request.yaml`](../../.github/workflows/pull-request.yaml): type-check, lint, format-check, `test:ci` (with coverage).
 
 ## Before Committing
 Run quality checks:

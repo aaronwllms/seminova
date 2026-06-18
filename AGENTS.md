@@ -11,7 +11,7 @@
 | Document | Audience | Role |
 | -------- | -------- | ---- |
 | [CONTEXT.md](CONTEXT.md) | PM + agents | Planning brief — roadmap, ACTIVE epics, open questions |
-| [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md) | PM + agents (on demand) | Shipped phase narratives — append-only (stub until first phase ships) |
+| [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md) | PM + agents (on demand) | Shipped phase narratives — append-only |
 | [README.md](README.md) | Humans | Clone, env setup, scripts, contributing |
 | [AGENTS.md](AGENTS.md) | Agents | **This file** — repo truth, locked rules, what's implemented |
 | [.cursor/rules/](.cursor/rules/) | Agents | Coding standards (TypeScript, testing, Supabase, security) |
@@ -49,7 +49,8 @@
 | `pnpm format` | Prettier write |
 | `pnpm format-check` | Prettier check (CI) |
 | `pnpm test` | Vitest watch mode (human dev only) |
-| `pnpm test:ci` | Vitest run once (agents, CI, pre-push) |
+| `pnpm test:ci` | Vitest run once with coverage gates (agents, CI, pre-push) |
+| `pnpm pre-push` | Full CI mirror locally (type-check → lint → format-check → test:ci) |
 | `pnpm test:ui` | Vitest UI |
 | `pnpm analyze` | Bundle analyzer |
 
@@ -81,6 +82,8 @@
 
 - **Foundation cleanup (Epic 1A):** starter tutorial/demo scaffolding removed; pnpm-only; Vitest 3 / Vite 6 / Next 16.2.x.
 - **Rules correctness (Epic 1B):** `.cursor/rules/` stack-accurate and project-agnostic.
+- **Docs (Epic 1C):** `AGENTS.md`, `CONTEXT.md`, `README.md`, and `CONTEXT_ARCHIVE.md` planning/doc layer.
+- **Dev tooling hygiene (Epic 1D):** pre-push hook mirrors CI; 80% Vitest coverage thresholds; `.prettierignore` / lint-staged audit (agent-authored docs remain Prettier-ignored).
 - **Auth:** Supabase email/password flows under `/auth/**` (login, sign-up, forgot/update password, confirm, error).
 - **Session + route protection:** `proxy.ts` → `src/supabase/proxy.ts` — refreshes session; redirects unauthenticated users to `/auth/login`.
 - **Product routes:**
@@ -90,8 +93,8 @@
 - **UI primitives:** `src/components/ui/` (button, card, input, label, checkbox, badge, dropdown-menu).
 - **Data fetching:** TanStack Query v5 provider configured.
 - **Theming:** `next-themes` light/dark over CSS variables.
-- **Testing:** Vitest + React Testing Library + MSW v2 (`src/test/`, `src/mocks/`).
-- **Hooks:** Husky pre-commit runs lint-staged (JS/TS) + type-check. Pre-push mirror and 80% coverage gates are **planned (Epic 1D)** — not enforced yet.
+- **Testing:** Vitest + React Testing Library + MSW v2 (`src/test/`, `src/mocks/`); baseline unit/integration tests for auth forms, proxy, hooks, and utils; 80% coverage thresholds enforced via `pnpm test:ci`.
+- **Hooks:** Husky pre-commit (lint-staged + type-check) and pre-push (`pnpm pre-push` mirrors CI including coverage).
 
 ---
 
