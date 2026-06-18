@@ -3,7 +3,7 @@
 **Purpose:** Dual-use — planning reference for the builder (PM) and context for coding agents. Seminova is currently a **template**: a curated foundation that real products are built from. It is written in product shape so that the structure itself is inherited by every project spun off it. Agents: read this file for living state; build-time workflow and authoritative schema live in [AGENTS.md](AGENTS.md); shipped phase detail in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md).
 
 **Last updated:** 2026-06-18
-**Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer is next.
+**Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell (Admin sidebar) + Auth restyle is **DRAFT** (next).
 **Migrations:** none yet — no custom schema; Supabase `auth.users` only.
 
 **Shipped phase detail →** [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md)
@@ -110,7 +110,7 @@ No custom schema or migrations exist yet. The only user-bearing table is Supabas
 | Phase | Name | Status |
 | ----- | ---- | ------ |
 | 1 | Foundation & Cleanup | `Shipped` |
-| 2 | Design-System Token Layer | `Draft` |
+| 2 | Design-System Token Layer | `Shipped` |
 | 3 | App Shell (Admin sidebar) + Auth restyle | `Draft` |
 | 4 | Landing Page | `Draft` |
 | 5 | Reference Implementations | `Draft` |
@@ -121,17 +121,14 @@ No custom schema or migrations exist yet. The only user-bearing table is Supabas
 
 # ACTIVE
 
-_No active epics — Phase 1 shipped. See [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md). Next: Phase 2 in DRAFT below._
+_No phase currently in progress. Next planned: **Phase 3 — App Shell (Admin sidebar) + Auth restyle** (see DRAFT below)._
 
 ---
 
 # DRAFT — Upcoming Phases
 
-## Phase 2 — Design-System Token Layer `Draft`
-Define the token *definition* layer the rules already assume exists: semantic color tokens (light + dark), spacing, radius, shadow, and type scales in `src/app/globals.css`, plus a `DESIGN.md` documenting the system and the structure-vs-theme split. This is the heart of the template.
-
 ## Phase 3 — App Shell (Admin sidebar) + Auth restyle `Draft`
-Establish the canonical authenticated layout using the shadcn sidebar template (to be provided). Restyle the existing `/auth/**` screens to match the token system.
+Establish the canonical authenticated layout using the shadcn sidebar template (to be provided). Complete the visual restyle of `/auth/**` screens — Phase 2 covered token conformance on errors and layout chrome only; stock Supabase layout/styling remains.
 
 ## Phase 4 — Landing Page `Draft`
 A styled public landing/marketing page as the canonical public entry point.
@@ -162,7 +159,7 @@ _Defer until: Phase 5_
 
 **Auth screens — restyle vs rebuild**
 **Problem:** The starter's `/auth/**` screens are in the stock Supabase look.
-**Solution:** Decide whether to restyle in place against the new tokens or rebuild against the design system. Depends on Phase 2 output.
+**Solution:** Decide whether to restyle in place against the new tokens or rebuild against the design system. Phase 2 validated in-place token swaps on auth errors and layout chrome; full auth screen visual restyle vs rebuild remains open. [DESIGN.md](DESIGN.md) is shipped — decision lands in Phase 3 planning.
 _Defer until: Phase 3_
 
 ---
