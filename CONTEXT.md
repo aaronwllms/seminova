@@ -3,7 +3,7 @@
 **Purpose:** Dual-use — planning reference for the builder (PM) and context for coding agents. Seminova is currently a **template**: a curated foundation that real products are built from. It is written in product shape so that the structure itself is inherited by every project spun off it. Agents: read this file for living state; build-time workflow and authoritative schema live in [AGENTS.md](AGENTS.md); shipped phase detail in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md).
 
 **Last updated:** 2026-06-18
-**Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell + Auth restyle is **DRAFT** (next).
+**Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell (Admin sidebar) + Auth restyle is **DRAFT** (next).
 **Migrations:** none yet — no custom schema; Supabase `auth.users` only.
 
 **Shipped phase detail →** [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md)
@@ -128,7 +128,7 @@ _No phase currently in progress. Next planned: **Phase 3 — App Shell (Admin si
 # DRAFT — Upcoming Phases
 
 ## Phase 3 — App Shell (Admin sidebar) + Auth restyle `Draft`
-Establish the canonical authenticated layout using the shadcn sidebar template (to be provided). Restyle the existing `/auth/**` screens to match the token system.
+Establish the canonical authenticated layout using the shadcn sidebar template (to be provided). Complete the visual restyle of `/auth/**` screens — Phase 2 covered token conformance on errors and layout chrome only; stock Supabase layout/styling remains.
 
 ## Phase 4 — Landing Page `Draft`
 A styled public landing/marketing page as the canonical public entry point.
@@ -159,7 +159,7 @@ _Defer until: Phase 5_
 
 **Auth screens — restyle vs rebuild**
 **Problem:** The starter's `/auth/**` screens are in the stock Supabase look.
-**Solution:** Decide whether to restyle in place against the new tokens or rebuild against the design system. Phase 2 token layer and [DESIGN.md](DESIGN.md) are shipped — decision lands in Phase 3 planning.
+**Solution:** Decide whether to restyle in place against the new tokens or rebuild against the design system. Phase 2 validated in-place token swaps on auth errors and layout chrome; full auth screen visual restyle vs rebuild remains open. [DESIGN.md](DESIGN.md) is shipped — decision lands in Phase 3 planning.
 _Defer until: Phase 3_
 
 ---

@@ -55,7 +55,7 @@
 | `pnpm test:ui` | Vitest UI |
 | `pnpm analyze` | Bundle analyzer |
 
-**Prerequisites:** Node `>=22.22.2` (see [.nvmrc](.nvmrc)), pnpm 11, Supabase project. Env vars in [.env.example](.env.example).
+**Prerequisites:** Node `>=22.22.2` (see [.nvmrc](.nvmrc)), pnpm 11, Supabase project. Env vars in [.env.example](.env.example). `next-env.d.ts` is Next.js-generated and gitignored — run `pnpm dev` or `pnpm build` once after clone if `pnpm type-check` reports a missing file.
 
 ---
 
@@ -93,7 +93,7 @@
   - `/protected` — authenticated (requires session)
 - **UI primitives:** `src/components/ui/` (button, card, input, label, checkbox, badge, dropdown-menu).
 - **Data fetching:** TanStack Query v5 provider configured.
-- **Design-system token layer (Phase 2):** tweakcn **Clean Slate** default theme in `src/app/globals.css`; semantic tokens via `@theme inline` + `next-themes` class-based light/dark. **Inter** + **JetBrains Mono** via `next/font` in `layout.tsx` (Merriweather CSS serif fallback). See [DESIGN.md](DESIGN.md) for architecture and re-skin workflow.
+- **Design-system token layer (Phase 2):** tweakcn **Clean Slate** default theme in `src/app/globals.css`; semantic tokens via `@theme inline` + `next-themes` class-based light/dark. **Inter** + **JetBrains Mono** via `next/font` in `layout.tsx` (Merriweather CSS serif fallback). Auth forms and layout chrome conform to semantic tokens (no hardcoded theme colors). See [DESIGN.md](DESIGN.md) for architecture and re-skin workflow.
 - **Testing:** Vitest + React Testing Library + MSW v2 (`src/test/`, `src/mocks/`); baseline unit/integration tests for auth forms, proxy, hooks, and utils; 80% coverage thresholds enforced via `pnpm test:ci`.
 - **Hooks:** Husky pre-commit (lint-staged + type-check) and pre-push (`pnpm pre-push` mirrors CI including coverage).
 
