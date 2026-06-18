@@ -3,7 +3,7 @@
 **Purpose:** Dual-use — planning reference for the builder (PM) and context for coding agents. Seminova is currently a **template**: a curated foundation that real products are built from. It is written in product shape so that the structure itself is inherited by every project spun off it. Agents: read this file for living state; build-time workflow and authoritative schema live in [AGENTS.md](AGENTS.md); shipped phase detail in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md).
 
 **Last updated:** 2026-06-18
-**Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer is **ACTIVE** (in progress).
+**Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell + Auth restyle is **DRAFT** (next).
 **Migrations:** none yet — no custom schema; Supabase `auth.users` only.
 
 **Shipped phase detail →** [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md)
@@ -110,7 +110,7 @@ No custom schema or migrations exist yet. The only user-bearing table is Supabas
 | Phase | Name | Status |
 | ----- | ---- | ------ |
 | 1 | Foundation & Cleanup | `Shipped` |
-| 2 | Design-System Token Layer | `Active` |
+| 2 | Design-System Token Layer | `Shipped` |
 | 3 | App Shell (Admin sidebar) + Auth restyle | `Draft` |
 | 4 | Landing Page | `Draft` |
 | 5 | Reference Implementations | `Draft` |
@@ -121,19 +121,7 @@ No custom schema or migrations exist yet. The only user-bearing table is Supabas
 
 # ACTIVE
 
-## Phase 2 — Design-System Token Layer `Active`
-Establish the token *definition* layer the rules already assume exists, and brand the template with its shipped default theme. The semantic color architecture already exists in `globals.css` (stock shadcn neutral set); this phase replaces those values with Seminova's chosen theme, fills the missing token groups (type, spacing, shadow), brings existing code into conformance, and documents the system. **Theme locked: tweakcn Clean Slate** (indigo primary; Inter / Merriweather / JetBrains Mono). Audit confirmed no token gaps force additions — Clean Slate ships as-is.
-
-**Story 1 — Establish the token system with Clean Slate as the shipped theme**
-Replace the stock neutral tokens in `globals.css` with the Clean Slate theme — color (light + dark), type scale (Inter / Merriweather / JetBrains Mono), spacing, radius, and shadow — completing the token architecture the rules already assume exists. This is the inherited *structure*; the Clean Slate values are Seminova's default *theme*, re-skinnable per product. Implementation source is `clean-slate-theme.css` at repo root (the frozen tweakcn export); merge its values into `globals.css`. Preserve the existing radius `2xl`–`4xl` tokens, which Clean Slate omits. Defining `--destructive-foreground` (which Clean Slate includes) resolves the dangling `text-destructive-foreground` references in `button.tsx` and `badge.tsx` with no code change to those files. When the theme is applied and verified, delete `clean-slate-theme.css` — it's a one-time implementation input, not a durable artifact.
-
-**Story 2 — Bring existing code into token conformance**
-Resolve the violations catalogued in `audit-hardcoded-colors.md`: the four `/auth/**` forms move their inline error text from Tailwind's red scale to `text-destructive` (per the audit's recommended replacements). For the `layout.tsx` top-loader, which the audit flagged as a hardcoded green with no matching token, map it to `var(--primary)` so it inherits the theme rather than minting a dedicated loader token. `button.tsx` and `badge.tsx` need no change here — Story 1's `--destructive-foreground` definition makes their existing references resolve. Once the sweep is complete and verified, delete `audit-hardcoded-colors.md` — like the theme source, it's a one-time implementation input, not a durable artifact.
-
-**Story 3 — `DESIGN.md`**
-Document the token architecture, the structure-vs-theme split (what's inherited vs. what a product re-skins), and the re-skin workflow — generate a theme in tweakcn, export, diff-apply into `globals.css`. Record provenance: the shipped default is tweakcn's Clean Slate (https://tweakcn.com/r/themes/clean-slate.json). `DESIGN.md` documents the system and points to `globals.css` as the authoritative source of token values — it does not re-host them.
-
-_Story order: 1 → 2 → 3 (definitions, then usage, then docs)._
+_No phase currently in progress. Next planned: **Phase 3 — App Shell (Admin sidebar) + Auth restyle** (see DRAFT below)._
 
 ---
 
@@ -171,7 +159,7 @@ _Defer until: Phase 5_
 
 **Auth screens — restyle vs rebuild**
 **Problem:** The starter's `/auth/**` screens are in the stock Supabase look.
-**Solution:** Decide whether to restyle in place against the new tokens or rebuild against the design system. Depends on Phase 2 output.
+**Solution:** Decide whether to restyle in place against the new tokens or rebuild against the design system. Phase 2 token layer and [DESIGN.md](DESIGN.md) are shipped — decision lands in Phase 3 planning.
 _Defer until: Phase 3_
 
 ---
