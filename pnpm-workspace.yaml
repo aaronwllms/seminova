@@ -3,3 +3,11 @@ allowBuilds:
   msw: true
   sharp: true
   unrs-resolver: true
+
+overrides:
+  js-yaml: '>=4.1.2'
+  ws: '>=8.21.0'
+  form-data: '>=4.0.6'
+  vite: '>=6.4.3'
+  '@babel/core': '>=7.29.1'
+  postcss: '>=8.5.10'

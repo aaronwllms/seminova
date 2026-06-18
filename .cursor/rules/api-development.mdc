@@ -1,0 +1,107 @@
+---
+description: API development standards for Next.js App Router routes
+autoAttach:
+  globs:
+    - "src/app/api/**/*.{ts,tsx}"
+    - "src/lib/api-contracts/**/*.ts"
+---
+
+# API Development Guidelines
+
+**Note:** For comprehensive error handling patterns, logging standards, and error codes, see `.cursor/rules/error-handling.mdc`
+
+## Path Naming Standards
+
+**Resource Naming:**
+- Use **plural nouns** for collections: `/api/posts`, `/api/users`
+- Exception: Singletons like `/api/profile` (current user only)
+- Use **kebab-case** for multi-word resources: `/api/user-preferences`
+- NO verbs in paths - use HTTP methods instead
+
+**Path Structure:**
+- Current user: `/api/me/profile`, `/api/me/posts`
+- Resource by ID: `/api/posts/[id]`
+- Nested resources: `/api/users/[userId]/posts` (max 2 levels)
+- Filtering: Use query params instead of deep nesting: `/api/posts?userId=123`
+- Actions: `/api/posts/[id]/publish` (use sparingly)
+
+**Query Parameters:**
+- Pagination: `?page=1&limit=20`
+- Sorting: `?sort=createdAt&order=desc`
+- Filtering: `?status=published`
+- Search: `?q=search+term`
+
+## Input Validation
+- Validate ALL API inputs with Zod schemas
+- Define schemas in `src/lib/api-contracts/[resource].ts`
+- Use `schema.safeParse()` for validation
+- Return typed error envelopes on validation failure
+
+## Error Handling
+
+**See `.cursor/rules/error-handling.mdc` for complete error handling patterns and examples.**
+
+Quick reference:
+- Log server-side with prefixed `console.error('[api/…]', error)` — see `.cursor/rules/error-handling.mdc`
+- NEVER leak stack traces to clients - log server-side only
+- Use consistent error envelope: `{ success: false, error: { message, code } }`
+- Wrap all async operations in try/catch
+- Return appropriate HTTP status codes (400, 401, 403, 404, 500)
+- Include `source` parameter in all logs (e.g., 'api/posts/route.ts')
+
+## Data Transfer Objects (DTOs)
+- Use DTOs for API responses - don't expose raw database entities
+- Don't export Supabase-generated types directly to clients
+- Transform database rows into clean API response shapes
+- Omit internal fields (internal_notes, system flags, etc.)
+
+## Type Safety
+- Import generated database types from `@/types/database.types`
+- Use Supabase generic typing: `createClient<Database>()`
+- Export request/response types from API contract files
+- Leverage Zod inference: `type Input = z.infer<typeof InputSchema>`
+
+## Response Structure
+**Success:**
+```typescript
+NextResponse.json({ success: true, data: result }, { status: 200 })
+```
+
+**Error:**
+```typescript
+NextResponse.json(
+  { success: false, error: { message: 'Invalid input', code: 'VALIDATION_ERROR' } },
+  { status: 400 }
+)
+```
+
+## Authentication
+- Check auth at route handler start for protected endpoints
+- Use `createClient()` from `@/supabase/server` in route handlers and server actions
+- Return 401 for unauthenticated, 403 for unauthorized
+- Never expose auth errors that leak user existence
+
+## Standard Error Codes
+
+**See `.cursor/rules/error-handling.mdc` for complete error code taxonomy.**
+
+Common API error codes:
+- `VALIDATION_ERROR` - Input validation failed (400)
+- `UNAUTHORIZED` - Not authenticated (401)
+- `FORBIDDEN` - Authenticated but lacks permission (403)
+- `NOT_FOUND` - Resource doesn't exist (404)
+- `CONFLICT` - Resource already exists (409)
+- `INTERNAL_ERROR` - Server error (500)
+
+## API Route Checklist
+- [ ] Input validation with Zod schema
+- [ ] Auth check if endpoint is protected
+- [ ] Try/catch wrapping async operations
+- [ ] Logging with `[api/…]` console prefix on errors
+- [ ] DTO transformation (no raw DB types)
+- [ ] Consistent error envelope
+- [ ] Appropriate HTTP status codes
+- [ ] No stack traces in responses
+- [ ] Tests cover happy/error/auth cases
+
+Follow error-handling, validation, and response-envelope patterns in `.cursor/rules/error-handling.mdc` (API routes will be added in Phase 5).

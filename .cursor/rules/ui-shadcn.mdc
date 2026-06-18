@@ -1,0 +1,224 @@
+---
+description: shadcn/ui component patterns and best practices
+globs:
+  - 'src/components/ui/**/*.tsx'
+  - 'src/components/**/*.tsx'
+  - 'src/app/**/*.tsx'
+---
+
+# shadcn/ui Component Development
+
+## shadcn/ui Philosophy
+- shadcn/ui is a **component collection**, not a library - you own the code
+- Components are built on **Radix UI** primitives for accessibility and composability
+- All components are **fully customizable** and live in your codebase
+- Configuration in `components.json` (style: default, baseColor: slate, CSS variables enabled)
+
+## Adding shadcn/ui Components
+
+**Always use non-interactive flags** — agent terminals hang on overwrite prompts without them.
+
+```bash
+# Add a single component (canonical form)
+pnpm dlx shadcn@latest add button -y -o
+
+# Add multiple components
+pnpm dlx shadcn@latest add button dialog form -y -o
+
+# shadcnblocks registry (see components.json registries)
+pnpm dlx shadcn@latest add @shadcnblocks/data-table/data-table-standard-2 -y -o
+
+# Preview before overwriting
+pnpm dlx shadcn@latest add button --dry-run
+pnpm dlx shadcn@latest add button --diff
+```
+
+| Flag | Purpose |
+|------|---------|
+| `-y` / `--yes` | Skip general confirmation prompts |
+| `-o` / `--overwrite` | Overwrite existing files without prompting |
+
+**When to use `-o`:** installing new primitives or intentionally re-pulling upstream shadcn updates.
+
+**When NOT to use `-o`:** the component in `src/components/ui/` has local customizations — use `--dry-run` or `--diff` first, then merge manually.
+
+**Do not** pipe `yes` into the CLI or run bare `shadcn add` in agent terminals.
+
+Components install to `src/components/ui/` with full source code.
+
+## shadcn/ui Component Structure
+- **Location**: All shadcn components live in `src/components/ui/`
+- **Imports**: Use `@/components/ui/[component-name]` for imports
+- **Utilities**: Uses `cn()` from `@/utils/tailwind` for className merging
+- **Variants**: Uses `class-variance-authority` (cva) for variant management
+- **Composition**: Uses Radix UI's Slot component for composition patterns
+
+## Customizing shadcn/ui Components
+shadcn components are **meant to be edited directly**:
+
+```typescript
+// Good: Customize variants in place
+// src/components/ui/button.tsx
+const buttonVariants = cva(
+  "base-classes",
+  {
+    variants: {
+      variant: {
+        default: "...",
+        destructive: "...",
+        custom: "bg-accent text-accent-foreground hover:bg-accent/90", // Add your variant
+      }
+    }
+  }
+)
+
+// Then use your custom variant
+<Button variant="custom">Click me</Button>
+```
+
+**Customization Guidelines:**
+- Modify existing components directly in `src/components/ui/`
+- Add new variants using the cva pattern
+- Extend props by updating the component interface
+- Keep accessibility features intact (ARIA attributes, keyboard navigation)
+- Maintain the composition patterns (asChild, Slot usage)
+
+## Component Composition Patterns
+shadcn/ui supports powerful composition using Radix UI's Slot:
+
+```typescript
+import { Button } from '@/components/ui/button'
+
+// Render as a different element using asChild
+<Button asChild>
+  <a href="/dashboard">Go to Dashboard</a>
+</Button>
+
+// This renders an <a> tag with Button styling
+// Great for Next.js Link components
+<Button asChild>
+  <Link href="/profile">Profile</Link>
+</Button>
+```
+
+## Creating Composite Components
+Build complex components by composing shadcn primitives:
+
+```typescript
+import { Button } from '@/components/ui/button'
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+
+export const UserMenu = () => {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline">Open Menu</Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem>Profile</DropdownMenuItem>
+        <DropdownMenuItem>Settings</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+```
+
+## Creating New Components vs Customizing
+**Customize existing shadcn component when:**
+- You need a different variant of an existing component
+- You want to change default styling
+- You need to add new props to existing behavior
+
+**Create new component when:**
+- You need entirely different behavior
+- Combining multiple shadcn components
+- Building application-specific UI patterns
+
+Example of building on shadcn:
+```typescript
+// src/components/loading-button.tsx
+import { Button, ButtonProps } from '@/components/ui/button'
+import { Loader2 } from 'lucide-react'
+
+interface LoadingButtonProps extends ButtonProps {
+  isLoading?: boolean
+}
+
+export const LoadingButton = ({ 
+  children, 
+  isLoading, 
+  disabled,
+  ...props 
+}: LoadingButtonProps) => {
+  return (
+    <Button disabled={isLoading || disabled} {...props}>
+      {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+      {children}
+    </Button>
+  )
+}
+```
+
+## Common shadcn/ui Patterns
+
+### Form Pattern
+```typescript
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+// When you add form components
+
+<form onSubmit={handleSubmit}>
+  <Input type="email" placeholder="Email" />
+  <Button type="submit">Submit</Button>
+</form>
+```
+
+### Dialog Pattern
+```typescript
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+// When you add dialog component
+
+<Dialog>
+  <DialogTrigger asChild>
+    <Button>Open</Button>
+  </DialogTrigger>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Title</DialogTitle>
+      <DialogDescription>Description</DialogDescription>
+    </DialogHeader>
+    {/* Content */}
+  </DialogContent>
+</Dialog>
+```
+
+### Responsive Button Groups
+```typescript
+<div className="flex flex-col sm:flex-row gap-2">
+  <Button>Primary Action</Button>
+  <Button variant="outline">Secondary</Button>
+</div>
+```
+
+## Best Practices
+- ✅ Use `pnpm dlx shadcn@latest add [component] -y -o` to add components (never bare CLI in agent terminals)
+- ✅ Customize components directly in `src/components/ui/`
+- ✅ Use `asChild` for composition with Next.js Link and other elements
+- ✅ Leverage cva for creating variants
+- ✅ Maintain Radix UI's accessibility features
+- ✅ Build composite components from shadcn primitives
+- ✅ Keep components under 150 lines; extract if larger
+- ❌ Don't install as npm package (it's copy-paste by design)
+- ❌ Don't override accessibility attributes

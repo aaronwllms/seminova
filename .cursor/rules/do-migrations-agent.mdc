@@ -1,0 +1,30 @@
+---
+description: Agent constraints for database migrations - prevents duplicates and auto-push
+globs:
+  - 'supabase/migrations/**/*.sql'
+  - '**/*.plan.md'
+alwaysApply: true
+---
+
+# Database Migration Agent Constraints
+
+## NEVER Do These (Agent Must Not)
+
+- **NEVER run `pnpm db:push`** — Migrations are applied only by the user. Remind the user to run it; do not run it yourself.
+- **NEVER run `supabase migration new`** — This creates a file and can race with manual creation, causing duplicates.
+- **NEVER run `pnpm db:reset`, `pnpm db:seed`, or `supabase link`** — These affect the linked environment; the human runs these.
+- **NEVER create two migration files for the same change** — Create exactly one migration file per schema change.
+
+## Migration Creation (Agent Only)
+
+Manually create exactly one file: `supabase/migrations/YYYYMMDDHHMMSS_my_description.sql` with a correct UTC timestamp from system date/time.
+
+Use the **Create Database Migration** skill (`.cursor/skills/create-migration/SKILL.md`) for SQL content, RLS, and naming conventions.
+
+## Post-Migration (Tell the User)
+
+After creating the migration file, tell the user to:
+
+1. Review the SQL
+2. Run `pnpm db:push` themselves (Supabase CLI prompts before applying)
+3. Run `pnpm db:types` after pushing

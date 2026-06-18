@@ -1,0 +1,323 @@
+---
+description: Guidelines for creating and maintaining effective Cursor AI rules
+globs:
+  - '.cursor/rules/**/*.mdc'
+  - '.cursor/rules/**/*.md'
+alwaysApply: false
+---
+
+# Cursor Rule Authoring Guidelines
+
+## Purpose
+
+These guidelines optimize rule files for AI consumption while maintaining clarity and effectiveness. Rules are selectively loaded based on globs, so efficiency matters.
+
+## Core Principles
+
+### 1. Context Efficiency
+- **Target: 150-250 lines per file** (max 300)
+- Rule files are selectively loaded based on glob patterns
+- Smaller, focused files outperform large comprehensive ones
+- Total context budget is shared across all loaded rules
+- Every line should provide unique value
+
+### 2. High Signal-to-Noise Ratio
+
+**✅ KEEP (High Signal):**
+- Project-specific patterns and configurations
+- Unique setup/workflow requirements
+- Critical safety protocols
+- Anti-pattern warnings as principles
+- File paths to reference implementations
+- Version-specific guidance (e.g., "TanStack Query v5", "Next.js 16 App Router")
+
+**❌ CUT (Low Signal):**
+- Verbose code examples demonstrating common patterns
+- Tutorial-style walkthroughs
+- Content already covered in other rule files
+- Redundant "good vs bad" code comparisons
+- Generic programming advice AI already knows
+
+### 3. AI Learning vs Human Learning
+
+**AIs Excel At:**
+- Inferring patterns from concise descriptions
+- Generating correct code from principles
+- Understanding "avoid X pattern" without seeing examples
+- Following version-specific guidance when versions are stated
+
+**AIs Don't Need:**
+- Step-by-step tutorial examples
+- Multiple variations of the same pattern
+- Verbose comparison code blocks
+- Examples of common patterns (N+1 queries, memoization, etc.)
+
+### 4. Cross-Reference, Don't Duplicate
+
+- Reference other rule files instead of repeating content
+- Use phrases like "See `error-handling.mdc` for detailed patterns"
+- Keep each rule file focused on its domain
+- Avoid repeating security/testing/error handling across files
+- Create clear ownership of topics (one primary file per concern)
+
+### 5. Optimize Examples Strategically
+
+**When to Include Code Examples:**
+- Project-specific initialization patterns
+- Unique configuration or setup
+- Critical commands with specific flags/options
+- File structure/organization patterns
+- Safety-critical operations (e.g., database migrations)
+
+**When to Use Principles Instead:**
+- Common programming patterns
+- Standard best practices
+- General anti-patterns
+- Well-documented library usage
+
+### 6. Structure for Scannability
+
+- Use clear section headers with hierarchy
+- Bullet points over paragraphs
+- Concise statements over explanations
+- Actionable directives over conceptual theory
+- Checklists for multi-step processes
+
+## Advanced Authoring Rules
+
+### 7. Version Specificity
+
+- **ALWAYS include version numbers** when patterns are version-dependent
+- Breaking changes between versions matter to AI code generation
+- Keep version numbers in headings and key sections
+- Examples: "TanStack Query v5", "MSW v2", "Next.js 16 App Router"
+
+### 8. Reference Real Files Over Examples
+
+- Point to actual implementation files instead of showing code
+- Example: point to an existing file in this repo (e.g. a route under `src/app/api/`) instead of showing a full code block
+- AI can read the real file if needed
+- Keeps rules DRY and always up-to-date with codebase
+- Use format: "Reference: `path/to/file.ts`"
+
+### 9. Document WHY, Not Just WHAT
+
+- Don't just say "avoid X" - explain why in THIS project
+- Generic anti-patterns (N+1 queries) don't need explanation
+- Project-specific anti-patterns need context
+- Example: "Avoid Edge Functions to prevent vendor lock-in" (project reason)
+
+### 10. Command Patterns vs Examples
+
+**KEEP Detailed Commands When:**
+- Flags/options are project-specific
+- Order matters for safety (like db-preflight checks)
+- Command variations have different safety implications
+- Non-standard usage patterns
+
+**SIMPLIFY Commands When:**
+- Standard usage with common flags
+- Well-documented in official docs
+- No project-specific configuration
+
+### 11. Rule Hierarchy & Conflict Resolution
+
+**When Rules Conflict:**
+- Project-specific rules > General best practices
+- Security rules > Performance optimization
+- Explicit requirements > Implicit conventions
+- Always document exceptions with reasoning
+
+### 12. Glob Pattern Purpose
+
+In each rule's frontmatter, document:
+- WHY these globs trigger this rule
+- What file types/patterns need this guidance
+- Helps future maintainers understand rule applicability
+- Be specific: `src/app/api/**/*.ts` not `**/*.ts`
+
+### 13. Deprecation & Evolution
+
+- Use `⚠️ DEPRECATED (YYYY-MM)` markers for old patterns
+- Include migration path to new pattern
+- Date deprecations to track age
+- Remove after all code migrated (don't accumulate dead guidance)
+
+### 14. The 3-Example Rule
+
+If you find yourself showing 3+ similar examples:
+- You're teaching, not guiding
+- Convert to principle statement
+- Keep ONE example max (the most unique/critical one)
+- Reference test files for additional examples
+
+## Pre-Creation Checklist
+
+Before creating a new rule file:
+
+- [ ] Does this overlap with existing rules? (Check all `.cursor/rules/*.mdc`)
+- [ ] Can I cross-reference instead of duplicate?
+- [ ] Is this project-specific or generic best practice? (Generic = less valuable)
+- [ ] Would removing this guidance break AI agent effectiveness?
+- [ ] Is the scope focused enough for 150-250 lines?
+- [ ] Have I identified glob patterns that should trigger this rule?
+
+## Pre-Example Checklist
+
+Before adding a code example:
+
+- [ ] Is this pattern unique to THIS project?
+- [ ] Could I reference an existing file instead?
+- [ ] Does showing code add value over describing the principle?
+- [ ] Is this a common pattern the AI already knows?
+- [ ] Will this example stay relevant as code evolves?
+
+## Rule Structure Template
+
+```markdown
+---
+description: [One sentence - what guidance this provides]
+globs:
+  - '[Specific file patterns this applies to]'
+alwaysApply: [true only if needed for ALL contexts]
+---
+
+# [Rule Title with Version if Applicable]
+
+## Core Principles (2-5 bullets max)
+- High-level project-specific guidance
+- What makes this project unique
+
+## When to Use/Apply
+- Context when this rule matters
+- Triggers for applying these patterns
+
+## Key Patterns
+- Principle 1 with brief explanation
+- Principle 2 with brief explanation
+- Keep it actionable
+
+## Anti-Patterns to Avoid
+- What NOT to do (principles, minimal code)
+- Why it's problematic in THIS project
+
+## Cross-References
+- See `[other-rule.mdc]` for [related topic]
+- See `[another-rule.mdc]` for [dependency]
+
+## Reference Implementations
+- `path/to/example.ts` - [What it demonstrates]
+- `path/to/another.ts` - [What it shows]
+
+## Quick Reference / Checklist
+- Actionable bullets for the agent
+- Step-by-step for complex workflows
+```
+
+## Overlap & Consolidation Strategy
+
+### Identify Ownership by Concern
+
+Each rule should own ONE primary concern:
+
+| Concern | Primary Owner | Secondary Mentions |
+|---------|---------------|-------------------|
+| Security threats | security.mdc | Cross-ref from api-development.mdc |
+| API structure | api-development.mdc | Cross-ref from security.mdc |
+| Supabase tools | supabase.mdc | Cross-ref from security.mdc |
+| Test writing | testing.mdc | Security testing in security.mdc |
+| Error patterns | error-handling.mdc | Cross-ref from everywhere |
+
+### When Topics Overlap
+
+1. **Primary owner** keeps the detailed guidance
+2. **Secondary mentions** include brief cross-reference
+3. Each keeps only their unique perspective
+4. No code duplication between files
+
+### Consolidation Process
+
+If a rule file is >300 lines:
+
+1. **Measure baseline** - Know current line count
+2. **Identify verbose examples** - Look for multi-line code blocks
+3. **Convert examples to principles** - "Use X pattern" vs showing code
+4. **Remove redundancy** - Check against other rule files
+5. **Keep unique patterns** - Preserve project-specific content
+6. **Target 30-40% reduction** - Aim for 150-250 lines
+7. **Verify completeness** - Ensure no valuable guidance lost
+
+## Quality Indicators
+
+### ✅ Well-Crafted Rule File
+
+- 150-250 lines (300 max)
+- Actionable principles
+- Project-specific patterns clearly marked
+- Minimal code examples (reference files instead)
+- Clear cross-references to related rules
+- High information density
+- Focused scope
+- Version numbers where relevant
+
+### ❌ Bloated Rule File
+
+- >400 lines
+- Tutorial-style examples
+- Redundant "good vs bad" blocks
+- General programming advice
+- Duplicate content from other rules
+- Low information density
+- Broad, unfocused scope
+- Missing cross-references
+
+## Maintenance Guidelines
+
+### Regular Audits (Quarterly)
+
+- Review for outdated patterns
+- Check for redundancy across files
+- Update version numbers
+- Remove deprecated guidance that's been migrated
+- Verify glob patterns still match codebase structure
+
+### When Refactoring Code
+
+- Update rule files to reflect new patterns
+- Mark old patterns as deprecated with date
+- Add references to new implementation files
+- Remove examples that no longer match codebase
+
+### When Adding Dependencies
+
+- Document version-specific patterns
+- Add to relevant rule file or create focused new file
+- Cross-reference related existing rules
+- Keep focused on project-specific usage
+
+## Quick Wins for Reduction
+
+When optimizing an oversized rule file:
+
+1. Replace code examples with principle statements
+2. Convert "bad vs good" comparisons to bullet warnings
+3. Reference other rules instead of duplicating
+4. Remove tutorial-style walkthroughs
+5. Keep only project-specific code patterns
+6. Use concise directives over explanations
+7. Reference actual files instead of showing code
+8. Collapse similar examples into single principle
+
+## Examples from This Project
+
+**Well-Optimized:**
+- `testing.mdc` (167 lines) - Focused, principle-driven, minimal examples
+- `api-development.mdc` (108 lines) - Cross-references effectively
+
+**Needs Optimization:**
+- `security.mdc` (499 lines) - Too many code examples, reduce by 40%
+- `supabase.mdc` (291 lines) - Verbose command examples, target 200-250
+
+**Cross-Reference Model:**
+- `api-development.mdc` → `error-handling.mdc` (excellent pattern)
+- `react-tanstack-query.mdc` → `error-handling.mdc` (good delegation)

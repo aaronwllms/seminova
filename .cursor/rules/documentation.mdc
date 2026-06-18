@@ -1,0 +1,70 @@
+---
+description: Standards for managing docs directory structure and file organization
+globs:
+  - "docs/**/*.md"
+  - "docs/**/*.txt"
+alwaysApply: false
+---
+
+# Docs Directory Management Standards
+
+## Purpose
+
+Simplified 4-directory structure prevents docs sprawl and makes archiving predictable. Prefixed archive naming preserves context without nested directories, enabling easy search and reference while maintaining origin traceability.
+
+## Directory Structure
+
+- `archive/` - All archived/completed content (flat structure with prefixes)
+- `api/` - API documentation (OpenAPI specs, context docs)
+- `features/` - Feature architecture docs with visual diagrams (Mermaid)
+- `prd/` - Product requirements documents
+- `todo/` - Active todo items (no subdirectories)
+
+**Do NOT create new top-level directories** - use existing categories.
+
+## Archive Naming Pattern
+
+When archiving, prefix filename with original directory: `<original-dir>-<filename>.md`
+
+**Examples:**
+- `todo/feature-request.md` → `archive/todo-feature-request.md`
+- `features/my-feature.md` → `archive/features-my-feature.md`
+
+This keeps archives flat while preserving origin context.
+
+## When to Archive
+
+Archive when:
+- Migration guides are complete
+- Troubleshooting docs are resolved
+- Todo items are completed
+- Legacy content is no longer referenced
+
+**Do NOT archive:**
+- Active guides/standards
+- Current API docs or PRDs
+- Ongoing todo items
+
+**Never delete** - always archive to preserve history.
+
+## Workflow Checklist
+
+When archiving:
+- [ ] Identify original directory
+- [ ] Rename: `<original-dir>-<filename>.md`
+- [ ] Move to `docs/archive/`
+- [ ] Update cross-references if needed
+
+## Active File Conventions
+
+- Use kebab-case filenames
+- No prefixes for active files
+- Be descriptive but concise
+- Place in appropriate top-level directory
+
+## Maintenance
+
+Periodically review:
+- `todo/` for completed items to archive
+- `features/` for outdated content
+- `archive/` consolidation opportunities

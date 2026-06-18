@@ -1,0 +1,24 @@
+---
+alwaysApply: true
+description: General conventions and awareness for all development work
+---
+
+# General Conventions
+
+## Date & Time Awareness
+- **Always check the current date** from the system information provided at conversation start
+- Never assume or guess dates for timestamps, migrations, or versioning
+- When creating date-dependent artifacts (migrations, logs, changelogs), explicitly confirm the date
+- Use ISO 8601 format (YYYY-MM-DD) for dates in filenames and code
+- Migration files should use format: `YYYYMMDDHHMMSS_description.sql`
+
+## Environment Awareness
+- Check the OS, shell, and workspace path from system information
+- Verify workspace context before making assumptions about project structure
+- Respect the current shell environment when proposing terminal commands
+
+## Timestamp Conventions
+- Database migrations: `YYYYMMDDHHMMSS` format
+- Log files: Include ISO timestamp
+- Version tags: Follow semantic versioning (semver)
+- Git commits: Let Git handle timestamps automatically

@@ -1,0 +1,197 @@
+---
+description: Git workflow, conventional commits, and PR creation standards
+globs:
+  - '**/*'
+---
+
+# Git Workflow & Conventional Commits
+
+## Conventional Commit Format
+Use structured commit messages for clear history:
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+## Commit Types (Following Conventional Commits Specification)
+- **feat**: New feature (MUST be used when adding new functionality)
+- **fix**: Bug fix (MUST be used for bug fixes)
+- **docs**: Documentation changes only
+- **test**: Test additions or changes
+- **refactor**: Code refactoring without functionality changes
+- **style**: Code style changes (formatting, whitespace, etc.)
+- **chore**: Build process or auxiliary tool changes
+- **perf**: Performance improvements
+- **ci**: CI/CD configuration changes
+- **build**: Changes affecting build system or dependencies
+
+## Breaking Changes
+- Breaking changes MUST be indicated with `!` before the colon: `feat!: change API signature`
+- OR include `BREAKING CHANGE:` in the commit footer
+- Example with footer:
+  ```
+  feat: update authentication flow
+  
+  BREAKING CHANGE: authentication now requires email verification
+  ```
+
+## Examples
+```bash
+feat: add user profile avatar upload component
+
+fix: resolve authentication redirect loop on login page
+
+test: add integration tests for message API endpoint
+
+refactor: extract email validation into reusable utility
+
+docs: update README with new environment variables
+
+perf: optimize image loading with next/image priority
+```
+
+## Scope (Optional)
+Add scope for better context:
+```bash
+feat(auth): add password reset functionality
+fix(api): handle null response in message endpoint
+test(components): add tests for AuthButton component
+```
+
+## Commit Message Structure
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+## Commit Best Practices
+- Commits MUST be prefixed with a type followed by optional scope, optional `!`, and REQUIRED colon and space
+- Keep commits atomic and focused on one change
+- Write clear commit messages explaining the "why"
+- Subject MUST immediately follow the colon and space
+- Use imperative mood: "add feature" not "added feature"
+- Keep subject line under 72 characters
+- Body and footer are optional but provide context when needed
+- Reference issue numbers when applicable: `fix: resolve login bug (#123)`
+- Scope MAY be provided after type: `feat(auth): add password reset`
+
+## Git hooks (Husky)
+
+**pre-commit** (before every commit) — see [`.husky/pre-commit`](../../.husky/pre-commit):
+- `lint-staged` — ESLint + Prettier on staged files (JS/TS via ESLint; JS/TS + markdown/json/yaml/css via Prettier; uses [`.prettierignore`](../../.prettierignore))
+- `type-check` — TypeScript across the whole project (`tsc --noEmit`)
+
+**pre-push** (before every push) — see [`.husky/pre-push`](../../.husky/pre-push):
+- `pnpm pre-push` → type-check → lint → format-check → `test:ci` (with coverage thresholds)
+
+Mirrors CI exactly — a passing push should pass CI.
+
+```bash
+pnpm pre-push
+```
+
+Equivalent manual run:
+
+```bash
+pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci
+```
+
+**CI** (pull requests) — [`.github/workflows/pull-request.yaml`](../../.github/workflows/pull-request.yaml): type-check, lint, format-check, `test:ci` (with coverage).
+
+## Before Committing
+Run quality checks:
+```bash
+pnpm type-check  # TypeScript check
+pnpm lint        # ESLint check
+pnpm format      # Auto-format with Prettier
+pnpm test:ci     # Run tests once (never bare pnpm test in agent terminals)
+```
+
+## Branch Naming
+Use descriptive branch names:
+```bash
+feature/user-authentication
+fix/login-redirect-bug
+refactor/api-error-handling
+test/add-component-tests
+```
+
+## Subagent commits
+
+**Default:** Agents do not commit unless the user explicitly asks.
+
+**Exception — `refactor-cleaner` subagent:** When the user explicitly invokes `refactor-cleaner` for post–tech-debt-audit **hands-off cleanup**, that subagent **may commit after each batch** once `pnpm type-check`, `pnpm lint`, and `pnpm test:ci` pass. User invocation of hands-off cleanup is the authorization.
+
+Still required without separate user instruction:
+
+- **Never push** to remote
+- **Never create PRs** (see below)
+- Use conventional commit format (`refactor:` / `chore:`); reference audit finding IDs in the body when applicable
+
+## Pull Requests
+
+**IMPORTANT**: Only create PRs when explicitly requested by the user. Do not automatically create PRs after making code changes. Never push branches or create PRs without explicit user instruction. Always wait for explicit user instruction before running `gh pr create` commands.
+
+### Creating PRs via GitHub CLI
+
+**IMPORTANT FOR AGENTS**: Always create PRs with explicit title and body following the required format below. Do not use `--fill` or `--draft` flags.
+
+**Required command format:**
+```bash
+gh pr create --title "feat: descriptive title" --body "## Why\nProblem being solved\n\n## What\n- Key change 1\n- Key change 2\n- Key change 3\n\n## Testing\nHow to verify the changes\n\n## Risk\nLOW/MEDIUM/HIGH - Brief explanation"
+```
+
+**Example:**
+```bash
+gh pr create \
+  --title "feat: add user profile avatar upload" \
+  --body "## Why\nUsers need to upload profile avatars to personalize their accounts.\n\n## What\n- Add avatar upload component with image preview\n- Integrate with Supabase storage\n- Add validation for image size and format\n\n## Testing\n- Manual: Upload avatar via profile page, verify image displays\n- Unit tests: Avatar component rendering and validation logic\n- Integration: Storage upload and retrieval flow\n\n## Risk\nLOW - New feature, doesn't affect existing functionality"
+```
+
+**Link to issue (if applicable):**
+```bash
+gh pr create --title "feat: add user profile" --body "..." --linked-issue 123
+```
+
+### PR Title Format
+Use conventional commit style:
+- `feat: add new feature`
+- `fix: resolve bug description`
+- `docs: update documentation`
+- `refactor: improve code structure`
+
+### PR Description
+**REQUIRED FORMAT** - All PRs MUST include these sections:
+- **Why**: Problem being solved
+- **What**: Key changes (2-4 bullets)
+- **Testing**: How to verify
+- **Risk**: Impact assessment (LOW/MEDIUM/HIGH)
+
+### Before Opening PR
+```bash
+pnpm type-check  # TypeScript validation
+pnpm lint        # ESLint check
+pnpm test:ci     # Run all tests once
+```
+
+Checklist:
+- [ ] All commits follow conventional commit format
+- [ ] Quality checks pass (above commands)
+- [ ] Tests added for new logic (H/I/B coverage); `pnpm test:ci` meets global thresholds (see `testing.mdc`)
+- [ ] `.env.example` updated if env vars changed
+
+### PR Labels for Automated Releases (CD)
+Apply one label per PR to control semantic versioning:
+- **release:major** - Breaking changes (`feat!:` or `BREAKING CHANGE:`)
+- **release:minor** - New features (`feat:`)
+- **release:patch** - Bug fixes, refactors (`fix:`, `perf:`, `refactor:`)
+- **release:skip** - No version bump (`docs:`, `test:`, `ci:`, `chore:`)
+
+If multiple labels present, highest priority wins (major > minor > patch > skip)

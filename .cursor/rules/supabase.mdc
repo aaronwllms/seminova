@@ -1,0 +1,194 @@
+---
+description: Supabase integration patterns using @supabase/ssr
+globs:
+  - 'src/**/*.ts'
+  - 'src/**/*.tsx'
+  - 'src/supabase/**/*.ts'
+  - 'proxy.ts'
+  - 'supabase/migrations/**/*.sql'
+---
+
+# Supabase Integration (@supabase/ssr)
+
+## Migration Safety Protocol
+
+**No custom schema or migrations exist yet** — only Supabase `auth.users`. When migrations land (Phase 6), humans apply them via Supabase CLI; agents write SQL files only.
+
+**Agents** — see `do-migrations-agent.mdc` and `.cursor/skills/create-migration/SKILL.md`:
+
+- Write one SQL file in `supabase/migrations/` with a manual UTC timestamp
+- Never run push, reset, seed, link, or `supabase migration new`
+
+**Humans** (terminal) — after migrations are set up:
+
+```bash
+# Create migration (human in terminal)
+supabase migration new my_feature
+
+# Review agent-written file at supabase/migrations/YYYYMMDDHHMMSS_my_feature.sql
+
+# Apply to linked project (CLI prompts to confirm)
+pnpm db:push   # added with Phase 6 tooling
+
+# Regenerate types after schema changes
+pnpm db:types
+```
+
+### Red Flags & Anti-Patterns
+
+**STOP if you see these:**
+- Agent running any database apply command (push, reset, seed, link)
+- Running destructive SQL without review
+- Executing DROP/DELETE operations without backups
+
+**See `do-migrations-agent.mdc` for agent constraints.**
+
+## Context-Specific Client Usage
+
+This starter uses two Supabase client modules under `src/supabase/`:
+
+### Client Components
+```typescript
+import { createClient } from '@/supabase/client'
+
+// Use in client components with 'use client' directive
+const supabase = createClient()
+```
+
+### Server Components, Server Actions, Route Handlers
+```typescript
+import { createClient } from '@/supabase/server'
+
+// Use in Server Components, Server Actions, and route.ts files
+const supabase = await createClient()
+```
+
+### Auth Proxy (session refresh + route protection)
+```typescript
+// Root proxy.ts delegates to src/supabase/proxy.ts
+import { updateSession } from '@/supabase/proxy'
+
+// Public routes: / and /auth/** only; others redirect to /auth/login when unauthenticated
+```
+
+**Reference:** `proxy.ts`, `src/supabase/proxy.ts`, `src/supabase/client.ts`, `src/supabase/server.ts`
+
+## Best Practices
+- Always handle authentication errors gracefully
+- Implement proper TypeScript types for database queries
+- Use Supabase Row Level Security (RLS) policies for data protection
+- Handle auth state changes reactively
+- Follow existing Supabase auth and session patterns in this repo (`proxy.ts`, `src/supabase/proxy.ts`, auth forms under `src/app/auth/`)
+
+## Security
+
+**See `.cursor/rules/security.mdc` for comprehensive security patterns including:**
+- RLS policy implementation
+- Auth checks and validation
+- DTO patterns for data protection
+- Never exposing service role keys to client
+
+**Key points:**
+- Never commit Supabase keys to version control
+- Store credentials in `.env.local`
+- Use environment variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- Implement RLS policies for all tables
+- Validate user inputs before queries
+
+## Performance & Optimization
+
+### Query Optimization Principles
+- **Indexing**: Create indexes on columns in WHERE, JOIN, ORDER BY clauses
+- **Avoid N+1 Queries**: Use nested selects for relations (`.select('*, relation_table(*)')`)
+- **Pagination**: Always use `.range()` or `.limit()` for large result sets
+- **Select Specific Columns**: Avoid `select('*')` - specify only needed fields
+- **Filter Early**: Apply filters before sorting/limiting
+
+### Caching & Connection Management
+- Leverage TanStack Query for client-side caching (already configured)
+- Always cleanup real-time subscriptions in useEffect return function
+- Connection pooling is handled automatically by Supabase
+- Consider edge caching (Vercel) or Redis for session/rate-limiting data
+
+### Load Testing & Monitoring
+- Test migrations in staging before production
+- Monitor slow queries in Supabase Dashboard
+- Contact support 48h before anticipated traffic spikes
+
+## Code Organization Patterns
+
+### Repository Pattern (Recommended)
+- Abstract database operations into service layer (`src/services/`)
+- Keep database logic separate from UI components
+- Create repository files per domain: `posts-repository.ts`, `users-repository.ts`, `auth-service.ts`
+- Export functions that encapsulate Supabase queries
+- Handle errors within repositories before returning to components
+
+### Business Logic Placement
+- ✅ **Application Code**: Complex business rules, multi-step workflows, validation
+- ✅ **Database Policies (RLS)**: Simple row-level access control
+- ❌ **Supabase Edge Functions**: Avoid over-reliance to prevent vendor lock-in
+- Keep most logic in application code for testability and portability
+
+## Anti-Patterns to Avoid
+
+### ❌ Direct Database Access from UI Components
+- Never call Supabase directly from UI components
+- Use custom hooks (TanStack Query) or repository functions
+- Keep data fetching logic testable and reusable
+
+### ❌ Poor Query Performance
+- Don't fetch all columns with `select('*')`
+- Always add filters, limits, and pagination
+- Avoid multiple sequential queries when joins are available
+
+### ❌ Skipping Row Level Security (RLS)
+- Always enable RLS on tables with user data
+- Don't rely solely on application-level authorization
+- Test RLS policies thoroughly before production
+- Use `auth.uid()` in policies for user-scoped access
+
+**See `.cursor/rules/security.mdc` for detailed RLS implementation patterns.**
+
+### ❌ Business Logic in Database Functions
+- Keep business logic in application code for testability
+- Use Supabase Functions only for performance-critical operations
+- Avoid vendor lock-in by minimizing edge function reliance
+
+### ❌ Agent Migration Management
+- Agents must not run push, reset, seed, link, or `supabase migration new` — see `do-migrations-agent.mdc`
+- Humans: review SQL before applying migrations once Phase 6 tooling is in place
+
+## Testing Supabase Integrations
+
+**See `.cursor/rules/testing.mdc` for comprehensive testing patterns.**
+
+### Testing Strategy
+- **Unit Tests**: Mock Supabase client at module boundary
+- **Integration Tests**: Use local Supabase or test database for API routes
+- **RLS Policy Tests**: Use local Supabase to validate row-level security
+- **Auth Flow Tests**: Mock auth state for protected route testing
+
+### When to Use Test Database vs Mocks
+- **Mocks**: Fast unit tests, component tests, isolated logic
+- **Local Supabase**: Integration tests, migration validation, RLS testing, E2E tests
+- Mock Supabase client by returning objects with chainable methods that resolve to `{ data, error }`
+
+## Production Operations
+
+### Monitoring
+- Monitor slow queries in Supabase Dashboard (Query Performance tab)
+- Set up alerts for connection pool exhaustion
+- Track API response times with Vercel Analytics
+- Review and optimize query patterns regularly
+
+### Backup & Recovery
+- Supabase provides daily automatic backups
+- Enable Point-in-Time Recovery (PITR) for production databases
+- Test restore procedures in staging
+- Document recovery runbook
+
+### Capacity Planning
+- Monitor database size and connection usage
+- Plan upgrades proactively based on growth trends
+- Contact Supabase support 48h before anticipated traffic spikes

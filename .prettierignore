@@ -1,9 +1,8 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # dependencies
 /node_modules
 /.pnp
 .pnp.js
+.pnpm-store
 
 # testing
 /coverage
@@ -18,6 +17,13 @@
 # misc
 .DS_Store
 *.pem
+
+# agent-authored docs — whole-file syncs; Prettier would reformat on every edit
+/.cursor
+CONTEXT.md
+CONTEXT_ARCHIVE.md
+AGENTS.md
+README.md
 
 # debug
 npm-debug.log*
@@ -34,6 +40,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-
+# lockfiles
 pnpm-lock.yaml
-
