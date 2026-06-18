@@ -2,8 +2,8 @@
 
 **Purpose:** Dual-use — planning reference for the builder (PM) and context for coding agents. Seminova is currently a **template**: a curated foundation that real products are built from. It is written in product shape so that the structure itself is inherited by every project spun off it. Agents: read this file for living state; build-time workflow and authoritative schema live in [AGENTS.md](AGENTS.md); shipped phase detail in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md).
 
-**Last updated:** 2026-06-17
-**Status:** Phase 1 — Foundation (in progress). Nothing shipped yet.
+**Last updated:** 2026-06-18
+**Status:** Phase 1 — Foundation (in progress). Epics 1A, 1B, and 1C shipped; 1D remains.
 **Migrations:** none yet — no custom schema; Supabase `auth.users` only.
 
 **Shipped phase detail →** [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md)
@@ -133,23 +133,30 @@ No custom schema or migrations exist yet. The only user-bearing table is Supabas
 
 Get the cloned starter into a clean, opinionated baseline, make the inherited rule set correct and project-agnostic, and stand up the documentation layer. The rules work lands here (not at the end) because everything built in Phases 2–6 is expected to comply with these rules — they must be correct before they govern downstream work.
 
-### Epic 1A — Foundation cleanup
+### Epic 1A — Foundation cleanup `Shipped`
 
-- **1A.1 — Remove starter scaffolding.** Delete the `tutorial/` components and any demo/test-example pages so projects spun from the template start clean.
-- **1A.2 — Standardize on pnpm.** Delete `package-lock.json` (created by an accidental `npm install`); use pnpm exclusively. Confirm `pnpm install` produces a clean tree.
-- **1A.3 — Dependency security pass.** Resolve the `npm audit` advisories by updating dev tooling **forward** (vitest / vite / esbuild to current; keep Next.js on its latest patch to clear the bundled `postcss` issue). **Do not** run `npm audit fix --force` — it would downgrade Next.js to 9 and break the app. Verify build + tests pass after.
+- [x] **1A.1 — Remove starter scaffolding.** Delete the `tutorial/` components and any demo/test-example pages so projects spun from the template start clean.
+- [x] **1A.2 — Standardize on pnpm.** Delete `package-lock.json` (created by an accidental `npm install`); use pnpm exclusively. Confirm `pnpm install` produces a clean tree.
+- [x] **1A.3 — Dependency security pass.** Resolve the `npm audit` advisories by updating dev tooling **forward** (vitest / vite / esbuild to current; keep Next.js on its latest patch to clear the bundled `postcss` issue). **Do not** run `npm audit fix --force` — it would downgrade Next.js to 9 and break the app. Verify build + tests pass after.
 
-### Epic 1B — Rules correctness & de-specialization
+### Epic 1B — Rules correctness & de-specialization `Shipped`
 
-The `.cursor/rules` set was copied in from a prior product (Cookloop/Localfront) and still carries that project's identity, some stale stack facts, and a few examples that contradict each other or the locked principles above. This epic makes the rule set internally consistent, stack-accurate, and project-agnostic so it inherits cleanly.
+- [x] **1B.1 — Rules describe the template's actual stack and structure.** Vitest (not Jest), Next.js 16, `@/supabase/client` + `@/supabase/server`, `proxy.ts` auth boundary, `cn()` from `@/utils/tailwind`.
+- [x] **1B.2 — Rule examples are project-agnostic and obey the locked principles.** Prior-project residue removed; rules-dir README de-specialized; semantic token examples throughout.
 
-- **1B.1 — Rules describe the template's actual stack and structure.** As the template, the rules must state the real stack and file layout, with no rule contradicting another or CONTEXT/AGENTS — so Cursor generates code against the true starter rather than a stale or imagined one. Covers: test runner is **Vitest, not Jest** (`testing.mdc` and the rules-dir README currently say Jest); **Next.js is 16, not 14** (`nextjs.mdc`, README); the Supabase client **import path and call signature disagree across rules** (`@/utils/supabase` vs `@/supabase/client`; `createServerClient(cookies())` vs `await createServerClient()`) and must be reconciled to whatever the starter actually exposes; rules referencing `src/middleware.ts` must reconcile with the `proxy.ts` auth boundary in section 3; verify the `cn()` import path against the code. **Constraint:** this is verify-against-codebase work — where a claim is checkable in the repo, check it rather than guessing.
+### Epic 1C — Docs `Shipped`
 
-- **1B.2 — Rule examples are project-agnostic and obey the locked principles.** As the template, no rule should carry the prior project's identity, point at files that don't exist here, or model a pattern the rules themselves forbid — so the guidance inherits cleanly. Covers: strip Cookloop domain residue (recipe/appliance references and reference-implementation file paths in `react-tanstack-query`, `security`, `error-handling`) and replace with neutral examples that teach the same pattern; reduce the rules-dir `README` from old-project provenance narrative to a description of what the rule set actually is; drop the `refactor-cleaner` subagent reference in `git-workflow` unless that subagent ships with the template; replace hardcoded-color examples (`bg-blue-600`, `bg-purple-600`, `text-red-600`) with semantic tokens. **Constraint:** keep the lesson, swap only the project-specific carrier.
+- [x] **1C.1 — Establish docs.** [CONTEXT.md](CONTEXT.md) (this file), [AGENTS.md](AGENTS.md) (doc map, agent workflow, schema authority), and a public-facing root [README.md](README.md). The rules-dir README is owned by 1B.2; 1C owns only the root README.
 
-### Epic 1C — Docs
+### Epic 1D — Dev tooling hygiene
 
-- **1C.1 — Establish docs.** `CONTEXT.md` (this file), `AGENTS.md` (doc map, agent workflow, schema authority), and a public-facing root `README.md`. The rules-dir README is owned by 1B.2; 1C owns only the root README.
+Ensure commits and pushes can't silently introduce broken or inconsistent code, and that CI and local hooks enforce exactly the same bar. This epic must ship before significant feature work begins — hooks should be in place from the first commit onward.
+
+- **1D.1 — Husky hooks.** Configure a pre-commit hook and a pre-push hook. Pre-commit runs lint-staged: Prettier (fix + re-stage) and ESLint (fix + re-stage) on staged files only, so fixed files are included in the commit automatically. Pre-push runs the full CI suite in order: type-check → lint → format check → tests with coverage. Pre-push must mirror CI exactly so a passing push always passes CI.
+
+- **1D.2 — Coverage thresholds.** Set 80% minimum thresholds (lines, functions, branches, statements) in the Vitest config. Tests must fail — locally and in CI — if coverage drops below 80%. Add coverage enforcement to the existing GitHub Actions workflow (`.github/workflows/`) so it runs alongside the existing type-check, lint, format, and test steps.
+
+- **1D.3 — `.prettierignore` and `.gitignore` audit.** Review both files against the actual repo structure. `.prettierignore` should exclude build output, generated files, and any files Prettier should never touch. `.gitignore` should be clean and correct for a Next.js + Supabase + pnpm project with no stale or missing entries.
 
 ---
 

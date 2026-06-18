@@ -1,4 +1,4 @@
-# Cursor configuration — Localfront
+# Cursor configuration — Seminova
 
 Portable AI workflow for this repo. **Skills-first** — use `/skill-name` in chat; legacy commands live in [`commands-legacy/`](commands-legacy/) for reference only.
 
