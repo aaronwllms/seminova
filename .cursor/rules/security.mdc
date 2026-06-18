@@ -3,7 +3,8 @@ description: Security patterns and vulnerability prevention for Next.js + Supaba
 globs:
   - 'src/**/*.ts'
   - 'src/**/*.tsx'
-  - 'src/middleware.ts'
+  - 'proxy.ts'
+  - 'src/supabase/proxy.ts'
   - 'src/app/api/**/*.ts'
   - 'supabase/migrations/**/*.sql'
 ---
@@ -24,11 +25,11 @@ globs:
 Always verify auth on the server - never trust client-side checks:
 
 ```typescript
-import { createServerClient } from '@/utils/supabase'
-import { cookies } from 'next/headers'
+import { createClient } from '@/supabase/server'
+import { NextResponse } from 'next/server'
 
 export async function GET() {
-  const supabase = createServerClient(cookies())
+  const supabase = await createClient()
   const { data: { user }, error } = await supabase.auth.getUser()
   
   if (error || !user) {
@@ -56,8 +57,10 @@ if (resource?.user_id !== user.id) {
 ```typescript
 'use server'
 
+import { createClient } from '@/supabase/server'
+
 export async function deletePost(postId: string) {
-  const supabase = createServerClient(cookies())
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) throw new Error('Unauthorized')
@@ -75,19 +78,15 @@ export async function deletePost(postId: string) {
 
 ## Input Validation
 
-### Zod (REQUIRED for new server actions and API inputs)
+### Input Validation (planned — Phase 5)
 
-- Dependency: `zod` in `package.json`
+The template does not ship `zod` yet. When adopted (Phase 5), use it at the server boundary:
+
 - Use `schema.safeParse(input)` at the server boundary; return user-safe messages (never raw `ZodError` JSON to clients)
 - Prefer shared validators in `src/utils/` when the same shape is used from forms and server actions
+- **Patterns:** `z.string().uuid()`, `z.string().url()`, `z.custom()` with project guards, `superRefine` for cross-field rules
 
-**Reference implementations (Cookloop):**
-- `src/utils/process-recipe-validation.ts` — single appliance for Save & process
-- `src/utils/validate-appliance-payload.ts` — generic vs specific appliance catalog payloads (`z.discriminatedUnion`)
-
-**Patterns:** `z.string().uuid()`, `z.string().url()`, `z.custom()` with project guards (e.g. `isApplianceType`), `superRefine` for cross-field rules
-
-Not every legacy server action is migrated yet — new or touched actions must use Zod (or call an existing Zod-backed validator).
+Until then, validate required fields and types explicitly at API routes and server actions.
 
 ### Injection Prevention
 - ✅ Supabase parameterizes queries automatically
@@ -165,7 +164,7 @@ return NextResponse.json({ success: true, data: { id: user.id, email: user.email
 ```bash
 # .env.local (NEVER commit - add to .gitignore)
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJxxx  # Safe with RLS
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=eyJxxx  # Safe with RLS
 SUPABASE_SERVICE_ROLE_KEY=eyJxxx     # NEVER expose to client
 ```
 
@@ -173,19 +172,11 @@ SUPABASE_SERVICE_ROLE_KEY=eyJxxx     # NEVER expose to client
 
 ## Next.js Security
 
-### Middleware Auth
-```typescript
-export async function middleware(request: NextRequest) {
-  const { supabase, response } = createMiddlewareClient(request)
-  const { data: { session } } = await supabase.auth.getSession()
-  
-  if (request.nextUrl.pathname.startsWith('/dashboard') && !session) {
-    return NextResponse.redirect(new URL('/login', request.url))
-  }
-  
-  return response
-}
-```
+### Auth Proxy (route protection)
+
+Session refresh and auth gating live in `proxy.ts` → `src/supabase/proxy.ts` (`updateSession`). Public routes are `/` and `/auth/**` only; unauthenticated users are redirected to `/auth/login`.
+
+**Reference:** `src/supabase/proxy.ts`, `proxy.ts`
 
 ### Open Redirect Prevention
 ```typescript
@@ -233,7 +224,7 @@ Always verify ownership before operations:
 await supabase.from('posts').delete().eq('id', params.id) // Any user can delete any post!
 
 // ✅ SECURE
-const supabase = createServerClient(cookies())
+const supabase = await createClient()
 const { data: { user } } = await supabase.auth.getUser()
 if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
@@ -246,7 +237,7 @@ await supabase.from('posts').delete().eq('id', params.id)
 ## Security Checklists
 
 ### Pre-Commit
-- [ ] New/changed server inputs validated with Zod (or shared Zod validator)
+- [ ] New/changed server inputs validated at the boundary (Zod once Phase 5 lands)
 - [ ] Auth checks for protected routes
 - [ ] Authorization checks verify ownership
 - [ ] No sensitive data in responses (DTOs)
@@ -256,7 +247,7 @@ await supabase.from('posts').delete().eq('id', params.id)
 - [ ] Security tests written
 
 ### New API Endpoint
-1. Zod schema (or shared validator) for validation
+1. Input validation at server boundary (Zod when available)
 2. Auth check if protected
 3. Authorization check (ownership)
 4. DTO for response

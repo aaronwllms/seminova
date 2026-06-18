@@ -17,28 +17,43 @@ globs:
 - Client-side mutations with optimistic updates
 
 ## Custom Hooks Pattern
-Create custom hooks in `src/hooks/` for all queries. Prefer **repository functions** + Supabase client (RLS-scoped) — see `src/hooks/use-recipe-list.ts`:
+Create custom hooks in `src/hooks/` for all queries. See the existing hook at `src/hooks/useGetMessage.ts`:
 
 ```typescript
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { createClient } from '@/supabase/client'
-import { RECIPE_LIST_QUERY_KEY } from '@/hooks/recipe-query-keys'
-import { getRecipesWithIngredients } from '@/services/recipe-repository'
+import axios from 'axios'
 
-export function useRecipeList() {
+export function useGetMessage() {
   return useQuery({
-    queryKey: RECIPE_LIST_QUERY_KEY,
-    queryFn: () => getRecipesWithIngredients(createClient()),
+    queryKey: ['/api/message'],
+    queryFn: async () => {
+      const { data } = await axios.get('/api/message')
+      return data
+    },
+  })
+}
+```
+
+When Supabase-backed data is added, prefer **repository functions** + `createClient()` from `@/supabase/client` (RLS-scoped) in `queryFn`:
+
+```typescript
+import { createClient } from '@/supabase/client'
+import { getPosts } from '@/services/posts-repository'
+
+export function usePostList() {
+  return useQuery({
+    queryKey: ['posts', 'list'],
+    queryFn: () => getPosts(createClient()),
   })
 }
 ```
 
 **Key points:**
 - Call repository/service functions from `queryFn`; let Supabase errors propagate for React Query to catch
-- Use shared query keys from `src/hooks/*-query-keys.ts` where the repo defines them
-- For rare `fetch` to a route handler, check `response.ok` and parse `{ success, data?, error? }` before returning
+- Use shared query keys from `src/hooks/*-query-keys.ts` when the repo defines them
+- For route handlers, check `response.ok` and parse `{ success, data?, error? }` before returning
 
 ## Query Key Conventions
 - Use descriptive arrays: `['resource', id]` or `['resource', 'list', filters]`
@@ -52,20 +67,12 @@ export function useRecipeList() {
 **See `.cursor/rules/error-handling.mdc` for complete error handling patterns.**
 
 In components using queries:
-- Show user-visible error UI (`ErrorDisplay`, inline message, or empty state) when `isError`
+- Show user-visible error UI (inline message, `role="alert"`, or empty state) when `isError`
 - Optional dev-only: `console.error('[my-component] Failed to fetch data', error)`
 - Include retry logic in query configuration where appropriate
 - Server-side logging uses prefixed `console.*` — see `.cursor/rules/error-handling.mdc`
 
-For critical errors, wrap in ErrorBoundary:
-```typescript
-import { ErrorBoundary } from '@/components/error-boundary'
-import { ErrorFallback } from '@/components/error-fallback'
-
-<ErrorBoundary fallback={<ErrorFallback />} source="components/data-list.tsx">
-  <DataList />
-</ErrorBoundary>
-```
+For critical errors at the route level, use Next.js `error.tsx` (reference error-boundary components planned for Phase 5).
 
 ## Mutations
 ```typescript
@@ -95,6 +102,6 @@ export function useUpdateUser() {
 - Use optimistic updates where appropriate
 
 ## Reference Examples
-- Mutation hook (server action + cache invalidation): `src/hooks/use-process-recipe.ts`
-- Query hook (Supabase repository): `src/hooks/use-recipe-list.ts`
+- Query hook (axios + route): `src/hooks/useGetMessage.ts`
+- QueryClient provider: `src/providers/ReactQueryProvider.tsx`
 - Error handling patterns: `.cursor/rules/error-handling.mdc`

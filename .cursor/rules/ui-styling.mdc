@@ -26,8 +26,8 @@ export function Component({ className, isActive }) {
     <div
       className={cn(
         'base-classes rounded-md p-4',
-        isActive && 'bg-blue-600 text-white',
-        !isActive && 'bg-gray-100 text-gray-900',
+        isActive && 'bg-primary text-primary-foreground',
+        !isActive && 'bg-muted text-muted-foreground',
         className // User's classes take precedence
       )}
     >

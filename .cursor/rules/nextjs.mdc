@@ -1,12 +1,12 @@
 ---
-description: Next.js 14 App Router patterns and conventions
+description: Next.js 16 App Router patterns and conventions
 globs:
   - 'src/app/**/*.tsx'
   - 'src/app/**/*.ts'
   - 'src/components/**/*.tsx'
 ---
 
-# Next.js 14 App Router Best Practices
+# Next.js 16 App Router Best Practices
 
 ## Server vs Client Components
 - **Default to Server Components** for all components
@@ -46,7 +46,7 @@ globs:
 - Return proper HTTP status codes
 - Validate request data
 - Handle errors gracefully
-- Follow patterns from existing route handlers under `src/app/api/` in this repo
+- Follow the patterns in `.cursor/rules/api-development.mdc` and `.cursor/rules/error-handling.mdc` (no API routes exist in the template yet — Phase 5)
 
 ## Project Structure Best Practices
 - Place both `/app` and `/components` under `/src` directory (already done)

@@ -42,7 +42,7 @@ Always use `@/` alias for internal imports:
 ```typescript
 // Good
 import { Button } from '@/components/ui/button'
-import { createClient } from '@/utils/supabase'
+import { createClient } from '@/supabase/client'
 
 // Bad
 import { Button } from '../../components/ui/button'

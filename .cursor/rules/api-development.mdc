@@ -77,7 +77,7 @@ NextResponse.json(
 
 ## Authentication
 - Check auth at route handler start for protected endpoints
-- Use `createServerClient()` from `@/utils/supabase`
+- Use `createClient()` from `@/supabase/server` in route handlers and server actions
 - Return 401 for unauthenticated, 403 for unauthorized
 - Never expose auth errors that leak user existence
 
@@ -104,4 +104,4 @@ Common API error codes:
 - [ ] No stack traces in responses
 - [ ] Tests cover happy/error/auth cases
 
-Follow error-handling, validation, and response-envelope patterns from existing handlers under `src/app/api/` in this repo.
+Follow error-handling, validation, and response-envelope patterns in `.cursor/rules/error-handling.mdc` (API routes will be added in Phase 5).

@@ -1,5 +1,5 @@
 ---
-description: Testing conventions with Jest, React Testing Library, and MSW v2
+description: Testing conventions with Vitest, React Testing Library, and MSW v2
 globs:
   - '**/*.test.ts'
   - '**/*.test.tsx'
@@ -12,7 +12,7 @@ globs:
 alwaysApply: true
 ---
 
-# Testing with Jest + React Testing Library + MSW v2
+# Testing with Vitest + React Testing Library + MSW v2
 
 ## Core Principle: Minimalism
 
@@ -86,9 +86,8 @@ import { render, screen, waitFor } from '@/test/test-utils'
 ```
 
 This automatically wraps components with:
-- ReactQueryProvider
-- ThemeProvider
-- Other necessary context providers
+- ReactQueryProvider (via `QueryClientProvider`)
+- Add other providers here as the app grows (e.g. ThemeProvider)
 
 ## Mocking Policy
 **Only mock system boundaries** - not your own business logic:
@@ -119,7 +118,7 @@ export const handlers = [
 
 ## Running Tests
 
-**Agents and automation must use non-watch mode** — bare `pnpm test` starts Jest in watch mode and never exits in agent terminals.
+**Agents and automation must use non-watch mode** — bare `pnpm test` starts Vitest in watch mode and never exits in agent terminals.
 
 | Context | Command |
 |---------|---------|
@@ -260,7 +259,7 @@ it('should show loading indicator while submitting', () => {
 
 ### UI Components & Pages
 - **Typical range**: 5-10 tests per component (simple components may need fewer, complex ones may need more)
-- Use Jest + React Testing Library
+- Use Vitest + React Testing Library
 - Use role/name/text queries (e.g., `getByRole`, `getByText`)
 - Include at least one user interaction (e.g., `userEvent.click`)
 - Assert accessibility attributes for interactive elements only
@@ -288,15 +287,12 @@ it('should show loading indicator while submitting', () => {
 - **Exception**: Security-critical utilities (like sanitization, validation) may need exhaustive edge case coverage
 
 ## Coverage Requirements
-**Enforced in CI** via `pnpm test:ci` (`jest --ci --coverage`):
-- **Statements: 80%**
-- **Branches: 70%**
-- **Functions: 70%**
-- **Lines: 80%**
 
-Before merge: run `pnpm test:ci`. For local gap analysis: `pnpm test:coverage`.
+**Planned (Epic 1D):** 80% minimum thresholds (lines, functions, branches, statements) via Vitest coverage config. Not enforced yet — `pnpm test:ci` currently runs `vitest run` without coverage gates.
 
-If thresholds fail, add targeted high-value tests (see minimalism principles above)—not per-file 80% crusades.
+Before merge: run `pnpm test:ci`. After Epic 1D lands, failing thresholds will block CI and pre-push.
+
+If thresholds fail once enabled, add targeted high-value tests (see minimalism principles above)—not per-file 80% crusades.
 
 ## Performance & Reliability
 - Keep tests fast: aim for <1 second per test
@@ -305,8 +301,8 @@ If thresholds fail, add targeted high-value tests (see minimalism principles abo
 - Always link to a GitHub issue when quarantining tests
 
 ## Examples
-- Unit tests: `src/components/__tests__/AdminSidebar.unit.test.tsx`, `src/components/__tests__/login-form.unit.test.tsx`
-- Integration tests: `src/components/react-query-example.test.tsx`
+- Unit tests: `src/utils/format-date.unit.test.ts`, `src/hooks/use-get-message.unit.test.ts`
+- Integration tests: `src/components/login-form.integration.test.tsx`, `src/app/api/posts/route.integration.test.ts`
 
 ## File Naming Conventions
 Test files should be co-located with source files using these naming patterns:
@@ -340,5 +336,5 @@ Before submitting a PR with tests:
 - [ ] Not testing framework/library behavior?
 - [ ] Only system boundaries mocked?
 - [ ] Tests run fast (<1s each)?
-- [ ] Coverage thresholds met?
+- [ ] Coverage thresholds met? (once Epic 1D enables them)
 - [ ] No flaky or skipped tests without issue links?

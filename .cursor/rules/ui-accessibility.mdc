@@ -143,7 +143,7 @@ Provide context for screen reader users:
   />
   <span id="email-help">We'll never share your email</span>
   {hasError && (
-    <span role="alert" className="text-red-600">
+    <span role="alert" className="text-destructive">
       Please enter a valid email
     </span>
   )}

@@ -29,7 +29,7 @@ These guidelines optimize rule files for AI consumption while maintaining clarit
 - Critical safety protocols
 - Anti-pattern warnings as principles
 - File paths to reference implementations
-- Version-specific guidance (e.g., "TanStack Query v5", "Next.js 14 App Router")
+- Version-specific guidance (e.g., "TanStack Query v5", "Next.js 16 App Router")
 
 **❌ CUT (Low Signal):**
 - Verbose code examples demonstrating common patterns
@@ -90,7 +90,7 @@ These guidelines optimize rule files for AI consumption while maintaining clarit
 - **ALWAYS include version numbers** when patterns are version-dependent
 - Breaking changes between versions matter to AI code generation
 - Keep version numbers in headings and key sections
-- Examples: "TanStack Query v5", "MSW v2", "Next.js 14 App Router"
+- Examples: "TanStack Query v5", "MSW v2", "Next.js 16 App Router"
 
 ### 8. Reference Real Files Over Examples
 

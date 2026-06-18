@@ -61,17 +61,15 @@ NextResponse.json(
 
 ```typescript
 // Server actions / services — bracket tag matches file or feature
-console.error('[process-recipe] Unexpected error', error)
-console.log(`[skill-generation] Starting recipeId=${recipeId}`)
+console.error('[api-posts] Unexpected error', error)
+console.log(`[auth-login] Starting sign-in for userId=${userId}`)
 ```
 
 **Conventions:**
-- **Tag:** `[kebab-case-source]` in the message string (e.g. `[retry-recipe-skill]`, `[anthropic-client]`)
+- **Tag:** `[kebab-case-source]` in the message string (e.g. `[api-posts]`, `[auth-login]`)
 - **Errors:** pass the `Error` or Supabase error as a second argument when useful
 - **Never log:** passwords, tokens, API keys, full request bodies (see Security section below)
 - **Client:** prefer UI error states; optional `console.error('[component-name] …', error)` in dev only
-
-**Reference implementations:** `src/app/recipes/actions/process-recipe.ts`, `src/services/skill-generation-service.ts`
 
 ## Error Handling Patterns
 
@@ -83,25 +81,19 @@ console.log(`[skill-generation] Starting recipeId=${recipeId}`)
 - Return generic user-friendly messages (never expose stack traces)
 - Use appropriate HTTP status codes
 
-Apply the same try/catch, logging, and response-envelope patterns used by existing handlers under `src/app/api/` in this repo.
+Apply the same try/catch, logging, and response-envelope patterns described above (API routes will be added in Phase 5).
 
 ### Server Actions
 Follow same pattern as API routes, return objects instead of NextResponse.
 
 ### Client Components (React Query)
 
-- Surface errors in UI (`ErrorDisplay`, inline copy, or query `isError` state)
+- Surface errors in UI (inline copy, alert text, or query `isError` state)
 - See `.cursor/rules/react-tanstack-query.mdc` for hook patterns
 
 ### Error Boundaries
-```typescript
-import { ErrorBoundary } from '@/components/error-boundary'
-import { ErrorFallback } from '@/components/error-fallback'
 
-<ErrorBoundary fallback={<ErrorFallback />} source="app/posts/page.tsx">
-  <PostList />
-</ErrorBoundary>
-```
+Use Next.js `error.tsx` for route-level error boundaries. Reusable `ErrorBoundary` / `ErrorFallback` components are planned for Phase 5 reference implementations.
 
 ## Supabase Error Handling
 
@@ -143,23 +135,19 @@ import { ErrorFallback } from '@/components/error-fallback'
 
 **Guidelines:** Be clear, actionable, empathetic, honest, and concise (1-2 sentences max)
 
-## Error UI Components
+## Error UI Patterns
 
-### ErrorDisplay
+Until Phase 5 reference components land, use inline patterns:
+
 ```typescript
-import { ErrorDisplay } from '@/components/error-display'
-
-<ErrorDisplay message="Failed to load posts" code="DATABASE_ERROR" variant="destructive" />
+{isError && (
+  <p role="alert" className="text-destructive text-sm">
+    Something went wrong. Please try again.
+  </p>
+)}
 ```
 
-### ErrorFallback
-```typescript
-import { ErrorFallback } from '@/components/error-fallback'
-
-<ErrorBoundary fallback={<ErrorFallback />}>
-  <YourComponent />
-</ErrorBoundary>
-```
+For route-level failures, add `error.tsx` in the relevant `src/app/` segment.
 
 ## Production Logging
 
