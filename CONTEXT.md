@@ -16,6 +16,8 @@ These rules apply to anyone updating this file — PM or coding agent.
 
 - **The ACTIVE section is the source of truth for what is planned but not yet shipped.** Cursor has access to the codebase and can verify live state independently. This file should never contradict the repo.
 - **Authoritative schema and the build-time agent workflow live in [AGENTS.md](AGENTS.md).** Do not duplicate per-table schema or Cursor/rules/skills detail here.
+- **Locked rules are canonical in [AGENTS.md](AGENTS.md).** §3 below is a pointer + at-a-glance only — do not expand it back into a full duplicate.
+- **Locked-rule changes decided in chat must be routed.** A text-only rule edit lands directly in AGENTS.md (and the §3 at-a-glance only if the topic list changes). A rule change that requires code conformance becomes an ACTIVE story that updates AGENTS.md, `.cursor/rules/`, and the affected code together.
 - **When a phase ships in full**, append its epic/story detail to [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md) (append-only — never edit existing archive entries), then update the Roadmap status and the Status line here and remove the shipped ACTIVE content.
 - **Resolved open-question one-liners** append to `## Resolved decisions` in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md); remove from this file.
 - **HTML mockups:** save new explorations as `.mockups/*.html`. When a mockup is superseded or tied to a shipped phase, move it to `.mockups/archive/`.
@@ -49,19 +51,9 @@ Seminova is a template today, but it is shaped like a product foundation on purp
 
 ## 3. Locked Rules / Principles (planning must not violate)
 
-These are the conventions the template enforces. Consumption detail lives in `.cursor/rules`; this is the canonical summary.
+These constraints are non-negotiable, and planning must not violate them. The **canonical list lives in [AGENTS.md › Locked rules](AGENTS.md)** — the repo-truth file for the layer that enforces them — with consumption detail in `.cursor/rules`. Keep one copy: when a locked rule changes (PM approval required), edit AGENTS.md, not this section.
 
-- **Package manager:** pnpm only — never npm or yarn. One lockfile (`pnpm-lock.yaml`); no `package-lock.json`.
-- **UI is primitive-first:** own shadcn/ui components in `src/components/ui`; extend via the `cva` variant pattern; compose with Radix `asChild`/`Slot`. Never install shadcn as an npm package. Build composite components from primitives rather than reinventing.
-- **Theming via semantic tokens only:** colors come from CSS-variable tokens (`bg-background`, `text-foreground`, `ring-ring`, `text-destructive`, etc.). Never hardcode colors — no raw hex and no `color-500` utilities for themeable color. Tokens are defined in `src/app/globals.css`.
-- **Structure is fixed; theme is swappable:** the token *architecture*, primitive bias, and accessibility rules are inherited and stable across all products. The token *values* (palette, fonts, radius) are meant to be re-skinned per product.
-- **Mobile-first responsive:** design from the smallest breakpoint up.
-- **Component size:** keep components ≤150 lines; extract subcomponents when larger.
-- **Accessibility is WCAG 2.1 AA:** semantic HTML first, ARIA only when needed; visible `focus-visible` states using token rings; preserve Radix accessibility when customizing.
-- **shadcn CLI is always non-interactive:** `pnpm dlx shadcn@latest add <component> -y -o`. Never run the bare CLI or pipe `yes` in agent terminals; use `--dry-run`/`--diff` before overwriting locally-customized components.
-- **Images via `next/image`** with explicit dimensions to prevent layout shift.
-- **Auth boundary:** public routes are `/` (landing) and `/auth/**` only — all other routes require a session, enforced in the proxy/middleware layer (`proxy.ts`). Matches the starter's `protected/` pattern.
-- **Agent guidance lives in `.cursor`** (rules + skills) and is documented in [AGENTS.md](AGENTS.md) — not duplicated into product code.
+At a glance, the locked rules cover: pnpm-only package management; primitive-first shadcn/ui; semantic-token theming with no hardcoded color; fixed structure / swappable theme; mobile-first responsive; components ≤150 lines; WCAG 2.1 AA accessibility; non-interactive shadcn CLI; `next/image` with explicit dimensions; the `/` + `/auth/**` auth boundary enforced in `proxy.ts`; and agent guidance confined to `.cursor`. See AGENTS.md for the authoritative wording of each.
 
 ---
 

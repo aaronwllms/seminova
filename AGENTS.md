@@ -59,7 +59,7 @@
 
 ## Locked rules
 
-Canonical summary — must not be violated. Consumption detail lives in `.cursor/rules/` and [CONTEXT.md §3](CONTEXT.md).
+**Canonical home for the locked rules** — these must not be violated. Consumption detail lives in `.cursor/rules/`; CONTEXT.md §3 is a pointer back here. When a locked rule changes (PM approval required), edit this section.
 
 - **Package manager:** pnpm only — never npm or yarn. One lockfile (`pnpm-lock.yaml`); no `package-lock.json`.
 - **UI is primitive-first:** own shadcn/ui components in `src/components/ui`; extend via `cva`; compose with Radix `asChild`/`Slot`. Never install shadcn as an npm package.
@@ -73,7 +73,7 @@ Canonical summary — must not be violated. Consumption detail lives in `.cursor
 - **Auth boundary:** public routes are `/` and `/auth/**` only; all other routes require a session. Enforced in `proxy.ts` → `src/supabase/proxy.ts`.
 - **Agent guidance:** lives in `.cursor` (rules + skills) — not duplicated into product code.
 
-**Change protocol:** edits to locked rules require PM approval. Update AGENTS.md and CONTEXT.md §3 together when approved.
+**Change protocol:** edits to locked rules require PM approval. Update this section; CONTEXT.md §3 points here and needs no parallel edit unless its at-a-glance list changes.
 
 ---
 
@@ -155,7 +155,7 @@ See [.cursor/rules/error-handling.mdc](.cursor/rules/error-handling.mdc). Never 
 
 | Change type | Action |
 | ----------- | ------ |
-| Locked rules | PM approval required; update AGENTS.md + CONTEXT.md §3 |
+| Locked rules | Decided in PM/Claude chat with PM approval. **Text-only edit** → land directly in AGENTS.md (update CONTEXT.md §3 at-a-glance only if the topic list changes). **Requires code conformance** → create a CONTEXT ACTIVE story that updates AGENTS.md + `.cursor/rules/` + affected code together |
 | Implemented features, routes, data model | Update AGENTS.md via `/sync-repo-docs` |
 | Planning / roadmap | Update CONTEXT.md via `/sync-context-md` |
 | Coding standards | Update `.cursor/rules/` — not AGENTS.md |
