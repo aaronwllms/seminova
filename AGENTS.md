@@ -92,7 +92,7 @@
 - **Auth:** Supabase email/password flows under `/auth/**` (login, sign-up, forgot/update password, confirm, error); shared auth layout (`bg-muted`, centered shell, logo above forms).
 - **Session + route protection:** `proxy.ts` → `src/supabase/proxy.ts` — refreshes session; redirects unauthenticated users to `/auth/login`.
 - **Product routes:**
-  - `/` — public landing with hero, features grid, and tech-stack strip (`(marketing)` route group)
+  - `/` — public landing with hero, features grid, and tech-stack marquee (`(marketing)` route group)
   - `/auth/**` — public auth screens
   - `/users` — admin-only users table (real Supabase Auth data; search + pagination)
   - `/protected` — authenticated non-admin landing (starter shell until Phase 6)
@@ -107,7 +107,7 @@
 - **Users admin table (Phase 3 Epic 3):** `/users` lists real Supabase Auth users via gated Server Action + `src/supabase/service.ts`; email search, Next/Previous pagination (page size 50); canonical data-table pattern in `src/app/(admin)/users/_components/users-table.tsx` and [`.cursor/rules/data-tables.mdc`](.cursor/rules/data-tables.mdc).
 - **Auth restyle + app identity (Phase 3 Epic 4):** `src/config/site.ts` (`name` + `Logo`); `SeminovaLogo` reads site config (admin sidebar + auth layout); [`src/app/auth/layout.tsx`](src/app/auth/layout.tsx) provides muted full-page shell.
 - **Landing chrome (Phase 4 Epic 1):** `(marketing)` route group with sticky `LandingHeader`, document-flow `LandingFooter`, shared `LandingContainer` (`max-w-7xl`); nav/social/legal config in [`src/config/site.ts`](src/config/site.ts).
-- **Landing content (Phase 4 Epic 2):** hero, six-card features grid (`id="features"`), and tech-stack logo strip on `/`; copy and stack logos in [`src/config/landing-content.ts`](src/config/landing-content.ts); SVG assets in `public/tech/`.
+- **Landing content (Phase 4 Epic 2):** hero, six-card features grid (`id="features"`), and tech-stack marquee on `/` (six logos with icon+name cells, edge fades, pause on hover); copy and stack logos in [`src/config/landing-content.ts`](src/config/landing-content.ts); SVG assets in `public/tech/`; marquee primitive in [`src/components/kibo-ui/marquee/`](src/components/kibo-ui/marquee/).
 
 ---
 
@@ -133,6 +133,7 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | `src/app/auth/` | Auth screens, shared layout, confirm route |
 | `src/config/site.ts` | App name, logo, and landing nav/social/legal links |
 | `src/config/landing-content.ts` | Landing hero, features, and tech-stack copy/assets config |
+| `src/components/kibo-ui/marquee/` | Marquee primitives (`Marquee`, `MarqueeContent`, `MarqueeFade`, `MarqueeItem`) for landing tech-stack strip |
 | `src/app/(admin)/` | Admin sidebar shell (`/users`; gated by `isAdmin`) |
 | `src/app/protected/` | Non-admin authenticated starter page |
 | `src/constants/admin-role.ts` | Shared `ADMIN_ROLE` constant (app + CLI) |

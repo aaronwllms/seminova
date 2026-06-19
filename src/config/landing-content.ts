@@ -17,6 +17,7 @@ export interface LandingFeature {
 export interface LandingTechLogo {
   name: string
   src: string
+  srcDark?: string
   width: number
   height: number
 }
@@ -73,16 +74,35 @@ export const landingContent = {
   techStack: {
     label: 'Built with',
     logos: [
-      { name: 'Next.js', src: '/tech/nextjs.svg', width: 24, height: 24 },
-      { name: 'Supabase', src: '/tech/supabase.svg', width: 24, height: 24 },
-      { name: 'Vercel', src: '/tech/vercel.svg', width: 24, height: 24 },
+      {
+        name: 'Next.js',
+        src: '/tech/nextjs.svg',
+        srcDark: '/tech/nextjs-dark.svg',
+        width: 32,
+        height: 32,
+      },
+      { name: 'Supabase', src: '/tech/supabase.svg', width: 31, height: 32 },
+      {
+        name: 'Vercel',
+        src: '/tech/vercel.svg',
+        srcDark: '/tech/vercel-dark.svg',
+        width: 32,
+        height: 28,
+      },
       {
         name: 'Tailwind CSS',
         src: '/tech/tailwind.svg',
-        width: 24,
-        height: 24,
+        srcDark: '/tech/tailwind-dark.svg',
+        width: 32,
+        height: 27,
       },
-      { name: 'shadcn/ui', src: '/tech/shadcn.svg', width: 96, height: 24 },
+      { name: 'shadcn/ui', src: '/tech/shadcn.svg', width: 32, height: 32 },
+      {
+        name: 'TanStack Query',
+        src: '/tech/tanstack-query.svg',
+        width: 32,
+        height: 32,
+      },
     ] satisfies LandingTechLogo[],
   },
 } as const
