@@ -28,8 +28,10 @@ describe('LandingTechStack', () => {
     )
   })
 
-  it('should render configured stack names and logo images', () => {
+  it('should render the section label badge and configured stack logos', () => {
     render(<LandingTechStack />)
+
+    expect(screen.getByText(landingContent.techStack.label)).toBeInTheDocument()
 
     for (const logo of landingContent.techStack.logos) {
       expect(screen.getAllByText(logo.name).length).toBeGreaterThanOrEqual(1)
