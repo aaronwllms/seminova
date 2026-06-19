@@ -311,13 +311,15 @@ When optimizing an oversized rule file:
 ## Examples from This Project
 
 **Well-Optimized:**
-- `testing.mdc` (167 lines) - Focused, principle-driven, minimal examples
-- `api-development.mdc` (108 lines) - Cross-references effectively
+- `api-development.mdc` (~107 lines) - Cross-references effectively
+- `logging.mdc` (~42 lines) - Focused scope, delegates from `error-handling.mdc`
+- `supabase.mdc` (~194 lines) - Project-specific migration safety without tutorial bloat
 
-**Needs Optimization:**
-- `security.mdc` (499 lines) - Too many code examples, reduce by 40%
-- `supabase.mdc` (291 lines) - Verbose command examples, target 200-250
+**Watch Size:**
+- `testing.mdc` (~340 lines) - Grew with coverage gates and H/I/B guidance; keep examples minimal
+- `rule-authoring.mdc` (~323 lines) - Meta-rule; acceptable but avoid adding tutorial content
 
 **Cross-Reference Model:**
 - `api-development.mdc` → `error-handling.mdc` (excellent pattern)
 - `react-tanstack-query.mdc` → `error-handling.mdc` (good delegation)
+- `error-handling.mdc` → `logging.mdc` (log levels and tags)
