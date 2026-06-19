@@ -4,7 +4,7 @@ An opinionated, AI-native starter for building SaaS products with Next.js and Su
 
 Seminova gives product managers who build with AI coding tools (Cursor, Claude) a curated foundation — design-system structure, UI conventions, accessibility defaults, and a documented agent workflow — so new projects start with good bones instead of a blank slate.
 
-For roadmap and phase planning, see [CONTEXT.md](CONTEXT.md). For agent repo truth, see [AGENTS.md](AGENTS.md). For design tokens and re-skinning, see [DESIGN.md](DESIGN.md). To change the app name, logo, and landing nav/social links, edit [`src/config/site.ts`](src/config/site.ts).
+For roadmap and phase planning, see [CONTEXT.md](CONTEXT.md). For agent repo truth, see [AGENTS.md](AGENTS.md). For design tokens and re-skinning, see [DESIGN.md](DESIGN.md). To change the app name, logo, and landing nav/social links, edit [`src/config/site.ts`](src/config/site.ts). Landing page hero, features, and tech-stack copy live in [`src/config/landing-content.ts`](src/config/landing-content.ts).
 
 ---
 

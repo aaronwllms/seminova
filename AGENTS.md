@@ -92,7 +92,7 @@
 - **Auth:** Supabase email/password flows under `/auth/**` (login, sign-up, forgot/update password, confirm, error); shared auth layout (`bg-muted`, centered shell, logo above forms).
 - **Session + route protection:** `proxy.ts` → `src/supabase/proxy.ts` — refreshes session; redirects unauthenticated users to `/auth/login`.
 - **Product routes:**
-  - `/` — public landing with sticky header + footer chrome (`(marketing)` route group; Epic 2 adds hero/features content)
+  - `/` — public landing with hero, features grid, and tech-stack strip (`(marketing)` route group)
   - `/auth/**` — public auth screens
   - `/users` — admin-only users table (real Supabase Auth data; search + pagination)
   - `/protected` — authenticated non-admin landing (starter shell until Phase 6)
@@ -106,7 +106,8 @@
 - **Admin app shell (Phase 3 Epic 2):** `(admin)` route group with sidebar layout (`sidebar-07` baseline), dynamic breadcrumb, nav-user sign-out; `src/utils/admin.ts` + shared `ADMIN_ROLE` in `src/constants/admin-role.ts`; `SeminovaLogo` placeholder component.
 - **Users admin table (Phase 3 Epic 3):** `/users` lists real Supabase Auth users via gated Server Action + `src/supabase/service.ts`; email search, Next/Previous pagination (page size 50); canonical data-table pattern in `src/app/(admin)/users/_components/users-table.tsx` and [`.cursor/rules/data-tables.mdc`](.cursor/rules/data-tables.mdc).
 - **Auth restyle + app identity (Phase 3 Epic 4):** `src/config/site.ts` (`name` + `Logo`); `SeminovaLogo` reads site config (admin sidebar + auth layout); [`src/app/auth/layout.tsx`](src/app/auth/layout.tsx) provides muted full-page shell.
-- **Landing chrome (Phase 4 Epic 1):** `(marketing)` route group with sticky `LandingHeader`, document-flow `LandingFooter`, shared `LandingContainer` (`max-w-7xl`); nav/social/legal config in [`src/config/site.ts`](src/config/site.ts); main content placeholder until Epic 2.
+- **Landing chrome (Phase 4 Epic 1):** `(marketing)` route group with sticky `LandingHeader`, document-flow `LandingFooter`, shared `LandingContainer` (`max-w-7xl`); nav/social/legal config in [`src/config/site.ts`](src/config/site.ts).
+- **Landing content (Phase 4 Epic 2):** hero, six-card features grid (`id="features"`), and tech-stack logo strip on `/`; copy and stack logos in [`src/config/landing-content.ts`](src/config/landing-content.ts); SVG assets in `public/tech/`.
 
 ---
 
@@ -128,9 +129,10 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | Path | Purpose |
 | ---- | ------- |
 | `src/app/` | App Router pages and layouts |
-| `src/app/(marketing)/` | Public landing route group (`/` — header + footer chrome) |
+| `src/app/(marketing)/` | Public landing route group (`/` — header, hero, features, tech stack, footer) |
 | `src/app/auth/` | Auth screens, shared layout, confirm route |
 | `src/config/site.ts` | App name, logo, and landing nav/social/legal links |
+| `src/config/landing-content.ts` | Landing hero, features, and tech-stack copy/assets config |
 | `src/app/(admin)/` | Admin sidebar shell (`/users`; gated by `isAdmin`) |
 | `src/app/protected/` | Non-admin authenticated starter page |
 | `src/constants/admin-role.ts` | Shared `ADMIN_ROLE` constant (app + CLI) |
