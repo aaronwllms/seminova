@@ -3,7 +3,7 @@
 **Purpose:** Dual-use — planning reference for the builder (PM) and context for coding agents. Seminova is currently a **template**: a curated foundation that real products are built from. It is written in product shape so that the structure itself is inherited by every project spun off it. Agents: read this file for living state; build-time workflow and authoritative schema live in [AGENTS.md](AGENTS.md); shipped phase detail in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md).
 
 **Last updated:** 2026-06-19
-**Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell (Admin sidebar) + Auth restyle is **ACTIVE** (in progress).
+**Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell (Admin sidebar) + Auth restyle (shipped). Next up: Phase 4 — Landing Page (`Draft`).
 **Migrations:** none yet — no custom schema; Supabase `auth.users` only.
 
 **Shipped phase detail →** [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md)
@@ -54,7 +54,7 @@ Seminova is a template today, but it is shaped like a product foundation on purp
 
 These constraints are non-negotiable, and planning must not violate them. The **canonical list lives in [AGENTS.md › Locked rules](AGENTS.md)** — the repo-truth file for the layer that enforces them — with consumption detail in `.cursor/rules`. Keep one copy: when a locked rule changes (PM approval required), edit AGENTS.md, not this section.
 
-At a glance, the locked rules cover: pnpm-only package management; primitive-first shadcn/ui; semantic-token theming with no hardcoded color; fixed structure / swappable theme; mobile-first responsive; components ≤150 lines; WCAG 2.1 AA accessibility; non-interactive shadcn CLI; `next/image` with explicit dimensions; the `/` + `/auth/**` auth boundary enforced in `proxy.ts`; and agent guidance confined to `.cursor`. See AGENTS.md for the authoritative wording of each.
+At a glance, the locked rules cover: pnpm-only package management; primitive-first shadcn/ui; semantic-token theming with no hardcoded color; fixed structure / swappable theme; mobile-first responsive; components ≤150 lines; WCAG 2.1 AA accessibility; non-interactive shadcn CLI; `next/image` with explicit dimensions; the `/` + `/auth/**` auth boundary enforced in `proxy.ts`; admin gate via `app_metadata.role` (secret-key CLI only); and agent guidance confined to `.cursor`. See AGENTS.md for the authoritative wording of each.
 
 ---
 
@@ -112,96 +112,11 @@ No custom schema or migrations exist yet. The only user-bearing table is Supabas
 | ----- | ---- | ------ |
 | 1 | Foundation & Cleanup | `Shipped` |
 | 2 | Design-System Token Layer | `Shipped` |
-| 3 | App Shell (Admin sidebar) + Auth restyle | `Active` |
+| 3 | App Shell (Admin sidebar) + Auth restyle | `Shipped` |
 | 4 | Landing Page | `Draft` |
 | 5 | Reference Implementations | `Draft` |
 | 6 | Data Model Foundation (profiles, non-admin shell, profile/settings page) | `Draft` |
 | 7 | Agent Tooling: Skills Suite | `Draft` |
-
----
-
-# ACTIVE
-
-## Phase 3 — App Shell (Admin sidebar) + Auth restyle
-
-The Phase 3 shell is **admin-scoped**, using the sidebar pattern — the only authenticated identity concept the template currently has. Non-admin authenticated users get a separate header+content shell (Phase 6) — sidebar is reserved for admin/management surfaces; header+content is for end-user-facing ones.
-
-### Prerequisite (not a Cursor story)
-A Supabase project must exist and be wired into local `.env` before any of this is functional. No migration is needed (no new tables — `auth.users` already exists), but there's nothing for `listUsers()` or the promote-admin script to call against otherwise. This is manual setup, not something to hand to Cursor.
-
----
-
-### Epic 1: Admin authentication
-
-Admin status is gated by `app_metadata.role` on `auth.users` — sensitive, low-churn, JWT-embedded, set only via secret-key-authenticated tooling (`SUPABASE_SECRET_KEY`). This is a deliberate boundary: `app_metadata` is for the one bit that gates god-mode access (admin/not-admin); future product-level roles (editor, viewer, etc.) belong in `profiles` or a roles table instead (Phase 6), which have live-query consistency rather than JWT refresh lag.
-
-**Story: Promote a user to admin from the command line**
-As the person setting up a fresh clone of this repo, I want to grant myself admin access via a CLI command so I can access the admin shell without manually editing the database.
-- `pnpm promote-admin <email>` sets `app_metadata.role = 'admin'` via the Supabase secret key (`SUPABASE_SECRET_KEY` in `.env.local`)
-- Errors clearly if no user with that email exists yet: "no user found with that email — sign up first"
-- Idempotent — running it again on an existing admin confirms/no-ops rather than erroring
-- Companion commands: `pnpm demote-admin <email>`, `pnpm list-admins`
-- Promote/demote print the target Supabase project URL (from env) and require a y/N confirmation before acting; `list-admins` is read-only, no confirmation needed
-- README gets a human-facing "Initial setup" section documenting this as a required step after cloning
-- AGENTS.md gets a locked-rule entry: `app_metadata.role` is the canonical admin gate — do not move this to a `profiles` column without PM approval
-
----
-
-### Epic 2: Admin app shell
-
-Canonical authenticated layout, based on shadcn's `sidebar-07` block (`npx shadcn add sidebar-07`), enhanced from its generic baseline into Seminova-real. Note: Phase 2 already handled token conformance on auth errors and layout chrome — this epic does not redo that work.
-
-**Story: Authenticated admin layout with sidebar**
-As an admin, I want a persistent sidebar with navigation and my account info so I can move around the admin area and sign out.
-- Sidebar baseline: `sidebar-07` (collapsible-icon behavior retained as-is — `SidebarRail`, `SidebarTrigger` unchanged)
-- Logo area: text wordmark ("Seminova") + a placeholder lucide icon replacing the stock shadcnblocks CDN image — same placeholder used in the auth screens (see Auth restyle epic)
-- Nav: real items with real Next.js `Link`s, not placeholder `<a href="#">`s — minimum includes a Users item linking to the Users page
-- Footer: user menu following the `nav-user.tsx` pattern from `sidebar-07` — avatar (initials/generic fallback, no `avatar_url` source yet) + email as the trigger row, dropdown containing only **Sign out** wired to real Supabase `signOut()`; strip the Account/Billing/Notifications items the reference ships with since nothing they'd link to exists yet
-- Header breadcrumb is dynamic, reflecting the actual current page — not hardcoded
-- Post-login redirect: after successful login or password update, admins go to `/users`; non-admins go to `/protected` (non-admin shell arrives in Phase 6)
-- The shadcnblocks `sidebar1` block (`npx shadcn add @shadcnblocks/sidebar1`) was used as the reference for the header/breadcrumb/inset layout shape; `sidebar-07` from ui.shadcn.com is the reference for the `nav-user.tsx` footer pattern
-
----
-
-### Epic 3: Users reference page
-
-First real authenticated data page — also establishes the canonical data table pattern (search, pagination) for every future table in this template. Pattern decisions are now canonized in `.cursor/rules/data-tables.mdc`.
-
-**Story: Admin can view all signed-up users**
-As an admin, I want to see a list of everyone who has signed up so I can confirm accounts exist and check who has admin access.
-- Data source: `auth.admin.listUsers()` via a Server Action (not a Route Handler — no external caller, per the convention now in `.cursor/rules/nextjs.mdc`)
-- Columns: Email, Verified (from `email_confirmed_at` — shown as a badge/checkmark), Created, Last sign-in, Role (admin badge, from `app_metadata.role`)
-- Read-only — no row actions (edit/promote/delete from the UI); admin promotion stays CLI-only this phase
-- Real data, not mock — a mock users table would misrepresent actual system state on a page whose entire purpose is showing actual system state
-- Data table baseline: `@shadcnblocks/data-table1` (`npx shadcn add @shadcnblocks/data-table1`), with the product/inventory demo schema and data stripped and replaced with the user schema above
-
-**Story: Search and pagination on the Users table**
-As an admin, I want to search and page through users so I can find someone without scrolling an unbounded list.
-- Search: single input, explicitly designated to filter on the `email` column (canonical pattern per `data-tables.mdc` — one designated text column, not positional inference, not global multi-column search)
-- Pagination: Next/Previous controls only, fixed page size of 50, no numbered pages, no page-size selector; table grows naturally and the page scrolls — no fixed-height internal scroll region
-- **Follow-up to complete in this phase:** once real file paths exist, confirm/correct the glob pattern and reference-implementation path in `.cursor/rules/data-tables.mdc` — they are placeholder values written before the Users table file structure was known
-
----
-
-### Epic 4: Auth screen restyle
-
-Resolves the open question deferred from Phase 2: **restyle in place, not rebuild.** The form fields and flows are unchanged; only the page wrapper/layout and branding are updated.
-
-**Story: Auth screens match the rest of the app**
-As a user, I want the login/signup/password screens to look like they belong to this app, not stock Supabase styling.
-- Visual pattern: shadcn `-03` style (muted background, centered form, no side image) applied uniformly across all `/auth/**` screens — login, signup, forgot password, reset password
-- Install references: `npx shadcn add login-03`, `npx shadcn add signup-03` — use as structural reference, adapted to the existing `/auth/**` routes rather than dropped in as-is
-- Branding: same Seminova text+icon placeholder used in the sidebar logo appears above the form, replacing the generic "Acme Inc." reference markup
-- Background: `bg-muted` as currently defined in `globals.css` (`oklch(0.967 0.0029 264.5419)` light / `oklch(0.2427 0.0381 259.9437)` dark) — near-white/dark-slate, not purple-tinted; visual identity tuning is Phase 4 territory
-- This is a structural/token-compliant pass, not a final visual identity decision
-
-**Story: Canonical app identity (name + logo) in one place**
-As someone re-skinning this template into a new product, I want the app name and logo defined in a single config file so I can rebrand the entire app — sidebar, auth screens, anywhere else it appears — by editing one place.
-- New `src/config/site.ts` exports `name: string` and a `logo` slot typed as a component — defaults to the current Lucide-icon placeholder, but the type accommodates swapping in a real SVG/image component later without a refactor
-- `SeminovaLogo` (or its successor) reads `name` and `logo` from `site.ts` instead of hardcoding "Seminova" — used by both the admin sidebar (Epic 2) and the auth shell (this epic)
-- README and AGENTS.md each get a one-line pointer to `src/config/site.ts` as where to edit app identity — not literal content sync (markdown can't import TS values), just a doc cross-reference so it's discoverable
-- No visual change in this pass — this is a refactor of where the existing "Seminova" name/logo come from, not a redesign
-- **Scope note:** this story centralizes `SeminovaLogo`'s two current consumers (admin sidebar, auth shell) only. It does not audit or convert other hardcoded "Seminova" references (e.g. root `metadata`/page `<title>`) — see Open Questions "Full site.ts adoption audit"
 
 ---
 
