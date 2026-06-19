@@ -52,3 +52,10 @@ Establish the token *definition* layer the rules already assume exists, and bran
 
 - [x] **2.6 — Design system documentation.** Root [DESIGN.md](DESIGN.md): token architecture, structure-vs-theme split, tweakcn re-skin workflow, Clean Slate provenance. Points to `globals.css` as authoritative values (no value duplication).
 - [x] **2.7 — Repo truth sync.** AGENTS.md doc map + Implemented now (Clean Slate, Inter/JetBrains Mono); README + DESIGN.md cross-links; `components.json` `baseColor` → `slate`.
+
+---
+
+## Resolved decisions
+
+**Auth screens — restyle vs rebuild** (resolved 2026-06-18, Phase 3 planning)
+Restyle in place, not rebuild. Phase 2 validated in-place token swaps work; Phase 3 applies the shadcn `-03` pattern (muted background, centered form, no side image) uniformly across all `/auth/**` screens using existing token values. Form fields and flows are unchanged.
