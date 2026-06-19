@@ -52,7 +52,7 @@ For roadmap and phase planning, see [CONTEXT.md](CONTEXT.md). For agent repo tru
    | -------- | ----------- |
    | `NEXT_PUBLIC_SUPABASE_URL` | Project URL |
    | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable (anon) key |
-   | `SUPABASE_SERVICE_ROLE_KEY` | Service role key (server/CLI only — see Initial setup) |
+   | `SUPABASE_SECRET_KEY` | Secret key (server/CLI only — see Initial setup) |
 
 4. Start the development server:
 
@@ -71,7 +71,9 @@ For roadmap and phase planning, see [CONTEXT.md](CONTEXT.md). For agent repo tru
 After Quick start, grant yourself admin access so you can use the admin shell (Phase 3+):
 
 1. Start the dev server and sign up at [http://localhost:3000/auth/sign-up](http://localhost:3000/auth/sign-up).
-2. Add `SUPABASE_SERVICE_ROLE_KEY` to `.env.local` (from [Project Settings → API](https://app.supabase.com/project/_/settings/api) — the **service_role** secret). Never commit this key or use a `NEXT_PUBLIC_*` prefix.
+2. Add `SUPABASE_SECRET_KEY` to `.env.local` (from [Project Settings → API](https://app.supabase.com/project/_/settings/api) → **API Keys** → **secret key**, `sb_secret_...`). Never commit this key or use a `NEXT_PUBLIC_*` prefix.
+
+   > **Note:** Supabase’s **secret key** replaces the legacy **service role** key. This repo uses `SUPABASE_SECRET_KEY` — not `SUPABASE_SERVICE_ROLE_KEY`. The legacy JWT under “Legacy API keys” still works during Supabase’s migration period, but prefer the secret key from **API Keys**.
 3. Promote your account:
 
    ```bash
@@ -103,7 +105,7 @@ Companion commands: `pnpm demote-admin <email>`, `pnpm list-admins` (read-only, 
 | `pnpm pre-push` | Full local CI mirror (type-check → lint → format-check → test:ci) |
 | `pnpm test:ui` | Vitest UI |
 | `pnpm analyze` | Bundle analyzer |
-| `pnpm promote-admin <email>` | Grant admin role via `app_metadata.role` (requires service role key) |
+| `pnpm promote-admin <email>` | Grant admin role via `app_metadata.role` (requires secret key) |
 | `pnpm demote-admin <email>` | Remove admin role |
 | `pnpm list-admins` | List all admin users (read-only) |
 

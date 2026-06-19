@@ -1,11 +1,11 @@
 export interface AdminEnv {
   supabaseUrl: string
-  serviceRoleKey: string
+  secretKey: string
 }
 
 export const loadAdminEnv = (): AdminEnv => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const secretKey = process.env.SUPABASE_SECRET_KEY
 
   if (!supabaseUrl) {
     console.error(
@@ -14,12 +14,12 @@ export const loadAdminEnv = (): AdminEnv => {
     process.exit(1)
   }
 
-  if (!serviceRoleKey) {
+  if (!secretKey) {
     console.error(
-      '[admin-cli] Missing SUPABASE_SERVICE_ROLE_KEY — add it to .env.local',
+      '[admin-cli] Missing SUPABASE_SECRET_KEY — add it to .env.local',
     )
     process.exit(1)
   }
 
-  return { supabaseUrl, serviceRoleKey }
+  return { supabaseUrl, secretKey }
 }

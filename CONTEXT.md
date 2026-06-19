@@ -133,11 +133,11 @@ A Supabase project must exist and be wired into local `.env` before any of this 
 
 ### Epic 1: Admin authentication
 
-Admin status is gated by `app_metadata.role` on `auth.users` — sensitive, low-churn, JWT-embedded, set only via service-role-authenticated tooling. This is a deliberate boundary: `app_metadata` is for the one bit that gates god-mode access (admin/not-admin); future product-level roles (editor, viewer, etc.) belong in `profiles` or a roles table instead (Phase 6), which have live-query consistency rather than JWT refresh lag.
+Admin status is gated by `app_metadata.role` on `auth.users` — sensitive, low-churn, JWT-embedded, set only via secret-key-authenticated tooling (`SUPABASE_SECRET_KEY`). This is a deliberate boundary: `app_metadata` is for the one bit that gates god-mode access (admin/not-admin); future product-level roles (editor, viewer, etc.) belong in `profiles` or a roles table instead (Phase 6), which have live-query consistency rather than JWT refresh lag.
 
 **Story: Promote a user to admin from the command line**
 As the person setting up a fresh clone of this repo, I want to grant myself admin access via a CLI command so I can access the admin shell without manually editing the database.
-- `pnpm promote-admin <email>` sets `app_metadata.role = 'admin'` via the Supabase service role key (from `.env.local`)
+- `pnpm promote-admin <email>` sets `app_metadata.role = 'admin'` via the Supabase secret key (`SUPABASE_SECRET_KEY` in `.env.local`)
 - Errors clearly if no user with that email exists yet: "no user found with that email — sign up first"
 - Idempotent — running it again on an existing admin confirms/no-ops rather than erroring
 - Companion commands: `pnpm demote-admin <email>`, `pnpm list-admins`

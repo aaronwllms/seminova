@@ -86,12 +86,12 @@ import { updateSession } from '@/supabase/proxy'
 - RLS policy implementation
 - Auth checks and validation
 - DTO patterns for data protection
-- Never exposing service role keys to client
+- Never exposing secret keys to client
 
 **Key points:**
 - Never commit Supabase keys to version control
 - Store credentials in `.env.local`
-- Use environment variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- Use environment variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` (server/CLI only)
 - Implement RLS policies for all tables
 - Validate user inputs before queries
 

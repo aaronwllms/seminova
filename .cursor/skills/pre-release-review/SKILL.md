@@ -72,7 +72,7 @@ Check:
 3. **RLS / ownership** — new or changed tables have appropriate policies; user-owned vs shared-catalog scope matches AGENTS.md locked rules (not only `user_id = auth.uid()` when the table is shared or scoped via FK)
 4. **Input validation** — user input validated before DB queries, file uploads, or external API calls (Zod on API inputs per project rules)
 5. **Data exposure** — responses do not leak fields the client does not need; auth errors do not reveal user existence or internal details
-6. **Secrets** — no API keys, tokens, or credentials in client code or committed files; service role key never in client or `NEXT_PUBLIC_*` env vars
+6. **Secrets** — no API keys, tokens, or credentials in client code or committed files; `SUPABASE_SECRET_KEY` never in client or `NEXT_PUBLIC_*` env vars
 
 **Conditional — run when the scoped change touches that surface:**
 
