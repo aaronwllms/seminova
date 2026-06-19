@@ -8,12 +8,12 @@ interface LandingTechStackItemProps {
   logo: LandingTechLogo
 }
 
-const logoImageClassName = 'h-auto max-h-9 w-auto object-contain'
+const logoImageClassName = 'h-9 w-auto object-contain'
 
 export const LandingTechStackItem = ({ logo }: LandingTechStackItemProps) => (
   <MarqueeItem className="mx-4 lg:mx-6">
-    <div className="flex items-center gap-3">
-      <div className="flex aspect-3/1 w-36 items-center justify-center sm:w-40">
+    <div className="flex items-center gap-1.5">
+      <div className="relative flex h-9 shrink-0 items-center">
         {logo.srcDark ? (
           <>
             <Image
@@ -47,7 +47,7 @@ export const LandingTechStackItem = ({ logo }: LandingTechStackItemProps) => (
           />
         )}
       </div>
-      <span className="text-muted-foreground text-sm font-medium whitespace-nowrap">
+      <span className="text-muted-foreground text-base font-medium whitespace-nowrap">
         {logo.name}
       </span>
     </div>
