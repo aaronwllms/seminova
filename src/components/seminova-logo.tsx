@@ -1,6 +1,6 @@
-import { Sparkles } from 'lucide-react'
 import Link from 'next/link'
 
+import { siteConfig } from '@/config/site'
 import { cn } from '@/utils/tailwind'
 
 type SeminovaLogoProps = {
@@ -12,12 +12,14 @@ export const SeminovaLogo = ({
   className,
   href = '/users',
 }: SeminovaLogoProps) => {
+  const Logo = siteConfig.Logo
+
   const content = (
     <>
       <span className="bg-primary text-primary-foreground flex size-8 shrink-0 items-center justify-center rounded-lg">
-        <Sparkles className="size-4" aria-hidden />
+        <Logo className="size-4" aria-hidden />
       </span>
-      <span className="truncate font-semibold">Seminova</span>
+      <span className="truncate font-semibold">{siteConfig.name}</span>
     </>
   )
 

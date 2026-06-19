@@ -195,6 +195,14 @@ As a user, I want the login/signup/password screens to look like they belong to 
 - Background: `bg-muted` as currently defined in `globals.css` (`oklch(0.967 0.0029 264.5419)` light / `oklch(0.2427 0.0381 259.9437)` dark) — near-white/dark-slate, not purple-tinted; visual identity tuning is Phase 4 territory
 - This is a structural/token-compliant pass, not a final visual identity decision
 
+**Story: Canonical app identity (name + logo) in one place**
+As someone re-skinning this template into a new product, I want the app name and logo defined in a single config file so I can rebrand the entire app — sidebar, auth screens, anywhere else it appears — by editing one place.
+- New `src/config/site.ts` exports `name: string` and a `logo` slot typed as a component — defaults to the current Lucide-icon placeholder, but the type accommodates swapping in a real SVG/image component later without a refactor
+- `SeminovaLogo` (or its successor) reads `name` and `logo` from `site.ts` instead of hardcoding "Seminova" — used by both the admin sidebar (Epic 2) and the auth shell (this epic)
+- README and AGENTS.md each get a one-line pointer to `src/config/site.ts` as where to edit app identity — not literal content sync (markdown can't import TS values), just a doc cross-reference so it's discoverable
+- No visual change in this pass — this is a refactor of where the existing "Seminova" name/logo come from, not a redesign
+- **Scope note:** this story centralizes `SeminovaLogo`'s two current consumers (admin sidebar, auth shell) only. It does not audit or convert other hardcoded "Seminova" references (e.g. root `metadata`/page `<title>`) — see Open Questions "Full site.ts adoption audit"
+
 ---
 
 # DRAFT — Upcoming Phases
@@ -216,6 +224,13 @@ Finalize the generic (de-specialized) skills suite: a design-critique skill, a d
 # OPEN QUESTIONS / DEFERRED DECISIONS
 
 Nothing here is blocking current work unless noted.
+
+---
+
+**Full site.ts adoption audit**
+**Problem:** Phase 3 Epic 4 centralizes app name/logo into `src/config/site.ts`, but only wires it through `SeminovaLogo` (admin sidebar + auth shell). Other hardcoded "Seminova" references — most notably root `layout.tsx` `metadata`/page `<title>` — aren't audited or converted, so the app isn't yet fully re-skinnable from one file.
+**Solution:** A follow-up epic/story to grep the codebase for remaining hardcoded identity strings and wire them to `site.ts`. Natural fit early in Phase 4 (Landing Page), since a public landing page is exactly where root metadata/title matters most.
+_Defer until: Phase 4_
 
 ---
 

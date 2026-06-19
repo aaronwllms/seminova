@@ -89,7 +89,7 @@
 - **Rules correctness (Epic 1B):** `.cursor/rules/` stack-accurate and project-agnostic.
 - **Docs (Epic 1C):** `AGENTS.md`, `CONTEXT.md`, `README.md`, and `CONTEXT_ARCHIVE.md` planning/doc layer.
 - **Dev tooling hygiene (Epic 1D):** pre-push hook mirrors CI; 80% Vitest coverage thresholds; `.prettierignore` / lint-staged audit (agent-authored docs remain Prettier-ignored).
-- **Auth:** Supabase email/password flows under `/auth/**` (login, sign-up, forgot/update password, confirm, error).
+- **Auth:** Supabase email/password flows under `/auth/**` (login, sign-up, forgot/update password, confirm, error); shared auth layout (`bg-muted`, centered shell, logo above forms).
 - **Session + route protection:** `proxy.ts` → `src/supabase/proxy.ts` — refreshes session; redirects unauthenticated users to `/auth/login`.
 - **Product routes:**
   - `/` — public landing (starter shell; full landing page planned Phase 4)
@@ -105,6 +105,7 @@
 - **Admin CLI (Phase 3 Epic 1):** `pnpm promote-admin`, `pnpm demote-admin`, `pnpm list-admins` — secret-key scripts in `scripts/admin/`; sets `app_metadata.role` on `auth.users`.
 - **Admin app shell (Phase 3 Epic 2):** `(admin)` route group with sidebar layout (`sidebar-07` baseline), dynamic breadcrumb, nav-user sign-out; `src/utils/admin.ts` + shared `ADMIN_ROLE` in `src/constants/admin-role.ts`; `SeminovaLogo` placeholder component.
 - **Users admin table (Phase 3 Epic 3):** `/users` lists real Supabase Auth users via gated Server Action + `src/supabase/service.ts`; email search, Next/Previous pagination (page size 50); canonical data-table pattern in `src/app/(admin)/users/_components/users-table.tsx` and [`.cursor/rules/data-tables.mdc`](.cursor/rules/data-tables.mdc).
+- **Auth restyle + app identity (Phase 3 Epic 4):** `src/config/site.ts` (`name` + `Logo`); `SeminovaLogo` reads site config (admin sidebar + auth layout); [`src/app/auth/layout.tsx`](src/app/auth/layout.tsx) provides muted full-page shell.
 
 ---
 
@@ -126,7 +127,8 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | Path | Purpose |
 | ---- | ------- |
 | `src/app/` | App Router pages and layouts |
-| `src/app/auth/` | Auth screens and confirm route |
+| `src/app/auth/` | Auth screens, shared layout, confirm route |
+| `src/config/site.ts` | App name and logo — edit to rebrand sidebar + auth |
 | `src/app/(admin)/` | Admin sidebar shell (`/users`; gated by `isAdmin`) |
 | `src/app/protected/` | Non-admin authenticated starter page |
 | `src/constants/admin-role.ts` | Shared `ADMIN_ROLE` constant (app + CLI) |
