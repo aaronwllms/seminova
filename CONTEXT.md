@@ -2,7 +2,7 @@
 
 **Purpose:** Dual-use — planning reference for the builder (PM) and context for coding agents. Seminova is currently a **template**: a curated foundation that real products are built from. It is written in product shape so that the structure itself is inherited by every project spun off it. Agents: read this file for living state; build-time workflow and authoritative schema live in [AGENTS.md](AGENTS.md); shipped phase detail in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md).
 
-**Last updated:** 2026-06-18
+**Last updated:** 2026-06-19
 **Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell (Admin sidebar) + Auth restyle is **ACTIVE** (in progress).
 **Migrations:** none yet — no custom schema; Supabase `auth.users` only.
 
@@ -21,6 +21,7 @@ These rules apply to anyone updating this file — PM or coding agent.
 - **When a phase ships in full**, append its epic/story detail to [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md) (append-only — never edit existing archive entries), then update the Roadmap status and the Status line here and remove the shipped ACTIVE content.
 - **Resolved open-question one-liners** append to `## Resolved decisions` in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md); remove from this file.
 - **HTML mockups:** save new explorations as `.mockups/*.html`. When a mockup is superseded or tied to a shipped phase, move it to `.mockups/archive/`.
+- **Epics must be numbered.** Format as `### Epic N: Name` (sequential within the phase, starting at 1). Never `### Epic: Name` with no number.
 - **Stub sections are intentional.** Sections that are empty now (e.g. AI Architecture) are kept as stubs so the structure is inherited by every product built from this template. Do not delete them.
 
 ---
@@ -130,7 +131,7 @@ A Supabase project must exist and be wired into local `.env` before any of this 
 
 ---
 
-### Epic: Admin authentication
+### Epic 1: Admin authentication
 
 Admin status is gated by `app_metadata.role` on `auth.users` — sensitive, low-churn, JWT-embedded, set only via service-role-authenticated tooling. This is a deliberate boundary: `app_metadata` is for the one bit that gates god-mode access (admin/not-admin); future product-level roles (editor, viewer, etc.) belong in `profiles` or a roles table instead (Phase 6), which have live-query consistency rather than JWT refresh lag.
 
@@ -146,7 +147,7 @@ As the person setting up a fresh clone of this repo, I want to grant myself admi
 
 ---
 
-### Epic: Admin app shell
+### Epic 2: Admin app shell
 
 Canonical authenticated layout, based on shadcn's `sidebar-07` block (`npx shadcn add sidebar-07`), enhanced from its generic baseline into Seminova-real. Note: Phase 2 already handled token conformance on auth errors and layout chrome — this epic does not redo that work.
 
@@ -161,7 +162,7 @@ As an admin, I want a persistent sidebar with navigation and my account info so 
 
 ---
 
-### Epic: Users reference page
+### Epic 3: Users reference page
 
 First real authenticated data page — also establishes the canonical data table pattern (search, pagination) for every future table in this template. Pattern decisions are now canonized in `.cursor/rules/data-tables.mdc`.
 
@@ -181,7 +182,7 @@ As an admin, I want to search and page through users so I can find someone witho
 
 ---
 
-### Epic: Auth screen restyle
+### Epic 4: Auth screen restyle
 
 Resolves the open question deferred from Phase 2: **restyle in place, not rebuild.** The form fields and flows are unchanged; only the page wrapper/layout and branding are updated.
 
@@ -235,6 +236,13 @@ _Defer until: Phase 6_
 **Problem:** The "put a new spin on the design for this project" capability should not regenerate structure, only theme values.
 **Solution:** Implement as a separate, theme-only skill distinct from the structure-establishing design-system skill.
 _Defer until: Phase 7_
+
+---
+
+**Admin Logging page**
+**Problem:** Warn/error/info/debug logs now have a canonical taxonomy (`logging.mdc`), but they currently only surface in Vercel's log viewer — there's no in-app way to browse them. A dedicated admin page (filterable by level, color-coded — e.g. debug in green) would make this template-level convention actually visible and useful day-to-day.
+**Solution:** Not yet scoped. Needs a data-storage decision first — whether to read/relay Vercel's log stream, or persist log entries to a table — before this can become a real epic. Likely Phase 5 (Reference Implementations) or later, once a clearer need emerges from actual product use.
+_Defer until: unscoped — revisit when a storage approach is decided_
 
 ---
 

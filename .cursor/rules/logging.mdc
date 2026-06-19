@@ -1,0 +1,42 @@
+---
+description: Console log level taxonomy and tag conventions — what level to use, when, and how to tag it
+globs:
+  - 'src/**/*.{ts,tsx}'
+  - 'scripts/**/*.ts'
+alwaysApply: false
+---
+
+# Logging Conventions
+
+## Core Principle
+
+No `@/utils/logger` module — use bracket-tagged `console.*` so Vercel Functions logs (and terminal output for CLI scripts) stay searchable and scannable. This file owns log-level selection and tagging; `error-handling.mdc` owns error taxonomy and response envelopes for actual failures.
+
+## Tag Convention
+
+Every log line carries a `[kebab-case-source]` tag matching the file or feature it comes from:
+
+```typescript
+console.warn('[promote-admin] user@example.com is now an admin')
+console.error('[api-posts] Unexpected error', error)
+```
+
+## Level Taxonomy
+
+| Level | Method | When |
+|-------|--------|------|
+| Debug | `console.debug` | Verbose, dev-only tracing. Not expected in normal operation — noise unless actively debugging. |
+| Info | `console.log` | Routine informational output. Normal flow, no action needed. |
+| Warn | `console.warn` | Operation **succeeded** but is sensitive, unusual, or deserves a human's attention (e.g. an admin role change, a fallback path taken). Distinguishes "noteworthy but not broken" from routine `log` output. |
+| Error | `console.error` | Operation **failed**. See `error-handling.mdc` for the error code taxonomy and response envelope that pairs with this level. |
+
+**Choosing a level:** ask "did this fail?" → `error`. "Did it succeed but is it the kind of thing someone should notice?" → `warn`. "Is this routine flow?" → `log`. "Is this only useful while actively debugging?" → `debug`.
+
+## Never Log
+
+Passwords, API keys, auth tokens, full request/response bodies. See `security.mdc` for the full sensitive-data list.
+
+## Cross-References
+
+- See `error-handling.mdc` for error taxonomy, response envelopes, and Supabase error code mapping
+- See `security.mdc` for what data must never appear in logs

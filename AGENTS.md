@@ -2,7 +2,7 @@
 
 **Purpose:** What exists in this repo today — locked rules, implemented features, routes, data model, and where to look. For planning and roadmap, see [CONTEXT.md](CONTEXT.md). For human setup, see [README.md](README.md). For how to write code, see [.cursor/rules/](.cursor/rules/) (not duplicated here).
 
-**Last updated:** 2026-06-18
+**Last updated:** 2026-06-19
 
 ---
 
@@ -54,6 +54,9 @@
 | `pnpm pre-push` | Full CI mirror locally (type-check → lint → format-check → test:ci) |
 | `pnpm test:ui` | Vitest UI |
 | `pnpm analyze` | Bundle analyzer |
+| `pnpm promote-admin <email>` | Grant admin via service role (`app_metadata.role`) |
+| `pnpm demote-admin <email>` | Remove admin role |
+| `pnpm list-admins` | List admin users (read-only) |
 
 **Prerequisites:** Node `>=22.22.2` (see [.nvmrc](.nvmrc)), pnpm 11, Supabase project. Env vars in [.env.example](.env.example). `next-env.d.ts` is Next.js-generated and gitignored — run `pnpm dev` or `pnpm build` once after clone if `pnpm type-check` reports a missing file.
 
@@ -73,6 +76,7 @@
 - **shadcn CLI:** always non-interactive — `pnpm dlx shadcn@latest add <component> -y -o`. Use `--dry-run`/`--diff` before overwriting customized components.
 - **Images:** `next/image` with explicit dimensions.
 - **Auth boundary:** public routes are `/` and `/auth/**` only; all other routes require a session. Enforced in `proxy.ts` → `src/supabase/proxy.ts`.
+- **Admin gate:** `app_metadata.role === 'admin'` on `auth.users` is the canonical admin check — set only via service-role CLI (`pnpm promote-admin`). Do not move this to a `profiles` column without PM approval.
 - **Agent guidance:** lives in `.cursor` (rules + skills) — not duplicated into product code.
 
 **Change protocol:** edits to locked rules require PM approval. Update this section; CONTEXT.md §3 points here and needs no parallel edit unless its at-a-glance list changes.
@@ -96,6 +100,7 @@
 - **Design-system token layer (Phase 2):** tweakcn **Clean Slate** default theme in `src/app/globals.css`; semantic tokens via `@theme inline` + `next-themes` class-based light/dark. **Inter** + **JetBrains Mono** via `next/font` in `layout.tsx` (Merriweather CSS serif fallback). Auth forms and layout chrome conform to semantic tokens (no hardcoded theme colors). See [DESIGN.md](DESIGN.md) for architecture and re-skin workflow.
 - **Testing:** Vitest + React Testing Library + MSW v2 (`src/test/`, `src/mocks/`); baseline unit/integration tests for auth forms, proxy, hooks, and utils; 80% coverage thresholds enforced via `pnpm test:ci`.
 - **Hooks:** Husky pre-commit (lint-staged + type-check) and pre-push (`pnpm pre-push` mirrors CI including coverage).
+- **Admin CLI (Phase 3 Epic 1):** `pnpm promote-admin`, `pnpm demote-admin`, `pnpm list-admins` — service-role scripts in `scripts/admin/`; sets `app_metadata.role` on `auth.users`.
 
 ---
 
@@ -126,6 +131,7 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | `src/hooks/` | Custom hooks |
 | `src/test/` | Test utilities (`render` with providers) |
 | `src/mocks/` | MSW handlers (testing only) |
+| `scripts/admin/` | Admin CLI (`promote-admin`, `demote-admin`, `list-admins`) |
 | `src/app/globals.css` | Global styles and CSS variable tokens (authoritative token values) |
 | `DESIGN.md` | Token architecture and re-skin workflow (names only — values in globals.css) |
 | `supabase/migrations/` | SQL migrations (empty until Phase 6) |
