@@ -2,8 +2,8 @@
 
 **Purpose:** Dual-use — planning reference for the builder (PM) and context for coding agents. Seminova is currently a **template**: a curated foundation that real products are built from. It is written in product shape so that the structure itself is inherited by every project spun off it. Agents: read this file for living state; build-time workflow and authoritative schema live in [AGENTS.md](AGENTS.md); shipped phase detail in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md).
 
-**Last updated:** 2026-06-18
-**Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell (Admin sidebar) + Auth restyle is **DRAFT** (next).
+**Last updated:** 2026-06-19
+**Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell (Admin sidebar) + Auth restyle (shipped). Next up: Phase 4 — Landing Page (`Draft`).
 **Migrations:** none yet — no custom schema; Supabase `auth.users` only.
 
 **Shipped phase detail →** [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md)
@@ -21,6 +21,7 @@ These rules apply to anyone updating this file — PM or coding agent.
 - **When a phase ships in full**, append its epic/story detail to [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md) (append-only — never edit existing archive entries), then update the Roadmap status and the Status line here and remove the shipped ACTIVE content.
 - **Resolved open-question one-liners** append to `## Resolved decisions` in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md); remove from this file.
 - **HTML mockups:** save new explorations as `.mockups/*.html`. When a mockup is superseded or tied to a shipped phase, move it to `.mockups/archive/`.
+- **Epics must be numbered.** Format as `### Epic N: Name` (sequential within the phase, starting at 1). Never `### Epic: Name` with no number.
 - **Stub sections are intentional.** Sections that are empty now (e.g. AI Architecture) are kept as stubs so the structure is inherited by every product built from this template. Do not delete them.
 
 ---
@@ -53,7 +54,7 @@ Seminova is a template today, but it is shaped like a product foundation on purp
 
 These constraints are non-negotiable, and planning must not violate them. The **canonical list lives in [AGENTS.md › Locked rules](AGENTS.md)** — the repo-truth file for the layer that enforces them — with consumption detail in `.cursor/rules`. Keep one copy: when a locked rule changes (PM approval required), edit AGENTS.md, not this section.
 
-At a glance, the locked rules cover: pnpm-only package management; primitive-first shadcn/ui; semantic-token theming with no hardcoded color; fixed structure / swappable theme; mobile-first responsive; components ≤150 lines; WCAG 2.1 AA accessibility; non-interactive shadcn CLI; `next/image` with explicit dimensions; the `/` + `/auth/**` auth boundary enforced in `proxy.ts`; and agent guidance confined to `.cursor`. See AGENTS.md for the authoritative wording of each.
+At a glance, the locked rules cover: pnpm-only package management; primitive-first shadcn/ui; semantic-token theming with no hardcoded color; fixed structure / swappable theme; mobile-first responsive; components ≤150 lines; WCAG 2.1 AA accessibility; non-interactive shadcn CLI; `next/image` with explicit dimensions; the `/` + `/auth/**` auth boundary enforced in `proxy.ts`; admin gate via `app_metadata.role` (secret-key CLI only); and agent guidance confined to `.cursor`. See AGENTS.md for the authoritative wording of each.
 
 ---
 
@@ -111,24 +112,15 @@ No custom schema or migrations exist yet. The only user-bearing table is Supabas
 | ----- | ---- | ------ |
 | 1 | Foundation & Cleanup | `Shipped` |
 | 2 | Design-System Token Layer | `Shipped` |
-| 3 | App Shell (Admin sidebar) + Auth restyle | `Draft` |
+| 3 | App Shell (Admin sidebar) + Auth restyle | `Shipped` |
 | 4 | Landing Page | `Draft` |
 | 5 | Reference Implementations | `Draft` |
-| 6 | Data Model Foundation (profiles) | `Draft` |
+| 6 | Data Model Foundation (profiles, non-admin shell, profile/settings page) | `Draft` |
 | 7 | Agent Tooling: Skills Suite | `Draft` |
 
 ---
 
-# ACTIVE
-
-_No phase currently in progress. Next planned: **Phase 3 — App Shell (Admin sidebar) + Auth restyle** (see DRAFT below)._
-
----
-
 # DRAFT — Upcoming Phases
-
-## Phase 3 — App Shell (Admin sidebar) + Auth restyle `Draft`
-Establish the canonical authenticated layout using the shadcn sidebar template (to be provided). Complete the visual restyle of `/auth/**` screens — Phase 2 covered token conformance on errors and layout chrome only; stock Supabase layout/styling remains.
 
 ## Phase 4 — Landing Page `Draft`
 A styled public landing/marketing page as the canonical public entry point.
@@ -137,7 +129,7 @@ A styled public landing/marketing page as the canonical public entry point.
 Working examples that demonstrate the patterns: a dashboard with widgets, a data table, a standard form (forms stack TBD — see Open Questions), and canonical loading / error / empty / toast states. A settings page pattern.
 
 ## Phase 6 — Data Model Foundation `Draft`
-First real migration: `profiles` table, signup trigger, owner-scoped RLS. Seed AGENTS.md **Data model (summary)** as the authoritative schema source.
+First real migration: `profiles` table, signup trigger, owner-scoped RLS. Seed AGENTS.md **Data model (summary)** as the authoritative schema source. Also builds the non-admin authenticated shell — header-row + content below, distinct from the admin sidebar pattern (sidebar is reserved for admin/management surfaces; header+content is for end-user-facing ones) — and a profile/settings page on top of it (display name, avatar, bio, password reset), the first real surface for `profiles` fields.
 
 ## Phase 7 — Agent Tooling: Skills Suite `Draft`
 Finalize the generic (de-specialized) skills suite: a design-critique skill, a design-system skill (establish-structure + audit + AI-slop detection), and a separate theme "regenerate" skill. Skills land at the end because they operate on the token layer (Phase 2) and the reference surfaces (Phases 3–5). Rules correctness is handled in Phase 1; this phase includes only a light final pass to confirm the rules set is still complete and project-agnostic.
@@ -150,17 +142,17 @@ Nothing here is blocking current work unless noted.
 
 ---
 
+**Full site.ts adoption audit**
+**Problem:** Phase 3 Epic 4 centralizes app name/logo into `src/config/site.ts`, but only wires it through `SeminovaLogo` (admin sidebar + auth shell). Other hardcoded "Seminova" references — most notably root `layout.tsx` `metadata`/page `<title>` — aren't audited or converted, so the app isn't yet fully re-skinnable from one file.
+**Solution:** A follow-up epic/story to grep the codebase for remaining hardcoded identity strings and wire them to `site.ts`. Natural fit early in Phase 4 (Landing Page), since a public landing page is exactly where root metadata/title matters most.
+_Defer until: Phase 4_
+
+---
+
 **Forms stack**
 **Problem:** The starter ships no form library. Reference implementations and product forms need a standard.
 **Solution:** Likely adopt `react-hook-form` + `zod` as the canonical stack and bake it into the template. Confirm before Phase 5.
 _Defer until: Phase 5_
-
----
-
-**Auth screens — restyle vs rebuild**
-**Problem:** The starter's `/auth/**` screens are in the stock Supabase look.
-**Solution:** Decide whether to restyle in place against the new tokens or rebuild against the design system. Phase 2 validated in-place token swaps on auth errors and layout chrome; full auth screen visual restyle vs rebuild remains open. [DESIGN.md](DESIGN.md) is shipped — decision lands in Phase 3 planning.
-_Defer until: Phase 3_
 
 ---
 
@@ -175,6 +167,13 @@ _Defer until: Phase 6_
 **Problem:** The "put a new spin on the design for this project" capability should not regenerate structure, only theme values.
 **Solution:** Implement as a separate, theme-only skill distinct from the structure-establishing design-system skill.
 _Defer until: Phase 7_
+
+---
+
+**Admin Logging page**
+**Problem:** Warn/error/info/debug logs now have a canonical taxonomy (`logging.mdc`), but they currently only surface in Vercel's log viewer — there's no in-app way to browse them. A dedicated admin page (filterable by level, color-coded — e.g. debug in green) would make this template-level convention actually visible and useful day-to-day.
+**Solution:** Not yet scoped. Needs a data-storage decision first — whether to read/relay Vercel's log stream, or persist log entries to a table — before this can become a real epic. Likely Phase 5 (Reference Implementations) or later, once a clearer need emerges from actual product use.
+_Defer until: unscoped — revisit when a storage approach is decided_
 
 ---
 

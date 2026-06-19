@@ -52,3 +52,37 @@ Establish the token *definition* layer the rules already assume exists, and bran
 
 - [x] **2.6 — Design system documentation.** Root [DESIGN.md](DESIGN.md): token architecture, structure-vs-theme split, tweakcn re-skin workflow, Clean Slate provenance. Points to `globals.css` as authoritative values (no value duplication).
 - [x] **2.7 — Repo truth sync.** AGENTS.md doc map + Implemented now (Clean Slate, Inter/JetBrains Mono); README + DESIGN.md cross-links; `components.json` `baseColor` → `slate`.
+
+---
+
+## Phase 3 — App Shell (Admin sidebar) + Auth restyle `Shipped` (2026-06-19)
+
+Admin-scoped authenticated shell (sidebar pattern), first real data page, and token-compliant auth branding. Non-admin authenticated users still use the starter `/protected` shell until Phase 6.
+
+### Epic 1 — Admin authentication `Shipped`
+
+- [x] **3.1 — Admin CLI.** `pnpm promote-admin`, `pnpm demote-admin`, `pnpm list-admins` via `SUPABASE_SECRET_KEY`; y/N confirmation on promote/demote; idempotent promote; clear "sign up first" error when email missing.
+- [x] **3.2 — Admin gate locked rule.** `app_metadata.role === 'admin'` on `auth.users` is canonical — set only via secret-key CLI; do not move to `profiles` without PM approval (AGENTS.md + `.cursor/rules/security.mdc`).
+
+### Epic 2 — Admin app shell `Shipped`
+
+- [x] **3.3 — Sidebar layout.** `(admin)` route group with `sidebar-07` baseline (`SidebarRail`, `SidebarTrigger` retained); dynamic breadcrumb; Users nav link to `/users`.
+- [x] **3.4 — Nav user footer.** Avatar initials + email trigger; Sign out only (real Supabase `signOut()`); Account/Billing/Notifications stripped.
+- [x] **3.5 — Post-login redirect.** Admins → `/users`; non-admins → `/protected` (login + password-update flows).
+
+### Epic 3 — Users reference page `Shipped`
+
+- [x] **3.6 — Users table.** Real `auth.admin.listUsers()` via gated Server Action; columns: Email, Verified, Created, Last sign-in, Role; read-only (CLI-only promotion).
+- [x] **3.7 — Search and pagination.** Email-only search; Next/Previous, page size 50; canonical pattern in `.cursor/rules/data-tables.mdc` with real glob paths and `users-table.tsx` reference.
+
+### Epic 4 — Auth screen restyle `Shipped`
+
+- [x] **3.8 — Shared auth layout.** `src/app/auth/layout.tsx` — muted full-page shell (`bg-muted`), centered form, logo above forms; applied across all `/auth/**` screens.
+- [x] **3.9 — Site identity config.** `src/config/site.ts` (`name` + `Logo`); `SeminovaLogo` reads site config (admin sidebar + auth layout); AGENTS.md + README cross-reference.
+
+---
+
+## Resolved decisions
+
+**Auth screens — restyle vs rebuild** (resolved 2026-06-18, Phase 3 planning)
+Restyle in place, not rebuild. Phase 2 validated in-place token swaps work; Phase 3 applies the shadcn `-03` pattern (muted background, centered form, no side image) uniformly across all `/auth/**` screens using existing token values. Form fields and flows are unchanged.

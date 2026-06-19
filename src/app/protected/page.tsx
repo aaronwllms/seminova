@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 
 import { createClient } from '@/supabase/server'
+import { isAdmin, type JwtClaims } from '@/utils/admin'
 import { InfoIcon } from 'lucide-react'
 import { Suspense } from 'react'
 
@@ -10,6 +11,12 @@ async function UserDetails() {
 
   if (error || !data?.claims) {
     redirect('/auth/login')
+  }
+
+  const claims = data.claims as JwtClaims
+
+  if (isAdmin(claims)) {
+    redirect('/users')
   }
 
   return JSON.stringify(data.claims, null, 2)

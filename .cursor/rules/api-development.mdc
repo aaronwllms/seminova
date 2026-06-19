@@ -104,4 +104,4 @@ Common API error codes:
 - [ ] No stack traces in responses
 - [ ] Tests cover happy/error/auth cases
 
-Follow error-handling, validation, and response-envelope patterns in `.cursor/rules/error-handling.mdc` (API routes will be added in Phase 5).
+Follow error-handling, validation, and response-envelope patterns in `.cursor/rules/error-handling.mdc`.

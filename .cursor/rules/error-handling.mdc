@@ -55,21 +55,13 @@ NextResponse.json(
 
 **Server Actions:** Same structure, return objects instead of NextResponse
 
-## Logging (canonical)
+## Logging
 
-**No `@/utils/logger` module** — use prefixed `console.*` so Vercel Functions logs are searchable (see AGENTS.md).
+**Console log levels, tags, and when to use `console.error` vs `console.warn` vs `console.log` vs `console.debug` are canonical in [`logging.mdc`](logging.mdc).** This file only adds: when logging an *error* (failure case), pass the `Error` or Supabase error object as a second argument, and map it to the error-code taxonomy above for the response envelope.
 
 ```typescript
-// Server actions / services — bracket tag matches file or feature
 console.error('[api-posts] Unexpected error', error)
-console.log(`[auth-login] Starting sign-in for userId=${userId}`)
 ```
-
-**Conventions:**
-- **Tag:** `[kebab-case-source]` in the message string (e.g. `[api-posts]`, `[auth-login]`)
-- **Errors:** pass the `Error` or Supabase error as a second argument when useful
-- **Never log:** passwords, tokens, API keys, full request bodies (see Security section below)
-- **Client:** prefer UI error states; optional `console.error('[component-name] …', error)` in dev only
 
 ## Error Handling Patterns
 
@@ -151,7 +143,7 @@ For route-level failures, add `error.tsx` in the relevant `src/app/` segment.
 
 ## Production Logging
 
-**Vercel:** `console.log` / `console.error` from server actions and route handlers appear in Vercel Dashboard → Project → Logs. Use consistent `[tags]` for filtering.
+**Vercel:** `console.log` / `console.error` from server actions and route handlers appear in Vercel Dashboard → Project → Logs. Use consistent `[tags]` for filtering. See `logging.mdc` for level selection.
 
 **Client:** avoid noisy production logging; rely on error UI.
 

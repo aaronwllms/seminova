@@ -2,7 +2,7 @@
 
 Modular Cursor AI rules (`.mdc` format) for the Seminova template: an opinionated, AI-native starter built on Next.js 16, Supabase, Tailwind, shadcn/ui, Vitest, and TanStack Query v5.
 
-See [`.cursor/README.md`](../README.md) for skills, agents, and planning doc layout.
+**23 rule files** in this directory. See [`.cursor/README.md`](../README.md) for skills, agents, and planning doc layout.
 
 ## What this rule set covers
 
@@ -10,7 +10,7 @@ See [`.cursor/README.md`](../README.md) for skills, agents, and planning doc lay
 - **Template conventions** — primitive-first UI, semantic tokens, WCAG 2.1 AA, conventional commits
 - **Agent workflow** — migration safety, testing minimalism, git hooks (see `git-workflow.mdc`)
 
-Locked principles and roadmap live in [CONTEXT.md](../../CONTEXT.md). Agent repo truth will live in [AGENTS.md](../../AGENTS.md) (Epic 1C).
+Locked principles and roadmap live in [CONTEXT.md](../../CONTEXT.md). Repo truth for agents lives in [AGENTS.md](../../AGENTS.md).
 
 ## What we adopted
 
@@ -71,7 +71,7 @@ Locked principles and roadmap live in [CONTEXT.md](../../CONTEXT.md). Agent repo
 
 ### `react-tanstack-query.mdc`
 
-**Applies to:** `src/hooks/**/*`, `src/components/**/*`
+**Applies to:** `src/hooks/**/*`, `src/components/**/*`, `ReactQueryProvider.tsx`
 
 - TanStack Query v5 patterns
 - Custom hook creation and query keys
@@ -85,52 +85,87 @@ Locked principles and roadmap live in [CONTEXT.md](../../CONTEXT.md). Agent repo
 - Tailwind + semantic tokens + `cn()` from `@/utils/tailwind`
 - WCAG 2.1 AA accessibility patterns
 
-### `testing.mdc`
+### `logging.mdc`
 
-**Applies to:** Test files, `src/mocks/**/*`, `src/test/**/*`
+**Applies to:** `src/**/*.{ts,tsx}`, `scripts/**/*.ts`
 
-- Vitest + React Testing Library patterns
-- MSW v2 API mocking
-- Minimalism-first testing philosophy
+- Console log level taxonomy (`error`, `warn`, `log`, `debug`)
+- Bracket tag conventions (e.g. `[auth-login]`) for searchable Vercel logs
+- Cross-reference: `error-handling.mdc` owns error taxonomy and response envelopes; `logging.mdc` owns level selection and tagging
+
+### `error-handling.mdc`
+
+**Applies to:** `src/**/*.{ts,tsx}`, `src/app/api/**/*.ts`, `src/app/**/error.tsx` (via `autoAttach`)
+
+- Error taxonomy, response envelopes, user-facing vs developer errors
+- Delegates log-level guidance to `logging.mdc`
+
+### `data-tables.mdc`
+
+**Applies to:** `*table*.tsx` under `src/components/**` and `src/app/**`
+
+- Canonical data table pattern (single designated search column, Next/Previous pagination)
+- Referenced by CONTEXT.md for admin and future table pages
+
+### `documentation.mdc`
+
+**Applies to:** `docs/**/*.md`, `docs/**/*.txt`
+
+- `docs/` directory structure and archiving conventions
+- Forward-looking — `docs/` does not exist in the repo yet
 
 ### `git-workflow.mdc`
 
-**Applies to:** Always active
+**Applies to:** All files (`**/*` glob — broad attachment, not `alwaysApply`)
 
 - Conventional commits, Husky hooks, PR format
 
 ### `api-development.mdc`
 
-**Applies to:** `src/app/api/**/*` (when added)
+**Applies to:** `src/app/api/**/*`, `src/lib/api-contracts/**/*.ts` (via `autoAttach`)
 
 - REST path naming, validation, DTOs, error envelopes
 
-### Other always-on rules
+### Database / SQL (on-demand)
+
+Loaded when agents or skills request them (e.g. `/create-migration`) — no globs, `alwaysApply: false`:
+
+- `postgres-sql-style-guide.mdc` — SQL style for migrations
+- `create-db-functions.mdc` — Supabase database function patterns
+- `create-rls-policies.mdc` — Row Level Security policy authoring
+
+### Always-on rules (`alwaysApply: true`)
 
 - `project-standards.mdc` — coding conventions, imports, quality checks
 - `pm-collaboration.mdc` — PM + AI partnership mode
-- `general-conventions.mdc` — dates, migrations timestamps
-- `do-migrations-agent.mdc` — agent migration constraints
-- `error-handling.mdc` — error taxonomy, logging, response envelopes
-- `rule-authoring.mdc` — how to write and maintain rule files
+- `general-conventions.mdc` — dates, migration timestamps
+- `do-migrations-agent.mdc` — agent migration constraints (also globs migrations and plan files)
+- `testing.mdc` — Vitest + RTL + MSW v2; minimalism-first philosophy; 80% coverage gates
+
+### Context-attached rules (not global)
+
+- `rule-authoring.mdc` — how to write and maintain rule files (globs: `.cursor/rules/**`)
+- `git-workflow.mdc`, `error-handling.mdc`, `api-development.mdc` — see entries above
 
 ## How it works
 
 Cursor loads rules based on:
 
-1. **File patterns** in each rule's `globs` frontmatter
-2. **Context** of what you're working on
-3. **`alwaysApply`** rules for global conventions
+1. **`alwaysApply: true`** — loaded in every session (five rules; see above)
+2. **`globs` / `autoAttach`** — attached when you work on matching files
+3. **On-demand** — database/SQL rules and skills (e.g. `/create-migration`) pull in guidance when needed
 
 ## Updating rules
 
 1. Edit the relevant `.mdc` file
 2. Changes take effect immediately in Cursor
-3. Commit so the team stays in sync
+3. Update this README when adding, removing, or reclassifying rule files
+4. Commit so the team stays in sync
 
 ## Reference
 
 - [Cursor Rules Documentation](https://docs.cursor.com/context/rules)
 - [`.cursor/README.md`](../README.md) — skills, agents, planning layout
 - [CONTEXT.md](../../CONTEXT.md) — roadmap and locked principles
-- [AGENTS.md](../../AGENTS.md) — agent repo truth (Epic 1C)
+- [AGENTS.md](../../AGENTS.md) — agent repo truth (implemented features, routes, data model)
+- [DESIGN.md](../../DESIGN.md) — token architecture and re-skin workflow

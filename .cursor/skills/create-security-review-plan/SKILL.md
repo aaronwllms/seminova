@@ -46,7 +46,7 @@ Inventory **current** repo state:
 | Migrations & RLS         | `supabase/migrations/`                                                           |
 | Storage                  | bucket policies in migrations, upload utils                                      |
 | Admin / privileged       | `src/app/admin/`, JWT `app_metadata` / role checks                               |
-| Env & secrets            | `.env.example`, `NEXT_PUBLIC_*`, service role references                         |
+| Env & secrets            | `.env.example`, `NEXT_PUBLIC_*`, `SUPABASE_SECRET_KEY` references                  |
 
 Table with **counts and key paths**. Note review hotspots — not findings yet.
 
@@ -82,7 +82,7 @@ Default workstreams:
 | W2  | RLS every table; shared vs user-owned vs FK-scoped per AGENTS.md            |
 | W3  | Server actions + API routes: auth, IDOR, validation, error leakage          |
 | W4  | Storage buckets, policies, upload validation, path scoping                  |
-| W5  | Secrets, service role, DTOs, admin-only mutations                           |
+| W5  | Secrets, `SUPABASE_SECRET_KEY`, DTOs, admin-only mutations                  |
 
 Example agent prompt:
 

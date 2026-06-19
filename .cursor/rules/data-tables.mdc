@@ -1,0 +1,29 @@
+---
+description: Conventions for shadcn/TanStack Table data tables across the app
+globs:
+  - 'src/components/**/*table*.tsx'
+  - 'src/app/**/*table*.tsx'
+---
+
+# Data Table Conventions
+
+## Search Pattern
+
+Each data table gets a single search input, scoped to one explicitly-designated text column — never inferred from column position or implemented as a global multi-column search.
+
+- Designate the searchable column explicitly in the table's column config (e.g. a `searchable: true` flag or equivalent), not by assuming "first column."
+- Filter via substring match on that one column.
+- Non-text filters (booleans, enums, dates) are separate controls (dropdown, toggle, date picker) — never folded into the search box.
+
+**Why:** global multi-column search is ambiguous to the user (unclear what matched) and doesn't generalize to non-string columns or server-side queries without expensive `OR ILIKE` scans across every column.
+
+## Pagination Pattern
+
+Every data table paginates server-side. Never load an unbounded result set.
+
+- Controls: Next/Previous only — no numbered page strip. Avoids requiring a total-row-count query, and generalizes to data sources (e.g. Supabase admin API) that don't cheaply expose totals.
+- Page size: fixed at 50 rows. No user-facing page-size selector.
+- Layout: table grows naturally; the page scrolls. No fixed-height internal scroll region on the table body.
+
+## Reference Implementations
+- `src/app/(admin)/users/_components/users-table.tsx` — Users table, search on `email`

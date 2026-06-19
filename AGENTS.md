@@ -2,7 +2,7 @@
 
 **Purpose:** What exists in this repo today — locked rules, implemented features, routes, data model, and where to look. For planning and roadmap, see [CONTEXT.md](CONTEXT.md). For human setup, see [README.md](README.md). For how to write code, see [.cursor/rules/](.cursor/rules/) (not duplicated here).
 
-**Last updated:** 2026-06-18
+**Last updated:** 2026-06-19
 
 ---
 
@@ -54,8 +54,11 @@
 | `pnpm pre-push` | Full CI mirror locally (type-check → lint → format-check → test:ci) |
 | `pnpm test:ui` | Vitest UI |
 | `pnpm analyze` | Bundle analyzer |
+| `pnpm promote-admin <email>` | Grant admin via secret key (`app_metadata.role`) |
+| `pnpm demote-admin <email>` | Remove admin role |
+| `pnpm list-admins` | List admin users (read-only) |
 
-**Prerequisites:** Node `>=22.22.2` (see [.nvmrc](.nvmrc)), pnpm 11, Supabase project. Env vars in [.env.example](.env.example). `next-env.d.ts` is Next.js-generated and gitignored — run `pnpm dev` or `pnpm build` once after clone if `pnpm type-check` reports a missing file.
+**Prerequisites:** Node `>=22.22.2` (see [.nvmrc](.nvmrc)), pnpm 11, Supabase project. Env vars in [.env.example](.env.example) (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` for admin CLI). `next-env.d.ts` is Next.js-generated and gitignored — run `pnpm dev` or `pnpm build` once after clone if `pnpm type-check` reports a missing file.
 
 ---
 
@@ -73,6 +76,7 @@
 - **shadcn CLI:** always non-interactive — `pnpm dlx shadcn@latest add <component> -y -o`. Use `--dry-run`/`--diff` before overwriting customized components.
 - **Images:** `next/image` with explicit dimensions.
 - **Auth boundary:** public routes are `/` and `/auth/**` only; all other routes require a session. Enforced in `proxy.ts` → `src/supabase/proxy.ts`.
+- **Admin gate:** `app_metadata.role === 'admin'` on `auth.users` is the canonical admin check — set only via secret-key CLI (`pnpm promote-admin`, `SUPABASE_SECRET_KEY`). Do not move this to a `profiles` column without PM approval.
 - **Agent guidance:** lives in `.cursor` (rules + skills) — not duplicated into product code.
 
 **Change protocol:** edits to locked rules require PM approval. Update this section; CONTEXT.md §3 points here and needs no parallel edit unless its at-a-glance list changes.
@@ -85,17 +89,23 @@
 - **Rules correctness (Epic 1B):** `.cursor/rules/` stack-accurate and project-agnostic.
 - **Docs (Epic 1C):** `AGENTS.md`, `CONTEXT.md`, `README.md`, and `CONTEXT_ARCHIVE.md` planning/doc layer.
 - **Dev tooling hygiene (Epic 1D):** pre-push hook mirrors CI; 80% Vitest coverage thresholds; `.prettierignore` / lint-staged audit (agent-authored docs remain Prettier-ignored).
-- **Auth:** Supabase email/password flows under `/auth/**` (login, sign-up, forgot/update password, confirm, error).
+- **Auth:** Supabase email/password flows under `/auth/**` (login, sign-up, forgot/update password, confirm, error); shared auth layout (`bg-muted`, centered shell, logo above forms).
 - **Session + route protection:** `proxy.ts` → `src/supabase/proxy.ts` — refreshes session; redirects unauthenticated users to `/auth/login`.
 - **Product routes:**
   - `/` — public landing (starter shell; full landing page planned Phase 4)
   - `/auth/**` — public auth screens
-  - `/protected` — authenticated (requires session)
-- **UI primitives:** `src/components/ui/` (button, card, input, label, checkbox, badge, dropdown-menu).
+  - `/users` — admin-only users table (real Supabase Auth data; search + pagination)
+  - `/protected` — authenticated non-admin landing (starter shell until Phase 6)
+- **Post-login redirect:** admins → `/users`; non-admins → `/protected` (login and password-update flows).
+- **UI primitives:** `src/components/ui/` (button, card, input, label, checkbox, badge, dropdown-menu, sidebar, avatar, breadcrumb, separator, sheet, tooltip, collapsible, skeleton).
 - **Data fetching:** TanStack Query v5 provider configured.
 - **Design-system token layer (Phase 2):** tweakcn **Clean Slate** default theme in `src/app/globals.css`; semantic tokens via `@theme inline` + `next-themes` class-based light/dark. **Inter** + **JetBrains Mono** via `next/font` in `layout.tsx` (Merriweather CSS serif fallback). Auth forms and layout chrome conform to semantic tokens (no hardcoded theme colors). See [DESIGN.md](DESIGN.md) for architecture and re-skin workflow.
 - **Testing:** Vitest + React Testing Library + MSW v2 (`src/test/`, `src/mocks/`); baseline unit/integration tests for auth forms, proxy, hooks, and utils; 80% coverage thresholds enforced via `pnpm test:ci`.
 - **Hooks:** Husky pre-commit (lint-staged + type-check) and pre-push (`pnpm pre-push` mirrors CI including coverage).
+- **Admin CLI (Phase 3 Epic 1):** `pnpm promote-admin`, `pnpm demote-admin`, `pnpm list-admins` — secret-key scripts in `scripts/admin/`; sets `app_metadata.role` on `auth.users`.
+- **Admin app shell (Phase 3 Epic 2):** `(admin)` route group with sidebar layout (`sidebar-07` baseline), dynamic breadcrumb, nav-user sign-out; `src/utils/admin.ts` + shared `ADMIN_ROLE` in `src/constants/admin-role.ts`; `SeminovaLogo` placeholder component.
+- **Users admin table (Phase 3 Epic 3):** `/users` lists real Supabase Auth users via gated Server Action + `src/supabase/service.ts`; email search, Next/Previous pagination (page size 50); canonical data-table pattern in `src/app/(admin)/users/_components/users-table.tsx` and [`.cursor/rules/data-tables.mdc`](.cursor/rules/data-tables.mdc).
+- **Auth restyle + app identity (Phase 3 Epic 4):** `src/config/site.ts` (`name` + `Logo`); `SeminovaLogo` reads site config (admin sidebar + auth layout); [`src/app/auth/layout.tsx`](src/app/auth/layout.tsx) provides muted full-page shell.
 
 ---
 
@@ -117,15 +127,20 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | Path | Purpose |
 | ---- | ------- |
 | `src/app/` | App Router pages and layouts |
-| `src/app/auth/` | Auth screens and confirm route |
-| `src/app/protected/` | Authenticated starter page |
-| `src/supabase/` | `client.ts`, `server.ts`, `proxy.ts` |
+| `src/app/auth/` | Auth screens, shared layout, confirm route |
+| `src/config/site.ts` | App name and logo — edit to rebrand sidebar + auth |
+| `src/app/(admin)/` | Admin sidebar shell (`/users`; gated by `isAdmin`) |
+| `src/app/protected/` | Non-admin authenticated starter page |
+| `src/constants/admin-role.ts` | Shared `ADMIN_ROLE` constant (app + CLI) |
+| `src/utils/admin.ts` | `isAdmin()`, post-auth redirect helper |
+| `src/supabase/` | `client.ts`, `server.ts`, `service.ts` (secret key), `proxy.ts` |
 | `proxy.ts` | Root auth proxy entry (delegates to `src/supabase/proxy.ts`) |
 | `src/components/ui/` | Owned shadcn primitives |
 | `src/components/` | App components (auth forms, theme toggle, etc.) |
 | `src/hooks/` | Custom hooks |
 | `src/test/` | Test utilities (`render` with providers) |
 | `src/mocks/` | MSW handlers (testing only) |
+| `scripts/admin/` | Admin CLI (`promote-admin`, `demote-admin`, `list-admins`) |
 | `src/app/globals.css` | Global styles and CSS variable tokens (authoritative token values) |
 | `DESIGN.md` | Token architecture and re-skin workflow (names only — values in globals.css) |
 | `supabase/migrations/` | SQL migrations (empty until Phase 6) |
