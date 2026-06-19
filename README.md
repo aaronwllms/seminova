@@ -84,6 +84,8 @@ After Quick start, grant yourself admin access so you can use the admin shell (P
 
 4. **Re-login** if you were already signed in — the admin role is embedded in the JWT and won't appear until you start a fresh session.
 
+5. Open the admin area at [http://localhost:3000/users](http://localhost:3000/users) (admins land here after login; non-admins use `/protected`).
+
 Companion commands: `pnpm demote-admin <email>`, `pnpm list-admins` (read-only, no confirmation).
 
 ---

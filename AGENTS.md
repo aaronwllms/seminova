@@ -94,13 +94,16 @@
 - **Product routes:**
   - `/` — public landing (starter shell; full landing page planned Phase 4)
   - `/auth/**` — public auth screens
-  - `/protected` — authenticated (requires session)
-- **UI primitives:** `src/components/ui/` (button, card, input, label, checkbox, badge, dropdown-menu).
+  - `/users` — admin-only (sidebar shell; requires `app_metadata.role === 'admin'`)
+  - `/protected` — authenticated non-admin landing (starter shell until Phase 6)
+- **Post-login redirect:** admins → `/users`; non-admins → `/protected` (login and password-update flows).
+- **UI primitives:** `src/components/ui/` (button, card, input, label, checkbox, badge, dropdown-menu, sidebar, avatar, breadcrumb, separator, sheet, tooltip, collapsible, skeleton).
 - **Data fetching:** TanStack Query v5 provider configured.
 - **Design-system token layer (Phase 2):** tweakcn **Clean Slate** default theme in `src/app/globals.css`; semantic tokens via `@theme inline` + `next-themes` class-based light/dark. **Inter** + **JetBrains Mono** via `next/font` in `layout.tsx` (Merriweather CSS serif fallback). Auth forms and layout chrome conform to semantic tokens (no hardcoded theme colors). See [DESIGN.md](DESIGN.md) for architecture and re-skin workflow.
 - **Testing:** Vitest + React Testing Library + MSW v2 (`src/test/`, `src/mocks/`); baseline unit/integration tests for auth forms, proxy, hooks, and utils; 80% coverage thresholds enforced via `pnpm test:ci`.
 - **Hooks:** Husky pre-commit (lint-staged + type-check) and pre-push (`pnpm pre-push` mirrors CI including coverage).
 - **Admin CLI (Phase 3 Epic 1):** `pnpm promote-admin`, `pnpm demote-admin`, `pnpm list-admins` — secret-key scripts in `scripts/admin/`; sets `app_metadata.role` on `auth.users`.
+- **Admin app shell (Phase 3 Epic 2):** `(admin)` route group with sidebar layout (`sidebar-07` baseline), dynamic breadcrumb, nav-user sign-out; `src/utils/admin.ts` + shared `ADMIN_ROLE` in `src/constants/admin-role.ts`; `SeminovaLogo` placeholder component.
 
 ---
 
@@ -123,7 +126,10 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | ---- | ------- |
 | `src/app/` | App Router pages and layouts |
 | `src/app/auth/` | Auth screens and confirm route |
-| `src/app/protected/` | Authenticated starter page |
+| `src/app/(admin)/` | Admin sidebar shell (`/users`; gated by `isAdmin`) |
+| `src/app/protected/` | Non-admin authenticated starter page |
+| `src/constants/admin-role.ts` | Shared `ADMIN_ROLE` constant (app + CLI) |
+| `src/utils/admin.ts` | `isAdmin()`, post-auth redirect helper |
 | `src/supabase/` | `client.ts`, `server.ts`, `proxy.ts` |
 | `proxy.ts` | Root auth proxy entry (delegates to `src/supabase/proxy.ts`) |
 | `src/components/ui/` | Owned shadcn primitives |

@@ -6,6 +6,7 @@ import { Analytics } from '@vercel/analytics/react'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import './globals.css'
 import ReactQueryProvider from '@/providers/ReactQueryProvider'
+import { TooltipProvider } from '@/components/ui/tooltip'
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -49,7 +50,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           disableTransitionOnChange
         >
           <ReactQueryProvider>
-            {children}
+            <TooltipProvider>{children}</TooltipProvider>
             <Analytics />
             <ReactQueryDevtools initialIsOpen={false} />
           </ReactQueryProvider>

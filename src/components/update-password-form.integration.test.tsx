@@ -23,8 +23,11 @@ describe('UpdatePasswordForm', () => {
     mockPush.mockReset()
   })
 
-  it('should update password and redirect on success', async () => {
-    mockUpdateUser.mockResolvedValue({ error: null })
+  it('should update password and redirect non-admins to /protected', async () => {
+    mockUpdateUser.mockResolvedValue({
+      error: null,
+      data: { user: { app_metadata: {} } },
+    })
     const user = userEvent.setup()
 
     render(<UpdatePasswordForm />)
@@ -37,6 +40,23 @@ describe('UpdatePasswordForm', () => {
         password: 'new-password-123',
       })
       expect(mockPush).toHaveBeenCalledWith('/protected')
+    })
+  })
+
+  it('should update password and redirect admins to /users', async () => {
+    mockUpdateUser.mockResolvedValue({
+      error: null,
+      data: { user: { app_metadata: { role: 'admin' } } },
+    })
+    const user = userEvent.setup()
+
+    render(<UpdatePasswordForm />)
+
+    await user.type(screen.getByLabelText(/new password/i), 'new-password-123')
+    await user.click(screen.getByRole('button', { name: /save new password/i }))
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/users')
     })
   })
 

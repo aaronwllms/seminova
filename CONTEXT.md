@@ -158,6 +158,7 @@ As an admin, I want a persistent sidebar with navigation and my account info so 
 - Nav: real items with real Next.js `Link`s, not placeholder `<a href="#">`s — minimum includes a Users item linking to the Users page
 - Footer: user menu following the `nav-user.tsx` pattern from `sidebar-07` — avatar (initials/generic fallback, no `avatar_url` source yet) + email as the trigger row, dropdown containing only **Sign out** wired to real Supabase `signOut()`; strip the Account/Billing/Notifications items the reference ships with since nothing they'd link to exists yet
 - Header breadcrumb is dynamic, reflecting the actual current page — not hardcoded
+- Post-login redirect: after successful login or password update, admins go to `/users`; non-admins go to `/protected` (non-admin shell arrives in Phase 6)
 - The shadcnblocks `sidebar1` block (`npx shadcn add @shadcnblocks/sidebar1`) was used as the reference for the header/breadcrumb/inset layout shape; `sidebar-07` from ui.shadcn.com is the reference for the `nav-user.tsx` footer pattern
 
 ---

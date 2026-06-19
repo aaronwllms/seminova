@@ -1,6 +1,9 @@
 import type { SupabaseClient, User } from '@supabase/supabase-js'
 
-export const ADMIN_ROLE = 'admin'
+import { ADMIN_ROLE } from '@/constants/admin-role'
+
+export { ADMIN_ROLE } from '@/constants/admin-role'
+
 const USERS_PAGE_SIZE = 1000
 
 export type AppMetadata = Record<string, unknown>

@@ -23,8 +23,11 @@ describe('LoginForm', () => {
     mockPush.mockReset()
   })
 
-  it('should sign in and redirect on success', async () => {
-    mockSignInWithPassword.mockResolvedValue({ error: null })
+  it('should sign in and redirect non-admins to /protected', async () => {
+    mockSignInWithPassword.mockResolvedValue({
+      error: null,
+      data: { user: { app_metadata: {} } },
+    })
     const user = userEvent.setup()
 
     render(<LoginForm />)
@@ -39,6 +42,24 @@ describe('LoginForm', () => {
         password: 'password123',
       })
       expect(mockPush).toHaveBeenCalledWith('/protected')
+    })
+  })
+
+  it('should sign in and redirect admins to /users', async () => {
+    mockSignInWithPassword.mockResolvedValue({
+      error: null,
+      data: { user: { app_metadata: { role: 'admin' } } },
+    })
+    const user = userEvent.setup()
+
+    render(<LoginForm />)
+
+    await user.type(screen.getByLabelText(/email/i), 'admin@example.com')
+    await user.type(screen.getByLabelText(/^password$/i), 'password123')
+    await user.click(screen.getByRole('button', { name: /^login$/i }))
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/users')
     })
   })
 
