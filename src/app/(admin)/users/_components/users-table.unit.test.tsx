@@ -78,4 +78,25 @@ describe('UsersTable', () => {
 
     vi.useRealTimers()
   })
+
+  it('should show an error with copy affordance when listUsersAction fails', async () => {
+    listUsersActionMock.mockResolvedValue({
+      success: false,
+      error: {
+        message: 'Something went wrong loading users. Please try again.',
+        code: 'INTERNAL_ERROR',
+      },
+    })
+
+    render(<UsersTable />)
+
+    expect(
+      await screen.findByText(
+        'Something went wrong loading users. Please try again.',
+      ),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /copy error details/i }),
+    ).toBeInTheDocument()
+  })
 })

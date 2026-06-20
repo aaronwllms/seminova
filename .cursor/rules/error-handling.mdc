@@ -129,15 +129,15 @@ Use Next.js `error.tsx` for route-level error boundaries. Reusable `ErrorBoundar
 
 ## Error UI Patterns
 
-Until Phase 5 reference components land, use inline patterns:
+Use [`src/components/error-state.tsx`](../../src/components/error-state.tsx) for inline form and table errors:
 
 ```typescript
-{isError && (
-  <p role="alert" className="text-destructive text-sm">
-    Something went wrong. Please try again.
-  </p>
-)}
+<ErrorState message={errorMessage} code={errorCode} />
 ```
+
+- **With `code`:** card chrome + copy button — paste-friendly payload includes message and code (and optional `detail`)
+- **Without `code`:** plain `text-destructive` alert — for client validation errors with no diagnostic code
+- Pass `code` when available: server-action taxonomy codes (e.g. users table) or raw Supabase `AuthError.code` from auth forms (unmapped until Phase 7 Security Audit)
 
 For route-level failures, add `error.tsx` in the relevant `src/app/` segment.
 

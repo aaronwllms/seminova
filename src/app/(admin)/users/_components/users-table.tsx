@@ -1,6 +1,7 @@
 'use client'
 
 import { useDataTable, DataTableShell } from '@/components/data-table1'
+import { ErrorState } from '@/components/error-state'
 import { useCallback, useEffect, useState, useTransition } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,10 +11,15 @@ import {
   USERS_SEARCH_MIN_LENGTH,
   type AdminUserRow,
 } from '../_lib/admin-user-row'
-import { listUsersAction } from '../actions'
+import { listUsersAction, type ListUsersActionResult } from '../actions'
 import { usersColumns } from './users-columns'
 
 const SEARCH_DEBOUNCE_MS = 300
+
+type UsersListErrorCode = Extract<
+  ListUsersActionResult,
+  { success: false }
+>['error']['code']
 
 export const UsersTable = () => {
   const [rows, setRows] = useState<AdminUserRow[]>([])
@@ -22,6 +28,7 @@ export const UsersTable = () => {
   const [searchInput, setSearchInput] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [errorCode, setErrorCode] = useState<UsersListErrorCode | null>(null)
   const [isPending, startTransition] = useTransition()
 
   const { table } = useDataTable({
@@ -48,12 +55,14 @@ export const UsersTable = () => {
 
       if (!result.success) {
         setErrorMessage(result.error.message)
+        setErrorCode(result.error.code)
         setRows([])
         setHasNextPage(false)
         return
       }
 
       setErrorMessage(null)
+      setErrorCode(null)
       setRows(result.data.rows)
       setHasNextPage(result.data.hasNextPage)
     })
@@ -92,9 +101,7 @@ export const UsersTable = () => {
       </div>
 
       {errorMessage ? (
-        <p role="alert" className="text-destructive text-sm">
-          {errorMessage}
-        </p>
+        <ErrorState message={errorMessage} code={errorCode ?? undefined} />
       ) : null}
 
       <div aria-busy={isPending}>

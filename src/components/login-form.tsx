@@ -2,6 +2,7 @@
 
 import { cn } from '@/utils/tailwind'
 import { createClient } from '@/supabase/client'
+import { ErrorState } from '@/components/error-state'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -17,6 +18,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { getPostAuthRedirectPath, type AppMetadata } from '@/utils/admin'
+import { extractAuthFormError } from '@/utils/extract-auth-form-error'
 
 export function LoginForm({
   className,
@@ -25,6 +27,7 @@ export function LoginForm({
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [errorCode, setErrorCode] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
@@ -33,6 +36,7 @@ export function LoginForm({
     const supabase = createClient()
     setIsLoading(true)
     setError(null)
+    setErrorCode(null)
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -43,8 +47,10 @@ export function LoginForm({
       router.push(
         getPostAuthRedirectPath(data.user?.app_metadata as AppMetadata),
       )
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : 'An error occurred')
+    } catch (caught: unknown) {
+      const { message, code } = extractAuthFormError(caught)
+      setError(message)
+      setErrorCode(code ?? null)
     } finally {
       setIsLoading(false)
     }
@@ -91,11 +97,9 @@ export function LoginForm({
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
-              {error && (
-                <p role="alert" className="text-destructive text-sm">
-                  {error}
-                </p>
-              )}
+              {error ? (
+                <ErrorState message={error} code={errorCode ?? undefined} />
+              ) : null}
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Logging in...' : 'Login'}
               </Button>

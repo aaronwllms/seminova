@@ -2,6 +2,7 @@
 
 import { cn } from '@/utils/tailwind'
 import { createClient } from '@/supabase/client'
+import { ErrorState } from '@/components/error-state'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -16,6 +17,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
+import { extractAuthFormError } from '@/utils/extract-auth-form-error'
+
 export function SignUpForm({
   className,
   ...props
@@ -24,6 +27,7 @@ export function SignUpForm({
   const [password, setPassword] = useState('')
   const [repeatPassword, setRepeatPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [errorCode, setErrorCode] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
@@ -32,9 +36,11 @@ export function SignUpForm({
     const supabase = createClient()
     setIsLoading(true)
     setError(null)
+    setErrorCode(null)
 
     if (password !== repeatPassword) {
       setError('Passwords do not match')
+      setErrorCode(null)
       setIsLoading(false)
       return
     }
@@ -49,8 +55,10 @@ export function SignUpForm({
       })
       if (error) throw error
       router.push('/auth/sign-up-success')
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : 'An error occurred')
+    } catch (caught: unknown) {
+      const { message, code } = extractAuthFormError(caught)
+      setError(message)
+      setErrorCode(code ?? null)
     } finally {
       setIsLoading(false)
     }
@@ -101,11 +109,9 @@ export function SignUpForm({
                   onChange={(e) => setRepeatPassword(e.target.value)}
                 />
               </div>
-              {error && (
-                <p role="alert" className="text-destructive text-sm">
-                  {error}
-                </p>
-              )}
+              {error ? (
+                <ErrorState message={error} code={errorCode ?? undefined} />
+              ) : null}
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Creating an account...' : 'Sign up'}
               </Button>

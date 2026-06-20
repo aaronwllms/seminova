@@ -2,6 +2,7 @@
 
 import { cn } from '@/utils/tailwind'
 import { createClient } from '@/supabase/client'
+import { ErrorState } from '@/components/error-state'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -15,12 +16,15 @@ import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import { useState } from 'react'
 
+import { extractAuthFormError } from '@/utils/extract-auth-form-error'
+
 export function ForgotPasswordForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<'div'>) {
   const [email, setEmail] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [errorCode, setErrorCode] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -29,6 +33,7 @@ export function ForgotPasswordForm({
     const supabase = createClient()
     setIsLoading(true)
     setError(null)
+    setErrorCode(null)
 
     try {
       // The url which will be included in the email. This URL needs to be configured in your redirect URLs in the Supabase dashboard at https://supabase.com/dashboard/project/_/auth/url-configuration
@@ -37,8 +42,10 @@ export function ForgotPasswordForm({
       })
       if (error) throw error
       setSuccess(true)
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : 'An error occurred')
+    } catch (caught: unknown) {
+      const { message, code } = extractAuthFormError(caught)
+      setError(message)
+      setErrorCode(code ?? null)
     } finally {
       setIsLoading(false)
     }
@@ -82,11 +89,9 @@ export function ForgotPasswordForm({
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
-                {error && (
-                  <p role="alert" className="text-destructive text-sm">
-                    {error}
-                  </p>
-                )}
+                {error ? (
+                  <ErrorState message={error} code={errorCode ?? undefined} />
+                ) : null}
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? 'Sending...' : 'Send reset email'}
                 </Button>
