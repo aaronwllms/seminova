@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { Sparkles, type LucideIcon } from 'lucide-react'
 
 const GITHUB_URL = 'https://github.com/aaronwllms/seminova'
@@ -20,6 +21,7 @@ export interface SiteLegalStub {
 
 export interface SiteConfig {
   name: string
+  description: string
   Logo: LucideIcon
   links: {
     github: string
@@ -31,6 +33,8 @@ export interface SiteConfig {
 
 export const siteConfig: SiteConfig = {
   name: 'Seminova',
+  description:
+    'An opinionated, AI-native starter for building SaaS products with Next.js and Supabase.',
   Logo: Sparkles,
   links: {
     github: GITHUB_URL,
@@ -43,3 +47,12 @@ export const siteConfig: SiteConfig = {
   social: [{ label: 'GitHub', href: GITHUB_URL, icon: 'github' }],
   legal: [{ label: 'Terms' }, { label: 'Privacy' }],
 }
+
+export const getSiteMetadata = (metadataBase: URL): Metadata => ({
+  metadataBase,
+  title: {
+    default: siteConfig.name,
+    template: `%s | ${siteConfig.name}`,
+  },
+  description: siteConfig.description,
+})

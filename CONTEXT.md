@@ -72,7 +72,6 @@ At a glance, the locked rules cover: pnpm-only package management; primitive-fir
 | pnpm | Package manager (exclusive) |
 | Cursor | IDE / coding agent |
 | Vercel | Deployment + Web Analytics |
-| Anthropic API | AI-native foundation — runtime AI architecture defined per product |
 
 ---
 
@@ -126,7 +125,7 @@ No custom schema or migrations exist yet. The only user-bearing table is Supabas
 ## Phase 4 — Landing Page `Active`
 A styled public landing/marketing page as the canonical public entry point.
 
-### Epic 1: Header & Footer Chrome
+### Epic 1: Header & Footer Chrome `Complete`
 
 As a visitor, I see a consistent sticky header and footer across the public landing page that reflect Seminova's identity and provide navigation, so the page feels complete and on-brand rather than a bare starter shell.
 
@@ -137,7 +136,7 @@ As a visitor, I see a consistent sticky header and footer across the public land
 - Reference mockup: `.mockups/landing-page.html`.
 - Conform to locked rules already in place: primitive-first shadcn/ui, semantic tokens only, mobile-first, ≤150 line components.
 
-### Epic 2: Landing Page Content
+### Epic 2: Landing Page Content `Complete`
 
 As a visitor, I land on a page that explains what Seminova is and why I'd adopt it as a starting point for my own product, so I can quickly judge fit and take action.
 
@@ -154,7 +153,7 @@ As a visitor, I land on a page that explains what Seminova is and why I'd adopt 
 
 - No pricing, no testimonials.
 
-### Epic 3: Site Identity Audit
+### Epic 3: Site Identity Audit `Complete`
 
 As a maintainer re-skinning Seminova for a new product, every visible "Seminova" reference updates from one place (`src/config/site.ts`), so the template is genuinely re-skinnable rather than partially wired.
 

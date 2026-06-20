@@ -1,6 +1,7 @@
 import { EnvVarWarning } from '@/components/env-var-warning'
 import { AuthButton } from '@/components/auth-button'
 import { ThemeSwitcher } from '@/components/theme-switcher'
+import { siteConfig } from '@/config/site'
 import { hasEnvVars } from '@/utils/env'
 import Link from 'next/link'
 import { Suspense } from 'react'
@@ -16,7 +17,7 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
         <nav className="border-b-foreground/10 flex h-16 w-full justify-center border-b">
           <div className="flex w-full max-w-5xl items-center justify-between p-3 px-5 text-sm">
             <div className="flex items-center gap-5 font-semibold">
-              <Link href={'/'}>Next.js Supabase Starter</Link>
+              <Link href="/">{siteConfig.name}</Link>
             </div>
             {!hasEnvVars ? (
               <EnvVarWarning />
