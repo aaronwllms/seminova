@@ -138,7 +138,7 @@ As a developer using a server action or async surface, I want a consistent error
 - Retrofit into the users table; also retrofit into the auth forms (login, sign-up, forgot-password, update-password), which currently each handle errors ad hoc — consolidate rather than leaving them inconsistent.
 - Auth forms additionally capture the raw `.code` from the caught Supabase `AuthError` (currently discarded) and pass it through to the shared component alongside `message`. Mapping these raw codes to the error taxonomy (e.g. `SUPABASE_AUTH_ERROR`) and deciding what's safe to surface per code is a security-sanitization decision, not a display concern — deferred to Phase 7 (Security Audit). This epic only ensures the raw code isn't lost before that pass can use it.
 
-### Epic 2: Error Severity Architecture
+### Epic 2: Error Severity Architecture `Complete`
 
 As a developer (and as an end user seeing errors), I want errors classified by severity at the point they're produced — not guessed at in the UI — so that routine, expected problems read as quiet feedback while genuine failures get the heavier, debuggable treatment.
 
@@ -153,7 +153,7 @@ As a developer (and as an end user seeing errors), I want errors classified by s
 - **Drop the unused `detail` prop** that Epic 1's component carried — nothing fills it; reintroduce later only when a real fault-path caller has something to put there. Keep the component API minimal.
 - **Update `.cursor/rules/error-handling.mdc`** to document the operational-vs-fault model, the `kind` field on the envelope, and which component to use for which — superseding the single-`ErrorState` guidance Epic 1 wrote.
 
-### Epic 3: Skeleton Loading State for Users Table
+### Epic 3: Skeleton Loading State for Users Table `Complete`
 
 As an admin viewing the users list, I want a proper loading skeleton instead of placeholder text, consistent with the design system's existing skeleton primitive.
 

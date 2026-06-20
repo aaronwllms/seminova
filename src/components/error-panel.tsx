@@ -1,6 +1,6 @@
 'use client'
 
-import { Copy } from 'lucide-react'
+import { AlertTriangle, Copy } from 'lucide-react'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -8,75 +8,32 @@ import { cn } from '@/utils/tailwind'
 
 interface BuildErrorCopyTextParams {
   message: string
-  code: string
-  detail?: string
+  code?: string
 }
 
-interface ErrorStateProps {
+interface ErrorPanelProps {
   message: string
   code?: string
-  detail?: string
   className?: string
 }
 
 export const buildErrorCopyText = ({
   message,
   code,
-  detail,
 }: BuildErrorCopyTextParams): string => {
-  const lines = [message, `Code: ${code}`]
-
-  if (detail) {
-    lines.push(`Detail: ${detail}`)
+  if (code) {
+    return `${message}\nCode: ${code}`
   }
 
-  return lines.join('\n')
+  return message
 }
 
-export const ErrorState = ({
-  message,
-  code,
-  detail,
-  className,
-}: ErrorStateProps) => {
-  if (!code) {
-    return (
-      <p role="alert" className={cn('text-destructive text-sm', className)}>
-        {message}
-      </p>
-    )
-  }
-
-  return (
-    <ErrorStateWithCopy
-      message={message}
-      code={code}
-      detail={detail}
-      className={className}
-    />
-  )
-}
-
-interface ErrorStateWithCopyProps {
-  message: string
-  code: string
-  detail?: string
-  className?: string
-}
-
-const ErrorStateWithCopy = ({
-  message,
-  code,
-  detail,
-  className,
-}: ErrorStateWithCopyProps) => {
+export const ErrorPanel = ({ message, code, className }: ErrorPanelProps) => {
   const [didCopy, setDidCopy] = useState(false)
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(
-        buildErrorCopyText({ message, code, detail }),
-      )
+      await navigator.clipboard.writeText(buildErrorCopyText({ message, code }))
       setDidCopy(true)
       window.setTimeout(() => setDidCopy(false), 2000)
     } catch {
@@ -88,11 +45,17 @@ const ErrorStateWithCopy = ({
     <div
       role="alert"
       className={cn(
-        'border-destructive/30 bg-destructive/5 flex items-start justify-between gap-3 rounded-md border p-3',
+        'border-destructive/30 bg-destructive/5 flex items-center justify-between gap-3.5 rounded-md border p-3',
         className,
       )}
     >
-      <p className="text-destructive text-sm">{message}</p>
+      <div className="flex items-center gap-2.5">
+        <AlertTriangle
+          className="text-destructive size-[18px] shrink-0"
+          aria-hidden
+        />
+        <p className="text-destructive text-sm">{message}</p>
+      </div>
       <div className="flex shrink-0 flex-col items-center gap-1">
         <Button
           type="button"

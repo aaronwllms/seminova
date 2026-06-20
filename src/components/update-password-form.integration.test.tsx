@@ -72,6 +72,9 @@ describe('UpdatePasswordForm', () => {
     await user.click(screen.getByRole('button', { name: /save new password/i }))
 
     expect(await screen.findByText(/password is too weak/i)).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /copy error details/i }),
+    ).toBeInTheDocument()
     expect(mockPush).not.toHaveBeenCalled()
   })
 })

@@ -84,34 +84,8 @@ describe('LoginForm', () => {
       await screen.findByText(/invalid login credentials/i),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: /copy error details/i }),
-    ).toBeInTheDocument()
+      screen.queryByRole('button', { name: /copy error details/i }),
+    ).not.toBeInTheDocument()
     expect(mockPush).not.toHaveBeenCalled()
-  })
-
-  it('should include the raw Supabase code in the copied error payload', async () => {
-    mockSignInWithPassword.mockResolvedValue({
-      error: new AuthApiError(
-        'Invalid login credentials',
-        400,
-        'invalid_credentials',
-      ),
-    })
-    const user = userEvent.setup()
-
-    render(<LoginForm />)
-
-    await user.type(screen.getByLabelText(/email/i), 'test@example.com')
-    await user.type(screen.getByLabelText(/^password$/i), 'wrong-password')
-    await user.click(screen.getByRole('button', { name: /^login$/i }))
-
-    await screen.findByText(/invalid login credentials/i)
-    await user.click(
-      screen.getByRole('button', { name: /copy error details/i }),
-    )
-
-    await waitFor(() => {
-      expect(screen.getByText('Copied')).toBeInTheDocument()
-    })
   })
 })

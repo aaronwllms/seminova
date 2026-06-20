@@ -25,5 +25,18 @@ Every data table paginates server-side. Never load an unbounded result set.
 - Page size: fixed at 50 rows. No user-facing page-size selector.
 - Layout: table grows naturally; the page scrolls. No fixed-height internal scroll region on the table body.
 
+## Loading Pattern
+
+While a fetch is in flight and the table body is empty, show skeleton rows — not placeholder text in `emptyMessage`.
+
+- Use `DataTableShell` `isLoading` when loading and `table.getRowModel().rows.length === 0`.
+- Skeleton rows render via `DataTableSkeletonBody` using the `Skeleton` primitive (`src/components/ui/skeleton.tsx`).
+- Per-column sizing via `columnDef.meta.skeletonClassName` (see users columns for reference).
+- Default skeleton row count: 8 — intentionally fewer than page size (50). Enough to signal loading without flooding the viewport or implying a specific result count.
+- When stale rows are already on screen (pagination/search refetch), keep showing stale data; disable controls via `isPending` — do not flash skeleton over existing rows.
+- `emptyMessage` is for the zero-results state only.
+
+**Why:** placeholder text in a single merged cell reads as an empty state, not a loading state; skeleton rows preserve column structure and match the design-system loading convention.
+
 ## Reference Implementations
-- `src/app/(admin)/users/_components/users-table.tsx` — Users table, search on `email`
+- `src/app/(admin)/users/_components/users-table.tsx` — Users table, search on `email`, skeleton loading via `DataTableShell`

@@ -85,6 +85,7 @@ describe('UsersTable', () => {
       error: {
         message: 'Something went wrong loading users. Please try again.',
         code: 'INTERNAL_ERROR',
+        kind: 'fault',
       },
     })
 
@@ -98,5 +99,16 @@ describe('UsersTable', () => {
     expect(
       screen.getByRole('button', { name: /copy error details/i }),
     ).toBeInTheDocument()
+  })
+
+  it('should show skeleton rows while loading with an empty table body', () => {
+    listUsersActionMock.mockImplementation(() => new Promise(() => {}))
+
+    const { container } = render(<UsersTable />)
+
+    const skeletons = container.querySelectorAll('[data-slot="skeleton"]')
+    expect(skeletons.length).toBeGreaterThan(0)
+    expect(screen.queryByText('No users found.')).not.toBeInTheDocument()
+    expect(screen.getByText('Loading users…')).toHaveClass('sr-only')
   })
 })

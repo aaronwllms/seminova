@@ -48,12 +48,24 @@ NextResponse.json({ success: true, data: result }, { status: 200 })
 **Error:**
 ```typescript
 NextResponse.json(
-  { success: false, error: { message: 'User-friendly error message', code: 'VALIDATION_ERROR' } },
+  {
+    success: false,
+    error: {
+      message: 'User-friendly error message',
+      code: 'VALIDATION_ERROR',
+      kind: 'operational',
+    },
+  },
   { status: 400 }
 )
 ```
 
-**Server Actions:** Same structure, return objects instead of NextResponse
+Include `kind: 'operational' | 'fault'` on every error envelope. Set `kind` at the producer/catcher — the only place with enough context to classify honestly. UI renders what it's told; never infer severity from `code` presence or message text.
+
+- **`operational`** — expected failure during normal operation (bad credentials, validation, forbidden, rate-limited)
+- **`fault`** — genuine failure (thrown exception, network failure, internal error)
+
+**Server Actions:** Same structure, return objects instead of NextResponse. Reference: [`src/app/(admin)/users/actions.ts`](../../src/app/(admin)/users/actions.ts)
 
 ## Logging
 
@@ -129,15 +141,29 @@ Use Next.js `error.tsx` for route-level error boundaries. Reusable `ErrorBoundar
 
 ## Error UI Patterns
 
-Use [`src/components/error-state.tsx`](../../src/components/error-state.tsx) for inline form and table errors:
+Carry severity as data via `kind` on the error envelope ([`src/types/app-error.ts`](../../src/types/app-error.ts)). Branch on `kind` to pick the display component — do not gate copy affordance on whether `code` is present.
+
+**Operational** (`kind: 'operational'`) — [`src/components/inline-error.tsx`](../../src/components/inline-error.tsx):
+- Plain inline message, `AlertCircle` icon, `role="alert"`, `text-destructive`
+- No container, fill, or copy button
+- Use for: Supabase `AuthError` (via [`extractAuthFormError`](../../src/utils/extract-auth-form-error.ts)), client validation, `FORBIDDEN`, `VALIDATION_ERROR`
+
+**Fault** (`kind: 'fault'`) — [`src/components/error-panel.tsx`](../../src/components/error-panel.tsx):
+- Bordered destructive-tinted panel, `AlertTriangle` icon, copy-to-clipboard button
+- Copy payload: message + `Code: {code}` when code present
+- Use for: `INTERNAL_ERROR`, non-auth throws, network failures
 
 ```typescript
-<ErrorState message={errorMessage} code={errorCode} />
+{error?.kind === 'fault' ? (
+  <ErrorPanel message={error.message} code={error.code} />
+) : error ? (
+  <InlineError message={error.message} />
+) : null}
 ```
 
-- **With `code`:** card chrome + copy button — paste-friendly payload includes message and code (and optional `detail`)
-- **Without `code`:** plain `text-destructive` alert — for client validation errors with no diagnostic code
-- Pass `code` when available: server-action taxonomy codes (e.g. users table) or raw Supabase `AuthError.code` from auth forms (unmapped until Phase 7 Security Audit)
+Visual reference (appearance only — implementation uses semantic tokens): [`.mockups/error-states.html`](../../.mockups/error-states.html)
+
+Per-code taxonomy mapping and copy sanitization for raw Supabase codes deferred to Phase 7 Security Audit.
 
 For route-level failures, add `error.tsx` in the relevant `src/app/` segment.
 
@@ -173,4 +199,4 @@ Before shipping error handling code:
 - [ ] No sensitive data in logs
 - [ ] Error boundaries for critical UI sections
 - [ ] Tests cover error scenarios
-- [ ] Error codes use standard taxonomy
+- [ ] Error envelopes include `kind: 'operational' | 'fault'` set at producer

@@ -1,17 +1,20 @@
 import { isAuthError } from '@supabase/supabase-js'
 
-interface AuthFormError {
-  message: string
-  code?: string
-}
+import type { AppError } from '@/types/app-error'
 
-export const extractAuthFormError = (caught: unknown): AuthFormError => {
+export const extractAuthFormError = (caught: unknown): AppError => {
   const message = caught instanceof Error ? caught.message : 'An error occurred'
 
-  const code =
-    isAuthError(caught) && typeof caught.code === 'string'
-      ? caught.code
-      : undefined
+  if (isAuthError(caught) && typeof caught.code === 'string') {
+    return {
+      message,
+      code: caught.code,
+      kind: 'operational',
+    }
+  }
 
-  return { message, code }
+  return {
+    message,
+    kind: 'fault',
+  }
 }

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/supabase/server'
 import { createServiceClient } from '@/supabase/service'
+import type { ErrorKind } from '@/types/app-error'
 import { isAdmin, type JwtClaims } from '@/utils/admin'
 
 import { listAdminUsersPage } from './_lib/list-admin-users'
@@ -21,6 +22,7 @@ type ListUsersActionError = {
   error: {
     message: string
     code: 'FORBIDDEN' | 'VALIDATION_ERROR' | 'INTERNAL_ERROR'
+    kind: ErrorKind
   }
 }
 
@@ -42,7 +44,11 @@ export const listUsersAction = async (
   if (error || !data?.claims) {
     return {
       success: false,
-      error: { message: 'Unauthorized', code: 'FORBIDDEN' },
+      error: {
+        message: 'Unauthorized',
+        code: 'FORBIDDEN',
+        kind: 'operational',
+      },
     }
   }
 
@@ -51,7 +57,7 @@ export const listUsersAction = async (
   if (!isAdmin(claims)) {
     return {
       success: false,
-      error: { message: 'Forbidden', code: 'FORBIDDEN' },
+      error: { message: 'Forbidden', code: 'FORBIDDEN', kind: 'operational' },
     }
   }
 
@@ -63,6 +69,7 @@ export const listUsersAction = async (
       error: {
         message: 'Page must be a positive integer',
         code: 'VALIDATION_ERROR',
+        kind: 'operational',
       },
     }
   }
@@ -86,6 +93,7 @@ export const listUsersAction = async (
       error: {
         message: 'Something went wrong loading users. Please try again.',
         code: 'INTERNAL_ERROR',
+        kind: 'fault',
       },
     }
   }
