@@ -5,6 +5,7 @@ import { Analytics } from '@vercel/analytics/react'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import './globals.css'
 import ReactQueryProvider from '@/providers/ReactQueryProvider'
+import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { getSiteMetadata } from '@/config/site'
 
@@ -47,6 +48,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         >
           <ReactQueryProvider>
             <TooltipProvider>{children}</TooltipProvider>
+            <Toaster />
             <Analytics />
             <ReactQueryDevtools initialIsOpen={false} />
           </ReactQueryProvider>

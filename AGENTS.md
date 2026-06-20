@@ -2,7 +2,7 @@
 
 **Purpose:** What exists in this repo today — locked rules, implemented features, routes, data model, and where to look. For planning and roadmap, see [CONTEXT.md](CONTEXT.md). For human setup, see [README.md](README.md). For how to write code, see [.cursor/rules/](.cursor/rules/) (not duplicated here).
 
-**Last updated:** 2026-06-19
+**Last updated:** 2026-06-20
 
 ---
 
@@ -97,7 +97,7 @@
   - `/users` — admin-only users table (real Supabase Auth data; search + pagination)
   - `/protected` — authenticated non-admin landing (starter shell until Phase 6)
 - **Post-login redirect:** admins → `/users`; non-admins → `/protected` (login and password-update flows).
-- **UI primitives:** `src/components/ui/` (button, card, input, label, checkbox, badge, dropdown-menu, sidebar, avatar, breadcrumb, separator, sheet, tooltip, collapsible, skeleton).
+- **UI primitives:** `src/components/ui/` (button, card, input, label, checkbox, badge, dropdown-menu, sidebar, avatar, breadcrumb, separator, sheet, tooltip, collapsible, skeleton, sonner).
 - **Data fetching:** TanStack Query v5 provider configured.
 - **Design-system token layer (Phase 2):** tweakcn **Clean Slate** default theme in `src/app/globals.css`; semantic tokens via `@theme inline` + `next-themes` class-based light/dark. **Inter** + **JetBrains Mono** via `next/font` in `layout.tsx` (Merriweather CSS serif fallback). Auth forms and layout chrome conform to semantic tokens (no hardcoded theme colors). See [DESIGN.md](DESIGN.md) for architecture and re-skin workflow.
 - **Testing:** Vitest + React Testing Library + MSW v2 (`src/test/`, `src/mocks/`); baseline unit/integration tests for auth forms, proxy, hooks, and utils; 80% coverage thresholds enforced via `pnpm test:ci`.
@@ -109,6 +109,7 @@
 - **Landing chrome (Phase 4 Epic 1):** `(marketing)` route group with sticky `LandingHeader`, document-flow `LandingFooter`, shared `LandingContainer` (`max-w-7xl`); nav/social/legal config in [`src/config/site.ts`](src/config/site.ts).
 - **Landing content (Phase 4 Epic 2):** hero, six-card features grid (`id="features"`), and tech-stack marquee on `/` (six logos with icon+name cells, edge fades, pause on hover); copy and stack logos in [`src/config/landing-content.ts`](src/config/landing-content.ts); SVG assets in `public/tech/`; marquee primitive in [`src/components/kibo-ui/marquee/`](src/components/kibo-ui/marquee/).
 - **Site identity audit (Phase 4 Epic 3):** all user-visible app names and root metadata wired through [`src/config/site.ts`](src/config/site.ts) (`description`, `getSiteMetadata()` for browser tab title and SEO); protected-shell nav label reads `siteConfig.name` — re-skin from one config file.
+- **Toast system (Phase 5 Epic 4):** sonner via shadcn [`Toaster`](src/components/ui/sonner.tsx) in root layout; [`showSuccessToast`](src/utils/app-toast.ts) for success confirmations; errors remain `InlineError` / `ErrorPanel` (see [`.cursor/rules/error-handling.mdc`](.cursor/rules/error-handling.mdc)).
 
 ---
 

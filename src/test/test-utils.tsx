@@ -2,12 +2,17 @@ import { ReactNode } from 'react'
 import { render, RenderOptions } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
+import { Toaster } from '@/components/ui/sonner'
+
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: false } },
 })
 
 const Wrapper = ({ children }: { children: ReactNode }) => (
-  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  <QueryClientProvider client={queryClient}>
+    {children}
+    <Toaster />
+  </QueryClientProvider>
 )
 
 // All the providers you need for tests can go here : Theme, Redux, etc.

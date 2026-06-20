@@ -160,7 +160,7 @@ As an admin viewing the users list, I want a proper loading skeleton instead of 
 - Replace the "Loading users…" text state in the users table with the existing (currently unused) `skeleton.tsx` primitive, shaped to the table's rows/columns.
 - Establish this as the pattern other tables/lists should follow.
 
-### Epic 4: Toast Notification System
+### Epic 4: Toast Notification System `Complete`
 
 As a user completing an action that needs brief confirmation, I want a toast notification so I know it succeeded without a full page state change.
 
@@ -248,3 +248,17 @@ _Defer until: unscoped — revisit after Phase 4_
 **Problem:** Feature card #4's punchline ("start building your product, not your login screen") implies login/auth is the thing skipped, but the actual content is the admin shell + role gating. As more reference surfaces ship (Phase 5+), this card should describe the fuller set of packaged components available, not just admin shell.
 **Solution:** Revisit copy once more reference implementations exist to describe.
 _Defer until: after Phase 5_
+
+---
+
+**`useGetMessage` filename violates kebab-case rule**
+**Problem:** `src/hooks/useGetMessage.ts` (and its test `useGetMessage.unit.test.tsx`) is camelCase, violating the locked kebab-case file-naming convention in `project-standards.mdc`. The sibling `use-mobile.ts` is correct; this is the lone deviation.
+**Solution:** Rename to `use-get-message.ts` + `use-get-message.unit.test.tsx` and update any imports. Low priority, low risk — straightforward cleanup whenever convenient.
+_Defer until: opportunistic_
+
+---
+
+**Dead `src/lib/` shadcn scaffold**
+**Problem:** `src/lib/utils.ts` is the original shadcn `cn` scaffold, superseded by `src/utils/tailwind.ts` (which is where the repo actually imports `cn` from). Nothing in `src/` imports from `@/lib/`, so the directory is dead weight — noise that contradicts the now-canonical "utilities live in `src/utils/`" convention.
+**Solution:** Delete `src/lib/utils.ts` (and the `src/lib/` directory if empty after). **Verify before deleting:** (1) confirm `components.json`'s `utils` alias points at `@/utils/tailwind`, not `@/lib/utils`; (2) grep `src/` for any `@/lib/` import. If both come back clean, deletion is safe with no fallout.
+_Defer until: opportunistic_

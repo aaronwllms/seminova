@@ -167,6 +167,15 @@ Per-code taxonomy mapping and copy sanitization for raw Supabase codes deferred 
 
 For route-level failures, add `error.tsx` in the relevant `src/app/` segment.
 
+## Success Feedback (Toasts)
+
+Use [`showSuccessToast`](../../src/utils/app-toast.ts) for brief **success confirmations** after a completed mutation — e.g. promote/demote, settings save. Call `toast.success` from `sonner` only inside that module; feature code imports `showSuccessToast`.
+
+- **Never** use toasts for errors — operational → `InlineError`, fault → `ErrorPanel`
+- **Never** use toasts for copy-to-debug feedback — `ErrorPanel` uses `aria-live` (Epic 2)
+- Toaster is mounted once in root layout ([`src/components/ui/sonner.tsx`](../../src/components/ui/sonner.tsx)); callers are client components or client callbacks after server actions
+- Keep messages short (one line), user-facing, no internal codes
+
 ## Production Logging
 
 **Vercel:** `console.log` / `console.error` from server actions and route handlers appear in Vercel Dashboard → Project → Logs. Use consistent `[tags]` for filtering. See `logging.mdc` for level selection.
