@@ -5,11 +5,16 @@ import { cn } from '@/utils/tailwind'
 
 type LandingNavLinksProps = {
   className?: string
+  linkClassName?: string
   onNavigate?: () => void
 }
 
+const linkStyles =
+  'text-muted-foreground hover:text-foreground transition-colors'
+
 export const LandingNavLinks = ({
   className,
+  linkClassName,
   onNavigate,
 }: LandingNavLinksProps) => (
   <nav
@@ -24,7 +29,7 @@ export const LandingNavLinks = ({
           target="_blank"
           rel="noopener noreferrer"
           onClick={onNavigate}
-          className="text-muted-foreground hover:text-foreground transition-colors"
+          className={cn(linkStyles, linkClassName)}
         >
           {item.label}
         </a>
@@ -33,7 +38,7 @@ export const LandingNavLinks = ({
           key={item.label}
           href={item.href}
           onClick={onNavigate}
-          className="text-muted-foreground hover:text-foreground transition-colors"
+          className={cn(linkStyles, linkClassName)}
         >
           {item.label}
         </Link>

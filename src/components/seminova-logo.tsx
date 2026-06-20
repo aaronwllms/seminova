@@ -6,11 +6,13 @@ import { cn } from '@/utils/tailwind'
 type SeminovaLogoProps = {
   className?: string
   href?: string
+  onNavigate?: () => void
 }
 
 export const SeminovaLogo = ({
   className,
   href = '/users',
+  onNavigate,
 }: SeminovaLogoProps) => {
   const Logo = siteConfig.Logo
 
@@ -27,6 +29,7 @@ export const SeminovaLogo = ({
     return (
       <Link
         href={href}
+        onClick={onNavigate}
         className={cn(
           'text-sidebar-foreground flex items-center gap-2 overflow-hidden',
           className,
