@@ -49,7 +49,18 @@ See `.cursor/rules/api-development.mdc` for Route Handler conventions when one i
 - Wrap client components in Suspense with meaningful fallbacks
 - Use Next.js Image component with proper sizing, size data, and lazy loading
 - Optimize Web Vitals (LCP, CLS, FID) for better user experience
-- Implement efficient caching and revalidation strategies using Next.js built-in features
+
+### Avoiding Data-Fetching Waterfalls
+- Fetch independent data in parallel (multiple awaited calls or `Promise.all`), not sequentially, when one fetch doesn't depend on another's result
+- Push fetches as deep as possible into the component that needs the data, but don't let a parent await a child's fetch before rendering — use Suspense boundaries to stream instead
+- Co-locate related fetches in the same Server Component when they're interdependent, rather than chaining client-side requests
+
+### Caching & Revalidation
+- Default to Next.js's built-in fetch caching; opt out (`cache: 'no-store'`) only for genuinely dynamic, per-request data
+- Use `revalidatePath` / `revalidateTag` after mutations (Server Actions) instead of client-side refetch-and-hope
+- Prefer time-based revalidation (`next: { revalidate: N }`) over no caching for data that's expensive to compute but tolerant of staleness
+
+**See `.cursor/rules/supabase.mdc` for database query optimization (N+1, indexing, pagination) and `.cursor/rules/create-rls-policies.mdc` for RLS performance patterns.**
 
 ## API Routes
 - Place in `src/app/api/` directory

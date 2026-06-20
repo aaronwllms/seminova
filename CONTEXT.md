@@ -2,8 +2,8 @@
 
 **Purpose:** Dual-use — planning reference for the builder (PM) and context for coding agents. Seminova is currently a **template**: a curated foundation that real products are built from. It is written in product shape so that the structure itself is inherited by every project spun off it. Agents: read this file for living state; build-time workflow and authoritative schema live in [AGENTS.md](AGENTS.md); shipped phase detail in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md).
 
-**Last updated:** 2026-06-19
-**Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell (Admin sidebar) + Auth restyle (shipped). Next up: Phase 4 — Landing Page (`Draft`).
+**Last updated:** 2026-06-20
+**Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell (Admin sidebar) + Auth restyle (shipped). Phase 4 — Landing Page (shipped). Phase 5 — Admin Surface Polish & Toasting (`Active`).
 **Migrations:** none yet — no custom schema; Supabase `auth.users` only.
 
 **Shipped phase detail →** [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md)
@@ -15,13 +15,14 @@
 These rules apply to anyone updating this file — PM or coding agent.
 
 - **The ACTIVE section is the source of truth for what is planned but not yet shipped.** Cursor has access to the codebase and can verify live state independently. This file should never contradict the repo.
+- **When a phase is fully fleshed out in a planning session** (PM + Claude collaboratively defining its epics), move it from `DRAFT — Upcoming Phases` into `ACTIVE`, tag the phase header and Roadmap row `` `Active` ``, and delete its old one-line Draft stub. `ACTIVE` holds at most one phase at a time in practice, but isn't structurally limited to one. When `ACTIVE` has no phase in it, leave a stub note saying so — do not delete the heading.
 - **Authoritative schema and the build-time agent workflow live in [AGENTS.md](AGENTS.md).** Do not duplicate per-table schema or Cursor/rules/skills detail here.
 - **Locked rules are canonical in [AGENTS.md](AGENTS.md).** §3 below is a pointer + at-a-glance only — do not expand it back into a full duplicate.
 - **Locked-rule changes decided in chat must be routed.** A text-only rule edit lands directly in AGENTS.md (and the §3 at-a-glance only if the topic list changes). A rule change that requires code conformance becomes an ACTIVE story that updates AGENTS.md, `.cursor/rules/`, and the affected code together.
 - **When a phase ships in full**, append its epic/story detail to [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md) (append-only — never edit existing archive entries), then update the Roadmap status and the Status line here and remove the shipped ACTIVE content.
 - **Resolved open-question one-liners** append to `## Resolved decisions` in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md); remove from this file.
 - **HTML mockups:** save new explorations as `.mockups/*.html`. When a mockup is superseded or tied to a shipped phase, move it to `.mockups/archive/`.
-- **Epics must be numbered.** Format as `### Epic N: Name` (sequential within the phase, starting at 1). Never `### Epic: Name` with no number.
+- **Epics must be numbered.** Format as `### Epic N: Name` (sequential within the phase, starting at 1). Never `### Epic: Name` with no number. Once implemented, a `` `Complete` `` tag is appended to the heading (`### Epic N: Name \`Complete\``) by the mark-epic-complete skill — never added manually or inferred from code.
 - **Stub sections are intentional.** Sections that are empty now (e.g. AI Architecture) are kept as stubs so the structure is inherited by every product built from this template. Do not delete them.
 
 ---
@@ -71,7 +72,6 @@ At a glance, the locked rules cover: pnpm-only package management; primitive-fir
 | pnpm | Package manager (exclusive) |
 | Cursor | IDE / coding agent |
 | Vercel | Deployment + Web Analytics |
-| Anthropic API | AI-native foundation — runtime AI architecture defined per product |
 
 ---
 
@@ -113,23 +113,55 @@ No custom schema or migrations exist yet. The only user-bearing table is Supabas
 | 1 | Foundation & Cleanup | `Shipped` |
 | 2 | Design-System Token Layer | `Shipped` |
 | 3 | App Shell (Admin sidebar) + Auth restyle | `Shipped` |
-| 4 | Landing Page | `Draft` |
-| 5 | Reference Implementations | `Draft` |
+| 4 | Landing Page | `Shipped` |
+| 5 | Admin Surface Polish & Toasting | `Active` |
 | 6 | Data Model Foundation (profiles, non-admin shell, profile/settings page) | `Draft` |
 | 7 | Agent Tooling: Skills Suite | `Draft` |
 
 ---
 
+# ACTIVE
+
+## Phase 5 — Admin Surface Polish & Toasting `Active`
+
+Retrofits shared error/loading patterns and a toast system into the existing admin users surface, rather than building a standalone reference/demo page. Scope narrowed from the original "Reference Implementations" framing after review: the data-table pattern already exists for real (admin users table), and the form/settings pattern is owned by Phase 6, not duplicated here ahead of it.
+
+### Epic 1: Shared Error State Component
+
+As a developer using a server action or async surface, I want a consistent error-display component so failures look the same everywhere and are easy to debug.
+
+- Replace ad hoc inline error text (e.g. the users table's `role="alert"` paragraph) with a shared component.
+- Component shows the error message plus a copy button that copies the error text (and any available underlying detail — code/context) to the clipboard, so it can be pasted into a chat/debugging tool.
+- Retrofit into the users table; also retrofit into the auth forms (login, sign-up, forgot-password, update-password), which currently each handle errors ad hoc — consolidate rather than leaving them inconsistent.
+
+### Epic 2: Skeleton Loading State for Users Table
+
+As an admin viewing the users list, I want a proper loading skeleton instead of placeholder text, consistent with the design system's existing skeleton primitive.
+
+- Replace the "Loading users…" text state in the users table with the existing (currently unused) `skeleton.tsx` primitive, shaped to the table's rows/columns.
+- Establish this as the pattern other tables/lists should follow.
+
+### Epic 3: Toast Notification System
+
+As a user completing an action that needs brief confirmation, I want a toast notification so I know it succeeded without a full page state change.
+
+- Install and wire up a toast primitive + provider (sonner, consistent with shadcn/ui conventions already in use).
+- Consumed by Epic 4 (promote/demote) now, and by Phase 6's settings save later.
+
+### Epic 4: In-App Admin Promote/Demote
+
+As an admin, I want to promote or demote a user's role directly from the users page, instead of requiring CLI access.
+
+- Add promote/demote action to the users table/page, gated to admin role.
+- Action confirms success via the Epic 3 toast.
+- **Locked-rule change required:** the current admin-gate rule (`app_metadata.role`, secret-key CLI only) must be updated in AGENTS.md and `.cursor/rules/` to permit this in-app path, alongside the code that implements it — per the File Management Rule that code-conforming locked-rule changes land as a story, not a standalone doc edit.
+
+---
+
 # DRAFT — Upcoming Phases
 
-## Phase 4 — Landing Page `Draft`
-A styled public landing/marketing page as the canonical public entry point.
-
-## Phase 5 — Reference Implementations `Draft`
-Working examples that demonstrate the patterns: a dashboard with widgets, a data table, a standard form (forms stack TBD — see Open Questions), and canonical loading / error / empty / toast states. A settings page pattern.
-
 ## Phase 6 — Data Model Foundation `Draft`
-First real migration: `profiles` table, signup trigger, owner-scoped RLS. Seed AGENTS.md **Data model (summary)** as the authoritative schema source. Also builds the non-admin authenticated shell — header-row + content below, distinct from the admin sidebar pattern (sidebar is reserved for admin/management surfaces; header+content is for end-user-facing ones) — and a profile/settings page on top of it (display name, avatar, bio, password reset), the first real surface for `profiles` fields.
+First real migration: `profiles` table, signup trigger, owner-scoped RLS. Seed AGENTS.md **Data model (summary)** as the authoritative schema source. Also builds the non-admin authenticated shell — header-row + content below, distinct from the admin sidebar pattern (sidebar is reserved for admin/management surfaces; header+content is for end-user-facing ones) — including an avatar dropdown in the header reusing the admin sidebar's nav-user pattern (sign-out, profile access) — and a profile/settings page on top of it (display name, avatar, bio, password reset), the first real surface for `profiles` fields. Settings save confirms via the Phase 5 toast system. Also owns the standard form pattern (forms stack TBD — see Open Questions).
 
 ## Phase 7 — Agent Tooling: Skills Suite `Draft`
 Finalize the generic (de-specialized) skills suite: a design-critique skill, a design-system skill (establish-structure + audit + AI-slop detection), and a separate theme "regenerate" skill. Skills land at the end because they operate on the token layer (Phase 2) and the reference surfaces (Phases 3–5). Rules correctness is handled in Phase 1; this phase includes only a light final pass to confirm the rules set is still complete and project-agnostic.
@@ -142,17 +174,10 @@ Nothing here is blocking current work unless noted.
 
 ---
 
-**Full site.ts adoption audit**
-**Problem:** Phase 3 Epic 4 centralizes app name/logo into `src/config/site.ts`, but only wires it through `SeminovaLogo` (admin sidebar + auth shell). Other hardcoded "Seminova" references — most notably root `layout.tsx` `metadata`/page `<title>` — aren't audited or converted, so the app isn't yet fully re-skinnable from one file.
-**Solution:** A follow-up epic/story to grep the codebase for remaining hardcoded identity strings and wire them to `site.ts`. Natural fit early in Phase 4 (Landing Page), since a public landing page is exactly where root metadata/title matters most.
-_Defer until: Phase 4_
-
----
-
 **Forms stack**
-**Problem:** The starter ships no form library. Reference implementations and product forms need a standard.
-**Solution:** Likely adopt `react-hook-form` + `zod` as the canonical stack and bake it into the template. Confirm before Phase 5.
-_Defer until: Phase 5_
+**Problem:** The starter ships no form library. The settings page (Phase 6) and other product forms need a standard.
+**Solution:** Likely adopt `react-hook-form` + `zod` as the canonical stack and bake it into the template. Confirm before Phase 6.
+_Defer until: Phase 6_
 
 ---
 
@@ -172,7 +197,7 @@ _Defer until: Phase 7_
 
 **Admin Logging page**
 **Problem:** Warn/error/info/debug logs now have a canonical taxonomy (`logging.mdc`), but they currently only surface in Vercel's log viewer — there's no in-app way to browse them. A dedicated admin page (filterable by level, color-coded — e.g. debug in green) would make this template-level convention actually visible and useful day-to-day.
-**Solution:** Not yet scoped. Needs a data-storage decision first — whether to read/relay Vercel's log stream, or persist log entries to a table — before this can become a real epic. Likely Phase 5 (Reference Implementations) or later, once a clearer need emerges from actual product use.
+**Solution:** Not yet scoped. Needs a data-storage decision first — whether to read/relay Vercel's log stream, or persist log entries to a table — before this can become a real epic.
 _Defer until: unscoped — revisit when a storage approach is decided_
 
 ---
@@ -181,5 +206,19 @@ _Defer until: unscoped — revisit when a storage approach is decided_
 **Problem:** Name is Seminova; `.com` is contested (out-of-lane semiconductor/agriculture firms).
 **Solution:** Plan to claim `seminova.dev` (or similar) and carry keywords in the repo description/topics rather than the name. Low priority.
 _Defer until: opportunistic_
+
+---
+
+**PM/agent workflow explainer page**
+**Problem:** The landing page names both halves of Seminova's core differentiator — agent-ready conventions and the PM/agent collaboration model — but a one-line card each doesn't explain how either actually works. Someone who clones the template should be able to click through and understand the mechanics, not read a README.
+**Solution:** Not yet scoped. Likely a dedicated in-app page (not a doc) reachable from the landing page, with two threads: (1) agent-ready conventions — how AGENTS.md + `.cursor/rules/` + `.cursor/skills/` keep any coding agent's output consistent; (2) PM/agent collaboration model — the Claude Desktop planning setup, MCP, and paired skills that turn a plan into agent-ready work. Needs its own epic to define content and layout once Phase 4 ships.
+_Defer until: unscoped — revisit after Phase 4_
+
+---
+
+**Admin shell feature copy revisit**
+**Problem:** Feature card #4's punchline ("start building your product, not your login screen") implies login/auth is the thing skipped, but the actual content is the admin shell + role gating. As more reference surfaces ship (Phase 5+), this card should describe the fuller set of packaged components available, not just admin shell.
+**Solution:** Revisit copy once more reference implementations exist to describe.
+_Defer until: after Phase 5_
 
 ---

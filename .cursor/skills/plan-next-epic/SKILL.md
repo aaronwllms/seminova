@@ -22,6 +22,8 @@ If no planning brief exists, ask the user where product roadmap / phase scope li
 
 Plan the **next uncompleted epic** in the current in-progress phase. Use the planning brief's conventions for scope (e.g. ACTIVE vs ARCHIVE sections, locked rules section) — adapt to whatever structure that file uses.
 
+Determine the next epic by reading `CONTEXT.md`: the first epic under the current phase **without** a `` `Complete` `` tag is next. Do not verify against the codebase.
+
 ## Name the plan
 
 Cursor derives the filename from the YAML `name` field. Lead with the **phase + epic prefix** (so files sort and archive correctly), then a **short description** for context:
@@ -40,4 +42,6 @@ Decide whether this epic is better as a **sequential plan** or **structured for 
 
 Write the plan according to that choice — sequential steps in dependency order, or a parallel structure with gates/tracks/file ownership if Build in Parallel.
 
-Verify prerequisites against the codebase before planning.
+## Close the plan
+
+End every generated plan with a final step instructing the implementing agent to run the **mark-epic-complete** skill once implementation is fully finished. This is how the epic gets tagged `` `Complete` `` in CONTEXT.md — plan-next-epic itself never edits files.
