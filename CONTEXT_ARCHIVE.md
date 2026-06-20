@@ -82,6 +82,30 @@ Admin-scoped authenticated shell (sidebar pattern), first real data page, and to
 
 ---
 
+## Phase 4 — Landing Page `Shipped` (2026-06-19)
+
+Styled public landing/marketing page as the canonical public entry point at `/`.
+
+### Epic 1 — Header & Footer Chrome `Shipped`
+
+- [x] **4.1 — Marketing route group.** `(marketing)` with sticky `LandingHeader`, document-flow `LandingFooter`, shared `LandingContainer` (`max-w-7xl`, `px-6 lg:px-8`).
+- [x] **4.2 — Nav and chrome config.** Nav, social, and legal links in `src/config/site.ts`; Login/Sign Up to `/auth/**`; flat top-level nav (no dropdowns).
+- [x] **4.3 — Mobile nav.** Sheet-based mobile navigation for small viewports.
+
+### Epic 2 — Landing Page Content `Shipped`
+
+- [x] **4.4 — Hero.** Centered hero with title, description, and CTA; copy in `src/config/landing-content.ts`.
+- [x] **4.5 — Features grid.** Six-card grid (`id="features"`) with the planned differentiator copy.
+- [x] **4.6 — Tech-stack marquee.** Six official brand SVGs in `public/tech/`; kibo-ui marquee primitives (`react-fast-marquee`); edge fades and pause on hover.
+
+### Epic 3 — Site Identity Audit `Shipped`
+
+- [x] **4.7 — Centralized metadata.** `description` + `getSiteMetadata()` in `site.ts`; root `layout.tsx` wired for browser tab title and SEO.
+- [x] **4.8 — Protected shell label.** `/protected` nav reads `siteConfig.name`.
+- [x] **4.9 — Metadata test.** `site.unit.test.ts` for `getSiteMetadata()` contract.
+
+---
+
 ## Resolved decisions
 
 **Auth screens — restyle vs rebuild** (resolved 2026-06-18, Phase 3 planning)

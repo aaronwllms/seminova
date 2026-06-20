@@ -3,7 +3,7 @@
 **Purpose:** Dual-use — planning reference for the builder (PM) and context for coding agents. Seminova is currently a **template**: a curated foundation that real products are built from. It is written in product shape so that the structure itself is inherited by every project spun off it. Agents: read this file for living state; build-time workflow and authoritative schema live in [AGENTS.md](AGENTS.md); shipped phase detail in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md).
 
 **Last updated:** 2026-06-19
-**Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell (Admin sidebar) + Auth restyle (shipped). Next up: Phase 4 — Landing Page (`Active`).
+**Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell (Admin sidebar) + Auth restyle (shipped). Phase 4 — Landing Page (shipped). Next up: Phase 5 — Reference Implementations (`Draft`).
 **Migrations:** none yet — no custom schema; Supabase `auth.users` only.
 
 **Shipped phase detail →** [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md)
@@ -113,7 +113,7 @@ No custom schema or migrations exist yet. The only user-bearing table is Supabas
 | 1 | Foundation & Cleanup | `Shipped` |
 | 2 | Design-System Token Layer | `Shipped` |
 | 3 | App Shell (Admin sidebar) + Auth restyle | `Shipped` |
-| 4 | Landing Page | `Active` |
+| 4 | Landing Page | `Shipped` |
 | 5 | Reference Implementations | `Draft` |
 | 6 | Data Model Foundation (profiles, non-admin shell, profile/settings page) | `Draft` |
 | 7 | Agent Tooling: Skills Suite | `Draft` |
@@ -122,44 +122,7 @@ No custom schema or migrations exist yet. The only user-bearing table is Supabas
 
 # ACTIVE
 
-## Phase 4 — Landing Page `Active`
-A styled public landing/marketing page as the canonical public entry point.
-
-### Epic 1: Header & Footer Chrome `Complete`
-
-As a visitor, I see a consistent sticky header and footer across the public landing page that reflect Seminova's identity and provide navigation, so the page feels complete and on-brand rather than a bare starter shell.
-
-- Header: adopt the visual language and spacing of shadcnblocks `navbar1`, simplified — flat top-level links only (no dropdown menus/mega-panels), plus Login and Sign Up buttons routing to existing `/auth/**` screens. Header is sticky (pinned on scroll).
-- Footer: adopt shadcnblocks' footer pattern (logo + name, nav links, social icons row, copyright + legal links row) — using Seminova's actual nav and social presence, not placeholder links. Footer sits in normal document flow (not pinned).
-- Header, hero, features, tech-stack strip, and footer all share one centered max-width container (1280px / `max-w-7xl` equivalent) with consistent horizontal padding (`px-6 lg:px-8`) — content edges align vertically down the page. Sections sit flush against each other with no vertical gaps between them; the container affects horizontal width only.
-- Both header and footer read app name/logo from `src/config/site.ts` rather than hardcoding "Seminova."
-- Reference mockup: `.mockups/landing-page.html`.
-- Conform to locked rules already in place: primitive-first shadcn/ui, semantic tokens only, mobile-first, ≤150 line components.
-
-### Epic 2: Landing Page Content `Complete`
-
-As a visitor, I land on a page that explains what Seminova is and why I'd adopt it as a starting point for my own product, so I can quickly judge fit and take action.
-
-- Hero: adopt the visual language of shadcnblocks `hero7` — title, description, CTA button, central column layout — but drop the review/star-rating/avatar row entirely (no fake social proof).
-- Tech-stack strip: a logo strip showing the stack the template is built on (Next.js, Supabase, Vercel, Tailwind/shadcn, etc.) — distinct from a testimonial/trust strip, communicates what's included, not who uses it.
-- Features section: adopt shadcnblocks `feature17` (six-up icon grid, centered intro). Use these six cards, in this order, with this copy:
-
-  1. **Design-system token layer** — Semantic design tokens, not hardcoded values — the industry-standard pattern for theme consistency at scale.
-  2. **Primitive-first components** — shadcn/ui components owned as source, not installed as a dependency — the primitive-first pattern, not a black-box library.
-  3. **Accessibility by default** — WCAG 2.1 AA conventions — semantic HTML, focus states, contrast — are baked into the foundation, not bolted on after launch.
-  4. **Admin shell out of the box** — A working admin sidebar, Supabase auth flows, and role-gated access are already wired — start building your product, not your login screen.
-  5. **Agent-ready conventions** — AGENTS.md, rules, and skills lock in coding standards for any agent working in the codebase.
-  6. **PM/agent collaboration model** — A packaged collaboration model — Claude Desktop for PM-level planning, paired skills that turn the plan into agent-ready work.
-
-- No pricing, no testimonials.
-
-### Epic 3: Site Identity Audit `Complete`
-
-As a maintainer re-skinning Seminova for a new product, every visible "Seminova" reference updates from one place (`src/config/site.ts`), so the template is genuinely re-skinnable rather than partially wired.
-
-- Grep the codebase for hardcoded "Seminova" / app-name strings not yet routed through `site.ts` — most notably root `layout.tsx` metadata and `<title>`.
-- Wire any found instances through `site.ts`.
-- Closes the open item deferred from Phase 3 Epic 4 (full site.ts adoption audit).
+_No phase currently active. Next up: Phase 5 — Reference Implementations (`Draft`)._
 
 ---
 

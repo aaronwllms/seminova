@@ -132,7 +132,7 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | `src/app/` | App Router pages and layouts |
 | `src/app/(marketing)/` | Public landing route group (`/` — header, hero, features, tech stack, footer) |
 | `src/app/auth/` | Auth screens, shared layout, confirm route |
-| `src/config/site.ts` | App name, logo, and landing nav/social/legal links |
+| `src/config/site.ts` | App name, description, logo, metadata (`getSiteMetadata()`), landing nav/social/legal links |
 | `src/config/landing-content.ts` | Landing hero, features, and tech-stack copy/assets config |
 | `src/components/kibo-ui/marquee/` | Marquee primitives (`Marquee`, `MarqueeContent`, `MarqueeFade`, `MarqueeItem`) for landing tech-stack strip |
 | `src/app/(admin)/` | Admin sidebar shell (`/users`; gated by `isAdmin`) |
