@@ -2,7 +2,7 @@
 
 **Purpose:** What exists in this repo today — locked rules, implemented features, routes, data model, and where to look. For planning and roadmap, see [CONTEXT.md](CONTEXT.md). For human setup, see [README.md](README.md). For how to write code, see [.cursor/rules/](.cursor/rules/) (not duplicated here).
 
-**Last updated:** 2026-06-20
+**Last updated:** 2026-06-21
 
 ---
 
@@ -66,6 +66,7 @@
 
 **Canonical home for the locked rules** — these must not be violated. Consumption detail lives in `.cursor/rules/`; CONTEXT.md §3 is a pointer back here. When a locked rule changes (PM approval required), edit this section.
 
+- **Ecosystem alignment over aesthetic divergence:** Don't canonize a non-standard convention for tidiness or taste alone. Diverge from an ecosystem default (shadcn, Next.js, Supabase) only when our way has a real, articulable benefit — clarity, safety, consistency — that outweighs the cost of fighting it: tooling that assumes the standard, AI agents trained on it, and copy-paste examples that won't match. When it's a wash, follow the standard. A template multiplies both the benefit and the cost across every spinoff.
 - **Package manager:** pnpm only — never npm or yarn. One lockfile (`pnpm-lock.yaml`); no `package-lock.json`.
 - **UI is primitive-first:** own shadcn/ui components in `src/components/ui`; extend via `cva`; compose with Radix `asChild`/`Slot`. Never install shadcn as an npm package.
 - **Theming via semantic tokens only:** `bg-background`, `text-foreground`, `ring-ring`, `text-destructive`, etc. Never hardcode colors — no raw hex or `color-500` utilities for themeable color. Tokens in `src/app/globals.css`.

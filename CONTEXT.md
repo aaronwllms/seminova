@@ -2,7 +2,7 @@
 
 **Purpose:** Dual-use — planning reference for the builder (PM) and context for coding agents. Seminova is currently a **template**: a curated foundation that real products are built from. It is written in product shape so that the structure itself is inherited by every project spun off it. Agents: read this file for living state; build-time workflow and authoritative schema live in [AGENTS.md](AGENTS.md); shipped phase detail in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md).
 
-**Last updated:** 2026-06-20
+**Last updated:** 2026-06-21
 **Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell (Admin sidebar) + Auth restyle (shipped). Phase 4 — Landing Page (shipped). Phase 5 — Admin Surface Polish & Toasting (`Active`).
 **Migrations:** none yet — no custom schema; Supabase `auth.users` only.
 
@@ -55,7 +55,7 @@ Seminova is a template today, but it is shaped like a product foundation on purp
 
 These constraints are non-negotiable, and planning must not violate them. The **canonical list lives in [AGENTS.md › Locked rules](AGENTS.md)** — the repo-truth file for the layer that enforces them — with consumption detail in `.cursor/rules`. Keep one copy: when a locked rule changes (PM approval required), edit AGENTS.md, not this section.
 
-At a glance, the locked rules cover: pnpm-only package management; primitive-first shadcn/ui; semantic-token theming with no hardcoded color; fixed structure / swappable theme; mobile-first responsive; components ≤150 lines; WCAG 2.1 AA accessibility; non-interactive shadcn CLI; `next/image` with explicit dimensions; the `/` + `/auth/**` auth boundary enforced in `proxy.ts`; admin gate via `app_metadata.role` (secret-key CLI only); and agent guidance confined to `.cursor`. See AGENTS.md for the authoritative wording of each.
+At a glance, the locked rules cover: ecosystem alignment over aesthetic divergence; pnpm-only package management; primitive-first shadcn/ui; semantic-token theming with no hardcoded color; fixed structure / swappable theme; mobile-first responsive; components ≤150 lines; WCAG 2.1 AA accessibility; non-interactive shadcn CLI; `next/image` with explicit dimensions; the `/` + `/auth/**` auth boundary enforced in `proxy.ts`; admin gate via `app_metadata.role` (secret-key CLI only); and agent guidance confined to `.cursor`. See AGENTS.md for the authoritative wording of each.
 
 ---
 
@@ -254,11 +254,4 @@ _Defer until: after Phase 5_
 **`useGetMessage` filename violates kebab-case rule**
 **Problem:** `src/hooks/useGetMessage.ts` (and its test `useGetMessage.unit.test.tsx`) is camelCase, violating the locked kebab-case file-naming convention in `project-standards.mdc`. The sibling `use-mobile.ts` is correct; this is the lone deviation.
 **Solution:** Rename to `use-get-message.ts` + `use-get-message.unit.test.tsx` and update any imports. Low priority, low risk — straightforward cleanup whenever convenient.
-_Defer until: opportunistic_
-
----
-
-**Dead `src/lib/` shadcn scaffold**
-**Problem:** `src/lib/utils.ts` is the original shadcn `cn` scaffold, superseded by `src/utils/tailwind.ts` (which is where the repo actually imports `cn` from). Nothing in `src/` imports from `@/lib/`, so the directory is dead weight — noise that contradicts the now-canonical "utilities live in `src/utils/`" convention.
-**Solution:** Delete `src/lib/utils.ts` (and the `src/lib/` directory if empty after). **Verify before deleting:** (1) confirm `components.json`'s `utils` alias points at `@/utils/tailwind`, not `@/lib/utils`; (2) grep `src/` for any `@/lib/` import. If both come back clean, deletion is safe with no fallout.
 _Defer until: opportunistic_
