@@ -110,3 +110,5 @@ Styled public landing/marketing page as the canonical public entry point at `/`.
 
 **Auth screens — restyle vs rebuild** (resolved 2026-06-18, Phase 3 planning)
 Restyle in place, not rebuild. Phase 2 validated in-place token swaps work; Phase 3 applies the shadcn `-03` pattern (muted background, centered form, no side image) uniformly across all `/auth/**` screens using existing token values. Form fields and flows are unchanged.
+
+**Utilities location:** `cn` stays at `@/utils/tailwind` (consistent with the named-directory taxonomy; no catch-all `lib/`). Dead `src/lib/utils.ts` shadcn scaffold deleted.

@@ -29,7 +29,7 @@ Doc sync progress:
 - [ ] Step 1: Gather evidence of recent work
 - [ ] Step 2: Diff docs vs reality
 - [ ] Step 3: Classify each gap (AGENTS / README / neither)
-- [ ] Step 4: Propose minimal edits (locked rules need explicit approval)
+- [ ] Step 4: Propose minimal edits (locked rules mirror-only per change protocol)
 - [ ] Step 5: Apply edits and summarize what changed
 ```
 
@@ -80,7 +80,7 @@ Use [reference.md](reference.md) for section ownership. Quick rules:
 
 Follow AGENTS.md **change protocol** if present:
 
-- **Locked rules** — propose changes and **wait for product-owner approval** before editing any locked-rule section
+- **Locked rules** — mirror a locked-rule change already made via AGENTS.md change protocol; never initiate one
 - Everything else: apply concise, factual updates that match existing tone and structure
 
 Editing principles:
@@ -118,7 +118,7 @@ When reporting to the user:
 
 ### Needs your decision
 
-- [locked-rule or scope changes awaiting approval, or "none"]
+- [locked-rule drift to mirror via change protocol, or scope changes awaiting approval, or "none"]
 
 ### Left unchanged (and why)
 
@@ -130,7 +130,7 @@ When reporting to the user:
 - Do not add features to "implemented" sections based on plans alone
 - Do not move coding standards into AGENTS.md (use `.cursor/rules/`)
 - Do not inflate README with agent guardrails already in AGENTS.md
-- Do not change locked rules silently — follow change protocol
+- Do not change locked rules — never initiate; mirror only per AGENTS.md change protocol
 - Do not run `pnpm db:push` or edit generated `database.types.ts` as part of doc sync
 
 ## Additional resources

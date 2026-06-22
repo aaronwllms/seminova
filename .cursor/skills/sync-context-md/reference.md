@@ -2,16 +2,7 @@
 
 ## Document roles
 
-| Document               | Audience                     | Owns                                                                                                                                             |
-| ---------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **CONTEXT.md**         | PM / external planning chats | Living brief: vision, locked rules, AI architecture (§6), migration/RPC notes (§7), roadmap, ACTIVE, DRAFT, open Qs — schema detail in AGENTS.md |
-| **CONTEXT_ARCHIVE.md** | PM / agents (reference)      | Shipped phase epic detail + resolved decisions — **append-only**                                                                                 |
-| **AGENTS.md**          | Cursor / coding agents       | Repo truth, locked rules (authoritative), implemented features, data model, change protocol                                                      |
-| **Archive specs**      | `.mockups/archive/` etc.     | Frozen phase specs and HTML mockups when complete                                                                                                |
-| **README.md**          | Humans cloning repo          | Setup, scripts, env — not planning                                                                                                               |
-| **.cursor/plans/**     | In-repo planning             | Ephemeral; evidence of intent, not shipped truth                                                                                                 |
-
-**Sync order when both may be stale:** gather evidence once → update AGENTS.md (sync-repo-docs) for shipped truth → update planning brief shipped summary / locked rules / status from AGENTS.md → update roadmap / open questions from PM conversation.
+See [DOC_RULES.md](../../../DOC_RULES.md) for the canonical document-roles table and sync order.
 
 ## Generic section map (adapt to your brief's headings)
 
@@ -22,7 +13,7 @@
 | **Vision / positioning** | Core product positioning changes (**PM approval**)                  |
 | **Target user**          | Persona or constraints change (**PM approval**)                     |
 | **Shipped summary**      | Routes, nav, features, auth boundary, DB — mirror AGENTS.md shipped |
-| **Locked rules**         | Product rules change — must match AGENTS.md (**approval**)          |
+| **Locked rules**         | Mirror a locked-rule change already made via AGENTS.md change protocol — never initiate |
 | **Tech stack**           | New major tool committed to a phase                                 |
 | **Roadmap**              | Phase status badge changes (**approval** for status promotions)     |
 | **Future-phase detail**  | PM adds/refines epics or stories — keep draft until phase is active |
@@ -44,6 +35,8 @@
 
 ### Phase marked complete
 
+Per [DOC_RULES.md](../../../DOC_RULES.md) rule 6:
+
 - [ ] `CONTEXT_ARCHIVE.md` → append `## Phase N` block (epic bullets from ACTIVE)
 - [ ] `CONTEXT.md` → status line + roadmap row → `Complete`
 - [ ] `CONTEXT.md` → remove shipped ACTIVE stories (or replace ACTIVE with next phase pointer)
@@ -58,7 +51,7 @@
 ### PM decision on open question
 
 - [ ] Planning brief → open questions — remove, resolve, or re-defer
-- [ ] If decision affects locked rules → AGENTS.md + planning brief (**approval**)
+- [ ] If decision affects locked rules → mirror via AGENTS.md change protocol (never initiate)
 
 ### Planning session output (new stories/epics)
 
@@ -109,7 +102,7 @@ Read AGENTS.md shipped and locked-rules sections for cross-check.
 **Updates:**
 
 - Open questions section: update or remove per decision
-- If locked rules affected → AGENTS.md + planning brief (**approval**)
+- If locked rules affected → mirror via AGENTS.md change protocol (never initiate)
 
 ### Example C — Plan file only, not implemented
 
@@ -121,11 +114,11 @@ Read AGENTS.md shipped and locked-rules sections for cross-check.
 
 **Evidence:** Auth middleware/proxy redirect change.
 
-**Updates (after PM approval):**
+**Updates (after locked-rule change made via change protocol):**
 
 - Planning brief → shipped summary → routes
-- Planning brief → locked rules → auth
-- AGENTS.md → locked rules → auth (sync-repo-docs)
+- Mirror locked-rule change in planning brief (never initiate)
+- AGENTS.md → locked rules → auth (via sync-repo-docs, mirror-only)
 
 ## Discovering the planning brief
 
@@ -137,7 +130,7 @@ Read AGENTS.md shipped and locked-rules sections for cross-check.
 
 **Evidence:** PM confirms Phase 12 shipped; ACTIVE has epic bullets; AGENTS.md updated.
 
-**Updates (in order):**
+**Updates (in order)** — per [DOC_RULES.md](../../../DOC_RULES.md) rule 6:
 
 1. `CONTEXT_ARCHIVE.md` → append `## Phase 12 — …` with epic bullets from ACTIVE
 2. `CONTEXT.md` → Status line and roadmap row → `Complete`

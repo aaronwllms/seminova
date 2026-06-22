@@ -2,6 +2,8 @@
 
 import { cn } from '@/utils/tailwind'
 import { createClient } from '@/supabase/client'
+import { ErrorPanel } from '@/components/error-panel'
+import { InlineError } from '@/components/inline-error'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -15,12 +17,15 @@ import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import { useState } from 'react'
 
+import { extractAuthFormError } from '@/utils/extract-auth-form-error'
+import type { AppError } from '@/types/app-error'
+
 export function ForgotPasswordForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<'div'>) {
   const [email, setEmail] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [formError, setFormError] = useState<AppError | null>(null)
   const [success, setSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -28,7 +33,7 @@ export function ForgotPasswordForm({
     e.preventDefault()
     const supabase = createClient()
     setIsLoading(true)
-    setError(null)
+    setFormError(null)
 
     try {
       // The url which will be included in the email. This URL needs to be configured in your redirect URLs in the Supabase dashboard at https://supabase.com/dashboard/project/_/auth/url-configuration
@@ -37,8 +42,8 @@ export function ForgotPasswordForm({
       })
       if (error) throw error
       setSuccess(true)
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : 'An error occurred')
+    } catch (caught: unknown) {
+      setFormError(extractAuthFormError(caught))
     } finally {
       setIsLoading(false)
     }
@@ -82,11 +87,14 @@ export function ForgotPasswordForm({
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
-                {error && (
-                  <p role="alert" className="text-destructive text-sm">
-                    {error}
-                  </p>
-                )}
+                {formError?.kind === 'fault' ? (
+                  <ErrorPanel
+                    message={formError.message}
+                    code={formError.code}
+                  />
+                ) : formError ? (
+                  <InlineError message={formError.message} />
+                ) : null}
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? 'Sending...' : 'Send reset email'}
                 </Button>

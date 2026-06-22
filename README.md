@@ -74,19 +74,22 @@ After Quick start, grant yourself admin access so you can use the admin shell (P
 2. Add `SUPABASE_SECRET_KEY` to `.env.local` (from [Project Settings → API](https://app.supabase.com/project/_/settings/api) → **API Keys** → **secret key**, `sb_secret_...`). Never commit this key or use a `NEXT_PUBLIC_*` prefix.
 
    > **Note:** Supabase’s **secret key** replaces the legacy **service role** key. This repo uses `SUPABASE_SECRET_KEY` — not `SUPABASE_SERVICE_ROLE_KEY`. The legacy JWT under “Legacy API keys” still works during Supabase’s migration period, but prefer the secret key from **API Keys**.
-3. Promote your account:
+3. Grant yourself admin access — either:
+
+   - **In-app (after first admin exists):** another admin promotes you from `/users`, or
+   - **CLI (bootstrap):** promote your account:
 
    ```bash
    pnpm promote-admin your@email.com
    ```
 
-   The command prints the target Supabase project URL and asks for confirmation before acting.
+   The CLI prints the target Supabase project URL and asks for confirmation before acting. `SUPABASE_SECRET_KEY` is required for CLI commands only.
 
 4. **Re-login** if you were already signed in — the admin role is embedded in the JWT and won't appear until you start a fresh session.
 
-5. Open the admin area at [http://localhost:3000/users](http://localhost:3000/users) (admins land here after login; non-admins use `/protected`). The Users page lists signed-up accounts with email search and pagination.
+5. Open the admin area at [http://localhost:3000/users](http://localhost:3000/users) (admins land here after login; non-admins use `/protected`). The Users page lists signed-up accounts with email search, pagination, and in-app promote/demote for admins.
 
-Companion commands: `pnpm demote-admin <email>`, `pnpm list-admins` (read-only, no confirmation).
+Companion CLI commands (bootstrap / automation): `pnpm demote-admin <email>`, `pnpm list-admins` (read-only, no confirmation).
 
 ---
 
@@ -107,8 +110,8 @@ Companion commands: `pnpm demote-admin <email>`, `pnpm list-admins` (read-only, 
 | `pnpm pre-push` | Full local CI mirror (type-check → lint → format-check → test:ci) |
 | `pnpm test:ui` | Vitest UI |
 | `pnpm analyze` | Bundle analyzer |
-| `pnpm promote-admin <email>` | Grant admin role via `app_metadata.role` (requires secret key) |
-| `pnpm demote-admin <email>` | Remove admin role |
+| `pnpm promote-admin <email>` | Grant admin role via CLI (requires secret key; bootstrap / automation) |
+| `pnpm demote-admin <email>` | Remove admin role via CLI |
 | `pnpm list-admins` | List all admin users (read-only) |
 
 ---

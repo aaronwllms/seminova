@@ -49,5 +49,8 @@ describe('ForgotPasswordForm', () => {
     expect(
       await screen.findByText(/unable to send reset email/i),
     ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /copy error details/i }),
+    ).toBeInTheDocument()
   })
 })

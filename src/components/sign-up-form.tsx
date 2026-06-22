@@ -2,6 +2,8 @@
 
 import { cn } from '@/utils/tailwind'
 import { createClient } from '@/supabase/client'
+import { ErrorPanel } from '@/components/error-panel'
+import { InlineError } from '@/components/inline-error'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -16,6 +18,9 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
+import { extractAuthFormError } from '@/utils/extract-auth-form-error'
+import type { AppError } from '@/types/app-error'
+
 export function SignUpForm({
   className,
   ...props
@@ -23,7 +28,7 @@ export function SignUpForm({
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [repeatPassword, setRepeatPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [formError, setFormError] = useState<AppError | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
@@ -31,10 +36,13 @@ export function SignUpForm({
     e.preventDefault()
     const supabase = createClient()
     setIsLoading(true)
-    setError(null)
+    setFormError(null)
 
     if (password !== repeatPassword) {
-      setError('Passwords do not match')
+      setFormError({
+        message: 'Passwords do not match',
+        kind: 'operational',
+      })
       setIsLoading(false)
       return
     }
@@ -49,8 +57,8 @@ export function SignUpForm({
       })
       if (error) throw error
       router.push('/auth/sign-up-success')
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : 'An error occurred')
+    } catch (caught: unknown) {
+      setFormError(extractAuthFormError(caught))
     } finally {
       setIsLoading(false)
     }
@@ -101,11 +109,11 @@ export function SignUpForm({
                   onChange={(e) => setRepeatPassword(e.target.value)}
                 />
               </div>
-              {error && (
-                <p role="alert" className="text-destructive text-sm">
-                  {error}
-                </p>
-              )}
+              {formError?.kind === 'fault' ? (
+                <ErrorPanel message={formError.message} code={formError.code} />
+              ) : formError ? (
+                <InlineError message={formError.message} />
+              ) : null}
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Creating an account...' : 'Sign up'}
               </Button>

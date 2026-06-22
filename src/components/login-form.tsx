@@ -2,6 +2,8 @@
 
 import { cn } from '@/utils/tailwind'
 import { createClient } from '@/supabase/client'
+import { ErrorPanel } from '@/components/error-panel'
+import { InlineError } from '@/components/inline-error'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -17,6 +19,8 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { getPostAuthRedirectPath, type AppMetadata } from '@/utils/admin'
+import { extractAuthFormError } from '@/utils/extract-auth-form-error'
+import type { AppError } from '@/types/app-error'
 
 export function LoginForm({
   className,
@@ -24,7 +28,7 @@ export function LoginForm({
 }: React.ComponentPropsWithoutRef<'div'>) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [formError, setFormError] = useState<AppError | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
@@ -32,7 +36,7 @@ export function LoginForm({
     e.preventDefault()
     const supabase = createClient()
     setIsLoading(true)
-    setError(null)
+    setFormError(null)
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -43,8 +47,8 @@ export function LoginForm({
       router.push(
         getPostAuthRedirectPath(data.user?.app_metadata as AppMetadata),
       )
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : 'An error occurred')
+    } catch (caught: unknown) {
+      setFormError(extractAuthFormError(caught))
     } finally {
       setIsLoading(false)
     }
@@ -91,11 +95,11 @@ export function LoginForm({
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
-              {error && (
-                <p role="alert" className="text-destructive text-sm">
-                  {error}
-                </p>
-              )}
+              {formError?.kind === 'fault' ? (
+                <ErrorPanel message={formError.message} code={formError.code} />
+              ) : formError ? (
+                <InlineError message={formError.message} />
+              ) : null}
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Logging in...' : 'Login'}
               </Button>

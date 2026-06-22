@@ -53,6 +53,9 @@ describe('SignUpForm', () => {
     expect(
       await screen.findByText(/passwords do not match/i),
     ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: /copy error details/i }),
+    ).not.toBeInTheDocument()
     expect(mockSignUp).not.toHaveBeenCalled()
   })
 })

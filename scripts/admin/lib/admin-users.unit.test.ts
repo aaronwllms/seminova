@@ -1,13 +1,12 @@
 import type { SupabaseClient, User } from '@supabase/supabase-js'
 import { describe, expect, it, vi } from 'vitest'
 
+import { ADMIN_ROLE } from '@/constants/admin-role'
+
 import {
-  ADMIN_ROLE,
   demoteUser,
   isUserAdmin,
   listAdminUsers,
-  mergeDemoteMetadata,
-  mergePromoteMetadata,
   promoteUser,
 } from './admin-users'
 
@@ -23,6 +22,8 @@ const createMockUser = (overrides: Partial<User> = {}): User =>
   }) as User
 
 const createMockClient = (users: User[]): SupabaseClient => {
+  const userById = new Map(users.map((user) => [user.id, user]))
+
   return {
     auth: {
       admin: {
@@ -30,32 +31,15 @@ const createMockClient = (users: User[]): SupabaseClient => {
           data: { users },
           error: null,
         }),
+        getUserById: vi.fn().mockImplementation(async (id: string) => ({
+          data: { user: userById.get(id) ?? null },
+          error: null,
+        })),
         updateUserById: vi.fn().mockResolvedValue({ data: {}, error: null }),
       },
     },
   } as unknown as SupabaseClient
 }
-
-describe('mergePromoteMetadata', () => {
-  it('should set role to admin while preserving existing keys', () => {
-    expect(mergePromoteMetadata({ org: 'acme' })).toEqual({
-      org: 'acme',
-      role: ADMIN_ROLE,
-    })
-  })
-
-  it('should set role when app_metadata is undefined', () => {
-    expect(mergePromoteMetadata(undefined)).toEqual({ role: ADMIN_ROLE })
-  })
-})
-
-describe('mergeDemoteMetadata', () => {
-  it('should use role null for Supabase shallow-merge key deletion', () => {
-    expect(mergeDemoteMetadata({ role: ADMIN_ROLE, org: 'acme' })).toEqual({
-      role: null,
-    })
-  })
-})
 
 describe('isUserAdmin', () => {
   it('should return true only when role is admin', () => {

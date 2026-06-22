@@ -3,6 +3,7 @@ import { ADMIN_ROLE } from '@/constants/admin-role'
 export type AppMetadata = Record<string, unknown>
 
 export type JwtClaims = {
+  sub?: string
   email?: string
   app_metadata?: AppMetadata
 }

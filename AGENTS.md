@@ -2,7 +2,7 @@
 
 **Purpose:** What exists in this repo today — locked rules, implemented features, routes, data model, and where to look. For planning and roadmap, see [CONTEXT.md](CONTEXT.md). For human setup, see [README.md](README.md). For how to write code, see [.cursor/rules/](.cursor/rules/) (not duplicated here).
 
-**Last updated:** 2026-06-19
+**Last updated:** 2026-06-21
 
 ---
 
@@ -11,6 +11,7 @@
 | Document | Audience | Role |
 | -------- | -------- | ---- |
 | [CONTEXT.md](CONTEXT.md) | PM + agents | Planning brief — roadmap, ACTIVE epics, open questions |
+| [DOC_RULES.md](DOC_RULES.md) | PM + agents | Doc maintenance procedure — write discipline, doc roles, archive policy |
 | [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md) | PM + agents (on demand) | Shipped phase narratives — append-only |
 | [README.md](README.md) | Humans | Clone, env setup, scripts, contributing |
 | [AGENTS.md](AGENTS.md) | Agents | **This file** — repo truth, locked rules, what's implemented |
@@ -66,6 +67,7 @@
 
 **Canonical home for the locked rules** — these must not be violated. Consumption detail lives in `.cursor/rules/`; CONTEXT.md §3 is a pointer back here. When a locked rule changes (PM approval required), edit this section.
 
+- **Ecosystem alignment over aesthetic divergence:** Don't canonize a non-standard convention for tidiness or taste alone. Diverge from an ecosystem default (shadcn, Next.js, Supabase) only when our way has a real, articulable benefit — clarity, safety, consistency — that outweighs the cost of fighting it: tooling that assumes the standard, AI agents trained on it, and copy-paste examples that won't match. When it's a wash, follow the standard. A template multiplies both the benefit and the cost across every spinoff.
 - **Package manager:** pnpm only — never npm or yarn. One lockfile (`pnpm-lock.yaml`); no `package-lock.json`.
 - **UI is primitive-first:** own shadcn/ui components in `src/components/ui`; extend via `cva`; compose with Radix `asChild`/`Slot`. Never install shadcn as an npm package.
 - **Theming via semantic tokens only:** `bg-background`, `text-foreground`, `ring-ring`, `text-destructive`, etc. Never hardcode colors — no raw hex or `color-500` utilities for themeable color. Tokens in `src/app/globals.css`.
@@ -76,7 +78,7 @@
 - **shadcn CLI:** always non-interactive — `pnpm dlx shadcn@latest add <component> -y -o`. Use `--dry-run`/`--diff` before overwriting customized components.
 - **Images:** `next/image` with explicit dimensions.
 - **Auth boundary:** public routes are `/` and `/auth/**` only; all other routes require a session. Enforced in `proxy.ts` → `src/supabase/proxy.ts`.
-- **Admin gate:** `app_metadata.role === 'admin'` on `auth.users` is the canonical admin check — set only via secret-key CLI (`pnpm promote-admin`, `SUPABASE_SECRET_KEY`). Do not move this to a `profiles` column without PM approval.
+- **Admin gate:** `app_metadata.role === 'admin'` on `auth.users` is the canonical admin check — set via in-app promote/demote on `/users` (admin-gated server actions + service client) **or** secret-key CLI (`pnpm promote-admin`, `pnpm demote-admin`). Do not move this to a `profiles` column without PM approval.
 - **Agent guidance:** lives in `.cursor` (rules + skills) — not duplicated into product code.
 
 **Change protocol:** edits to locked rules require PM approval. Update this section; CONTEXT.md §3 points here and needs no parallel edit unless its at-a-glance list changes.
@@ -94,10 +96,10 @@
 - **Product routes:**
   - `/` — public landing with hero, features grid, and tech-stack marquee (`(marketing)` route group)
   - `/auth/**` — public auth screens
-  - `/users` — admin-only users table (real Supabase Auth data; search + pagination)
+  - `/users` — admin-only users table (real Supabase Auth data; search, pagination, in-app promote/demote)
   - `/protected` — authenticated non-admin landing (starter shell until Phase 6)
 - **Post-login redirect:** admins → `/users`; non-admins → `/protected` (login and password-update flows).
-- **UI primitives:** `src/components/ui/` (button, card, input, label, checkbox, badge, dropdown-menu, sidebar, avatar, breadcrumb, separator, sheet, tooltip, collapsible, skeleton).
+- **UI primitives:** `src/components/ui/` (button, card, input, label, checkbox, badge, dropdown-menu, sidebar, avatar, breadcrumb, separator, sheet, tooltip, collapsible, skeleton, sonner, alert-dialog).
 - **Data fetching:** TanStack Query v5 provider configured.
 - **Design-system token layer (Phase 2):** tweakcn **Clean Slate** default theme in `src/app/globals.css`; semantic tokens via `@theme inline` + `next-themes` class-based light/dark. **Inter** + **JetBrains Mono** via `next/font` in `layout.tsx` (Merriweather CSS serif fallback). Auth forms and layout chrome conform to semantic tokens (no hardcoded theme colors). See [DESIGN.md](DESIGN.md) for architecture and re-skin workflow.
 - **Testing:** Vitest + React Testing Library + MSW v2 (`src/test/`, `src/mocks/`); baseline unit/integration tests for auth forms, proxy, hooks, and utils; 80% coverage thresholds enforced via `pnpm test:ci`.
@@ -105,10 +107,12 @@
 - **Admin CLI (Phase 3 Epic 1):** `pnpm promote-admin`, `pnpm demote-admin`, `pnpm list-admins` — secret-key scripts in `scripts/admin/`; sets `app_metadata.role` on `auth.users`.
 - **Admin app shell (Phase 3 Epic 2):** `(admin)` route group with sidebar layout (`sidebar-07` baseline), dynamic breadcrumb, nav-user sign-out; `src/utils/admin.ts` + shared `ADMIN_ROLE` in `src/constants/admin-role.ts`; `SeminovaLogo` placeholder component.
 - **Users admin table (Phase 3 Epic 3):** `/users` lists real Supabase Auth users via gated Server Action + `src/supabase/service.ts`; email search, Next/Previous pagination (page size 50); canonical data-table pattern in `src/app/(admin)/users/_components/users-table.tsx` and [`.cursor/rules/data-tables.mdc`](.cursor/rules/data-tables.mdc).
+- **In-app admin promote/demote (Phase 5 Epic 5):** row actions on `/users` with confirmation dialog + success toasts; shared mutation logic in [`src/utils/admin-role-mutations.ts`](src/utils/admin-role-mutations.ts); server actions in [`src/app/(admin)/users/actions.ts`](src/app/(admin)/users/actions.ts); CLI scripts delegate to the same utils.
 - **Auth restyle + app identity (Phase 3 Epic 4):** `src/config/site.ts` (`name` + `Logo`); `SeminovaLogo` reads site config (admin sidebar + auth layout); [`src/app/auth/layout.tsx`](src/app/auth/layout.tsx) provides muted full-page shell.
 - **Landing chrome (Phase 4 Epic 1):** `(marketing)` route group with sticky `LandingHeader`, document-flow `LandingFooter`, shared `LandingContainer` (`max-w-7xl`); nav/social/legal config in [`src/config/site.ts`](src/config/site.ts).
 - **Landing content (Phase 4 Epic 2):** hero, six-card features grid (`id="features"`), and tech-stack marquee on `/` (six logos with icon+name cells, edge fades, pause on hover); copy and stack logos in [`src/config/landing-content.ts`](src/config/landing-content.ts); SVG assets in `public/tech/`; marquee primitive in [`src/components/kibo-ui/marquee/`](src/components/kibo-ui/marquee/).
 - **Site identity audit (Phase 4 Epic 3):** all user-visible app names and root metadata wired through [`src/config/site.ts`](src/config/site.ts) (`description`, `getSiteMetadata()` for browser tab title and SEO); protected-shell nav label reads `siteConfig.name` — re-skin from one config file.
+- **Toast system (Phase 5 Epic 4):** sonner via shadcn [`Toaster`](src/components/ui/sonner.tsx) in root layout; [`showSuccessToast`](src/utils/app-toast.ts) for success confirmations; errors remain `InlineError` / `ErrorPanel` (see [`.cursor/rules/error-handling.mdc`](.cursor/rules/error-handling.mdc)).
 
 ---
 
@@ -185,3 +189,5 @@ See [.cursor/rules/error-handling.mdc](.cursor/rules/error-handling.mdc). Never 
 | Implemented features, routes, data model | Update AGENTS.md via `/sync-repo-docs` |
 | Planning / roadmap | Update CONTEXT.md via `/sync-context-md` |
 | Coding standards | Update `.cursor/rules/` — not AGENTS.md |
+
+Sync skills (`sync-context-md`, `sync-repo-docs`) never initiate locked-rule changes — they mirror changes already made through this protocol.

@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@/test/test-utils'
 import userEvent from '@testing-library/user-event'
+import { AuthApiError } from '@supabase/supabase-js'
 import { LoginForm } from './login-form'
 
 const mockSignInWithPassword = vi.fn()
@@ -65,7 +66,11 @@ describe('LoginForm', () => {
 
   it('should show an error when sign in fails', async () => {
     mockSignInWithPassword.mockResolvedValue({
-      error: new Error('Invalid login credentials'),
+      error: new AuthApiError(
+        'Invalid login credentials',
+        400,
+        'invalid_credentials',
+      ),
     })
     const user = userEvent.setup()
 
@@ -78,6 +83,9 @@ describe('LoginForm', () => {
     expect(
       await screen.findByText(/invalid login credentials/i),
     ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: /copy error details/i }),
+    ).not.toBeInTheDocument()
     expect(mockPush).not.toHaveBeenCalled()
   })
 })

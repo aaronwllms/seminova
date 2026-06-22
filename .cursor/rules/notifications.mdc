@@ -1,0 +1,59 @@
+---
+description: Toast / transient-feedback conventions — what surfaces as a toast vs inline/panel, and the success/info/warning taxonomy
+globs:
+  - 'src/**/*.{ts,tsx}'
+alwaysApply: false
+---
+
+# Notification & Feedback Conventions
+
+## Core Principle
+
+Toasts are for **transient, non-blocking, no-action-required** feedback — a brief
+confirmation the user does not need to read carefully, copy, or act on. The routing
+axis is **persistence-need, not severity**: ask "does the user need to read, keep,
+copy, or act on this?" If yes, it is not a toast.
+
+This file owns the toast taxonomy and the toast-vs-inline-vs-panel routing decision.
+`error-handling.mdc` owns the error surfaces (`InlineError` / `ErrorPanel`) and
+references this file for the boundary.
+
+## What goes where
+
+| Outcome | Surface | Why |
+|---------|---------|-----|
+| Success (mutation completed) | Toast (`showSuccessToast`) | Ephemeral confirmation; nothing to act on |
+| Info / neutral (FYI, no status) | Toast | Transient, no action |
+| Low-stakes warning (no action required) | Toast | Transient heads-up only |
+| Operational error (validation, forbidden, expected failure) | `InlineError` (see `error-handling.mdc`) | User must read and often correct/retry |
+| Fault (thrown exception, network/internal failure) | `ErrorPanel` with copy (see `error-handling.mdc`) | User may need to copy a code or retry |
+
+**Errors never surface as toasts.** An auto-dismissing toast can vanish before the user
+reads it, is awkward for screen readers, and can't hold a retry affordance or copyable
+code. Errors with no natural inline anchor (e.g. a global or background failure) still
+use `InlineError` / `ErrorPanel` rendered at a page- or section-level region — not a toast.
+
+**Warnings that require action are not toasts** — surface them inline where the user acts.
+
+## API
+
+- Success is implemented via [`showSuccessToast`](../../src/utils/app-toast.ts). Feature
+  code imports that helper; only `app-toast.ts` calls `toast.*` from sonner directly.
+- Info and warning toasts are sanctioned by the taxonomy above but **are not pre-built**.
+  Add a helper (`showInfoToast`, etc.) in `app-toast.ts` when a real feature needs one —
+  do not add unused variants.
+- Toaster is mounted once in the root layout
+  ([`src/components/ui/sonner.tsx`](../../src/components/ui/sonner.tsx)); callers are client
+  components or client callbacks after server actions.
+
+## Message Guidelines
+
+- One line, user-facing, no internal codes or stack traces.
+- State the outcome plainly ("User promoted to admin", "Settings saved").
+- Idempotent / no-op outcomes that satisfy the user's intent are **successes** — confirm
+  the end state ("User is already an admin"), don't route them as errors.
+
+## Cross-References
+
+- `error-handling.mdc` — error taxonomy, `InlineError` / `ErrorPanel`, response envelopes
+- `logging.mdc` — server-side log levels (separate concern from user-facing feedback)

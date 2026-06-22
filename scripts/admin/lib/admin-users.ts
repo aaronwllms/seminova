@@ -1,37 +1,28 @@
 import type { SupabaseClient, User } from '@supabase/supabase-js'
 
 import { ADMIN_ROLE } from '@/constants/admin-role'
+import {
+  demoteUserById,
+  promoteUserById,
+  type DemoteUserByIdResult,
+  type PromoteUserByIdResult,
+} from '@/utils/admin-role-mutations'
+import { isAdminFromAppMetadata } from '@/utils/admin'
 
 export { ADMIN_ROLE } from '@/constants/admin-role'
+export {
+  demoteUserById,
+  mergeDemoteMetadata,
+  mergePromoteMetadata,
+  promoteUserById,
+} from '@/utils/admin-role-mutations'
 
 const USERS_PAGE_SIZE = 1000
 
-export type AppMetadata = Record<string, unknown>
+export type PromoteUserResult = PromoteUserByIdResult
+export type DemoteUserResult = DemoteUserByIdResult
 
-export const isUserAdmin = (appMetadata: AppMetadata | undefined): boolean =>
-  appMetadata?.role === ADMIN_ROLE
-
-export const mergePromoteMetadata = (
-  existing: AppMetadata | undefined,
-): AppMetadata => ({
-  ...(existing ?? {}),
-  role: ADMIN_ROLE,
-})
-
-/** Supabase shallow-merges app_metadata; omitting a key leaves it intact. `null` deletes the key from storage (not persisted as null). */
-export const mergeDemoteMetadata = (
-  _existing: AppMetadata | undefined,
-): AppMetadata => ({ role: null })
-
-export type PromoteUserResult =
-  | { status: 'promoted'; email: string }
-  | { status: 'already_admin'; email: string }
-  | { status: 'not_found' }
-
-export type DemoteUserResult =
-  | { status: 'demoted'; email: string }
-  | { status: 'not_admin'; email: string }
-  | { status: 'not_found' }
+export const isUserAdmin = isAdminFromAppMetadata
 
 const listAllUsers = async (client: SupabaseClient): Promise<User[]> => {
   const users: User[] = []
@@ -82,19 +73,7 @@ export const promoteUser = async (
     return { status: 'not_found' }
   }
 
-  if (isUserAdmin(user.app_metadata)) {
-    return { status: 'already_admin', email: user.email! }
-  }
-
-  const { error } = await client.auth.admin.updateUserById(user.id, {
-    app_metadata: mergePromoteMetadata(user.app_metadata),
-  })
-
-  if (error) {
-    throw error
-  }
-
-  return { status: 'promoted', email: user.email! }
+  return promoteUserById(client, user.id)
 }
 
 export const demoteUser = async (
@@ -107,19 +86,7 @@ export const demoteUser = async (
     return { status: 'not_found' }
   }
 
-  if (!isUserAdmin(user.app_metadata)) {
-    return { status: 'not_admin', email: user.email! }
-  }
-
-  const { error } = await client.auth.admin.updateUserById(user.id, {
-    app_metadata: mergeDemoteMetadata(user.app_metadata),
-  })
-
-  if (error) {
-    throw error
-  }
-
-  return { status: 'demoted', email: user.email! }
+  return demoteUserById(client, user.id)
 }
 
 export const listAdminUsers = async (
