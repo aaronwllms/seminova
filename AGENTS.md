@@ -78,7 +78,7 @@
 - **shadcn CLI:** always non-interactive — `pnpm dlx shadcn@latest add <component> -y -o`. Use `--dry-run`/`--diff` before overwriting customized components.
 - **Images:** `next/image` with explicit dimensions.
 - **Auth boundary:** public routes are `/` and `/auth/**` only; all other routes require a session. Enforced in `proxy.ts` → `src/supabase/proxy.ts`.
-- **Admin gate:** `app_metadata.role === 'admin'` on `auth.users` is the canonical admin check — set only via secret-key CLI (`pnpm promote-admin`, `SUPABASE_SECRET_KEY`). Do not move this to a `profiles` column without PM approval.
+- **Admin gate:** `app_metadata.role === 'admin'` on `auth.users` is the canonical admin check — set via in-app promote/demote on `/users` (admin-gated server actions + service client) **or** secret-key CLI (`pnpm promote-admin`, `pnpm demote-admin`). Do not move this to a `profiles` column without PM approval.
 - **Agent guidance:** lives in `.cursor` (rules + skills) — not duplicated into product code.
 
 **Change protocol:** edits to locked rules require PM approval. Update this section; CONTEXT.md §3 points here and needs no parallel edit unless its at-a-glance list changes.
@@ -96,10 +96,10 @@
 - **Product routes:**
   - `/` — public landing with hero, features grid, and tech-stack marquee (`(marketing)` route group)
   - `/auth/**` — public auth screens
-  - `/users` — admin-only users table (real Supabase Auth data; search + pagination)
+  - `/users` — admin-only users table (real Supabase Auth data; search, pagination, in-app promote/demote)
   - `/protected` — authenticated non-admin landing (starter shell until Phase 6)
 - **Post-login redirect:** admins → `/users`; non-admins → `/protected` (login and password-update flows).
-- **UI primitives:** `src/components/ui/` (button, card, input, label, checkbox, badge, dropdown-menu, sidebar, avatar, breadcrumb, separator, sheet, tooltip, collapsible, skeleton, sonner).
+- **UI primitives:** `src/components/ui/` (button, card, input, label, checkbox, badge, dropdown-menu, sidebar, avatar, breadcrumb, separator, sheet, tooltip, collapsible, skeleton, sonner, alert-dialog).
 - **Data fetching:** TanStack Query v5 provider configured.
 - **Design-system token layer (Phase 2):** tweakcn **Clean Slate** default theme in `src/app/globals.css`; semantic tokens via `@theme inline` + `next-themes` class-based light/dark. **Inter** + **JetBrains Mono** via `next/font` in `layout.tsx` (Merriweather CSS serif fallback). Auth forms and layout chrome conform to semantic tokens (no hardcoded theme colors). See [DESIGN.md](DESIGN.md) for architecture and re-skin workflow.
 - **Testing:** Vitest + React Testing Library + MSW v2 (`src/test/`, `src/mocks/`); baseline unit/integration tests for auth forms, proxy, hooks, and utils; 80% coverage thresholds enforced via `pnpm test:ci`.
@@ -107,6 +107,7 @@
 - **Admin CLI (Phase 3 Epic 1):** `pnpm promote-admin`, `pnpm demote-admin`, `pnpm list-admins` — secret-key scripts in `scripts/admin/`; sets `app_metadata.role` on `auth.users`.
 - **Admin app shell (Phase 3 Epic 2):** `(admin)` route group with sidebar layout (`sidebar-07` baseline), dynamic breadcrumb, nav-user sign-out; `src/utils/admin.ts` + shared `ADMIN_ROLE` in `src/constants/admin-role.ts`; `SeminovaLogo` placeholder component.
 - **Users admin table (Phase 3 Epic 3):** `/users` lists real Supabase Auth users via gated Server Action + `src/supabase/service.ts`; email search, Next/Previous pagination (page size 50); canonical data-table pattern in `src/app/(admin)/users/_components/users-table.tsx` and [`.cursor/rules/data-tables.mdc`](.cursor/rules/data-tables.mdc).
+- **In-app admin promote/demote (Phase 5 Epic 5):** row actions on `/users` with confirmation dialog + success toasts; shared mutation logic in [`src/utils/admin-role-mutations.ts`](src/utils/admin-role-mutations.ts); server actions in [`src/app/(admin)/users/actions.ts`](src/app/(admin)/users/actions.ts); CLI scripts delegate to the same utils.
 - **Auth restyle + app identity (Phase 3 Epic 4):** `src/config/site.ts` (`name` + `Logo`); `SeminovaLogo` reads site config (admin sidebar + auth layout); [`src/app/auth/layout.tsx`](src/app/auth/layout.tsx) provides muted full-page shell.
 - **Landing chrome (Phase 4 Epic 1):** `(marketing)` route group with sticky `LandingHeader`, document-flow `LandingFooter`, shared `LandingContainer` (`max-w-7xl`); nav/social/legal config in [`src/config/site.ts`](src/config/site.ts).
 - **Landing content (Phase 4 Epic 2):** hero, six-card features grid (`id="features"`), and tech-stack marquee on `/` (six logos with icon+name cells, edge fades, pause on hover); copy and stack logos in [`src/config/landing-content.ts`](src/config/landing-content.ts); SVG assets in `public/tech/`; marquee primitive in [`src/components/kibo-ui/marquee/`](src/components/kibo-ui/marquee/).

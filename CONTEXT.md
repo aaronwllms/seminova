@@ -156,7 +156,7 @@ As a user completing an action that needs brief confirmation, I want a toast not
 - Install and wire up a toast primitive + provider (sonner, consistent with shadcn/ui conventions already in use).
 - Consumed by Epic 5 (promote/demote) now, and by Phase 6's settings save later.
 
-### Epic 5: In-App Admin Promote/Demote
+### Epic 5: In-App Admin Promote/Demote `Complete`
 
 As an admin, I want to promote or demote a user's role directly from the users page, instead of requiring CLI access.
 

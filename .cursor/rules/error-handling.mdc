@@ -167,14 +167,14 @@ Per-code taxonomy mapping and copy sanitization for raw Supabase codes deferred 
 
 For route-level failures, add `error.tsx` in the relevant `src/app/` segment.
 
-## Success Feedback (Toasts)
+## Errors Never Use Toasts
 
-Use [`showSuccessToast`](../../src/utils/app-toast.ts) for brief **success confirmations** after a completed mutation — e.g. promote/demote, settings save. Call `toast.success` from `sonner` only inside that module; feature code imports `showSuccessToast`.
+Toasts (success, info, warning) are **not** an error-handling concern — their taxonomy and
+the toast-vs-inline-vs-panel routing live in [`notifications.mdc`](notifications.mdc).
 
-- **Never** use toasts for errors — operational → `InlineError`, fault → `ErrorPanel`
-- **Never** use toasts for copy-to-debug feedback — `ErrorPanel` uses `aria-live` (Epic 2)
-- Toaster is mounted once in root layout ([`src/components/ui/sonner.tsx`](../../src/components/ui/sonner.tsx)); callers are client components or client callbacks after server actions
-- Keep messages short (one line), user-facing, no internal codes
+The boundary that matters here: errors never surface as toasts. Operational →
+`InlineError`; fault → `ErrorPanel`. This holds even for errors with no inline anchor —
+render the panel at a page/section region rather than reaching for a toast.
 
 ## Production Logging
 

@@ -132,7 +132,7 @@ CREATE POLICY "Anyone can read published posts" ON posts FOR SELECT TO anon, aut
 ### Secret key (elevated access — EXTREME CAUTION)
 - ❌ NEVER use the Supabase secret key in client code
 - ✅ ONLY in secure server contexts (API routes, server actions, CLI scripts)
-- Use sparingly for admin operations only
+- Use sparingly for admin role mutations (in-app server actions on `/users` and CLI scripts)
 - Prefer `SUPABASE_SECRET_KEY` (`sb_secret_...` from Dashboard → API Keys); legacy `service_role` JWT still works during Supabase's migration period
 
 **Reference:** See `.cursor/rules/supabase.mdc` for detailed RLS patterns and migration safety

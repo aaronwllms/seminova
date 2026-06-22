@@ -5,14 +5,29 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { UsersTable } from './users-table'
 
 const listUsersActionMock = vi.fn()
+const promoteUserActionMock = vi.fn()
+const demoteUserActionMock = vi.fn()
+const showSuccessToastMock = vi.fn()
 
 vi.mock('../actions', () => ({
   listUsersAction: (...args: unknown[]) => listUsersActionMock(...args),
+  promoteUserAction: (...args: unknown[]) => promoteUserActionMock(...args),
+  demoteUserAction: (...args: unknown[]) => demoteUserActionMock(...args),
 }))
+
+vi.mock('@/utils/app-toast', () => ({
+  showSuccessToast: (...args: unknown[]) => showSuccessToastMock(...args),
+}))
+
+const CURRENT_ADMIN_ID = 'admin-user-id'
 
 describe('UsersTable', () => {
   beforeEach(() => {
     listUsersActionMock.mockReset()
+    promoteUserActionMock.mockReset()
+    demoteUserActionMock.mockReset()
+    showSuccessToastMock.mockReset()
+
     listUsersActionMock.mockResolvedValue({
       success: true,
       data: {
@@ -32,8 +47,11 @@ describe('UsersTable', () => {
     })
   })
 
+  const renderTable = () =>
+    render(<UsersTable currentAdminUserId={CURRENT_ADMIN_ID} />)
+
   it('should load users on mount and render email column', async () => {
-    render(<UsersTable />)
+    renderTable()
 
     await waitFor(() => {
       expect(screen.getByText('admin@example.com')).toBeInTheDocument()
@@ -46,7 +64,7 @@ describe('UsersTable', () => {
   })
 
   it('should disable Next when hasNextPage is false', async () => {
-    render(<UsersTable />)
+    renderTable()
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /next/i })).toBeDisabled()
@@ -59,7 +77,7 @@ describe('UsersTable', () => {
       advanceTimers: vi.advanceTimersByTime.bind(vi),
     })
 
-    render(<UsersTable />)
+    renderTable()
 
     await waitFor(() => {
       expect(listUsersActionMock).toHaveBeenCalledTimes(1)
@@ -89,7 +107,7 @@ describe('UsersTable', () => {
       },
     })
 
-    render(<UsersTable />)
+    renderTable()
 
     expect(
       await screen.findByText(
@@ -104,11 +122,89 @@ describe('UsersTable', () => {
   it('should show skeleton rows while loading with an empty table body', () => {
     listUsersActionMock.mockImplementation(() => new Promise(() => {}))
 
-    const { container } = render(<UsersTable />)
+    const { container } = renderTable()
 
     const skeletons = container.querySelectorAll('[data-slot="skeleton"]')
     expect(skeletons.length).toBeGreaterThan(0)
     expect(screen.queryByText('No users found.')).not.toBeInTheDocument()
     expect(screen.getByText('Loading users…')).toHaveClass('sr-only')
+  })
+
+  it('should not show demote for the current admin row', async () => {
+    listUsersActionMock.mockResolvedValue({
+      success: true,
+      data: {
+        rows: [
+          {
+            id: CURRENT_ADMIN_ID,
+            email: 'me@example.com',
+            isVerified: true,
+            createdAtLabel: 'Jun 1, 2024',
+            lastSignInAtLabel: 'Jun 2, 2024',
+            isAdmin: true,
+          },
+        ],
+        hasNextPage: false,
+        page: 1,
+      },
+    })
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(screen.getByText('me@example.com')).toBeInTheDocument()
+    })
+
+    expect(
+      screen.queryByRole('button', { name: /actions for me@example.com/i }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('should promote a user after confirmation and show success toast', async () => {
+    const user = userEvent.setup()
+
+    listUsersActionMock.mockResolvedValue({
+      success: true,
+      data: {
+        rows: [
+          {
+            id: 'user-2',
+            email: 'bob@example.com',
+            isVerified: true,
+            createdAtLabel: 'Jun 1, 2024',
+            lastSignInAtLabel: 'Jun 2, 2024',
+            isAdmin: false,
+          },
+        ],
+        hasNextPage: false,
+        page: 1,
+      },
+    })
+
+    promoteUserActionMock.mockResolvedValue({
+      success: true,
+      data: { status: 'promoted', email: 'bob@example.com' },
+    })
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(screen.getByText('bob@example.com')).toBeInTheDocument()
+    })
+
+    await user.click(
+      screen.getByRole('button', { name: /actions for bob@example.com/i }),
+    )
+    await user.click(
+      screen.getByRole('menuitem', { name: /promote to admin/i }),
+    )
+    await user.click(screen.getByRole('button', { name: /^promote$/i }))
+
+    await waitFor(() => {
+      expect(promoteUserActionMock).toHaveBeenCalledWith({ userId: 'user-2' })
+    })
+
+    expect(showSuccessToastMock).toHaveBeenCalledWith('User promoted to admin')
+    expect(listUsersActionMock.mock.calls.length).toBeGreaterThan(1)
   })
 })
