@@ -11,6 +11,8 @@ disable-model-invocation: true
 
 Single-purpose. Touches only CONTEXT.md, only the ACTIVE section. Does not verify shipped state against the codebase, does not touch AGENTS.md, does not touch CONTEXT_ARCHIVE.md, does not run sync-context-md or sync-repo-docs.
 
+Epic numbering and `` `Complete` `` tag rules: [DOC_RULES.md](../../../DOC_RULES.md) rule 9.
+
 ## When to run
 
 Only when explicitly instructed by the closing step of an implemented plan (`.cursor/plans/*.plan.md`) — never run standalone or inferred from conversation.
@@ -19,11 +21,9 @@ Only when explicitly instructed by the closing step of an implemented plan (`.cu
 
 1. Open `CONTEXT.md`. Find the epic heading matching the plan just implemented (`### Epic N: Name`) under the `# ACTIVE` section.
 2. Append `` `Complete` `` to that heading: `### Epic N: Name` → `### Epic N: Name \`Complete\``.
-3. Check the phase this epic belongs to:
-   - If the phase header (`## Phase N — Name`) and its Roadmap table row both still say `` `Draft` ``, change both to `` `Active` ``.
-   - If already `` `Active` ``, leave as-is.
+3. **Consistency check (Decision A):** if the phase header (`## Phase N — Name`) OR its Roadmap table row still reads `` `Draft` ``, halt and report the inconsistency — do not change tags. DRAFT→ACTIVE promotion is owned by `phase-planning` (see [DOC_RULES.md](../../../DOC_RULES.md) rule 2).
 4. Update CONTEXT.md **Last updated** to the current date.
-5. Report: which epic was marked complete, and whether the phase tag changed.
+5. Report: which epic was marked complete; if step 3 halted, report the Draft-tag inconsistency instead of completing.
 
 ## Explicitly out of scope
 
@@ -31,4 +31,4 @@ Only when explicitly instructed by the closing step of an implemented plan (`.cu
 - Do not edit CONTEXT_ARCHIVE.md.
 - Do not edit AGENTS.md or README.md.
 - Do not infer "complete" from code inspection — only act on explicit instruction from a plan's closing step.
-- Do not move a phase from DRAFT into ACTIVE — that happens during planning sessions (PM + Claude), not as part of marking an epic complete.
+- Do not move a phase from DRAFT into ACTIVE or flip `Draft` → `Active` tags — that is owned by `phase-planning`; halt and report if tags are inconsistent (step 3).

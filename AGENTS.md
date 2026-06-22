@@ -11,6 +11,7 @@
 | Document | Audience | Role |
 | -------- | -------- | ---- |
 | [CONTEXT.md](CONTEXT.md) | PM + agents | Planning brief — roadmap, ACTIVE epics, open questions |
+| [DOC_RULES.md](DOC_RULES.md) | PM + agents | Doc maintenance procedure — write discipline, doc roles, archive policy |
 | [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md) | PM + agents (on demand) | Shipped phase narratives — append-only |
 | [README.md](README.md) | Humans | Clone, env setup, scripts, contributing |
 | [AGENTS.md](AGENTS.md) | Agents | **This file** — repo truth, locked rules, what's implemented |
@@ -187,3 +188,5 @@ See [.cursor/rules/error-handling.mdc](.cursor/rules/error-handling.mdc). Never 
 | Implemented features, routes, data model | Update AGENTS.md via `/sync-repo-docs` |
 | Planning / roadmap | Update CONTEXT.md via `/sync-context-md` |
 | Coding standards | Update `.cursor/rules/` — not AGENTS.md |
+
+Sync skills (`sync-context-md`, `sync-repo-docs`) never initiate locked-rule changes — they mirror changes already made through this protocol.

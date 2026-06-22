@@ -12,18 +12,7 @@
 
 ## File Management Rules
 
-These rules apply to anyone updating this file — PM or coding agent.
-
-- **The ACTIVE section is the source of truth for what is planned but not yet shipped.** Cursor has access to the codebase and can verify live state independently. This file should never contradict the repo.
-- **When a phase is fully fleshed out in a planning session** (PM + Claude collaboratively defining its epics), move it from `DRAFT — Upcoming Phases` into `ACTIVE`, tag the phase header and Roadmap row `` `Active` ``, and delete its old one-line Draft stub. `ACTIVE` holds at most one phase at a time in practice, but isn't structurally limited to one. When `ACTIVE` has no phase in it, leave a stub note saying so — do not delete the heading.
-- **Authoritative schema and the build-time agent workflow live in [AGENTS.md](AGENTS.md).** Do not duplicate per-table schema or Cursor/rules/skills detail here.
-- **Locked rules are canonical in [AGENTS.md](AGENTS.md).** §3 below is a pointer + at-a-glance only — do not expand it back into a full duplicate.
-- **Locked-rule changes decided in chat must be routed.** A text-only rule edit lands directly in AGENTS.md (and the §3 at-a-glance only if the topic list changes). A rule change that requires code conformance becomes an ACTIVE story that updates AGENTS.md, `.cursor/rules/`, and the affected code together.
-- **When a phase ships in full**, append its epic/story detail to [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md) (append-only — never edit existing archive entries), then update the Roadmap status and the Status line here and remove the shipped ACTIVE content.
-- **Resolved open-question one-liners** append to `## Resolved decisions` in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md); remove from this file.
-- **HTML mockups:** save new explorations as `.mockups/*.html`. When a mockup is superseded or tied to a shipped phase, move it to `.mockups/archive/`.
-- **Epics must be numbered.** Format as `### Epic N: Name` (sequential within the phase, starting at 1). Never `### Epic: Name` with no number. Once implemented, a `` `Complete` `` tag is appended to the heading (`### Epic N: Name \`Complete\``) by the mark-epic-complete skill — never added manually or inferred from code.
-- **Stub sections are intentional.** Sections that are empty now (e.g. AI Architecture) are kept as stubs so the structure is inherited by every product built from this template. Do not delete them.
+File management rules (write discipline, doc roles, archive policy) are canonical in **[DOC_RULES.md](DOC_RULES.md)** — do not duplicate here.
 
 ---
 
@@ -173,7 +162,7 @@ As an admin, I want to promote or demote a user's role directly from the users p
 
 - Add promote/demote action to the users table/page, gated to admin role.
 - Action confirms success via the Epic 4 toast.
-- **Locked-rule change required:** the current admin-gate rule (`app_metadata.role`, secret-key CLI only) must be updated in AGENTS.md and `.cursor/rules/` to permit this in-app path, alongside the code that implements it — per the File Management Rule that code-conforming locked-rule changes land as a story, not a standalone doc edit.
+- **Locked-rule change required:** the current admin-gate rule (`app_metadata.role`, secret-key CLI only) must be updated in AGENTS.md and `.cursor/rules/` to permit this in-app path, alongside the code that implements it — per [DOC_RULES.md](DOC_RULES.md) rule 5 and AGENTS.md change protocol (code-conforming locked-rule changes land as a story, not a standalone doc edit).
 
 ---
 

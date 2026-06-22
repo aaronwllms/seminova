@@ -2,12 +2,7 @@
 
 ## Document roles
 
-| Document             | Audience                 | Owns                                                                                                                 |
-| -------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------- |
-| **AGENTS.md**        | Cursor / coding agents   | Repo truth, locked rules, what's implemented, data model summary, where code lives, merge checklist, change protocol |
-| **README.md**        | Humans cloning the repo  | Product pitch, stack, prerequisites, env vars, scripts table, import alias, contributing/hooks, doc map              |
-| **.cursor/rules/**   | Agents (style & process) | How to write code, test, migrate — not product truth                                                                 |
-| **Planning archive** | PM / planning            | Vision and phase specs — path varies by repo; not agent truth                                                        |
+See [DOC_RULES.md](../../../DOC_RULES.md) for the canonical document-roles table.
 
 ## AGENTS.md section map (typical — adapt to each repo)
 
@@ -15,7 +10,7 @@
 | ------------------------------ | --------------------------------------------------------- |
 | Documentation map              | New top-level doc agents should know about                |
 | Setup and quality commands     | New/changed quality or install commands in `package.json` |
-| Locked rules (each subsection) | **Product decision only** — follow change protocol        |
+| Locked rules (each subsection) | Mirror a locked-rule change already made via change protocol — never initiate |
 | Implemented / shipped          | Shipped user-facing features, product routes, nav         |
 | Data model (summary)           | New tables/columns, ownership changes                     |
 | Where things live              | New top-level `src/` directories or major relocations     |
@@ -70,13 +65,13 @@
 
 ### Auth or default route change
 
-- [ ] AGENTS.md → locked rules → auth (**approval required**)
+- [ ] Mirror locked-rule change via AGENTS.md change protocol if auth boundary changed (never initiate)
 - [ ] Verify redirect logic in auth middleware/proxy
 
 ### Locked product rule change (any domain)
 
-- [ ] AGENTS.md → relevant locked-rules subsection (**approval required**)
-- [ ] Planning brief locked rules if sync-context-md applies
+- [ ] Mirror a locked-rule change already made via AGENTS.md change protocol — never initiate
+- [ ] Planning brief locked-rules pointer if sync-context-md applies
 
 ## Evidence commands
 

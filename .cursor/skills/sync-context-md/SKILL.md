@@ -16,10 +16,7 @@ Pair with [sync-repo-docs](../sync-repo-docs/SKILL.md) when implementation truth
 
 ## Two-file model
 
-| File                     | Role                                                                                                                                                    | Edit policy                                                        |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| **`CONTEXT.md`**         | Living brief — vision, locked rules, AI architecture (§6), migration/RPC notes (§7), roadmap, ACTIVE, DRAFT, open questions; schema detail in AGENTS.md | Normal read/write during sync                                      |
-| **`CONTEXT_ARCHIVE.md`** | Shipped phase epic narratives + resolved decision log                                                                                                   | **Append-only** — never rewrite or delete existing archive entries |
+See [DOC_RULES.md](../../../DOC_RULES.md) for document roles and edit policy.
 
 ## Discover the planning brief
 
@@ -34,7 +31,7 @@ Pair with [sync-repo-docs](../sync-repo-docs/SKILL.md) when implementation truth
 - Edit **`CONTEXT.md` only** — status line, roadmap row, ACTIVE/DRAFT, open questions, section 6 if prompt shipped, section 7 migration count/planning notes if migration shipped (table detail → **sync-repo-docs** → AGENTS.md)
 - Do **not** open `CONTEXT_ARCHIVE.md` unless archiving a phase or moving resolved history
 
-**Phase ships in full** (or PM confirms epic list moves to archive):
+**Phase ships in full** (or PM confirms epic list moves to archive) — per [DOC_RULES.md](../../../DOC_RULES.md) rule 6:
 
 1. **`CONTEXT_ARCHIVE.md`** — APPEND new `## Phase N` section at end (after existing phases)
 2. **`CONTEXT.md`** — REMOVE shipped content from ACTIVE; update Status + Roadmap; clear ACTIVE or point to next Draft phase
@@ -42,12 +39,10 @@ Pair with [sync-repo-docs](../sync-repo-docs/SKILL.md) when implementation truth
 
 ## Archive rules (`CONTEXT_ARCHIVE.md`)
 
-- **Append only** — add new `## Phase N` blocks at the **end**, in chronological order
-- **Never edit** existing archived phase sections (no rewrites, corrections in place, or deletions)
-- **Never move** content out of the archive back into `CONTEXT.md`
-- If archived text is wrong, add a dated correction note as a **new append** under that phase (or ask PM) — do not mutate the original block
+Follow [DOC_RULES.md](../../../DOC_RULES.md) rules 6–7 for phase-ship archive discipline and resolved-decision append policy. Skill-specific reminders:
+
 - Bump `CONTEXT_ARCHIVE.md` **Last updated** when appending; bump `CONTEXT.md` **Last updated** when editing living sections
-- Resolved open-question one-liners (`Resolved (date):` bullets) **append** to `## Resolved decisions` at the end of `CONTEXT_ARCHIVE.md`, not inline in `CONTEXT.md`
+- If archived text is wrong, add a dated correction note as a **new append** under that phase (or ask PM) — do not mutate the original block
 
 ## When to run
 
@@ -66,7 +61,7 @@ Planning brief sync:
 - [ ] Step 1: Gather evidence of recent work
 - [ ] Step 2: Read CONTEXT.md (living brief) and diff vs reality
 - [ ] Step 3: Classify each gap — which file owns it?
-- [ ] Step 4: Propose minimal edits (locked rules & roadmap need approval)
+- [ ] Step 4: Propose minimal edits (roadmap/vision need approval; locked rules mirror-only per change protocol)
 - [ ] Step 5: Apply edits
       - CONTEXT.md only → routine updates
       - Phase complete → append CONTEXT_ARCHIVE.md FIRST, then trim CONTEXT.md
@@ -109,10 +104,11 @@ Use [reference.md](reference.md) for generic section ownership. Map to whatever 
 
 **Requires product-owner approval before editing:**
 
-- **Locked rules** — any product rule that also lives in AGENTS.md
 - **Roadmap / phase status** — promoting a phase from `Draft` to `In progress` or `Complete`
 - **Vision / target user** — core product positioning
 - **Removing or rewriting future-phase epics** — scope cuts or reprioritization
+
+**Locked rules — mirror-only:** mirror a locked-rule change already made via [AGENTS.md](../../../AGENTS.md) change protocol; never initiate one.
 
 **Safe to apply without approval** (factual, shipped-only):
 
@@ -153,7 +149,7 @@ After editing (or after proposing approval-gated changes):
 
 ### Needs your decision
 
-- [locked rules, roadmap, or vision changes awaiting approval, or "none"]
+- [roadmap or vision changes awaiting approval; locked-rule drift to mirror via change protocol, or "none"]
 
 ### Related docs
 
@@ -168,7 +164,7 @@ After editing (or after proposing approval-gated changes):
 
 - Do not mark future-phase stories as shipped from plans or partial spikes
 - Do not paste AGENTS.md verbatim — planning brief is for humans/planning, not agent rules
-- Do not change locked rules silently — mirror AGENTS.md only after explicit approval
+- Do not change locked rules — never initiate; mirror only per [AGENTS.md](../../../AGENTS.md) change protocol
 - Do not rewrite vision/target-user sections without PM direction
 - Do not run `pnpm db:push` or edit generated types as part of doc sync
 - Do not treat `.cursor/plans/` as shipped truth
