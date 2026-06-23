@@ -68,7 +68,7 @@ For roadmap and phase planning, see [CONTEXT.md](CONTEXT.md). For agent repo tru
 
 ## Initial setup
 
-After Quick start, grant yourself admin access so you can use the admin shell (Phase 3+):
+After Quick start, grant yourself admin access so you can use the admin shell:
 
 1. Start the dev server and sign up at [http://localhost:3000/auth/sign-up](http://localhost:3000/auth/sign-up).
 2. Add `SUPABASE_SECRET_KEY` to `.env.local` (from [Project Settings → API](https://app.supabase.com/project/_/settings/api) → **API Keys** → **secret key**, `sb_secret_...`). Never commit this key or use a `NEXT_PUBLIC_*` prefix.
@@ -154,6 +154,7 @@ pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci
 | Document | Audience | Purpose |
 | -------- | -------- | ------- |
 | [CONTEXT.md](CONTEXT.md) | PM + agents | Roadmap, active epics, planning decisions |
+| [DOC_RULES.md](DOC_RULES.md) | PM + agents | Doc maintenance — write discipline, doc roles, archive policy |
 | [AGENTS.md](AGENTS.md) | Agents | Repo truth — routes, locked rules, data model |
 | [DESIGN.md](DESIGN.md) | PM + contributors | Token architecture and re-skin workflow |
 | [.cursor/rules/](.cursor/rules/) | Agents | Coding standards and conventions |

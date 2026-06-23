@@ -31,7 +31,7 @@ If `TECH_DEBT_AUDIT.md` is missing, stop and tell the user to run `/tech-debt-au
 - User says: sync tech debt audit, update TECH_DEBT_AUDIT, refresh audit findings
 - Before planning the next debt epic — stale audit mis-prioritizes work
 
-Skip when changes are comment-only or docs-only with no finding impact (use **sync-repo-docs** instead).
+Skip when changes are comment-only or docs-only with no finding impact (use **sync-repo-docs** instead). Exception: a comment-only change that adds or removes a `// debt:` marker **is** in scope — see Declared debt below.
 
 ## Workflow
 
@@ -53,6 +53,7 @@ Read `TECH_DEBT_AUDIT.md` fully. Capture:
 - Quick wins checkboxes (`[ ]` / `[x]`)
 - Top 5 items and any inline status notes (e.g. `Done (Phase 7.5 Epic 5)`)
 - Open questions that may have been resolved in conversation or code
+- Existing **Declared debt** rows (sourced from `// debt:` markers) so you can tell which markers are already tracked
 
 Do **not** delete the audit and rewrite from scratch.
 
@@ -66,6 +67,7 @@ Inspect **recent work**, not the whole repo. Prefer the smallest window that cov
 | `git log --oneline -20` and `git diff main...HEAD` | Commits referencing finding IDs or audit areas                            |
 | `git status` / unstaged diff                       | Work in progress that closes findings                                     |
 | Target files from audit rows                       | File still exists? Line counts changed? Imports gone?                     |
+| `// debt:` markers (`rg -n "// debt:" src/`)       | Declared-debt shortcuts added or removed since last sync                  |
 | `pnpm audit`, `vitest.config.ts`, test file globs  | F019–F021 dependency/coverage drift                                       |
 | [AGENTS.md](../../AGENTS.md)                       | Doc findings (F003–F006) — pair with **sync-repo-docs** if AGENTS changed |
 
@@ -75,6 +77,8 @@ Evidence commands (run as needed):
 git log --oneline -20
 git diff main...HEAD --stat
 git diff --stat
+# Harvest declared-debt markers (per code-minimalism.mdc):
+rg -n "// debt:" src/
 # Verify a dead-code finding:
 rg "generateRecipeSkillsAction|syncRecipeSkillAppliancesAction" src/
 # Verify test files exist:
@@ -100,6 +104,7 @@ For each finding **likely affected** by recent evidence, re-check the cited file
 - **Doc drift:** if AGENTS.md was fixed, mark doc findings RESOLVED; if audit says stale but AGENTS still wrong, leave open and suggest **sync-repo-docs**
 - **LOC / god-file:** re-count lines; update severity only if crossed a meaningful threshold (>500 LOC)
 - **Dependency CVE:** re-run `pnpm audit`; RESOLVED if advisory no longer appears
+- **Declared debt (`// debt:`):** diff the harvested markers against existing **Declared debt** rows. A marker with no matching row → append as `NEW` under category **Declared debt**, using its upgrade path as the Recommendation (pre-classified, uncontested — do not re-litigate). A tracked row whose marker is gone from code → `RESOLVED (YYYY-MM-DD)` with evidence (`shortcut upgraded` / `marker removed`). A marker whose line moved → update the row's `File:Line` in place, same ID.
 - **Quick wins / Top 5:** sync checkbox and narrative with RESOLVED findings
 
 Do **not** mark RESOLVED without verifying in current code — git commit messages alone are insufficient.
@@ -124,7 +129,8 @@ Update only what evidence supports:
 
 **Safe to apply without approval:**
 
-- RESOLVED markers with evidence
+- RESOLVED markers with evidence (including declared-debt markers removed from code)
+- NEW **Declared debt** rows harvested from `// debt:` markers (author already declared them)
 - Stale line numbers, LOC counts, file paths
 - Quick win checkboxes matching verified fixes
 - Generated date bump
@@ -183,6 +189,7 @@ After editing (or after proposing approval-gated changes):
 - Do not fix product code as part of audit sync
 - Do not treat locked AGENTS.md rules as debt to remove
 - Do not pad NEW findings — one material regression beats five nitpicks
+- Do not re-litigate `// debt:` markers — the author declared them; harvest, don't second-guess
 - Do not run `pnpm db:push` or edit generated types as part of audit sync
 
 ## Additional resources

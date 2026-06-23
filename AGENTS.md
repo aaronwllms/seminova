@@ -2,7 +2,7 @@
 
 **Purpose:** What exists in this repo today — locked rules, implemented features, routes, data model, and where to look. For planning and roadmap, see [CONTEXT.md](CONTEXT.md). For human setup, see [README.md](README.md). For how to write code, see [.cursor/rules/](.cursor/rules/) (not duplicated here).
 
-**Last updated:** 2026-06-21
+**Last updated:** 2026-06-22
 
 ---
 
@@ -112,6 +112,8 @@
 - **Landing chrome (Phase 4 Epic 1):** `(marketing)` route group with sticky `LandingHeader`, document-flow `LandingFooter`, shared `LandingContainer` (`max-w-7xl`); nav/social/legal config in [`src/config/site.ts`](src/config/site.ts).
 - **Landing content (Phase 4 Epic 2):** hero, six-card features grid (`id="features"`), and tech-stack marquee on `/` (six logos with icon+name cells, edge fades, pause on hover); copy and stack logos in [`src/config/landing-content.ts`](src/config/landing-content.ts); SVG assets in `public/tech/`; marquee primitive in [`src/components/kibo-ui/marquee/`](src/components/kibo-ui/marquee/).
 - **Site identity audit (Phase 4 Epic 3):** all user-visible app names and root metadata wired through [`src/config/site.ts`](src/config/site.ts) (`description`, `getSiteMetadata()` for browser tab title and SEO); protected-shell nav label reads `siteConfig.name` — re-skin from one config file.
+- **Error severity UI (Phase 5 Epics 1–2):** operational vs fault errors via `kind: 'operational' | 'fault'` on [`AppError`](src/types/app-error.ts); [`InlineError`](src/components/inline-error.tsx) for expected failures, [`ErrorPanel`](src/components/error-panel.tsx) for faults (copy-to-clipboard); auth forms use [`extractAuthFormError`](src/utils/extract-auth-form-error.ts); users table surfaces server-action error envelopes.
+- **Admin loading states (Phase 5 Epic 3):** [`AdminShellSkeleton`](src/app/(admin)/_components/admin-shell-skeleton.tsx) behind Suspense in admin layout; users table skeleton rows via [`DataTableShell`](src/components/data-table1.tsx) + [`DataTableSkeletonBody`](src/components/data-table-skeleton-body.tsx) with per-column `skeletonClassName` meta (see [`.cursor/rules/data-tables.mdc`](.cursor/rules/data-tables.mdc)).
 - **Toast system (Phase 5 Epic 4):** sonner via shadcn [`Toaster`](src/components/ui/sonner.tsx) in root layout; [`showSuccessToast`](src/utils/app-toast.ts) for success confirmations; errors remain `InlineError` / `ErrorPanel` (see [`.cursor/rules/error-handling.mdc`](.cursor/rules/error-handling.mdc)).
 
 ---
@@ -139,7 +141,15 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | `src/config/site.ts` | App name, description, logo, metadata (`getSiteMetadata()`), landing nav/social/legal links |
 | `src/config/landing-content.ts` | Landing hero, features, and tech-stack copy/assets config |
 | `src/components/kibo-ui/marquee/` | Marquee primitives (`Marquee`, `MarqueeContent`, `MarqueeFade`, `MarqueeItem`) for landing tech-stack strip |
-| `src/app/(admin)/` | Admin sidebar shell (`/users`; gated by `isAdmin`) |
+| `src/app/(admin)/` | Admin sidebar shell (`/users`; gated by `AdminAuthGate` + `isAdmin`) |
+| `src/app/(admin)/_components/admin-auth-gate.tsx` | Admin session + role gate; redirects non-admins to `/protected` |
+| `src/app/(admin)/_components/admin-shell-skeleton.tsx` | Suspense fallback skeleton for admin layout |
+| `src/components/inline-error.tsx`, `error-panel.tsx` | Operational vs fault error UI |
+| `src/components/data-table1.tsx`, `data-table-skeleton-body.tsx` | Canonical data-table shell + skeleton loading pattern |
+| `src/types/app-error.ts` | Shared `AppError` / `ErrorKind` types |
+| `src/utils/extract-auth-form-error.ts` | Maps Supabase auth errors to `AppError` with `kind` |
+| `src/utils/app-toast.ts` | Success toast helper (`showSuccessToast`) |
+| `src/utils/admin-role-mutations.ts` | Shared promote/demote logic (app + CLI) |
 | `src/app/protected/` | Non-admin authenticated starter page |
 | `src/constants/admin-role.ts` | Shared `ADMIN_ROLE` constant (app + CLI) |
 | `src/utils/admin.ts` | `isAdmin()`, post-auth redirect helper |
