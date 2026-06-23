@@ -76,7 +76,7 @@ After Quick start, grant yourself admin access so you can use the admin shell:
    > **Note:** Supabase’s **secret key** replaces the legacy **service role** key. This repo uses `SUPABASE_SECRET_KEY` — not `SUPABASE_SERVICE_ROLE_KEY`. The legacy JWT under “Legacy API keys” still works during Supabase’s migration period, but prefer the secret key from **API Keys**.
 3. Grant yourself admin access — either:
 
-   - **In-app (after first admin exists):** another admin promotes you from `/users`, or
+   - **In-app (after first admin exists):** another admin promotes you from `/admin/users`, or
    - **CLI (bootstrap):** promote your account:
 
    ```bash
@@ -87,7 +87,7 @@ After Quick start, grant yourself admin access so you can use the admin shell:
 
 4. **Re-login** if you were already signed in — the admin role is embedded in the JWT and won't appear until you start a fresh session.
 
-5. Open the admin area at [http://localhost:3000/users](http://localhost:3000/users) (admins land here after login; non-admins use `/protected`). The Users page lists signed-up accounts with email search, pagination, and in-app promote/demote for admins.
+5. Open the admin area at [http://localhost:3000/admin](http://localhost:3000/admin) (admins land here after login; non-admins use `/protected`). The Users page at `/admin/users` lists signed-up accounts with email search, pagination, and in-app promote/demote for admins.
 
 Companion CLI commands (bootstrap / automation): `pnpm demote-admin <email>`, `pnpm list-admins` (read-only, no confirmation).
 

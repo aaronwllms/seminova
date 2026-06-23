@@ -2,6 +2,7 @@
  * @vitest-environment node
  */
 import { NextRequest } from 'next/server'
+import { ADMIN_ROLE } from '@/constants/admin-role'
 import { updateSession } from './proxy'
 
 const mockGetClaims = vi.fn()
@@ -52,6 +53,57 @@ describe('updateSession', () => {
     })
 
     const response = await updateSession(createRequest('/protected'))
+
+    expect(response.status).toBe(200)
+  })
+
+  it('should redirect non-admin authenticated users from /admin to /protected', async () => {
+    mockGetClaims.mockResolvedValue({
+      data: { claims: { sub: 'user-1', app_metadata: {} } },
+    })
+
+    const response = await updateSession(createRequest('/admin'))
+
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toContain('/protected')
+  })
+
+  it('should redirect non-admin authenticated users from /admin/users to /protected', async () => {
+    mockGetClaims.mockResolvedValue({
+      data: { claims: { sub: 'user-1', app_metadata: {} } },
+    })
+
+    const response = await updateSession(createRequest('/admin/users'))
+
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toContain('/protected')
+  })
+
+  it('should allow admin users on /admin/users', async () => {
+    mockGetClaims.mockResolvedValue({
+      data: {
+        claims: { sub: 'admin-1', app_metadata: { role: ADMIN_ROLE } },
+      },
+    })
+
+    const response = await updateSession(createRequest('/admin/users'))
+
+    expect(response.status).toBe(200)
+  })
+
+  it('should redirect unauthenticated users from /admin to login', async () => {
+    const response = await updateSession(createRequest('/admin'))
+
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toContain('/auth/login')
+  })
+
+  it('should not treat /administrative as an admin path', async () => {
+    mockGetClaims.mockResolvedValue({
+      data: { claims: { sub: 'user-1', app_metadata: {} } },
+    })
+
+    const response = await updateSession(createRequest('/administrative'))
 
     expect(response.status).toBe(200)
   })

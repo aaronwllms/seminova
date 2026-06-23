@@ -2,7 +2,7 @@
 
 **Purpose:** Dual-use — planning reference for the builder (PM) and context for coding agents. Seminova is currently a **template**: a curated foundation that real products are built from. It is written in product shape so that the structure itself is inherited by every project spun off it. Agents: read this file for living state; build-time workflow and authoritative schema live in [AGENTS.md](AGENTS.md); shipped phase detail in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md).
 
-**Last updated:** 2026-06-22
+**Last updated:** 2026-06-23
 **Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell (Admin sidebar) + Auth restyle (shipped). Phase 4 — Landing Page (shipped). Phase 5 — Admin Surface Polish & Toasting (shipped). Phase 6 — Data Model Foundation (`Active`).
 **Migrations:** none yet — no custom schema; Supabase `auth.users` only.
 
@@ -104,7 +104,7 @@ No custom schema or migrations exist yet. The only user-bearing table is Supabas
 | 3 | App Shell (Admin sidebar) + Auth restyle | `Shipped` |
 | 4 | Landing Page | `Shipped` |
 | 5 | Admin Surface Polish & Toasting | `Shipped` |
-| 6 | Data Model Foundation (profiles, non-admin shell, profile/settings page) | `Active` |
+| 6 | Data Model Foundation (profiles, admin namespace, authenticated shell, profile page) | `Active` |
 | 7 | Security Audit | `Draft` |
 | 8 | SEO & GEO | `Draft` |
 | 9 | Pattern Reference Page | `Draft` |
@@ -116,9 +116,9 @@ No custom schema or migrations exist yet. The only user-bearing table is Supabas
 
 ## Phase 6 — Data Model Foundation `Active`
 
-First real migration and the authenticated end-user surface. Establishes `profiles` as the one assumed schema primitive, the shared-chrome shell pattern, the first Supabase Storage bucket, and the canonical form stack. The non-admin authenticated landing becomes the profile/settings page; the generic `/protected` starter shell is removed.
+First real migration and the authenticated end-user surface. Establishes `profiles` as the one assumed schema primitive, a real `/admin/*` console namespace, the shared-chrome shell pattern, the first Supabase Storage bucket, and the canonical form stack. The generic `/protected` starter shell is removed.
 
-**Sequencing:** Epics are ordered by dependency — Epic 1 (data) underpins everything; Epic 2 (shell) reads `profiles`; Epic 3 (storage) precedes Epic 4 because avatar upload needs the bucket; Epic 4 (settings page) depends on 1, 2, and 3.
+**Sequencing:** Epic 1 (data) underpins everything. Epic 2 (admin namespace) settles the console URL space before shared chrome touches routing. Epic 3 (shell) reads `profiles` and establishes the `(app)` group. Epic 4 (storage) precedes Epic 5 because avatar upload needs the bucket. Epic 5 (profile page) depends on 1, 3, and 4.
 
 ### Epic 1: Profiles Data Foundation `Complete`
 
@@ -129,16 +129,28 @@ As a product built on Seminova, I want a `profiles` table that exists for every 
 - Owner-scoped RLS: a user can read and update only their own profile.
 - Seed the AGENTS.md **Data model (summary)** with `profiles` as authoritative schema once the migration lands (per the change protocol). Do not prescribe the migration filename — Cursor chooses it.
 
-### Epic 2: Shared Chrome + Authenticated Shell
+### Epic 2: Admin Namespace Foundation `Complete`
+
+As an admin, I want the console to live under its own `/admin/*` URL space with a dashboard landing, so it reads as a real section that grows by adding pages — not admin views scattered across root-level routes.
+
+- Promote the existing `(admin)` route group to a real `/admin` URL segment. The shipped users table moves `/users → /admin/users`; `/admin` becomes the console landing (dashboard). **This touches already-shipped Phase 3 surface** — every internal link, redirect, test, and doc reference to `/users` moves with it.
+- Gating becomes one blanket rule: everything under `/admin/*` requires the admin role. The existing admin gate enforces at the segment, not per page.
+- Admin post-login redirect targets the console home `/admin`.
+- The `/admin` landing is a real but minimal dashboard home for now; content fleshes out as future admin pages land. It must be an honest landing, not a placeholder that dead-ends.
+
+### Epic 3: Shared Chrome + Authenticated Shell
 
 As a user crossing the auth boundary, I want the authenticated app to feel like the same product as the marketing site, so signing in doesn't feel like landing in a different app.
 
 - Extract the shared visual chrome — header shell, container, logo treatment, footer — into reusable primitives. Refactor the existing marketing header/footer to consume them with **no intended visual change**.
-- Build the non-admin authenticated shell on these primitives: a header with a plain **circle** avatar (image or initials, reading `profiles`), **not** the admin nav-user rectangle (avatar + name + email). Clicking it opens a dropdown with profile access and sign-out — reuse the admin nav-user *behavior*, not its presentation.
-- Footer is shared with marketing.
-- **No theme toggle in the header** (it lives in settings — Epic 4); the marketing header keeps its login CTA in the same right-side slot the avatar occupies in the app header.
+- Establish the `(app)` route group for authenticated user surfaces (no URL prefix); its layout is this shell.
+- Build the non-admin shell on these primitives: a header with a plain **circle** avatar (image or initials, reading `profiles`), **not** the admin nav-user rectangle (avatar + name + email). Clicking it opens a dropdown with profile access and sign-out — reuse the admin nav-user *behavior*, not its presentation.
+- Dropdown profile link and the route constant target `/profile` (`PROFILE_PATH`), for Epic 5 handoff. A minimal `/profile` stub lives in the shell so the link resolves; Epic 5 replaces it.
+- `/protected` moves under the `(app)` shell, body unchanged, and remains the non-admin redirect target until Epic 5 retires it.
+- Footer is shared with marketing. **No theme toggle in the header** (it lives on the profile page — Epic 5); the marketing header keeps its login CTA in the same right-side slot the avatar occupies in the app header.
+- Depends on Epic 1 (reads `profiles`); sequenced after Epic 2 so routing is settled.
 
-### Epic 3: Avatar Storage
+### Epic 4: Avatar Storage
 
 As a user, I want to upload a profile avatar, so my account feels personalized — and as a product, I want a storage convention established once.
 
@@ -146,16 +158,16 @@ As a user, I want to upload a profile avatar, so my account feels personalized �
 - Establishes the canonical storage pattern (bucket + storage RLS) that later product features inherit. Document the convention where storage conventions belong.
 - The uploaded avatar's reference is stored in `profiles.avatar_url` (Epic 1).
 
-### Epic 4: Profile/Settings Page
+### Epic 5: Profile Page
 
-As an authenticated non-admin user, I want a profile/settings page that I land on after login, so I have a real surface to manage my account — and as a template evaluator, I see a finished surface instead of a placeholder.
+As an authenticated non-admin user, I want a profile page I land on after login, so I have a real surface to manage my account — and as a template evaluator, I see a finished surface instead of a placeholder.
 
-- A single combined view+edit surface for `display_name`, `avatar` (upload via Epic 3), `bio`, and change-password.
-- This page **is the non-admin post-login landing**: repoint the post-login redirect for non-admins here, and **remove the `/protected` starter page**. Use a neutral route name describing the surface, not the auth property.
+- A single combined view+edit surface for `display_name`, `avatar` (upload via Epic 4), `bio`, and change-password, at `/profile`.
+- This page **is the non-admin post-login landing**: repoint the post-login redirect for non-admins to `/profile`, and **remove the `/protected` starter page**.
 - Establishes the canonical **`react-hook-form` + `zod`** form pattern as the template's first real form. Document it in `.cursor/rules/` as a coding standard (not a locked-rule change).
 - Houses the **dark-mode toggle**; confirm `defaultTheme="system"` + `enableSystem` so unauthenticated/marketing stays system-default with no exposed control.
 - A successful save confirms via the Phase 5 toast system.
-- Built on Epic 2's shell; depends on Epics 1, 2, and 3.
+- Built on Epic 3's shell; depends on Epics 1, 3, and 4.
 
 ---
 
@@ -168,7 +180,7 @@ A dedicated pass over security-relevant surfaces that don't exist yet at Phase 5
 Not yet scoped. Covers traditional SEO (metadata, sitemap, structured data) and GEO (generative-engine optimization — how the product surfaces in AI assistant answers) for the marketing/landing surface shipped in Phase 4. No hard sequencing dependency beyond Phase 4 being shipped.
 
 ## Phase 9 — Pattern Reference Page `Draft`
-A dedicated page that demonstrates the canonized component patterns established across prior phases: data table, error states (operational `InlineError` + fault `ErrorPanel`), skeleton loading, toast, and the form/settings pattern (from Phase 6). The page imports and showcases the real, already-established components — it does not reimplement them. It is explicitly deletable scaffolding: deleting it loses zero canonical pattern, since every pattern it demonstrates is established in real code elsewhere (admin users table, settings page, etc.). Sequenced after Phase 6 so it can show the form/settings pattern alongside everything from Phase 5, rather than shipping thin now and needing a follow-up addition later.
+A dedicated page that demonstrates the canonized component patterns established across prior phases: data table, error states (operational `InlineError` + fault `ErrorPanel`), skeleton loading, toast, and the form/settings pattern (from Phase 6). The page imports and showcases the real, already-established components — it does not reimplement them. It is explicitly deletable scaffolding: deleting it loses zero canonical pattern, since every pattern it demonstrates is established in real code elsewhere (admin users table, profile page, etc.). Sequenced after Phase 6 so it can show the form/profile pattern alongside everything from Phase 5, rather than shipping thin now and needing a follow-up addition later.
 
 ## Phase 10 — Agent Tooling: Skills Suite `Draft`
 Finalize the generic (de-specialized) skills suite: a design-critique skill, a design-system skill (establish-structure + audit + AI-slop detection), and a separate theme "regenerate" skill. Skills land at the end because they operate on the token layer (Phase 2) and the reference surfaces (Phases 3–9). Rules correctness is handled in Phase 1; this phase includes only a light final pass to confirm the rules set is still complete and project-agnostic.

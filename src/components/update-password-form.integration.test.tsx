@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@/test/test-utils'
 import userEvent from '@testing-library/user-event'
+import { ADMIN_HOME } from '@/constants/admin-paths'
 import { UpdatePasswordForm } from './update-password-form'
 
 const mockUpdateUser = vi.fn()
@@ -43,7 +44,7 @@ describe('UpdatePasswordForm', () => {
     })
   })
 
-  it('should update password and redirect admins to /users', async () => {
+  it('should update password and redirect admins to /admin', async () => {
     mockUpdateUser.mockResolvedValue({
       error: null,
       data: { user: { app_metadata: { role: 'admin' } } },
@@ -56,7 +57,7 @@ describe('UpdatePasswordForm', () => {
     await user.click(screen.getByRole('button', { name: /save new password/i }))
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/users')
+      expect(mockPush).toHaveBeenCalledWith(ADMIN_HOME)
     })
   })
 

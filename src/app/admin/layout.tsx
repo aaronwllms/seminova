@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 
-import { AdminAuthGate } from '@/app/(admin)/_components/admin-auth-gate'
-import { AdminShellSkeleton } from '@/app/(admin)/_components/admin-shell-skeleton'
+import { AdminAuthGate } from '@/app/admin/_components/admin-auth-gate'
+import { AdminShellSkeleton } from '@/app/admin/_components/admin-shell-skeleton'
 
 type AdminLayoutProps = {
   children: React.ReactNode

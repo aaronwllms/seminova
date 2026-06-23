@@ -39,4 +39,4 @@ While a fetch is in flight and the table body is empty, show skeleton rows — n
 **Why:** placeholder text in a single merged cell reads as an empty state, not a loading state; skeleton rows preserve column structure and match the design-system loading convention.
 
 ## Reference Implementations
-- `src/app/(admin)/users/_components/users-table.tsx` — Users table, search on `email`, skeleton loading via `DataTableShell`
+- `src/app/admin/users/_components/users-table.tsx` — Users table, search on `email`, skeleton loading via `DataTableShell`

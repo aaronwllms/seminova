@@ -65,7 +65,7 @@ Include `kind: 'operational' | 'fault'` on every error envelope. Set `kind` at t
 - **`operational`** — expected failure during normal operation (bad credentials, validation, forbidden, rate-limited)
 - **`fault`** — genuine failure (thrown exception, network failure, internal error)
 
-**Server Actions:** Same structure, return objects instead of NextResponse. Reference: [`src/app/(admin)/users/actions.ts`](../../src/app/(admin)/users/actions.ts)
+**Server Actions:** Same structure, return objects instead of NextResponse. Reference: [`src/app/admin/users/actions.ts`](../../src/app/admin/users/actions.ts)
 
 ## Logging
 

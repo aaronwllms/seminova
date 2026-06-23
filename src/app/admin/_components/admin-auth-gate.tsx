@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 
-import { AdminShell } from '@/app/(admin)/_components/admin-shell'
+import { AdminShell } from '@/app/admin/_components/admin-shell'
 import { createClient } from '@/supabase/server'
 import { isAdmin, type JwtClaims } from '@/utils/admin'
 

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 import { SeminovaLogo } from '@/components/seminova-logo'
+import { ADMIN_USERS } from '@/constants/admin-paths'
 import {
   Sidebar,
   SidebarContent,
@@ -21,7 +22,7 @@ import {
 
 import { AdminNavUser } from './admin-nav-user'
 
-const NAV_ITEMS = [{ title: 'Users', href: '/users', icon: Users }] as const
+const NAV_ITEMS = [{ title: 'Users', href: ADMIN_USERS, icon: Users }] as const
 
 type AdminSidebarProps = {
   email: string
