@@ -28,7 +28,6 @@ export default defineConfig({
         'src/providers/**',
         'src/supabase/client.ts',
         'src/supabase/server.ts',
-        'src/components/theme-switcher.tsx',
         'src/components/auth-button.tsx',
         'proxy.ts',
         '**/*.d.ts',

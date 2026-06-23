@@ -1,3 +1,10 @@
+---
+description: Canonical form stack (react-hook-form + zod), the save-model rule (blur vs explicit submit vs upload completion), and password-field autofill conventions
+globs:
+  - 'src/**/*.{ts,tsx}'
+alwaysApply: false
+---
+
 # Forms (react-hook-form + zod)
 
 ## Canonical stack
@@ -10,8 +17,40 @@ Profile page (`src/app/(app)/profile/`) is the reference implementation.
 | UI | shadcn `Form`, `FormField`, `Input`, `Textarea` from `@/components/ui/form` |
 | Validation | Shared zod schema in route `_lib/` (e.g. `profile-form-schema.ts`) |
 | Server boundary | Same schema via `safeParse` in Server Actions — never return raw `ZodError` |
-| Success feedback | `showSuccessToast` from `@/utils/app-toast` |
+| Success feedback | Per save model below — toast (explicit submit) or inline indicator (blur-save) |
 | Errors | `InlineError` (operational) / `ErrorPanel` (fault) per `error-handling.mdc` |
+
+## Save model
+
+Pick the save trigger by form shape. This is the routing rule for any new form:
+
+| Form shape | Save trigger | Success feedback |
+| ---------- | ------------ | ---------------- |
+| Inline, independent fields (each stands alone) | Save on blur, per field | Inline transient indicator (see `notifications.mdc`) — **not** a toast |
+| Modal, coupled fields that submit as a unit, or higher-stakes (e.g. password change) | Explicit submit button | Toast (`showSuccessToast`) |
+| File upload | Persist on upload completion — no separate save step | Inline indicator on the control |
+
+- **Blur-save:** validate the field on blur and **never persist an invalid field**; save only changed fields.
+- **Why inline, not toast, for blur-save:** a toast per field blur is disproportionate for silent auto-save and stacks when the user tabs between fields. Toasts are reserved for explicit, discrete actions. See `notifications.mdc`.
+- **Coupled fields** (e.g. new + confirm password) validate and submit as a unit, never per-field.
+- **Higher-stakes mutations** (password, email, anything that can lock a user out) use explicit submit, typically in a modal, and re-authenticate at the server boundary where the provider supports it.
+
+## Password fields & autofill
+
+Any form with credential fields carries the correct `autocomplete` tokens so password
+managers and browsers behave correctly. **Applies to every form with credential fields,
+including the `useState` auth forms** — it is independent of the form library.
+
+- Account identifier (email) → `autocomplete="username"`.
+- Existing password (sign-in; current-password in a change) → `autocomplete="current-password"`.
+- New password **and** its confirm field → `autocomplete="new-password"`. This token is what
+  triggers the manager's generate-password offer and prevents the old password autofilling
+  into the new field.
+- Pair password fields with a username field so the manager knows which credential to
+  save/update — even in a change-password or post-recovery form where no email is otherwise
+  shown, render it referencing the account email (visually hidden is fine, but it must be in
+  the DOM).
+- Forms must be real `<form>` elements so managers detect them as credential forms.
 
 ## Client pattern
 
@@ -39,5 +78,5 @@ See [`src/app/(app)/profile/actions.ts`](../../src/app/(app)/profile/actions.ts)
 ## Cross-references
 
 - `error-handling.mdc` — error envelopes and UI surfaces
-- `notifications.mdc` — toasts for success only; errors never toast
+- `notifications.mdc` — toast (explicit submit) vs inline indicator (blur-save); errors never toast
 - `security.mdc` — validate at server boundary; DTO responses

@@ -16,6 +16,14 @@ export const profileFormSchema = z.object({
 
 export type ProfileFormValues = z.infer<typeof profileFormSchema>
 
+export const profilePartialSchema = profileFormSchema
+  .partial()
+  .refine((data) => Object.keys(data).length > 0, {
+    message: 'At least one profile field must be provided.',
+  })
+
+export type ProfilePartialValues = z.infer<typeof profilePartialSchema>
+
 export const profileFormInputSchema = z.object({
   displayName: z
     .string()
@@ -45,12 +53,12 @@ export const toProfileFormInput = (
   avatarUrl: values.avatarUrl ?? '',
 })
 
-export const parseProfileFormInput = (
+export const parseProfilePartialInput = (
   raw: unknown,
 ):
-  | { success: true; data: ProfileFormValues }
+  | { success: true; data: ProfilePartialValues }
   | { success: false; message: string } => {
-  const result = profileFormSchema.safeParse(raw)
+  const result = profilePartialSchema.safeParse(raw)
 
   if (!result.success) {
     const firstIssue = result.error.issues[0]

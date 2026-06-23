@@ -1,30 +1,35 @@
 import { describe, expect, it } from 'vitest'
 
 import {
-  parseProfileFormInput,
+  parseProfilePartialInput,
   toProfileFormInput,
   toProfileFormValues,
 } from './profile-form-schema'
 
-describe('parseProfileFormInput', () => {
-  it('should accept valid profile fields', () => {
-    const result = parseProfileFormInput({
+describe('parseProfilePartialInput', () => {
+  it('should accept a single valid field', () => {
+    const result = parseProfilePartialInput({
       displayName: 'Alex',
-      bio: 'Builder',
-      avatarUrl: null,
     })
 
     expect(result).toMatchObject({
       success: true,
-      data: { displayName: 'Alex', bio: 'Builder', avatarUrl: null },
+      data: { displayName: 'Alex' },
     })
   })
 
-  it('should reject invalid input', () => {
-    const result = parseProfileFormInput({
+  it('should reject empty partial payload', () => {
+    const result = parseProfilePartialInput({})
+
+    expect(result).toMatchObject({
+      success: false,
+      message: expect.stringContaining('At least one'),
+    })
+  })
+
+  it('should reject invalid field values', () => {
+    const result = parseProfilePartialInput({
       displayName: 'a'.repeat(81),
-      bio: null,
-      avatarUrl: null,
     })
 
     expect(result).toMatchObject({
@@ -34,9 +39,7 @@ describe('parseProfileFormInput', () => {
   })
 
   it('should accept a versioned avatar URL with query params', () => {
-    const result = parseProfileFormInput({
-      displayName: null,
-      bio: null,
+    const result = parseProfilePartialInput({
       avatarUrl:
         'https://example.supabase.co/storage/v1/object/public/avatars/user-id/avatar.webp?v=1719158400000',
     })

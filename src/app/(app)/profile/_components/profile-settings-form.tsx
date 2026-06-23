@@ -1,11 +1,10 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useRouter } from 'next/navigation'
 import { useForm, useWatch } from 'react-hook-form'
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import {
@@ -22,111 +21,55 @@ import type { AppError } from '@/types/app-error'
 import {
   AvatarUploadError,
   uploadUserAvatar,
-  validateAvatarFile,
   withAvatarCacheBust,
 } from '@/utils/avatar-storage'
-import { getProfileInitials } from '@/utils/user-initials'
 
+import { updateProfileAction } from '../actions'
 import {
   profileFormInputSchema,
-  toProfileFormValues,
   type ProfileFormInputValues,
   type ProfileFormValues,
+  type ProfilePartialValues,
 } from '../_lib/profile-form-schema'
+import { ProfileAvatarField } from './profile-avatar-field'
+import { FieldSaveIndicator, type FieldSaveState } from './field-save-indicator'
 
-type ProfileAvatarFieldProps = {
-  avatarUrl: string | null
-  displayName: string | null
-  email: string
-  onFileSelect: (file: File | null) => void
-  onFileError: (message: string | null) => void
-  fileError: string | null
-}
+type ProfileFieldKey = 'displayName' | 'bio' | 'avatar'
 
-export const ProfileAvatarField = ({
-  avatarUrl,
-  displayName,
-  email,
-  onFileSelect,
-  onFileError,
-  fileError,
-}: ProfileAvatarFieldProps) => {
-  const inputRef = useRef<HTMLInputElement>(null)
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const initials = getProfileInitials({ displayName, email })
-  const imageSrc = previewUrl ?? avatarUrl
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-
-    if (!file) {
-      setPreviewUrl(null)
-      onFileError(null)
-      onFileSelect(null)
-      return
-    }
-
-    const validation = validateAvatarFile(file)
-
-    if (!validation.valid) {
-      setPreviewUrl(null)
-      onFileError(validation.message)
-      onFileSelect(null)
-      event.target.value = ''
-      return
-    }
-
-    onFileError(null)
-
-    setPreviewUrl(URL.createObjectURL(file))
-    onFileSelect(file)
-  }
-
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-4">
-        <Avatar className="h-16 w-16">
-          {imageSrc ? <AvatarImage src={imageSrc} alt="" /> : null}
-          <AvatarFallback className="text-lg">{initials}</AvatarFallback>
-        </Avatar>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => inputRef.current?.click()}
-        >
-          Change photo
-        </Button>
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          className="sr-only"
-          onChange={handleChange}
-        />
-      </div>
-      {fileError ? <InlineError message={fileError} /> : null}
-    </div>
-  )
-}
+const initialSaveStates = (): Record<ProfileFieldKey, FieldSaveState> => ({
+  displayName: 'idle',
+  bio: 'idle',
+  avatar: 'idle',
+})
 
 type ProfileSettingsFormProps = {
   userId: string
   email: string
   defaultValues: ProfileFormValues
-  onSubmit: (values: ProfileFormValues) => Promise<AppError | null>
 }
 
 export const ProfileSettingsForm = ({
   userId,
   email,
   defaultValues,
-  onSubmit,
 }: ProfileSettingsFormProps) => {
-  const [pendingFile, setPendingFile] = useState<File | null>(null)
+  const router = useRouter()
   const [fileError, setFileError] = useState<string | null>(null)
   const [formError, setFormError] = useState<AppError | null>(null)
-  const [isSaving, setIsSaving] = useState(false)
+  const [saveStates, setSaveStates] =
+    useState<Record<ProfileFieldKey, FieldSaveState>>(initialSaveStates)
+
+  const inFlightRef = useRef<Record<ProfileFieldKey, boolean>>({
+    displayName: false,
+    bio: false,
+    avatar: false,
+  })
+
+  const lastSavedRef = useRef({
+    displayName: defaultValues.displayName?.trim() || null,
+    bio: defaultValues.bio?.trim() || null,
+    avatarUrl: defaultValues.avatarUrl,
+  })
 
   const form = useForm<ProfileFormInputValues>({
     resolver: zodResolver(profileFormInputSchema),
@@ -146,43 +89,138 @@ export const ProfileSettingsForm = ({
     name: 'displayName',
   })
 
-  const handleSave = async (values: ProfileFormInputValues) => {
-    setIsSaving(true)
-    setFormError(null)
-    setFileError(null)
+  const setFieldSaveState = useCallback(
+    (field: ProfileFieldKey, state: FieldSaveState) => {
+      setSaveStates((current) => ({ ...current, [field]: state }))
+    },
+    [],
+  )
 
-    try {
-      const payload = toProfileFormValues(values)
-      let avatarUrl = payload.avatarUrl
-
-      if (pendingFile) {
-        const validation = validateAvatarFile(pendingFile)
-
-        if (!validation.valid) {
-          setFileError(validation.message)
-          return
-        }
-
-        const { publicUrl } = await uploadUserAvatar({
-          userId,
-          file: pendingFile,
-        })
-        avatarUrl = withAvatarCacheBust(publicUrl)
-      }
-
-      const error = await onSubmit({ ...payload, avatarUrl })
-
-      if (error) {
-        setFormError(error)
+  const persistField = useCallback(
+    async ({
+      field,
+      payload,
+      refresh,
+      onSuccess,
+    }: {
+      field: ProfileFieldKey
+      payload: ProfilePartialValues
+      refresh: boolean
+      onSuccess?: () => void
+    }) => {
+      if (inFlightRef.current[field]) {
         return
       }
 
-      setPendingFile(null)
-      const savedValues = { ...payload, avatarUrl }
-      form.reset({
-        displayName: savedValues.displayName ?? '',
-        bio: savedValues.bio ?? '',
-        avatarUrl: savedValues.avatarUrl ?? '',
+      inFlightRef.current[field] = true
+      setFieldSaveState(field, 'saving')
+      setFormError(null)
+
+      try {
+        const result = await updateProfileAction(payload)
+
+        if (!result.success) {
+          setFormError(result.error)
+          setFieldSaveState(field, 'idle')
+          return
+        }
+
+        onSuccess?.()
+
+        if (refresh) {
+          router.refresh()
+        }
+
+        setFieldSaveState(field, 'saved')
+      } catch {
+        setFormError({
+          message: 'Could not save your profile. Please try again.',
+          kind: 'fault',
+          code: 'INTERNAL_ERROR',
+        })
+        setFieldSaveState(field, 'idle')
+      } finally {
+        inFlightRef.current[field] = false
+      }
+    },
+    [router, setFieldSaveState],
+  )
+
+  const handleDisplayNameBlur = async () => {
+    if (inFlightRef.current.displayName) {
+      return
+    }
+
+    const isValid = await form.trigger('displayName')
+
+    if (!isValid) {
+      return
+    }
+
+    const trimmed = form.getValues('displayName').trim() || null
+
+    if (trimmed === lastSavedRef.current.displayName) {
+      return
+    }
+
+    await persistField({
+      field: 'displayName',
+      payload: { displayName: trimmed },
+      refresh: true,
+      onSuccess: () => {
+        lastSavedRef.current.displayName = trimmed
+        form.resetField('displayName', { defaultValue: trimmed ?? '' })
+      },
+    })
+  }
+
+  const handleBioBlur = async () => {
+    if (inFlightRef.current.bio) {
+      return
+    }
+
+    const isValid = await form.trigger('bio')
+
+    if (!isValid) {
+      return
+    }
+
+    const trimmed = form.getValues('bio').trim() || null
+
+    if (trimmed === lastSavedRef.current.bio) {
+      return
+    }
+
+    await persistField({
+      field: 'bio',
+      payload: { bio: trimmed },
+      refresh: false,
+      onSuccess: () => {
+        lastSavedRef.current.bio = trimmed
+        form.resetField('bio', { defaultValue: trimmed ?? '' })
+      },
+    })
+  }
+
+  const handleAvatarUpload = async (file: File) => {
+    if (inFlightRef.current.avatar) {
+      return
+    }
+
+    setFileError(null)
+
+    try {
+      const { publicUrl } = await uploadUserAvatar({ userId, file })
+      const avatarUrl = withAvatarCacheBust(publicUrl)
+
+      await persistField({
+        field: 'avatar',
+        payload: { avatarUrl },
+        refresh: true,
+        onSuccess: () => {
+          lastSavedRef.current.avatarUrl = avatarUrl
+          form.setValue('avatarUrl', avatarUrl)
+        },
       })
     } catch (caught) {
       if (caught instanceof AvatarUploadError) {
@@ -195,26 +233,20 @@ export const ProfileSettingsForm = ({
         kind: 'fault',
         code: 'INTERNAL_ERROR',
       })
-    } finally {
-      setIsSaving(false)
     }
   }
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(handleSave)}
-        className="flex flex-col gap-6"
-      >
+      <div className="flex flex-col gap-6">
         <ProfileAvatarField
           avatarUrl={watchedAvatarUrl || null}
           displayName={watchedDisplayName || null}
           email={email}
+          saveState={saveStates.avatar}
+          onSavedComplete={() => setFieldSaveState('avatar', 'idle')}
+          onUpload={handleAvatarUpload}
           fileError={fileError}
-          onFileSelect={(file) => {
-            setFileError(null)
-            setPendingFile(file)
-          }}
           onFileError={setFileError}
         />
 
@@ -223,12 +255,24 @@ export const ProfileSettingsForm = ({
           name="displayName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Display name</FormLabel>
+              <div className="flex items-center gap-2">
+                <FormLabel>Display name</FormLabel>
+                <FieldSaveIndicator
+                  state={saveStates.displayName}
+                  onSavedComplete={() =>
+                    setFieldSaveState('displayName', 'idle')
+                  }
+                />
+              </div>
               <FormControl>
                 <Input
                   placeholder="Your name"
                   {...field}
                   value={field.value ?? ''}
+                  onBlur={(event) => {
+                    field.onBlur()
+                    void handleDisplayNameBlur()
+                  }}
                 />
               </FormControl>
               <FormMessage />
@@ -241,13 +285,23 @@ export const ProfileSettingsForm = ({
           name="bio"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Bio</FormLabel>
+              <div className="flex items-center gap-2">
+                <FormLabel>Bio</FormLabel>
+                <FieldSaveIndicator
+                  state={saveStates.bio}
+                  onSavedComplete={() => setFieldSaveState('bio', 'idle')}
+                />
+              </div>
               <FormControl>
                 <Textarea
                   placeholder="A short bio"
                   rows={4}
                   {...field}
                   value={field.value ?? ''}
+                  onBlur={(event) => {
+                    field.onBlur()
+                    void handleBioBlur()
+                  }}
                 />
               </FormControl>
               <FormMessage />
@@ -260,11 +314,7 @@ export const ProfileSettingsForm = ({
         ) : formError ? (
           <InlineError message={formError.message} />
         ) : null}
-
-        <Button type="submit" disabled={isSaving}>
-          {isSaving ? 'Saving…' : 'Save profile'}
-        </Button>
-      </form>
+      </div>
     </Form>
   )
 }

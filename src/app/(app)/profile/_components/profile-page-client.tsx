@@ -1,22 +1,11 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { Separator } from '@/components/ui/separator'
 
-import { ThemeSwitcher } from '@/components/theme-switcher'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import type { AppError } from '@/types/app-error'
-import { showSuccessToast } from '@/utils/app-toast'
-
-import { updateProfileAction } from '../actions'
 import type { ProfileFormValues } from '../_lib/profile-form-schema'
-import { ProfilePasswordSection } from './profile-password-section'
+import { ProfilePasswordDialog } from './profile-password-dialog'
 import { ProfileSettingsForm } from './profile-settings-form'
+import { ProfileThemeSegment } from './profile-theme-segment'
 
 type ProfilePageClientProps = {
   userId: string
@@ -29,62 +18,42 @@ export const ProfilePageClient = ({
   email,
   defaultValues,
 }: ProfilePageClientProps) => {
-  const router = useRouter()
-
-  const handleSubmit = async (
-    values: ProfileFormValues,
-  ): Promise<AppError | null> => {
-    const result = await updateProfileAction(values)
-
-    if (!result.success) {
-      return result.error
-    }
-
-    showSuccessToast('Profile saved')
-    router.refresh()
-    return null
-  }
-
   return (
-    <div className="flex w-full flex-col gap-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>Profile</CardTitle>
-          <CardDescription>
-            Update your display name, photo, and bio.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ProfileSettingsForm
-            userId={userId}
-            email={email}
-            defaultValues={defaultValues}
-            onSubmit={handleSubmit}
-          />
-        </CardContent>
-      </Card>
+    <div className="flex w-full max-w-prose flex-col gap-8">
+      <section className="flex flex-col gap-4">
+        <p className="text-muted-foreground text-sm">
+          Update your display name, photo, and bio.
+        </p>
+        <ProfileSettingsForm
+          userId={userId}
+          email={email}
+          defaultValues={defaultValues}
+        />
+      </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Password</CardTitle>
-          <CardDescription>Change your account password.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ProfilePasswordSection />
-        </CardContent>
-      </Card>
+      <Separator className="bg-border/40" />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Appearance</CardTitle>
-          <CardDescription>
+      <section className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-sm font-medium">Password</h2>
+          <p className="text-muted-foreground text-sm">
+            Change your account password.
+          </p>
+        </div>
+        <ProfilePasswordDialog email={email} />
+      </section>
+
+      <Separator className="bg-border/40" />
+
+      <section className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-sm font-medium">Appearance</h2>
+          <p className="text-muted-foreground text-sm">
             Choose light, dark, or system theme for the app.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ThemeSwitcher />
-        </CardContent>
-      </Card>
+          </p>
+        </div>
+        <ProfileThemeSegment />
+      </section>
     </div>
   )
 }

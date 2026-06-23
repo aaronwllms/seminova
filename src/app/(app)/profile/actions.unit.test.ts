@@ -45,11 +45,7 @@ describe('updateProfileAction', () => {
   it('should return operational error when unauthenticated', async () => {
     mockGetUser.mockResolvedValue({ data: { user: null }, error: null })
 
-    const result = await updateProfileAction({
-      displayName: 'Alex',
-      bio: null,
-      avatarUrl: null,
-    })
+    const result = await updateProfileAction({ displayName: 'Alex' })
 
     expect(result).toMatchObject({
       success: false,
@@ -57,17 +53,13 @@ describe('updateProfileAction', () => {
     })
   })
 
-  it('should return validation error for invalid avatar URL', async () => {
+  it('should reject empty partial payload', async () => {
     mockGetUser.mockResolvedValue({
       data: { user: { id: 'user-1' } },
       error: null,
     })
 
-    const result = await updateProfileAction({
-      displayName: 'Alex',
-      bio: null,
-      avatarUrl: 'not-a-url',
-    })
+    const result = await updateProfileAction({})
 
     expect(result).toMatchObject({
       success: false,
@@ -76,7 +68,77 @@ describe('updateProfileAction', () => {
     expect(mockUpdate).not.toHaveBeenCalled()
   })
 
-  it('should persist profile updates for authenticated users', async () => {
+  it('should return validation error for invalid avatar URL', async () => {
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: 'user-1' } },
+      error: null,
+    })
+
+    const result = await updateProfileAction({ avatarUrl: 'not-a-url' })
+
+    expect(result).toMatchObject({
+      success: false,
+      error: { code: 'VALIDATION_ERROR', kind: 'operational' },
+    })
+    expect(mockUpdate).not.toHaveBeenCalled()
+  })
+
+  it('should persist only provided fields for authenticated users', async () => {
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: 'user-1' } },
+      error: null,
+    })
+    mockSingle.mockResolvedValue({
+      data: {
+        display_name: 'Alex',
+        avatar_url: null,
+        bio: 'Builder',
+      },
+      error: null,
+    })
+
+    const result = await updateProfileAction({
+      displayName: 'Alex',
+      bio: 'Builder',
+    })
+
+    expect(mockUpdate).toHaveBeenCalledWith({
+      display_name: 'Alex',
+      bio: 'Builder',
+    })
+    expect(result).toMatchObject({
+      success: true,
+      data: {
+        displayName: 'Alex',
+        bio: 'Builder',
+      },
+    })
+  })
+
+  it('should update a single field', async () => {
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: 'user-1' } },
+      error: null,
+    })
+    mockSingle.mockResolvedValue({
+      data: {
+        display_name: 'Jordan',
+        avatar_url: null,
+        bio: null,
+      },
+      error: null,
+    })
+
+    const result = await updateProfileAction({ displayName: 'Jordan' })
+
+    expect(mockUpdate).toHaveBeenCalledWith({ display_name: 'Jordan' })
+    expect(result).toMatchObject({
+      success: true,
+      data: { displayName: 'Jordan' },
+    })
+  })
+
+  it('should update avatar URL only', async () => {
     mockGetUser.mockResolvedValue({
       data: { user: { id: 'user-1' } },
       error: null,
@@ -86,31 +148,21 @@ describe('updateProfileAction', () => {
         display_name: 'Alex',
         avatar_url:
           'https://example.supabase.co/storage/v1/object/public/avatars/user-1/avatar.webp?v=1',
-        bio: 'Builder',
+        bio: null,
       },
       error: null,
     })
 
     const result = await updateProfileAction({
-      displayName: 'Alex',
-      bio: 'Builder',
       avatarUrl:
         'https://example.supabase.co/storage/v1/object/public/avatars/user-1/avatar.webp?v=1',
     })
 
     expect(mockUpdate).toHaveBeenCalledWith({
-      display_name: 'Alex',
-      bio: 'Builder',
       avatar_url:
         'https://example.supabase.co/storage/v1/object/public/avatars/user-1/avatar.webp?v=1',
     })
-    expect(result).toMatchObject({
-      success: true,
-      data: {
-        displayName: 'Alex',
-        bio: 'Builder',
-      },
-    })
+    expect(result).toMatchObject({ success: true })
   })
 
   it('should return fault error when profile update fails', async () => {
@@ -123,11 +175,7 @@ describe('updateProfileAction', () => {
       error: { message: 'db error' },
     })
 
-    const result = await updateProfileAction({
-      displayName: 'Alex',
-      bio: null,
-      avatarUrl: null,
-    })
+    const result = await updateProfileAction({ displayName: 'Alex' })
 
     expect(result).toMatchObject({
       success: false,

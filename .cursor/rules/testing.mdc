@@ -290,7 +290,7 @@ it('should show loading indicator while submitting', () => {
 
 **Enforced:** 80% minimum thresholds (lines, functions, branches, statements) via [`vitest.config.ts`](../../vitest.config.ts). `pnpm test:ci` runs `vitest run --coverage` — failures block CI and pre-push.
 
-**In scope:** app logic under `src/` (auth forms, hooks, utils, route handlers, `src/supabase/proxy.ts`). **Excluded from denominator:** shadcn UI primitives, mocks, test infra, page/layout shells, thin providers, Supabase client factories, `theme-switcher`, `auth-button`, root `proxy.ts` delegate.
+**In scope:** app logic under `src/` (auth forms, hooks, utils, route handlers, `src/supabase/proxy.ts`). **Excluded from denominator:** shadcn UI primitives, mocks, test infra, page/layout shells, thin providers, Supabase client factories, `auth-button`, root `proxy.ts` delegate.
 
 Before merge: run `pnpm test:ci`. If thresholds fail, add targeted high-value tests (see minimalism principles above)—not per-file 80% crusades. If useful tests cannot reach 80%, revisit threshold or exclude set (PM decision)—do not pad with filler.
 

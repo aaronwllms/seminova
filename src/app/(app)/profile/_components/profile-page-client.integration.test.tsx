@@ -1,48 +1,22 @@
-import { render, screen, waitFor } from '@/test/test-utils'
-import userEvent from '@testing-library/user-event'
+import { render, screen } from '@/test/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
 import { ProfilePageClient } from './profile-page-client'
 
-const mockUpdateProfileAction = vi.fn()
-const mockRefresh = vi.fn()
-const mockShowSuccessToast = vi.fn()
-
-vi.mock('../actions', () => ({
-  updateProfileAction: (...args: unknown[]) => mockUpdateProfileAction(...args),
+vi.mock('./profile-settings-form', () => ({
+  ProfileSettingsForm: () => <div>Profile form</div>,
 }))
 
-vi.mock('next/navigation', () => ({
-  useRouter: () => ({ refresh: mockRefresh }),
+vi.mock('./profile-password-dialog', () => ({
+  ProfilePasswordDialog: () => <button type="button">Change password</button>,
 }))
 
-vi.mock('@/utils/app-toast', () => ({
-  showSuccessToast: (...args: unknown[]) => mockShowSuccessToast(...args),
-}))
-
-vi.mock('@/components/theme-switcher', () => ({
-  ThemeSwitcher: () => <div>Theme controls</div>,
+vi.mock('./profile-theme-segment', () => ({
+  ProfileThemeSegment: () => <div>Theme segment</div>,
 }))
 
 describe('ProfilePageClient', () => {
-  beforeEach(() => {
-    mockUpdateProfileAction.mockReset()
-    mockRefresh.mockReset()
-    mockShowSuccessToast.mockReset()
-  })
-
-  it('should save profile changes and show success toast', async () => {
-    mockUpdateProfileAction.mockResolvedValue({
-      success: true,
-      data: {
-        displayName: 'Jordan',
-        bio: 'Builder',
-        avatarUrl: null,
-      },
-    })
-
-    const user = userEvent.setup()
-
+  it('should render lighter sections without duplicate Profile card title', () => {
     render(
       <ProfilePageClient
         userId="user-1"
@@ -55,14 +29,13 @@ describe('ProfilePageClient', () => {
       />,
     )
 
-    await user.clear(screen.getByLabelText(/display name/i))
-    await user.type(screen.getByLabelText(/display name/i), 'Jordan')
-    await user.click(screen.getByRole('button', { name: /save profile/i }))
-
-    await waitFor(() => {
-      expect(mockUpdateProfileAction).toHaveBeenCalled()
-      expect(mockShowSuccessToast).toHaveBeenCalledWith('Profile saved')
-      expect(mockRefresh).toHaveBeenCalled()
-    })
+    expect(screen.getByText('Profile form')).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /change password/i }),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Theme segment')).toBeInTheDocument()
+    expect(
+      screen.queryByRole('heading', { name: /^Profile$/i }),
+    ).not.toBeInTheDocument()
   })
 })

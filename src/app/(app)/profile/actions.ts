@@ -6,7 +6,7 @@ import { PROFILE_PATH } from '@/constants/app-paths'
 import { createClient } from '@/supabase/server'
 import type { ErrorKind } from '@/types/app-error'
 
-import { parseProfileFormInput } from './_lib/profile-form-schema'
+import { parseProfilePartialInput } from './_lib/profile-form-schema'
 
 type ProfileActionErrorCode =
   | 'UNAUTHORIZED'
@@ -57,7 +57,7 @@ export const updateProfileAction = async (
     }
   }
 
-  const parsed = parseProfileFormInput(input)
+  const parsed = parseProfilePartialInput(input)
 
   if (!parsed.success) {
     return {
@@ -70,15 +70,27 @@ export const updateProfileAction = async (
     }
   }
 
-  const { displayName, bio, avatarUrl } = parsed.data
+  const updatePayload: {
+    display_name?: string | null
+    bio?: string | null
+    avatar_url?: string | null
+  } = {}
+
+  if (parsed.data.displayName !== undefined) {
+    updatePayload.display_name = parsed.data.displayName
+  }
+
+  if (parsed.data.bio !== undefined) {
+    updatePayload.bio = parsed.data.bio
+  }
+
+  if (parsed.data.avatarUrl !== undefined) {
+    updatePayload.avatar_url = parsed.data.avatarUrl
+  }
 
   const { data: profile, error: updateError } = await supabase
     .from('profiles')
-    .update({
-      display_name: displayName,
-      bio,
-      avatar_url: avatarUrl,
-    })
+    .update(updatePayload)
     .eq('id', user.id)
     .select('display_name, avatar_url, bio')
     .single()
