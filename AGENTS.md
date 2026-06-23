@@ -100,7 +100,8 @@
   - `/auth/**` — public auth screens
   - `/admin` — admin console dashboard (admin role required)
   - `/admin/users` — admin users table (real Supabase Auth data; search, pagination, in-app promote/demote)
-  - `/protected` — authenticated non-admin landing (starter shell until Phase 6 Epic 5)
+  - `/protected` — authenticated non-admin landing under `(app)` shared chrome (starter body until Phase 6 Epic 5)
+  - `/profile` — minimal profile stub under `(app)` shell (Epic 5 replaces)
 - **Post-login redirect:** admins → `/admin`; non-admins → `/protected` (login and password-update flows).
 - **UI primitives:** `src/components/ui/` (button, card, input, label, checkbox, badge, dropdown-menu, sidebar, avatar, breadcrumb, separator, sheet, tooltip, collapsible, skeleton, sonner, alert-dialog).
 - **Data fetching:** TanStack Query v5 provider configured.
@@ -112,14 +113,15 @@
 - **Users admin table (Phase 3 Epic 3):** `/admin/users` lists real Supabase Auth users via gated Server Action + `src/supabase/service.ts`; email search, Next/Previous pagination (page size 50); canonical data-table pattern in `src/app/admin/users/_components/users-table.tsx` and [`.cursor/rules/data-tables.mdc`](.cursor/rules/data-tables.mdc).
 - **In-app admin promote/demote (Phase 5 Epic 5):** row actions on `/admin/users` with confirmation dialog + success toasts; shared mutation logic in [`src/utils/admin-role-mutations.ts`](src/utils/admin-role-mutations.ts); server actions in [`src/app/admin/users/actions.ts`](src/app/admin/users/actions.ts); CLI scripts delegate to the same utils.
 - **Auth restyle + app identity (Phase 3 Epic 4):** `src/config/site.ts` (`name` + `Logo`); `SeminovaLogo` reads site config (admin sidebar + auth layout); [`src/app/auth/layout.tsx`](src/app/auth/layout.tsx) provides muted full-page shell.
-- **Landing chrome (Phase 4 Epic 1):** `(marketing)` route group with sticky `LandingHeader`, document-flow `LandingFooter`, shared `LandingContainer` (`max-w-7xl`); nav/social/legal config in [`src/config/site.ts`](src/config/site.ts).
+- **Landing chrome (Phase 4 Epic 1):** `(marketing)` route group with thin wrappers over shared [`SiteHeader`](src/components/site-header.tsx) / [`SiteFooter`](src/components/site-footer.tsx) and [`SiteContainer`](src/components/site-container.tsx) (`max-w-7xl`); nav/social/legal config in [`src/config/site.ts`](src/config/site.ts).
 - **Landing content (Phase 4 Epic 2):** hero, six-card features grid (`id="features"`), and tech-stack marquee on `/` (six logos with icon+name cells, edge fades, pause on hover); copy and stack logos in [`src/config/landing-content.ts`](src/config/landing-content.ts); SVG assets in `public/tech/`; marquee primitive in [`src/components/kibo-ui/marquee/`](src/components/kibo-ui/marquee/).
-- **Site identity audit (Phase 4 Epic 3):** all user-visible app names and root metadata wired through [`src/config/site.ts`](src/config/site.ts) (`description`, `getSiteMetadata()` for browser tab title and SEO); protected-shell nav label reads `siteConfig.name` — re-skin from one config file.
+- **Site identity audit (Phase 4 Epic 3):** all user-visible app names and root metadata wired through [`src/config/site.ts`](src/config/site.ts) (`description`, `getSiteMetadata()` for browser tab title and SEO); re-skin from one config file.
 - **Error severity UI (Phase 5 Epics 1–2):** operational vs fault errors via `kind: 'operational' | 'fault'` on [`AppError`](src/types/app-error.ts); [`InlineError`](src/components/inline-error.tsx) for expected failures, [`ErrorPanel`](src/components/error-panel.tsx) for faults (copy-to-clipboard); auth forms use [`extractAuthFormError`](src/utils/extract-auth-form-error.ts); users table surfaces server-action error envelopes.
 - **Admin loading states (Phase 5 Epic 3):** [`AdminShellSkeleton`](src/app/admin/_components/admin-shell-skeleton.tsx) behind Suspense in admin layout; users table skeleton rows via [`DataTableShell`](src/components/data-table1.tsx) + [`DataTableSkeletonBody`](src/components/data-table-skeleton-body.tsx) with per-column `skeletonClassName` meta (see [`.cursor/rules/data-tables.mdc`](.cursor/rules/data-tables.mdc)).
 - **Toast system (Phase 5 Epic 4):** sonner via shadcn [`Toaster`](src/components/ui/sonner.tsx) in root layout; [`showSuccessToast`](src/utils/app-toast.ts) for success confirmations; errors remain `InlineError` / `ErrorPanel` (see [`.cursor/rules/error-handling.mdc`](.cursor/rules/error-handling.mdc)).
 - **Profiles data foundation (Phase 6 Epic 1):** first migration [`supabase/migrations/20260622120000_create_profiles.sql`](supabase/migrations/20260622120000_create_profiles.sql) — `public.profiles` 1:1 with `auth.users`, signup trigger, owner-scoped RLS; `pnpm db:push` / `pnpm db:types` scripts; types in [`src/types/database.types.ts`](src/types/database.types.ts) and [`src/types/profile.ts`](src/types/profile.ts).
 - **Admin namespace foundation (Phase 6 Epic 2):** real `/admin` URL segment with dashboard landing; users table at `/admin/users`; blanket admin-role gating in `proxy.ts` + `AdminAuthGate`; path constants in [`src/constants/admin-paths.ts`](src/constants/admin-paths.ts); post-login redirect for admins → `/admin`.
+- **Shared chrome + authenticated shell (Phase 6 Epic 3):** shared site chrome in `src/components/site-*.tsx` (`SiteHeader`, `SiteFooter`, `SiteContainer`, `SiteNavLinks`, `SiteCopyright`); marketing wrappers unchanged visually; `(app)` route group with [`AppShell`](src/app/(app)/_components/app-shell.tsx) (profile-aware circle-avatar [`AppNavUser`](src/app/(app)/_components/app-nav-user.tsx)); app logo/footer target `APP_HOME`; app footer omits marketing section nav; path constants in [`src/constants/app-paths.ts`](src/constants/app-paths.ts); [`getCurrentUserProfile`](src/app/(app)/_lib/get-current-user-profile.ts) with React `cache()`.
 
 ---
 
@@ -141,6 +143,7 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | Path | Purpose |
 | ---- | ------- |
 | `src/app/` | App Router pages and layouts |
+| `src/app/(app)/` | Authenticated user surfaces (`/protected`, `/profile`) with shared marketing chrome; `AppNavUser` reads `profiles` |
 | `src/app/(marketing)/` | Public landing route group (`/` — header, hero, features, tech stack, footer) |
 | `src/app/auth/` | Auth screens, shared layout, confirm route |
 | `src/config/site.ts` | App name, description, logo, metadata (`getSiteMetadata()`), landing nav/social/legal links |
@@ -149,6 +152,9 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | `src/app/admin/` | Admin console (`/admin` dashboard, `/admin/users`; gated by `AdminAuthGate` + `isAdmin` + proxy) |
 | `src/app/admin/_components/admin-auth-gate.tsx` | Admin session + role gate; redirects non-admins to `/protected` |
 | `src/app/admin/_components/admin-shell-skeleton.tsx` | Suspense fallback skeleton for admin layout |
+| `src/components/site-header.tsx`, `site-footer.tsx`, `site-container.tsx`, `site-nav-links.tsx`, `site-copyright.tsx` | Shared public/app chrome primitives |
+| `src/app/(app)/_components/app-nav-user.tsx` | Circle-avatar header menu (profile link + sign-out) |
+| `src/app/(app)/_lib/get-current-user-profile.ts` | Cached server read of current user's `profiles` row |
 | `src/components/inline-error.tsx`, `error-panel.tsx` | Operational vs fault error UI |
 | `src/components/data-table1.tsx`, `data-table-skeleton-body.tsx` | Canonical data-table shell + skeleton loading pattern |
 | `src/types/app-error.ts` | Shared `AppError` / `ErrorKind` types |
@@ -157,7 +163,8 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | `src/utils/extract-auth-form-error.ts` | Maps Supabase auth errors to `AppError` with `kind` |
 | `src/utils/app-toast.ts` | Success toast helper (`showSuccessToast`) |
 | `src/utils/admin-role-mutations.ts` | Shared promote/demote logic (app + CLI) |
-| `src/app/protected/` | Non-admin authenticated starter page |
+| `src/constants/app-paths.ts` | `APP_HOME`, `PROFILE_PATH` route constants |
+| `src/utils/user-initials.ts` | `getEmailInitials`, `getProfileInitials` for avatar fallbacks |
 | `src/constants/admin-role.ts` | Shared `ADMIN_ROLE` constant (app + CLI) |
 | `src/constants/admin-paths.ts` | `ADMIN_HOME`, `ADMIN_USERS` route constants |
 | `src/utils/admin.ts` | `isAdmin()`, post-auth redirect helper |

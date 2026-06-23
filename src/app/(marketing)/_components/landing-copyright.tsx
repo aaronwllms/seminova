@@ -1,14 +1,1 @@
-import { connection } from 'next/server'
-
-import { siteConfig } from '@/config/site'
-
-export const LandingCopyright = async () => {
-  await connection()
-  const year = new Date().getFullYear()
-
-  return (
-    <span>
-      © {year} {siteConfig.name}. All rights reserved.
-    </span>
-  )
-}
+export { SiteCopyright as LandingCopyright } from '@/components/site-copyright'

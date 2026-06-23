@@ -1,3 +1,4 @@
+import { APP_HOME } from '@/constants/app-paths'
 import { ADMIN_ROLE } from '@/constants/admin-role'
 import { ADMIN_HOME } from '@/constants/admin-paths'
 
@@ -18,5 +19,5 @@ export const isAdmin = (claims: JwtClaims | null | undefined): boolean =>
 
 export const getPostAuthRedirectPath = (
   appMetadata: AppMetadata | undefined,
-): typeof ADMIN_HOME | '/protected' =>
-  isAdminFromAppMetadata(appMetadata) ? ADMIN_HOME : '/protected'
+): typeof ADMIN_HOME | typeof APP_HOME =>
+  isAdminFromAppMetadata(appMetadata) ? ADMIN_HOME : APP_HOME

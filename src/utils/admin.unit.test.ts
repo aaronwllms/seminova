@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { APP_HOME } from '@/constants/app-paths'
 import { ADMIN_HOME } from '@/constants/admin-paths'
 import { ADMIN_ROLE } from '@/constants/admin-role'
 import {
@@ -35,7 +36,7 @@ describe('isAdmin', () => {
 describe('getPostAuthRedirectPath', () => {
   it('should send admins to /admin and others to /protected', () => {
     expect(getPostAuthRedirectPath({ role: ADMIN_ROLE })).toBe(ADMIN_HOME)
-    expect(getPostAuthRedirectPath({})).toBe('/protected')
-    expect(getPostAuthRedirectPath(undefined)).toBe('/protected')
+    expect(getPostAuthRedirectPath({})).toBe(APP_HOME)
+    expect(getPostAuthRedirectPath(undefined)).toBe(APP_HOME)
   })
 })

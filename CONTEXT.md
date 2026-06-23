@@ -44,7 +44,7 @@ Seminova is a template today, but it is shaped like a product foundation on purp
 
 These constraints are non-negotiable, and planning must not violate them. The **canonical list lives in [AGENTS.md › Locked rules](AGENTS.md)** — the repo-truth file for the layer that enforces them — with consumption detail in `.cursor/rules`. Keep one copy: when a locked rule changes (PM approval required), edit AGENTS.md, not this section.
 
-At a glance, the locked rules cover: ecosystem alignment over aesthetic divergence; pnpm-only package management; primitive-first shadcn/ui; semantic-token theming with no hardcoded color; fixed structure / swappable theme; mobile-first responsive; components ≤150 lines; WCAG 2.1 AA accessibility; non-interactive shadcn CLI; `next/image` with explicit dimensions; the `/` + `/auth/**` auth boundary enforced in `proxy.ts`; admin gate via `app_metadata.role` (in-app promote/demote on `/users` or secret-key CLI); and agent guidance confined to `.cursor`. See AGENTS.md for the authoritative wording of each.
+At a glance, the locked rules cover: ecosystem alignment over aesthetic divergence; pnpm-only package management; primitive-first shadcn/ui; semantic-token theming with no hardcoded color; fixed structure / swappable theme; mobile-first responsive; components ≤150 lines; WCAG 2.1 AA accessibility; non-interactive shadcn CLI; `next/image` with explicit dimensions; the `/` + `/auth/**` auth boundary enforced in `proxy.ts`; admin gate via `app_metadata.role` (in-app promote/demote on `/admin/users` or secret-key CLI); and agent guidance confined to `.cursor`. See AGENTS.md for the authoritative wording of each.
 
 ---
 
@@ -138,16 +138,17 @@ As an admin, I want the console to live under its own `/admin/*` URL space with 
 - Admin post-login redirect targets the console home `/admin`.
 - The `/admin` landing is a real but minimal dashboard home for now; content fleshes out as future admin pages land. It must be an honest landing, not a placeholder that dead-ends.
 
-### Epic 3: Shared Chrome + Authenticated Shell
+### Epic 3: Shared Chrome + Authenticated Shell `Complete`
 
 As a user crossing the auth boundary, I want the authenticated app to feel like the same product as the marketing site, so signing in doesn't feel like landing in a different app.
 
 - Extract the shared visual chrome — header shell, container, logo treatment, footer — into reusable primitives. Refactor the existing marketing header/footer to consume them with **no intended visual change**.
 - Establish the `(app)` route group for authenticated user surfaces (no URL prefix); its layout is this shell.
 - Build the non-admin shell on these primitives: a header with a plain **circle** avatar (image or initials, reading `profiles`), **not** the admin nav-user rectangle (avatar + name + email). Clicking it opens a dropdown with profile access and sign-out — reuse the admin nav-user *behavior*, not its presentation.
+- The app-header logo points to the authenticated app home (the non-admin post-login landing — `/protected` until Epic 5 repoints it to `/profile`), **not** marketing `/`: for a signed-in user, the app is home. The shared section nav (marketing anchors like `#features`) does **not** render on authenticated surfaces — header or footer — since those anchors have no target off the landing page. The public-site round-trip (a way back to marketing and back again) is deferred to Epic 5.
 - Dropdown profile link and the route constant target `/profile` (`PROFILE_PATH`), for Epic 5 handoff. A minimal `/profile` stub lives in the shell so the link resolves; Epic 5 replaces it.
 - `/protected` moves under the `(app)` shell, body unchanged, and remains the non-admin redirect target until Epic 5 retires it.
-- Footer is shared with marketing. **No theme toggle in the header** (it lives on the profile page — Epic 5); the marketing header keeps its login CTA in the same right-side slot the avatar occupies in the app header.
+- Footer is shared with marketing as a primitive, but the app footer omits the marketing section nav (see logo/nav bullet above). **No theme toggle in the header** (it lives on the profile page — Epic 5); the marketing header keeps its login CTA in the same right-side slot the avatar occupies in the app header.
 - Depends on Epic 1 (reads `profiles`); sequenced after Epic 2 so routing is settled.
 
 ### Epic 4: Avatar Storage
@@ -166,6 +167,7 @@ As an authenticated non-admin user, I want a profile page I land on after login,
 - This page **is the non-admin post-login landing**: repoint the post-login redirect for non-admins to `/profile`, and **remove the `/protected` starter page**.
 - Establishes the canonical **`react-hook-form` + `zod`** form pattern as the template's first real form. Document it in `.cursor/rules/` as a coding standard (not a locked-rule change).
 - Houses the **dark-mode toggle**; confirm `defaultTheme="system"` + `enableSystem` so unauthenticated/marketing stays system-default with no exposed control.
+- Wires the public-site round-trip, now that the authenticated landing is final: the app footer gets a single "back to the public site" link (not the marketing section nav), and the marketing header becomes session-aware — logged-out visitors see the login/sign-up CTAs unchanged, authenticated visitors get an "open app" affordance back into the authenticated side. Both legs target the post-login landing (`/profile`).
 - A successful save confirms via the Phase 5 toast system.
 - Built on Epic 3's shell; depends on Epics 1, 3, and 4.
 
