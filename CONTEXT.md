@@ -120,7 +120,7 @@ First real migration and the authenticated end-user surface. Establishes `profil
 
 **Sequencing:** Epics are ordered by dependency — Epic 1 (data) underpins everything; Epic 2 (shell) reads `profiles`; Epic 3 (storage) precedes Epic 4 because avatar upload needs the bucket; Epic 4 (settings page) depends on 1, 2, and 3.
 
-### Epic 1: Profiles Data Foundation
+### Epic 1: Profiles Data Foundation `Complete`
 
 As a product built on Seminova, I want a `profiles` table that exists for every user automatically, so app-level user data has a home from the first signup without per-product setup.
 

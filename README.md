@@ -113,6 +113,30 @@ Companion CLI commands (bootstrap / automation): `pnpm demote-admin <email>`, `p
 | `pnpm promote-admin <email>` | Grant admin role via CLI (requires secret key; bootstrap / automation) |
 | `pnpm demote-admin <email>` | Remove admin role via CLI |
 | `pnpm list-admins` | List all admin users (read-only) |
+| `pnpm db:push` | Apply pending SQL migrations to the linked Supabase project (CLI prompts to confirm) |
+| `pnpm db:types` | Regenerate TypeScript types from the linked project schema |
+
+---
+
+## Database migrations
+
+Schema changes live in [`supabase/migrations/`](supabase/migrations/). Agents write SQL files only; humans apply them.
+
+**One-time setup** (per machine / clone):
+
+```bash
+pnpm exec supabase link
+```
+
+Link your local repo to your Supabase project (requires dashboard access). Agents must not run `supabase link`.
+
+**After a new migration file lands:**
+
+1. Review the SQL in `supabase/migrations/`
+2. Apply: `pnpm db:push` (confirm when prompted)
+3. Regenerate types: `pnpm db:types`
+
+See [AGENTS.md](AGENTS.md) and [`.cursor/rules/do-migrations-agent.mdc`](.cursor/rules/do-migrations-agent.mdc) for agent constraints.
 
 ---
 

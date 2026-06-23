@@ -58,6 +58,8 @@
 | `pnpm promote-admin <email>` | Grant admin via secret key (`app_metadata.role`) |
 | `pnpm demote-admin <email>` | Remove admin role |
 | `pnpm list-admins` | List admin users (read-only) |
+| `pnpm db:push` | Apply pending SQL migrations to linked Supabase project (human only; CLI prompts) |
+| `pnpm db:types` | Regenerate `src/types/database.types.ts` from linked project schema |
 
 **Prerequisites:** Node `>=22.22.2` (see [.nvmrc](.nvmrc)), pnpm 11, Supabase project. Env vars in [.env.example](.env.example) (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` for admin CLI). `next-env.d.ts` is Next.js-generated and gitignored — run `pnpm dev` or `pnpm build` once after clone if `pnpm type-check` reports a missing file.
 
@@ -115,17 +117,18 @@
 - **Error severity UI (Phase 5 Epics 1–2):** operational vs fault errors via `kind: 'operational' | 'fault'` on [`AppError`](src/types/app-error.ts); [`InlineError`](src/components/inline-error.tsx) for expected failures, [`ErrorPanel`](src/components/error-panel.tsx) for faults (copy-to-clipboard); auth forms use [`extractAuthFormError`](src/utils/extract-auth-form-error.ts); users table surfaces server-action error envelopes.
 - **Admin loading states (Phase 5 Epic 3):** [`AdminShellSkeleton`](src/app/(admin)/_components/admin-shell-skeleton.tsx) behind Suspense in admin layout; users table skeleton rows via [`DataTableShell`](src/components/data-table1.tsx) + [`DataTableSkeletonBody`](src/components/data-table-skeleton-body.tsx) with per-column `skeletonClassName` meta (see [`.cursor/rules/data-tables.mdc`](.cursor/rules/data-tables.mdc)).
 - **Toast system (Phase 5 Epic 4):** sonner via shadcn [`Toaster`](src/components/ui/sonner.tsx) in root layout; [`showSuccessToast`](src/utils/app-toast.ts) for success confirmations; errors remain `InlineError` / `ErrorPanel` (see [`.cursor/rules/error-handling.mdc`](.cursor/rules/error-handling.mdc)).
+- **Profiles data foundation (Phase 6 Epic 1):** first migration [`supabase/migrations/20260622120000_create_profiles.sql`](supabase/migrations/20260622120000_create_profiles.sql) — `public.profiles` 1:1 with `auth.users`, signup trigger, owner-scoped RLS; `pnpm db:push` / `pnpm db:types` scripts; types in [`src/types/database.types.ts`](src/types/database.types.ts) and [`src/types/profile.ts`](src/types/profile.ts).
 
 ---
 
 ## Data model (summary)
 
-**Custom migrations:** 0 — no files in `supabase/migrations/` yet.
+**Custom migrations:** 1 — [`20260622120000_create_profiles.sql`](supabase/migrations/20260622120000_create_profiles.sql)
 
 | Entity | Table | Notes |
 | ------ | ----- | ----- |
 | User | `auth.users` | Supabase built-in; available via auth |
-| Profile | `public.profiles` | **Not built** — planned Phase 6 (1:1 with user, owner-scoped RLS) |
+| Profile | `public.profiles` | 1:1 with `auth.users` (`profiles.id` FK). Columns: `display_name`, `avatar_url`, `bio` (all nullable). **No `role` column** — admin gate stays on `app_metadata.role`. Auto-created on signup via `handle_new_user` trigger; backfills existing users. Owner-scoped RLS: authenticated SELECT/UPDATE own row only (`using` + `with check` on UPDATE). Types: [`Profile`](src/types/profile.ts). |
 
 Schema authority for shipped tables lives in this section once migrations land. Do not duplicate per-table detail in CONTEXT.md.
 
@@ -147,6 +150,8 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | `src/components/inline-error.tsx`, `error-panel.tsx` | Operational vs fault error UI |
 | `src/components/data-table1.tsx`, `data-table-skeleton-body.tsx` | Canonical data-table shell + skeleton loading pattern |
 | `src/types/app-error.ts` | Shared `AppError` / `ErrorKind` types |
+| `src/types/database.types.ts` | Generated Supabase schema types (`pnpm db:types`) |
+| `src/types/profile.ts` | `Profile` / `ProfileUpdate` aliases for `public.profiles` |
 | `src/utils/extract-auth-form-error.ts` | Maps Supabase auth errors to `AppError` with `kind` |
 | `src/utils/app-toast.ts` | Success toast helper (`showSuccessToast`) |
 | `src/utils/admin-role-mutations.ts` | Shared promote/demote logic (app + CLI) |
@@ -163,7 +168,8 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | `scripts/admin/` | Admin CLI (`promote-admin`, `demote-admin`, `list-admins`) |
 | `src/app/globals.css` | Global styles and CSS variable tokens (authoritative token values) |
 | `DESIGN.md` | Token architecture and re-skin workflow (names only — values in globals.css) |
-| `supabase/migrations/` | SQL migrations (empty until Phase 6) |
+| `supabase/migrations/` | SQL migrations (`20260622120000_create_profiles.sql`) |
+| `supabase/config.toml` | Supabase CLI project config |
 | `.cursor/rules/` | Agent coding standards |
 | `.cursor/skills/` | Agent workflows |
 

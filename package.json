@@ -31,7 +31,9 @@
     "analyze": "ANALYZE=true pnpm build",
     "promote-admin": "node --env-file=.env.local --import tsx scripts/admin/promote-admin.ts",
     "demote-admin": "node --env-file=.env.local --import tsx scripts/admin/demote-admin.ts",
-    "list-admins": "node --env-file=.env.local --import tsx scripts/admin/list-admins.ts"
+    "list-admins": "node --env-file=.env.local --import tsx scripts/admin/list-admins.ts",
+    "db:push": "supabase db push",
+    "db:types": "supabase gen types typescript --linked > src/types/database.types.ts"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.3",
@@ -81,6 +83,7 @@
     "postcss": "8.5.10",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.7.4",
+    "supabase": "^2.107.0",
     "tailwindcss": "4.1.18",
     "tailwindcss-animate": "^1.0.7",
     "tsx": "^4.22.4",

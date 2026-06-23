@@ -12,7 +12,7 @@ globs:
 
 ## Migration Safety Protocol
 
-**No custom schema or migrations exist yet** — only Supabase `auth.users`. When migrations land (Phase 6), humans apply them via Supabase CLI; agents write SQL files only.
+**No custom schema or migrations exist yet** — only Supabase `auth.users`. Migrations live in `supabase/migrations/`; humans apply them via Supabase CLI; agents write SQL files only.
 
 **Agents** — see `do-migrations-agent.mdc` and `.cursor/skills/create-migration/SKILL.md`:
 
@@ -28,7 +28,7 @@ supabase migration new my_feature
 # Review agent-written file at supabase/migrations/YYYYMMDDHHMMSS_my_feature.sql
 
 # Apply to linked project (CLI prompts to confirm)
-pnpm db:push   # added with Phase 6 tooling
+pnpm db:push
 
 # Regenerate types after schema changes
 pnpm db:types
