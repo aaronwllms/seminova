@@ -127,8 +127,27 @@ export const uploadUserAvatar = async ({
 
   try {
     const webpBlob = await resizeAvatarToWebp(file)
-    const storagePath = buildAvatarStoragePath(userId)
     const supabase = createClient()
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      throw new AvatarUploadError('You must be signed in to upload an image.')
+    }
+
+    if (user.id !== userId) {
+      console.error(
+        '[avatar-storage] Session user does not match upload target',
+      )
+      throw new AvatarUploadError(
+        'Could not upload your image. Please try again.',
+      )
+    }
+
+    const storagePath = buildAvatarStoragePath(user.id)
 
     const { error } = await supabase.storage
       .from(AVATAR_BUCKET)

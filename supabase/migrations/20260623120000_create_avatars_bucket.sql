@@ -32,7 +32,15 @@ on conflict (id) do update set
 -- -----------------------------------------------------------------------------
 -- RLS on storage.objects — owner folder scoping via (storage.foldername(name))[1]
 -- Path convention: {user_id}/avatar.webp — first segment must match auth.uid()
+-- Upsert requires SELECT + INSERT + UPDATE (see Supabase storage access control docs)
 -- -----------------------------------------------------------------------------
+
+-- SELECT: public-read bucket; required for upsert existence check before overwrite
+create policy "Avatars are publicly readable"
+on storage.objects
+for select
+to public
+using (bucket_id = 'avatars');
 
 -- INSERT: authenticated users may upload only into their own folder
 create policy "Avatars are insertable by owner"
