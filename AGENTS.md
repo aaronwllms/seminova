@@ -122,17 +122,19 @@
 - **Profiles data foundation (Phase 6 Epic 1):** first migration [`supabase/migrations/20260622120000_create_profiles.sql`](supabase/migrations/20260622120000_create_profiles.sql) — `public.profiles` 1:1 with `auth.users`, signup trigger, owner-scoped RLS; `pnpm db:push` / `pnpm db:types` scripts; types in [`src/types/database.types.ts`](src/types/database.types.ts) and [`src/types/profile.ts`](src/types/profile.ts).
 - **Admin namespace foundation (Phase 6 Epic 2):** real `/admin` URL segment with dashboard landing; users table at `/admin/users`; blanket admin-role gating in `proxy.ts` + `AdminAuthGate`; path constants in [`src/constants/admin-paths.ts`](src/constants/admin-paths.ts); post-login redirect for admins → `/admin`.
 - **Shared chrome + authenticated shell (Phase 6 Epic 3):** shared site chrome in `src/components/site-*.tsx` (`SiteHeader`, `SiteFooter`, `SiteContainer`, `SiteNavLinks`, `SiteCopyright`); marketing wrappers unchanged visually; `(app)` route group with [`AppShell`](src/app/(app)/_components/app-shell.tsx) (profile-aware circle-avatar [`AppNavUser`](src/app/(app)/_components/app-nav-user.tsx)); app logo/footer target `APP_HOME`; app footer omits marketing section nav; path constants in [`src/constants/app-paths.ts`](src/constants/app-paths.ts); [`getCurrentUserProfile`](src/app/(app)/_lib/get-current-user-profile.ts) with React `cache()`.
+- **Avatar storage (Phase 6 Epic 4):** [`supabase/migrations/20260623120000_create_avatars_bucket.sql`](supabase/migrations/20260623120000_create_avatars_bucket.sql) — public-read `avatars` bucket, owner-scoped write RLS; client upload utils in [`src/utils/avatar-storage.ts`](src/utils/avatar-storage.ts) (validate → resize to WebP 256px cap → fixed `{userId}/avatar.webp` path); constants in [`src/constants/storage-paths.ts`](src/constants/storage-paths.ts). Epic 5 profile page consumes upload + persists `profiles.avatar_url`.
 
 ---
 
 ## Data model (summary)
 
-**Custom migrations:** 1 — [`20260622120000_create_profiles.sql`](supabase/migrations/20260622120000_create_profiles.sql)
+**Custom migrations:** 2 — [`20260622120000_create_profiles.sql`](supabase/migrations/20260622120000_create_profiles.sql), [`20260623120000_create_avatars_bucket.sql`](supabase/migrations/20260623120000_create_avatars_bucket.sql)
 
-| Entity | Table | Notes |
-| ------ | ----- | ----- |
+| Entity | Table / bucket | Notes |
+| ------ | -------------- | ----- |
 | User | `auth.users` | Supabase built-in; available via auth |
 | Profile | `public.profiles` | 1:1 with `auth.users` (`profiles.id` FK). Columns: `display_name`, `avatar_url`, `bio` (all nullable). **No `role` column** — admin gate stays on `app_metadata.role`. Auto-created on signup via `handle_new_user` trigger; backfills existing users. Owner-scoped RLS: authenticated SELECT/UPDATE own row only (`using` + `with check` on UPDATE). Types: [`Profile`](src/types/profile.ts). |
+| Avatar files | `storage.avatars` | Public-read bucket; path `{user_id}/avatar.webp`. Owner-scoped INSERT/UPDATE/DELETE on `storage.objects` (first path segment = `auth.uid()`). URL stored in `profiles.avatar_url`. Upload: [`avatar-storage.ts`](src/utils/avatar-storage.ts). |
 
 Schema authority for shipped tables lives in this section once migrations land. Do not duplicate per-table detail in CONTEXT.md.
 
@@ -164,6 +166,8 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | `src/utils/app-toast.ts` | Success toast helper (`showSuccessToast`) |
 | `src/utils/admin-role-mutations.ts` | Shared promote/demote logic (app + CLI) |
 | `src/constants/app-paths.ts` | `APP_HOME`, `PROFILE_PATH` route constants |
+| `src/constants/storage-paths.ts` | `AVATAR_BUCKET`, input limits, `buildAvatarStoragePath` (`{userId}/avatar.webp`) |
+| `src/utils/avatar-storage.ts` | Client avatar validate → resize-to-WebP → Supabase upload (`uploadUserAvatar`) |
 | `src/utils/user-initials.ts` | `getEmailInitials`, `getProfileInitials` for avatar fallbacks |
 | `src/constants/admin-role.ts` | Shared `ADMIN_ROLE` constant (app + CLI) |
 | `src/constants/admin-paths.ts` | `ADMIN_HOME`, `ADMIN_USERS` route constants |
@@ -178,7 +182,7 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | `scripts/admin/` | Admin CLI (`promote-admin`, `demote-admin`, `list-admins`) |
 | `src/app/globals.css` | Global styles and CSS variable tokens (authoritative token values) |
 | `DESIGN.md` | Token architecture and re-skin workflow (names only — values in globals.css) |
-| `supabase/migrations/` | SQL migrations (`20260622120000_create_profiles.sql`) |
+| `supabase/migrations/` | SQL migrations (`20260622120000_create_profiles.sql`, `20260623120000_create_avatars_bucket.sql`) |
 | `supabase/config.toml` | Supabase CLI project config |
 | `.cursor/rules/` | Agent coding standards |
 | `.cursor/skills/` | Agent workflows |

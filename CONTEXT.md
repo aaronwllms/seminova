@@ -151,7 +151,7 @@ As a user crossing the auth boundary, I want the authenticated app to feel like 
 - Footer is shared with marketing as a primitive, but the app footer omits the marketing section nav (see logo/nav bullet above). **No theme toggle in the header** (it lives on the profile page — Epic 5); the marketing header keeps its login CTA in the same right-side slot the avatar occupies in the app header.
 - Depends on Epic 1 (reads `profiles`); sequenced after Epic 2 so routing is settled.
 
-### Epic 4: Avatar Storage
+### Epic 4: Avatar Storage `Complete`
 
 As a user, I want to upload a profile avatar, so my account feels personalized — and as a product, I want a storage convention established once.
 

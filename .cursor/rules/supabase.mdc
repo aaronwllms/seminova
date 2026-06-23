@@ -12,7 +12,7 @@ globs:
 
 ## Migration Safety Protocol
 
-**No custom schema or migrations exist yet** — only Supabase `auth.users`. Migrations live in `supabase/migrations/`; humans apply them via Supabase CLI; agents write SQL files only.
+**No custom schema or migrations exist yet** — only Supabase `auth.users`. Custom migrations and storage buckets live in `supabase/migrations/`; humans apply them via Supabase CLI; agents write SQL files only.
 
 **Agents** — see `do-migrations-agent.mdc` and `.cursor/skills/create-migration/SKILL.md`:
 
@@ -42,6 +42,25 @@ pnpm db:types
 - Executing DROP/DELETE operations without backups
 
 **See `do-migrations-agent.mdc` for agent constraints.**
+
+## Storage
+
+First bucket: **`avatars`** — public-read, owner-scoped writes. Pattern for all future product buckets.
+
+| Concern | Convention |
+| ------- | ---------- |
+| Bucket naming | One bucket per concern (`avatars`, not `user-files`) |
+| Path | `{ownerId}/avatar.webp` — **first segment = `auth.uid()`** for `storage.foldername(name)` RLS |
+| Read access | Public bucket (`public: true`); render via `getPublicUrl` — no signed URLs for avatars |
+| Write access | `storage.objects` RLS: INSERT/UPDATE/DELETE only when first path segment matches `(select auth.uid())::text` |
+| Client upload | [`src/utils/avatar-storage.ts`](../../src/utils/avatar-storage.ts) — validate original file → canvas resize (256px cap) → WebP → `upload(..., { upsert: true })` |
+| Constants | [`src/constants/storage-paths.ts`](../../src/constants/storage-paths.ts) — bucket name, input MIME/size limits, canonical filename |
+
+**Migration reference:** [`supabase/migrations/20260623120000_create_avatars_bucket.sql`](../../supabase/migrations/20260623120000_create_avatars_bucket.sql)
+
+**Epic 5 handoff:** profile page calls `uploadUserAvatar`, then a server action persists `publicUrl` to `profiles.avatar_url`.
+
+**Security:** See [`security.mdc`](security.mdc) for upload validation at trust boundaries. Bucket `allowed_mime_types` + `file_size_limit` mirror client input validation; stored object is always WebP at the fixed path.
 
 ## Context-Specific Client Usage
 
