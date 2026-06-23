@@ -1,0 +1,43 @@
+# Forms (react-hook-form + zod)
+
+## Canonical stack
+
+Profile page (`src/app/(app)/profile/`) is the reference implementation.
+
+| Layer | Tool |
+| ----- | ---- |
+| Client forms | `react-hook-form` + `@hookform/resolvers/zod` |
+| UI | shadcn `Form`, `FormField`, `Input`, `Textarea` from `@/components/ui/form` |
+| Validation | Shared zod schema in route `_lib/` (e.g. `profile-form-schema.ts`) |
+| Server boundary | Same schema via `safeParse` in Server Actions — never return raw `ZodError` |
+| Success feedback | `showSuccessToast` from `@/utils/app-toast` |
+| Errors | `InlineError` (operational) / `ErrorPanel` (fault) per `error-handling.mdc` |
+
+## Client pattern
+
+```typescript
+const form = useForm<ProfileFormValues>({
+  resolver: zodResolver(profileFormSchema),
+  defaultValues,
+})
+
+// Submit via useTransition or local isLoading; call Server Action; branch on envelope
+```
+
+Auth forms (`login-form`, `sign-up-form`, etc.) remain `useState` until intentionally migrated — new settings/profile-style forms use this stack.
+
+## Server Action pattern
+
+1. `getUser()` — reject unauthenticated with operational error envelope
+2. `parseXInput(input)` — shared zod `safeParse`; map first issue to user-safe message
+3. Mutate via Supabase server client (RLS-scoped)
+4. `revalidatePath` for affected routes
+5. Return `{ success: true, data }` or `{ success: false, error: { message, code, kind } }`
+
+See [`src/app/(app)/profile/actions.ts`](../../src/app/(app)/profile/actions.ts) and [`src/app/admin/users/actions.ts`](../../src/app/admin/users/actions.ts).
+
+## Cross-references
+
+- `error-handling.mdc` — error envelopes and UI surfaces
+- `notifications.mdc` — toasts for success only; errors never toast
+- `security.mdc` — validate at server boundary; DTO responses

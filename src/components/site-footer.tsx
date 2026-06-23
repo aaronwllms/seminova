@@ -15,11 +15,13 @@ const socialIcons = {
 type SiteFooterProps = {
   logoHref?: string
   showNav?: boolean
+  publicSiteLink?: { href: string; label: string }
 }
 
 export const SiteFooter = ({
   logoHref = '/',
   showNav = true,
+  publicSiteLink,
 }: SiteFooterProps) => (
   <footer className="bg-background border-t">
     <SiteContainer className="py-6">
@@ -56,10 +58,20 @@ export const SiteFooter = ({
         >
           <SiteCopyright />
         </Suspense>
-        <div className="flex gap-4">
-          {siteConfig.legal.map((item) => (
-            <span key={item.label}>{item.label}</span>
-          ))}
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+          {publicSiteLink ? (
+            <a
+              href={publicSiteLink.href}
+              className="text-muted-foreground hover:text-foreground focus-visible:ring-ring rounded-md transition-colors focus-visible:ring-2 focus-visible:outline-none"
+            >
+              {publicSiteLink.label}
+            </a>
+          ) : null}
+          <div className="flex gap-4">
+            {siteConfig.legal.map((item) => (
+              <span key={item.label}>{item.label}</span>
+            ))}
+          </div>
         </div>
       </div>
     </SiteContainer>

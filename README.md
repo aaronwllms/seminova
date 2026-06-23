@@ -87,7 +87,7 @@ After Quick start, grant yourself admin access so you can use the admin shell:
 
 4. **Re-login** if you were already signed in — the admin role is embedded in the JWT and won't appear until you start a fresh session.
 
-5. Open the admin area at [http://localhost:3000/admin](http://localhost:3000/admin) (admins land here after login; non-admins use `/protected`). The Users page at `/admin/users` lists signed-up accounts with email search, pagination, and in-app promote/demote for admins.
+5. Open the admin area at [http://localhost:3000/admin](http://localhost:3000/admin) (admins land here after login; non-admins land on `/profile`). The Users page at `/admin/users` lists signed-up accounts with email search, pagination, and in-app promote/demote for admins.
 
 Companion CLI commands (bootstrap / automation): `pnpm demote-admin <email>`, `pnpm list-admins` (read-only, no confirmation).
 

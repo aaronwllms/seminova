@@ -29,7 +29,7 @@ describe('GET /auth/confirm', () => {
     mockVerifyOtp.mockResolvedValue({ error: null })
 
     const request = new NextRequest(
-      'http://localhost/auth/confirm?token_hash=abc&type=email&next=/protected',
+      'http://localhost/auth/confirm?token_hash=abc&type=email&next=/profile',
     )
 
     await expect(GET(request)).rejects.toThrow('NEXT_REDIRECT')
@@ -38,7 +38,7 @@ describe('GET /auth/confirm', () => {
       type: 'email',
       token_hash: 'abc',
     })
-    expect(redirectMock).toHaveBeenCalledWith('/protected')
+    expect(redirectMock).toHaveBeenCalledWith('/profile')
   })
 
   it('should redirect to error when verification fails', async () => {

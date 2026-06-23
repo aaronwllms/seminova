@@ -4,7 +4,7 @@
 
 **Last updated:** 2026-06-23
 **Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell (Admin sidebar) + Auth restyle (shipped). Phase 4 — Landing Page (shipped). Phase 5 — Admin Surface Polish & Toasting (shipped). Phase 6 — Data Model Foundation (`Active`).
-**Migrations:** none yet — no custom schema; Supabase `auth.users` only.
+**Migrations:** 2 custom — `profiles` + `avatars` bucket (see [AGENTS.md](AGENTS.md) data model).
 
 **Shipped phase detail →** [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md)
 
@@ -69,7 +69,7 @@ At a glance, the locked rules cover: ecosystem alignment over aesthetic divergen
 Seminova ships a deliberately minimal model — only what every product needs in order for users to exist. Products extend this; the template does not presume a product schema.
 
 - **User** — backed by Supabase's built-in `auth.users`. Available as soon as auth is wired (the starter already is).
-- **Profile** — `public.profiles`, 1:1 with `auth.users`. Holds app-level user data (`display_name`, `avatar_url`, `bio`). Auto-created on signup via a database trigger, with owner-scoped RLS. **Not yet built** — this is the first planned schema entity (see Roadmap). Note: the admin gate deliberately stays on `app_metadata.role` (locked rule), so `profiles` carries no `role` column.
+- **Profile** — `public.profiles`, 1:1 with `auth.users`. Holds app-level user data (`display_name`, `avatar_url`, `bio`). Shipped in Phase 6; auto-created on signup via database trigger with owner-scoped RLS. Admin gate stays on `app_metadata.role` (locked rule) — no `role` column on `profiles`.
 
 **Relationships:**
 
@@ -87,11 +87,10 @@ Seminova is an AI-native foundation, but it does not prescribe a product's runti
 
 ## 7. DB Schema — Current State
 
-No custom schema or migrations exist yet. The only user-bearing table is Supabase's built-in `auth.users`.
+No custom schema beyond shipped Phase 6 migrations. Authoritative schema lives in [AGENTS.md](AGENTS.md) **Data model (summary)**.
 
-- **First planned migration:** `profiles` table + signup trigger + owner-scoped RLS (see Roadmap — Data Model Foundation).
-- **Authoritative schema** will live in [AGENTS.md](AGENTS.md) **Data model (summary)** once the first migration ships. Do not keep per-table detail in this file.
-- **Storage buckets:** none yet (first one — avatars — lands in Phase 6).
+- **Shipped migrations:** `profiles` table + signup trigger + owner-scoped RLS; `avatars` storage bucket.
+- **Storage buckets:** `avatars` (public-read, owner-scoped writes).
 
 ---
 
@@ -159,7 +158,7 @@ As a user, I want to upload a profile avatar, so my account feels personalized �
 - Establishes the canonical storage pattern (bucket + storage RLS) that later product features inherit. Document the convention where storage conventions belong.
 - The uploaded avatar's reference is stored in `profiles.avatar_url` (Epic 1).
 
-### Epic 5: Profile Page
+### Epic 5: Profile Page `Complete`
 
 As an authenticated non-admin user, I want a profile page I land on after login, so I have a real surface to manage my account — and as a template evaluator, I see a finished surface instead of a placeholder.
 

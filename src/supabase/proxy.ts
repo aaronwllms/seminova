@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { PROFILE_PATH } from '@/constants/app-paths'
 import { hasEnvVars } from '@/utils/env'
 import { isAdmin, type JwtClaims } from '@/utils/admin'
 
@@ -65,7 +66,7 @@ export async function updateSession(request: NextRequest) {
 
   if (isAdminPath && user && !isAdmin(user as JwtClaims)) {
     const url = request.nextUrl.clone()
-    url.pathname = '/protected'
+    url.pathname = PROFILE_PATH
     return NextResponse.redirect(url)
   }
 

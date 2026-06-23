@@ -28,4 +28,14 @@ describe('getProfileInitials', () => {
       getProfileInitials({ displayName: null, email: 'admin@example.com' }),
     ).toBe('AD')
   })
+
+  it('should use the first two characters for a single-word display name', () => {
+    expect(
+      getProfileInitials({ displayName: 'Seminova', email: 'x@example.com' }),
+    ).toBe('SE')
+  })
+
+  it('should return a fallback when email is empty', () => {
+    expect(getEmailInitials('')).toBe('?')
+  })
 })

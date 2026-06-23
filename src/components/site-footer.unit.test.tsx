@@ -31,12 +31,25 @@ describe('SiteFooter', () => {
   })
 
   it('should omit section nav when showNav is false', () => {
-    render(<SiteFooter logoHref="/protected" showNav={false} />)
+    render(<SiteFooter logoHref="/profile" showNav={false} />)
 
     for (const item of siteConfig.nav.filter((navItem) => !navItem.external)) {
       expect(
         screen.queryByRole('link', { name: item.label }),
       ).not.toBeInTheDocument()
     }
+  })
+
+  it('should render an optional public site link', () => {
+    render(
+      <SiteFooter
+        publicSiteLink={{ href: '/', label: 'Back to website' }}
+        showNav={false}
+      />,
+    )
+
+    expect(
+      screen.getByRole('link', { name: /back to website/i }),
+    ).toHaveAttribute('href', '/')
   })
 })

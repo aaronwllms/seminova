@@ -25,7 +25,7 @@ describe('LoginForm', () => {
     mockPush.mockReset()
   })
 
-  it('should sign in and redirect non-admins to /protected', async () => {
+  it('should sign in and redirect non-admins to /profile', async () => {
     mockSignInWithPassword.mockResolvedValue({
       error: null,
       data: { user: { app_metadata: {} } },
@@ -43,7 +43,7 @@ describe('LoginForm', () => {
         email: 'test@example.com',
         password: 'password123',
       })
-      expect(mockPush).toHaveBeenCalledWith('/protected')
+      expect(mockPush).toHaveBeenCalledWith('/profile')
     })
   })
 

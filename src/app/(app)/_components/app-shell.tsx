@@ -18,13 +18,29 @@ export const AppShell = async ({ children }: AppShellProps) => {
       <SiteHeader
         logoHref={APP_HOME}
         showNav={false}
-        rightSlot={<AppNavUser {...profile} />}
-        mobileNav={<AppNavUser {...profile} />}
+        rightSlot={
+          <AppNavUser
+            displayName={profile.displayName}
+            avatarUrl={profile.avatarUrl}
+            email={profile.email}
+          />
+        }
+        mobileNav={
+          <AppNavUser
+            displayName={profile.displayName}
+            avatarUrl={profile.avatarUrl}
+            email={profile.email}
+          />
+        }
       />
       <main id="main-content" className="flex-1 py-8">
         <SiteContainer>{children}</SiteContainer>
       </main>
-      <SiteFooter logoHref={APP_HOME} showNav={false} />
+      <SiteFooter
+        logoHref={APP_HOME}
+        showNav={false}
+        publicSiteLink={{ href: '/', label: 'Back to website' }}
+      />
     </>
   )
 }

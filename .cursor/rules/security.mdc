@@ -78,15 +78,13 @@ export async function deletePost(postId: string) {
 
 ## Input Validation
 
-### Input Validation (planned — Phase 5)
+### Input Validation
 
-The template does not ship `zod` yet. When adopted (Phase 5), use it at the server boundary:
+Use zod at the server boundary per [`forms.mdc`](forms.mdc):
 
 - Use `schema.safeParse(input)` at the server boundary; return user-safe messages (never raw `ZodError` JSON to clients)
-- Prefer shared validators in `src/utils/` when the same shape is used from forms and server actions
+- Prefer shared validators in route `_lib/` or `src/utils/` when the same shape is used from forms and server actions
 - **Patterns:** `z.string().uuid()`, `z.string().url()`, `z.custom()` with project guards, `superRefine` for cross-field rules
-
-Until then, validate required fields and types explicitly at API routes and server actions.
 
 ### Injection Prevention
 - ✅ Supabase parameterizes queries automatically
@@ -238,7 +236,7 @@ await supabase.from('posts').delete().eq('id', params.id)
 ## Security Checklists
 
 ### Pre-Commit
-- [ ] New/changed server inputs validated at the boundary (Zod once Phase 5 lands)
+- [ ] New/changed server inputs validated at the boundary (see `forms.mdc`)
 - [ ] Auth checks for protected routes
 - [ ] Authorization checks verify ownership
 - [ ] No sensitive data in responses (DTOs)

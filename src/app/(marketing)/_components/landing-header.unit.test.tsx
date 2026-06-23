@@ -4,6 +4,14 @@ vi.mock('@/utils/env', () => ({
   hasEnvVars: true,
 }))
 
+vi.mock('@/supabase/server', () => ({
+  createClient: vi.fn(async () => ({
+    auth: {
+      getUser: vi.fn().mockResolvedValue({ data: { user: null } }),
+    },
+  })),
+}))
+
 import { siteConfig } from '@/config/site'
 import { render, screen } from '@/test/test-utils'
 

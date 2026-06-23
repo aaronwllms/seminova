@@ -10,6 +10,7 @@ import {
   getAvatarPublicUrl,
   resizeAvatarToWebp,
   validateAvatarFile,
+  withAvatarCacheBust,
 } from './avatar-storage'
 
 const TEST_USER_ID = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'
@@ -114,6 +115,20 @@ describe('resizeAvatarToWebp', () => {
   it('should downscale wide images to the max dimension cap', async () => {
     const blob = await resizeAvatarToWebp(makeFile({ type: 'image/png' }))
     expect(blob.type).toBe('image/webp')
+  })
+})
+
+describe('withAvatarCacheBust', () => {
+  it('should append a version query param to the public URL', () => {
+    vi.spyOn(Date, 'now').mockReturnValue(1719158400000)
+
+    expect(
+      withAvatarCacheBust(
+        'https://example.supabase.co/storage/v1/object/public/avatars/u/avatar.webp',
+      ),
+    ).toBe(
+      'https://example.supabase.co/storage/v1/object/public/avatars/u/avatar.webp?v=1719158400000',
+    )
   })
 })
 

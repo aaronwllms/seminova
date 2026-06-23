@@ -34,7 +34,7 @@ describe('isAdmin', () => {
 })
 
 describe('getPostAuthRedirectPath', () => {
-  it('should send admins to /admin and others to /protected', () => {
+  it('should send admins to /admin and others to /profile', () => {
     expect(getPostAuthRedirectPath({ role: ADMIN_ROLE })).toBe(ADMIN_HOME)
     expect(getPostAuthRedirectPath({})).toBe(APP_HOME)
     expect(getPostAuthRedirectPath(undefined)).toBe(APP_HOME)

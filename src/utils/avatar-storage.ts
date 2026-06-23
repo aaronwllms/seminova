@@ -108,6 +108,9 @@ export const getAvatarPublicUrl = (storagePath: string): string => {
   return data.publicUrl
 }
 
+export const withAvatarCacheBust = (publicUrl: string): string =>
+  `${publicUrl}?v=${Date.now()}`
+
 interface UploadUserAvatarParams {
   userId: string
   file: File

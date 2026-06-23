@@ -29,7 +29,7 @@ describe('updateSession', () => {
   })
 
   it('should redirect unauthenticated users from protected routes', async () => {
-    const response = await updateSession(createRequest('/protected'))
+    const response = await updateSession(createRequest('/profile'))
 
     expect(response.status).toBe(307)
     expect(response.headers.get('location')).toContain('/auth/login')
@@ -52,12 +52,12 @@ describe('updateSession', () => {
       data: { claims: { sub: 'user-1' } },
     })
 
-    const response = await updateSession(createRequest('/protected'))
+    const response = await updateSession(createRequest('/profile'))
 
     expect(response.status).toBe(200)
   })
 
-  it('should redirect non-admin authenticated users from /admin to /protected', async () => {
+  it('should redirect non-admin authenticated users from /admin to /profile', async () => {
     mockGetClaims.mockResolvedValue({
       data: { claims: { sub: 'user-1', app_metadata: {} } },
     })
@@ -65,10 +65,10 @@ describe('updateSession', () => {
     const response = await updateSession(createRequest('/admin'))
 
     expect(response.status).toBe(307)
-    expect(response.headers.get('location')).toContain('/protected')
+    expect(response.headers.get('location')).toContain('/profile')
   })
 
-  it('should redirect non-admin authenticated users from /admin/users to /protected', async () => {
+  it('should redirect non-admin authenticated users from /admin/users to /profile', async () => {
     mockGetClaims.mockResolvedValue({
       data: { claims: { sub: 'user-1', app_metadata: {} } },
     })
@@ -76,7 +76,7 @@ describe('updateSession', () => {
     const response = await updateSession(createRequest('/admin/users'))
 
     expect(response.status).toBe(307)
-    expect(response.headers.get('location')).toContain('/protected')
+    expect(response.headers.get('location')).toContain('/profile')
   })
 
   it('should allow admin users on /admin/users', async () => {
