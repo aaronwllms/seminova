@@ -104,7 +104,7 @@
 - **Testing:** Vitest + React Testing Library + MSW v2 (`src/test/`, `src/mocks/`); baseline unit/integration tests for auth forms, proxy, hooks, and utils; 80% coverage thresholds enforced via `pnpm test:ci`.
 - **Hooks:** Husky pre-commit (lint-staged + type-check) and pre-push (`pnpm pre-push` mirrors CI including coverage).
 - **Admin CLI (Phase 3 Epic 1):** `pnpm promote-admin`, `pnpm demote-admin`, `pnpm list-admins` — secret-key scripts in `scripts/admin/`; sets `app_metadata.role` on `auth.users`.
-- **Admin app shell (Phase 3 Epic 2):** `src/app/admin/` with sidebar layout (`sidebar-07` baseline), dynamic breadcrumb, nav-user sign-out; `src/utils/admin.ts` + shared `ADMIN_ROLE` in `src/constants/admin-role.ts`; `SeminovaLogo` placeholder component.
+- **Admin app shell (Phase 3 Epic 2):** `src/app/admin/` with sidebar layout (`sidebar-07` baseline), dynamic breadcrumb, nav-user profile link + sign-out; `src/utils/admin.ts` + shared `ADMIN_ROLE` in `src/constants/admin-role.ts`; `SeminovaLogo` placeholder component.
 - **Users admin table (Phase 3 Epic 3):** `/admin/users` lists real Supabase Auth users via gated Server Action + `src/supabase/service.ts`; email search, Next/Previous pagination (page size 50); canonical data-table pattern in `src/app/admin/users/_components/users-table.tsx` and [`.cursor/rules/data-tables.mdc`](.cursor/rules/data-tables.mdc).
 - **In-app admin promote/demote (Phase 5 Epic 5):** row actions on `/admin/users` with confirmation dialog + success toasts; shared mutation logic in [`src/utils/admin-role-mutations.ts`](src/utils/admin-role-mutations.ts); server actions in [`src/app/admin/users/actions.ts`](src/app/admin/users/actions.ts); CLI scripts delegate to the same utils.
 - **Auth restyle + app identity (Phase 3 Epic 4):** `src/config/site.ts` (`name` + `Logo`); `SeminovaLogo` reads site config (admin sidebar + auth layout); [`src/app/auth/layout.tsx`](src/app/auth/layout.tsx) provides muted full-page shell.
@@ -120,6 +120,7 @@
 - **Avatar storage (Phase 6 Epic 4):** [`supabase/migrations/20260623120000_create_avatars_bucket.sql`](supabase/migrations/20260623120000_create_avatars_bucket.sql) — public-read `avatars` bucket, owner-scoped write RLS; client upload utils in [`src/utils/avatar-storage.ts`](src/utils/avatar-storage.ts) (validate → resize to WebP 256px cap → fixed `{userId}/avatar.webp` path; `withAvatarCacheBust` for versioned `avatar_url`); constants in [`src/constants/storage-paths.ts`](src/constants/storage-paths.ts).
 - **Profile page (Phase 6 Epic 5):** [`/profile`](src/app/(app)/profile/page.tsx) — combined settings surface (`react-hook-form` + zod via [`forms.mdc`](.cursor/rules/forms.mdc)); `updateProfileAction` server action; avatar upload persists versioned public URL (`?v=` query param); password change via client Supabase; `APP_HOME` = `/profile`; `/protected` removed; app footer "Back to website" link; marketing header `LandingAuthSlot` in Suspense (PPR-safe).
 - **Profile surface redesign (Phase 6 Epic 6):** blur-save display name + bio with per-field in-flight guards and inline `FieldSaveIndicator`; avatar persists on upload completion; partial-only [`updateProfileAction`](src/app/(app)/profile/actions.ts); restrained `max-w-prose` layout; password change in [`ProfilePasswordDialog`](src/app/(app)/profile/_components/profile-password-dialog.tsx) with `current_password` + toast (`secure_password_change` in [`supabase/config.toml`](supabase/config.toml)); [`ProfileThemeSegment`](src/app/(app)/profile/_components/profile-theme-segment.tsx) (`ToggleGroup` Light/Dark/System); conformant reference for [`forms.mdc`](.cursor/rules/forms.mdc) + [`notifications.mdc`](.cursor/rules/notifications.mdc).
+- **Admin profile link + shared sign-out (Phase 6 Epic 7):** [`AdminNavUser`](src/app/admin/_components/admin-nav-user.tsx) dropdown adds Profile → `/profile` (`PROFILE_PATH`); shared [`useSignOut`](src/hooks/use-sign-out.ts) hook (`createClient` → `signOut` → `/auth/login`) used by `AppNavUser`, `AdminNavUser`, and [`LogoutButton`](src/components/logout-button.tsx).
 
 ---
 
@@ -151,6 +152,7 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | `src/app/admin/` | Admin console (`/admin` dashboard, `/admin/users`; gated by `AdminAuthGate` + `isAdmin` + proxy) |
 | `src/app/admin/_components/admin-auth-gate.tsx` | Admin session + role gate; redirects non-admins to `/profile` |
 | `src/app/admin/_components/admin-shell-skeleton.tsx` | Suspense fallback skeleton for admin layout |
+| `src/app/admin/_components/admin-nav-user.tsx` | Sidebar footer user menu (profile link + sign-out) |
 | `src/components/site-header.tsx`, `site-footer.tsx`, `site-container.tsx`, `site-nav-links.tsx`, `site-copyright.tsx` | Shared public/app chrome primitives |
 | `src/app/(app)/_components/app-nav-user.tsx` | Circle-avatar header menu (profile link + sign-out) |
 | `src/app/(app)/_lib/get-current-user-profile.ts` | Cached server read of current user's `profiles` row |
@@ -175,7 +177,8 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | `proxy.ts` | Root auth proxy entry (delegates to `src/supabase/proxy.ts`) |
 | `src/components/ui/` | Owned shadcn primitives |
 | `src/components/` | App components (auth forms, theme toggle, etc.) |
-| `src/hooks/` | Custom hooks |
+| `src/hooks/` | Custom hooks (`use-sign-out`, `use-mobile`, etc.) |
+| `src/hooks/use-sign-out.ts` | Shared client sign-out (`useSignOut` → Supabase `signOut` + redirect to `/auth/login`) |
 | `src/test/` | Test utilities (`render` with providers) |
 | `src/mocks/` | MSW handlers (testing only) |
 | `scripts/admin/` | Admin CLI (`promote-admin`, `demote-admin`, `list-admins`) |

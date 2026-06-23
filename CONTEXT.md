@@ -195,7 +195,7 @@ Password (the explicit-submit counterpart to blur-save):
 
 Depends on Epic 5 (the shipped profile page it redesigns); `forms.mdc` and `notifications.mdc` are the governing contract.
 
-### Epic 7: Admin Profile Link
+### Epic 7: Admin Profile Link `Complete`
 
 As an admin, I want a profile link in the admin nav-user menu, so I can reach my account settings from the console the same way non-admins can.
 

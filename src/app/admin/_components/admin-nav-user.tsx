@@ -1,7 +1,7 @@
 'use client'
 
-import { ChevronsUpDown, LogOut } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { ChevronsUpDown, LogOut, User } from 'lucide-react'
+import Link from 'next/link'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -18,7 +18,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
-import { createClient } from '@/supabase/client'
+import { PROFILE_PATH } from '@/constants/app-paths'
+import { useSignOut } from '@/hooks/use-sign-out'
 
 import { getEmailInitials } from './admin-user-utils'
 
@@ -28,14 +29,8 @@ type AdminNavUserProps = {
 
 export const AdminNavUser = ({ email }: AdminNavUserProps) => {
   const { isMobile } = useSidebar()
-  const router = useRouter()
+  const handleSignOut = useSignOut()
   const initials = getEmailInitials(email)
-
-  const handleSignOut = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/auth/login')
-  }
 
   return (
     <SidebarMenu>
@@ -78,6 +73,12 @@ export const AdminNavUser = ({ email }: AdminNavUserProps) => {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href={PROFILE_PATH}>
+                <User />
+                Profile
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={handleSignOut}>
               <LogOut />
               Sign out

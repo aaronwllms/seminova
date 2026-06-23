@@ -2,7 +2,6 @@
 
 import { LogOut, User } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -14,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { PROFILE_PATH } from '@/constants/app-paths'
-import { createClient } from '@/supabase/client'
+import { useSignOut } from '@/hooks/use-sign-out'
 import { getProfileInitials } from '@/utils/user-initials'
 
 type AppNavUserProps = {
@@ -28,14 +27,8 @@ export const AppNavUser = ({
   avatarUrl,
   email,
 }: AppNavUserProps) => {
-  const router = useRouter()
+  const handleSignOut = useSignOut()
   const initials = getProfileInitials({ displayName, email })
-
-  const handleSignOut = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/auth/login')
-  }
 
   return (
     <DropdownMenu>
