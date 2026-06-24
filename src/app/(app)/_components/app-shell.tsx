@@ -23,6 +23,7 @@ export const AppShell = async ({ children }: AppShellProps) => {
             displayName={profile.displayName}
             avatarUrl={profile.avatarUrl}
             email={profile.email}
+            isAdmin={profile.isAdmin}
           />
         }
         mobileNav={
@@ -30,6 +31,7 @@ export const AppShell = async ({ children }: AppShellProps) => {
             displayName={profile.displayName}
             avatarUrl={profile.avatarUrl}
             email={profile.email}
+            isAdmin={profile.isAdmin}
           />
         }
       />

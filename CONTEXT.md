@@ -117,7 +117,7 @@ No custom schema beyond shipped Phase 6 migrations. Authoritative schema lives i
 
 First real migration and the authenticated end-user surface. Establishes `profiles` as the one assumed schema primitive, a real `/admin/*` console namespace, the shared-chrome shell pattern, the first Supabase Storage bucket, and the canonical form stack. The generic `/protected` starter shell is removed.
 
-**Sequencing:** Epic 1 (data) underpins everything. Epic 2 (admin namespace) settles the console URL space before shared chrome touches routing. Epic 3 (shell) reads `profiles` and establishes the `(app)` group. Epic 4 (storage) precedes Epic 5 because avatar upload needs the bucket. Epic 5 (profile page) depends on 1, 3, and 4. Epic 6 (profile redesign) depends on Epic 5 — it reworks the page Epic 5 shipped and applies the now-codified form save-model rules. Epics 7 (admin profile link) and 8 (auth-form autofill retrofit) are independent of each other and of Epic 6, with no ordering constraint.
+**Sequencing:** Epic 1 (data) underpins everything. Epic 2 (admin namespace) settles the console URL space before shared chrome touches routing. Epic 3 (shell) reads `profiles` and establishes the `(app)` group. Epic 4 (storage) precedes Epic 5 because avatar upload needs the bucket. Epic 5 (profile page) depends on 1, 3, and 4. Epic 6 (profile redesign) depends on Epic 5 — it reworks the page Epic 5 shipped and applies the now-codified form save-model rules. Epics 7 (admin profile link) and 8 (auth-form autofill retrofit) are independent of each other and of Epic 6, with no ordering constraint. Epic 9 (app→admin switch) depends on Epic 2 (the `/admin` console home it targets) and Epic 3 (the `AppNavUser` it extends), both complete; it is independent of Epics 4–8.
 
 ### Epic 1: Profiles Data Foundation `Complete`
 
@@ -210,6 +210,14 @@ As a user signing in or managing my account with a password manager, I want the 
 - Login: email → `username`, password → `current-password`. Sign-up: email → `username`, password + repeat → `new-password`. Forgot-password: email → `username`.
 - Update-password (post-recovery): new password → `new-password`, and add a paired username field referencing the account email (read from the recovery session, visually hidden) so the manager can save the changed credential to the right entry.
 - Surgical attribute/markup change only — does **not** migrate these forms off `useState`.
+
+### Epic 9: App-to-Admin Console Switch `Complete`
+
+As an admin using the authenticated app, I want to reach the admin console from the app header, so I can switch back into the console without retyping the URL.
+
+- Add an admin-gated entry to the app-side nav-user dropdown (`AppNavUser`) that links to the admin console home. This is the reverse of Epic 7's `AdminNavUser` → Profile link: that built admin → app; this builds app → admin. The admin → app leg already exists and is not rebuilt here.
+- The entry is **visible only to admins** — gated on the canonical admin check (`app_metadata.role` via `isAdmin()`, the locked rule), not on a `profiles` field. A non-admin must never see it.
+- `AppNavUser` currently renders profile + sign-out for every authenticated user; the admin entry is conditional, leaving the non-admin menu unchanged.
 
 ---
 

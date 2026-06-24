@@ -1,6 +1,6 @@
 'use client'
 
-import { LogOut, User } from 'lucide-react'
+import { LayoutDashboard, LogOut, User } from 'lucide-react'
 import Link from 'next/link'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { PROFILE_PATH } from '@/constants/app-paths'
+import { ADMIN_HOME } from '@/constants/admin-paths'
 import { useSignOut } from '@/hooks/use-sign-out'
 import { getProfileInitials } from '@/utils/user-initials'
 
@@ -20,12 +21,14 @@ type AppNavUserProps = {
   displayName: string | null
   avatarUrl: string | null
   email: string
+  isAdmin: boolean
 }
 
 export const AppNavUser = ({
   displayName,
   avatarUrl,
   email,
+  isAdmin,
 }: AppNavUserProps) => {
   const handleSignOut = useSignOut()
   const initials = getProfileInitials({ displayName, email })
@@ -53,6 +56,14 @@ export const AppNavUser = ({
             Profile
           </Link>
         </DropdownMenuItem>
+        {isAdmin ? (
+          <DropdownMenuItem asChild>
+            <Link href={ADMIN_HOME}>
+              <LayoutDashboard />
+              Admin console
+            </Link>
+          </DropdownMenuItem>
+        ) : null}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut}>
           <LogOut />

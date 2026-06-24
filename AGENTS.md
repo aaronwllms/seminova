@@ -121,6 +121,8 @@
 - **Profile page (Phase 6 Epic 5):** [`/profile`](src/app/(app)/profile/page.tsx) — combined settings surface (`react-hook-form` + zod via [`forms.mdc`](.cursor/rules/forms.mdc)); `updateProfileAction` server action; avatar upload persists versioned public URL (`?v=` query param); password change via client Supabase; `APP_HOME` = `/profile`; `/protected` removed; app footer "Back to website" link; marketing header `LandingAuthSlot` in Suspense (PPR-safe).
 - **Profile surface redesign (Phase 6 Epic 6):** blur-save display name + bio with per-field in-flight guards and inline `FieldSaveIndicator`; avatar persists on upload completion; partial-only [`updateProfileAction`](src/app/(app)/profile/actions.ts); restrained `max-w-prose` layout; password change in [`ProfilePasswordDialog`](src/app/(app)/profile/_components/profile-password-dialog.tsx) with `current_password` + toast (`secure_password_change` in [`supabase/config.toml`](supabase/config.toml)); [`ProfileThemeSegment`](src/app/(app)/profile/_components/profile-theme-segment.tsx) (`ToggleGroup` Light/Dark/System); conformant reference for [`forms.mdc`](.cursor/rules/forms.mdc) + [`notifications.mdc`](.cursor/rules/notifications.mdc).
 - **Admin profile link + shared sign-out (Phase 6 Epic 7):** [`AdminNavUser`](src/app/admin/_components/admin-nav-user.tsx) dropdown adds Profile → `/profile` (`PROFILE_PATH`); shared [`useSignOut`](src/hooks/use-sign-out.ts) hook (`createClient` → `signOut` → `/auth/login`) used by `AppNavUser`, `AdminNavUser`, and [`LogoutButton`](src/components/logout-button.tsx).
+- **Auth form password-manager affordances (Phase 6 Epic 8):** four auth forms (`login-form`, `sign-up-form`, `forgot-password-form`, `update-password-form`) carry `autocomplete` tokens per [`forms.mdc`](.cursor/rules/forms.mdc); update-password adds a hidden paired username field from the recovery session.
+- **App-to-admin console switch (Phase 6 Epic 9):** [`AppNavUser`](src/app/(app)/_components/app-nav-user.tsx) dropdown adds admin-gated Admin console → `/admin` (`ADMIN_HOME`); `isAdmin` derived server-side in [`getCurrentUserProfile`](src/app/(app)/_lib/get-current-user-profile.ts) via `isAdminFromAppMetadata`; non-admin menu unchanged (mirror of Epic 7's admin → profile leg).
 
 ---
 
@@ -143,7 +145,7 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | Path | Purpose |
 | ---- | ------- |
 | `src/app/` | App Router pages and layouts |
-| `src/app/(app)/` | Authenticated user surfaces (`/profile`) with shared marketing chrome; `AppNavUser` reads `profiles` |
+| `src/app/(app)/` | Authenticated user surfaces (`/profile`) with shared marketing chrome; `AppNavUser` reads `profiles` and admin role |
 | `src/app/(marketing)/` | Public landing route group (`/` — header, hero, features, tech stack, footer) |
 | `src/app/auth/` | Auth screens, shared layout, confirm route |
 | `src/config/site.ts` | App name, description, logo, metadata (`getSiteMetadata()`), landing nav/social/legal links |
@@ -154,8 +156,8 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | `src/app/admin/_components/admin-shell-skeleton.tsx` | Suspense fallback skeleton for admin layout |
 | `src/app/admin/_components/admin-nav-user.tsx` | Sidebar footer user menu (profile link + sign-out) |
 | `src/components/site-header.tsx`, `site-footer.tsx`, `site-container.tsx`, `site-nav-links.tsx`, `site-copyright.tsx` | Shared public/app chrome primitives |
-| `src/app/(app)/_components/app-nav-user.tsx` | Circle-avatar header menu (profile link + sign-out) |
-| `src/app/(app)/_lib/get-current-user-profile.ts` | Cached server read of current user's `profiles` row |
+| `src/app/(app)/_components/app-nav-user.tsx` | Circle-avatar header menu (profile link, admin-gated admin console link, sign-out) |
+| `src/app/(app)/_lib/get-current-user-profile.ts` | Cached server read of current user's `profiles` row + `isAdmin` from `app_metadata` |
 | `src/components/inline-error.tsx`, `error-panel.tsx` | Operational vs fault error UI |
 | `src/components/data-table1.tsx`, `data-table-skeleton-body.tsx` | Canonical data-table shell + skeleton loading pattern |
 | `src/types/app-error.ts` | Shared `AppError` / `ErrorKind` types |

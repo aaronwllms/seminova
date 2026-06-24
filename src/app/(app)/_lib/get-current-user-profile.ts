@@ -1,6 +1,7 @@
 import { cache } from 'react'
 
 import { createClient } from '@/supabase/server'
+import { isAdminFromAppMetadata } from '@/utils/admin'
 
 export type CurrentUserProfile = {
   userId: string
@@ -8,6 +9,7 @@ export type CurrentUserProfile = {
   avatarUrl: string | null
   bio: string | null
   email: string
+  isAdmin: boolean
 }
 
 export const getCurrentUserProfile = cache(
@@ -29,10 +31,12 @@ export const getCurrentUserProfile = cache(
         avatarUrl: null,
         bio: null,
         email: '',
+        isAdmin: false,
       }
     }
 
     const email = user.email ?? ''
+    const isAdmin = isAdminFromAppMetadata(user.app_metadata)
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
@@ -48,6 +52,7 @@ export const getCurrentUserProfile = cache(
         avatarUrl: null,
         bio: null,
         email,
+        isAdmin,
       }
     }
 
@@ -57,6 +62,7 @@ export const getCurrentUserProfile = cache(
       avatarUrl: profile.avatar_url,
       bio: profile.bio,
       email,
+      isAdmin,
     }
   },
 )

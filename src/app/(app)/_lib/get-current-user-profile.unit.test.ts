@@ -39,6 +39,7 @@ describe('getCurrentUserProfile', () => {
       avatarUrl: null,
       bio: null,
       email: '',
+      isAdmin: false,
     })
   })
 
@@ -62,6 +63,7 @@ describe('getCurrentUserProfile', () => {
       avatarUrl: 'https://example.test/avatar.webp?v=1',
       bio: 'Builder',
       email: 'alex@example.com',
+      isAdmin: false,
     })
   })
 
@@ -81,6 +83,7 @@ describe('getCurrentUserProfile', () => {
       avatarUrl: null,
       bio: null,
       email: 'alex@example.com',
+      isAdmin: false,
     })
   })
 })
