@@ -123,6 +123,7 @@
 - **Admin profile link + shared sign-out (Phase 6 Epic 7):** [`AdminNavUser`](src/app/admin/_components/admin-nav-user.tsx) dropdown adds Profile → `/profile` (`PROFILE_PATH`); shared [`useSignOut`](src/hooks/use-sign-out.ts) hook (`createClient` → `signOut` → `/auth/login`) used by `AppNavUser`, `AdminNavUser`, and [`LogoutButton`](src/components/logout-button.tsx).
 - **Auth form password-manager affordances (Phase 6 Epic 8):** four auth forms (`login-form`, `sign-up-form`, `forgot-password-form`, `update-password-form`) carry `autocomplete` tokens per [`forms.mdc`](.cursor/rules/forms.mdc); update-password adds a hidden paired username field from the recovery session.
 - **App-to-admin console switch (Phase 6 Epic 9):** [`AppNavUser`](src/app/(app)/_components/app-nav-user.tsx) dropdown adds admin-gated Admin console → `/admin` (`ADMIN_HOME`); `isAdmin` derived server-side in [`getCurrentUserProfile`](src/app/(app)/_lib/get-current-user-profile.ts) via `isAdminFromAppMetadata`; non-admin menu unchanged (mirror of Epic 7's admin → profile leg).
+- **Security headers (Phase 7 Epic 3):** [`src/utils/security-headers.ts`](src/utils/security-headers.ts) wired via [`next.config.ts`](next.config.ts); CSP is report-only by default, and flipping to enforcing (`CSP_ENFORCE=true`) requires nonce-based script handling — not just directive tightening — per the `// debt:` marker in that file.
 
 ---
 

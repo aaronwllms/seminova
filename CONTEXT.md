@@ -125,7 +125,7 @@ Remediation pass over the findings from the security audit (`SECURITY_AUDIT.md`)
 
 - [ ] **7.2 — Reject non-owned avatar URLs in `updateProfileAction`.** `updateProfileAction` must not trust a client-supplied `avatarUrl` that points outside the user's own avatar storage path. Prefer constructing the avatar URL server-side from the authenticated user's id over accepting it from the client; if a client value is accepted at all, reject any path whose owner segment isn't the current user. Preserve the existing versioned cache-bust (`?v=`) behavior. (Audit: Low)
 
-### Epic 3 — Security headers
+### Epic 3 — Security headers `Complete`
 
 - [ ] **7.3 — Security-headers module with env-driven CSP.** A new `src/utils/security-headers.ts` (placed in `src/` so the `// debt:` harvester reaches it), imported by `next.config.ts`, defines a tight CSP plus `X-Frame-Options` and HSTS. The CSP ships **report-only by default**, flipping to enforcing via an env flag — the switch logic lives in the module, with no dev/prod branching. Carry a `// debt:` marker framed as a template default (each product tightens and enforces per its own surface). Add a one-line note in AGENTS.md recording where security headers live and the report-only-by-default convention so spinoff products inherit it. (Documents an implemented-feature convention, not a locked rule — no change-protocol routing.)
 

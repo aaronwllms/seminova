@@ -1,5 +1,12 @@
 import type { NextConfig } from 'next'
 
-const nextConfig: NextConfig = { cacheComponents: true }
+import { getSecurityHeaders } from './src/utils/security-headers'
+
+const nextConfig: NextConfig = {
+  cacheComponents: true,
+  async headers() {
+    return [{ source: '/:path*', headers: getSecurityHeaders() }]
+  },
+}
 
 export default nextConfig
