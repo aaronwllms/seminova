@@ -15,7 +15,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { getPostAuthRedirectPath, type AppMetadata } from '@/utils/admin'
 import { extractAuthFormError } from '@/utils/extract-auth-form-error'
@@ -26,9 +26,17 @@ export function UpdatePasswordForm({
   ...props
 }: React.ComponentPropsWithoutRef<'div'>) {
   const [password, setPassword] = useState('')
+  const [accountEmail, setAccountEmail] = useState('')
   const [formError, setFormError] = useState<AppError | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    const supabase = createClient()
+    void supabase.auth.getUser().then(({ data: { user } }) => {
+      setAccountEmail(user?.email ?? '')
+    })
+  }, [])
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -61,11 +69,22 @@ export function UpdatePasswordForm({
         <CardContent>
           <form onSubmit={handleForgotPassword}>
             <div className="flex flex-col gap-6">
+              <input
+                type="email"
+                name="username"
+                autoComplete="username"
+                value={accountEmail}
+                readOnly
+                tabIndex={-1}
+                aria-hidden
+                className="sr-only"
+              />
               <div className="grid gap-2">
                 <Label htmlFor="password">New password</Label>
                 <Input
                   id="password"
                   type="password"
+                  autoComplete="new-password"
                   placeholder="New password"
                   required
                   value={password}

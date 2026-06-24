@@ -25,6 +25,19 @@ describe('LoginForm', () => {
     mockPush.mockReset()
   })
 
+  it('should expose password-manager autofill attributes', () => {
+    render(<LoginForm />)
+
+    expect(screen.getByLabelText(/email/i)).toHaveAttribute(
+      'autocomplete',
+      'username',
+    )
+    expect(screen.getByLabelText(/^password$/i)).toHaveAttribute(
+      'autocomplete',
+      'current-password',
+    )
+  })
+
   it('should sign in and redirect non-admins to /profile', async () => {
     mockSignInWithPassword.mockResolvedValue({
       error: null,

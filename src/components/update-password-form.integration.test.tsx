@@ -4,12 +4,14 @@ import { ADMIN_HOME } from '@/constants/admin-paths'
 import { UpdatePasswordForm } from './update-password-form'
 
 const mockUpdateUser = vi.fn()
+const mockGetUser = vi.fn()
 const mockPush = vi.fn()
 
 vi.mock('@/supabase/client', () => ({
   createClient: () => ({
     auth: {
       updateUser: mockUpdateUser,
+      getUser: mockGetUser,
     },
   }),
 }))
@@ -21,7 +23,28 @@ vi.mock('next/navigation', () => ({
 describe('UpdatePasswordForm', () => {
   beforeEach(() => {
     mockUpdateUser.mockReset()
+    mockGetUser.mockReset()
     mockPush.mockReset()
+    mockGetUser.mockResolvedValue({
+      data: { user: { email: 'recover@example.com' } },
+      error: null,
+    })
+  })
+
+  it('should expose password-manager autofill attributes', async () => {
+    render(<UpdatePasswordForm />)
+
+    await waitFor(() => {
+      const usernameInput = document.querySelector(
+        'input[name="username"]',
+      ) as HTMLInputElement
+      expect(usernameInput).toHaveAttribute('autocomplete', 'username')
+      expect(usernameInput).toHaveValue('recover@example.com')
+    })
+    expect(screen.getByLabelText(/new password/i)).toHaveAttribute(
+      'autocomplete',
+      'new-password',
+    )
   })
 
   it('should update password and redirect non-admins to /profile', async () => {

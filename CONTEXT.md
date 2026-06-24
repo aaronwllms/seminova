@@ -202,7 +202,7 @@ As an admin, I want a profile link in the admin nav-user menu, so I can reach my
 - The admin nav-user dropdown (sidebar footer) currently offers sign-out only — Epic 3 built the profile link into the app-side `AppNavUser` but deliberately left the admin nav-user unchanged. Add a link targeting the shared `/profile` (`PROFILE_PATH`); admins and non-admins share the one owner-scoped profile surface.
 - Touches the admin nav-user component only.
 
-### Epic 8: Auth Form Password-Manager Affordances
+### Epic 8: Auth Form Password-Manager Affordances `Complete`
 
 As a user signing in or managing my account with a password manager, I want the auth forms to expose the right autofill signals, so my manager fills, generates, and saves credentials correctly instead of misbehaving.
 
