@@ -117,6 +117,15 @@ Use Next.js `error.tsx` for route-level error boundaries. Reusable `ErrorBoundar
 - Never leak user existence ("Invalid credentials" not "User doesn't exist")
 - Log with context but generic user messages
 
+### Auth form errors (fallback-first)
+
+Auth forms (`login-form`, `sign-up-form`, `forgot-password-form`, `update-password-form`, `profile-password-dialog`) sanitize Supabase `AuthError` via [`extractAuthFormError`](../../src/utils/extract-auth-form-error.ts):
+
+- **Fallback-first:** unmapped Supabase `AuthError` codes → generic operational copy + `SUPABASE_AUTH_ERROR`; never show Supabase's raw `message` to users
+- **Enumerated overrides** live in `AUTH_ERROR_OVERRIDES` inside that file — do not duplicate the table here
+- **How to add a code:** add an entry to `AUTH_ERROR_OVERRIDES`, add a unit test if the mapping is non-obvious, run `pnpm test:ci`
+- **Logging:** `console.error('[extract-auth-form-error] …', { supabaseCode })` on the **fallback path only** (unmapped codes) per `logging.mdc`; mapped overrides do not log
+
 **Reference:** See `.cursor/rules/security.mdc` for detailed auth patterns
 
 ## Security: What NOT to Log
@@ -162,8 +171,6 @@ Carry severity as data via `kind` on the error envelope ([`src/types/app-error.t
 ```
 
 Visual reference (appearance only — implementation uses semantic tokens): [`.mockups/error-states.html`](../../.mockups/error-states.html)
-
-Per-code taxonomy mapping and copy sanitization for raw Supabase codes deferred to Phase 7 Security Audit.
 
 For route-level failures, add `error.tsx` in the relevant `src/app/` segment.
 
