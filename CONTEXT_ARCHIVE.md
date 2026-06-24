@@ -134,6 +134,51 @@ Retrofitted shared error/loading patterns and a toast system into the admin user
 
 ---
 
+## Phase 6 — Data Model Foundation `Shipped` (2026-06-23)
+
+First real migration and the authenticated end-user surface. Establishes `profiles` as the one assumed schema primitive, a real `/admin/*` console namespace, the shared-chrome shell pattern, the first Supabase Storage bucket, the canonical form stack, and bidirectional admin ↔ app nav switches. The generic `/protected` starter shell is removed.
+
+### Epic 1 — Profiles Data Foundation `Shipped`
+
+- [x] **6.1 — `profiles` table.** 1:1 with `auth.users`; columns `display_name`, `avatar_url`, `bio`; no `role` column (admin gate stays on `app_metadata.role`).
+- [x] **6.2 — Signup trigger + RLS.** Auto-create profile on signup; owner-scoped SELECT/UPDATE; AGENTS.md data model seeded.
+
+### Epic 2 — Admin Namespace Foundation `Shipped`
+
+- [x] **6.3 — `/admin` URL segment.** Users table at `/admin/users`; `/admin` dashboard landing; blanket admin-role gating on `/admin/*`; post-login redirect for admins → `/admin`.
+
+### Epic 3 — Shared Chrome + Authenticated Shell `Shipped`
+
+- [x] **6.4 — Shared chrome primitives.** `SiteHeader`, `SiteFooter`, `SiteContainer`, etc.; marketing wrappers unchanged visually.
+- [x] **6.5 — `(app)` route group.** `AppShell` with circle-avatar `AppNavUser` (profiles-aware); app logo/footer target `APP_HOME`; marketing section nav omitted on authenticated surfaces.
+
+### Epic 4 — Avatar Storage `Shipped`
+
+- [x] **6.6 — `avatars` bucket.** Public-read, owner-scoped writes; canonical storage pattern; client upload utils (`avatar-storage.ts`); reference in `profiles.avatar_url`.
+
+### Epic 5 — Profile Page `Shipped`
+
+- [x] **6.7 — `/profile` settings page.** Combined view+edit for display name, avatar, bio, password; `react-hook-form` + zod form stack codified in `.cursor/rules/forms.mdc`.
+- [x] **6.8 — Post-login landing.** Non-admins → `/profile`; `/protected` removed; theme toggle on profile; marketing ↔ app round-trip (`LandingAuthSlot`, footer back link).
+
+### Epic 6 — Profile Surface Redesign `Shipped`
+
+- [x] **6.9 — Restrained layout + blur-save.** `max-w-prose` fields; display name/bio save on blur with inline indicator; avatar on upload; password in modal with `current_password`; `ToggleGroup` theme segment; conformant `forms.mdc` + `notifications.mdc` reference.
+
+### Epic 7 — Admin Profile Link `Shipped`
+
+- [x] **6.10 — Admin → profile link.** `AdminNavUser` Profile → `/profile`; shared `useSignOut` hook extracted for all sign-out paths.
+
+### Epic 8 — Auth Form Password-Manager Affordances `Shipped`
+
+- [x] **6.11 — Auth form `autocomplete`.** Four auth forms retrofitted per `forms.mdc`; update-password adds hidden paired username from recovery session.
+
+### Epic 9 — App-to-Admin Console Switch `Shipped`
+
+- [x] **6.12 — App → admin link.** Admin-gated "Admin console" in `AppNavUser` → `/admin`; `isAdmin` derived server-side from `app_metadata`; mirror of Epic 7 admin → app leg.
+
+---
+
 ## Resolved decisions
 
 **Auth screens — restyle vs rebuild** (resolved 2026-06-18, Phase 3 planning)

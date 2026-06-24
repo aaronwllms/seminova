@@ -3,7 +3,7 @@
 **Purpose:** Dual-use — planning reference for the builder (PM) and context for coding agents. Seminova is currently a **template**: a curated foundation that real products are built from. It is written in product shape so that the structure itself is inherited by every project spun off it. Agents: read this file for living state; build-time workflow and authoritative schema live in [AGENTS.md](AGENTS.md); shipped phase detail in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md).
 
 **Last updated:** 2026-06-23
-**Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell (Admin sidebar) + Auth restyle (shipped). Phase 4 — Landing Page (shipped). Phase 5 — Admin Surface Polish & Toasting (shipped). Phase 6 — Data Model Foundation (`Active`).
+**Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell (Admin sidebar) + Auth restyle (shipped). Phase 4 — Landing Page (shipped). Phase 5 — Admin Surface Polish & Toasting (shipped). Phase 6 — Data Model Foundation (shipped).
 **Migrations:** 2 custom — `profiles` + `avatars` bucket (see [AGENTS.md](AGENTS.md) data model).
 
 **Shipped phase detail →** [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md)
@@ -103,7 +103,7 @@ No custom schema beyond shipped Phase 6 migrations. Authoritative schema lives i
 | 3 | App Shell (Admin sidebar) + Auth restyle | `Shipped` |
 | 4 | Landing Page | `Shipped` |
 | 5 | Admin Surface Polish & Toasting | `Shipped` |
-| 6 | Data Model Foundation (profiles, admin namespace, authenticated shell, profile page) | `Active` |
+| 6 | Data Model Foundation (profiles, admin namespace, authenticated shell, profile page) | `Shipped` |
 | 7 | Security Audit | `Draft` |
 | 8 | SEO & GEO | `Draft` |
 | 9 | Pattern Reference Page | `Draft` |
@@ -113,118 +113,14 @@ No custom schema beyond shipped Phase 6 migrations. Authoritative schema lives i
 
 # ACTIVE
 
-## Phase 6 — Data Model Foundation `Active`
-
-First real migration and the authenticated end-user surface. Establishes `profiles` as the one assumed schema primitive, a real `/admin/*` console namespace, the shared-chrome shell pattern, the first Supabase Storage bucket, and the canonical form stack. The generic `/protected` starter shell is removed.
-
-**Sequencing:** Epic 1 (data) underpins everything. Epic 2 (admin namespace) settles the console URL space before shared chrome touches routing. Epic 3 (shell) reads `profiles` and establishes the `(app)` group. Epic 4 (storage) precedes Epic 5 because avatar upload needs the bucket. Epic 5 (profile page) depends on 1, 3, and 4. Epic 6 (profile redesign) depends on Epic 5 — it reworks the page Epic 5 shipped and applies the now-codified form save-model rules. Epics 7 (admin profile link) and 8 (auth-form autofill retrofit) are independent of each other and of Epic 6, with no ordering constraint. Epic 9 (app→admin switch) depends on Epic 2 (the `/admin` console home it targets) and Epic 3 (the `AppNavUser` it extends), both complete; it is independent of Epics 4–8.
-
-### Epic 1: Profiles Data Foundation `Complete`
-
-As a product built on Seminova, I want a `profiles` table that exists for every user automatically, so app-level user data has a home from the first signup without per-product setup.
-
-- `profiles` is 1:1 with `auth.users` (`profiles.id = auth.users.id`); columns limited to `display_name`, `avatar_url`, `bio`. **No `role` column** — the admin gate stays on `app_metadata.role` per the locked rule; do not shadow it here.
-- A row is auto-created on signup via a database trigger, so a profile always exists for an authenticated user.
-- Owner-scoped RLS: a user can read and update only their own profile.
-- Seed the AGENTS.md **Data model (summary)** with `profiles` as authoritative schema once the migration lands (per the change protocol). Do not prescribe the migration filename — Cursor chooses it.
-
-### Epic 2: Admin Namespace Foundation `Complete`
-
-As an admin, I want the console to live under its own `/admin/*` URL space with a dashboard landing, so it reads as a real section that grows by adding pages — not admin views scattered across root-level routes.
-
-- Promote the existing `(admin)` route group to a real `/admin` URL segment. The shipped users table moves `/users → /admin/users`; `/admin` becomes the console landing (dashboard). **This touches already-shipped Phase 3 surface** — every internal link, redirect, test, and doc reference to `/users` moves with it.
-- Gating becomes one blanket rule: everything under `/admin/*` requires the admin role. The existing admin gate enforces at the segment, not per page.
-- Admin post-login redirect targets the console home `/admin`.
-- The `/admin` landing is a real but minimal dashboard home for now; content fleshes out as future admin pages land. It must be an honest landing, not a placeholder that dead-ends.
-
-### Epic 3: Shared Chrome + Authenticated Shell `Complete`
-
-As a user crossing the auth boundary, I want the authenticated app to feel like the same product as the marketing site, so signing in doesn't feel like landing in a different app.
-
-- Extract the shared visual chrome — header shell, container, logo treatment, footer — into reusable primitives. Refactor the existing marketing header/footer to consume them with **no intended visual change**.
-- Establish the `(app)` route group for authenticated user surfaces (no URL prefix); its layout is this shell.
-- Build the non-admin shell on these primitives: a header with a plain **circle** avatar (image or initials, reading `profiles`), **not** the admin nav-user rectangle (avatar + name + email). Clicking it opens a dropdown with profile access and sign-out — reuse the admin nav-user *behavior*, not its presentation.
-- The app-header logo points to the authenticated app home (the non-admin post-login landing — `/protected` until Epic 5 repoints it to `/profile`), **not** marketing `/`: for a signed-in user, the app is home. The shared section nav (marketing anchors like `#features`) does **not** render on authenticated surfaces — header or footer — since those anchors have no target off the landing page. The public-site round-trip (a way back to marketing and back again) is deferred to Epic 5.
-- Dropdown profile link and the route constant target `/profile` (`PROFILE_PATH`), for Epic 5 handoff. A minimal `/profile` stub lives in the shell so the link resolves; Epic 5 replaces it.
-- `/protected` moves under the `(app)` shell, body unchanged, and remains the non-admin redirect target until Epic 5 retires it.
-- Footer is shared with marketing as a primitive, but the app footer omits the marketing section nav (see logo/nav bullet above). **No theme toggle in the header** (it lives on the profile page — Epic 5); the marketing header keeps its login CTA in the same right-side slot the avatar occupies in the app header.
-- Depends on Epic 1 (reads `profiles`); sequenced after Epic 2 so routing is settled.
-
-### Epic 4: Avatar Storage `Complete`
-
-As a user, I want to upload a profile avatar, so my account feels personalized — and as a product, I want a storage convention established once.
-
-- First Supabase Storage in the template: an avatar bucket. Owner-scoped storage RLS on **writes** (a user can write/replace only their own avatar); bucket is **public-read** (avatars render directly via public URL, no signed URLs).
-- Establishes the canonical storage pattern (bucket + storage RLS) that later product features inherit. Document the convention where storage conventions belong.
-- The uploaded avatar's reference is stored in `profiles.avatar_url` (Epic 1).
-
-### Epic 5: Profile Page `Complete`
-
-As an authenticated non-admin user, I want a profile page I land on after login, so I have a real surface to manage my account — and as a template evaluator, I see a finished surface instead of a placeholder.
-
-- A single combined view+edit surface for `display_name`, `avatar` (upload via Epic 4), `bio`, and change-password, at `/profile`.
-- This page **is the non-admin post-login landing**: repoint the post-login redirect for non-admins to `/profile`, and **remove the `/protected` starter page**.
-- Establishes the canonical **`react-hook-form` + `zod`** form pattern as the template's first real form. Document it in `.cursor/rules/` as a coding standard (not a locked-rule change).
-- Houses the **dark-mode toggle**; confirm `defaultTheme="system"` + `enableSystem` so unauthenticated/marketing stays system-default with no exposed control.
-- Wires the public-site round-trip, now that the authenticated landing is final: the app footer gets a single "back to the public site" link (not the marketing section nav), and the marketing header becomes session-aware — logged-out visitors see the login/sign-up CTAs unchanged, authenticated visitors get an "open app" affordance back into the authenticated side. Both legs target the post-login landing (`/profile`).
-- A successful save confirms via the Phase 5 toast system.
-- Built on Epic 3's shell; depends on Epics 1, 3, and 4.
-
-### Epic 6: Profile Surface Redesign `Complete`
-
-As an authenticated user, I want the profile page to feel as restrained and considered as the admin surfaces, with fields that save as I go, so the template's first end-user surface reads as finished rather than default-generated.
-
-Composition (the drift is layout/composition, not tokens — the page already uses correct tokens):
-
-- Constrain form fields to a readable measure (not full-content-width), left-aligned.
-- Lighter card treatment — lean on whitespace over heavy borders, consistent with the admin surfaces.
-- Remove the duplicate "Profile" heading; the page-level header names the surface, so the profile card drops its redundant title.
-- Replace the theme dropdown with an inline single-select segmented control (shadcn `ToggleGroup`, `type="single"`) for Light / Dark / System — exactly one option always active (no deselected state), bound to the current theme.
-
-Save model (applies the codified `forms.mdc` / `notifications.mdc` rules; this page becomes their conformant reference implementation):
-
-- Display name and bio save on blur, per field; remove the "Save profile" button. Invalid fields do not persist. Each save confirms with the inline transient indicator, not a toast.
-- Avatar applies on upload completion — no separate save step; the "Change photo" control remains the upload trigger.
-
-Password (the explicit-submit counterpart to blur-save):
-
-- Move password change off the inline page into a modal with explicit submit, carrying three fields: current, new, confirm.
-- Require the current password: enable Supabase's secure-password-change / enforce-current-password setting and pass `current_password` to `updateUser`, so it is enforced at the provider, not only collected in the UI. This is a Supabase auth **config** change (dashboard / `config.toml`), not only code; the `current_password` param requires supabase-js v2.102.0+ — verify the installed version.
-- Apply the password-field autofill conventions in `forms.mdc` (correct `autocomplete` tokens, paired username field).
-- A successful change confirms via toast.
-
-Depends on Epic 5 (the shipped profile page it redesigns); `forms.mdc` and `notifications.mdc` are the governing contract.
-
-### Epic 7: Admin Profile Link `Complete`
-
-As an admin, I want a profile link in the admin nav-user menu, so I can reach my account settings from the console the same way non-admins can.
-
-- The admin nav-user dropdown (sidebar footer) currently offers sign-out only — Epic 3 built the profile link into the app-side `AppNavUser` but deliberately left the admin nav-user unchanged. Add a link targeting the shared `/profile` (`PROFILE_PATH`); admins and non-admins share the one owner-scoped profile surface.
-- Touches the admin nav-user component only.
-
-### Epic 8: Auth Form Password-Manager Affordances `Complete`
-
-As a user signing in or managing my account with a password manager, I want the auth forms to expose the right autofill signals, so my manager fills, generates, and saves credentials correctly instead of misbehaving.
-
-- Retrofit the four shipped auth forms (`login-form`, `sign-up-form`, `forgot-password-form`, `update-password-form`) to the password-field autofill conventions in `forms.mdc` — none currently set `autocomplete` on any field.
-- Login: email → `username`, password → `current-password`. Sign-up: email → `username`, password + repeat → `new-password`. Forgot-password: email → `username`.
-- Update-password (post-recovery): new password → `new-password`, and add a paired username field referencing the account email (read from the recovery session, visually hidden) so the manager can save the changed credential to the right entry.
-- Surgical attribute/markup change only — does **not** migrate these forms off `useState`.
-
-### Epic 9: App-to-Admin Console Switch `Complete`
-
-As an admin using the authenticated app, I want to reach the admin console from the app header, so I can switch back into the console without retyping the URL.
-
-- Add an admin-gated entry to the app-side nav-user dropdown (`AppNavUser`) that links to the admin console home. This is the reverse of Epic 7's `AdminNavUser` → Profile link: that built admin → app; this builds app → admin. The admin → app leg already exists and is not rebuilt here.
-- The entry is **visible only to admins** — gated on the canonical admin check (`app_metadata.role` via `isAdmin()`, the locked rule), not on a `profiles` field. A non-admin must never see it.
-- `AppNavUser` currently renders profile + sign-out for every authenticated user; the admin entry is conditional, leaving the non-admin menu unchanged.
+_No phase currently in progress. Next up: Phase 7 — Security Audit (`Draft`). Promote via `phase-planning` when ready to start._
 
 ---
 
 # DRAFT — Upcoming Phases
 
 ## Phase 7 — Security Audit `Draft`
-A dedicated pass over security-relevant surfaces that don't exist yet at Phase 5 time — sequenced after Phase 6 so RLS policies and the `profiles` table are real before they're audited. Known scope so far: map raw Supabase `AuthError` codes (captured in Phase 5, passed through as operational/`kind`-tagged but unmapped) to the error taxonomy in `error-handling.mdc` and decide what's safe to surface/copy per code, per `security.mdc` guidance; review RLS policies on `profiles`; review the avatar bucket's public-read storage RLS; general secret-handling and auth-boundary review. Not yet fully scoped — flesh out epics once Phase 6 ships.
+A dedicated pass over security-relevant surfaces now that RLS policies and the `profiles` table are real. Known scope so far: map raw Supabase `AuthError` codes (captured in Phase 5, passed through as operational/`kind`-tagged but unmapped) to the error taxonomy in `error-handling.mdc` and decide what's safe to surface/copy per code, per `security.mdc` guidance; review RLS policies on `profiles`; review the avatar bucket's public-read storage RLS; general secret-handling and auth-boundary review. Not yet fully scoped — flesh out epics when Phase 7 is promoted to ACTIVE.
 
 ## Phase 8 — SEO & GEO `Draft`
 Not yet scoped. Covers traditional SEO (metadata, sitemap, structured data) and GEO (generative-engine optimization — how the product surfaces in AI assistant answers) for the marketing/landing surface shipped in Phase 4. No hard sequencing dependency beyond Phase 4 being shipped.
