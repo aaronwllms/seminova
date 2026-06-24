@@ -117,7 +117,7 @@ No custom schema beyond shipped Phase 6 migrations. Authoritative schema lives i
 
 Remediation pass over the findings from the security audit (`SECURITY_AUDIT.md`), which came back clean — no Critical or High findings. RLS policies on `profiles`, the avatar bucket's public-read storage RLS, secret handling, and the auth boundary were reviewed during the audit and cleared. What remains is four fixes: two audit-flagged issues (one Medium, one Low), a security-headers default, and the AuthError taxonomy mapping deferred from Phase 5. The four epics are independent — no inter-epic sequencing — and can each be built in a separate agent session.
 
-### Epic 1 — Open-redirect fix on /auth/confirm
+### Epic 1 — Open-redirect fix on /auth/confirm `Complete`
 
 - [ ] **7.1 — Same-origin redirect validation on confirm.** `/auth/confirm` must validate that the `next` redirect target is same-origin before honoring it, reusing the existing `isSafeRedirect` pattern (`security.mdc`) rather than introducing a new validator. An unsafe or missing target falls back to the existing post-auth redirect path, else `/profile`. Include a regression test covering an off-origin `next` being rejected. (Audit: Medium)
 
