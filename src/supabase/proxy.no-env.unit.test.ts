@@ -28,7 +28,7 @@ describe('updateSession without env vars', () => {
   it('should skip auth check when Supabase env vars are not configured', async () => {
     const { updateSession } = await import('./proxy')
 
-    const response = await updateSession(createRequest('/protected'))
+    const response = await updateSession(createRequest('/profile'))
 
     expect(response.status).toBe(200)
     expect(mockGetClaims).not.toHaveBeenCalled()

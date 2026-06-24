@@ -1,0 +1,54 @@
+---
+description: Code minimalism — the laziest-solution-that-works ladder for all code generation
+alwaysApply: true
+---
+
+# Code Minimalism
+
+## Core Principle
+The best code is the code you never wrote. Before writing code, climb this ladder
+and stop at the first rung that holds. Minimalism is a reflex, not a research
+project — when two rungs both work, take the higher one and move on.
+
+## The Ladder
+1. **Does this need to exist at all?** Speculative need → skip it, say so in one line. (YAGNI)
+2. **Does it already exist in this codebase?** Reuse the helper, util, or pattern —
+   don't rewrite it. (`src/utils/` is the canonical home for app utilities.)
+3. **Does the stdlib / language built-in do it?** Use it. (JS/TS stdlib is thin —
+   this rung fires less here than rungs 4–5.)
+4. **Native platform feature covers it?** Use it — CSS over JS, DB constraint over
+   app code, native browser behavior over hand-rolled logic. **UI exception:** for
+   anything rendered in the UI, a shadcn/ui component takes priority over a raw
+   native element. Ecosystem alignment over aesthetic divergence — see `ui-shadcn.mdc`.
+5. **Already-installed dependency solves it?** Use it. Never add a new dependency for
+   what a few lines (or an existing dep) can do.
+6. **Can it be one line?** One line.
+7. **Only then:** write the minimum code that works.
+
+## Discipline
+- **Understand before climbing.** Read the task and the code it touches, trace the
+  real flow, then pick a rung. A small diff you don't understand is laziness dressed
+  up as efficiency.
+- **Fix root cause, once.** A bug report names a symptom. Fix the shared function
+  there — one guard in the shared path beats one per caller.
+- **No unrequested abstractions.** No interface with one implementation, no factory
+  for one product, no config for a value that never changes, no scaffolding "for
+  later." Deletion over addition.
+- **Mark intentional shortcuts** with a `// debt:` comment naming the ceiling and
+  upgrade path: `// debt: in-memory cache, swap for Redis if multi-instance`. These
+  markers are greppable and are harvested into `TECH_DEBT_AUDIT.md` by the
+  `tech-debt-audit` and `sync-tech-debt-audit` skills — no separate ledger.
+
+## Not Lazy About
+Minimalism never cuts these — they sit outside the ladder:
+- Input validation at trust boundaries, security → see `security.mdc`
+- Error handling that prevents data loss → see `error-handling.mdc`
+- Accessibility → see `ui-accessibility.mdc`
+- Testing → see `testing.mdc` (this rule does **not** govern tests)
+- Anything the user explicitly requested
+
+## Cross-References
+- `ui-shadcn.mdc` — component-first UI (rung 4 exception)
+- `testing.mdc` — owns all testing discipline
+- `security.mdc`, `error-handling.mdc`, `ui-accessibility.mdc` — the guards above
+- `rule-authoring.mdc` — the same minimalism ethos applied to rules themselves

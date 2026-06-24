@@ -68,7 +68,7 @@ For roadmap and phase planning, see [CONTEXT.md](CONTEXT.md). For agent repo tru
 
 ## Initial setup
 
-After Quick start, grant yourself admin access so you can use the admin shell (Phase 3+):
+After Quick start, grant yourself admin access so you can use the admin shell:
 
 1. Start the dev server and sign up at [http://localhost:3000/auth/sign-up](http://localhost:3000/auth/sign-up).
 2. Add `SUPABASE_SECRET_KEY` to `.env.local` (from [Project Settings → API](https://app.supabase.com/project/_/settings/api) → **API Keys** → **secret key**, `sb_secret_...`). Never commit this key or use a `NEXT_PUBLIC_*` prefix.
@@ -76,7 +76,7 @@ After Quick start, grant yourself admin access so you can use the admin shell (P
    > **Note:** Supabase’s **secret key** replaces the legacy **service role** key. This repo uses `SUPABASE_SECRET_KEY` — not `SUPABASE_SERVICE_ROLE_KEY`. The legacy JWT under “Legacy API keys” still works during Supabase’s migration period, but prefer the secret key from **API Keys**.
 3. Grant yourself admin access — either:
 
-   - **In-app (after first admin exists):** another admin promotes you from `/users`, or
+   - **In-app (after first admin exists):** another admin promotes you from `/admin/users`, or
    - **CLI (bootstrap):** promote your account:
 
    ```bash
@@ -87,7 +87,7 @@ After Quick start, grant yourself admin access so you can use the admin shell (P
 
 4. **Re-login** if you were already signed in — the admin role is embedded in the JWT and won't appear until you start a fresh session.
 
-5. Open the admin area at [http://localhost:3000/users](http://localhost:3000/users) (admins land here after login; non-admins use `/protected`). The Users page lists signed-up accounts with email search, pagination, and in-app promote/demote for admins.
+5. Open the admin area at [http://localhost:3000/admin](http://localhost:3000/admin) (admins land here after login; non-admins land on `/profile`). The Users page at `/admin/users` lists signed-up accounts with email search, pagination, and in-app promote/demote for admins.
 
 Companion CLI commands (bootstrap / automation): `pnpm demote-admin <email>`, `pnpm list-admins` (read-only, no confirmation).
 
@@ -113,6 +113,30 @@ Companion CLI commands (bootstrap / automation): `pnpm demote-admin <email>`, `p
 | `pnpm promote-admin <email>` | Grant admin role via CLI (requires secret key; bootstrap / automation) |
 | `pnpm demote-admin <email>` | Remove admin role via CLI |
 | `pnpm list-admins` | List all admin users (read-only) |
+| `pnpm db:push` | Apply pending SQL migrations to the linked Supabase project (CLI prompts to confirm) |
+| `pnpm db:types` | Regenerate TypeScript types from the linked project schema |
+
+---
+
+## Database migrations
+
+Schema changes live in [`supabase/migrations/`](supabase/migrations/). Agents write SQL files only; humans apply them.
+
+**One-time setup** (per machine / clone):
+
+```bash
+pnpm exec supabase link
+```
+
+Link your local repo to your Supabase project (requires dashboard access). Agents must not run `supabase link`.
+
+**After a new migration file lands:**
+
+1. Review the SQL in `supabase/migrations/`
+2. Apply: `pnpm db:push` (confirm when prompted)
+3. Regenerate types: `pnpm db:types`
+
+See [AGENTS.md](AGENTS.md) and [`.cursor/rules/do-migrations-agent.mdc`](.cursor/rules/do-migrations-agent.mdc) for agent constraints.
 
 ---
 
@@ -154,6 +178,7 @@ pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci
 | Document | Audience | Purpose |
 | -------- | -------- | ------- |
 | [CONTEXT.md](CONTEXT.md) | PM + agents | Roadmap, active epics, planning decisions |
+| [DOC_RULES.md](DOC_RULES.md) | PM + agents | Doc maintenance — write discipline, doc roles, archive policy |
 | [AGENTS.md](AGENTS.md) | Agents | Repo truth — routes, locked rules, data model |
 | [DESIGN.md](DESIGN.md) | PM + contributors | Token architecture and re-skin workflow |
 | [.cursor/rules/](.cursor/rules/) | Agents | Coding standards and conventions |

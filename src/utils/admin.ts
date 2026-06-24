@@ -1,4 +1,6 @@
+import { APP_HOME } from '@/constants/app-paths'
 import { ADMIN_ROLE } from '@/constants/admin-role'
+import { ADMIN_HOME } from '@/constants/admin-paths'
 
 export type AppMetadata = Record<string, unknown>
 
@@ -17,5 +19,5 @@ export const isAdmin = (claims: JwtClaims | null | undefined): boolean =>
 
 export const getPostAuthRedirectPath = (
   appMetadata: AppMetadata | undefined,
-): '/users' | '/protected' =>
-  isAdminFromAppMetadata(appMetadata) ? '/users' : '/protected'
+): typeof ADMIN_HOME | typeof APP_HOME =>
+  isAdminFromAppMetadata(appMetadata) ? ADMIN_HOME : APP_HOME

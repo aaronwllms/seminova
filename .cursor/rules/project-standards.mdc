@@ -58,7 +58,7 @@ import { Button } from '../../components/ui/button'
 ## Utilities & Helpers Location
 - App-level utilities live in `src/utils/` — kebab-case filename with a co-located `*.unit.test.ts` (e.g. `extract-auth-form-error.ts`, `env.ts`, `tailwind.ts`).
 - Import `cn` from `@/utils/tailwind` — not from any shadcn `lib/utils` scaffold.
-- Route-scoped helpers (used by one route group only) live in that route's `_lib/` directory (e.g. `src/app/(admin)/users/_lib/`), not in the shared `src/utils/`.
+- Route-scoped helpers (used by one route group only) live in that route's `_lib/` directory (e.g. `src/app/admin/users/_lib/`), not in the shared `src/utils/`.
 - Shared types live in `src/types/`; custom hooks in `src/hooks/`; constants in `src/constants/`.
 
 ## Component Structure

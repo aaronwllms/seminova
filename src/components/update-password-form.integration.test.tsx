@@ -1,14 +1,17 @@
 import { render, screen, waitFor } from '@/test/test-utils'
 import userEvent from '@testing-library/user-event'
+import { ADMIN_HOME } from '@/constants/admin-paths'
 import { UpdatePasswordForm } from './update-password-form'
 
 const mockUpdateUser = vi.fn()
+const mockGetUser = vi.fn()
 const mockPush = vi.fn()
 
 vi.mock('@/supabase/client', () => ({
   createClient: () => ({
     auth: {
       updateUser: mockUpdateUser,
+      getUser: mockGetUser,
     },
   }),
 }))
@@ -20,10 +23,31 @@ vi.mock('next/navigation', () => ({
 describe('UpdatePasswordForm', () => {
   beforeEach(() => {
     mockUpdateUser.mockReset()
+    mockGetUser.mockReset()
     mockPush.mockReset()
+    mockGetUser.mockResolvedValue({
+      data: { user: { email: 'recover@example.com' } },
+      error: null,
+    })
   })
 
-  it('should update password and redirect non-admins to /protected', async () => {
+  it('should expose password-manager autofill attributes', async () => {
+    render(<UpdatePasswordForm />)
+
+    await waitFor(() => {
+      const usernameInput = document.querySelector(
+        'input[name="username"]',
+      ) as HTMLInputElement
+      expect(usernameInput).toHaveAttribute('autocomplete', 'username')
+      expect(usernameInput).toHaveValue('recover@example.com')
+    })
+    expect(screen.getByLabelText(/new password/i)).toHaveAttribute(
+      'autocomplete',
+      'new-password',
+    )
+  })
+
+  it('should update password and redirect non-admins to /profile', async () => {
     mockUpdateUser.mockResolvedValue({
       error: null,
       data: { user: { app_metadata: {} } },
@@ -39,11 +63,11 @@ describe('UpdatePasswordForm', () => {
       expect(mockUpdateUser).toHaveBeenCalledWith({
         password: 'new-password-123',
       })
-      expect(mockPush).toHaveBeenCalledWith('/protected')
+      expect(mockPush).toHaveBeenCalledWith('/profile')
     })
   })
 
-  it('should update password and redirect admins to /users', async () => {
+  it('should update password and redirect admins to /admin', async () => {
     mockUpdateUser.mockResolvedValue({
       error: null,
       data: { user: { app_metadata: { role: 'admin' } } },
@@ -56,7 +80,7 @@ describe('UpdatePasswordForm', () => {
     await user.click(screen.getByRole('button', { name: /save new password/i }))
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/users')
+      expect(mockPush).toHaveBeenCalledWith(ADMIN_HOME)
     })
   })
 

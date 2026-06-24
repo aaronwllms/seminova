@@ -1,5 +1,5 @@
 ---
-description: Toast / transient-feedback conventions — what surfaces as a toast vs inline/panel, and the success/info/warning taxonomy
+description: Toast / transient-feedback conventions — what surfaces as a toast vs inline indicator vs inline/panel, and the success/info/warning taxonomy
 globs:
   - 'src/**/*.{ts,tsx}'
 alwaysApply: false
@@ -22,11 +22,20 @@ references this file for the boundary.
 
 | Outcome | Surface | Why |
 |---------|---------|-----|
-| Success (mutation completed) | Toast (`showSuccessToast`) | Ephemeral confirmation; nothing to act on |
+| Success — explicit, discrete action (submit, promote/demote) | Toast (`showSuccessToast`) | Ephemeral confirmation; nothing to act on |
+| Success — auto-saved field (blur-save) | Inline transient indicator at the field | Continuous auto-save; a toast per field is disproportionate and stacks |
 | Info / neutral (FYI, no status) | Toast | Transient, no action |
 | Low-stakes warning (no action required) | Toast | Transient heads-up only |
 | Operational error (validation, forbidden, expected failure) | `InlineError` (see `error-handling.mdc`) | User must read and often correct/retry |
 | Fault (thrown exception, network/internal failure) | `ErrorPanel` with copy (see `error-handling.mdc`) | User may need to copy a code or retry |
+
+**Auto-save uses an inline indicator, not a toast.** Blur-save fields (see `forms.mdc`)
+confirm with a small, transient inline marker at the field (e.g. a "Saved" tick), not
+`showSuccessToast`. The routing principle still holds — both are transient, no-action
+feedback — but a toast per field blur is disproportionate and stacks when the user tabs
+through fields. Reserve toasts for explicit, discrete actions (submit a modal, promote a
+user); use the inline indicator for continuous auto-save. The indicator is a per-field UI
+affordance rendered where the form lives — it is not a toast helper.
 
 **Errors never surface as toasts.** An auto-dismissing toast can vanish before the user
 reads it, is awkward for screen readers, and can't hold a retry affordance or copyable
@@ -37,8 +46,8 @@ use `InlineError` / `ErrorPanel` rendered at a page- or section-level region —
 
 ## API
 
-- Success is implemented via [`showSuccessToast`](../../src/utils/app-toast.ts). Feature
-  code imports that helper; only `app-toast.ts` calls `toast.*` from sonner directly.
+- Success toasts are implemented via [`showSuccessToast`](../../src/utils/app-toast.ts).
+  Feature code imports that helper; only `app-toast.ts` calls `toast.*` from sonner directly.
 - Info and warning toasts are sanctioned by the taxonomy above but **are not pre-built**.
   Add a helper (`showInfoToast`, etc.) in `app-toast.ts` when a real feature needs one —
   do not add unused variants.
@@ -55,5 +64,6 @@ use `InlineError` / `ErrorPanel` rendered at a page- or section-level region —
 
 ## Cross-References
 
+- `forms.mdc` — save model (blur-save vs explicit submit) that drives toast-vs-inline-indicator
 - `error-handling.mdc` — error taxonomy, `InlineError` / `ErrorPanel`, response envelopes
 - `logging.mdc` — server-side log levels (separate concern from user-facing feedback)

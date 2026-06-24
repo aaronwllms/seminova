@@ -19,9 +19,13 @@ import { LandingNavLinks } from './landing-nav-links'
 
 type LandingMobileNavProps = {
   className?: string
+  authSlot: React.ReactNode
 }
 
-export const LandingMobileNav = ({ className }: LandingMobileNavProps) => {
+export const LandingMobileNav = ({
+  className,
+  authSlot,
+}: LandingMobileNavProps) => {
   const [open, setOpen] = useState(false)
 
   const handleNavigate = () => {
@@ -57,7 +61,7 @@ export const LandingMobileNav = ({ className }: LandingMobileNavProps) => {
           linkClassName="flex min-h-11 w-full items-center py-2"
           onNavigate={handleNavigate}
         />
-        <LandingAuthButtons layout="stack" />
+        {authSlot}
       </SheetContent>
     </Sheet>
   )

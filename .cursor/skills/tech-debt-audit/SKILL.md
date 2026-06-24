@@ -72,13 +72,15 @@ Use `rg` (Grep tool), shell commands, and language-native tooling to find concre
 
 9. **Documentation drift** — README or AGENTS.md claims that don't match reality, comments that contradict adjacent code, public APIs without docstrings.
 
+10. **Declared debt** — harvest the deliberate shortcuts the author flagged inline per `code-minimalism.mdc`: `rg -n "// debt:" src/`. Each marker names a known ceiling and upgrade path (e.g. `// debt: in-memory cache, swap for Redis if multi-instance`). These are **pre-classified, uncontested** findings — the author already declared them debt, so do not re-litigate whether they belong. Record each in the findings table under category **Declared debt**, citing the marker's `startLine:endLine:filepath`, using the marker's stated upgrade path as the Recommendation, and setting Severity/Effort from the nature of the ceiling. A marker whose shortcut is no longer present (upgraded already) is not a finding.
+
 ## Phase 3: Deliverable
 
 Write to `TECH_DEBT_AUDIT.md` in the repo root with this structure:
 
 - **Executive summary** — max 10 bullets, ranked by impact.
 - **Architectural mental model** — your understanding of the system as it actually is.
-- **Findings table** — columns: `ID | Category | File:Line | Severity (Critical/High/Medium/Low) | Effort (S/M/L) | Description | Recommendation`. Aim for 30–80 findings; padding past that is noise.
+- **Findings table** — columns: `ID | Category | File:Line | Severity (Critical/High/Medium/Low) | Effort (S/M/L) | Description | Recommendation`. Aim for 30–80 findings; padding past that is noise. The **Declared debt** category (Phase 2, dimension 10) carries the author's own `// debt:` markers — keep that category label so self-declared shortcuts stay visibly distinct from auditor-discovered findings.
 - **Top 5 "if you fix nothing else, fix these"** — with concrete diff sketches or refactor outlines, not vague advice.
 - **Quick wins** — Low effort × Medium+ severity, as a checklist.
 - **Things that look bad but are actually fine** — calls you considered flagging and chose not to, with reasoning. **This section is required.** If it's empty, you didn't look hard enough.

@@ -1,6 +1,8 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { PROFILE_PATH } from '@/constants/app-paths'
 import { hasEnvVars } from '@/utils/env'
+import { isAdmin, type JwtClaims } from '@/utils/admin'
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -56,6 +58,15 @@ export async function updateSession(request: NextRequest) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone()
     url.pathname = '/auth/login'
+    return NextResponse.redirect(url)
+  }
+
+  const { pathname } = request.nextUrl
+  const isAdminPath = pathname === '/admin' || pathname.startsWith('/admin/')
+
+  if (isAdminPath && user && !isAdmin(user as JwtClaims)) {
+    const url = request.nextUrl.clone()
+    url.pathname = PROFILE_PATH
     return NextResponse.redirect(url)
   }
 

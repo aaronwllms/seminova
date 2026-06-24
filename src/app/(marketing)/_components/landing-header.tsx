@@ -1,21 +1,27 @@
-import { SeminovaLogo } from '@/components/seminova-logo'
+import { Suspense } from 'react'
+
+import { SiteHeader } from '@/components/site-header'
 
 import { LandingAuthButtons } from './landing-auth-buttons'
-import { LandingContainer } from './landing-container'
+import { LandingAuthSlot } from './landing-auth-slot'
 import { LandingMobileNav } from './landing-mobile-nav'
-import { LandingNavLinks } from './landing-nav-links'
+
+const desktopAuthSlot = (
+  <Suspense fallback={<LandingAuthButtons />}>
+    <LandingAuthSlot />
+  </Suspense>
+)
+
+const mobileAuthSlot = (
+  <Suspense fallback={<LandingAuthButtons layout="stack" />}>
+    <LandingAuthSlot layout="stack" />
+  </Suspense>
+)
 
 export const LandingHeader = () => (
-  <header className="bg-background/95 sticky top-0 z-50 border-b backdrop-blur">
-    <LandingContainer>
-      <div className="flex h-16 items-center justify-between gap-4">
-        <SeminovaLogo href="/" className="text-foreground" />
-        <LandingNavLinks className="hidden flex-1 justify-center md:flex" />
-        <div className="hidden md:block">
-          <LandingAuthButtons />
-        </div>
-        <LandingMobileNav className="md:hidden" />
-      </div>
-    </LandingContainer>
-  </header>
+  <SiteHeader
+    logoHref="/"
+    rightSlot={desktopAuthSlot}
+    mobileNav={<LandingMobileNav authSlot={mobileAuthSlot} />}
+  />
 )

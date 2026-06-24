@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@/test/test-utils'
 import userEvent from '@testing-library/user-event'
 import { AuthApiError } from '@supabase/supabase-js'
+import { ADMIN_HOME } from '@/constants/admin-paths'
 import { LoginForm } from './login-form'
 
 const mockSignInWithPassword = vi.fn()
@@ -24,7 +25,20 @@ describe('LoginForm', () => {
     mockPush.mockReset()
   })
 
-  it('should sign in and redirect non-admins to /protected', async () => {
+  it('should expose password-manager autofill attributes', () => {
+    render(<LoginForm />)
+
+    expect(screen.getByLabelText(/email/i)).toHaveAttribute(
+      'autocomplete',
+      'username',
+    )
+    expect(screen.getByLabelText(/^password$/i)).toHaveAttribute(
+      'autocomplete',
+      'current-password',
+    )
+  })
+
+  it('should sign in and redirect non-admins to /profile', async () => {
     mockSignInWithPassword.mockResolvedValue({
       error: null,
       data: { user: { app_metadata: {} } },
@@ -42,11 +56,11 @@ describe('LoginForm', () => {
         email: 'test@example.com',
         password: 'password123',
       })
-      expect(mockPush).toHaveBeenCalledWith('/protected')
+      expect(mockPush).toHaveBeenCalledWith('/profile')
     })
   })
 
-  it('should sign in and redirect admins to /users', async () => {
+  it('should sign in and redirect admins to /admin', async () => {
     mockSignInWithPassword.mockResolvedValue({
       error: null,
       data: { user: { app_metadata: { role: 'admin' } } },
@@ -60,7 +74,7 @@ describe('LoginForm', () => {
     await user.click(screen.getByRole('button', { name: /^login$/i }))
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/users')
+      expect(mockPush).toHaveBeenCalledWith(ADMIN_HOME)
     })
   })
 

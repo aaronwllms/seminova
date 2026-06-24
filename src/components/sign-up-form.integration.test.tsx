@@ -23,6 +23,23 @@ describe('SignUpForm', () => {
     mockPush.mockReset()
   })
 
+  it('should expose password-manager autofill attributes', () => {
+    render(<SignUpForm />)
+
+    expect(screen.getByLabelText(/email/i)).toHaveAttribute(
+      'autocomplete',
+      'username',
+    )
+    expect(screen.getByLabelText(/^password$/i)).toHaveAttribute(
+      'autocomplete',
+      'new-password',
+    )
+    expect(screen.getByLabelText(/repeat password/i)).toHaveAttribute(
+      'autocomplete',
+      'new-password',
+    )
+  })
+
   it('should sign up and redirect on success', async () => {
     mockSignUp.mockResolvedValue({ error: null })
     const user = userEvent.setup()

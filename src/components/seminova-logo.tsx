@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
 import { siteConfig } from '@/config/site'
+import { ADMIN_HOME } from '@/constants/admin-paths'
 import { cn } from '@/utils/tailwind'
 
 type SeminovaLogoProps = {
@@ -11,7 +12,7 @@ type SeminovaLogoProps = {
 
 export const SeminovaLogo = ({
   className,
-  href = '/users',
+  href = ADMIN_HOME,
   onNavigate,
 }: SeminovaLogoProps) => {
   const Logo = siteConfig.Logo

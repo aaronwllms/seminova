@@ -17,6 +17,15 @@ describe('ForgotPasswordForm', () => {
     mockResetPasswordForEmail.mockReset()
   })
 
+  it('should expose password-manager autofill attributes', () => {
+    render(<ForgotPasswordForm />)
+
+    expect(screen.getByLabelText(/email/i)).toHaveAttribute(
+      'autocomplete',
+      'username',
+    )
+  })
+
   it('should show success message after sending reset email', async () => {
     mockResetPasswordForEmail.mockResolvedValue({ error: null })
     const user = userEvent.setup()

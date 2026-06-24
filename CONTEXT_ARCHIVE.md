@@ -106,9 +106,94 @@ Styled public landing/marketing page as the canonical public entry point at `/`.
 
 ---
 
+## Phase 5 — Admin Surface Polish & Toasting `Shipped` (2026-06-22)
+
+Retrofitted shared error/loading patterns and a toast system into the admin users surface and auth forms — not a standalone reference/demo page. Form/settings pattern deferred to Phase 6.
+
+### Epic 1 — Shared Error State Component `Shipped`
+
+- [x] **5.1 — Shared error wire-through.** Consolidated ad hoc inline errors across users table and four auth forms; captured raw Supabase `AuthError.code` (taxonomy mapping deferred to Phase 7). Interim single component superseded by Epic 2 severity split.
+
+### Epic 2 — Error Severity Architecture `Shipped`
+
+- [x] **5.2 — `kind: operational | fault` on error envelope.** `AppError` type; classification at producer/catcher — not inferred in UI.
+- [x] **5.3 — `InlineError` + `ErrorPanel`.** Operational vs fault display components; retrofitted all five surfaces; `.cursor/rules/error-handling.mdc` updated.
+
+### Epic 3 — Skeleton Loading State for Users Table `Shipped`
+
+- [x] **5.4 — Users table + admin layout skeletons.** `DataTableShell` + `DataTableSkeletonBody` with per-column `skeletonClassName` meta; `AdminShellSkeleton` behind Suspense on admin layout; `.cursor/rules/data-tables.mdc` loading pattern.
+
+### Epic 4 — Toast Notification System `Shipped`
+
+- [x] **5.5 — Sonner toast system.** shadcn `Toaster` in root layout; `showSuccessToast` helper; errors never use toasts (see `.cursor/rules/notifications.mdc`).
+
+### Epic 5 — In-App Admin Promote/Demote `Shipped`
+
+- [x] **5.6 — Row actions on `/users`.** Confirmation dialog + success toast; shared mutation logic in `admin-role-mutations.ts`; CLI scripts delegate to same utils.
+- [x] **5.7 — Locked-rule update.** AGENTS.md admin gate now permits in-app promote/demote (admin-gated server actions + service client) alongside secret-key CLI.
+
+---
+
+## Phase 6 — Data Model Foundation `Shipped` (2026-06-23)
+
+First real migration and the authenticated end-user surface. Establishes `profiles` as the one assumed schema primitive, a real `/admin/*` console namespace, the shared-chrome shell pattern, the first Supabase Storage bucket, the canonical form stack, and bidirectional admin ↔ app nav switches. The generic `/protected` starter shell is removed.
+
+### Epic 1 — Profiles Data Foundation `Shipped`
+
+- [x] **6.1 — `profiles` table.** 1:1 with `auth.users`; columns `display_name`, `avatar_url`, `bio`; no `role` column (admin gate stays on `app_metadata.role`).
+- [x] **6.2 — Signup trigger + RLS.** Auto-create profile on signup; owner-scoped SELECT/UPDATE; AGENTS.md data model seeded.
+
+### Epic 2 — Admin Namespace Foundation `Shipped`
+
+- [x] **6.3 — `/admin` URL segment.** Users table at `/admin/users`; `/admin` dashboard landing; blanket admin-role gating on `/admin/*`; post-login redirect for admins → `/admin`.
+
+### Epic 3 — Shared Chrome + Authenticated Shell `Shipped`
+
+- [x] **6.4 — Shared chrome primitives.** `SiteHeader`, `SiteFooter`, `SiteContainer`, etc.; marketing wrappers unchanged visually.
+- [x] **6.5 — `(app)` route group.** `AppShell` with circle-avatar `AppNavUser` (profiles-aware); app logo/footer target `APP_HOME`; marketing section nav omitted on authenticated surfaces.
+
+### Epic 4 — Avatar Storage `Shipped`
+
+- [x] **6.6 — `avatars` bucket.** Public-read, owner-scoped writes; canonical storage pattern; client upload utils (`avatar-storage.ts`); reference in `profiles.avatar_url`.
+
+### Epic 5 — Profile Page `Shipped`
+
+- [x] **6.7 — `/profile` settings page.** Combined view+edit for display name, avatar, bio, password; `react-hook-form` + zod form stack codified in `.cursor/rules/forms.mdc`.
+- [x] **6.8 — Post-login landing.** Non-admins → `/profile`; `/protected` removed; theme toggle on profile; marketing ↔ app round-trip (`LandingAuthSlot`, footer back link).
+
+### Epic 6 — Profile Surface Redesign `Shipped`
+
+- [x] **6.9 — Restrained layout + blur-save.** `max-w-prose` fields; display name/bio save on blur with inline indicator; avatar on upload; password in modal with `current_password`; `ToggleGroup` theme segment; conformant `forms.mdc` + `notifications.mdc` reference.
+
+### Epic 7 — Admin Profile Link `Shipped`
+
+- [x] **6.10 — Admin → profile link.** `AdminNavUser` Profile → `/profile`; shared `useSignOut` hook extracted for all sign-out paths.
+
+### Epic 8 — Auth Form Password-Manager Affordances `Shipped`
+
+- [x] **6.11 — Auth form `autocomplete`.** Four auth forms retrofitted per `forms.mdc`; update-password adds hidden paired username from recovery session.
+
+### Epic 9 — App-to-Admin Console Switch `Shipped`
+
+- [x] **6.12 — App → admin link.** Admin-gated "Admin console" in `AppNavUser` → `/admin`; `isAdmin` derived server-side from `app_metadata`; mirror of Epic 7 admin → app leg.
+
+---
+
 ## Resolved decisions
 
 **Auth screens — restyle vs rebuild** (resolved 2026-06-18, Phase 3 planning)
 Restyle in place, not rebuild. Phase 2 validated in-place token swaps work; Phase 3 applies the shadcn `-03` pattern (muted background, centered form, no side image) uniformly across all `/auth/**` screens using existing token values. Form fields and flows are unchanged.
 
 **Utilities location:** `cn` stays at `@/utils/tailwind` (consistent with the named-directory taxonomy; no catch-all `lib/`). Dead `src/lib/utils.ts` shadcn scaffold deleted.
+
+**Phase 5 scope — admin polish vs standalone reference page** (resolved 2026-06-19, Phase 5 planning)
+Renamed from "Reference Implementations" to "Admin Surface Polish & Toasting". Patterns ship in real surfaces (users table, auth forms) rather than a dedicated demo page; form/settings pattern owned by Phase 6.
+
+**In-app admin promote/demote** (resolved 2026-06-22, Phase 5 Epic 5)
+Admin gate locked rule expanded: `app_metadata.role` may be set via in-app promote/demote on `/users` (admin-gated server actions + service client) or secret-key CLI (`pnpm promote-admin`, `pnpm demote-admin`). Role must not move to a `profiles` column without PM approval.
+
+**Forms stack** (resolved 2026-06-22, Phase 6 planning)
+Adopt `react-hook-form` + `zod` as the canonical template form stack — the standard shadcn/Next pairing (shadcn's `Form` is built on RHF), satisfying ecosystem alignment over divergence. Established as a real convention by Phase 6 Epic 4 (the first real form) and documented in `.cursor/rules/` as a coding standard.
+
+**Profiles in template vs per-product** (resolved 2026-06-22, Phase 6 planning)
+Ship the `profiles` migration in the template by default as the one assumed schema primitive — "users must exist" is universal, and leaving it per-product would force every spinoff to re-derive the same table + trigger + RLS. Columns scoped to `display_name`, `avatar_url`, `bio`; no `role` column (admin gate stays on `app_metadata.role` per locked rule).

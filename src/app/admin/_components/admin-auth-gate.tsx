@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 
-import { AdminShell } from '@/app/(admin)/_components/admin-shell'
+import { AdminShell } from '@/app/admin/_components/admin-shell'
+import { PROFILE_PATH } from '@/constants/app-paths'
 import { createClient } from '@/supabase/server'
 import { isAdmin, type JwtClaims } from '@/utils/admin'
 
@@ -19,7 +20,7 @@ export const AdminAuthGate = async ({ children }: AdminAuthGateProps) => {
   const claims = data.claims as JwtClaims
 
   if (!isAdmin(claims)) {
-    redirect('/protected')
+    redirect(PROFILE_PATH)
   }
 
   const userEmail =
