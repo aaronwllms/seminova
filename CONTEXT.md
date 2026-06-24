@@ -2,8 +2,8 @@
 
 **Purpose:** Dual-use — planning reference for the builder (PM) and context for coding agents. Seminova is currently a **template**: a curated foundation that real products are built from. It is written in product shape so that the structure itself is inherited by every project spun off it. Agents: read this file for living state; build-time workflow and authoritative schema live in [AGENTS.md](AGENTS.md); shipped phase detail in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md).
 
-**Last updated:** 2026-06-23
-**Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell (Admin sidebar) + Auth restyle (shipped). Phase 4 — Landing Page (shipped). Phase 5 — Admin Surface Polish & Toasting (shipped). Phase 6 — Data Model Foundation (shipped).
+**Last updated:** 2026-06-24
+**Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell (Admin sidebar) + Auth restyle (shipped). Phase 4 — Landing Page (shipped). Phase 5 — Admin Surface Polish & Toasting (shipped). Phase 6 — Data Model Foundation (shipped). Phase 7 — Security Audit Remediation (active).
 **Migrations:** 2 custom — `profiles` + `avatars` bucket (see [AGENTS.md](AGENTS.md) data model).
 
 **Shipped phase detail →** [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md)
@@ -104,7 +104,7 @@ No custom schema beyond shipped Phase 6 migrations. Authoritative schema lives i
 | 4 | Landing Page | `Shipped` |
 | 5 | Admin Surface Polish & Toasting | `Shipped` |
 | 6 | Data Model Foundation (profiles, admin namespace, authenticated shell, profile page) | `Shipped` |
-| 7 | Security Audit | `Draft` |
+| 7 | Security Audit Remediation | `Active` |
 | 8 | SEO & GEO | `Draft` |
 | 9 | Pattern Reference Page | `Draft` |
 | 10 | Agent Tooling: Skills Suite | `Draft` |
@@ -113,14 +113,41 @@ No custom schema beyond shipped Phase 6 migrations. Authoritative schema lives i
 
 # ACTIVE
 
-_No phase currently in progress. Next up: Phase 7 — Security Audit (`Draft`). Promote via `phase-planning` when ready to start._
+## Phase 7 — Security Audit Remediation `Active`
+
+Remediation pass over the findings from the security audit (`SECURITY_AUDIT.md`), which came back clean — no Critical or High findings. RLS policies on `profiles`, the avatar bucket's public-read storage RLS, secret handling, and the auth boundary were reviewed during the audit and cleared. What remains is four fixes: two audit-flagged issues (one Medium, one Low), a security-headers default, and the AuthError taxonomy mapping deferred from Phase 5. The four epics are independent — no inter-epic sequencing — and can each be built in a separate agent session.
+
+### Epic 1 — Open-redirect fix on /auth/confirm
+
+- [ ] **7.1 — Same-origin redirect validation on confirm.** `/auth/confirm` must validate that the `next` redirect target is same-origin before honoring it, reusing the existing `isSafeRedirect` pattern (`security.mdc`) rather than introducing a new validator. An unsafe or missing target falls back to the existing post-auth redirect path, else `/profile`. Include a regression test covering an off-origin `next` being rejected. (Audit: Medium)
+
+### Epic 2 — Server-side avatar URL scoping
+
+- [ ] **7.2 — Reject non-owned avatar URLs in `updateProfileAction`.** `updateProfileAction` must not trust a client-supplied `avatarUrl` that points outside the user's own avatar storage path. Prefer constructing the avatar URL server-side from the authenticated user's id over accepting it from the client; if a client value is accepted at all, reject any path whose owner segment isn't the current user. Preserve the existing versioned cache-bust (`?v=`) behavior. (Audit: Low)
+
+### Epic 3 — Security headers
+
+- [ ] **7.3 — Security-headers module with env-driven CSP.** A new `src/utils/security-headers.ts` (placed in `src/` so the `// debt:` harvester reaches it), imported by `next.config.ts`, defines a tight CSP plus `X-Frame-Options` and HSTS. The CSP ships **report-only by default**, flipping to enforcing via an env flag — the switch logic lives in the module, with no dev/prod branching. Carry a `// debt:` marker framed as a template default (each product tightens and enforces per its own surface). Add a one-line note in AGENTS.md recording where security headers live and the report-only-by-default convention so spinoff products inherit it. (Documents an implemented-feature convention, not a locked rule — no change-protocol routing.)
+
+### Epic 4 — AuthError taxonomy mapping
+
+- [ ] **7.4 — Fallback-first `extractAuthFormError`.** Rework `extractAuthFormError` so any unmapped Supabase `AuthError` code falls through to generic copy ("We couldn't complete that request. Please try again, or contact support if the problem continues."), `kind: operational`, taxonomy `SUPABASE_AUTH_ERROR`; stop passing Supabase's raw message to users; log the raw code bracket-tagged. Enumeration-strict, option B — `email_not_confirmed` folds into the generic credentials copy; `user_already_exists`/`email_exists` are left to fallback. All four auth forms (login, sign-up, forgot-password, update-password) consume this shared util, so the override set is centralized in it. Canonize the fallback-first convention and how-to-add-a-code guidance in `error-handling.mdc`, pointing at `extract-auth-form-error.ts` as the enumerated source — do not duplicate the table into the rule. Explicit override set:
+
+  | code | taxonomy | kind | copy |
+  | ---- | -------- | ---- | ---- |
+  | `invalid_credentials` | `SUPABASE_AUTH_ERROR` | operational | "Invalid email or password." |
+  | `email_not_confirmed` | `SUPABASE_AUTH_ERROR` | operational | "Invalid email or password." |
+  | `weak_password` | `VALIDATION_ERROR` | operational | "Your password doesn't meet the strength requirements. Please choose a stronger one." |
+  | `same_password` | `VALIDATION_ERROR` | operational | "Your new password must be different from your current one." |
+  | `over_email_send_rate_limit` | `RATE_LIMITED` | operational | "Too many emails sent. Please wait a few minutes and try again." |
+  | `over_request_rate_limit` | `RATE_LIMITED` | operational | "Too many attempts. Please wait a few minutes before trying again." |
+  | `session_expired` | `SESSION_EXPIRED` | operational | "Your session has expired. Please sign in again." |
+  | `email_address_invalid` | `VALIDATION_ERROR` | operational | "Please enter a valid email address." |
+  | `unexpected_failure` | `INTERNAL_ERROR` | fault | "Something went wrong on our end. Please try again, or contact support if it continues." |
 
 ---
 
 # DRAFT — Upcoming Phases
-
-## Phase 7 — Security Audit `Draft`
-A dedicated pass over security-relevant surfaces now that RLS policies and the `profiles` table are real. Known scope so far: map raw Supabase `AuthError` codes (captured in Phase 5, passed through as operational/`kind`-tagged but unmapped) to the error taxonomy in `error-handling.mdc` and decide what's safe to surface/copy per code, per `security.mdc` guidance; review RLS policies on `profiles`; review the avatar bucket's public-read storage RLS; general secret-handling and auth-boundary review. Not yet fully scoped — flesh out epics when Phase 7 is promoted to ACTIVE.
 
 ## Phase 8 — SEO & GEO `Draft`
 Not yet scoped. Covers traditional SEO (metadata, sitemap, structured data) and GEO (generative-engine optimization — how the product surfaces in AI assistant answers) for the marketing/landing surface shipped in Phase 4. No hard sequencing dependency beyond Phase 4 being shipped.

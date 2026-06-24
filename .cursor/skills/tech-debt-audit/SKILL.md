@@ -18,7 +18,7 @@ Conducts a deliberate, opinionated audit of an entire codebase and produces `TEC
 **Not the same as:**
 
 - **`pre-release-review`** — scoped to changed files before a PR; quality gates + manual checklist
-- **`create-security-review-plan`** — security-focused; Plan Mode → Build → `SECURITY_AUDIT.md` at repo root
+- **`security-audit`** — security-focused; Plan Mode → Build → `SECURITY_AUDIT.md` at repo root
 - **`sync-repo-docs`** / **`sync-context-md`** — doc drift only, narrow window
 - **`sync-tech-debt-audit`** — incremental TECH_DEBT_AUDIT.md refresh after recent changes; not a full re-audit
 - **`archive-tech-debt-audit`** — move completed audit to `archive/tech-debt-audits/` when all findings resolved
@@ -54,7 +54,9 @@ Use `TodoWrite` to publish a plan so the user can see progress through the phase
 
 Use `rg` (Grep tool), shell commands, and language-native tooling to find concrete examples. Cite `startLine:endLine:filepath` for every finding.
 
-1. **Architectural decay** — circular deps, layering violations, god files (>500 LOC) and god functions, duplicated logic across 3+ sites where an abstraction should exist, abstractions that exist but nobody uses, dead code (unused exports, unreachable branches, stale commented-out blocks).
+1. **Architectural decay** — circular deps, layering violations, god files (>500 LOC) and god functions, duplicated logic across 3+ sites where an abstraction should exist, abstractions that exist but nobody uses, dead code (unused exports, unreachable branches, stale commented-out blocks). Two `code-minimalism.mdc` anti-patterns also belong here as named finding types — the construct is *used*, so dead-code and unused-abstraction scans miss them:
+   - **Speculative flexibility** — flexibility that exists but is never exercised: an interface with one implementation, a factory for one product, config for a value that never changes, an options object with a single option, a function param never passed a non-default value. (Per the rule's "no unrequested abstractions" discipline — distinct from an unused abstraction, where the construct itself is dead.) Cite the construct's `startLine:endLine:filepath`.
+   - **Reinventing the platform/ecosystem** — hand-rolled code where a lower rung of the minimalism ladder already covers it: JS where CSS suffices, app code where a DB constraint suffices, a raw native element where a shadcn/ui component is the standard (rung 4), or a helper/util reimplemented once where one already exists (rung 2, below the 3+-site duplication threshold above). Cite the reimplementation's `startLine:endLine:filepath`.
 
 2. **Consistency rot** — multiple ways of doing the same thing (HTTP clients, error handling, logging, config loading, validation, date handling). Naming drift. Folder structure that no longer reflects what the code actually does.
 
@@ -68,7 +70,7 @@ Use `rg` (Grep tool), shell commands, and language-native tooling to find concre
 
 7. **Error handling & observability** — swallowed exceptions, blanket catches, errors logged but not handled, inconsistent error shapes across modules, missing structured logs on critical paths.
 
-8. **Security hygiene** — hardcoded secrets, string-concat SQL, missing input validation at trust boundaries, permissive auth or CORS, weak crypto. For deep security review, note that **`create-security-review-plan`** exists; this dimension catches obvious hygiene only.
+8. **Security hygiene** — hardcoded secrets, string-concat SQL, missing input validation at trust boundaries, permissive auth or CORS, weak crypto. For deep security review, note that **`security-audit`** exists; this dimension catches obvious hygiene only.
 
 9. **Documentation drift** — README or AGENTS.md claims that don't match reality, comments that contradict adjacent code, public APIs without docstrings.
 

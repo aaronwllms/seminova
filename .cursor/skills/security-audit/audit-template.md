@@ -1,4 +1,4 @@
-# Security Audit — Cookloop
+# Security Audit — <repo name>
 
 <!-- Live file: SECURITY_AUDIT.md at repo root -->
 
@@ -7,7 +7,7 @@
 **Generated:** YYYY-MM-DD
 
 **Scope:** Full repo static review | [or narrow scope if quick scan]  
-**Produced by:** `/create-security-review-plan` → **Build in parallel**  
+**Produced by:** `/security-audit`  
 **Surfaces inventoried:** [e.g. N routes, M server actions, T tables with RLS, S storage buckets]
 
 ## Surface map
@@ -23,67 +23,53 @@
 
 ---
 
-## Execution plan (Multitask)
+## Workstreams reviewed
 
-Workstreams executed via **Build in parallel** on the security review plan. Read-only; no application code edits.
+Read-only review across the five workstreams. No application code edits.
 
 ### W1 — Auth & routing
 
-**Status:** pending | in progress | done
+**Status:** done | scoped out
 
-**Files:**
+**Files reviewed:**
 
 - …
 
-**Review checklist:**
+**Checklist:**
 
 - [ ] …
 
-**Agent prompt:**
+### W2 — Data layer / RLS
 
-```text
-[paste-ready prompt for one agent]
-```
+**Status:** done
 
-### W2 — Data layer
+**Files reviewed:** …
 
-**Status:** pending
-
-**Files:** …
-
-**Review checklist:** …
-
-**Agent prompt:** …
+**Checklist:** …
 
 ### W3 — Server surface
 
-**Status:** pending
+**Status:** done
 
-**Files:** …
+**Files reviewed:** …
 
-**Review checklist:** …
-
-**Agent prompt:** …
+**Checklist:** …
 
 ### W4 — Storage
 
-**Status:** pending
+**Status:** done
 
-**Files:** …
+**Files reviewed:** …
 
-**Review checklist:** …
-
-**Agent prompt:** …
+**Checklist:** …
 
 ### W5 — Exposure & secrets
 
-**Status:** pending
+**Status:** done
 
-**Files:** …
+**Files reviewed:** …
 
-**Review checklist:** …
-
-**Agent prompt:** …
+**Checklist:** …
 
 ---
 
