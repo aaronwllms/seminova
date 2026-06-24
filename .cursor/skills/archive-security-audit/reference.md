@@ -4,7 +4,7 @@
 
 | State                 | Path                                                   | Used by                                                      |
 | --------------------- | ------------------------------------------------------ | ------------------------------------------------------------ |
-| **Live backlog**      | `SECURITY_AUDIT.md` (repo root)                        | `/create-security-review-plan` → Build, remediation tracking |
+| **Live backlog**      | `SECURITY_AUDIT.md` (repo root)                        | `/security-audit` → Build, remediation tracking |
 | **Archived snapshot** | `archive/security-audits/security-audit-YYYY-MM-DD.md` | History, compliance trail, agent context                     |
 
 ## SECURITY_AUDIT.md structure
@@ -57,7 +57,7 @@ Dated snapshots from **`/archive-security-audit`** when actionable findings were
 
 | Live audit | `SECURITY_AUDIT.md` at repo root |
 | Archive | This folder |
-| New cycle | `/create-security-review-plan` → Build |
+| New cycle | `/security-audit` → Build |
 
 Naming: `security-audit-YYYY-MM-DD.md` (append `-2` if collision).
 ```
@@ -66,7 +66,7 @@ Naming: `security-audit-YYYY-MM-DD.md` (append `-2` if collision).
 
 | Skill                         | When                                                  |
 | ----------------------------- | ----------------------------------------------------- |
-| `create-security-review-plan` | After archive — Plan Mode + Build for new cycle       |
+| `security-audit` | After archive — Plan Mode + Build for new cycle       |
 | `archive-tech-debt-audit`     | Parallel pattern for tech debt (different checklist)  |
 | `sync-context-md`             | After archive — update planning brief audit reference |
 | `pre-release-review`          | Ongoing PR checks — not a substitute for archiving    |
@@ -74,7 +74,7 @@ Naming: `security-audit-YYYY-MM-DD.md` (append `-2` if collision).
 ## Typical end-of-cycle flow
 
 ```
-/create-security-review-plan   → Plan + Build → SECURITY_AUDIT.md
+/security-audit   → Plan + Build → SECURITY_AUDIT.md
 [fix findings in separate work]
 [mark [x] on resolved findings in SECURITY_AUDIT.md]
 /archive-security-audit       → move to archive/security-audits/

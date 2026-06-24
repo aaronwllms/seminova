@@ -3,8 +3,17 @@
 import { revalidatePath } from 'next/cache'
 
 import { PROFILE_PATH } from '@/constants/app-paths'
+import {
+  AVATAR_BUCKET,
+  buildAvatarStoragePath,
+} from '@/constants/storage-paths'
 import { createClient } from '@/supabase/server'
 import type { ErrorKind } from '@/types/app-error'
+import {
+  extractAvatarCacheBust,
+  isOwnedAvatarStorageUrl,
+  withAvatarCacheBust,
+} from '@/utils/avatar-cache-bust'
 
 import { parseProfilePartialInput } from './_lib/profile-form-schema'
 
@@ -85,7 +94,17 @@ export const updateProfileAction = async (
   }
 
   if (parsed.data.avatarUrl !== undefined) {
-    updatePayload.avatar_url = parsed.data.avatarUrl
+    if (parsed.data.avatarUrl === null) {
+      updatePayload.avatar_url = null
+    } else if (isOwnedAvatarStorageUrl(parsed.data.avatarUrl, user.id)) {
+      const { data } = supabase.storage
+        .from(AVATAR_BUCKET)
+        .getPublicUrl(buildAvatarStoragePath(user.id))
+
+      const version =
+        extractAvatarCacheBust(parsed.data.avatarUrl) ?? Date.now()
+      updatePayload.avatar_url = withAvatarCacheBust(data.publicUrl, version)
+    }
   }
 
   const { data: profile, error: updateError } = await supabase

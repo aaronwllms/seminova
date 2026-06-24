@@ -95,7 +95,7 @@ describe('LoginForm', () => {
     await user.click(screen.getByRole('button', { name: /^login$/i }))
 
     expect(
-      await screen.findByText(/invalid login credentials/i),
+      await screen.findByText(/invalid email or password/i),
     ).toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: /copy error details/i }),

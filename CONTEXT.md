@@ -2,9 +2,9 @@
 
 **Purpose:** Dual-use — planning reference for the builder (PM) and context for coding agents. Seminova is currently a **template**: a curated foundation that real products are built from. It is written in product shape so that the structure itself is inherited by every project spun off it. Agents: read this file for living state; build-time workflow and authoritative schema live in [AGENTS.md](AGENTS.md); shipped phase detail in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md).
 
-**Last updated:** 2026-06-23
-**Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell (Admin sidebar) + Auth restyle (shipped). Phase 4 — Landing Page (shipped). Phase 5 — Admin Surface Polish & Toasting (shipped). Phase 6 — Data Model Foundation (shipped).
-**Migrations:** 2 custom — `profiles` + `avatars` bucket (see [AGENTS.md](AGENTS.md) data model).
+**Last updated:** 2026-06-24
+**Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell (Admin sidebar) + Auth restyle (shipped). Phase 4 — Landing Page (shipped). Phase 5 — Admin Surface Polish & Toasting (shipped). Phase 6 — Data Model Foundation (shipped). Phase 7 — Security Audit Remediation (shipped).
+**Migrations:** 3 custom — `profiles`, `avatars` bucket + SELECT policy (see [AGENTS.md](AGENTS.md) data model).
 
 **Shipped phase detail →** [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md)
 
@@ -89,7 +89,7 @@ Seminova is an AI-native foundation, but it does not prescribe a product's runti
 
 No custom schema beyond shipped Phase 6 migrations. Authoritative schema lives in [AGENTS.md](AGENTS.md) **Data model (summary)**.
 
-- **Shipped migrations:** `profiles` table + signup trigger + owner-scoped RLS; `avatars` storage bucket.
+- **Shipped migrations:** `profiles` table + signup trigger + owner-scoped RLS; `avatars` storage bucket + public SELECT policy for upsert.
 - **Storage buckets:** `avatars` (public-read, owner-scoped writes).
 
 ---
@@ -104,7 +104,7 @@ No custom schema beyond shipped Phase 6 migrations. Authoritative schema lives i
 | 4 | Landing Page | `Shipped` |
 | 5 | Admin Surface Polish & Toasting | `Shipped` |
 | 6 | Data Model Foundation (profiles, admin namespace, authenticated shell, profile page) | `Shipped` |
-| 7 | Security Audit | `Draft` |
+| 7 | Security Audit Remediation | `Shipped` |
 | 8 | SEO & GEO | `Draft` |
 | 9 | Pattern Reference Page | `Draft` |
 | 10 | Agent Tooling: Skills Suite | `Draft` |
@@ -113,14 +113,11 @@ No custom schema beyond shipped Phase 6 migrations. Authoritative schema lives i
 
 # ACTIVE
 
-_No phase currently in progress. Next up: Phase 7 — Security Audit (`Draft`). Promote via `phase-planning` when ready to start._
+_No active phase. Phase 8 (SEO & GEO) is next in Draft — promote via `phase-planning` when ready to start._
 
 ---
 
 # DRAFT — Upcoming Phases
-
-## Phase 7 — Security Audit `Draft`
-A dedicated pass over security-relevant surfaces now that RLS policies and the `profiles` table are real. Known scope so far: map raw Supabase `AuthError` codes (captured in Phase 5, passed through as operational/`kind`-tagged but unmapped) to the error taxonomy in `error-handling.mdc` and decide what's safe to surface/copy per code, per `security.mdc` guidance; review RLS policies on `profiles`; review the avatar bucket's public-read storage RLS; general secret-handling and auth-boundary review. Not yet fully scoped — flesh out epics when Phase 7 is promoted to ACTIVE.
 
 ## Phase 8 — SEO & GEO `Draft`
 Not yet scoped. Covers traditional SEO (metadata, sitemap, structured data) and GEO (generative-engine optimization — how the product surfaces in AI assistant answers) for the marketing/landing surface shipped in Phase 4. No hard sequencing dependency beyond Phase 4 being shipped.

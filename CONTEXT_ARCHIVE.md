@@ -179,6 +179,28 @@ First real migration and the authenticated end-user surface. Establishes `profil
 
 ---
 
+## Phase 7 — Security Audit Remediation `Shipped` (2026-06-24)
+
+Remediation pass over `SECURITY_AUDIT.md` findings (no Critical or High). Four independent epics: open-redirect hardening, server-side avatar URL scoping, report-only security headers, and fallback-first auth error taxonomy deferred from Phase 5.
+
+### Epic 1 — Open-redirect fix on /auth/confirm `Shipped`
+
+- [x] **7.1 — Same-origin redirect validation on confirm.** `/auth/confirm` validates `next` via `isSafeRedirect`; off-origin targets fall back to role-based post-auth path; regression test for rejected off-origin `next`. (Audit: Medium)
+
+### Epic 2 — Server-side avatar URL scoping `Shipped`
+
+- [x] **7.2 — Reject non-owned avatar URLs in `updateProfileAction`.** `isOwnedAvatarStorageUrl` gates `avatar_url` persistence; external or other-user URLs omitted; versioned cache-bust preserved. Third migration adds public SELECT on `storage.objects` for avatars upsert. (Audit: Low)
+
+### Epic 3 — Security headers `Shipped`
+
+- [x] **7.3 — Security-headers module with env-driven CSP.** `src/utils/security-headers.ts` wired via `next.config.ts`; CSP report-only by default (`CSP_ENFORCE` opt-in); `// debt:` marker for nonce strategy before enforcement; AGENTS.md records convention.
+
+### Epic 4 — AuthError taxonomy mapping `Shipped`
+
+- [x] **7.4 — Fallback-first `extractAuthFormError`.** `AUTH_ERROR_OVERRIDES` for known Supabase codes; unmapped codes → generic operational copy, never raw Supabase messages; bracket-tagged log on fallback path only; convention canonized in `error-handling.mdc`.
+
+---
+
 ## Resolved decisions
 
 **Auth screens — restyle vs rebuild** (resolved 2026-06-18, Phase 3 planning)

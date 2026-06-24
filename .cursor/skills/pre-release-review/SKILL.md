@@ -168,5 +168,5 @@ If docs may be stale, suggest running **sync-repo-docs** and/or **sync-context-m
 - **Tests pass ≠ feature works** — code review catches logic; manual checklist catches UX
 - **Do not open the browser** unless the user explicitly asks
 - **Do not fix code** without permission
-- **Scope to the feature** — avoid whole-repo audits (use **create-security-review-plan** + Build for full-repo audits)
+- **Scope to the feature** — avoid whole-repo audits (use **security-audit** + Build for full-repo audits)
 - **Project truth lives in AGENTS.md** — not in this skill file

@@ -15,10 +15,10 @@ Close a **completed** security audit cycle by moving [SECURITY_AUDIT.md](../../.
 
 **Not the same as:**
 
-- **`create-security-review-plan`** — Plan Mode + Build produces or refreshes the **live** root audit
+- **`security-audit`** — Plan Mode + Build produces or refreshes the **live** root audit
 - **`archive-tech-debt-audit`** — same archive pattern for `TECH_DEBT_AUDIT.md` (different closure rules)
 
-If `SECURITY_AUDIT.md` is missing, stop — nothing to archive. Suggest `/create-security-review-plan` to start a new cycle.
+If `SECURITY_AUDIT.md` is missing, stop — nothing to archive. Suggest `/security-audit` to start a new cycle.
 
 ## When to run
 
@@ -94,7 +94,7 @@ pnpm test:ci                                            # quality gates green
 
 ```markdown
 **Archived:** YYYY-MM-DD  
-**Status:** Actionable findings resolved — live backlog cleared. Start a new cycle with `/create-security-review-plan`.
+**Status:** Actionable findings resolved — live backlog cleared. Start a new cycle with `/security-audit`.
 ```
 
 5. **Move** (prefer `git mv`) from repo root — do **not** copy and leave duplicate
@@ -127,7 +127,7 @@ Do **not** rewrite `.cursor/plans/` history. Old plan links are historical.
 ### Archive
 
 - Moved: `SECURITY_AUDIT.md` → `archive/security-audits/security-audit-YYYY-MM-DD.md`
-- Root file: removed (start new cycle with `/create-security-review-plan`)
+- Root file: removed (start new cycle with `/security-audit`)
 
 ### Cross-references updated
 
@@ -136,7 +136,7 @@ Do **not** rewrite `.cursor/plans/` history. Old plan links are historical.
 ### Next steps
 
 - [Optional `/sync-context-md` if planning brief updated]
-- New security review: `/create-security-review-plan` when ready
+- New security review: `/security-audit` when ready
 ```
 
 Do **not** commit unless the user asks.
@@ -147,7 +147,7 @@ Do **not** commit unless the user asks.
 - Do not delete the audit without moving to `archive/security-audits/`
 - Do not overwrite an existing archive filename — use `-2` suffix
 - Do not treat cleared Human follow-ups as sufficient if actionable findings remain open
-- Do not run `/create-security-review-plan` as part of archive — archive is terminal for this cycle
+- Do not run `/security-audit` as part of archive — archive is terminal for this cycle
 
 ## Additional resources
 
