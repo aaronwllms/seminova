@@ -2,7 +2,7 @@
 
 **Purpose:** What exists in this repo today — locked rules, implemented features, routes, data model, and where to look. For planning and roadmap, see [CONTEXT.md](CONTEXT.md). For human setup, see [README.md](README.md). For how to write code, see [.cursor/rules/](.cursor/rules/) (not duplicated here).
 
-**Last updated:** 2026-06-23
+**Last updated:** 2026-06-24
 
 | Document | Audience | Role |
 | -------- | -------- | ---- |
@@ -124,18 +124,21 @@
 - **Auth form password-manager affordances (Phase 6 Epic 8):** four auth forms (`login-form`, `sign-up-form`, `forgot-password-form`, `update-password-form`) carry `autocomplete` tokens per [`forms.mdc`](.cursor/rules/forms.mdc); update-password adds a hidden paired username field from the recovery session.
 - **App-to-admin console switch (Phase 6 Epic 9):** [`AppNavUser`](src/app/(app)/_components/app-nav-user.tsx) dropdown adds admin-gated Admin console → `/admin` (`ADMIN_HOME`); `isAdmin` derived server-side in [`getCurrentUserProfile`](src/app/(app)/_lib/get-current-user-profile.ts) via `isAdminFromAppMetadata`; non-admin menu unchanged (mirror of Epic 7's admin → profile leg).
 - **Security headers (Phase 7 Epic 3):** [`src/utils/security-headers.ts`](src/utils/security-headers.ts) wired via [`next.config.ts`](next.config.ts); CSP is report-only by default, and flipping to enforcing (`CSP_ENFORCE=true`) requires nonce-based script handling — not just directive tightening — per the `// debt:` marker in that file.
+- **Open redirect prevention (Phase 7 Epic 1):** [`/auth/confirm`](src/app/auth/confirm/route.ts) validates optional `next` query param with [`isSafeRedirect`](src/utils/is-safe-redirect.ts) (same-origin only) before redirect; falls back to role-based post-auth path.
+- **Avatar URL scoping (Phase 7 Epic 2):** [`updateProfileAction`](src/app/(app)/profile/actions.ts) persists `avatar_url` only for owned storage paths via [`isOwnedAvatarStorageUrl`](src/utils/avatar-cache-bust.ts); external or other-user URLs are omitted; [`20260623130000_add_avatars_select_policy.sql`](supabase/migrations/20260623130000_add_avatars_select_policy.sql) adds public SELECT on `storage.objects` for avatars upsert.
+- **Auth error taxonomy (Phase 7 Epic 4):** [`extractAuthFormError`](src/utils/extract-auth-form-error.ts) is fallback-first — enumerated `AUTH_ERROR_OVERRIDES` for known Supabase codes; unmapped `AuthError` codes get generic operational copy (`AUTH_ERROR_FALLBACK_MESSAGE`), never raw Supabase messages; logs `supabaseCode` on fallback path only.
 
 ---
 
 ## Data model (summary)
 
-**Custom migrations:** 2 — [`20260622120000_create_profiles.sql`](supabase/migrations/20260622120000_create_profiles.sql), [`20260623120000_create_avatars_bucket.sql`](supabase/migrations/20260623120000_create_avatars_bucket.sql)
+**Custom migrations:** 3 — [`20260622120000_create_profiles.sql`](supabase/migrations/20260622120000_create_profiles.sql), [`20260623120000_create_avatars_bucket.sql`](supabase/migrations/20260623120000_create_avatars_bucket.sql), [`20260623130000_add_avatars_select_policy.sql`](supabase/migrations/20260623130000_add_avatars_select_policy.sql)
 
 | Entity | Table / bucket | Notes |
 | ------ | -------------- | ----- |
 | User | `auth.users` | Supabase built-in; available via auth |
 | Profile | `public.profiles` | 1:1 with `auth.users` (`profiles.id` FK). Columns: `display_name`, `avatar_url`, `bio` (all nullable). **No `role` column** — admin gate stays on `app_metadata.role`. Auto-created on signup via `handle_new_user` trigger; backfills existing users. Owner-scoped RLS: authenticated SELECT/UPDATE own row only (`using` + `with check` on UPDATE). Types: [`Profile`](src/types/profile.ts). |
-| Avatar files | `storage.avatars` | Public-read bucket; path `{user_id}/avatar.webp`. Owner-scoped INSERT/UPDATE/DELETE on `storage.objects` (first path segment = `auth.uid()`). Versioned public URL stored in `profiles.avatar_url` (e.g. `…/avatar.webp?v={timestamp}`). Upload: [`avatar-storage.ts`](src/utils/avatar-storage.ts). |
+| Avatar files | `storage.avatars` | Public-read bucket; path `{user_id}/avatar.webp`. Owner-scoped INSERT/UPDATE/DELETE on `storage.objects` (first path segment = `auth.uid()`); public SELECT policy required for upsert. Versioned public URL stored in `profiles.avatar_url` (e.g. `…/avatar.webp?v={timestamp}`); server action rejects external or other-user URLs via [`isOwnedAvatarStorageUrl`](src/utils/avatar-cache-bust.ts). Upload: [`avatar-storage.ts`](src/utils/avatar-storage.ts). |
 
 Schema authority for shipped tables lives in this section once migrations land. Do not duplicate per-table detail in CONTEXT.md.
 
@@ -164,7 +167,10 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | `src/types/app-error.ts` | Shared `AppError` / `ErrorKind` types |
 | `src/types/database.types.ts` | Generated Supabase schema types (`pnpm db:types`) |
 | `src/types/profile.ts` | `Profile` / `ProfileUpdate` aliases for `public.profiles` |
-| `src/utils/extract-auth-form-error.ts` | Maps Supabase auth errors to `AppError` with `kind` |
+| `src/utils/extract-auth-form-error.ts` | Fallback-first Supabase auth error mapping (`AUTH_ERROR_OVERRIDES` + generic fallback) |
+| `src/utils/is-safe-redirect.ts` | Same-origin redirect guard for `/auth/confirm` `next` param |
+| `src/utils/avatar-cache-bust.ts` | `withAvatarCacheBust`, `isOwnedAvatarStorageUrl`, cache-bust helpers for avatar URLs |
+| `src/utils/security-headers.ts` | CSP + security header builder (report-only by default; `CSP_ENFORCE` opt-in) |
 | `src/utils/app-toast.ts` | Success toast helper (`showSuccessToast`) |
 | `src/utils/admin-role-mutations.ts` | Shared promote/demote logic (app + CLI) |
 | `src/constants/app-paths.ts` | `APP_HOME` (`/profile`), `PROFILE_PATH` route constants |
@@ -187,7 +193,7 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | `scripts/admin/` | Admin CLI (`promote-admin`, `demote-admin`, `list-admins`) |
 | `src/app/globals.css` | Global styles and CSS variable tokens (authoritative token values) |
 | `DESIGN.md` | Token architecture and re-skin workflow (names only — values in globals.css) |
-| `supabase/migrations/` | SQL migrations (`20260622120000_create_profiles.sql`, `20260623120000_create_avatars_bucket.sql`) |
+| `supabase/migrations/` | SQL migrations (`20260622120000_create_profiles.sql`, `20260623120000_create_avatars_bucket.sql`, `20260623130000_add_avatars_select_policy.sql`) |
 | `supabase/config.toml` | Supabase CLI project config |
 | `.cursor/rules/` | Agent coding standards |
 | `.cursor/skills/` | Agent workflows |
