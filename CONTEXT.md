@@ -121,7 +121,7 @@ Remediation pass over the findings from the security audit (`SECURITY_AUDIT.md`)
 
 - [ ] **7.1 — Same-origin redirect validation on confirm.** `/auth/confirm` must validate that the `next` redirect target is same-origin before honoring it, reusing the existing `isSafeRedirect` pattern (`security.mdc`) rather than introducing a new validator. An unsafe or missing target falls back to the existing post-auth redirect path, else `/profile`. Include a regression test covering an off-origin `next` being rejected. (Audit: Medium)
 
-### Epic 2 — Server-side avatar URL scoping
+### Epic 2 — Server-side avatar URL scoping `Complete`
 
 - [ ] **7.2 — Reject non-owned avatar URLs in `updateProfileAction`.** `updateProfileAction` must not trust a client-supplied `avatarUrl` that points outside the user's own avatar storage path. Prefer constructing the avatar URL server-side from the authenticated user's id over accepting it from the client; if a client value is accepted at all, reject any path whose owner segment isn't the current user. Preserve the existing versioned cache-bust (`?v=`) behavior. (Audit: Low)
 

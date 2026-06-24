@@ -9,6 +9,9 @@ import {
   buildAvatarStoragePath,
 } from '@/constants/storage-paths'
 import { createClient } from '@/supabase/client'
+import { withAvatarCacheBust } from '@/utils/avatar-cache-bust'
+
+export { withAvatarCacheBust }
 
 export type AvatarFileValidation =
   | { valid: true }
@@ -107,9 +110,6 @@ export const getAvatarPublicUrl = (storagePath: string): string => {
 
   return data.publicUrl
 }
-
-export const withAvatarCacheBust = (publicUrl: string): string =>
-  `${publicUrl}?v=${Date.now()}`
 
 interface UploadUserAvatarParams {
   userId: string
