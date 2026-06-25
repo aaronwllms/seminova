@@ -2,7 +2,7 @@
 
 **Purpose:** Invariant doc-maintenance procedure governing writes to [CONTEXT.md](CONTEXT.md) and [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md). Not project state — this file applies to every product built from this template. Governs planning skills (`phase-planning`, `sync-context-md`, `sync-repo-docs`, `mark-epic-complete`, `plan-next-epic`).
 
-**Last updated:** 2026-06-22
+**Last updated:** 2026-06-24
 
 ---
 
@@ -12,7 +12,8 @@
 | -------------------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **[CONTEXT.md](CONTEXT.md)**                 | PM / external planning chats | Living brief: vision, locked-rules pointer (§3), AI architecture (§6), migration/RPC notes (§7), roadmap, ACTIVE, DRAFT, open questions — schema detail in AGENTS.md |
 | **[CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md)** | PM / agents (reference)      | Shipped phase epic detail + resolved decisions — **append-only**                                                                                                     |
-| **[AGENTS.md](AGENTS.md)**                   | Cursor / coding agents       | Repo truth, locked rules (authoritative), implemented features, data model, change protocol                                                                          |
+| **[AGENTS.md](AGENTS.md)**                   | Cursor / coding agents       | Repo truth, implemented features, data model, change protocol (incl. locked-rule governance)                                                                         |
+| **[LOCKED_RULES.md](LOCKED_RULES.md)**       | PM / agents                  | Authoritative locked-rule text — the rule wording itself (change protocol lives in AGENTS.md)                                                                        |
 | **[README.md](README.md)**                   | Humans cloning repo          | Setup, scripts, env — not planning                                                                                                                                   |
 | **[DESIGN.md](DESIGN.md)**                   | PM + agents                  | Token architecture, structure-vs-theme split, re-skin workflow                                                                                                       |
 | **[.cursor/rules/](.cursor/rules/)**         | Agents (style & process)     | How to write code, test, migrate — not product truth                                                                                                                 |
@@ -35,7 +36,7 @@ These rules apply to anyone updating CONTEXT.md or CONTEXT_ARCHIVE.md — PM or 
 
 3. **Authoritative schema and the build-time agent workflow live in [AGENTS.md](AGENTS.md).** Do not duplicate per-table schema or Cursor/rules/skills detail in CONTEXT.md.
 
-4. **Locked rules are canonical in [AGENTS.md](AGENTS.md).** CONTEXT.md §3 is a pointer + at-a-glance only — do not expand it back into a full duplicate.
+4. **Locked rules are canonical in [LOCKED_RULES.md](LOCKED_RULES.md).** CONTEXT.md §3 is a pointer + at-a-glance only — do not expand it back into a full duplicate.
 
 5. **Locked-rule changes must be routed through [AGENTS.md › Change protocol](AGENTS.md#change-protocol).** Sync skills (`sync-context-md`, `sync-repo-docs`) are **mirror-only** for locked rules: they never initiate a locked-rule change; they only reflect one already made through the change protocol.
 

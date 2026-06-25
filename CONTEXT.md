@@ -42,9 +42,9 @@ Seminova is a template today, but it is shaped like a product foundation on purp
 
 ## 3. Locked Rules / Principles (planning must not violate)
 
-These constraints are non-negotiable, and planning must not violate them. The **canonical list lives in [AGENTS.md › Locked rules](AGENTS.md)** — the repo-truth file for the layer that enforces them — with consumption detail in `.cursor/rules`. Keep one copy: when a locked rule changes (PM approval required), edit AGENTS.md, not this section.
+These constraints are non-negotiable, and planning must not violate them. The **canonical list lives in [LOCKED_RULES.md](LOCKED_RULES.md)** — with consumption detail in `.cursor/rules` and the change protocol in [AGENTS.md](AGENTS.md#change-protocol). Keep one copy: when a locked rule changes (PM approval required), edit LOCKED_RULES.md, not this section.
 
-At a glance, the locked rules cover: ecosystem alignment over aesthetic divergence; pnpm-only package management; primitive-first shadcn/ui; semantic-token theming with no hardcoded color; fixed structure / swappable theme; mobile-first responsive; components ≤150 lines; WCAG 2.1 AA accessibility; non-interactive shadcn CLI; `next/image` with explicit dimensions; the `/` + `/auth/**` auth boundary enforced in `proxy.ts`; admin gate via `app_metadata.role` (in-app promote/demote on `/admin/users` or secret-key CLI); and agent guidance confined to `.cursor`. See AGENTS.md for the authoritative wording of each.
+At a glance, the locked rules cover: ecosystem alignment over aesthetic divergence; pnpm-only package management; primitive-first shadcn/ui; semantic-token theming with no hardcoded color; fixed structure / swappable theme; mobile-first responsive; components ≤150 lines; WCAG 2.1 AA accessibility; non-interactive shadcn CLI; `next/image` with explicit dimensions; the `/` + `/auth/**` auth boundary enforced in `proxy.ts`; admin gate via `app_metadata.role` (in-app promote/demote on `/admin/users` or secret-key CLI); and agent guidance confined to `.cursor`. See LOCKED_RULES.md for the authoritative wording of each.
 
 ---
 
@@ -175,3 +175,5 @@ _Defer until: opportunistic_
 **Problem:** `src/hooks/useGetMessage.ts` (and its test `useGetMessage.unit.test.tsx`) is camelCase, violating the locked kebab-case file-naming convention in `project-standards.mdc`. The sibling `use-mobile.ts` is correct; this is the lone deviation.
 **Solution:** Rename to `use-get-message.ts` + `use-get-message.unit.test.tsx` and update any imports. Low priority, low risk — straightforward cleanup whenever convenient.
 _Defer until: opportunistic_
+
+---

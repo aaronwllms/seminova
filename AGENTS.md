@@ -1,6 +1,6 @@
 # AGENTS.md — Repo truth for coding agents
 
-**Purpose:** What exists in this repo today — locked rules, implemented features, routes, data model, and where to look. For planning and roadmap, see [CONTEXT.md](CONTEXT.md). For human setup, see [README.md](README.md). For how to write code, see [.cursor/rules/](.cursor/rules/) (not duplicated here).
+**Purpose:** What exists in this repo today — locked-rule governance, implemented features, routes, data model, and where to look. For planning and roadmap, see [CONTEXT.md](CONTEXT.md). For human setup, see [README.md](README.md). For how to write code, see [.cursor/rules/](.cursor/rules/) (not duplicated here).
 
 **Last updated:** 2026-06-24
 
@@ -8,9 +8,10 @@
 | -------- | -------- | ---- |
 | [CONTEXT.md](CONTEXT.md) | PM + agents | Planning brief — roadmap, ACTIVE epics, open questions |
 | [DOC_RULES.md](DOC_RULES.md) | PM + agents | Doc maintenance procedure — write discipline, doc roles, archive policy |
+| [LOCKED_RULES.md](LOCKED_RULES.md) | PM + agents | Canonical locked-rule text (change protocol stays here in AGENTS.md) |
 | [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md) | PM + agents (on demand) | Shipped phase narratives — append-only |
 | [README.md](README.md) | Humans | Clone, env setup, scripts, contributing |
-| [AGENTS.md](AGENTS.md) | Agents | **This file** — repo truth, locked rules, what's implemented |
+| [AGENTS.md](AGENTS.md) | Agents | **This file** — repo truth, locked-rule change protocol, what's implemented |
 | [DESIGN.md](DESIGN.md) | PM + agents | Token architecture, structure-vs-theme split, re-skin workflow |
 | [.cursor/rules/](.cursor/rules/) | Agents | Coding standards (TypeScript, testing, Supabase, security) |
 | [.cursor/skills/](.cursor/skills/) | Agents | User-triggered workflows (`/sync-repo-docs`, `/create-migration`, etc.) |
@@ -63,23 +64,9 @@
 
 ## Locked rules
 
-**Canonical home for the locked rules** — these must not be violated. Consumption detail lives in `.cursor/rules/`; CONTEXT.md §3 is a pointer back here. When a locked rule changes (PM approval required), edit this section.
+Canonical locked-rule text lives in [LOCKED_RULES.md](LOCKED_RULES.md). Consumption detail lives in `.cursor/rules/`; CONTEXT.md §3 is a pointer + at-a-glance summary.
 
-- **Ecosystem alignment over aesthetic divergence:** Don't canonize a non-standard convention for tidiness or taste alone. Diverge from an ecosystem default (shadcn, Next.js, Supabase) only when our way has a real, articulable benefit — clarity, safety, consistency — that outweighs the cost of fighting it: tooling that assumes the standard, AI agents trained on it, and copy-paste examples that won't match. When it's a wash, follow the standard. A template multiplies both the benefit and the cost across every spinoff.
-- **Package manager:** pnpm only — never npm or yarn. One lockfile (`pnpm-lock.yaml`); no `package-lock.json`.
-- **UI is primitive-first:** own shadcn/ui components in `src/components/ui`; extend via `cva`; compose with Radix `asChild`/`Slot`. Never install shadcn as an npm package.
-- **Theming via semantic tokens only:** `bg-background`, `text-foreground`, `ring-ring`, `text-destructive`, etc. Never hardcode colors — no raw hex or `color-500` utilities for themeable color. Tokens in `src/app/globals.css`.
-- **Structure is fixed; theme is swappable:** token architecture and accessibility rules are inherited; token values are re-skinned per product.
-- **Mobile-first responsive:** design from smallest breakpoint up.
-- **Component size:** ≤150 lines; extract subcomponents when larger.
-- **Accessibility:** WCAG 2.1 AA — semantic HTML first, ARIA only when needed; visible `focus-visible` states using token rings.
-- **shadcn CLI:** always non-interactive — `pnpm dlx shadcn@latest add <component> -y -o`. Use `--dry-run`/`--diff` before overwriting customized components.
-- **Images:** `next/image` with explicit dimensions.
-- **Auth boundary:** public routes are `/` and `/auth/**` only; all other routes require a session. Enforced in `proxy.ts` → `src/supabase/proxy.ts`.
-- **Admin gate:** `app_metadata.role === 'admin'` on `auth.users` is the canonical admin check — set via in-app promote/demote on `/admin/users` (admin-gated server actions + service client) **or** secret-key CLI (`pnpm promote-admin`, `pnpm demote-admin`). Do not move this to a `profiles` column without PM approval.
-- **Agent guidance:** lives in `.cursor` (rules + skills) — not duplicated into product code.
-
-**Change protocol:** edits to locked rules require PM approval. Update this section; CONTEXT.md §3 points here and needs no parallel edit unless its at-a-glance list changes.
+**Change protocol:** edits to locked rules require PM approval and are routed through the [Change protocol](#change-protocol) table below — edit the rule text in `LOCKED_RULES.md`; the governance (this protocol) stays here. CONTEXT.md §3 needs no parallel edit unless its at-a-glance list changes.
 
 ---
 
@@ -226,9 +213,12 @@ See [.cursor/rules/error-handling.mdc](.cursor/rules/error-handling.mdc). Never 
 
 | Change type | Action |
 | ----------- | ------ |
-| Locked rules | Decided in PM/Claude chat with PM approval. **Text-only edit** → land directly in AGENTS.md (update CONTEXT.md §3 at-a-glance only if the topic list changes). **Requires code conformance** → create a CONTEXT ACTIVE story that updates AGENTS.md + `.cursor/rules/` + affected code together |
+| Locked rules | Decided in PM/Claude chat with PM approval; rule **text** lives in `LOCKED_RULES.md` (governance stays here). **Text-only edit** → land directly in `LOCKED_RULES.md` (update CONTEXT.md §3 at-a-glance only if the topic list changes). **Requires code conformance** → create a CONTEXT ACTIVE story that updates `LOCKED_RULES.md` + `.cursor/rules/` + affected code together |
 | Implemented features, routes, data model | Update AGENTS.md via `/sync-repo-docs` |
 | Planning / roadmap | Update CONTEXT.md via `/sync-context-md` |
 | Coding standards | Update `.cursor/rules/` — not AGENTS.md |
 
 Sync skills (`sync-context-md`, `sync-repo-docs`) never initiate locked-rule changes — they mirror changes already made through this protocol.
+
+
+---
