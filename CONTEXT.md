@@ -2,7 +2,7 @@
 
 **Purpose:** Dual-use — planning reference for the builder (PM) and context for coding agents. Seminova is currently a **template**: a curated foundation that real products are built from. It is written in product shape so that the structure itself is inherited by every project spun off it. Agents: read this file for living state; build-time workflow and authoritative schema live in [AGENTS.md](AGENTS.md); shipped phase detail in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md).
 
-**Last updated:** 2026-06-24
+**Last updated:** 2026-06-26
 **Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell (Admin sidebar) + Auth restyle (shipped). Phase 4 — Landing Page (shipped). Phase 5 — Admin Surface Polish & Toasting (shipped). Phase 6 — Data Model Foundation (shipped). Phase 7 — Security Audit Remediation (shipped).
 **Migrations:** 3 custom — `profiles`, `avatars` bucket + SELECT policy (see [AGENTS.md](AGENTS.md) data model).
 
@@ -44,7 +44,7 @@ Seminova is a template today, but it is shaped like a product foundation on purp
 
 These constraints are non-negotiable, and planning must not violate them. The **canonical list lives in [LOCKED_RULES.md](LOCKED_RULES.md)** — with consumption detail in `.cursor/rules` and the change protocol in [AGENTS.md](AGENTS.md#change-protocol). Keep one copy: when a locked rule changes (PM approval required), edit LOCKED_RULES.md, not this section.
 
-At a glance, the locked rules cover: ecosystem alignment over aesthetic divergence; pnpm-only package management; primitive-first shadcn/ui; semantic-token theming with no hardcoded color; fixed structure / swappable theme; mobile-first responsive; components ≤150 lines; WCAG 2.1 AA accessibility; non-interactive shadcn CLI; `next/image` with explicit dimensions; the `/` + `/auth/**` auth boundary enforced in `proxy.ts`; admin gate via `app_metadata.role` (in-app promote/demote on `/admin/users` or secret-key CLI); and agent guidance confined to `.cursor`. See LOCKED_RULES.md for the authoritative wording of each.
+At a glance, the locked rules cover: ecosystem alignment over aesthetic divergence; pnpm-only package management; primitive-first shadcn/ui; semantic-token theming with no hardcoded color; fixed structure / swappable theme; mobile-first responsive; WCAG 2.1 AA accessibility; non-interactive shadcn CLI; `next/image` with explicit dimensions; the `/` + `/auth/**` auth boundary enforced in `proxy.ts`; admin gate via `app_metadata.role` (in-app promote/demote on `/admin/users` or secret-key CLI); and agent guidance confined to `.cursor`. See LOCKED_RULES.md for the authoritative wording of each. (Component sizing is no longer a locked rule — it is governed by the 300–400 line guideline in `.cursor/rules/project-standards.mdc` plus single-responsibility and the tech-debt audit.)
 
 ---
 
