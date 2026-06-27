@@ -2,7 +2,7 @@
 
 **Purpose:** Dual-use — planning reference for the builder (PM) and context for coding agents. Seminova is currently a **template**: a curated foundation that real products are built from. It is written in product shape so that the structure itself is inherited by every project spun off it. Agents: read this file for living state; build-time workflow and authoritative schema live in [AGENTS.md](AGENTS.md); shipped phase detail in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md).
 
-**Last updated:** 2026-06-26
+**Last updated:** 2026-06-27
 **Status:** Phase 1 — Foundation (shipped). Phase 2 — Design-System Token Layer (shipped). Phase 3 — App Shell (Admin sidebar) + Auth restyle (shipped). Phase 4 — Landing Page (shipped). Phase 5 — Admin Surface Polish & Toasting (shipped). Phase 6 — Data Model Foundation (shipped). Phase 7 — Security Audit Remediation (shipped).
 **Migrations:** 3 custom — `profiles`, `avatars` bucket + SELECT policy (see [AGENTS.md](AGENTS.md) data model).
 
@@ -105,28 +105,32 @@ No custom schema beyond shipped Phase 6 migrations. Authoritative schema lives i
 | 5 | Admin Surface Polish & Toasting | `Shipped` |
 | 6 | Data Model Foundation (profiles, admin namespace, authenticated shell, profile page) | `Shipped` |
 | 7 | Security Audit Remediation | `Shipped` |
-| 8 | SEO & GEO | `Draft` |
-| 9 | Pattern Reference Page | `Draft` |
-| 10 | Agent Tooling: Skills Suite | `Draft` |
+| 8 | Tech Debt Audit Remediation | `Draft` |
+| 9 | SEO & GEO | `Draft` |
+| 10 | Pattern Reference Page | `Draft` |
+| 11 | Agent Tooling: Skills Suite | `Draft` |
 
 ---
 
 # ACTIVE
 
-_No active phase. Phase 8 (SEO & GEO) is next in Draft — promote via `phase-planning` when ready to start._
+_No active phase. Phase 8 (Tech Debt Audit Remediation) is next in Draft — promote via `phase-planning` when ready to start._
 
 ---
 
 # DRAFT — Upcoming Phases
 
-## Phase 8 — SEO & GEO `Draft`
+## Phase 8 — Tech Debt Audit Remediation `Draft`
+Not yet scoped. Remediates findings from the tech-debt audit (`TECH_DEBT_AUDIT.md`), which has not yet been run. Scope, epics, and stories pend the audit output. Note: the `tech-debt-audit` skill is itself due for an update (ADR-0001, deep module vs. god file) before the audit is run, so it doesn't flag legitimate deep modules as god-file violations.
+
+## Phase 9 — SEO & GEO `Draft`
 Not yet scoped. Covers traditional SEO (metadata, sitemap, structured data) and GEO (generative-engine optimization — how the product surfaces in AI assistant answers) for the marketing/landing surface shipped in Phase 4. No hard sequencing dependency beyond Phase 4 being shipped.
 
-## Phase 9 — Pattern Reference Page `Draft`
+## Phase 10 — Pattern Reference Page `Draft`
 A dedicated page that demonstrates the canonized component patterns established across prior phases: data table, error states (operational `InlineError` + fault `ErrorPanel`), skeleton loading, toast, and the form/settings pattern (from Phase 6). The page imports and showcases the real, already-established components — it does not reimplement them. It is explicitly deletable scaffolding: deleting it loses zero canonical pattern, since every pattern it demonstrates is established in real code elsewhere (admin users table, profile page, etc.). Sequenced after Phase 6 so it can show the form/profile pattern alongside everything from Phase 5, rather than shipping thin now and needing a follow-up addition later.
 
-## Phase 10 — Agent Tooling: Skills Suite `Draft`
-Finalize the generic (de-specialized) skills suite: a design-critique skill, a design-system skill (establish-structure + audit + AI-slop detection), and a separate theme "regenerate" skill. Skills land at the end because they operate on the token layer (Phase 2) and the reference surfaces (Phases 3–9). Rules correctness is handled in Phase 1; this phase includes only a light final pass to confirm the rules set is still complete and project-agnostic.
+## Phase 11 — Agent Tooling: Skills Suite `Draft`
+Finalize the generic (de-specialized) skills suite: a design-critique skill, a design-system skill (establish-structure + audit + AI-slop detection), and a separate theme "regenerate" skill. Skills land at the end because they operate on the token layer (Phase 2) and the reference surfaces (Phases 3–10). Rules correctness is handled in Phase 1; this phase includes only a light final pass to confirm the rules set is still complete and project-agnostic.
 
 ---
 
@@ -139,7 +143,7 @@ Nothing here is blocking current work unless noted.
 **Theme regeneration as skill vs mode**
 **Problem:** The "put a new spin on the design for this project" capability should not regenerate structure, only theme values.
 **Solution:** Implement as a separate, theme-only skill distinct from the structure-establishing design-system skill.
-_Defer until: Phase 9_
+_Defer until: Phase 10_
 
 ---
 

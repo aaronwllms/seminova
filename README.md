@@ -2,7 +2,13 @@
 
 An opinionated, AI-native starter for building SaaS products with Next.js and Supabase.
 
-Seminova gives product managers who build with AI coding tools (Cursor, Claude) a curated foundation — design-system structure, UI conventions, accessibility defaults, and a documented agent workflow — so new projects start with good bones instead of a blank slate.
+Seminova gives product managers who build with AI coding tools (Cursor, Claude) a curated foundation — design-system structure, UI conventions, accessibility defaults, and a documented agent workflow — so new projects start with good bones instead of a blank slate. Its differentiator is that it's a *curated* starting point, not a blank one: codified design-system structure, UI conventions, and Cursor rules and skills mean the foundation enforces good patterns from the first commit, while leaving each product free to define its own identity and features on top.
+
+**Structure is fixed and inherited; theme is meant to be re-skinned.** The semantic tokens, primitive-first components, accessibility defaults, and agent workflow are the parts every product built from Seminova inherits unchanged. The colors, type, and radius are not — they're meant to be replaced per product. Seminova is a template today, but it's shaped like a product foundation on purpose, so that shape carries into every project spun off it.
+
+**What it is not:** a finished product; a heavy boilerplate stuffed with billing, teams, or other features (those belong to individual products, not the template); or a fixed visual identity.
+
+**Who it's for:** the primary builder is a product manager who directs AI coding tools rather than writing most code by hand — making product and design calls and reviewing output, while relying on the template to encode the engineering and design best practices. Seminova is also meant to be public and open to contribution; its conventions, rules, and skills are documented precisely so others can adopt the template, understand its opinions, and improve it. The template itself stays user-agnostic — each product built from it defines its own end users, and only the User/Profile primitives are assumed to exist everywhere.
 
 For roadmap and phase planning, see [CONTEXT.md](CONTEXT.md). For agent repo truth, see [AGENTS.md](AGENTS.md). For design tokens and re-skinning, see [DESIGN.md](DESIGN.md). To change the app name, description, logo, browser tab title, and landing nav/social links, edit [`src/config/site.ts`](src/config/site.ts). Landing page hero, features, and tech-stack copy live in [`src/config/landing-content.ts`](src/config/landing-content.ts).
 
@@ -186,6 +192,14 @@ pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci
 
 ---
 
+## Acknowledgments
+
+Seminova began as a fork of [supa-next-starter](https://github.com/michaeltroya/supa-next-starter) by [Michael Troya](https://github.com/michaeltroya), an MIT-licensed Next.js + Supabase starter kit. That project supplied the initial scaffolding — the Next.js/Supabase/Tailwind/shadcn wiring, tooling, and CI setup Seminova built on top of.
+
+The foundation has since been substantially rebuilt, but because Seminova derives from that work, the original MIT copyright is retained alongside Seminova's own. This is why [LICENSE](LICENSE) carries two copyright lines: Michael Troya's, covering the original starter, and Aaron Williams', covering Seminova. Both fall under the same MIT license. Thank you to Michael for the starting point.
+
+---
+
 ## License
 
-MIT — see [LICENSE.md](LICENSE.md).
+MIT — see [LICENSE](LICENSE). The two copyright lines are explained in [Acknowledgments](#acknowledgments) above.
