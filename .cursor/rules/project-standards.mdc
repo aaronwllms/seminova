@@ -20,7 +20,7 @@ globs:
   - **Interface Segregation**: Prefer small, specific interfaces over large ones
   - **Dependency Inversion**: Depend on abstractions, not concretions
 - Prefer iteration and modularization over code duplication
-- Break down complex logic into smaller, testable, pure functions
+- Decompose complex logic into smaller, testable, pure functions internally (behind the module's interface)
 - Use pure functions and avoid side effects where possible
 
 ## File Naming & Organization
@@ -49,11 +49,28 @@ import { Button } from '../../components/ui/button'
 ```
 
 ## File and Component Organization
-- Keep files focused on a single responsibility
-- If a file feels too complex or hard to navigate, consider refactoring:
-  - Extract reusable logic into utility functions or custom hooks
-  - Break large components into smaller subcomponents when they have distinct concerns
-- Aim for files under 300-400 lines, but prioritize clarity over arbitrary limits
+- Keep each file focused on a single responsibility.
+- Judge a file by its **depth** (Ousterhout): the ratio of hidden implementation to
+  interface complexity. A deep module has one responsibility and a narrow interface
+  (few exports, few props) hiding a large implementation — its size is contained
+  behind a simple surface, so a long file like this is legitimate. Two distinct
+  failures are both *low-depth*:
+  - **God file** — a wide interface from many responsibilities. Length is a symptom
+    of tangled concerns, not contained complexity. (Big and tangled.)
+  - **Shallow module** — an interface nearly as complex as the implementation it
+    hides, or proliferated relative to a thin one. Often *not* big: the cost is that
+    the surface area buys you little hiding. The over-split form — splitting one
+    coherent responsibility across many small units, each exposing its own
+    interface — is "classitis," and it trades a simple internal seam for a complex
+    external one.
+- Decompose the *implementation* freely — private helpers, local functions, and
+  internal subcomponents are fine and don't widen the interface. Resist
+  proliferating the *interface*: depth comes from hiding implementation behind a
+  narrow surface, not from spreading it across many surfaces.
+- Treat ~300–400 lines as a signal to inspect, not a limit to enforce. When a file
+  crosses it, check whether the interface is still narrow and the responsibility
+  still single. If yes, leave it — big-and-coherent is fine. If the length comes from
+  multiple responsibilities or a widening interface, that's the case to split.
 
 ## Utilities & Helpers Location
 - App-level utilities live in `src/utils/` — kebab-case filename with a co-located `*.unit.test.ts` (e.g. `extract-auth-form-error.ts`, `env.ts`, `tailwind.ts`).
@@ -174,6 +191,7 @@ Before committing:
 ## Anti-patterns to Avoid
 - Don't use classes or OOP patterns
 - Don't create deeply nested component hierarchies
+- Don't over-decompose: splitting a coherent component into many shallow units adds interface surface without adding depth
 - Don't skip error handling for async operations
 - Don't hardcode values that should be environment variables
 - Don't ignore TypeScript errors

@@ -2,7 +2,7 @@
 
 **Purpose:** Invariant doc-maintenance procedure governing writes to [CONTEXT.md](CONTEXT.md) and [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md). Not project state — this file applies to every product built from this template. Governs planning skills (`phase-planning`, `sync-context-md`, `sync-repo-docs`, `mark-epic-complete`, `plan-next-epic`).
 
-**Last updated:** 2026-06-24
+**Last updated:** 2026-06-27
 
 ---
 
@@ -16,6 +16,7 @@
 | **[LOCKED_RULES.md](LOCKED_RULES.md)**       | PM / agents                  | Authoritative locked-rule text — the rule wording itself (change protocol lives in AGENTS.md)                                                                        |
 | **[README.md](README.md)**                   | Humans cloning repo          | Setup, scripts, env — not planning                                                                                                                                   |
 | **[DESIGN.md](DESIGN.md)**                   | PM + agents                  | Token architecture, structure-vs-theme split, re-skin workflow                                                                                                       |
+| **[docs/adr/](docs/adr/)**                   | PM / agents                  | Architecture Decision Records — immutable decision history; write rules in [docs/adr/README.md](docs/adr/README.md)                                                  |
 | **[.cursor/rules/](.cursor/rules/)**         | Agents (style & process)     | How to write code, test, migrate — not product truth                                                                                                                 |
 | **[.cursor/skills/](.cursor/skills/)**       | Agents                       | User-triggered workflows (`/sync-context-md`, `/sync-repo-docs`, etc.)                                                                                               |
 | **[.cursor/plans/](.cursor/plans/)**         | In-repo planning             | Ephemeral; evidence of intent, not shipped truth                                                                                                                     |
