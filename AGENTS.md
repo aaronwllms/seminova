@@ -62,7 +62,7 @@ Canonical locked-rule text lives in [LOCKED_RULES.md](LOCKED_RULES.md). Consumpt
 
 - **Foundation cleanup (Epic 1A):** starter tutorial/demo scaffolding removed; pnpm-only; Vitest 3 / Vite 6 / Next 16.2.x.
 - **Rules correctness (Epic 1B):** `.cursor/rules/` stack-accurate and project-agnostic.
-- **Docs (Epic 1C):** `AGENTS.md`, `CONTEXT.md`, `README.md`, and `CONTEXT_ARCHIVE.md` planning/doc layer.
+- **Docs (Epic 1C):** `AGENTS.md`, `ROADMAP.md`, `docs/prds/`, `README.md`, and `docs/DOC_RULES.md` planning/doc layer.
 - **Dev tooling hygiene (Epic 1D):** pre-push hook mirrors CI; 80% Vitest coverage thresholds; `.prettierignore` / lint-staged audit (agent-authored docs remain Prettier-ignored).
 - **Auth:** Supabase email/password flows under `/auth/**` (login, sign-up, forgot/update password, confirm, error); shared auth layout (`bg-muted`, centered shell, logo above forms).
 - **Session + route protection:** `proxy.ts` → `src/supabase/proxy.ts` — refreshes session; redirects unauthenticated users to `/auth/login`; redirects non-admins from `/admin` and `/admin/**` to `/profile`.

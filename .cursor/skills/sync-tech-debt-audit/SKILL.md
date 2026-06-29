@@ -16,7 +16,7 @@ Keep [TECH_DEBT_AUDIT.md](../../TECH_DEBT_AUDIT.md) aligned with what the repo a
 **Not the same as:**
 
 - **`tech-debt-audit`** — full deliberate audit across all dimensions; run quarterly or when debt is unknown
-- **`sync-repo-docs`** / **`sync-context-md`** — AGENTS.md / README / planning brief only
+- **`sync-repo-docs`** — AGENTS.md / README only
 - **`refactor-cleaner`** — removes code and may mark findings `RESOLVED`; run this skill after cleanup to refresh summary sections
 - **`archive-tech-debt-audit`** — moves completed audit to `archive/tech-debt-audits/`; run when all findings are resolved
 - **`archive-security-audit`** — same pattern for `SECURITY_AUDIT.md` → `archive/security-audits/`
@@ -148,7 +148,7 @@ Editing principles:
 After editing (or after proposing approval-gated changes):
 
 1. Summarize RESOLVED, stale, NEW, and unchanged counts
-2. If AGENTS.md / CONTEXT.md doc findings were involved, suggest **sync-repo-docs** or **sync-context-md**
+2. If AGENTS.md doc findings were involved, suggest **/sync-repo-docs** (or ROADMAP/PRD update if planning-doc findings involved, per docs/DOC_RULES.md)
 3. If many findings remain open in one area, suggest scoped `/refactor-cleaner` or next epic
 4. Do **not** commit unless the user asks
 

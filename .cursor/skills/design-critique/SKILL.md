@@ -42,7 +42,7 @@ Review the design: @$1
 When checking consistency, read only what applies:
 
 1. **[AGENTS.md](../../../AGENTS.md)** — shipped UI patterns, routes, product shell
-2. **Planning brief** — discover path from AGENTS.md documentation map; typically [`CONTEXT.md`](../../../CONTEXT.md) Phase 10 visual spec (Direction B); shipped detail in [`CONTEXT_ARCHIVE.md`](../../../CONTEXT_ARCHIVE.md)
+2. **Planning brief** — [ROADMAP.md](../../../ROADMAP.md) + relevant phase PRD in [docs/prds/](../../../docs/prds/); shipped history in [docs/archive/CONTEXT_ARCHIVE.md](../../../docs/archive/CONTEXT_ARCHIVE.md)
 3. **Tokens** — [`src/app/globals.css`](../../../src/app/globals.css): `#EFEFEC` page background, herb green `--primary`, status CSS vars
 4. **Status surfaces** — [`src/utils/status-surface-styles.ts`](../../../src/utils/status-surface-styles.ts): have/low/out/selected row treatments
 5. **Shared primitives** — `GroupedListContainer`, `SectionLabel`, `StatusPillToggle`, `RowActionsMenu`, dialog shell (540px, header/body/footer)
@@ -192,7 +192,7 @@ Check against Phase 10 / Direction B when relevant:
 - **Mockups ≠ shipped code** — critique the design artifact; don't run quality gates or security review
 - **Do not open the browser** unless the user explicitly asks
 - **Do not fix code** without permission
-- **Project truth lives in AGENTS.md + CONTEXT.md** — not in this skill file
+- **Project truth lives in AGENTS.md + ROADMAP.md + active PRD (docs/prds/)** — not in this skill file
 
 ## Tips
 

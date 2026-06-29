@@ -43,7 +43,7 @@ Do not skip this. Forming opinions before understanding the system produces bad 
 
 Use `TodoWrite` to publish a plan so the user can see progress through the phases.
 
-1. Read `README.md`, `package.json` (or stack manifest), **`AGENTS.md`**, and the **planning brief** (path from AGENTS.md documentation map — e.g. `CONTEXT.md`). Skim `.cursor/rules/` for project conventions.
+1. Read `README.md`, `package.json` (or stack manifest), **`AGENTS.md`**, and **`ROADMAP.md`** + active PRD in `docs/prds/` (discoverable via `docs/DOC_RULES.md` document-roles table). Skim `.cursor/rules/` for project conventions.
 2. Map the directory structure and identify the major modules / layers.
 3. Run `git log --oneline -200` and `git log --stat --since="6 months ago"` to see what's actually changing and where churn concentrates.
 4. Identify entry points, hot paths, and cold corners.

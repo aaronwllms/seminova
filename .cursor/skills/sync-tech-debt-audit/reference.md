@@ -73,7 +73,7 @@ Prefer inline `RESOLVED` for ≤10 items; appendix when table grows noisy.
 
 ### Documentation drift
 
-- [ ] Read cited AGENTS.md / CONTEXT.md lines
+- [ ] Read cited AGENTS.md lines
 - [ ] If fixed → RESOLVED audit row + run **sync-repo-docs** if AGENTS not yet updated
 - [ ] If audit wrong but code fixed → stale row only
 
@@ -143,4 +143,3 @@ Suggest `/tech-debt-audit` instead of sync when:
 | `archive-security-audit`  | After actionable findings resolved — move audit to `archive/security-audits/` |
 | `refactor-cleaner`        | Hands-off cleanup after audit; commits + RESOLVED markers                     |
 | `sync-repo-docs`          | AGENTS.md / README drift                                                      |
-| `sync-context-md`         | Planning brief drift                                                          |

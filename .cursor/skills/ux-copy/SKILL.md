@@ -37,7 +37,7 @@ Write or review interface copy for Cookloop. **Do not change code** unless the u
 When writing or reviewing, read only what applies:
 
 1. **[AGENTS.md](../../../AGENTS.md)** — product terms, routes, feature behavior
-2. **Planning brief** — discover path from AGENTS.md documentation map; typically [`CONTEXT.md`](../../../CONTEXT.md) Phase 10 dialog/CTA spec (Dialogs section under Epic 3)
+2. **Planning brief** — [ROADMAP.md](../../../ROADMAP.md) + relevant phase PRD in [docs/prds/](../../../docs/prds/)
 3. **Shipped copy in the same flow** — read nearby components under `src/app/` for consistency (pantry ↔ shopping ↔ recipes)
 4. **Shared message constants** — e.g. [`process-recipe-validation.ts`](../../../src/utils/process-recipe-validation.ts), [`resolve-recipe-archive-plan.ts`](../../../src/utils/resolve-recipe-archive-plan.ts)
 5. **Errors** — [`.cursor/rules/error-handling.mdc`](../../rules/error-handling.mdc): clear, actionable, no internals; 1–2 sentences
@@ -169,12 +169,12 @@ Skip **Alternatives** when one clear option exists. Skip sections that don't app
 
 - **Do not open the browser** unless the user explicitly asks
 - **Do not fix code** without permission
-- **Project truth lives in CONTEXT.md + shipped UI** — propose copy that fits existing patterns
+- **Project truth lives in ROADMAP.md + active PRD + shipped UI** — propose copy that fits existing patterns
 - **English only** — no localization section unless user asks
 
 ## Tips
 
 1. **Be specific** — "Error when Save & process fails after network drop" beats "error message."
 2. **Read the neighbor screen** — shopping copy should sound like pantry copy.
-3. **Flag drift** — if review copy conflicts with CONTEXT.md or another screen, say so.
+3. **Flag drift** — if review copy conflicts with the active PRD or planning docs (ROADMAP.md / docs/prds/) or another screen, say so.
 4. **Pair with design-critique** — layout review separately from wording review.

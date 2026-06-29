@@ -20,8 +20,7 @@
 
 # agent-authored docs — whole-file syncs; Prettier would reformat on every edit
 /.cursor
-CONTEXT.md
-CONTEXT_ARCHIVE.md
+docs/archive/CONTEXT_ARCHIVE.md
 AGENTS.md
 README.md
 

@@ -96,10 +96,9 @@ pnpm test:ci                           # quality gates green
 
 Update only if the repo references the live root file:
 
-| Location                                                | Action                                                              |
-| ------------------------------------------------------- | ------------------------------------------------------------------- |
-| `CONTEXT.md` (or planning brief from AGENTS.md doc map) | Replace live audit line with archive path + date; note cycle closed |
-| `AGENTS.md`                                             | Update only if it explicitly points at root `TECH_DEBT_AUDIT.md`    |
+| Location    | Action                                                           |
+| ----------- | ---------------------------------------------------------------- |
+| `AGENTS.md` | Update only if it explicitly points at root `TECH_DEBT_AUDIT.md` |
 
 Do **not** rewrite `.cursor/plans/` history. Old plan links to root `TECH_DEBT_AUDIT.md` are historical.
 

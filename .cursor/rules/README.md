@@ -10,7 +10,7 @@ Modular Cursor AI rules (`.mdc` format) for the Seminova template: an opinionate
 - **Template conventions** — primitive-first UI, semantic tokens, WCAG 2.1 AA, conventional commits
 - **Agent workflow** — migration safety, testing minimalism, git hooks (see `git-workflow.mdc`)
 
-Locked principles and roadmap live in [CONTEXT.md](../../CONTEXT.md). Repo truth for agents lives in [AGENTS.md](../../AGENTS.md).
+Locked principles live in [LOCKED_RULES.md](../../LOCKED_RULES.md); roadmap and active build scope in [ROADMAP.md](../../ROADMAP.md) and [docs/prds/](../../docs/prds/). Repo truth for agents lives in [AGENTS.md](../../AGENTS.md).
 
 ## What we adopted
 
@@ -105,7 +105,7 @@ Locked principles and roadmap live in [CONTEXT.md](../../CONTEXT.md). Repo truth
 **Applies to:** `*table*.tsx` under `src/components/**` and `src/app/**`
 
 - Canonical data table pattern (single designated search column, Next/Previous pagination)
-- Referenced by CONTEXT.md for admin and future table pages
+- Referenced by admin users-table epic in planning docs
 
 ### `documentation.mdc`
 
@@ -166,6 +166,8 @@ Cursor loads rules based on:
 
 - [Cursor Rules Documentation](https://docs.cursor.com/context/rules)
 - [`.cursor/README.md`](../README.md) — skills, agents, planning layout
-- [CONTEXT.md](../../CONTEXT.md) — roadmap and locked principles
+- [ROADMAP.md](../../ROADMAP.md) — roadmap and phase status
+- [LOCKED_RULES.md](../../LOCKED_RULES.md) — locked principles (canonical text)
+- [docs/DOC_RULES.md](../../docs/DOC_RULES.md) — doc maintenance procedure
 - [AGENTS.md](../../AGENTS.md) — agent repo truth (implemented features, routes, data model)
 - [DESIGN.md](../../DESIGN.md) — token architecture and re-skin workflow

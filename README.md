@@ -10,7 +10,7 @@ Seminova gives product managers who build with AI coding tools (Cursor, Claude) 
 
 **Who it's for:** the primary builder is a product manager who directs AI coding tools rather than writing most code by hand — making product and design calls and reviewing output, while relying on the template to encode the engineering and design best practices. Seminova is also meant to be public and open to contribution; its conventions, rules, and skills are documented precisely so others can adopt the template, understand its opinions, and improve it. The template itself stays user-agnostic — each product built from it defines its own end users, and only the User/Profile primitives are assumed to exist everywhere.
 
-For roadmap and phase planning, see [CONTEXT.md](CONTEXT.md). For agent repo truth, see [AGENTS.md](AGENTS.md). For design tokens and re-skinning, see [DESIGN.md](DESIGN.md). To change the app name, description, logo, browser tab title, and landing nav/social links, edit [`src/config/site.ts`](src/config/site.ts). Landing page hero, features, and tech-stack copy live in [`src/config/landing-content.ts`](src/config/landing-content.ts).
+For roadmap and phase status, see [ROADMAP.md](ROADMAP.md); for active-phase planning detail, see [docs/prds/](docs/prds/). For agent repo truth, see [AGENTS.md](AGENTS.md). For design tokens and re-skinning, see [DESIGN.md](DESIGN.md). To change the app name, description, logo, browser tab title, and landing nav/social links, edit [`src/config/site.ts`](src/config/site.ts). Landing page hero, features, and tech-stack copy live in [`src/config/landing-content.ts`](src/config/landing-content.ts).
 
 ---
 
@@ -183,8 +183,9 @@ pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci
 
 | Document | Audience | Purpose |
 | -------- | -------- | ------- |
-| [CONTEXT.md](CONTEXT.md) | PM + agents | Roadmap, active epics, planning decisions |
-| [DOC_RULES.md](DOC_RULES.md) | PM + agents | Doc maintenance — write discipline, doc roles, archive policy |
+| [ROADMAP.md](ROADMAP.md) | PM + agents | Phase status, planning horizon stubs |
+| [docs/prds/](docs/prds/) | PM + agents | Per-phase epics/stories while Active |
+| [docs/DOC_RULES.md](docs/DOC_RULES.md) | PM + agents | Doc maintenance — write discipline, doc roles, archive policy |
 | [AGENTS.md](AGENTS.md) | Agents | Repo truth — routes, locked rules, data model |
 | [DESIGN.md](DESIGN.md) | PM + contributors | Token architecture and re-skin workflow |
 | [.cursor/rules/](.cursor/rules/) | Agents | Coding standards and conventions |

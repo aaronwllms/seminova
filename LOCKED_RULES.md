@@ -2,7 +2,7 @@
 
 **Purpose:** The authoritative wording of the template's locked rules — non-negotiable constraints inherited by every product built from this template. This file owns the rule **text** only. How a locked rule is _changed_ (PM approval, text-only vs. code-conformance routing) is governed by [AGENTS.md › Change protocol](AGENTS.md#change-protocol).
 
-Consumption detail lives in `.cursor/rules/`; CONTEXT.md §3 is a pointer + at-a-glance summary back here.
+Consumption detail lives in [.cursor/rules/](.cursor/rules/). Locked-rule **changes** route through [AGENTS.md › Change protocol](AGENTS.md#change-protocol).
 
 ---
 
