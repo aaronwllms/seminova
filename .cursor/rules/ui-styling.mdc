@@ -122,8 +122,6 @@ Follow mobile-first approach with Tailwind CSS:
 ```
 
 ## Component Structure and Organization
-- Keep components under 150 lines maximum
-- Extract subcomponents if larger
 - Use composition for complex UIs
 - Organize UI components clearly:
   - Reusable components in `/src/components`
@@ -164,7 +162,6 @@ import Image from 'next/image'
 - ✅ Follow mobile-first responsive approach
 - ✅ Use semantic spacing scale
 - ✅ Optimize images with Next.js Image component
-- ✅ Keep components under 150 lines
 - ❌ Don't fight the CSS variables system for theming
 - ❌ Don't hardcode colors; use theme variables
 - ❌ Don't skip image dimensions (causes layout shift)

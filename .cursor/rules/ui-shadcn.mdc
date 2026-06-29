@@ -219,6 +219,5 @@ import {
 - ✅ Leverage cva for creating variants
 - ✅ Maintain Radix UI's accessibility features
 - ✅ Build composite components from shadcn primitives
-- ✅ Keep components under 150 lines; extract if larger
 - ❌ Don't install as npm package (it's copy-paste by design)
 - ❌ Don't override accessibility attributes
