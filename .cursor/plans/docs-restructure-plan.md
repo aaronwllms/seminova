@@ -64,7 +64,7 @@ Every file has exactly one job and one lifecycle. Nothing is a junk drawer.
 ### Naming decisions (and why — these were deliberate, don't revert)
 
 - **LEXICON.md, not `context.md`.** Pocock names his glossary `context.md`. We reject that name for two concrete reasons: (1) **case-collision** — on default macOS (case-insensitive filesystem), `context.md` and our existing `CONTEXT.md` are the *same file*; (2) **overloading** — "context" is so generic it invites the junk-drawer problem to recur. `LEXICON.md` says exactly what it is to both PM and dev.
-- **Seminova's glossary is an *architectural* lexicon, not a *domain* glossary.** Pocock's glossary is rich because his app has real domain language ("standalone video = video with null lesson_id"). Seminova is a *template* — its domain is deliberately near-empty, to be filled by spinoffs. But Seminova's *architectural* language IS rich and worth documenting: primitive-first, semantic token, admin gate, service client, operational-vs-fault error, the `/` + `/auth/**` boundary, and deep module / interface / god file. Spinoffs inherit the architectural lexicon and grow the domain layer on top. (`seam` / `adapter` were listed aspirationally during planning but have **no codified Seminova meaning yet** — they were omitted from the seeded LEXICON rather than fabricated; add them only when the project actually adopts that vocabulary, so spinoffs don't inherit an invented definition as authoritative.)
+- **Seminova's glossary is an *architectural* lexicon, not a *domain* glossary.** Pocock's glossary is rich because his app has real domain language ("standalone video = video with null lesson_id"). Seminova is a *template* — its domain is deliberately near-empty, to be filled by spinoffs. But Seminova's *architectural* language IS rich and worth documenting: primitive-first, semantic token, structure-vs-theme, the `/` + `/auth/**` boundary, admin gate, the three Supabase clients (browser/server/service), operational-vs-fault error, and deep module / interface / god file. Spinoffs inherit the architectural lexicon and grow the domain layer on top. (`seam` / `adapter` were listed aspirationally during planning but have **no codified Seminova meaning yet** — they were omitted from the seeded LEXICON rather than fabricated; add them only when the project actually adopts that vocabulary, so spinoffs don't inherit an invented definition as authoritative.)
 - **README reclaims the pitch.** The "what is Seminova / who it's for" content (CONTEXT.md pitch sections) was always README material. It got trapped in CONTEXT.md by accident of starting with one file.
 - **ROADMAP holds living state.** Phase status (shipped / active / draft) *is* roadmap state. Living state is small and belongs with the roadmap, not in a separate file.
 
@@ -213,6 +213,22 @@ This is recorded as the destination if the Phase-7 fork ever goes that way. **It
 
 - **Two Claude-side global skills repoint to the new model; bring the other repo along (decided 2026-06-29).** `phase-planning` and `plan-review` are **global to the account**, so repointing them affects *every* project that uses them — and one other repo still runs the CONTEXT.md model. Decision: repoint the two globals to the new model and **drop a note in the other repo (its project instructions) that it needs converting** to the new doc model; do not let that repo gate this work (Aaron is largely done with it). This repoint is **Claude-side** (not the MCP executor) and is handled as a follow-on, after the destructive tail. *(Accepted: until that repo is converted, its planning skills point at ROADMAP/PRDs it doesn't have yet — fine, since its planning is dormant.)*
 
+### Session 2026-06-29 (continued) — Status vocabulary + PRD save workflow
+
+- **Unified phase/PRD status vocabulary — `Draft → Planning → Ready → Active → Shipped` (decided 2026-06-29).** Previously `DOC_RULES.md` and `prds/README.md` used `Draft` as both a ROADMAP-only state (no PRD exists) and the first PRD status (PRD exists but not locked). This double-duty created ambiguity. Resolved with a clean five-status set shared across ROADMAP rows and PRD files — the same word means the same thing in both places:
+  - `Draft` — ROADMAP-only; no PRD file exists. Never appears on a PRD.
+  - `Planning` — PRD created, scope being shaped. First PRD status.
+  - `Ready` — PRD locked and approved to build (PM sign-off required).
+  - `Active` — currently being built.
+  - `Shipped` — done.
+  - **ROADMAP** gains a `PRD` column linking the filename once one exists.
+  - **Updated artifacts:** `docs/prds/README.md` (new lifecycle), `docs/DOC_RULES.md` (new vocabulary table + rule 2 updated), `ROADMAP.md` (PRD column added). `mark-epic-complete` updated to halt on `Draft`, `Planning`, or `Ready` (not just `Draft`); promotion references updated from `Draft→Active` to `Ready→Active`.
+
+- **PRD save workflow — always prompt, never infer from phrasing (decided 2026-06-29).** `phase-planning` works in chat until Aaron asks to save. After presenting a draft or completing a revision round, it always closes with: *"Want to keep working, save as in-progress (`Planning`), or lock it in (`Ready`)?"* Aaron responds however he wants; the skill acts on intent, not magic words. On save: creates or updates the PRD file at `docs/prds/phase-N-slug.prd.md`; sets status to `Planning` or `Ready` per Aaron's choice; flips the ROADMAP row to match.
+  - **REJECTED: inferring status from phrasing** (e.g. "that's ready" = `Ready`, "save it" = `Planning`). Phrasing is too variable; ambiguity produces wrong status silently. Explicit prompt is the clean model.
+
+- **Claude-side skills are written directly in the orchestrator chat, not via the MCP executor (noted 2026-06-29).** `/mnt/skills/user/` is a read-only mounted volume not accessible via the local MCP filesystem server. Skills are written to a temp directory, packaged via `python -m scripts.package_skill`, and delivered as a `.skill` bundle via `present_files`. The executor cannot reach this path.
+
 ---
 
 ## 7. Phase plan
@@ -252,36 +268,38 @@ This is recorded as the destination if the Phase-7 fork ever goes that way. **It
   - **Stage 1 — `docs/DOC_RULES.md` written** (new file). New-model authoritative document-roles table (now the single home; CONTEXT.md dropped from it entirely), renumbered procedure rules, delegates ADR/PRD lifecycle to the per-dir READMEs, archive = frozen-only, the resolved-question policy as **rule 7**, phase-ship as **rule 6**, epic numbering / Complete tag as **rule 9**, promotion ownership as **rule 2**. Written with `docs/`-relative links for its new home. **Root `DOC_RULES.md` still present** (deleted in the destructive tail).
   - **Stage 2 — `AGENTS.md` + `documentation.mdc`.** `AGENTS.md`: dropped its duplicate roles table → one-line pointer to `docs/DOC_RULES.md`; CONTEXT.md refs repointed to `ROADMAP.md` + `docs/prds/`; the CONTEXT §3 at-a-glance language removed; change-protocol "Planning/roadmap" row repointed; `DOC_RULES`/archive links → `docs/` paths. (Historical "Implemented now" bullet naming CONTEXT.md left intact — as-built record. One `/sync-context-md` mention deliberately left in the agent-workflow step — cleaned in the tail.) `documentation.mdc`: **wholesale-replaced** with a thin `docs/**` structural guardrail pointing at the per-dir READMEs (the old 5-dir + prefix-rename-archive boilerplate was generic and contradicted the model).
   - **Stage 3 — three Cursor-side skills repointed.** `plan-next-epic` (reads → `ROADMAP.md` + active PRD; Complete-tag read → PRD). `mark-epic-complete` (write target → active PRD; **decoupled from `sync-context-md`** → phase-ship now generically cited as rule 6; archive ref → `docs/archive/`; `DOC_RULES` path + rule numbers updated; consistency check spans PRD status + ROADMAP row). `sync-repo-docs` (+ `reference.md`): stale CONTEXT/doc-map cross-links cleaned, `DOC_RULES` path fixed to `docs/`, obsolete locked-rules-pointer checklist line dropped.
+- **Destructive tail complete (2026-06-29):**
+  - `sync-context-md` skill folder deleted (retired).
+  - `docs/archive/` created; `CONTEXT_ARCHIVE.md` moved to `docs/archive/CONTEXT_ARCHIVE.md`; root `CONTEXT_ARCHIVE.md` deleted.
+  - Root `DOC_RULES.md` deleted.
+  - Dangling `/sync-context-md` reference cleaned from `AGENTS.md` agent-workflow step 4.
+- **Status vocabulary updated across all artifacts (2026-06-29):** `Draft → Planning → Ready → Active → Shipped` unified across ROADMAP and PRDs. `docs/prds/README.md` rewritten with new lifecycle. `docs/DOC_RULES.md` updated with vocabulary table + rule 2 updated. `ROADMAP.md` gains PRD column. `mark-epic-complete` halt condition updated to cover `Draft`, `Planning`, `Ready`; promotion references updated to `Ready→Active`. (Reasoning: §6.)
+- **Claude-side global skills repointed (2026-06-29):** `phase-planning` rewritten — CONTEXT.md → ROADMAP + PRD; new "Find the target phase" section; new PRD save workflow (always prompt, never infer). `plan-review` rewritten — CONTEXT.md → ROADMAP + active PRD. Both packaged as `.skill` bundles and delivered.
 
 ### Phase 0 — blast-radius findings (CLOSED)
 
 - **4 Cursor-side skills tie to CONTEXT.md as primary read/write target:**
-  - `sync-context-md` — heaviest; essentially built around CONTEXT.md + CONTEXT_ARCHIVE.md. **RESOLVED (2026-06-29): RETIRED** — its archive-append machinery is dead under the new model and its residual phase-ship job moves to the new `ship-phase` skill (see §6). Folder deletion is in the destructive tail.
+  - `sync-context-md` — heaviest; essentially built around CONTEXT.md + CONTEXT_ARCHIVE.md. **RESOLVED (2026-06-29): RETIRED** — its archive-append machinery is dead under the new model and its residual phase-ship job moves to the new `ship-phase` skill (see §6). Folder deleted.
   - `mark-epic-complete` — writes the `Complete` tag into CONTEXT.md ACTIVE. **DONE (2026-06-29):** repointed to the active PRD (Stage 3).
   - `plan-next-epic` — reads CONTEXT.md to pick the next epic. **DONE (2026-06-29):** repointed to ROADMAP + active PRD (Stage 3).
   - `sync-repo-docs` — CONTEXT.md only as a cross-link; core target is AGENTS.md/README — mostly survives. **DONE (2026-06-29):** cross-links cleaned, DOC_RULES path fixed (Stage 3).
-- **Rule conflict — `documentation.mdc`:** defines a `docs/` structure with a `prd/` subdir + `archive/` convention that does NOT match the plan's target (`docs/prds/`). Latent — only bites once PRDs exist. **Tabled** to Phase 3 → on inspection the conflict is **broader than the name** (whole-rule structure mismatch + contradictory archive policy); resolution recorded in §6 doc-governance. **DONE (2026-06-29):** wholesale-replaced with the thin guardrail (Stage 2).
+- **Rule conflict — `documentation.mdc`:** defines a `docs/` structure with a `prd/` subdir + `archive/` convention that does NOT match the plan's target (`docs/prds/`). **DONE (2026-06-29):** wholesale-replaced with the thin guardrail (Stage 2).
 - **`project-standards.mdc` 300–400 vs old 150 conflict:** resolved by ADR-0001. No longer open.
-- **Claude-side skills:** `phase-planning` (writes CONTEXT.md; already reads LOCKED_RULES.md), `plan-review` (reads CONTEXT.md for intent; light rewire to ROADMAP/PRD). **Still pending** — global-skill repoint is a Claude-side follow-on (see "Not yet resolved").
+- **Claude-side skills:** `phase-planning` (writes CONTEXT.md; already reads LOCKED_RULES.md), `plan-review` (reads CONTEXT.md for intent; light rewire to ROADMAP/PRD). **DONE (2026-06-29):** both repointed and packaged.
 
 **Sidecar read (`reference.md`) — completed; three additions to the Phase 4 rewire:**
-- **`sync-context-md` pins specific CONTEXT.md section names, and they fan out across the new files** — so its rewrite is a *scatter*, not a single repoint: Vision/positioning + Target user → README; Roadmap + Status + Future-phase detail + Open questions → ROADMAP; Shipped summary + Tech stack + Locked rules → already AGENTS.md/LOCKED_RULES (mirror-only); ACTIVE stories → the active PRD. Its heaviest write — the `## Phase N` archive-append — **dies** (shipped PRDs replace it). **RESOLVED (2026-06-29):** the scatter is moot — the skill is RETIRED, not rewritten (§6).
-- **Hard dependency on `DOC_RULES.md` "rule 6" by number.** `sync-context-md` invokes the phase-complete archive procedure as "rule 6" explicitly. The Phase 4 DOC_RULES.md rewrite must preserve that number or repoint the skill when it renumbers. **RESOLVED (2026-06-29):** the new `DOC_RULES.md` keeps a rule 6 (phase-ship), rule 9 (epic numbering / Complete tag), and rule 2 (promotion); `mark-epic-complete` was updated to match those numbers, and `sync-context-md` is retired — so the by-number pin is no longer load-bearing.
-- **Relative-path cross-links break on the DOC_RULES.md move.** Both sidecars link `../../../DOC_RULES.md`; when DOC_RULES.md moves to `docs/` they must repoint to `../../../docs/DOC_RULES.md` (`sync-context-md` links it twice). `sync-repo-docs` otherwise confirmed light — CONTEXT.md is just a cross-link, real targets are AGENTS.md + README. **RESOLVED (2026-06-29):** `sync-repo-docs` links fixed to `../../../docs/DOC_RULES.md` in Stage 3; `sync-context-md`'s links retire with the skill.
+- **`sync-context-md` pins specific CONTEXT.md section names** — **RESOLVED (2026-06-29):** moot; skill retired.
+- **Hard dependency on `DOC_RULES.md` "rule 6" by number** — **RESOLVED (2026-06-29):** new DOC_RULES.md keeps rule 6 (phase-ship); `mark-epic-complete` updated; `sync-context-md` retired.
+- **Relative-path cross-links break on the DOC_RULES.md move** — **RESOLVED (2026-06-29):** `sync-repo-docs` links fixed; `sync-context-md` links retired with the skill.
 
 ### Not yet resolved / open
 
-- **Remaining Phase 4 — the destructive tail (gated behind Stages 1–3, now done):**
-  - Delete the `sync-context-md` skill folder (retired — §6).
-  - Create `docs/archive/` and move `CONTEXT_ARCHIVE.md` → `docs/archive/CONTEXT_ARCHIVE.md`.
-  - Delete the root `DOC_RULES.md` (its replacement already lives at `docs/DOC_RULES.md`).
-  - Clean the one dangling `/sync-context-md` reference left in `AGENTS.md` (agent-workflow step 4).
-- **Two Claude-side global skills (`phase-planning`, `plan-review`) repoint to the new model** — Claude-side follow-on (not the MCP executor), after the tail; plus a note dropped in the other repo's project instructions that it needs converting to the new doc model (§6).
+- **Note in other repo's project instructions** that it needs converting to the new doc model (§6). Still open.
 - **`ship-phase` skill** — net-new release skill, built as its own focused task after the restructure closes (§6).
-- **Skill discipline edits not yet applied** (recorded as intent, a separate pass from the Stage-3 repoints — §6): `phase-planning` vertical-slice + success-condition + size-cap; `plan-next-epic` self-contained-plan tightening.
-- **Epic-size threshold (PM-owned):** where Aaron's agent build starts degrading. To be felt out from real runs; encodes the `phase-planning` size cap. Can stay open — doesn't block the restructure.
-- **First real PRD:** awaits a genuine phase promotion (not created on a manufactured phase).
-- **Deferred workflow items:** see `docs/WORKFLOW_BACKLOG.md` (TDD-first, `grill-me` trial, `grill-with-docs` adoption, Phase-7 decomposition fork, plan-review thinning + automated review).
+- **Skill discipline edits not yet applied** (recorded as intent, a separate pass — §6): `phase-planning` vertical-slice + success-condition + size-cap; `plan-next-epic` self-contained-plan tightening.
+- **Epic-size threshold (PM-owned):** where Aaron's agent build starts degrading. To be felt out from real runs.
+- **First real PRD:** awaits a genuine phase promotion.
+- **Deferred workflow items:** see `docs/WORKFLOW_BACKLOG.md`.
 
 ---
 
@@ -305,14 +323,15 @@ The new system is a *documentation-and-workflow layer over the same Seminova cod
 - **Write gate:** name the file + summarize the change + ask once. The user's "yes" is full authorization — write immediately, no second confirmation. That describe-and-ask message is the only gate.
 - **Respond concisely.** Lead with the direct answer; expand only when asked.
 - **Canonical doc writes** follow DOC_RULES.md write discipline and archive policy — which itself moves to `docs/` and gets rewritten in Phase 4.
+- **Claude-side skills cannot be written via MCP.** `/mnt/skills/user/` is read-only. Write skill content to a temp directory, package with `python -m scripts.package_skill`, and deliver as a `.skill` bundle via `present_files`. The executor cannot reach this path.
 
 ---
 
 ## 10. Key file paths
 
 - Planning context (to be retired): `/Users/aaronwilliams/projects/seminova/CONTEXT.md`
-- Shipped archive (to move → `docs/archive/`): `/Users/aaronwilliams/projects/seminova/CONTEXT_ARCHIVE.md`
-- Doc maintenance rules — **new home written**: `/Users/aaronwilliams/projects/seminova/docs/DOC_RULES.md` (root `/Users/aaronwilliams/projects/seminova/DOC_RULES.md` still present, pending deletion in the tail)
+- Shipped archive (moved): `/Users/aaronwilliams/projects/seminova/docs/archive/CONTEXT_ARCHIVE.md`
+- Doc maintenance rules: `/Users/aaronwilliams/projects/seminova/docs/DOC_RULES.md`
 - Workflow backlog: `/Users/aaronwilliams/projects/seminova/docs/WORKFLOW_BACKLOG.md`
 - Agent instructions: `/Users/aaronwilliams/projects/seminova/AGENTS.md`
 - Locked rules: `/Users/aaronwilliams/projects/seminova/LOCKED_RULES.md`
@@ -322,7 +341,7 @@ The new system is a *documentation-and-workflow layer over the same Seminova cod
 - Design/token doc: `/Users/aaronwilliams/projects/seminova/DESIGN.md`
 - Cursor rules: `/Users/aaronwilliams/projects/seminova/.cursor/rules/`
 - Cursor skills: `/Users/aaronwilliams/projects/seminova/.cursor/skills/`
-- Claude-side skills: `/mnt/skills/user/` (e.g. `phase-planning`)
+- Claude-side skills: `/mnt/skills/user/` (e.g. `phase-planning`) — read-only mount; write via temp + package
 - Plans (this file): `/Users/aaronwilliams/projects/seminova/.cursor/plans/`
 - Cursor Plan Mode docs: https://cursor.com/docs/agent/plan-mode
 - Cursor agent best-practices: https://cursor.com/blog/agent-best-practices
