@@ -1,6 +1,6 @@
 # DOC_RULES — File Management Rules
 
-**Purpose:** Invariant doc-maintenance procedure governing the planning docs ([ROADMAP.md](../ROADMAP.md), the PRDs in [prds/](prds/), and the frozen [archive/](archive/)). This is not project state — it applies to every product built from this template. Governs the planning skills (`phase-planning`, `plan-next-epic`, `mark-epic-complete`) and the repo-sync skill (`sync-repo-docs`).
+**Purpose:** Invariant doc-maintenance procedure governing the planning docs ([ROADMAP.md](../ROADMAP.md), the PRDs in [prds/](prds/), and the frozen [archive/](archive/)). This is not project state — it applies to every product built from this template. Governs the planning skills (`phase-planning`, `plan-next-epic`, `mark-epic-complete`, `ship-phase`) and the repo-sync skill (`sync-repo-docs`).
 
 **Last updated:** 2026-06-29
 
@@ -62,7 +62,7 @@ These rules apply to anyone updating the planning docs — PM or coding agent.
 
 5. **Locked-rule changes route through [AGENTS.md › Change protocol](../AGENTS.md#change-protocol).** Sync skills are **mirror-only** for locked rules: they never initiate a locked-rule change; they only reflect one already made through the change protocol.
 
-6. **When a phase ships,** flip its PRD status to `Shipped` (the file stays in [prds/](prds/)) and mark the phase `Shipped` on ROADMAP in the same pass. Do not append to the archive — see rule 8. Procedure detail lives in [prds/README.md](prds/README.md).
+6. **When a phase ships,** flip its PRD status to `Shipped` (the file stays in [prds/](prds/)) and mark the phase `Shipped` on ROADMAP in the same pass. Do not append to the archive — see rule 8. The **ship-phase** skill (`.cursor/skills/ship-phase/`) owns this flip plus push and PR open; merge to `main` is a separate human step. Procedure detail lives in [prds/README.md](prds/README.md).
 
 7. **Resolved open questions leave ROADMAP.** The resolution is carried by whatever artifact it changed (a PRD, a rule, the schema, or ROADMAP itself). If a decision is hard to reverse and worth a permanent record, write an ADR (see [adr/README.md](adr/README.md) for the three-part bar). There is no standing decisions log.
 
