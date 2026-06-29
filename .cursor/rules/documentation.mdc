@@ -1,70 +1,25 @@
 ---
-description: Standards for managing docs directory structure and file organization
+description: Structural guardrail for the docs/ directory — layout and where things go
 globs:
   - "docs/**/*.md"
   - "docs/**/*.txt"
 alwaysApply: false
 ---
-
-# Docs Directory Management Standards
-
-## Purpose
-
-Simplified 4-directory structure prevents docs sprawl and makes archiving predictable. Prefixed archive naming preserves context without nested directories, enabling easy search and reference while maintaining origin traceability.
-
-## Directory Structure
-
-- `archive/` - All archived/completed content (flat structure with prefixes)
-- `api/` - API documentation (OpenAPI specs, context docs)
-- `features/` - Feature architecture docs with visual diagrams (Mermaid)
-- `prd/` - Product requirements documents
-- `todo/` - Active todo items (no subdirectories)
-
-**Do NOT create new top-level directories** - use existing categories.
-
-## Archive Naming Pattern
-
-When archiving, prefix filename with original directory: `<original-dir>-<filename>.md`
-
-**Examples:**
-- `todo/feature-request.md` → `archive/todo-feature-request.md`
-- `features/my-feature.md` → `archive/features-my-feature.md`
-
-This keeps archives flat while preserving origin context.
-
-## When to Archive
-
-Archive when:
-- Migration guides are complete
-- Troubleshooting docs are resolved
-- Todo items are completed
-- Legacy content is no longer referenced
-
-**Do NOT archive:**
-- Active guides/standards
-- Current API docs or PRDs
-- Ongoing todo items
-
-**Never delete** - always archive to preserve history.
-
-## Workflow Checklist
-
-When archiving:
-- [ ] Identify original directory
-- [ ] Rename: `<original-dir>-<filename>.md`
-- [ ] Move to `docs/archive/`
-- [ ] Update cross-references if needed
-
-## Active File Conventions
-
-- Use kebab-case filenames
-- No prefixes for active files
-- Be descriptive but concise
-- Place in appropriate top-level directory
-
-## Maintenance
-
-Periodically review:
-- `todo/` for completed items to archive
-- `features/` for outdated content
-- `archive/` consolidation opportunities
+# docs/ Structure Guardrail
+Thin structural guardrail only. Conventions and procedure live elsewhere (linked below) — do not restate them here.
+## Layout
+```
+docs/
+  DOC_RULES.md         # doc-maintenance procedure + authoritative document roles
+  WORKFLOW_BACKLOG.md  # permanently deferred workflow items
+  adr/                 # Architecture Decision Records (immutable history)
+  prds/                # one PRD per phase (forward intent)
+  archive/             # frozen pre-restructure history — closed
+```
+**Do NOT create new top-level `docs/` directories.** Use the existing ones. If a genuinely new category seems needed, that is a PM decision — surface it, don't invent the directory.
+## Where things go
+- A per-phase requirements doc → `docs/prds/`. See [prds/README.md](mdc:docs/prds/README.md).
+- A recorded architectural decision → `docs/adr/`. See [adr/README.md](mdc:docs/adr/README.md).
+- Anything about *how docs are maintained* (write discipline, phase-ship procedure, roles) is governed by [DOC_RULES.md](mdc:docs/DOC_RULES.md) — read it before restructuring docs.
+## Archiving
+`docs/archive/` is **closed** — it holds frozen pre-restructure history only. Never add to it, never edit it, and never move shipped PRDs into it. Shipped PRDs stay in `docs/prds/` with their status flipped. The archive policy is owned by [DOC_RULES.md](mdc:docs/DOC_RULES.md).

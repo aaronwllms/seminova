@@ -72,7 +72,7 @@ Use [reference.md](reference.md) for section ownership. Quick rules:
 | Locked rules, implemented features, routes, data model, agent checklist                | **AGENTS.md**                                                |
 | Stack, prerequisites, env setup, scripts table, contributing hooks, doc map for humans | **README.md**                                                |
 | Coding style, testing policy, migrations how-to                                        | **`.cursor/rules/`** — not these docs                        |
-| Phase archive / planning detail                                                        | **Planning brief or archive doc** — only if explicitly asked |
+| Phase / planning detail                                                                | **ROADMAP / active PRD** — only if explicitly asked          |
 
 **Neither doc:** refactors, test-only changes, internal renames with no behavioral change.
 

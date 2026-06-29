@@ -2,13 +2,13 @@
 
 ## Document roles
 
-See [DOC_RULES.md](../../../DOC_RULES.md) for the canonical document-roles table.
+See [DOC_RULES.md](../../../docs/DOC_RULES.md) for the canonical document-roles table.
 
 ## AGENTS.md section map (typical — adapt to each repo)
 
 | Section                        | Update when…                                              |
 | ------------------------------ | --------------------------------------------------------- |
-| Documentation map              | New top-level doc agents should know about                |
+| Doc-roles pointer (was: map)   | AGENTS.md only points to docs/DOC_RULES.md; register new top-level docs there, not here |
 | Setup and quality commands     | New/changed quality or install commands in `package.json` |
 | Locked rules (each subsection) | Mirror a locked-rule change already made via change protocol — never initiate |
 | Implemented / shipped          | Shipped user-facing features, product routes, nav         |
@@ -71,7 +71,6 @@ See [DOC_RULES.md](../../../DOC_RULES.md) for the canonical document-roles table
 ### Locked product rule change (any domain)
 
 - [ ] Mirror a locked-rule change already made via AGENTS.md change protocol — never initiate
-- [ ] Planning brief locked-rules pointer if sync-context-md applies
 
 ## Evidence commands
 

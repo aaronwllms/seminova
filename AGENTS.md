@@ -1,21 +1,10 @@
 # AGENTS.md — Repo truth for coding agents
 
-**Purpose:** What exists in this repo today — locked-rule governance, implemented features, routes, data model, and where to look. For planning and roadmap, see [CONTEXT.md](CONTEXT.md). For human setup, see [README.md](README.md). For how to write code, see [.cursor/rules/](.cursor/rules/) (not duplicated here).
+**Purpose:** What exists in this repo today — locked-rule governance, implemented features, routes, data model, and where to look. For planning and roadmap, see [ROADMAP.md](ROADMAP.md) and the per-phase PRDs in [docs/prds/](docs/prds/). For human setup, see [README.md](README.md). For how to write code, see [.cursor/rules/](.cursor/rules/) (not duplicated here).
 
 **Last updated:** 2026-06-24
 
-| Document | Audience | Role |
-| -------- | -------- | ---- |
-| [CONTEXT.md](CONTEXT.md) | PM + agents | Planning brief — roadmap, ACTIVE epics, open questions |
-| [DOC_RULES.md](DOC_RULES.md) | PM + agents | Doc maintenance procedure — write discipline, doc roles, archive policy |
-| [LOCKED_RULES.md](LOCKED_RULES.md) | PM + agents | Canonical locked-rule text (change protocol stays here in AGENTS.md) |
-| [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md) | PM + agents (on demand) | Shipped phase narratives — append-only |
-| [README.md](README.md) | Humans | Clone, env setup, scripts, contributing |
-| [AGENTS.md](AGENTS.md) | Agents | **This file** — repo truth, locked-rule change protocol, what's implemented |
-| [DESIGN.md](DESIGN.md) | PM + agents | Token architecture, structure-vs-theme split, re-skin workflow |
-| [.cursor/rules/](.cursor/rules/) | Agents | Coding standards (TypeScript, testing, Supabase, security) |
-| [.cursor/skills/](.cursor/skills/) | Agents | User-triggered workflows (`/sync-repo-docs`, `/create-migration`, etc.) |
-| [.cursor/plans/](.cursor/plans/) | Agents | Ephemeral epic plans — **not** shipped truth |
+Document roles and the doc-maintenance procedure are authoritative in [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
 ---
 
@@ -31,7 +20,7 @@
 
 4. **Doc sync** after behavior, routes, schema, or env changes:
    - `/sync-repo-docs` — AGENTS.md + README.md
-   - `/sync-context-md` — CONTEXT.md planning brief
+   - `/sync-context-md` — planning docs (ROADMAP + active PRD)
 
 ---
 
@@ -64,9 +53,9 @@
 
 ## Locked rules
 
-Canonical locked-rule text lives in [LOCKED_RULES.md](LOCKED_RULES.md). Consumption detail lives in `.cursor/rules/`; CONTEXT.md §3 is a pointer + at-a-glance summary.
+Canonical locked-rule text lives in [LOCKED_RULES.md](LOCKED_RULES.md). Consumption detail lives in `.cursor/rules/`.
 
-**Change protocol:** edits to locked rules require PM approval and are routed through the [Change protocol](#change-protocol) table below — edit the rule text in `LOCKED_RULES.md`; the governance (this protocol) stays here. CONTEXT.md §3 needs no parallel edit unless its at-a-glance list changes.
+**Change protocol:** edits to locked rules require PM approval and are routed through the [Change protocol](#change-protocol) table below — edit the rule text in `LOCKED_RULES.md`; the governance (this protocol) stays here.
 
 ---
 
@@ -127,7 +116,7 @@ Canonical locked-rule text lives in [LOCKED_RULES.md](LOCKED_RULES.md). Consumpt
 | Profile | `public.profiles` | 1:1 with `auth.users` (`profiles.id` FK). Columns: `display_name`, `avatar_url`, `bio` (all nullable). **No `role` column** — admin gate stays on `app_metadata.role`. Auto-created on signup via `handle_new_user` trigger; backfills existing users. Owner-scoped RLS: authenticated SELECT/UPDATE own row only (`using` + `with check` on UPDATE). Types: [`Profile`](src/types/profile.ts). |
 | Avatar files | `storage.avatars` | Public-read bucket; path `{user_id}/avatar.webp`. Owner-scoped INSERT/UPDATE/DELETE on `storage.objects` (first path segment = `auth.uid()`); public SELECT policy required for upsert. Versioned public URL stored in `profiles.avatar_url` (e.g. `…/avatar.webp?v={timestamp}`); server action rejects external or other-user URLs via [`isOwnedAvatarStorageUrl`](src/utils/avatar-cache-bust.ts). Upload: [`avatar-storage.ts`](src/utils/avatar-storage.ts). |
 
-Schema authority for shipped tables lives in this section once migrations land. Do not duplicate per-table detail in CONTEXT.md.
+Schema authority for shipped tables lives in this section once migrations land. Do not duplicate per-table detail in PRDs or ROADMAP.
 
 ---
 
@@ -213,9 +202,9 @@ See [.cursor/rules/error-handling.mdc](.cursor/rules/error-handling.mdc). Never 
 
 | Change type | Action |
 | ----------- | ------ |
-| Locked rules | Decided in PM/Claude chat with PM approval; rule **text** lives in `LOCKED_RULES.md` (governance stays here). **Text-only edit** → land directly in `LOCKED_RULES.md` (update CONTEXT.md §3 at-a-glance only if the topic list changes). **Requires code conformance** → create a CONTEXT ACTIVE story that updates `LOCKED_RULES.md` + `.cursor/rules/` + affected code together |
+| Locked rules | Decided in PM/Claude chat with PM approval; rule **text** lives in `LOCKED_RULES.md` (governance stays here). **Text-only edit** → land directly in `LOCKED_RULES.md`. **Requires code conformance** → create a story in the active PRD that updates `LOCKED_RULES.md` + `.cursor/rules/` + affected code together |
 | Implemented features, routes, data model | Update AGENTS.md via `/sync-repo-docs` |
-| Planning / roadmap | Update CONTEXT.md via `/sync-context-md` |
+| Planning / roadmap | Update [ROADMAP.md](ROADMAP.md) and the active PRD in [docs/prds/](docs/prds/) |
 | Coding standards | Update `.cursor/rules/` — not AGENTS.md |
 
 Sync skills (`sync-context-md`, `sync-repo-docs`) never initiate locked-rule changes — they mirror changes already made through this protocol.

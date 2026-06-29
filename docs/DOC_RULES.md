@@ -1,0 +1,59 @@
+# DOC_RULES — File Management Rules
+
+**Purpose:** Invariant doc-maintenance procedure governing the planning docs ([ROADMAP.md](../ROADMAP.md), the PRDs in [prds/](prds/), and the frozen [archive/](archive/)). This is not project state — it applies to every product built from this template. Governs the planning skills (`phase-planning`, `plan-next-epic`, `mark-epic-complete`) and the repo-sync skill (`sync-repo-docs`).
+
+**Last updated:** 2026-06-28
+
+---
+
+## Document roles
+
+This table is authoritative. [AGENTS.md](../AGENTS.md) carries a one-line pointer here rather than duplicating it.
+
+| Document                                       | Audience                  | Owns                                                                                                                                    |
+| ---------------------------------------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| **[README.md](../README.md)**                  | Humans cloning + external | Project pitch and positioning; setup, scripts, env                                                                                      |
+| **[ROADMAP.md](../ROADMAP.md)**                | PM / planning chats       | Planning horizon: thin phase stubs, phase status, open questions                                                                        |
+| **[prds/](prds/)**                             | PM / agents               | Per-phase forward intent (problem, goal, scope); epics + stories while a phase is Active. Lifecycle in [prds/README.md](prds/README.md) |
+| **[AGENTS.md](../AGENTS.md)**                  | Cursor / coding agents    | Repo truth: implemented features, routes, data model, locked-rule change protocol, agent workflow                                       |
+| **[LOCKED_RULES.md](../LOCKED_RULES.md)**      | PM / agents               | Authoritative locked-rule text (change protocol lives in AGENTS.md)                                                                     |
+| **[LEXICON.md](../LEXICON.md)**                | PM / agents               | Architectural vocabulary                                                                                                                |
+| **[DESIGN.md](../DESIGN.md)**                  | PM / agents               | Token architecture, structure-vs-theme split, re-skin workflow                                                                          |
+| **[adr/](adr/)**                               | PM / agents               | Architecture Decision Records — immutable decision history; rules in [adr/README.md](adr/README.md)                                     |
+| **[archive/](archive/)**                       | PM / agents (reference)   | Frozen pre-restructure history — **closed; append nothing**                                                                             |
+| **[WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md)** | PM                        | Permanently deferred workflow items                                                                                                     |
+| **[.cursor/rules/](../.cursor/rules/)**        | Agents (style & process)  | How to write code, test, migrate — not product truth                                                                                    |
+| **[.cursor/skills/](../.cursor/skills/)**      | Agents                    | User-triggered workflows                                                                                                                |
+| **[.cursor/plans/](../.cursor/plans/)**        | In-repo planning          | Ephemeral epic plans; evidence of intent, not shipped truth                                                                             |
+| **`.mockups/`**                                | PM / design               | HTML mockup explorations                                                                                                                |
+| **`.mockups/archive/`**                        | PM / design               | Superseded or shipped-phase mockups                                                                                                     |
+
+**Sync order when both the planning docs and repo truth may be stale:** gather evidence once → update AGENTS.md (`/sync-repo-docs`) for shipped truth → update ROADMAP status and the active PRD from AGENTS.md → update ROADMAP roadmap/open-questions from the PM conversation.
+
+---
+
+## Write discipline
+
+These rules apply to anyone updating the planning docs — PM or coding agent.
+
+1. **The active phase's PRD is the source of truth for what is planned but not yet shipped.** Agents can verify live state against the repo independently; the docs must never contradict the repo.
+
+2. **Phase promotion (ROADMAP stub → active PRD) is owned solely by `phase-planning`** (Claude-side planning skill). It flips the PRD status to `Active`, fleshes the PRD into numbered epics and vertical-slice stories, and marks the phase `Active` on ROADMAP. **`mark-epic-complete` must never promote** — if an epic is marked `Complete` while its PRD or ROADMAP row still reads `Draft`, halt and report the inconsistency; do not auto-correct. PRD lifecycle detail lives in [prds/README.md](prds/README.md).
+
+3. **Authoritative schema and the build-time agent workflow live in [AGENTS.md](../AGENTS.md).** Do not duplicate per-table schema or Cursor rules/skills detail in PRDs or ROADMAP.
+
+4. **Locked rules are canonical in [LOCKED_RULES.md](../LOCKED_RULES.md).**
+
+5. **Locked-rule changes route through [AGENTS.md › Change protocol](../AGENTS.md#change-protocol).** Sync skills are **mirror-only** for locked rules: they never initiate a locked-rule change; they only reflect one already made through the change protocol.
+
+6. **When a phase ships,** flip its PRD status to `Shipped` (the file stays in [prds/](prds/)) and mark the phase shipped on ROADMAP in the same pass. Do not append to the archive — see rule 8. Procedure detail lives in [prds/README.md](prds/README.md).
+
+7. **Resolved open questions leave ROADMAP.** The resolution is carried by whatever artifact it changed (a PRD, a rule, the schema, or ROADMAP itself). If a decision is hard to reverse and worth a permanent record, write an ADR (see [adr/README.md](adr/README.md) for the three-part bar). There is no standing decisions log.
+
+8. **[archive/](archive/) holds frozen pre-restructure history only.** It is closed: never append to it, never edit it, never move shipped PRDs into it.
+
+9. **Epics must be numbered.** Format as `### Epic N: Name` (sequential within the phase, starting at 1). Once implemented, a `` `Complete` `` tag is appended to the heading (`### Epic N: Name \`Complete\``) by the **mark-epic-complete** skill — never added manually or inferred from code.
+
+10. **HTML mockups:** save new explorations as `.mockups/*.html`. When a mockup is superseded or tied to a shipped phase, move it to `.mockups/archive/`.
+
+11. **Stub sections and files are intentional.** Empty-by-design structure (e.g. ROADMAP phase stubs, the LEXICON domain-terms stub) is kept so the shape is inherited by every product built from this template. Do not delete stubs.
