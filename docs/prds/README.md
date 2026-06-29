@@ -10,8 +10,10 @@ file with its own lifecycle.
 
 ## Lifecycle
 
-A PRD's **status** flips in place; the file never moves. The ROADMAP row for the
-phase mirrors the PRD status at all times.
+A PRD's **status** flips before archive; the ROADMAP row for the phase mirrors
+the PRD status at all times. While a phase is in flight, the file lives in
+`docs/prds/`. When shipped, it **moves** to `docs/prds/archive/` — it does not
+stay in `docs/prds/`.
 
 `Draft` is a ROADMAP-only status — it means no PRD exists yet. Once a PRD is
 created, the phase leaves `Draft` and the PRD carries the status from there.
@@ -23,11 +25,12 @@ created, the phase leaves `Draft` and the PRD carries the status from there.
    from `Planning` to `Ready`. The decomposition into epics and vertical-slice
    stories happens here, written in by `phase-planning`.
 3. **Active** — the phase is being built. Only one phase should be `Active` at a
-   time in practice. ROADMAP row reflects `Active`.
+   time in practice. ROADMAP row reflects `Active`. File remains in `docs/prds/`.
 4. **Shipped** — the phase is done. Flip status to `Shipped` in the PRD and on
-   ROADMAP in the same pass. **The file stays in `docs/prds/`.** Do **not** move
-   it to `docs/archive/` — that location holds only the frozen pre-restructure
-   history.
+   ROADMAP in the same pass, then **move the file to `docs/prds/archive/`** and
+   update the ROADMAP PRD column to `docs/prds/archive/phase-N-slug.prd.md`. Do
+   **not** move it to `docs/archive/` — that location holds only the frozen
+   pre-restructure history.
 
 ## What a PRD is — and isn't
 

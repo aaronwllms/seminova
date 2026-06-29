@@ -11,7 +11,7 @@ Nothing stays running between invocations. The skill cannot wait for merge appro
 
 ## Active PRD discovery
 
-- **Location:** `docs/prds/*.prd.md`
+- **Location:** `docs/prds/*.prd.md` — **exclude** `docs/prds/archive/` (shipped PRDs live there and must not match an `Active` search)
 - **Active signal:** status field reads `Active` (not `Planning`, `Ready`, or `Shipped`)
 - **Typical shapes** (exact format is defined by `phase-planning`; match what exists):
   - `**Status:** Active`
@@ -26,10 +26,10 @@ Match the phase by **phase number** in the first column, not by name substring:
 ```markdown
 | Phase | Name | Status | PRD |
 | ----- | ---- | ------ | --- |
-| 8     | Tech Debt Audit Remediation | `Active` | phase-8-tech-debt-remediation.prd.md |
+| 8     | Tech Debt Audit Remediation | `Active` | docs/prds/phase-8-tech-debt-remediation.prd.md |
 ```
 
-Flip only the **Status** column for that row: `` `Active` `` → `` `Shipped` ``.
+Flip the **Status** column for that row: `` `Active` `` → `` `Shipped` ``. On ship, also update the **PRD** column to `docs/prds/archive/<filename>.prd.md`.
 
 Status vocabulary is shared between ROADMAP and PRD — see [DOC_RULES.md](../../../docs/DOC_RULES.md) § Phase status vocabulary.
 
@@ -69,8 +69,8 @@ Per `.cursor/rules/git-workflow.mdc` — all four sections required:
 
 ## What
 - [2–4 bullets: major deliverables on the branch]
-- Active PRD flipped to Shipped (stays in docs/prds/)
-- ROADMAP phase row marked Shipped
+- Active PRD flipped to Shipped and moved to docs/prds/archive/
+- ROADMAP phase row marked Shipped (PRD column path updated)
 
 ## Testing
 [How to verify — pre-push, manual smoke, key routes]
@@ -83,7 +83,7 @@ LOW/MEDIUM/HIGH — [brief rationale]
 
 ## DOC_RULES rule 6 (authoritative)
 
-> When a phase ships, flip its PRD status to `Shipped` (the file stays in prds/) and mark the phase `Shipped` on ROADMAP in the same pass. Do not append to the archive.
+> When a phase ships, flip its PRD status to `Shipped`, move the file to `docs/prds/archive/`, and mark the phase `Shipped` on ROADMAP (update the PRD column path) in the same pass. Do not append to `docs/archive/`.
 
 ## Suggested pre-ship checklist (not run by this skill)
 

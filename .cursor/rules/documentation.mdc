@@ -22,4 +22,4 @@ docs/
 - A recorded architectural decision → `docs/adr/`. See [adr/README.md](mdc:docs/adr/README.md).
 - Anything about *how docs are maintained* (write discipline, phase-ship procedure, roles) is governed by [DOC_RULES.md](mdc:docs/DOC_RULES.md) — read it before restructuring docs.
 ## Archiving
-`docs/archive/` is **closed** — it holds frozen pre-restructure history only. Never add to it, never edit it, and never move shipped PRDs into it. Shipped PRDs stay in `docs/prds/` with their status flipped. The archive policy is owned by [DOC_RULES.md](mdc:docs/DOC_RULES.md).
+`docs/archive/` is **closed** — it holds frozen pre-restructure history only. Never add to it, never edit it, and never move shipped PRDs into it. Shipped PRDs move to `docs/prds/archive/` when the phase ships. The archive policy is owned by [DOC_RULES.md](mdc:docs/DOC_RULES.md).
