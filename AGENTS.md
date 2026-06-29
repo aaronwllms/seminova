@@ -20,7 +20,6 @@ Document roles and the doc-maintenance procedure are authoritative in [docs/DOC_
 
 4. **Doc sync** after behavior, routes, schema, or env changes:
    - `/sync-repo-docs` — AGENTS.md + README.md
-   - `/sync-context-md` — planning docs (ROADMAP + active PRD)
 
 ---
 
@@ -207,7 +206,4 @@ See [.cursor/rules/error-handling.mdc](.cursor/rules/error-handling.mdc). Never 
 | Planning / roadmap | Update [ROADMAP.md](ROADMAP.md) and the active PRD in [docs/prds/](docs/prds/) |
 | Coding standards | Update `.cursor/rules/` — not AGENTS.md |
 
-Sync skills (`sync-context-md`, `sync-repo-docs`) never initiate locked-rule changes — they mirror changes already made through this protocol.
-
-
----
+`/sync-repo-docs` never initiates locked-rule changes — it mirrors changes already made through this protocol.

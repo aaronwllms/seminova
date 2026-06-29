@@ -2,7 +2,7 @@
 
 **Purpose:** Invariant doc-maintenance procedure governing the planning docs ([ROADMAP.md](../ROADMAP.md), the PRDs in [prds/](prds/), and the frozen [archive/](archive/)). This is not project state — it applies to every product built from this template. Governs the planning skills (`phase-planning`, `plan-next-epic`, `mark-epic-complete`) and the repo-sync skill (`sync-repo-docs`).
 
-**Last updated:** 2026-06-28
+**Last updated:** 2026-06-29
 
 ---
 
@@ -13,7 +13,7 @@ This table is authoritative. [AGENTS.md](../AGENTS.md) carries a one-line pointe
 | Document                                       | Audience                  | Owns                                                                                                                                    |
 | ---------------------------------------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | **[README.md](../README.md)**                  | Humans cloning + external | Project pitch and positioning; setup, scripts, env                                                                                      |
-| **[ROADMAP.md](../ROADMAP.md)**                | PM / planning chats       | Planning horizon: thin phase stubs, phase status, open questions                                                                        |
+| **[ROADMAP.md](../ROADMAP.md)**                | PM / planning chats       | Planning horizon: thin phase stubs, phase status, PRD links, open questions                                                             |
 | **[prds/](prds/)**                             | PM / agents               | Per-phase forward intent (problem, goal, scope); epics + stories while a phase is Active. Lifecycle in [prds/README.md](prds/README.md) |
 | **[AGENTS.md](../AGENTS.md)**                  | Cursor / coding agents    | Repo truth: implemented features, routes, data model, locked-rule change protocol, agent workflow                                       |
 | **[LOCKED_RULES.md](../LOCKED_RULES.md)**      | PM / agents               | Authoritative locked-rule text (change protocol lives in AGENTS.md)                                                                     |
@@ -28,7 +28,23 @@ This table is authoritative. [AGENTS.md](../AGENTS.md) carries a one-line pointe
 | **`.mockups/`**                                | PM / design               | HTML mockup explorations                                                                                                                |
 | **`.mockups/archive/`**                        | PM / design               | Superseded or shipped-phase mockups                                                                                                     |
 
-**Sync order when both the planning docs and repo truth may be stale:** gather evidence once → update AGENTS.md (`/sync-repo-docs`) for shipped truth → update ROADMAP status and the active PRD from AGENTS.md → update ROADMAP roadmap/open-questions from the PM conversation.
+**Sync order when both the planning docs and repo truth may be stale:** gather evidence once → update AGENTS.md (`/sync-repo-docs`) for shipped truth → update ROADMAP status and the active PRD from AGENTS.md → update ROADMAP open-questions from the PM conversation.
+
+---
+
+## Phase status vocabulary
+
+Status is shared across ROADMAP rows and PRD files — the same word means the same thing in both places.
+
+| Status     | ROADMAP meaning                 | PRD meaning                  |
+| ---------- | ------------------------------- | ---------------------------- |
+| `Draft`    | Stub only; no PRD exists        | — (never appears on a PRD)   |
+| `Planning` | PRD created; scope being shaped | Being shaped; not yet locked |
+| `Ready`    | PRD locked; approved to build   | Locked and approved          |
+| `Active`   | Currently being built           | Currently being built        |
+| `Shipped`  | Done                            | Done                         |
+
+`Draft` is ROADMAP-only. A PRD's status starts at `Planning` when the file is created and never goes below it.
 
 ---
 
@@ -38,7 +54,7 @@ These rules apply to anyone updating the planning docs — PM or coding agent.
 
 1. **The active phase's PRD is the source of truth for what is planned but not yet shipped.** Agents can verify live state against the repo independently; the docs must never contradict the repo.
 
-2. **Phase promotion (ROADMAP stub → active PRD) is owned solely by `phase-planning`** (Claude-side planning skill). It flips the PRD status to `Active`, fleshes the PRD into numbered epics and vertical-slice stories, and marks the phase `Active` on ROADMAP. **`mark-epic-complete` must never promote** — if an epic is marked `Complete` while its PRD or ROADMAP row still reads `Draft`, halt and report the inconsistency; do not auto-correct. PRD lifecycle detail lives in [prds/README.md](prds/README.md).
+2. **PRD creation and promotion are owned solely by `phase-planning`** (Claude-side planning skill). It creates the PRD at `Planning`, flips it to `Ready` on PM sign-off (decomposing it into numbered epics and vertical-slice stories at that point), and flips it to `Active` when the build starts — updating the ROADMAP row to match at each transition. **`mark-epic-complete` must never promote** — if an epic is marked `Complete` while its PRD or ROADMAP row reads `Planning` or `Draft`, halt and report the inconsistency; do not auto-correct. PRD lifecycle detail lives in [prds/README.md](prds/README.md).
 
 3. **Authoritative schema and the build-time agent workflow live in [AGENTS.md](../AGENTS.md).** Do not duplicate per-table schema or Cursor rules/skills detail in PRDs or ROADMAP.
 
@@ -46,7 +62,7 @@ These rules apply to anyone updating the planning docs — PM or coding agent.
 
 5. **Locked-rule changes route through [AGENTS.md › Change protocol](../AGENTS.md#change-protocol).** Sync skills are **mirror-only** for locked rules: they never initiate a locked-rule change; they only reflect one already made through the change protocol.
 
-6. **When a phase ships,** flip its PRD status to `Shipped` (the file stays in [prds/](prds/)) and mark the phase shipped on ROADMAP in the same pass. Do not append to the archive — see rule 8. Procedure detail lives in [prds/README.md](prds/README.md).
+6. **When a phase ships,** flip its PRD status to `Shipped` (the file stays in [prds/](prds/)) and mark the phase `Shipped` on ROADMAP in the same pass. Do not append to the archive — see rule 8. Procedure detail lives in [prds/README.md](prds/README.md).
 
 7. **Resolved open questions leave ROADMAP.** The resolution is carried by whatever artifact it changed (a PRD, a rule, the schema, or ROADMAP itself). If a decision is hard to reverse and worth a permanent record, write an ADR (see [adr/README.md](adr/README.md) for the three-part bar). There is no standing decisions log.
 

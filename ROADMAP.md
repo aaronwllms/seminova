@@ -1,28 +1,28 @@
 # Seminova — Roadmap
 
-The planning horizon: anticipated phases as thin stubs, plus living status. Shipped phase detail lives in [CONTEXT_ARCHIVE.md](CONTEXT_ARCHIVE.md); build-time workflow and authoritative schema in [AGENTS.md](AGENTS.md).
+The planning horizon: anticipated phases as thin stubs, plus living status. Shipped phase detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md); build-time workflow and authoritative schema in [AGENTS.md](AGENTS.md). Phase status vocabulary and PRD lifecycle in [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
-**Last updated:** 2026-06-27
+**Last updated:** 2026-06-29
 
 ---
 
 ## Status
 
-| Phase | Name                                                                                 | Status    |
-| ----- | ------------------------------------------------------------------------------------ | --------- |
-| 1     | Foundation & Cleanup                                                                 | `Shipped` |
-| 2     | Design-System Token Layer                                                            | `Shipped` |
-| 3     | App Shell (Admin sidebar) + Auth restyle                                             | `Shipped` |
-| 4     | Landing Page                                                                         | `Shipped` |
-| 5     | Admin Surface Polish & Toasting                                                      | `Shipped` |
-| 6     | Data Model Foundation (profiles, admin namespace, authenticated shell, profile page) | `Shipped` |
-| 7     | Security Audit Remediation                                                           | `Shipped` |
-| 8     | Tech Debt Audit Remediation                                                          | `Draft`   |
-| 9     | SEO & GEO                                                                            | `Draft`   |
-| 10    | Pattern Reference Page                                                               | `Draft`   |
-| 11    | Agent Tooling: Skills Suite                                                          | `Draft`   |
+| Phase | Name                                                                                 | Status    | PRD |
+| ----- | ------------------------------------------------------------------------------------ | --------- | --- |
+| 1     | Foundation & Cleanup                                                                 | `Shipped` | —   |
+| 2     | Design-System Token Layer                                                            | `Shipped` | —   |
+| 3     | App Shell (Admin sidebar) + Auth restyle                                             | `Shipped` | —   |
+| 4     | Landing Page                                                                         | `Shipped` | —   |
+| 5     | Admin Surface Polish & Toasting                                                      | `Shipped` | —   |
+| 6     | Data Model Foundation (profiles, admin namespace, authenticated shell, profile page) | `Shipped` | —   |
+| 7     | Security Audit Remediation                                                           | `Shipped` | —   |
+| 8     | Tech Debt Audit Remediation                                                          | `Draft`   | —   |
+| 9     | SEO & GEO                                                                            | `Draft`   | —   |
+| 10    | Pattern Reference Page                                                               | `Draft`   | —   |
+| 11    | Agent Tooling: Skills Suite                                                          | `Draft`   | —   |
 
-**No active phase.** Phase 8 (Tech Debt Audit Remediation) is next in Draft — promote via `phase-planning` when ready to start.
+**No active phase.** Phase 8 (Tech Debt Audit Remediation) is next in `Draft` — promote via `phase-planning` when ready to start.
 
 ---
 
