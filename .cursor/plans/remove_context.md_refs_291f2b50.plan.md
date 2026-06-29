@@ -16,7 +16,7 @@ todos:
     status: completed
   - id: delete-commit
     content: git rm CONTEXT.md; commit with specified chore message
-    status: in_progress
+    status: completed
 isProject: false
 ---
 
