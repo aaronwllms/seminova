@@ -42,7 +42,8 @@ Ship-phase progress:
 - [ ] Step 4: Commit doc changes
 - [ ] Step 5: Push branch
 - [ ] Step 6: Open PR
-- [ ] Step 7: Stop — report PR URL; merge is human-only
+- [ ] Step 7: Report PR URL; merge is human-only; ask to switch to main
+- [ ] Step 8: If yes — checkout main and pull
 ```
 
 ### Step 1 — Flip PRD status
@@ -121,7 +122,7 @@ EOF
 
 Request `full_network` permissions. Capture the PR URL from output.
 
-### Step 7 — Stop
+### Step 7 — Report and ask
 
 **Do not merge.** Do not run `gh pr merge`. Do not ask whether to merge.
 
@@ -140,8 +141,22 @@ Output this message (fill in bracketed values):
 - Pushed the branch and opened the PR
 
 ### What happens next (human only)
-**Merge to `main` is a separate, explicit step on your go.** Review the PR, confirm CI, then merge when ready. This skill intentionally stops here.
+**Merge to `main` is a separate, explicit step on your go.** Review the PR, confirm CI, then merge when ready.
 ```
+
+Then ask: **Ready to switch to main and pull? (requires the PR to be merged first)**
+
+### Step 8 — Switch to main (if yes)
+
+If the user confirms, run:
+
+```bash
+git checkout main && git pull
+```
+
+Request `git_write` and `full_network` permissions. Then stop.
+
+If the user declines or does not confirm, stop without running the command.
 
 ## Explicitly out of scope
 
