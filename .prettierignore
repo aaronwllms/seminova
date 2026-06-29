@@ -20,8 +20,10 @@
 
 # agent-authored docs — whole-file syncs; Prettier would reformat on every edit
 /.cursor
-docs/archive/CONTEXT_ARCHIVE.md
+docs/
 AGENTS.md
+ROADMAP.md
+LEXICON.md
 README.md
 
 # debug
