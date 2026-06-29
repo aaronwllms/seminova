@@ -38,9 +38,7 @@ Cursor derives the filename from the YAML `name` field. Lead with the **phase + 
 
 ## Choose plan structure
 
-Decide whether this epic is better as a **sequential plan** or **structured for Build in Parallel**. Default to sequential unless there are clearly independent tracks with disjoint file ownership.
-
-Write the plan according to that choice — sequential steps in dependency order, or a parallel structure with gates/tracks/file ownership if Build in Parallel.
+Before writing the plan, assess whether this epic has clearly independent tracks with disjoint file ownership. If so, add a note at the top of the generated plan: "This epic is a good candidate for Build in Parallel." Otherwise say nothing — sequential is the default. Either way, write the plan sequentially.
 
 ## Close the plan
 
