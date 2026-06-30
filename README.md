@@ -59,6 +59,7 @@ For roadmap and phase status, see [ROADMAP.md](ROADMAP.md); for active-phase pla
    | `NEXT_PUBLIC_SUPABASE_URL` | Project URL |
    | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable (anon) key |
    | `SUPABASE_SECRET_KEY` | Secret key (server/CLI only — see Initial setup) |
+   | `CSP_ENFORCE` | Optional — set to `true` for enforcing CSP instead of report-only (see [AGENTS.md](AGENTS.md); requires nonce strategy before production use) |
 
 4. Start the development server:
 
@@ -186,6 +187,9 @@ pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci
 | [ROADMAP.md](ROADMAP.md) | PM + agents | Phase status, planning horizon stubs |
 | [docs/prds/](docs/prds/) | PM + agents | Per-phase epics/stories while Active |
 | [docs/DOC_RULES.md](docs/DOC_RULES.md) | PM + agents | Doc maintenance — write discipline, doc roles, archive policy |
+| [LOCKED_RULES.md](LOCKED_RULES.md) | PM + agents | Canonical locked-rule text |
+| [LEXICON.md](LEXICON.md) | PM + agents | Architectural vocabulary |
+| [docs/adr/](docs/adr/) | PM + agents | Architecture Decision Records |
 | [AGENTS.md](AGENTS.md) | Agents | Repo truth — routes, locked rules, data model |
 | [DESIGN.md](DESIGN.md) | PM + contributors | Token architecture and re-skin workflow |
 | [.cursor/rules/](.cursor/rules/) | Agents | Coding standards and conventions |

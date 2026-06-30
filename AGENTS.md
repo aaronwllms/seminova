@@ -2,7 +2,7 @@
 
 **Purpose:** What exists in this repo today — locked-rule governance, implemented features, routes, data model, and where to look. For planning and roadmap, see [ROADMAP.md](ROADMAP.md) and the per-phase PRDs in [docs/prds/](docs/prds/). For human setup, see [README.md](README.md). For how to write code, see [.cursor/rules/](.cursor/rules/) (not duplicated here).
 
-**Last updated:** 2026-06-24
+**Last updated:** 2026-06-29
 
 Document roles and the doc-maintenance procedure are authoritative in [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
@@ -62,7 +62,7 @@ Canonical locked-rule text lives in [LOCKED_RULES.md](LOCKED_RULES.md). Consumpt
 
 - **Foundation cleanup (Epic 1A):** starter tutorial/demo scaffolding removed; pnpm-only; Vitest 3 / Vite 6 / Next 16.2.x.
 - **Rules correctness (Epic 1B):** `.cursor/rules/` stack-accurate and project-agnostic.
-- **Docs (Epic 1C):** `AGENTS.md`, `ROADMAP.md`, `docs/prds/`, `README.md`, and `docs/DOC_RULES.md` planning/doc layer.
+- **Docs (Epic 1C + restructure):** planning layer is `ROADMAP.md` + per-phase PRDs in `docs/prds/` (replaces `CONTEXT.md`); doc roles in `docs/DOC_RULES.md`; locked-rule text in `LOCKED_RULES.md`; architectural vocabulary in `LEXICON.md`; ADR process in `docs/adr/`; `/sync-context-md` retired.
 - **Dev tooling hygiene (Epic 1D):** pre-push hook mirrors CI; 80% Vitest coverage thresholds; `.prettierignore` / lint-staged audit (agent-authored docs remain Prettier-ignored).
 - **Auth:** Supabase email/password flows under `/auth/**` (login, sign-up, forgot/update password, confirm, error); shared auth layout (`bg-muted`, centered shell, logo above forms).
 - **Session + route protection:** `proxy.ts` → `src/supabase/proxy.ts` — refreshes session; redirects unauthenticated users to `/auth/login`; redirects non-admins from `/admin` and `/admin/**` to `/profile`.
@@ -167,6 +167,12 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | `src/mocks/` | MSW handlers (testing only) |
 | `scripts/admin/` | Admin CLI (`promote-admin`, `demote-admin`, `list-admins`) |
 | `src/app/globals.css` | Global styles and CSS variable tokens (authoritative token values) |
+| `ROADMAP.md` | Phase status and planning horizon stubs |
+| `LOCKED_RULES.md` | Canonical locked-rule text |
+| `LEXICON.md` | Architectural vocabulary |
+| `docs/DOC_RULES.md` | Doc roles and maintenance procedure |
+| `docs/prds/` | Per-phase PRDs (`docs/prds/archive/` when shipped) |
+| `docs/adr/` | Architecture Decision Records |
 | `DESIGN.md` | Token architecture and re-skin workflow (names only — values in globals.css) |
 | `supabase/migrations/` | SQL migrations (`20260622120000_create_profiles.sql`, `20260623120000_create_avatars_bucket.sql`, `20260623130000_add_avatars_select_policy.sql`) |
 | `supabase/config.toml` | Supabase CLI project config |
