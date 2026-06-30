@@ -27,7 +27,7 @@ Document roles and the doc-maintenance procedure are authoritative in [docs/DOC_
 
 Beyond `/sync-repo-docs` (above), the repo ships a library of invokable Cursor skills for repo maintenance and quality work. These are situational — invoke by name (`/skill-name`) when the task calls for it, not as part of every session.
 
-For the planning-loop skills (`plan-next-epic`, `mark-epic-complete`, `ship-phase`) and the planning-system skill `lexicon-audit`, see [docs/PLANNING_GUIDE.md](docs/PLANNING_GUIDE.md) — those operate on the planning docs, not repo code.
+For the planning-loop skills (`plan-next-epic`, `mark-epic-complete`, `ship-phase`) and the planning-system skill `lexicon-audit`, see [docs/WORKFLOW_GUIDE.md](docs/WORKFLOW_GUIDE.md) — those operate on the planning docs, not repo code.
 
 ### Quality & review
 

@@ -1,4 +1,4 @@
-# PLANNING_GUIDE.md — Seminova's planning system
+# WORKFLOW_GUIDE.md — Seminova's planning & build workflow
 
 **Purpose:** How phases move from idea to shipped code — the tools, the documents, the workflow, and the key vocabulary. For write discipline and doc-maintenance rules, see [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
@@ -13,7 +13,20 @@ Seminova's planning system runs across two tools with a hard boundary between th
 - **Claude** owns planning, alignment, and review — kicking off new projects, decomposing phases into epics and stories, and reviewing Cursor's implementation plans before they build.
 - **Cursor** owns implementation — initializing the project from the template, turning epics into implementation plans, and writing code.
 
-The primary handoff artifact between them is the **PRD** — the per-phase doc in `docs/prds/`. Claude writes it; Cursor builds from it.
+The primary handoff artifacts between them:
+
+- **PRD** (`docs/prds/`) — Claude writes it; Cursor builds from it.
+- **Implementation plan** — Cursor generates it (in `.cursor/plans/`); you switch it to markdown view, copy the contents, and paste it into Claude while invoking `plan-review`.
+
+**Why split tools instead of doing everything in one?**
+
+- **Adversarial verification.** A frontier model reviewing a separate, cheaper execution model's work catches more than a model grading its own output. Claude reviews and plans; Cursor's Composer model executes.
+- **Cost and quota separation.** Running high-reasoning models inside Cursor burns Cursor's own usage limits faster, and at worse economics, than doing the same reasoning in Claude. Composer is capable enough at execution that it doesn't need the frontier-model tax.
+- **This is a current-state workaround, not a permanent architecture.** If Cursor's execution model eventually gets good enough that adversarial review stops adding value, the intent is to collapse this back into a single tool.
+
+**Why not Claude Cowork instead of MCP?**
+
+Cowork is built around heavier file-aware operations, which makes it slow for requests that are mostly conversational — talking through epics, reasoning about tradeoffs, planning. Anthropic's general guidance is to chat in claude.ai and use Cowork for file work, but this workflow moves fluidly between the two within a single session — splitting that across two separate tools/chats breaks the flow. The MCP filesystem connection lets Claude Desktop do both in one place: reason in chat, write files when needed, without Cowork's standing overhead.
 
 ---
 
@@ -40,7 +53,7 @@ Full roles table and write discipline are authoritative in [docs/DOC_RULES.md](d
 Fork or clone Seminova. You have the full template but no project identity yet.
 
 **Step 2 — Kickoff grill** *(Claude-side skill: `kickoff-grilling`)*
-A structured grill session with Claude that captures everything needed to understand the new project and produce a populated `ROADMAP.md`. The grill is **wide but shallow** — it gets deep enough to understand the whole product and define all the phases, but stops there. Each phase gets its own deep grill when it's its turn (see `phase-planning` below).
+A structured grill session with Claude that captures everything needed to understand the new project and produce a populated `ROADMAP.md`. The grill is **wide but shallow** — it gets deep enough to understand the whole product and define all the phases, but stops there. Each phase gets its own deep grill when it's its turn (see `phase-planning-with-grill-me` below).
 
 The grill must collect before writing anything:
 - Project name, short description, longer pitch, and who it's for
@@ -77,7 +90,7 @@ After `initialize-project` completes, the repo is a real project, not a template
 
 Once the project is initialized, the phase-by-phase loop begins.
 
-**Step 4 — Plan the phase** *(Claude-side skill: `phase-planning`)*
+**Step 4 — Plan the phase** *(Claude-side skill: `phase-planning-with-grill-me`)*
 Claude reads ROADMAP, LOCKED_RULES, and any existing PRD stub, then works with you to decompose the target phase into numbered epics and vertical-slice stories. Each story carries a success condition — the observable behavior that proves it's done, in product terms. Work happens in chat; Claude writes the PRD only when you ask.
 
 Phase status moves: `Draft → Planning` (PRD created, scope being shaped) → `Ready` (locked, approved to build)
@@ -122,8 +135,42 @@ For repo-maintenance and quality skills (security audits, tech-debt audits, desi
 
 ---
 
+## Tips
+
+A few practical habits that make this workflow smoother.
+
+**Check your token budget before a long session.** Click your profile (bottom-left) → Settings → Usage to see remaining budget and when the window resets. Useful to check before starting a long planning or review session so you're not caught mid-task.
+
+**Batch file edits, then write once.** `filesystem:write_file` does whole-file rewrites — there's no patch/diff capability. Every write re-reads and re-emits the entire file's contents, so several small sequential edits cost more than deciding all the changes first and writing once at the end.
+
+**When running low on context, consider drafting instead of writing directly.** Rather than having Claude write through MCP, ask it to produce the content as a copy block in chat, then paste it into the file yourself. This skips the token cost of the write call itself. The tradeoff: Claude normally re-reads a file immediately before writing to guard against drift since its last read — if you draft-and-paste instead, you're the one vouching the file hasn't changed.
+
+---
+
+## Model guidance
+
+Claude Sonnet 5 narrows the performance gap to Opus considerably while costing roughly 2.5x less — for most of this workflow's skills, effort level matters more than which model you pick.
+
+- **`phase-planning-with-grill-me`, `plan-review`, `kickoff-grilling`** — Sonnet 5 at high or xhigh effort. Reach for Opus only when a specific decision is high-stakes enough to want the extra accuracy ceiling (e.g., an ADR-worthy call, or a plan-review verdict you're not confident in).
+- **Lighter, more mechanical skills** — Sonnet 5 at low or medium effort.
+- `lexicon-update` inherits whatever model/effort its parent session is running.
+
+---
+
 ## Where the skills live
 
-**Claude-side skills** (`kickoff-grilling`, `phase-planning`, `plan-review`, `grill-me`, `lexicon-update`, etc.) are global to the Claude account — not per-repo. They're installed as `.skill` bundles.
+**Claude-side skills** (`kickoff-grilling`, `phase-planning-with-grill-me`, `plan-review`, `grill-me`, `lexicon-update`, etc.) are global to the Claude account — not per-repo. They're installed as `.skill` bundles.
 
 **Cursor-side skills** live in `.cursor/skills/` and are invoked with `/skill-name` in Cursor chat. See the steps above for the planning-loop skills, and [AGENTS.md › Agent skills](../AGENTS.md#agent-skills-cursorskills) for the full repo-maintenance catalog.
+
+---
+
+## Credits
+
+Several pieces of this workflow are adapted from Matt Pocock's skills system ([aihero.dev](https://www.aihero.dev/)):
+
+- The `grill-me` skill itself
+- The grill-me-with-docs pattern, used inside `phase-planning-with-grill-me`
+- The ADR framework (`docs/adr/`)
+
+Where possible, original language and structure have been preserved rather than rewritten from scratch.

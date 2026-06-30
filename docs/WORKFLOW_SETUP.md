@@ -1,6 +1,6 @@
 # WORKFLOW_SETUP.md — One-time workflow setup
 
-**Purpose:** One-time setup for a freshly cloned Seminova template — connecting Claude Desktop to the repo via MCP, installing the Claude-side skills this workflow depends on, and verifying it all works. For day-to-day usage once setup is complete, see [PLANNING_GUIDE.md](PLANNING_GUIDE.md).
+**Purpose:** One-time setup for a freshly cloned Seminova template — connecting Claude Desktop to the repo via MCP, installing the Claude-side skills this workflow depends on, and verifying it all works. For day-to-day usage once setup is complete, see [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md).
 
 **Status:** DRAFT — blocked on two items before it's runnable end-to-end: `docs/claude-skills/` is not yet populated (Section 4), and the Project-creation UI path is unconfirmed (Section 2). See inline `[TODO]` markers.
 
@@ -23,7 +23,7 @@ This doc walks through one-time setup after cloning the template, before any pla
 > [!NOTE]
 > **Cursor-side tooling needs no setup.** `.cursor/skills/` and `.cursor/rules/` ship with the template and are inherited on clone. This doc is entirely about the Claude side.
 
-Once setup is complete, day-to-day usage (the phase-by-phase planning loop) is documented in [PLANNING_GUIDE.md](PLANNING_GUIDE.md).
+Once setup is complete, day-to-day usage (the phase-by-phase planning loop) is documented in [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md). That doc also explains *why* this setup looks the way it does — the Claude/Cursor split and why MCP instead of Cowork — if you want the reasoning before you proceed.
 
 ---
 
