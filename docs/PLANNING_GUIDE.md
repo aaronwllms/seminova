@@ -2,7 +2,7 @@
 
 **Purpose:** How phases move from idea to shipped code — the tools, the documents, the workflow, and the key vocabulary. For write discipline and doc-maintenance rules, see [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
-**Last updated:** 2026-06-29
+**Last updated:** 2026-06-30
 
 ---
 
@@ -39,7 +39,7 @@ Full roles table and write discipline are authoritative in [docs/DOC_RULES.md](d
 **Step 1 — Clone the template**
 Fork or clone Seminova. You have the full template but no project identity yet.
 
-**Step 2 — Kickoff grill** *(Claude-side skill: `kickoff-grill` — not yet built)*
+**Step 2 — Kickoff grill** *(Claude-side skill: `kickoff-grilling`)*
 A structured grill session with Claude that captures everything needed to understand the new project and produce a populated `ROADMAP.md`. The grill is **wide but shallow** — it gets deep enough to understand the whole product and define all the phases, but stops there. Each phase gets its own deep grill when it's its turn (see `phase-planning` below).
 
 The grill must collect before writing anything:
@@ -55,7 +55,7 @@ Outputs written by the kickoff grill:
 - `README.md` — pitch, audience, what-it-is/is-not (Seminova framing replaced)
 - `LEXICON.md` — new domain terms appended (architectural terms stay unchanged)
 
-**Step 3 — Initialize project** *(Cursor-side skill: `initialize-project` — not yet built)*
+**Step 3 — Initialize project** *(Cursor-side skill: `initialize-project`)*
 Cursor reads `site.ts` and `README.md` for project identity and does the mechanical scrub pass — replacing Seminova-specific content with the new project's details across the repo. Runs once, immediately after the kickoff grill.
 
 What `initialize-project` touches:
@@ -83,7 +83,7 @@ Claude reads ROADMAP, LOCKED_RULES, and any existing PRD stub, then works with y
 Phase status moves: `Draft → Planning` (PRD created, scope being shaped) → `Ready` (locked, approved to build)
 
 **Step 5 — Build one epic at a time** *(Cursor-side skill: `plan-next-epic`)*
-Cursor picks up the next unbuilt epic from the active PRD, loads the right context, and generates an implementation plan. Plans are always written sequentially; if an epic has clearly independent tracks, the plan notes it as a Build-in-Parallel candidate for you to act on.
+Cursor picks up the next unbuilt epic from the active PRD, loads the right context, and generates an implementation plan. Plans are always written sequentially; if an epic has clearly independent tracks, the plan notes it as a Build-in-Parallel candidate for you to act on. The plan's closing step instructs Cursor to run `mark-epic-complete` once implementation is finished, tagging the epic `` `Complete` `` in the PRD.
 
 **Step 6 — Review the plan** *(Claude-side skill: `plan-review`)*
 Claude reviews the plan as an independent senior engineer — checking for security issues, data integrity risk, locked-rule violations, and correctness — before you approve it to build.
@@ -112,19 +112,18 @@ The authoritative record of what is actually implemented right now — routes, s
 
 ---
 
-## Where the skills live
+## Other planning-system skills
 
-**Claude-side skills** (`kickoff-grill`, `phase-planning`, `plan-review`, `grill-me`, `lexicon-update`, etc.) are global to the Claude account — not per-repo. They're installed as `.skill` bundles.
+Not part of the numbered loop above, but operate on the planning docs rather than repo code:
 
-**Cursor-side skills** (`initialize-project`, `plan-next-epic`, `mark-epic-complete`, `ship-phase`, `sync-repo-docs`, `lexicon-audit`, etc.) live in `.cursor/skills/` and are invoked with `/skill-name` in Cursor chat.
+**`lexicon-audit`** *(Cursor-side)* — scans the codebase for LEXICON.md candidate terms and drift between the lexicon and actual usage. Read-only, chat output only — does not write to LEXICON.md. Run when you want a health check on the lexicon or suspect terminology drift. To act on findings, use the Claude-side `lexicon-update` skill.
+
+For repo-maintenance and quality skills (security audits, tech-debt audits, design/copy review, etc.) not specific to the planning system, see [AGENTS.md › Agent skills](../AGENTS.md#agent-skills-cursorskills).
 
 ---
 
-## Skills not yet built
+## Where the skills live
 
-| Skill | Side | Purpose |
-| ----- | ---- | ------- |
-| `kickoff-grill` | Claude | Structured project kickoff grill → ROADMAP, site.ts, README, LEXICON |
-| `initialize-project` | Cursor | Scrubs template artifacts; replaces with project identity from site.ts + README |
+**Claude-side skills** (`kickoff-grilling`, `phase-planning`, `plan-review`, `grill-me`, `lexicon-update`, etc.) are global to the Claude account — not per-repo. They're installed as `.skill` bundles.
 
-These are the two gaps in the workflow as of the last update. Build `kickoff-grill` first (Claude-side), then `initialize-project` (Cursor-side) — `initialize-project` depends on the kickoff grill having run.
+**Cursor-side skills** live in `.cursor/skills/` and are invoked with `/skill-name` in Cursor chat. See the steps above for the planning-loop skills, and [AGENTS.md › Agent skills](../AGENTS.md#agent-skills-cursorskills) for the full repo-maintenance catalog.

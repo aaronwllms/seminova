@@ -23,6 +23,42 @@ Document roles and the doc-maintenance procedure are authoritative in [docs/DOC_
 
 ---
 
+## Agent skills (.cursor/skills/)
+
+Beyond `/sync-repo-docs` (above), the repo ships a library of invokable Cursor skills for repo maintenance and quality work. These are situational — invoke by name (`/skill-name`) when the task calls for it, not as part of every session.
+
+For the planning-loop skills (`plan-next-epic`, `mark-epic-complete`, `ship-phase`) and the planning-system skill `lexicon-audit`, see [docs/PLANNING_GUIDE.md](docs/PLANNING_GUIDE.md) — those operate on the planning docs, not repo code.
+
+### Quality & review
+
+| Skill | Use when |
+| ----- | -------- |
+| `pre-release-review` | Finishing an epic or before opening a PR — quality gates, scoped code review, security check, locked-rule check, manual test checklist |
+| `security-audit` | Before launch, after auth/RLS changes, or periodic hygiene — full-repo read-only audit → `SECURITY_AUDIT.md` |
+| `archive-security-audit` | All actionable findings in `SECURITY_AUDIT.md` are resolved — closes the cycle, moves to `archive/security-audits/` |
+| `tech-debt-audit` | Codebase health check or architecture review — full-repo audit → `TECH_DEBT_AUDIT.md` |
+| `sync-tech-debt-audit` | After feature work or `refactor-cleaner` batches — incremental refresh of `TECH_DEBT_AUDIT.md`, not a full re-audit |
+| `archive-tech-debt-audit` | All findings in `TECH_DEBT_AUDIT.md` are resolved — closes the cycle, moves to `archive/tech-debt-audits/` |
+| `refactor-cleaner` | After `tech-debt-audit` — hands-off dead-code cleanup via subagent, batch commits. Agent mode required; not for use during active feature development |
+
+### Design & copy
+
+| Skill | Use when |
+| ----- | -------- |
+| `design-critique` | Reviewing a mockup, screenshot, or screen at any stage — usability, hierarchy, consistency, accessibility feedback |
+| `ux-copy` | Writing or reviewing microcopy — CTAs, empty states, error messages, confirmation dialogs |
+
+### Housekeeping
+
+| Skill | Use when |
+| ----- | -------- |
+| `create-migration` | Adding tables, columns, indexes, or RLS policies — writes a correctly-named, RLS-compliant migration file |
+| `archive-cursor-plans` | After a phase ships, or before a planning push — moves completed plans from `.cursor/plans/` to `.cursor/plans/archive/` |
+
+All skills are read-only or scoped-write as documented in their own `SKILL.md` — see `.cursor/skills/<name>/SKILL.md` for full workflow detail. None auto-invoke except `sync-repo-docs`.
+
+---
+
 ## Setup and quality commands
 
 | Command | Purpose |
