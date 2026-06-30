@@ -195,7 +195,7 @@ Once the Project exists, MCP is connected, skills are installed, and the Project
 1. Ask Claude to list the contents of `AGENTS.md` (or read its first few lines). This confirms MCP filesystem access is working. (Not `ROADMAP.md` — at this point in setup, before `kickoff-grilling` has run, `ROADMAP.md` won't have real project content yet.)
 2. Ask Claude to invoke `kickoff-grilling` (or another installed required skill) and confirm it triggers correctly.
 
-If both succeed, setup is complete.
+If both succeed, setup is complete. Move to [WORKFLOW_GUIDE.md → Starting a new project](WORKFLOW_GUIDE.md#starting-a-new-project) to begin the kickoff grill.
 
 ---
 

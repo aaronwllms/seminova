@@ -73,3 +73,5 @@ These rules apply to anyone updating the planning docs — PM or coding agent.
 10. **HTML mockups:** save new explorations as `.mockups/*.html`. When a mockup is superseded or tied to a shipped phase, move it to `.mockups/archive/`.
 
 11. **Stub sections and files are intentional.** Empty-by-design structure (e.g. ROADMAP phase stubs, the LEXICON domain-terms stub) is kept so the shape is inherited by every product built from this template. Do not delete stubs.
+
+12. **Propose WORKFLOW_BACKLOG.md entries when they surface.** When a planning conversation deliberately defers a decision about the workflow/skills/docs system itself — not product scope — propose adding it to [WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md) using its existing entry format (What / Why deferred / Revisit when). Product-roadmap items don't belong here — those go to ROADMAP.md open questions instead.

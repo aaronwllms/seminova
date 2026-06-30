@@ -75,7 +75,8 @@ What `initialize-project` touches:
 - `AGENTS.md` — replaces Seminova name references; resets "Implemented now" to baseline template state
 - `src/config/landing-content.ts` — stubs hero copy and features with placeholders
 - `.cursor/plans/archive/` — purges Seminova's planning history
-- `LICENSE` — updates copyright year and owner name; preserves the Troya attribution (MIT requirement)
+- `LICENSE` — appends a new copyright line for the project owner; preserves the existing Troya and Williams attributions (MIT requirement)
+- `docs/WORKFLOW_BACKLOG.md` — clears Seminova's deferred workflow items, keeps the stub structure
 
 What it does not touch:
 - `ROADMAP.md`, `LEXICON.md`, `site.ts`, `README.md` — the kickoff grill already wrote these correctly
@@ -112,6 +113,41 @@ pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci
 Flips the PRD to `Shipped`, moves it to `docs/prds/archive/`, updates ROADMAP, commits, pushes, and opens a PR. Merge to main is a separate human step.
 
 Repeat Steps 4–8 for each phase.
+
+### Visual overview
+
+```mermaid
+%%{init: {'flowchart': {'curve': 'stepAfter'}}}%%
+flowchart TD
+    Start(["Step 1: Clone template"])
+    KG["Step 2: Kickoff grill<br/>(kickoff-grilling)"]
+    IP["Step 3: Initialize project<br/>(initialize-project)"]
+    PP["Step 4: Plan the phase<br/>(phase-planning-with-grill-me)"]
+    BE["Step 5: Build one epic<br/>(plan-next-epic)"]
+    PR["Step 6: Review the plan<br/>(plan-review)"]
+    BD["Step 7: Build"]
+    SP["Step 8: Ship the phase<br/>(ship-phase)"]
+
+    Start --> KG --> IP --> PP --> BE --> PR --> BD --> SP
+    SP -.->|"repeat for next phase"| PP
+
+    subgraph Legend["Legend"]
+        direction LR
+        L1["Claude step"]
+        L2["Cursor step"]
+    end
+
+    classDef claudeStep fill:#CECBF6,stroke:#534AB7,color:#26215C
+    classDef cursorStep fill:#9FE1CB,stroke:#0F6E56,color:#04342C
+    class KG,PP,PR claudeStep
+    class IP,BE,BD,SP cursorStep
+    class L1 claudeStep
+    class L2 cursorStep
+    style Legend fill:#F1EFE8,stroke:#B4B2A9,color:#444441
+    linkStyle default stroke:#9c9a92,stroke-width:1.5px
+```
+
+Color carries lane membership since the steps alternate ownership every step (purple = Claude, teal = Cursor) — see the legend at the bottom. The dotted line from Step 8 back to Step 4 is the phase-by-phase loop — Steps 1–3 run once per project, Steps 4–8 repeat per phase. Step 7 has no parenthetical because it isn't a skill invocation, unlike every other step — Cursor implements, then you run the quality-bar command by hand.
 
 ---
 
@@ -159,13 +195,15 @@ Claude Sonnet 5 narrows the performance gap to Opus considerably while costing r
 
 ## Where the skills live
 
-**Claude-side skills** (`kickoff-grilling`, `phase-planning-with-grill-me`, `plan-review`, `grill-me`, `lexicon-update`, etc.) are global to the Claude account — not per-repo. They're installed as `.skill` bundles.
+Claude-side skill installation (account-wide, one-time) is covered in [WORKFLOW_SETUP.md](WORKFLOW_SETUP.md).
 
-**Cursor-side skills** live in `.cursor/skills/` and are invoked with `/skill-name` in Cursor chat. See the steps above for the planning-loop skills, and [AGENTS.md › Agent skills](../AGENTS.md#agent-skills-cursorskills) for the full repo-maintenance catalog.
+**Cursor-side skills** live in `.cursor/skills/` and are invoked with `/skill-name` in Cursor chat. See [AGENTS.md › Agent skills](../AGENTS.md#agent-skills-cursorskills) for the full repo-maintenance catalog.
 
 ---
 
 ## Credits
+
+Seminova itself is built on Michael Troya's original Next.js/Supabase starter template — the foundation this project's structure inherits from. Full attribution lives in [LICENSE](../LICENSE).
 
 Several pieces of this workflow are adapted from Matt Pocock's skills system ([aihero.dev](https://www.aihero.dev/)):
 

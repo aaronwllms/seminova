@@ -23,12 +23,13 @@ Before scrubbing, check all four of this skill's outputs for whether they're alr
 - **`AGENTS.md`** — no remaining Seminova name references
 - **`src/config/landing-content.ts`** — hero/feature copy is stubbed placeholders, not Seminova's content
 - **`.cursor/plans/archive/`** — empty
+- **`docs/WORKFLOW_BACKLOG.md`** — "Deferred items" section matches the stub placeholder (no real entries)
 
-Bucket on agreement across all four:
+Bucket on agreement across all five:
 
-- **All four done** → skip the run, report it's already initialized.
-- **All four not done** → proceed with the run.
-- **Mixed** → halt. Report exactly which outputs are done and which aren't — this is a partial or interrupted prior run, not something to guess past. Do not pick one signal as authoritative over the others; any single check can be coincidentally true (an empty archive) or simply unwritten (LICENSE never touched) without reflecting the real state of the other three.
+- **All five done** → skip the run, report it's already initialized.
+- **All five not done** → proceed with the run.
+- **Mixed** → halt. Report exactly which outputs are done and which aren't — this is a partial or interrupted prior run, not something to guess past. Do not pick one signal as authoritative over the others; any single check can be coincidentally true (an empty archive) or simply unwritten (LICENSE never touched) without reflecting the real state of the others.
 
 ## What it reads
 
@@ -52,6 +53,10 @@ These are the only sources of truth for identity. Do not ask the user for any of
 4. **`LICENSE`**
    - Preserve every existing copyright line exactly as-is, in order — each one reflects a contributor whose code is still in the repo. Never remove, reorder, or modify an existing line.
    - Append one new line for the new project owner: `Copyright (c) <current year> <new owner name>`.
+
+5. **`docs/WORKFLOW_BACKLOG.md`**
+   - Clear the "Deferred items" section and replace it with a placeholder line (e.g. `_None yet — entries get added here as workflow decisions are deliberately parked._`). This is Seminova's own deferred workflow decisions; they have no relevance to the new project.
+   - Preserve the header ("What this is" / "Why it exists" / "How to use it") and overall structure unchanged — the backlog mechanism itself is part of what every spinoff inherits, just empty until the new project parks its first decision.
 
 ## What it never touches
 
