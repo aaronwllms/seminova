@@ -28,6 +28,10 @@ The split that makes Seminova re-skinnable. _Structure_ — token names, compone
 
 The only public routes are the landing page (`/`) and the auth screens (`/auth/**`). Everything else requires an authenticated session. The boundary is enforced in `proxy.ts` (→ `src/supabase/proxy.ts`), which refreshes the session and redirects unauthenticated users to `/auth/login`. Adding a public route outside these two is a locked-rule change. See [LOCKED_RULES.md](LOCKED_RULES.md).
 
+The proxy reads session state via `getClaims()`, not `getUser()`. `getClaims()` reads the JWT locally with no network round-trip; `getUser()` hits the Supabase Auth server. The proxy comment warns explicitly against swapping them — doing so can cause users to be randomly logged out.
+
+The proxy skips all enforcement when `hasEnvVars` is false (Supabase env vars not yet configured) — a dev-setup affordance. Remove or disable this bypass once the project is configured.
+
 ### Admin gate
 
 Admin access is keyed on `app_metadata.role` on the Supabase user — **not** a `role` column on `profiles`. The gate is enforced in `proxy.ts` (non-admins redirected away from `/admin/**`) and `AdminAuthGate`. Roles are granted in-app on `/admin/users` (promote/demote) or via the secret-key CLI (`pnpm promote-admin`). Keeping the gate on `app_metadata` rather than the database is a locked rule. See [LOCKED_RULES.md](LOCKED_RULES.md).
