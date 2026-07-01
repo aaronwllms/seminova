@@ -17,18 +17,20 @@ Before touching anything, verify all three of `src/config/site.ts`, `README.md`,
 
 ## Idempotency
 
-Before scrubbing, check all four of this skill's outputs for whether they're already done:
+Before scrubbing, check all seven of this skill's outputs for whether they're already done:
 
 - **`LICENSE`** — has a line matching `Copyright (c) <any year> <owner name from site.ts>`
 - **`AGENTS.md`** — no remaining Seminova name references
 - **`src/config/landing-content.ts`** — hero/feature copy is stubbed placeholders, not Seminova's content
 - **`.cursor/plans/archive/`** — empty
 - **`docs/WORKFLOW_BACKLOG.md`** — "Deferred items" section matches the stub placeholder (no real entries)
+- **`.mockups/`** — empty
+- **`docs/archive/`** — empty
 
-Bucket on agreement across all five:
+Bucket on agreement across all seven:
 
-- **All five done** → skip the run, report it's already initialized.
-- **All five not done** → proceed with the run.
+- **All seven done** → skip the run, report it's already initialized.
+- **All seven not done** → proceed with the run.
 - **Mixed** → halt. Report exactly which outputs are done and which aren't — this is a partial or interrupted prior run, not something to guess past. Do not pick one signal as authoritative over the others; any single check can be coincidentally true (an empty archive) or simply unwritten (LICENSE never touched) without reflecting the real state of the others.
 
 ## What it reads
@@ -57,6 +59,12 @@ These are the only sources of truth for identity. Do not ask the user for any of
 5. **`docs/WORKFLOW_BACKLOG.md`**
    - Clear the "Deferred items" section and replace it with a placeholder line (e.g. `_None yet — entries get added here as workflow decisions are deliberately parked._`). This is Seminova's own deferred workflow decisions; they have no relevance to the new project.
    - Preserve the header ("What this is" / "Why it exists" / "How to use it") and overall structure unchanged — the backlog mechanism itself is part of what every spinoff inherits, just empty until the new project parks its first decision.
+
+6. **`.mockups/`**
+   - Purge all contents. These are Seminova's own design mockups; they have no relevance to the new project.
+
+7. **`docs/archive/`**
+   - Purge all contents (removes `CONTEXT_ARCHIVE.md`). This is Seminova's frozen pre-restructure history; it has no relevance to the new project.
 
 ## What it never touches
 
