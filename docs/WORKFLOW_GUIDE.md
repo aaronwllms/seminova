@@ -2,7 +2,7 @@
 
 **Purpose:** How phases move from idea to shipped code — the tools, the documents, the workflow, and the key vocabulary. For write discipline and doc-maintenance rules, see [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
-**Last updated:** 2026-06-30
+**Last updated:** 2026-07-01
 
 ---
 
@@ -180,21 +180,27 @@ For repo-maintenance and quality skills (security audits, tech-debt audits, desi
 
 A few practical habits that make this workflow smoother.
 
-**Check your token budget before a long session.** Click your profile (bottom-left) → Settings → Usage to see remaining budget and when the window resets. Useful to check before starting a long planning or review session so you're not caught mid-task.
+**Token budget status in Claude.** Click your profile (bottom-left) → Settings → Usage. You'll see two windows: your current five-hour session (usage so far, time remaining) and your weekly limit (which resets separately for Opus vs. all other models). See [How do usage and length limits work?](https://support.claude.com/en/articles/11647753-how-do-usage-and-length-limits-work)
 
 **Batch file edits, then write once.** `filesystem:write_file` does whole-file rewrites — there's no patch/diff capability. Every write re-reads and re-emits the entire file's contents, so several small sequential edits cost more than deciding all the changes first and writing once at the end.
 
-**When running low on context, consider drafting instead of writing directly.** Rather than having Claude write through MCP, ask it to produce the content as a copy block in chat, then paste it into the file yourself. This skips the token cost of the write call itself. The tradeoff: Claude normally re-reads a file immediately before writing to guard against drift since its last read — if you draft-and-paste instead, you're the one vouching the file hasn't changed.
+**When running low on token budget, consider drafting instead of writing directly.** Rather than having Claude write through MCP, ask it to produce the content as a copy block in chat, then paste it into the file yourself. This skips the token cost of the write call itself. The tradeoff: Claude normally re-reads a file immediately before writing to guard against drift since its last read — if you draft-and-paste instead, you're the one vouching the file hasn't changed.
 
 ---
 
 ## Model guidance
+
+### Claude
 
 Claude Sonnet 5 narrows the performance gap to Opus considerably while costing roughly 2.5x less — for most of this workflow's skills, effort level matters more than which model you pick.
 
 - **`phase-planning-with-grill-me`, `plan-review`, `kickoff-grilling`** — Sonnet 5 at high or xhigh effort. Reach for Opus only when a specific decision is high-stakes enough to want the extra accuracy ceiling (e.g., an ADR-worthy call, or a plan-review verdict you're not confident in).
 - **Lighter, more mechanical skills** — Sonnet 5 at low or medium effort.
 - `lexicon-update` inherits whatever model/effort its parent session is running.
+
+### Cursor
+
+Cursor supports a number of models, but I use Composer 2.5, which has two tiers of the same model: Fast (the default) and Standard. Fast just runs on faster hardware — same intelligence, no quality difference — but costs about 6x more per token. If you're not up against a token budget, Fast is fine. If you want your monthly allowance to last, switch to Standard; it's the same output for a fraction of the cost.
 
 ---
 

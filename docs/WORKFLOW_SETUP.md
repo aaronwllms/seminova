@@ -6,7 +6,7 @@
 
 **Audience:** Anyone setting up a project cloned from this template — no prior context assumed.
 
-**Prerequisite:** Claude Desktop (not claude.ai web) — MCP filesystem server configuration is a Desktop-only feature.
+**Prerequisite:** Complete [README.md](../README.md)'s Quick start and Initial setup first — dev environment, Supabase, and the repo running locally. Also requires Claude Desktop (not claude.ai web) — MCP filesystem server configuration is a Desktop-only feature.
 
 ---
 
@@ -21,7 +21,7 @@ This doc walks through one-time setup after cloning the template, before any pla
 5. Verify everything is working
 
 > [!NOTE]
-> **Cursor-side tooling needs no setup.** `.cursor/skills/` and `.cursor/rules/` ship with the template and are inherited on clone. This doc is entirely about the Claude side.
+> **This doc covers only the Claude side.** `.cursor/skills/` and `.cursor/rules/` ship with the template and are inherited on clone, needing no separate setup. The Cursor IDE and GitHub CLI installs, along with the dev environment, are covered in README — do that first if you haven't.
 
 Once setup is complete, day-to-day usage (the phase-by-phase planning loop) is documented in [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md). That doc also explains *why* this setup looks the way it does — the Claude/Cursor split and why MCP instead of Cowork — if you want the reasoning before you proceed.
 

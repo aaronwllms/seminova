@@ -33,6 +33,8 @@ For roadmap and phase status, see [ROADMAP.md](ROADMAP.md); for active-phase pla
 - Node.js `>=22.22.2` (see [.nvmrc](.nvmrc))
 - [pnpm](https://pnpm.io/) 11
 - A [Supabase](https://supabase.com) project
+- [Cursor](https://cursor.com) — the IDE this template is built with
+- [GitHub CLI](https://cli.github.com) (`gh`) — install via `brew install gh` (Mac) or see [cli.github.com](https://cli.github.com) for other platforms, then authenticate once with `gh auth login`
 
 ---
 
@@ -61,7 +63,17 @@ For roadmap and phase status, see [ROADMAP.md](ROADMAP.md); for active-phase pla
    | `SUPABASE_SECRET_KEY` | Secret key (server/CLI only — see Initial setup) |
    | `CSP_ENFORCE` | Optional — set to `true` for enforcing CSP instead of report-only (see [AGENTS.md](AGENTS.md); requires nonce strategy before production use) |
 
-4. Start the development server:
+4. Link your local repo to your Supabase project and apply the schema that ships with the template (this is what creates the `profiles` table Initial setup below depends on):
+
+   ```bash
+   pnpm exec supabase link
+   pnpm db:push
+   pnpm db:types
+   ```
+
+   `supabase link` requires Supabase dashboard access and only needs to run once per machine/clone. `db:push` applies the SQL files in [`supabase/migrations/`](supabase/migrations/) and will prompt for confirmation. `db:types` regenerates TypeScript types from the schema.
+
+5. Start the development server:
 
    ```bash
    pnpm dev
@@ -83,7 +95,6 @@ After Quick start, grant yourself admin access so you can use the admin shell:
    > **Note:** Supabase’s **secret key** replaces the legacy **service role** key. This repo uses `SUPABASE_SECRET_KEY` — not `SUPABASE_SERVICE_ROLE_KEY`. The legacy JWT under “Legacy API keys” still works during Supabase’s migration period, but prefer the secret key from **API Keys**.
 3. Grant yourself admin access — either:
 
-   - **In-app (after first admin exists):** another admin promotes you from `/admin/users`, or
    - **CLI (bootstrap):** promote your account:
 
    ```bash
@@ -91,6 +102,8 @@ After Quick start, grant yourself admin access so you can use the admin shell:
    ```
 
    The CLI prints the target Supabase project URL and asks for confirmation before acting. `SUPABASE_SECRET_KEY` is required for CLI commands only.
+
+   - **In-app (once an admin exists):** another admin promotes you from `/admin/users`
 
 4. **Re-login** if you were already signed in — the admin role is embedded in the JWT and won't appear until you start a fresh session.
 
@@ -129,15 +142,7 @@ Companion CLI commands (bootstrap / automation): `pnpm demote-admin <email>`, `p
 
 Schema changes live in [`supabase/migrations/`](supabase/migrations/). Agents write SQL files only; humans apply them.
 
-**One-time setup** (per machine / clone):
-
-```bash
-pnpm exec supabase link
-```
-
-Link your local repo to your Supabase project (requires dashboard access). Agents must not run `supabase link`.
-
-**After a new migration file lands:**
+The one-time `pnpm exec supabase link` step is covered in Quick start above. From then on, whenever a new migration file lands:
 
 1. Review the SQL in `supabase/migrations/`
 2. Apply: `pnpm db:push` (confirm when prompted)
