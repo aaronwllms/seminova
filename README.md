@@ -192,6 +192,9 @@ pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci
 | [ROADMAP.md](ROADMAP.md) | PM + agents | Phase status, planning horizon stubs |
 | [docs/prds/](docs/prds/) | PM + agents | Per-phase epics/stories while Active |
 | [docs/DOC_RULES.md](docs/DOC_RULES.md) | PM + agents | Doc maintenance — write discipline, doc roles, archive policy |
+| [docs/WORKFLOW_GUIDE.md](docs/WORKFLOW_GUIDE.md) | PM + agents | Primary planning and build workflow |
+| [docs/WORKFLOW_SETUP.md](docs/WORKFLOW_SETUP.md) | PM + agents | One-time workflow setup for new template users |
+| [docs/WORKFLOW_BACKLOG.md](docs/WORKFLOW_BACKLOG.md) | PM + agents | Deferred workflow-system decisions |
 | [LOCKED_RULES.md](LOCKED_RULES.md) | PM + agents | Canonical locked-rule text |
 | [LEXICON.md](LEXICON.md) | PM + agents | Architectural vocabulary |
 | [docs/adr/](docs/adr/) | PM + agents | Architecture Decision Records |
