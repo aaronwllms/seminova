@@ -16,7 +16,7 @@ Seminova's planning system runs across two tools with a hard boundary between th
 The primary handoff artifacts between them:
 
 - **PRD** (`docs/prds/`) — Claude writes it; Cursor builds from it.
-- **Implementation plan** — Cursor generates it (in `.cursor/plans/`); you switch it to markdown view, copy the contents, and paste it into Claude while invoking `plan-review`.
+- **Implementation plan** — Cursor generates it (in `.cursor/plans/`); you select **Markdown view** from the plan's ellipsis (`⋯`) menu, copy the contents, and paste it into Claude while invoking `plan-review`.
 
 **Why split tools instead of doing everything in one?**
 
@@ -96,23 +96,23 @@ Claude reads ROADMAP, LOCKED_RULES, and any existing PRD stub, then works with y
 
 Phase status moves: `Draft → Planning` (PRD created, scope being shaped) → `Ready` (locked, approved to build)
 
-**Step 5 — Build one epic at a time** *(Cursor-side skill: `plan-next-epic`)*
-Cursor picks up the next unbuilt epic from the active PRD, loads the right context, and generates an implementation plan. Plans are always written sequentially; if an epic has clearly independent tracks, the plan notes it as a Build-in-Parallel candidate for you to act on. The plan's closing step instructs Cursor to run `mark-epic-complete` once implementation is finished, tagging the epic `` `Complete` `` in the PRD.
+**Step 5 — Plan and review the epic** *(Cursor: `plan-next-epic` ↔ Claude: `plan-review`)*
+This step is a subloop — plan and review go back and forth until Claude signs off, which can take one pass or several:
 
-**Step 6 — Review the plan** *(Claude-side skill: `plan-review`)*
-Claude reviews the plan as an independent senior engineer — checking for security issues, data integrity risk, locked-rule violations, and correctness — before you approve it to build.
+- **5a.** You invoke `plan-next-epic` in Cursor with **plan mode** active. This generates an implementation plan for the next unbuilt epic in the active PRD. Plans are always written sequentially; if an epic has clearly independent tracks, the plan notes it as a Build-in-Parallel candidate for you to act on.
+- **5b.** Select **Markdown view** from the plan's ellipsis (`⋯`) menu, copy the markdown, and paste it into Claude, invoking `plan-review`.
+- **5c.** If Claude flags issues: discuss and settle the feedback in chat (this can take a few exchanges), then ask Claude for a standalone copy-block prompt summarizing the agreed change.
+- **5d.** Paste that prompt into the same Cursor plan-mode session; Cursor updates the plan.
+- **5e.** Copy the updated plan's markdown and paste it back to Claude for re-review. Repeat 5c–5e until clean — occasionally a revision introduces a new issue, which just runs another lap of the loop.
+- **Exit condition:** Claude confirms the plan is good to build. A solid plan typically includes the quality bar (`pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci`) and a closing `mark-epic-complete` step, tagging the epic `` `Complete` `` in the PRD once implementation is finished — confirm both are present during review rather than expecting to run them by hand later.
 
-**Step 7 — Build**
-Cursor implements. At the end of each epic, run the quality bar:
+**Step 6 — Build**
+Press the build button on the approved plan in Cursor. Cursor implements it end to end, including the quality-bar and `mark-epic-complete` steps the plan already specifies. If the phase has more unbuilt epics, return to **Step 5** to plan and review the next one. Once every epic in the phase is built, move to Step 7.
 
-```bash
-pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci
-```
-
-**Step 8 — Ship the phase** *(Cursor-side skill: `ship-phase`)*
+**Step 7 — Ship the phase** *(Cursor-side skill: `ship-phase`)*
 Flips the PRD to `Shipped`, moves it to `docs/prds/archive/`, updates ROADMAP, commits, pushes, and opens a PR. Merge to main is a separate human step.
 
-Repeat Steps 4–8 for each phase.
+Repeat Steps 4–7 for each phase.
 
 ### Visual overview
 
@@ -123,12 +123,14 @@ flowchart TD
     KG["Step 2: Kickoff grill<br/>(kickoff-grilling)"]
     IP["Step 3: Initialize project<br/>(initialize-project)"]
     PP["Step 4: Plan the phase<br/>(phase-planning-with-grill-me)"]
-    BE["Step 5: Build one epic<br/>(plan-next-epic)"]
-    PR["Step 6: Review the plan<br/>(plan-review)"]
-    BD["Step 7: Build"]
-    SP["Step 8: Ship the phase<br/>(ship-phase)"]
+    P5["Step 5a — Cursor (plan mode)<br/>plan-next-epic"]
+    R5["Step 5b — Claude<br/>plan-review"]
+    BD["Step 6: Build"]
+    SP["Step 7: Ship the phase<br/>(ship-phase)"]
 
-    Start --> KG --> IP --> PP --> BE --> PR --> BD --> SP
+    Start --> KG --> IP --> PP --> P5 --> R5 --> BD --> SP
+    R5 -.->|"revise via Cursor"| P5
+    BD -.->|"more epics to plan"| P5
     SP -.->|"repeat for next phase"| PP
 
     subgraph Legend["Legend"]
@@ -139,15 +141,18 @@ flowchart TD
 
     classDef claudeStep fill:#CECBF6,stroke:#534AB7,color:#26215C
     classDef cursorStep fill:#9FE1CB,stroke:#0F6E56,color:#04342C
-    class KG,PP,PR claudeStep
-    class IP,BE,BD,SP cursorStep
+    class KG,PP,R5 claudeStep
+    class IP,BD,SP,P5 cursorStep
     class L1 claudeStep
     class L2 cursorStep
     style Legend fill:#F1EFE8,stroke:#B4B2A9,color:#444441
     linkStyle default stroke:#9c9a92,stroke-width:1.5px
+    linkStyle 7 stroke:#534AB7,stroke-width:2px
+    linkStyle 8 stroke:#0F6E56,stroke-width:2px
+    linkStyle 9 stroke:#B7791F,stroke-width:2px
 ```
 
-Color carries lane membership since the steps alternate ownership every step (purple = Claude, teal = Cursor) — see the legend at the bottom. The dotted line from Step 8 back to Step 4 is the phase-by-phase loop — Steps 1–3 run once per project, Steps 4–8 repeat per phase. Step 7 has no parenthetical because it isn't a skill invocation, unlike every other step — Cursor implements, then you run the quality-bar command by hand.
+Color carries ownership (purple = Claude, teal = Cursor) — see the legend at the bottom. Step 5's two sub-steps are plain nodes in the main chain rather than a boxed subgraph — Cursor (5a) first, Claude (5b) second, straight down the page in read order — since nesting them in a box confused the layout engine's cycle handling and pushed Steps 6–7 above Step 5. Three loops run at three grains, each its own dotted line: the **review subloop** (5b back to 5a, revise via Cursor), the **epic loop** (Step 6 back to 5a, more epics left in this phase), and the **phase loop** (Step 7 back to Step 4, Steps 1–3 run once per project, Steps 4–7 repeat per phase). Each loop's dotted line is color-coded to its grain (subloop purple, epic loop teal, phase loop amber) so the three backward edges stay distinguishable even where they route near each other.
 
 ---
 
