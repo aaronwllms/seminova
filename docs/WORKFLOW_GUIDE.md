@@ -53,7 +53,7 @@ Full roles table and write discipline are authoritative in [docs/DOC_RULES.md](d
 Fork or clone Seminova. You have the full template but no project identity yet.
 
 **Step 2 — Kickoff grill** *(Claude-side skill: `kickoff-grilling`)*
-A structured grill session with Claude that captures everything needed to understand the new project and produce a populated `ROADMAP.md`. The grill is **wide but shallow** — it gets deep enough to understand the whole product and define all the phases, but stops there. Each phase gets its own deep grill when it's its turn (see `phase-planning-with-grill-me` below).
+A structured grill session with Claude that captures everything needed to understand the new project and produce a populated `ROADMAP.md`. The grill is **wide but shallow** — it gets deep enough to understand the whole product and define all the phases, but stops there. Each phase gets its own deep grill when it's its turn (see `phase-planning` below).
 
 The grill must collect before writing anything:
 - Project name, short description, longer pitch, and who it's for
@@ -91,7 +91,7 @@ After `initialize-project` completes, the repo is a real project, not a template
 
 Once the project is initialized, the phase-by-phase loop begins.
 
-**Step 4 — Plan the phase** *(Claude-side skill: `phase-planning-with-grill-me`)*
+**Step 4 — Plan the phase** *(Claude-side skill: `phase-planning`)*
 Claude reads ROADMAP, LOCKED_RULES, and any existing PRD stub, then works with you to decompose the target phase into numbered epics and vertical-slice stories. Each story carries a success condition — the observable behavior that proves it's done, in product terms. Work happens in chat; Claude writes the PRD only when you ask.
 
 Phase status moves: `Draft → Planning` (PRD created, scope being shaped) → `Ready` (locked, approved to build)
@@ -122,7 +122,7 @@ flowchart TD
     Start(["Step 1: Clone template"])
     KG["Step 2: Kickoff grill<br/>(kickoff-grilling)"]
     IP["Step 3: Initialize project<br/>(initialize-project)"]
-    PP["Step 4: Plan the phase<br/>(phase-planning-with-grill-me)"]
+    PP["Step 4: Plan the phase<br/>(phase-planning)"]
     P5["Step 5a — Cursor (plan mode)<br/>plan-next-epic"]
     R5["Step 5b — Claude<br/>plan-review"]
     BD["Step 6: Build"]
@@ -194,7 +194,7 @@ A few practical habits that make this workflow smoother.
 
 Claude Sonnet 5 narrows the performance gap to Opus considerably while costing roughly 2.5x less — for most of this workflow's skills, effort level matters more than which model you pick.
 
-- **`phase-planning-with-grill-me`, `plan-review`, `kickoff-grilling`** — Sonnet 5 at high or xhigh effort. Reach for Opus only when a specific decision is high-stakes enough to want the extra accuracy ceiling (e.g., an ADR-worthy call, or a plan-review verdict you're not confident in).
+- **`phase-planning`, `plan-review`, `kickoff-grilling`** — Sonnet 5 at high or xhigh effort. Reach for Opus only when a specific decision is high-stakes enough to want the extra accuracy ceiling (e.g., an ADR-worthy call, or a plan-review verdict you're not confident in).
 - **Lighter, more mechanical skills** — Sonnet 5 at low or medium effort.
 - `lexicon-update` inherits whatever model/effort its parent session is running.
 
@@ -219,7 +219,7 @@ Seminova itself is built on Michael Troya's original Next.js/Supabase starter te
 Several pieces of this workflow are adapted from Matt Pocock's skills system ([aihero.dev](https://www.aihero.dev/)):
 
 - The `grill-me` skill itself
-- The grill-me-with-docs pattern, used inside `phase-planning-with-grill-me`
+- The grill-me-with-docs pattern, used inside `phase-planning`
 - The ADR framework (`docs/adr/`)
 
 Where possible, original language and structure have been preserved rather than rewritten from scratch.

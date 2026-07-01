@@ -77,9 +77,9 @@ This workflow depends on a set of Claude-side skills. They are global to your Cl
 | Skill | Required? | Purpose | Used in |
 |---|---|---|---|
 | `kickoff-grilling` | Required | One-time grill that populates `ROADMAP.md`, `site.ts`, `README.md`, `LEXICON.md` for a new project | Setup, before phase work begins |
-| `phase-planning-with-grill-me` | Required | Aligns on terminology/decisions, then decomposes a phase into epics/stories and writes the PRD | Steady-state loop |
+| `phase-planning` | Required | Aligns on terminology/decisions, then decomposes a phase into epics/stories and writes the PRD | Steady-state loop |
 | `plan-review` | Required | Reviews Cursor's implementation plan before build | Steady-state loop |
-| `lexicon-update` | Required | Writes or sharpens a LEXICON.md entry when a new term surfaces (often during `phase-planning-with-grill-me`) | Steady-state loop, ad hoc trigger |
+| `lexicon-update` | Required | Writes or sharpens a LEXICON.md entry when a new term surfaces (often during `phase-planning`) | Steady-state loop, ad hoc trigger |
 | `grill-me` | Optional | Stress-tests a plan/design via relentless interview, standalone | Ad hoc |
 | `writing-great-skills` / `write-a-skill` / `skill-creator` | Optional | Author or audit new Claude-side skills | Template extension work |
 
@@ -102,7 +102,7 @@ I want to install Claude-side skills from my repo, one at a time.
 
 Required (install all):
   - kickoff-grilling
-  - phase-planning-with-grill-me
+  - phase-planning
   - plan-review
   - lexicon-update
 
