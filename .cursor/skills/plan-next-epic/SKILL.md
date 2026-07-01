@@ -2,6 +2,7 @@
 name: plan-next-epic
 description: >-
   Plan the next uncompleted epic using the repo planning brief and AGENTS.md.
+  On the first epic of a phase, creates or checks out the phase branch from main.
   Use in Plan Mode when starting a new epic, when the user asks to plan the next
   epic, or before external planning sessions.
 disable-model-invocation: true
@@ -9,7 +10,7 @@ disable-model-invocation: true
 
 # Plan Next Epic
 
-Plan Mode only. Do not edit any files.
+Plan Mode only. Do not edit planning or repo files (git branch checkout/create for first-epic setup is allowed).
 
 ## Read first
 
@@ -23,6 +24,42 @@ If these don't exist, ask the user where the product roadmap / phase scope lives
 Plan the **next uncompleted epic** in the active phase. The active phase's PRD holds its epics and stories — read it for scope and conventions.
 
 Determine the next epic by reading the active phase's PRD: the first epic **without** a `` `Complete` `` tag is next. Do not verify against the codebase.
+
+## Branch setup (first epic only)
+
+Run **before** generating the plan when this is the **first epic** in the active phase.
+
+**Detect first epic:** no `### Epic` heading in the active PRD carries a `` `Complete` `` tag yet. If any prior epic is complete, skip this section — the phase branch should already exist from Epic 1.
+
+**Derive the expected branch** (same convention as [ship-phase reference](../ship-phase/reference.md)):
+
+- Pattern: `phase-{N}/{short-kebab-slug}`
+- `{N}` = phase number from the PRD / ROADMAP
+- `{short-kebab-slug}` = slug segment from the PRD filename `phase-{N}-{slug}.prd.md` (e.g. `phase-8-tech-debt-remediation.prd.md` → `phase-8/tech-debt-remediation`)
+
+Check the current branch:
+
+```bash
+git branch --show-current
+```
+
+| Current branch | Action |
+| -------------- | ------ |
+| Matches `phase-{N}/{slug}` | Proceed to plan |
+| `main` | Create or checkout the phase branch (see below) |
+| Anything else | **Halt.** Report the expected branch name; ask the user to switch, stash, or commit first |
+
+**On `main` for the first epic:**
+
+```bash
+# If the branch already exists locally:
+git checkout phase-{N}/{slug}
+
+# If it does not exist locally:
+git checkout -b phase-{N}/{slug}
+```
+
+Use `git show-ref --verify --quiet refs/heads/phase-{N}/{slug}` to choose checkout vs `-b`. Request `git_write`. Report which branch was created or checked out. **Do not push** — publishing the branch is separate (build work or `ship-phase`).
 
 ## Name the plan
 
