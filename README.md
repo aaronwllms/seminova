@@ -111,6 +111,8 @@ After Quick start, grant yourself admin access so you can use the admin shell:
 
 Companion CLI commands (bootstrap / automation): `pnpm demote-admin <email>`, `pnpm list-admins` (read-only, no confirmation).
 
+**Next:** set up the planning workflow — [docs/WORKFLOW_SETUP.md](docs/WORKFLOW_SETUP.md) connects Claude Desktop to the repo and installs the planning skills.
+
 ---
 
 ## Scripts

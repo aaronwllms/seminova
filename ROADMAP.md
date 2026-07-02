@@ -2,7 +2,7 @@
 
 The planning horizon: anticipated phases as thin stubs, plus living status. Shipped phase detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md); build-time workflow and authoritative schema in [AGENTS.md](AGENTS.md). Phase status vocabulary and PRD lifecycle in [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
-**Last updated:** 2026-06-29
+**Last updated:** 2026-07-02
 
 ---
 
@@ -21,6 +21,8 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 | 9     | SEO & GEO                                                                            | `Draft`   | —   |
 | 10    | Pattern Reference Page                                                               | `Draft`   | —   |
 | 11    | Agent Tooling: Skills Suite                                                          | `Draft`   | —   |
+
+_Phases 1–7 pre-date the per-phase PRD system, so their PRD column is empty; their shipped detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md). From Phase 8 on, shipped rows link the archived PRD per [docs/DOC_RULES.md](docs/DOC_RULES.md)._
 
 **No active phase.** Phase 8 (Tech Debt Audit Remediation) is next in `Draft` — promote via `phase-planning` when ready to start.
 

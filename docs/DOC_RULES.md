@@ -2,7 +2,7 @@
 
 **Purpose:** Invariant doc-maintenance procedure governing the planning docs ([ROADMAP.md](../ROADMAP.md), the PRDs in [prds/](prds/), and the frozen [archive/](archive/)). This is not project state — it applies to every product built from this template. Governs the planning skills (`phase-planning`, `plan-next-epic`, `mark-epic-complete`, `ship-phase`) and the repo-sync skill (`sync-repo-docs`).
 
-**Last updated:** 2026-06-29
+**Last updated:** 2026-07-02
 
 ---
 
@@ -21,7 +21,9 @@ This table is authoritative. [AGENTS.md](../AGENTS.md) carries a one-line pointe
 | **[DESIGN.md](../DESIGN.md)**                  | PM / agents               | Token architecture, structure-vs-theme split, re-skin workflow                                                                          |
 | **[adr/](adr/)**                               | PM / agents               | Architecture Decision Records — immutable decision history; rules in [adr/README.md](adr/README.md)                                     |
 | **[archive/](archive/)**                       | PM / agents (reference)   | Frozen pre-restructure history — **closed; append nothing**                                                                             |
-| **[WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md)** | PM                        | Permanently deferred workflow items                                                                                                     |
+| **[WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md)**     | PM                        | Planning & build workflow — the tool split, the phase loop, model guidance                                                              |
+| **[WORKFLOW_SETUP.md](WORKFLOW_SETUP.md)**     | PM                        | One-time Claude-side workflow setup (MCP connection, skill installs, verification)                                                      |
+| **[WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md)** | PM                        | Deferred workflow-system decisions (revisit-triggered)                                                                                  |
 | **[.cursor/rules/](../.cursor/rules/)**        | Agents (style & process)  | How to write code, test, migrate — not product truth                                                                                    |
 | **[.cursor/skills/](../.cursor/skills/)**      | Agents                    | User-triggered workflows                                                                                                                |
 | **[.cursor/plans/](../.cursor/plans/)**        | In-repo planning          | Ephemeral epic plans; evidence of intent, not shipped truth                                                                             |

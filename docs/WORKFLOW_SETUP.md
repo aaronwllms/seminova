@@ -2,7 +2,7 @@
 
 **Purpose:** One-time setup for a freshly cloned Seminova template — connecting Claude Desktop to the repo via MCP, installing the Claude-side skills this workflow depends on, and verifying it all works. For day-to-day usage once setup is complete, see [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md).
 
-**Status:** Ready to use.
+**Last updated:** 2026-07-02
 
 **Audience:** Anyone setting up a project cloned from this template — no prior context assumed.
 
