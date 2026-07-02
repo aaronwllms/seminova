@@ -11,7 +11,7 @@ globs:
 - Use utility-first approach for styling
 - Follow mobile-first responsive design approach
 - Use Tailwind's spacing scale consistently (4, 8, 12, 16, etc.)
-- Use semantic color names from Tailwind config
+- Use semantic CSS variables from `src/app/globals.css` (`bg-background`, `text-foreground`, etc.) — see `LOCKED_RULES.md`
 - Implement responsive design with Tailwind CSS utility classes
 - Use concise syntax; avoid unnecessary curly braces in conditionals
 
@@ -53,8 +53,8 @@ export function Component({ className, isActive }) {
 // shadcn components handle dark mode automatically
 <Button>Works in both modes</Button>
 
-// For custom components, use dark: prefix
-<div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+// For custom components, use semantic tokens (no hardcoded gray-* utilities)
+<div className="bg-background text-foreground border border-border">
   Custom component
 </div>
 ```

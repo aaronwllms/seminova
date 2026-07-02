@@ -1,7 +1,8 @@
 ---
 description: Toast / transient-feedback conventions — what surfaces as a toast vs inline indicator vs inline/panel, and the success/info/warning taxonomy
 globs:
-  - 'src/**/*.{ts,tsx}'
+  - 'src/**/*.ts'
+  - 'src/**/*.tsx'
 alwaysApply: false
 ---
 

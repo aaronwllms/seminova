@@ -51,4 +51,4 @@ Minimalism never cuts these — they sit outside the ladder:
 - `ui-shadcn.mdc` — component-first UI (rung 4 exception)
 - `testing.mdc` — owns all testing discipline
 - `security.mdc`, `error-handling.mdc`, `ui-accessibility.mdc` — the guards above
-- `rule-authoring.mdc` — the same minimalism ethos applied to rules themselves
+- `rule-authoring` skill (`.cursor/skills/rule-authoring/`) — the same minimalism ethos applied to rules themselves

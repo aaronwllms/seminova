@@ -1,7 +1,8 @@
 ---
 description: Canonical form stack (react-hook-form + zod), the save-model rule (blur vs explicit submit vs upload completion), and password-field autofill conventions
 globs:
-  - 'src/**/*.{ts,tsx}'
+  - 'src/**/*.ts'
+  - 'src/**/*.tsx'
 alwaysApply: false
 ---
 

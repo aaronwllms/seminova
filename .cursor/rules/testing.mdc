@@ -9,7 +9,7 @@ globs:
   - '**/*.integration.test.tsx'
   - 'src/mocks/**/*.ts'
   - 'src/test/**/*.tsx'
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Testing with Vitest + React Testing Library + MSW v2
@@ -301,19 +301,19 @@ Before merge: run `pnpm test:ci`. If thresholds fail, add targeted high-value te
 - Always link to a GitHub issue when quarantining tests
 
 ## Examples
-- Unit tests: `src/utils/format-date.unit.test.ts`, `src/hooks/use-get-message.unit.test.ts`
-- Integration tests: `src/components/login-form.integration.test.tsx`, `src/app/api/posts/route.integration.test.ts`
+- Unit tests: `src/utils/extract-auth-form-error.unit.test.ts`, `src/hooks/useGetMessage.unit.test.tsx` (legacy camelCase hook), `src/hooks/use-sign-out.unit.test.ts`
+- Integration tests: `src/components/login-form.integration.test.tsx`, `src/app/auth/confirm/route.integration.test.ts`
 
 ## File Naming Conventions
 Test files should be co-located with source files using these naming patterns:
 
 - **Unit tests**: `.unit.test.tsx` or `.unit.test.ts`
   - Pure functions, isolated component logic, custom hooks, components without external dependencies
-  - Example: `utils/format-date.unit.test.ts`, `hooks/use-toggle.unit.test.ts`, `components/counter.unit.test.tsx`
+  - Example: `utils/extract-auth-form-error.unit.test.ts`, `hooks/use-sign-out.unit.test.ts`, `components/inline-error.unit.test.tsx`
 
 - **Integration tests**: `.integration.test.tsx` or `.integration.test.ts`
   - Components with external dependencies, API routes, auth flows, database interactions
-  - Example: `components/auth-form.integration.test.tsx`, `app/api/users/route.integration.test.ts`
+  - Example: `components/login-form.integration.test.tsx`, `app/auth/confirm/route.integration.test.ts`
 
 The file naming helps identify test scope at a glance and organize test runs (e.g., running only unit tests for quick feedback loops).
 

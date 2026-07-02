@@ -1,0 +1,11 @@
+---
+description: Points to the rule-authoring skill before any .cursor/rules/*.mdc file is created or edited.
+globs:
+  - '.cursor/rules/**/*.mdc'
+  - '.cursor/rules/**/*.md'
+alwaysApply: false
+---
+
+Before creating, editing, or judging a `.cursor/rules/*.mdc` file, read
+`.cursor/skills/rule-authoring/SKILL.md` in full. That skill is the standard
+— this file only exists to trigger the read.

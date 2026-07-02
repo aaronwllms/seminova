@@ -34,7 +34,7 @@ export async function GET() {
   
   if (error || !user) {
     return NextResponse.json(
-      { success: false, error: { message: 'Unauthorized', code: 'UNAUTHORIZED' } },
+      { success: false, error: { message: 'Unauthorized', code: 'UNAUTHORIZED', kind: 'operational' } },
       { status: 401 }
     )
   }
@@ -49,7 +49,7 @@ Verify user owns the resource before operations:
 const { data: resource } = await supabase.from('posts').select('user_id').eq('id', resourceId).single()
 
 if (resource?.user_id !== user.id) {
-  return NextResponse.json({ success: false, error: { message: 'Forbidden', code: 'FORBIDDEN' } }, { status: 403 })
+  return NextResponse.json({ success: false, error: { message: 'Forbidden', code: 'FORBIDDEN', kind: 'operational' } }, { status: 403 })
 }
 ```
 

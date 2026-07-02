@@ -1,6 +1,6 @@
 ---
 description: General project conventions and coding standards
-alwaysApply: true
+alwaysApply: false
 globs:
   - '**/*.ts'
   - '**/*.tsx'
@@ -24,9 +24,9 @@ globs:
 - Use pure functions and avoid side effects where possible
 
 ## File Naming & Organization
-- Use **kebab-case** for files: `auth-button.tsx`, `use-get-message.ts`
+- Use **kebab-case** for files: `auth-button.tsx`, `use-sign-out.ts`
 - Use **lowercase with dashes** for directories: `components/auth-wizard`
-- Co-locate test files with source files: `component.tsx` + `component.test.tsx`
+- Co-locate test files with source files: `component.tsx` + `component.unit.test.tsx` (see `testing.mdc`)
 
 ## File Structure Order
 1. Imports (external, then internal with @/ alias)
@@ -92,7 +92,7 @@ interface UserProfileProps {
 }
 
 // 3. Main Component
-export function UserProfile({ userId, onUpdate }: UserProfileProps) {
+export const UserProfile = ({ userId, onUpdate }: UserProfileProps) => {
   // hooks
   const [isEditing, setIsEditing] = useState(false)
   
@@ -122,15 +122,12 @@ Use descriptive names with auxiliary verbs:
 - **Objects**: `user`, `post`, `config` (singular)
 
 ## React Patterns
+See `typescript.mdc` and `nextjs.mdc` for TypeScript and App Router conventions. Project-specific reminders:
 - Use functional components exclusively with arrow functions
-- Destructure props in function parameters
-- Use descriptive variable names with auxiliary verbs (isLoading, hasError, canSubmit)
 - Extract complex logic into custom hooks in `src/hooks/`
 - Keep components focused and single-responsibility
 - Prefer Server Components over Client Components when possible
 - Minimize use of useEffect; consider if logic can be done server-side
-- Use declarative JSX patterns
-- Favor named exports for all components
 
 ## RORO Pattern for Functions
 For complex functions with multiple parameters, use RORO (Receive an Object, Return an Object):

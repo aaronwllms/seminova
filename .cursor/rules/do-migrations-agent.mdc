@@ -3,7 +3,7 @@ description: Agent constraints for database migrations - prevents duplicates and
 globs:
   - 'supabase/migrations/**/*.sql'
   - '**/*.plan.md'
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Database Migration Agent Constraints

@@ -12,7 +12,7 @@ globs:
 - shadcn/ui is a **component collection**, not a library - you own the code
 - Components are built on **Radix UI** primitives for accessibility and composability
 - All components are **fully customizable** and live in your codebase
-- Configuration in `components.json` (style: default, baseColor: slate, CSS variables enabled)
+- Configuration in `components.json` (style: new-york, baseColor: slate, CSS variables enabled)
 
 ## Adding shadcn/ui Components
 

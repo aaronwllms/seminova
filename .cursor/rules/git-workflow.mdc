@@ -1,7 +1,11 @@
 ---
 description: Git workflow, conventional commits, and PR creation standards
 globs:
-  - '**/*'
+  - 'src/**/*.ts'
+  - 'src/**/*.tsx'
+  - 'scripts/**/*.ts'
+  - '.husky/**'
+  - '.github/workflows/**'
 ---
 
 # Git Workflow & Conventional Commits
