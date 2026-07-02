@@ -6,7 +6,7 @@
 
 **Discipline:** Entries are short — a sentence or two of meaning, plus a pointer to the canonical home (a rule, `DESIGN.md`, `LOCKED_RULES.md`, an ADR) where the authoritative detail and any values live. Do not duplicate token values, rule wording, or schema here; point to the source of truth instead.
 
-**Last updated:** 2026-06-29
+**Last updated:** 2026-07-02
 
 ---
 
@@ -38,7 +38,7 @@ Admin access is keyed on `app_metadata.role` on the Supabase user — **not** a 
 
 ### Defense in depth (admin)
 
-Admin privilege is re-verified at every layer that can reach elevated operations: proxy redirect → `AdminAuthGate` in the layout → `assertAdminCaller()` in each server action before `createServiceClient()` runs. No single gate is considered sufficient. The service client is never reached without passing all three. See [SECURITY_AUDIT.md](SECURITY_AUDIT.md).
+Admin privilege is re-verified at every layer that can reach elevated operations: proxy redirect → `AdminAuthGate` in the layout → `assertAdminCaller()` in each server action before `createServiceClient()` runs. No single gate is considered sufficient. The service client is never reached without passing all three. Enforcement: `proxy.ts`, `AdminAuthGate`, and `assertAdminCaller()` in the gated server actions.
 
 ### Supabase clients (browser / server / service)
 
@@ -130,4 +130,4 @@ The reference pattern for admin tables: `DataTableShell` with single-column sear
 
 ## Domain terms
 
-_Empty by design._ Seminova is a template — it ships only the `User` / `Profile` primitives every product needs, and presumes no product schema. Spinoffs add their domain vocabulary here (e.g. the kind of rich domain language a real product develops: "a "standalone X" is an X with a null Y"). The architectural terms above are inherited unchanged; this section is where a product's own language accumulates.
+_Empty by design._ Seminova is a template — it ships only the `User` / `Profile` primitives every product needs, and presumes no product schema. Spinoffs add their domain vocabulary here (e.g. the kind of rich domain language a real product develops: "a 'standalone X' is an X with a null Y"). The architectural terms above are inherited unchanged; this section is where a product's own language accumulates.

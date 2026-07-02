@@ -2,7 +2,7 @@
 
 **Purpose:** How phases move from idea to shipped code — the tools, the documents, the workflow, and the key vocabulary. For write discipline and doc-maintenance rules, see [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
-**Last updated:** 2026-07-01
+**Last updated:** 2026-07-02
 
 ---
 
@@ -68,6 +68,8 @@ Outputs written by the kickoff grill:
 - `README.md` — pitch, audience, what-it-is/is-not (Seminova framing replaced)
 - `LEXICON.md` — new domain terms appended (architectural terms stay unchanged)
 
+These lists are a summary — the skill itself is the source of truth on conflict.
+
 **Step 3 — Initialize project** *(Cursor-side skill: `initialize-project`)*
 Cursor reads `site.ts` and `README.md` for project identity and does the mechanical scrub pass — replacing Seminova-specific content with the new project's details across the repo. Runs once, immediately after the kickoff grill.
 
@@ -83,6 +85,8 @@ What it does not touch:
 - `.cursor/rules/`, `.cursor/skills/` — inherited unchanged; these are the template's value
 - `LOCKED_RULES.md`, `DESIGN.md` — inherited unchanged
 
+These lists are a summary — the skill itself is the source of truth on conflict.
+
 After `initialize-project` completes, the repo is a real project, not a template copy.
 
 ---
@@ -92,9 +96,9 @@ After `initialize-project` completes, the repo is a real project, not a template
 Once the project is initialized, the phase-by-phase loop begins.
 
 **Step 4 — Plan the phase** *(Claude-side skill: `phase-planning`)*
-Claude reads ROADMAP, LOCKED_RULES, and any existing PRD stub, then works with you to decompose the target phase into numbered epics and vertical-slice stories. Each story carries a success condition — the observable behavior that proves it's done, in product terms. Work happens in chat; Claude writes the PRD only when you ask.
+Claude reads ROADMAP, LOCKED_RULES, and the phase's ROADMAP stub, then works with you to decompose the target phase into numbered epics and vertical-slice stories. Each story carries a success condition — the observable behavior that proves it's done, in product terms. The decomposition is shaped in chat during `Planning` and written into the PRD at the `Ready` flip; Claude writes the PRD only when you ask.
 
-Phase status moves: `Draft → Planning` (PRD created, scope being shaped) → `Ready` (locked, approved to build)
+Phase status moves: `Draft → Planning` (PRD created, scope being shaped) → `Ready` (locked, approved to build). When the build is about to start, `phase-planning` also flips the PRD and ROADMAP row to `Active`.
 
 **Step 5 — Plan and review the epic** *(Cursor: `plan-next-epic` ↔ Claude: `plan-review`)*
 This step is a subloop — plan and review go back and forth until Claude signs off, which can take one pass or several:
@@ -152,7 +156,12 @@ flowchart TD
     linkStyle 9 stroke:#B7791F,stroke-width:2px
 ```
 
-Color carries ownership (purple = Claude, teal = Cursor) — see the legend at the bottom. Step 5's two sub-steps are plain nodes in the main chain rather than a boxed subgraph — Cursor (5a) first, Claude (5b) second, straight down the page in read order — since nesting them in a box confused the layout engine's cycle handling and pushed Steps 6–7 above Step 5. Three loops run at three grains, each its own dotted line: the **review subloop** (5b back to 5a, revise via Cursor), the **epic loop** (Step 6 back to 5a, more epics left in this phase), and the **phase loop** (Step 7 back to Step 4, Steps 1–3 run once per project, Steps 4–7 repeat per phase). Each loop's dotted line is color-coded to its grain (subloop purple, epic loop teal, phase loop amber) so the three backward edges stay distinguishable even where they route near each other.
+<!-- Diagram maintenance note: Step 5's two sub-steps are deliberately plain nodes in the main chain
+rather than a boxed subgraph — Cursor (5a) first, Claude (5b) second, straight down the page in read
+order. Nesting them in a subgraph confused the layout engine's cycle handling and pushed Steps 6–7
+above Step 5. Keep them flat when editing this diagram. -->
+
+Color carries ownership (purple = Claude, teal = Cursor) — see the legend at the bottom. Three loops run at three grains, each its own dotted line: the **review subloop** (5b back to 5a, revise via Cursor), the **epic loop** (Step 6 back to 5a, more epics left in this phase), and the **phase loop** (Step 7 back to Step 4, Steps 1–3 run once per project, Steps 4–7 repeat per phase). Each loop's dotted line is color-coded to its grain (subloop purple, epic loop teal, phase loop amber) so the three backward edges stay distinguishable even where they route near each other.
 
 ---
 
@@ -200,7 +209,7 @@ Claude Sonnet 5 narrows the performance gap to Opus considerably while costing r
 
 ### Cursor
 
-Cursor supports a number of models, but I use Composer 2.5, which has two tiers of the same model: Fast (the default) and Standard. Fast just runs on faster hardware — same intelligence, no quality difference — but costs about 6x more per token. If you're not up against a token budget, Fast is fine. If you want your monthly allowance to last, switch to Standard; it's the same output for a fraction of the cost.
+Cursor supports a number of models, but this workflow uses Composer 2.5, which has two tiers of the same model: Fast (the default) and Standard. Fast just runs on faster hardware — same intelligence, no quality difference — but costs about 6x more per token. If you're not up against a token budget, Fast is fine. If you want your monthly allowance to last, switch to Standard; it's the same output for a fraction of the cost.
 
 ---
 

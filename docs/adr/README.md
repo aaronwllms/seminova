@@ -32,3 +32,7 @@ edit the old record — you write a **new** ADR that supersedes it, and mark
 the old one `Superseded by ADR-NNNN`. The only edit ever made to an existing
 ADR is adding that superseded marker. This applies to humans and agents
 alike: the record is history, and history is not rewritten.
+
+One exception: formatting or rendering repairs that don't alter the decision
+content (e.g. fixing a markdown artifact that breaks display) are permitted —
+immutability protects what was decided, not rendering accidents.

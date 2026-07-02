@@ -10,27 +10,22 @@ file with its own lifecycle.
 
 ## Lifecycle
 
-A PRD's **status** flips before archive; the ROADMAP row for the phase mirrors
-the PRD status at all times. While a phase is in flight, the file lives in
-`docs/prds/`. When shipped, it **moves** to `docs/prds/archive/` — it does not
-stay in `docs/prds/`.
+Status vocabulary — what `Draft`, `Planning`, `Ready`, `Active`, and `Shipped`
+mean — is authoritative in
+[DOC_RULES.md › Phase status vocabulary](../DOC_RULES.md#phase-status-vocabulary).
+This section covers only the mechanics: who flips each status and where the
+file moves. The ROADMAP row mirrors the PRD status at all times; while a phase
+is in flight, the file lives in `docs/prds/`.
 
-`Draft` is a ROADMAP-only status — it means no PRD exists yet. Once a PRD is
-created, the phase leaves `Draft` and the PRD carries the status from there.
-
-1. **Planning** — PRD created; intent and scope are being shaped. The ROADMAP row
-   flips from `Draft` to `Planning` when the PRD file is created. Epics and
-   stories are not yet written in.
-2. **Ready** — PRD is locked and approved to build. PM sign-off required to flip
-   from `Planning` to `Ready`. The decomposition into epics and vertical-slice
-   stories happens here, written in by `phase-planning`.
-3. **Active** — the phase is being built. Only one phase should be `Active` at a
-   time in practice. ROADMAP row reflects `Active`. File remains in `docs/prds/`.
-4. **Shipped** — the phase is done. Flip status to `Shipped` in the PRD and on
-   ROADMAP in the same pass, then **move the file to `docs/prds/archive/`** and
-   update the ROADMAP PRD column to `docs/prds/archive/phase-N-slug.prd.md`. Do
-   **not** move it to `docs/archive/` — that location holds only the frozen
-   pre-restructure history.
+1. **Planning** — `phase-planning` creates the PRD; the ROADMAP row flips from
+   `Draft` to `Planning`. Epics and stories are not yet written in.
+2. **Ready** — PM sign-off flips `Planning` to `Ready`; `phase-planning` writes
+   the numbered epics and vertical-slice stories in at this flip.
+3. **Active** — `phase-planning` flips to `Active` when the build starts. Only
+   one phase should be `Active` at a time in practice.
+4. **Shipped** — `ship-phase` flips the PRD and ROADMAP row to `Shipped` in the
+   same pass, **moves the file to `docs/prds/archive/`**, and updates the
+   ROADMAP PRD column to the archived path.
 
 ## What a PRD is — and isn't
 
