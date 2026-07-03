@@ -54,23 +54,8 @@ if (resource?.user_id !== user.id) {
 ```
 
 ### Server Actions
-```typescript
-'use server'
 
-import { createClient } from '@/supabase/server'
-
-export async function deletePost(postId: string) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) throw new Error('Unauthorized')
-  
-  const { data: post } = await supabase.from('posts').select('user_id').eq('id', postId).single()
-  if (post?.user_id !== user.id) throw new Error('Forbidden')
-  
-  // Proceed with deletion
-}
-```
+Auth failures in server actions return typed error envelopes, never throw. Envelope shape and error taxonomy are owned by `error-handling.mdc` § Response Envelopes; `src/app/admin/users/actions.ts` (`assertAdminCaller` and its callers) is the shipped canonical pattern.
 
 **Auth Error Handling:** Never leak user existence (use "Invalid credentials" not "User doesn't exist")
 
@@ -94,38 +79,9 @@ Use zod at the server boundary per [`forms.mdc`](forms.mdc):
 
 ## Supabase Row Level Security (RLS)
 
-### Enable RLS on All Tables (MANDATORY)
-Without RLS, anyone with the anon key can read/write ALL data.
+Without RLS, anyone with the anon key can read/write ALL data. Enable RLS on every new table — no exceptions.
 
-```sql
-CREATE TABLE posts (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID NOT NULL REFERENCES auth.users(id),
-  title TEXT NOT NULL,
-  content TEXT NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
-
--- Users can only read their own posts
-CREATE POLICY "Users can read own posts" ON posts FOR SELECT TO authenticated USING (auth.uid() = user_id);
-
--- Users can only insert their own posts
-CREATE POLICY "Users can insert own posts" ON posts FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
-
--- Users can only update their own posts
-CREATE POLICY "Users can update own posts" ON posts FOR UPDATE TO authenticated
-USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-
--- Users can only delete their own posts
-CREATE POLICY "Users can delete own posts" ON posts FOR DELETE TO authenticated USING (auth.uid() = user_id);
-```
-
-### Public Read Pattern
-```sql
-CREATE POLICY "Anyone can read published posts" ON posts FOR SELECT TO anon, authenticated USING (published = true);
-```
+Policy authoring patterns are owned by `create-rls-policies.mdc`; migration workflow by the `create-migration` skill and `supabase.mdc`.
 
 ### Secret key (elevated access — EXTREME CAUTION)
 - ❌ NEVER use the Supabase secret key in client code
@@ -178,20 +134,8 @@ Session refresh and auth gating live in `proxy.ts` → `src/supabase/proxy.ts` (
 **Reference:** `src/supabase/proxy.ts`, `proxy.ts`
 
 ### Open Redirect Prevention
-```typescript
-function isSafeRedirect(url: string, baseUrl: string): boolean {
-  try {
-    const parsed = new URL(url, baseUrl)
-    return parsed.origin === new URL(baseUrl).origin
-  } catch {
-    return false
-  }
-}
 
-const redirectUrl = request.nextUrl.searchParams.get('redirect') || '/'
-const safeUrl = isSafeRedirect(redirectUrl, request.url) ? redirectUrl : '/'
-return NextResponse.redirect(new URL(safeUrl, request.url))
-```
+Use the shipped util `src/utils/is-safe-redirect.ts` — never re-implement redirect validation inline. See the `/auth/confirm` route for usage.
 
 ### CORS Configuration
 Only allow specific origins - never use wildcard on authenticated endpoints.
@@ -225,10 +169,20 @@ await supabase.from('posts').delete().eq('id', params.id) // Any user can delete
 // ✅ SECURE
 const supabase = await createClient()
 const { data: { user } } = await supabase.auth.getUser()
-if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+if (!user) {
+  return NextResponse.json(
+    { success: false, error: { message: 'Unauthorized', code: 'UNAUTHORIZED', kind: 'operational' } },
+    { status: 401 }
+  )
+}
 
 const { data: post } = await supabase.from('posts').select('user_id').eq('id', params.id).single()
-if (!post || post.user_id !== user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+if (!post || post.user_id !== user.id) {
+  return NextResponse.json(
+    { success: false, error: { message: 'Forbidden', code: 'FORBIDDEN', kind: 'operational' } },
+    { status: 403 }
+  )
+}
 
 await supabase.from('posts').delete().eq('id', params.id)
 ```
