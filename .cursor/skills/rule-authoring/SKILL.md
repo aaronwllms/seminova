@@ -19,11 +19,21 @@ scope difference, not an oversight.
 
 ## Size budgets
 
-- **Always Apply** (`alwaysApply: true`): ~150 words (~30 lines) max — loads
-  on every single request regardless of relevance, so cost compounds
-  continuously. Reserve for true universals.
-- **Everything else** (Auto Attached, Agent Requested, Manual): 150–250
-  lines, 300 hard ceiling.
+- **Always Apply** (`alwaysApply: true`): budget the **set**, not the file.
+  All always-apply rules combined: ~800 words (~1,000 tokens) max — this
+  cost is paid on every request. Any single file over ~200 words must
+  justify why its content earns always-on placement instead of a scoped
+  mode.
+- **Everything else** (Auto Attached, Agent Requested, Manual): **300 lines
+  is an inspect trigger, not a violation** — crossing it prompts a check
+  that every section is high-signal, project-specific, and singly owned.
+  500 lines is the hard ceiling. Cost here is paid only when the rule
+  loads, so relevance density matters more than raw length.
+
+These numbers are our own calibration — Cursor's docs prescribe no size
+limits, and community guidance varies (~150–200 words always-apply;
+300–500 line ceilings). The mechanically grounded constraint is token cost;
+length alone has not been shown to reduce rule compliance.
 
 ## Signal-to-noise
 
@@ -130,7 +140,7 @@ through this checklist:
 Could a file reference replace it? Does showing code add value over
 describing the principle? Will it still be accurate as the code evolves?
 
-## Consolidating an oversized rule (>300 lines)
+## Consolidating an oversized rule (past the inspect trigger)
 
 1. Measure the current line count.
 2. Find verbose multi-line code blocks; convert to principle statements.

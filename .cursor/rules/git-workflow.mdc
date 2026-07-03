@@ -141,7 +141,7 @@ Still required without separate user instruction:
 
 ## Pull Requests
 
-**IMPORTANT**: Only create PRs when explicitly requested by the user. Do not automatically create PRs after making code changes. Never push branches or create PRs without explicit user instruction. Always wait for explicit user instruction before running `gh pr create` commands.
+**IMPORTANT**: Pushing a branch and opening its PR are one action — if a push is explicitly authorized (e.g. via `ship-phase`), the PR follows automatically with no separate confirmation. Never push a branch without explicit user instruction in the first place.
 
 ### Creating PRs via GitHub CLI
 
