@@ -119,7 +119,7 @@ Update only what evidence supports:
 4. **Top 5** — drop RESOLVED items or note completion; promote next highest-impact open finding if list shrinks
 5. **Quick wins** — check `[x]` for completed items; uncheck if regression reopens debt
 6. **Open questions** — note resolution with date when PM confirmed; remove answered questions
-7. **Things that look bad but are actually fine** — add entries when recent code looks like debt but matches locked rules
+7. **Things that look bad but are actually fine** — add entries when recent code looks like debt but matches hard constraints or `.cursor/rules/` guidance
 
 **Requires maintainer approval before editing:**
 

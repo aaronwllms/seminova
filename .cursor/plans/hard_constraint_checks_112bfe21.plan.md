@@ -1,6 +1,6 @@
 ---
 name: Hard constraint checks
-overview: Add five deterministic enforcement mechanisms (shell scripts + ESLint custom rule + Vitest extensions) wired into `pnpm pre-push` and CI, with isolated `check:*` scripts for each constraint. No changes to AGENTS.md, LOCKED_RULES.md, or `.cursor/rules/*.mdc`.
+overview: Add five deterministic enforcement mechanisms (shell scripts + ESLint custom rule + Vitest extensions) wired into `pnpm pre-push` and CI, with isolated `check:*` scripts for each constraint. Docs restructure (AGENTS.md § Hard constraints) was a separate follow-on story.
 todos:
   - id: pnpm-only-script
     content: Add scripts/checks/pnpm-only.mjs + check:pnpm-only npm script
@@ -261,4 +261,4 @@ all pass with zero false positives on the current tree.
 | [`src/utils/admin.unit.test.ts`](src/utils/admin.unit.test.ts) | Extend with source contract |
 | [`.github/workflows/pull-request.yaml`](.github/workflows/pull-request.yaml) | Add three named steps (`check:pnpm-only`, `check:no-shadcn-pkg`, `check:semantic-tokens`) before lint |
 
-**Explicitly out of scope:** `AGENTS.md`, `LOCKED_RULES.md`, any `.cursor/rules/*.mdc`
+**Explicitly out of scope (at time of plan):** `AGENTS.md`, any `.cursor/rules/*.mdc` — docs restructure shipped separately.

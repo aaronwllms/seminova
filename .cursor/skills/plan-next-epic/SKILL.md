@@ -14,7 +14,7 @@ Plan Mode only. Do not edit planning or repo files (git branch checkout/create f
 
 ## Read first
 
-1. **[AGENTS.md](../../../AGENTS.md)** — repo truth, locked rules, what's implemented
+1. **[AGENTS.md](../../../AGENTS.md)** — repo truth, hard constraints, what's implemented
 2. **Planning docs** — [ROADMAP.md](../../../ROADMAP.md) for phase status and the planning horizon; the active phase's PRD in [docs/prds/](../../../docs/prds/) for its epics and stories. Shipped phase detail: the shipped PRD in `docs/prds/`; `docs/archive/` for pre-restructure history
 
 If these don't exist, ask the user where the product roadmap / phase scope lives before planning.

@@ -26,7 +26,7 @@ Conducts a deliberate, read-only security audit of an entire codebase and writes
 
 ## Read first
 
-1. [AGENTS.md](../../../AGENTS.md) — **Locked rules** (auth/routing, RLS, admin patterns)
+1. [AGENTS.md](../../../AGENTS.md) — **Hard constraints** (auth boundary, admin gate, RLS patterns)
 2. [.cursor/rules/security.mdc](../../rules/security.mdc) — stack security patterns
 3. [.cursor/skills/pre-release-review/SKILL.md](../pre-release-review/SKILL.md) — Step 4 security criteria (this skill is the full-repo equivalent)
 4. [audit-template.md](audit-template.md) — output format for `SECURITY_AUDIT.md`
@@ -56,7 +56,7 @@ If the user says **quick scan**, narrow scope to the surfaces they name and stat
 
 ## Phase 2 — Run the workstreams (read-only)
 
-Audit each workstream against the cited files. Read AGENTS.md locked rules and `.cursor/rules/security.mdc` before judging — a pattern that looks wrong may be required by a locked rule.
+Audit each workstream against the cited files. Read AGENTS.md § Hard constraints and `.cursor/rules/security.mdc` before judging — a pattern that looks wrong may be required by a hard constraint.
 
 | ID  | Scope                                                                       |
 | --- | --------------------------------------------------------------------------- |
@@ -95,7 +95,7 @@ Write the audit to `SECURITY_AUDIT.md` at the repo root, following [audit-templa
 - **Read-only** — never edit application code, run exploits, or open a browser
 - Every finding: severity, evidence path, scenario, remediation hint
 - **Do not invent issues** — clean areas go under Verified OK
-- Read code (and the relevant locked rules) before judging it
+- Read code (and the relevant hard constraints) before judging it
 - Human/tooling items (`pnpm audit`, manual IDOR testing) are follow-ups, not agent fix tasks
 - The user commits the audit file; fixes happen outside this skill
 
@@ -108,7 +108,7 @@ Stop after `SECURITY_AUDIT.md` is written. Tell the user the file is ready at th
 - **Discover first** — surface map reflects the current repo before any finding is written
 - **Audit only** — never modify application code
 - **Severity by exploitability** — rank what an attacker could actually reach
-- **Project truth in AGENTS.md** — respect locked rules; flag doc-vs-reality mismatches rather than treating a locked rule as a finding
+- **Project truth in AGENTS.md** — respect hard constraints; flag doc-vs-reality mismatches rather than treating a hard constraint as a finding
 
 ## Output quality bar
 

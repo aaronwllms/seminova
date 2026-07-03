@@ -10,7 +10,7 @@ Modular Cursor AI rules (`.mdc` format) for the Seminova template: an opinionate
 - **Template conventions** — primitive-first UI, semantic tokens, WCAG 2.1 AA, conventional commits
 - **Agent workflow** — migration safety, testing minimalism, git hooks (see `git-workflow.mdc`)
 
-Locked principles live in [LOCKED_RULES.md](../../LOCKED_RULES.md); roadmap and active build scope in [ROADMAP.md](../../ROADMAP.md) and [docs/prds/](../../docs/prds/). Repo truth for agents lives in [AGENTS.md](../../AGENTS.md).
+Hard constraints live in [AGENTS.md § Hard constraints](../../AGENTS.md#hard-constraints); roadmap and active build scope in [ROADMAP.md](../../ROADMAP.md) and [docs/prds/](../../docs/prds/). Repo truth for agents lives in [AGENTS.md](../../AGENTS.md).
 
 ## What we adopted
 
@@ -188,7 +188,6 @@ Cursor loads rules based on frontmatter — only three keys are real: `descripti
 - [`.cursor/README.md`](../README.md) — skills, agents, planning layout
 - [`.cursor/skills/rule-authoring/SKILL.md`](../skills/rule-authoring/SKILL.md) — rule authoring standard
 - [ROADMAP.md](../../ROADMAP.md) — roadmap and phase status
-- [LOCKED_RULES.md](../../LOCKED_RULES.md) — locked principles (canonical text)
+- [AGENTS.md](../../AGENTS.md) — hard constraints, implemented features, routes, data model
 - [docs/DOC_RULES.md](../../docs/DOC_RULES.md) — doc maintenance procedure
-- [AGENTS.md](../../AGENTS.md) — agent repo truth (implemented features, routes, data model)
 - [DESIGN.md](../../DESIGN.md) — token architecture and re-skin workflow

@@ -197,10 +197,9 @@ pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci
 | [docs/WORKFLOW_GUIDE.md](docs/WORKFLOW_GUIDE.md) | PM + agents | Primary planning and build workflow |
 | [docs/WORKFLOW_SETUP.md](docs/WORKFLOW_SETUP.md) | PM + agents | One-time workflow setup for new template users |
 | [docs/WORKFLOW_BACKLOG.md](docs/WORKFLOW_BACKLOG.md) | PM + agents | Deferred workflow-system decisions |
-| [LOCKED_RULES.md](LOCKED_RULES.md) | PM + agents | Canonical locked-rule text |
 | [LEXICON.md](LEXICON.md) | PM + agents | Architectural vocabulary |
 | [docs/adr/](docs/adr/) | PM + agents | Architecture Decision Records |
-| [AGENTS.md](AGENTS.md) | Agents | Repo truth — routes, locked rules, data model |
+| [AGENTS.md](AGENTS.md) | Agents | Repo truth — routes, hard constraints, data model |
 | [DESIGN.md](DESIGN.md) | PM + contributors | Token architecture and re-skin workflow |
 | [.cursor/rules/](.cursor/rules/) | Agents | Coding standards and conventions |
 | [.cursor/skills/](.cursor/skills/) | Agents | Workflows (`/sync-repo-docs`, `/create-migration`, etc.) |

@@ -4,7 +4,7 @@
 
 **What this is:** An _architectural_ lexicon, not a _domain_ glossary. Seminova is a template, so its domain language is deliberately near-empty — there are no products' nouns here yet. But its architectural language is rich and worth pinning down, because every product spun off from Seminova **inherits** these concepts. Spinoffs keep this layer and grow a domain layer on top (see _Domain terms_ at the bottom).
 
-**Discipline:** Entries are short — a sentence or two of meaning, plus a pointer to the canonical home (a rule, `DESIGN.md`, `LOCKED_RULES.md`, an ADR) where the authoritative detail and any values live. Do not duplicate token values, rule wording, or schema here; point to the source of truth instead.
+**Discipline:** Entries are short — a sentence or two of meaning, plus a pointer to the canonical home (a rule, `DESIGN.md`, [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints), an ADR) where the authoritative detail and any values live. Do not duplicate token values, rule wording, or schema here; point to the source of truth instead.
 
 **Last updated:** 2026-07-02
 
@@ -14,7 +14,7 @@
 
 ### Primitive-first
 
-UI is built from a collection of _owned_ low-level shadcn/ui primitives (Radix-based) in `src/components/ui/`, composed upward into app components — rather than reaching for ad-hoc markup or third-party composite widgets. The primitives are vendored into the repo and owned, not imported from a package, so they can be themed and audited in place. Locked rule; consumption detail in [`.cursor/rules/ui-shadcn.mdc`](.cursor/rules/ui-shadcn.mdc).
+UI is built from a collection of _owned_ low-level shadcn/ui primitives (Radix-based) in `src/components/ui/`, composed upward into app components — rather than reaching for ad-hoc markup or third-party composite widgets. The primitives are vendored into the repo and owned, not imported from a package, so they can be themed and audited in place. Hard constraint (enforced: `check:no-shadcn-pkg`); consumption detail in [`.cursor/rules/ui-shadcn.mdc`](.cursor/rules/ui-shadcn.mdc). See [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints).
 
 ### Semantic token
 
@@ -22,11 +22,11 @@ A design value referred to by _role_, not by raw value — `primary`, `muted-for
 
 ### Structure vs theme
 
-The split that makes Seminova re-skinnable. _Structure_ — token names, component primitives, the `@theme inline` bridge, the agent workflow — is fixed and inherited by every spinoff. _Theme_ — color/font/radius/shadow values — is replaced per product. "Fixed structure / swappable theme" is a locked rule. See [DESIGN.md › Structure vs theme](DESIGN.md).
+The split that makes Seminova re-skinnable. _Structure_ — token names, component primitives, the `@theme inline` bridge, the agent workflow — is fixed and inherited by every spinoff. _Theme_ — color/font/radius/shadow values — is replaced per product. Guidance in [`.cursor/rules/ui-styling.mdc`](.cursor/rules/ui-styling.mdc). See [DESIGN.md › Structure vs theme](DESIGN.md).
 
 ### Auth boundary (`/` + `/auth/**`)
 
-The only public routes are the landing page (`/`) and the auth screens (`/auth/**`). Everything else requires an authenticated session. The boundary is enforced in `proxy.ts` (→ `src/supabase/proxy.ts`), which refreshes the session and redirects unauthenticated users to `/auth/login`. Adding a public route outside these two is a locked-rule change. See [LOCKED_RULES.md](LOCKED_RULES.md).
+The only public routes are the landing page (`/`) and the auth screens (`/auth/**`). Everything else requires an authenticated session. The boundary is enforced in `proxy.ts` (→ `src/supabase/proxy.ts`), which refreshes the session and redirects unauthenticated users to `/auth/login`. Adding a public route outside these two is a hard-constraint change. Hard constraint (enforced: `check:auth-boundary`). See [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints).
 
 The proxy reads session state via `getClaims()`, not `getUser()`. `getClaims()` reads the JWT locally with no network round-trip; `getUser()` hits the Supabase Auth server. The proxy comment warns explicitly against swapping them — doing so can cause users to be randomly logged out.
 
@@ -34,7 +34,7 @@ The proxy skips all enforcement when `hasEnvVars` is false (Supabase env vars no
 
 ### Admin gate
 
-Admin access is keyed on `app_metadata.role` on the Supabase user — **not** a `role` column on `profiles`. The gate is enforced in `proxy.ts` (non-admins redirected away from `/admin/**`) and `AdminAuthGate`. Roles are granted in-app on `/admin/users` (promote/demote) or via the secret-key CLI (`pnpm promote-admin`). Keeping the gate on `app_metadata` rather than the database is a locked rule. See [LOCKED_RULES.md](LOCKED_RULES.md).
+Admin access is keyed on `app_metadata.role` on the Supabase user — **not** a `role` column on `profiles`. The gate is enforced in `proxy.ts` (non-admins redirected away from `/admin/**`) and `AdminAuthGate`. Roles are granted in-app on `/admin/users` (promote/demote) or via the secret-key CLI (`pnpm promote-admin`). Keeping the gate on `app_metadata` rather than the database is a hard constraint (enforced: `check:admin-gate`). See [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints).
 
 ### Defense in depth (admin)
 

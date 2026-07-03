@@ -19,7 +19,7 @@ Portable AI workflow for this repo. **Skills-first** — use `/skill-name` in ch
 | [ROADMAP.md](../ROADMAP.md)                 | PM + agents             | Phase status, planning horizon stubs                 |
 | [docs/prds/](../docs/prds/)                 | PM + agents             | Active-phase build scope (epics/stories)             |
 | [docs/archive/CONTEXT_ARCHIVE.md](../docs/archive/CONTEXT_ARCHIVE.md) | PM + agents (on demand) | Frozen shipped narratives (read-only)                |
-| [AGENTS.md](../AGENTS.md)                   | Agents                  | Locked rules, what's implemented, data model summary |
+| [AGENTS.md](../AGENTS.md)                   | Agents                  | Hard constraints, what's implemented, data model summary |
 
 **Sync after shipping:** `/sync-repo-docs` (AGENTS.md + README)
 
@@ -41,4 +41,4 @@ Agents **write SQL files only**. Humans run `pnpm db:push` and `pnpm db:types`. 
 
 ## Copying this folder
 
-When porting to another repo: copy `rules/`, `skills/`, `agents/`, and this README; adapt locked rules and doc map in AGENTS.md, ROADMAP.md, and docs/DOC_RULES.md for that product.
+When porting to another repo: copy `rules/`, `skills/`, `agents/`, and this README; adapt hard constraints and doc map in AGENTS.md, ROADMAP.md, and docs/DOC_RULES.md for that product.

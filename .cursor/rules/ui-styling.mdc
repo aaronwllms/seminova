@@ -7,11 +7,16 @@ globs:
 
 # UI Styling with Tailwind CSS
 
+## Structure vs theme
+
+- **Structure is fixed; theme is swappable:** token architecture and accessibility rules are inherited; token values are re-skinned per product.
+- **Mobile-first responsive:** design from smallest breakpoint up.
+
 ## Tailwind CSS Best Practices
 - Use utility-first approach for styling
 - Follow mobile-first responsive design approach
 - Use Tailwind's spacing scale consistently (4, 8, 12, 16, etc.)
-- Use semantic CSS variables from `src/app/globals.css` (`bg-background`, `text-foreground`, etc.) — see `LOCKED_RULES.md`
+- Use semantic CSS variables from `src/app/globals.css` (`bg-background`, `text-foreground`, etc.) — see [AGENTS.md § Hard constraints](../../AGENTS.md#hard-constraints)
 - Implement responsive design with Tailwind CSS utility classes
 - Use concise syntax; avoid unnecessary curly braces in conditionals
 

@@ -16,7 +16,7 @@ globs:
 
 ## Adding shadcn/ui Components
 
-**Always use non-interactive flags** — agent terminals hang on overwrite prompts without them.
+**Always non-interactive** — `pnpm dlx shadcn@latest add <component> -y -o`. Use `--dry-run`/`--diff` before overwriting customized components. Agent terminals hang on overwrite prompts without these flags.
 
 ```bash
 # Add a single component (canonical form)

@@ -64,9 +64,10 @@ this project.
 
 Each concern has exactly one primary-owner file; every other rule
 cross-references it rather than repeating it ("See `error-handling.mdc` for
-retry patterns"). The overlap check spans `AGENTS.md` and `LOCKED_RULES.md`
+retry patterns"). The overlap check spans `AGENTS.md` § Hard constraints
 too — a rule restating something already governed there is the same
-single-source-of-truth violation, just outside this directory.
+single-source-of-truth violation, just outside this directory. Hard-constraint
+text lives in AGENTS.md plus its enforcement code; `.mdc` files carry guidance.
 
 | Concern | Owner | Secondary mentions |
 |---|---|---|
@@ -121,7 +122,7 @@ guidance accumulate as sediment.
 See [`TEMPLATE.md`](TEMPLATE.md) for the structure to follow, then work
 through this checklist:
 
-- [ ] Overlap with an existing rule, `AGENTS.md`, or `LOCKED_RULES.md`?
+- [ ] Overlap with an existing rule, `AGENTS.md` § Hard constraints, or another `.mdc` owner?
       Cross-reference instead of duplicating.
 - [ ] Project-specific, or generic best practice the agent already knows?
 - [ ] Scope focused enough for the size budget above?

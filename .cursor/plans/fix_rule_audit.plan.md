@@ -143,7 +143,7 @@ Line 15: `style: default` → `style: new-york` (matches [`components.json`](com
 
 ### [`ui-styling.mdc`](.cursor/rules/ui-styling.mdc)
 
-- Line 14: "semantic color names from Tailwind config" → semantic CSS variables from [`globals.css`](src/app/globals.css) (`bg-background`, `text-foreground`, etc.) per [`LOCKED_RULES.md`](LOCKED_RULES.md).
+- Line 14: "semantic color names from Tailwind config" → semantic CSS variables from [`globals.css`](src/app/globals.css) (`bg-background`, `text-foreground`, etc.) per [AGENTS.md § Hard constraints](../../AGENTS.md#hard-constraints).
 - Lines 57–59: replace `bg-white dark:bg-gray-900 text-gray-900 dark:text-white` with token-based example:
 
 ```typescript

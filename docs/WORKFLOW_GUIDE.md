@@ -38,8 +38,7 @@ Full roles table and write discipline are authoritative in [docs/DOC_RULES.md](d
 | -------- | ---------- |
 | `ROADMAP.md` | Thin phase stubs — the planning horizon. One row per phase with status and a PRD link. |
 | `docs/prds/` | One PRD per phase — forward intent, epics, and stories. Moves to `docs/prds/archive/` on ship. |
-| `AGENTS.md` | Repo truth — implemented features, routes, schema, agent workflow. Cursor's primary reference. |
-| `LOCKED_RULES.md` | Non-negotiable constraints. Changing one is a deliberate, routed decision. |
+| `AGENTS.md` | Repo truth — implemented features, routes, schema, agent workflow, hard constraints. Cursor's primary reference. |
 | `LEXICON.md` | Shared architectural vocabulary. Inherited by every spinoff; spinoffs add domain terms on top. |
 | `docs/DOC_RULES.md` | How the planning docs are maintained — authoritative roles, write discipline, lifecycle rules. |
 
@@ -82,8 +81,8 @@ What `initialize-project` touches:
 
 What it does not touch:
 - `ROADMAP.md`, `LEXICON.md`, `site.ts`, `README.md` — the kickoff grill already wrote these correctly
-- `.cursor/rules/`, `.cursor/skills/` — inherited unchanged; these are the template's value
-- `LOCKED_RULES.md`, `DESIGN.md` — inherited unchanged
+- `.cursor/rules/`, `.cursor/skills/` — inherited unchanged; hard constraints inherit via AGENTS.md and `check:*` enforcement
+- `DESIGN.md` — inherited unchanged
 
 These lists are a summary — the skill itself is the source of truth on conflict.
 
@@ -96,7 +95,7 @@ After `initialize-project` completes, the repo is a real project, not a template
 Once the project is initialized, the phase-by-phase loop begins.
 
 **Step 4 — Plan the phase** *(Claude-side skill: `phase-planning`)*
-Claude reads ROADMAP, LOCKED_RULES, and the phase's ROADMAP stub, then works with you to decompose the target phase into numbered epics and vertical-slice stories. Each story carries a success condition — the observable behavior that proves it's done, in product terms. The decomposition is shaped in chat during `Planning` and written into the PRD at the `Ready` flip; Claude writes the PRD only when you ask.
+Claude reads ROADMAP, AGENTS.md (hard constraints), and the phase's ROADMAP stub, then works with you to decompose the target phase into numbered epics and vertical-slice stories. Each story carries a success condition — the observable behavior that proves it's done, in product terms. The decomposition is shaped in chat during `Planning` and written into the PRD at the `Ready` flip; Claude writes the PRD only when you ask.
 
 Phase status moves: `Draft → Planning` (PRD created, scope being shaped) → `Ready` (locked, approved to build). When the build is about to start, `phase-planning` also flips the PRD and ROADMAP row to `Active`.
 
@@ -167,8 +166,9 @@ Color carries ownership (purple = Claude, teal = Cursor) — see the legend at t
 
 ## Key vocabulary
 
-### Locked rule
-A non-negotiable constraint on how the project is built — an architectural or product decision not up for re-evaluation at implementation time. Lives in `LOCKED_RULES.md`. Changing one requires PM approval and routes through the change protocol in `AGENTS.md`. Coding agents treat them as hard constraints; `plan-review` flags any plan that violates one as a blocking finding.
+### Hard constraint
+
+A non-negotiable constraint on how the project is built — enforced deterministically via `check:*` scripts, lint rules, or tests; a violation fails `pnpm pre-push` and CI. The five hard constraints are listed in [AGENTS.md § Hard constraints](../AGENTS.md#hard-constraints). Changing one requires PM approval, updates to enforcement code, and the AGENTS list together — routed through the change protocol in `AGENTS.md`. Coding agents treat them as hard constraints; `plan-review` flags any plan that violates one as a blocking finding.
 
 ### Repo truth
 The authoritative record of what is actually implemented right now — routes, schema, implemented features, agent workflow. Lives in `AGENTS.md`. Kept current by the `/sync-repo-docs` skill after behavior, routes, schema, or env changes. The PRD is forward intent; `AGENTS.md` is what shipped.

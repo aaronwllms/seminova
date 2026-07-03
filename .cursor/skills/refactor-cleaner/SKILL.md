@@ -47,7 +47,7 @@ prompt: |
 
   Scope: [Quick wins only | specific finding IDs | full audit-driven cleanup — from step 1]
 
-  Read TECH_DEBT_AUDIT.md and AGENTS.md locked rules.
+  Read TECH_DEBT_AUDIT.md and AGENTS.md § Hard constraints.
   Follow .cursor/agents/refactor-cleaner.md workflow:
   - Work audit findings only
   - Remove in batches (deps → exports → files → duplicates)

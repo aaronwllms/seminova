@@ -20,7 +20,7 @@ You are an expert refactoring specialist focused on **acting on existing audit f
 2. **User must have explicitly invoked hands-off cleanup** — via **`/refactor-cleaner`** skill or equivalent delegation request. That invocation **authorizes batch commits** per [git-workflow.mdc](../rules/git-workflow.mdc) subagent exception.
 3. **Not during active feature development** — if the user is mid-epic or has uncommitted feature work in progress, warn and confirm before proceeding.
 
-Read **`AGENTS.md`** locked rules before removing anything. Do not remove or alter intentional design documented there.
+Read **`AGENTS.md` § Hard constraints** before removing anything. Do not remove or alter intentional design documented there.
 
 ## Core responsibilities
 
@@ -37,7 +37,7 @@ Read **`AGENTS.md`** locked rules before removing anything. Do not remove or alt
 
 - Running a fresh whole-repo audit (that is `/tech-debt-audit`)
 - Removing code not cited in the audit unless detection tools confirm unused **and** grep finds zero references
-- Changes that violate AGENTS.md locked rules
+- Changes that violate AGENTS.md § Hard constraints
 - Push, PR creation, or branch management unless the user explicitly asks
 
 ## Detection commands (verify before removing)
@@ -61,7 +61,7 @@ If a tool is not installed, note it and rely on grep + audit citations — do no
 ### 1. Orient
 
 - Read `TECH_DEBT_AUDIT.md` fully
-- Read `AGENTS.md` locked rules
+- Read `AGENTS.md` § Hard constraints
 - Build a prioritized removal list from Quick wins → Top 5 → other SAFE items
 - Skip or defer CAREFUL/RISKY items and anything in "Things that look bad but are actually fine"
 
@@ -107,7 +107,7 @@ Before removing each item:
 
 - [ ] Listed in `TECH_DEBT_AUDIT.md` or confirmed unused by detection + grep
 - [ ] Not part of public API
-- [ ] Does not violate AGENTS.md locked rules
+- [ ] Does not violate AGENTS.md § Hard constraints
 - [ ] No dynamic references missed
 
 After each batch:

@@ -35,7 +35,7 @@ Find what's actually wrong. Not diplomatic. Not surface-only. Don't pattern-matc
 
 Cite `startLine:endLine:filepath` for every concrete finding (Cursor code-citation format). Vague claims like "the code generally..." don't count. Read code before judging it — a pattern that looks wrong in isolation may be load-bearing.
 
-Respect **intentional design** documented in `AGENTS.md` locked rules and the planning brief. Flag doc-vs-reality mismatches; do not treat locked rules as debt.
+Respect **intentional design** documented in `AGENTS.md` § Hard constraints and the planning brief. Flag doc-vs-reality mismatches; do not treat hard constraints as debt.
 
 ## Phase 1: Orient
 

@@ -15,8 +15,7 @@ This table is authoritative. [AGENTS.md](../AGENTS.md) carries a one-line pointe
 | **[README.md](../README.md)**                  | Humans cloning + external | Project pitch and positioning; setup, scripts, env                                                                                      |
 | **[ROADMAP.md](../ROADMAP.md)**                | PM / planning chats       | Planning horizon: thin phase stubs, phase status, PRD links, open questions                                                             |
 | **[prds/](prds/)**                             | PM / agents               | Per-phase forward intent (problem, goal, scope); epics + stories while a phase is Active. Lifecycle in [prds/README.md](prds/README.md) |
-| **[AGENTS.md](../AGENTS.md)**                  | Cursor / coding agents    | Repo truth: implemented features, routes, data model, locked-rule change protocol, agent workflow                                       |
-| **[LOCKED_RULES.md](../LOCKED_RULES.md)**      | PM / agents               | Authoritative locked-rule text (change protocol lives in AGENTS.md)                                                                     |
+| **[AGENTS.md](../AGENTS.md)**                  | Cursor / coding agents    | Repo truth: implemented features, routes, data model, hard-constraint change protocol, agent workflow                                       |
 | **[LEXICON.md](../LEXICON.md)**                | PM / agents               | Architectural vocabulary                                                                                                                |
 | **[DESIGN.md](../DESIGN.md)**                  | PM / agents               | Token architecture, structure-vs-theme split, re-skin workflow                                                                          |
 | **[adr/](adr/)**                               | PM / agents               | Architecture Decision Records — immutable decision history; rules in [adr/README.md](adr/README.md)                                     |
@@ -24,8 +23,8 @@ This table is authoritative. [AGENTS.md](../AGENTS.md) carries a one-line pointe
 | **[WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md)**     | PM                        | Planning & build workflow — the tool split, the phase loop, model guidance                                                              |
 | **[WORKFLOW_SETUP.md](WORKFLOW_SETUP.md)**     | PM                        | One-time Claude-side workflow setup (MCP connection, skill installs, verification)                                                      |
 | **[WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md)** | PM                        | Deferred workflow-system decisions (revisit-triggered)                                                                                  |
-| **[.cursor/rules/](../.cursor/rules/)**        | Agents (style & process)  | How to write code, test, migrate — not product truth                                                                                    |
-| **[.cursor/skills/](../.cursor/skills/)**      | Agents                    | User-triggered workflows                                                                                                                |
+| **[.cursor/rules/](../.cursor/rules/)**        | Agents (style & process)  | How to write code, test, migrate — not product truth; agent guidance lives here, not duplicated into product code                         |
+| **[.cursor/skills/](../.cursor/skills/)**      | Agents                    | User-triggered workflows; agent guidance lives here, not duplicated into product code                                                   |
 | **[.cursor/plans/](../.cursor/plans/)**        | In-repo planning          | Ephemeral epic plans; evidence of intent, not shipped truth                                                                             |
 | **`.mockups/`**                                | PM / design               | HTML mockup explorations                                                                                                                |
 | **`.mockups/archive/`**                        | PM / design               | Superseded or shipped-phase mockups                                                                                                     |
@@ -60,9 +59,9 @@ These rules apply to anyone updating the planning docs — PM or coding agent.
 
 3. **Authoritative schema and the build-time agent workflow live in [AGENTS.md](../AGENTS.md).** Do not duplicate per-table schema or Cursor rules/skills detail in PRDs or ROADMAP.
 
-4. **Locked rules are canonical in [LOCKED_RULES.md](../LOCKED_RULES.md).**
+4. **Hard constraints are canonical in [AGENTS.md § Hard constraints](../AGENTS.md#hard-constraints)** and enforced by `check:*` scripts, lint rules, and tests in the repo.
 
-5. **Locked-rule changes route through [AGENTS.md › Change protocol](../AGENTS.md#change-protocol).** Sync skills are **mirror-only** for locked rules: they never initiate a locked-rule change; they only reflect one already made through the change protocol.
+5. **Hard-constraint changes route through [AGENTS.md › Change protocol](../AGENTS.md#change-protocol).** Sync skills are **mirror-only** for hard constraints: they never initiate a hard-constraint change; they only reflect one already made through the change protocol (enforcement code + AGENTS list together).
 
 6. **When a phase ships,** flip its PRD status to `Shipped`, move the file to [prds/archive/](prds/archive/), and mark the phase `Shipped` on ROADMAP in the same pass — update the ROADMAP PRD column to the archived path. Do not append to [archive/](archive/) — see rule 8. The **ship-phase** skill (`.cursor/skills/ship-phase/`) owns this flip, archive move, push, and PR open; merge to `main` is a separate human step. Procedure detail lives in [prds/README.md](prds/README.md).
 

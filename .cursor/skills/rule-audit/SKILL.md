@@ -26,12 +26,12 @@ Read the actual referenced files and actual other rule files before flagging any
 ## Phase 1: Orient
 
 1. Read `rule-authoring` in full.
-2. Read `AGENTS.md` and `LOCKED_RULES.md` at the repo root.
+2. Read `AGENTS.md` § Hard constraints at the repo root.
 3. List every file in `.cursor/rules/*.mdc`.
 
 ## Phase 2: Audit
 
-Apply every principle and checklist item in `rule-authoring` to every rule file. Where a principle requires cross-file knowledge (overlap, contradiction, ownership), check each rule against all others plus `AGENTS.md` and `LOCKED_RULES.md`, not just its neighbors.
+Apply every principle and checklist item in `rule-authoring` to every rule file. Where a principle requires cross-file knowledge (overlap, contradiction, ownership), check each rule against all others plus `AGENTS.md` § Hard constraints, not just its neighbors.
 
 Audit-specific judgment the skill doesn't carry:
 

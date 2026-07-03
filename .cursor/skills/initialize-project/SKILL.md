@@ -70,7 +70,7 @@ These are the only sources of truth for identity. Do not ask the user for any of
 
 `ROADMAP.md`, `LEXICON.md`, `src/config/site.ts`, `README.md` — `kickoff-grilling` already wrote these correctly; touching them again risks clobbering grill output.
 
-`.cursor/rules/`, `.cursor/skills/`, `LOCKED_RULES.md`, `DESIGN.md` — inherited unchanged. These are the template's value; every spinoff keeps them as-is.
+`.cursor/rules/`, `.cursor/skills/`, `DESIGN.md` — inherited unchanged. Hard constraints inherit via AGENTS.md and `check:*` enforcement. These are the template's value; every spinoff keeps them as-is.
 
 ## Completion
 

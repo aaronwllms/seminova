@@ -19,7 +19,7 @@ terms and drift flags in chat for human review.
 2. **Scan the codebase** for architectural terms, patterns, and concepts in:
    - `src/`
    - `.cursor/rules/*.mdc`
-   - `AGENTS.md`, `LOCKED_RULES.md`
+   - `AGENTS.md` § Hard constraints
    - `supabase/migrations/`
    - Test files
 3. **Identify problems**:

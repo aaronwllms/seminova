@@ -47,7 +47,7 @@ See `.cursor/rules/api-development.mdc` for Route Handler conventions when one i
 - Minimize use of useEffect and useState; prefer server-side data fetching
 - Use dynamic imports for heavy components: `const Heavy = dynamic(() => import('./Heavy'))`
 - Wrap client components in Suspense with meaningful fallbacks
-- Use Next.js Image component with proper sizing, size data, and lazy loading
+- Use `next/image` with explicit dimensions (width and height); lazy loading where appropriate
 - Optimize Web Vitals (LCP, CLS, FID) for better user experience
 
 ### Avoiding Data-Fetching Waterfalls

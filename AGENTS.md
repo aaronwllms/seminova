@@ -1,6 +1,6 @@
 # AGENTS.md — Repo truth for coding agents
 
-**Purpose:** What exists in this repo today — locked-rule governance, implemented features, routes, data model, and where to look. For planning and roadmap, see [ROADMAP.md](ROADMAP.md) and the per-phase PRDs in [docs/prds/](docs/prds/). For human setup, see [README.md](README.md). For how to write code, see [.cursor/rules/](.cursor/rules/) (not duplicated here).
+**Purpose:** What exists in this repo today — hard-constraint governance, implemented features, routes, data model, and where to look. For planning and roadmap, see [ROADMAP.md](ROADMAP.md) and the per-phase PRDs in [docs/prds/](docs/prds/). For human setup, see [README.md](README.md). For how to write code, see [.cursor/rules/](.cursor/rules/) (not duplicated here).
 
 **Last updated:** 2026-07-02
 
@@ -33,7 +33,7 @@ For the planning-loop skills (`plan-next-epic`, `mark-epic-complete`, `ship-phas
 
 | Skill | Use when |
 | ----- | -------- |
-| `pre-release-review` | Finishing an epic or before opening a PR — quality gates, scoped code review, security check, locked-rule check, manual test checklist |
+| `pre-release-review` | Finishing an epic or before opening a PR — quality gates, scoped code review, security check, hard-constraints check, manual test checklist |
 | `security-audit` | Before launch, after auth/RLS changes, or periodic hygiene — full-repo read-only audit → `SECURITY_AUDIT.md` |
 | `archive-security-audit` | All actionable findings in `SECURITY_AUDIT.md` are resolved — closes the cycle, moves to `archive/security-audits/` |
 | `tech-debt-audit` | Codebase health check or architecture review — full-repo audit → `TECH_DEBT_AUDIT.md` |
@@ -86,11 +86,19 @@ All skills are read-only or scoped-write as documented in their own `SKILL.md` �
 
 ---
 
-## Locked rules
+## Hard constraints
 
-Canonical locked-rule text lives in [LOCKED_RULES.md](LOCKED_RULES.md). Consumption detail lives in `.cursor/rules/`.
+Non-negotiable constraints, each enforced deterministically — a violation fails `pnpm pre-push` and CI.
 
-**Change protocol:** edits to locked rules require PM approval and are routed through the [Change protocol](#change-protocol) table below — edit the rule text in `LOCKED_RULES.md`; the governance (this protocol) stays here.
+- **pnpm only** — never npm or yarn; one lockfile (`pnpm-lock.yaml`). **Enforced:** `check:pnpm-only`.
+- **UI is primitive-first** — own shadcn/ui components in `src/components/ui`; extend via `cva`; compose with Radix `asChild`/`Slot`; never install shadcn as an npm package. **Enforced:** `check:no-shadcn-pkg` (ESLint `no-restricted-imports`).
+- **Theming via semantic tokens only** — `bg-background`, `text-foreground`, etc.; never raw hex or numeric Tailwind color scales for themeable color; tokens in `src/app/globals.css`. **Enforced:** `check:semantic-tokens` (custom ESLint rule; see documented limitation in `eslint-rules/semantic-tokens.mjs`).
+- **Auth boundary** — public routes are `/` and `/auth/**` only; all others require a session; enforced in `proxy.ts` → `src/supabase/proxy.ts`. **Enforced:** `check:auth-boundary` (discovered-route proxy tests).
+- **Admin gate** — `app_metadata.role === 'admin'` on `auth.users` is the canonical admin check, set via in-app promote/demote on `/admin/users` or secret-key CLI. Never a `profiles` column. **Enforced:** `check:admin-gate` (source contract test + migration scanner).
+
+**Planning / judgment principle (not mechanically enforced):** **Ecosystem alignment over aesthetic divergence** — Don't canonize a non-standard convention for tidiness or taste alone. Diverge from an ecosystem default (shadcn, Next.js, Supabase) only when our way has a real, articulable benefit — clarity, safety, consistency — that outweighs the cost of fighting it: tooling that assumes the standard, AI agents trained on it, and copy-paste examples that won't match. When it's a wash, follow the standard. A template multiplies both the benefit and the cost across every spinoff.
+
+Consumption detail for demoted guidance lives in `.cursor/rules/`. **Change protocol:** edits to hard constraints require PM approval and are routed through the [Change protocol](#change-protocol) table below.
 
 ---
 
@@ -98,7 +106,7 @@ Canonical locked-rule text lives in [LOCKED_RULES.md](LOCKED_RULES.md). Consumpt
 
 Grouped by feature area. History of which phase/epic shipped what lives in git and in the archived PRDs (`docs/prds/archive/`) — this section describes current state only.
 
-**Foundation & tooling.** Starter tutorial/demo scaffolding removed; pnpm-only; Vitest 3 / Vite 6 / Next 16.2.x. `.cursor/rules/` stack-accurate and project-agnostic. Pre-push hook mirrors CI (`pnpm pre-push`: type-check → lint → format-check → `test:ci`); 80% Vitest coverage thresholds; `.prettierignore` / lint-staged audit (agent-authored docs remain Prettier-ignored). Planning layer is `ROADMAP.md` + per-phase PRDs in `docs/prds/`; doc roles in `docs/DOC_RULES.md`; locked-rule text in `LOCKED_RULES.md`; architectural vocabulary in `LEXICON.md`; ADR process in `docs/adr/`.
+**Foundation & tooling.** Starter tutorial/demo scaffolding removed; pnpm-only; Vitest 3 / Vite 6 / Next 16.2.x. `.cursor/rules/` stack-accurate and project-agnostic. Pre-push hook mirrors CI (`pnpm pre-push`: type-check → lint → format-check → `test:ci`); 80% Vitest coverage thresholds; `.prettierignore` / lint-staged audit (agent-authored docs remain Prettier-ignored). Planning layer is `ROADMAP.md` + per-phase PRDs in `docs/prds/`; doc roles in `docs/DOC_RULES.md`; hard constraints in this file (enforced via `check:*` scripts); architectural vocabulary in `LEXICON.md`; ADR process in `docs/adr/`.
 
 **Auth & session.** Supabase email/password flows under `/auth/**` (login, sign-up, forgot/update password, confirm, error) with shared auth layout. `proxy.ts` → `src/supabase/proxy.ts` refreshes the session, redirects unauthenticated users to `/auth/login`, and redirects non-admins from `/admin/**` to `/profile`. Post-login redirect: admins → `/admin`, non-admins → `/profile`. [`extractAuthFormError`](src/utils/extract-auth-form-error.ts) is fallback-first — enumerated `AUTH_ERROR_OVERRIDES` for known Supabase codes, generic operational copy for unmapped codes, never raw Supabase messages. Four auth forms carry `autocomplete` tokens per [`forms.mdc`](.cursor/rules/forms.mdc); update-password includes a hidden paired username field from the recovery session. [`/auth/confirm`](src/app/auth/confirm/route.ts) validates an optional `next` query param via [`isSafeRedirect`](src/utils/is-safe-redirect.ts) (same-origin only) before redirecting, falling back to the role-based post-auth path.
 
@@ -183,7 +191,6 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | `scripts/admin/` | Admin CLI (`promote-admin`, `demote-admin`, `list-admins`) |
 | `src/app/globals.css` | Global styles and CSS variable tokens (authoritative token values) |
 | `ROADMAP.md` | Phase status and planning horizon stubs |
-| `LOCKED_RULES.md` | Canonical locked-rule text |
 | `LEXICON.md` | Architectural vocabulary |
 | `docs/DOC_RULES.md` | Doc roles and maintenance procedure |
 | `docs/prds/` | Per-phase PRDs (`docs/prds/archive/` when shipped) |
@@ -222,9 +229,9 @@ See [.cursor/rules/error-handling.mdc](.cursor/rules/error-handling.mdc). Never 
 
 | Change type | Action |
 | ----------- | ------ |
-| Locked rules | Decided in PM/Claude chat with PM approval; rule **text** lives in `LOCKED_RULES.md` (governance stays here). **Text-only edit** → land directly in `LOCKED_RULES.md`. **Requires code conformance** → create a story in the active PRD that updates `LOCKED_RULES.md` + `.cursor/rules/` + affected code together |
+| Hard constraints | Decided in PM/Claude chat with PM approval. Changing a hard constraint means changing its enforcement (check script, lint rule, or test) and the AGENTS.md § Hard constraints list together — never the list alone. |
 | Implemented features, routes, data model | Update AGENTS.md via `/sync-repo-docs` |
 | Planning / roadmap | Update [ROADMAP.md](ROADMAP.md) and the active PRD in [docs/prds/](docs/prds/) |
 | Coding standards | Update `.cursor/rules/` — not AGENTS.md |
 
-`/sync-repo-docs` never initiates locked-rule changes — it mirrors changes already made through this protocol.
+`/sync-repo-docs` never initiates hard-constraint changes — it mirrors changes already made through this protocol.

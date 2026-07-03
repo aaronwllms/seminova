@@ -7,6 +7,8 @@ globs:
 
 # Accessibility (a11y) Best Practices
 
+**WCAG 2.1 AA** — semantic HTML first, ARIA only when needed; visible `focus-visible` states using token rings.
+
 ## Built-in Accessibility with shadcn/ui
 shadcn/ui components have **built-in accessibility** via Radix UI:
 - Automatic ARIA attributes

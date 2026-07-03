@@ -1,6 +1,6 @@
 # Seminova — Design System
 
-**Purpose:** Document the token architecture, the structure-vs-theme split, and how to re-skin the template for a new product. For agents: read this for design-system conventions; token **values** live only in [`src/app/globals.css`](src/app/globals.css). For repo truth and locked rules, see [AGENTS.md](AGENTS.md). For roadmap, see [ROADMAP.md](ROADMAP.md); for active-phase design scope, see [docs/prds/](docs/prds/).
+**Purpose:** Document the token architecture, the structure-vs-theme split, and how to re-skin the template for a new product. For agents: read this for design-system conventions; token **values** live only in [`src/app/globals.css`](src/app/globals.css). For repo truth and hard constraints, see [AGENTS.md](AGENTS.md). For roadmap, see [ROADMAP.md](ROADMAP.md); for active-phase design scope, see [docs/prds/](docs/prds/).
 
 **Last updated:** 2026-06-18
 
@@ -8,14 +8,14 @@
 
 ## What this document is
 
-| Document                                                           | Role                                                                   |
-| ------------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| **DESIGN.md** (this file)                                          | Token architecture, usage conventions, re-skin workflow                |
-| [`src/app/globals.css`](src/app/globals.css)                       | **Authoritative source** of all token values                           |
-| [AGENTS.md](AGENTS.md)                                             | Locked rules (semantic tokens only, structure fixed / theme swappable) |
-| [ROADMAP.md](ROADMAP.md)                                           | Planning horizon and phase status                                      |
-| [docs/prds/](docs/prds/)                                           | Active-phase forward intent (design work in flight)                    |
-| [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md) | Frozen pre-restructure phase history                                   |
+| Document                                                           | Role                                                                       |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------------- |
+| **DESIGN.md** (this file)                                          | Token architecture, usage conventions, re-skin workflow                    |
+| [`src/app/globals.css`](src/app/globals.css)                       | **Authoritative source** of all token values                               |
+| [AGENTS.md](AGENTS.md)                                             | Hard constraints (semantic tokens only, structure fixed / theme swappable) |
+| [ROADMAP.md](ROADMAP.md)                                           | Planning horizon and phase status                                          |
+| [docs/prds/](docs/prds/)                                           | Active-phase forward intent (design work in flight)                        |
+| [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md) | Frozen pre-restructure phase history                                       |
 
 This file names tokens and explains the system. It does **not** duplicate oklch/hsl values from `globals.css` — that file is the single source of truth for values.
 
@@ -157,7 +157,7 @@ Body uses `font-sans antialiased`. Mono stacks apply to code blocks and `font-mo
 - Use Tailwind palette scales for themeable UI (`text-red-500`, `bg-gray-100`, etc.).
 - Copy token values from `globals.css` into component files or this document.
 
-For full locked-rule wording, see [AGENTS.md › Locked rules](AGENTS.md). Consumption detail: [`.cursor/rules/ui-styling.mdc`](.cursor/rules/ui-styling.mdc).
+For full hard-constraint wording, see [AGENTS.md › Hard constraints](AGENTS.md#hard-constraints). Consumption detail: [`.cursor/rules/ui-styling.mdc`](.cursor/rules/ui-styling.mdc).
 
 ---
 
@@ -206,7 +206,7 @@ All token **values** live in [`src/app/globals.css`](src/app/globals.css). When 
 
 ## Related documentation
 
-- [AGENTS.md](AGENTS.md) — locked rules, implemented features, agent workflow
+- [AGENTS.md](AGENTS.md) — hard constraints, implemented features, agent workflow
 - [`.cursor/rules/ui-styling.mdc`](.cursor/rules/ui-styling.mdc) — Tailwind and theming conventions
 - [`.cursor/rules/ui-shadcn.mdc`](.cursor/rules/ui-shadcn.mdc) — shadcn primitive patterns
 - [`.cursor/rules/ui-accessibility.mdc`](.cursor/rules/ui-accessibility.mdc) — contrast, focus, form errors
