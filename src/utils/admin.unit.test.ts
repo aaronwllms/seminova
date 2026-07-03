@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { APP_HOME } from '@/constants/app-paths'
@@ -38,5 +40,21 @@ describe('getPostAuthRedirectPath', () => {
     expect(getPostAuthRedirectPath({ role: ADMIN_ROLE })).toBe(ADMIN_HOME)
     expect(getPostAuthRedirectPath({})).toBe(APP_HOME)
     expect(getPostAuthRedirectPath(undefined)).toBe(APP_HOME)
+  })
+})
+
+describe('admin gate contract', () => {
+  const adminSource = readFileSync(
+    join(process.cwd(), 'src/utils/admin.ts'),
+    'utf8',
+  )
+
+  it('should read admin role only from app_metadata, not profiles', () => {
+    expect(adminSource).toContain('app_metadata')
+    expect(adminSource).toContain('ADMIN_ROLE')
+    expect(adminSource).not.toMatch(/\bprofiles\b/)
+    expect(adminSource).toMatch(
+      /isAdminFromAppMetadata\(claims\?\.app_metadata\)/,
+    )
   })
 })

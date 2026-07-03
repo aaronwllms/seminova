@@ -1,8 +1,10 @@
 /**
  * @vitest-environment node
  */
+import { join } from 'node:path'
 import { NextRequest } from 'next/server'
 import { ADMIN_ROLE } from '@/constants/admin-role'
+import { discoverAppRoutes, isPublicAppRoute } from '@/test/discover-app-routes'
 import { updateSession } from './proxy'
 
 const mockGetClaims = vi.fn()
@@ -107,4 +109,48 @@ describe('updateSession', () => {
 
     expect(response.status).toBe(200)
   })
+})
+
+describe('auth boundary (discovered routes)', () => {
+  const appDir = join(process.cwd(), 'src/app')
+  const discoveredRoutes = discoverAppRoutes(appDir)
+  const publicRoutes = discoveredRoutes.filter(isPublicAppRoute)
+  const protectedRoutes = discoveredRoutes.filter(
+    (route) => !isPublicAppRoute(route),
+  )
+
+  beforeEach(() => {
+    mockGetClaims.mockClear()
+    mockGetClaims.mockResolvedValue({ data: { claims: null } })
+  })
+
+  it('should discover app routes from src/app', () => {
+    expect(discoveredRoutes.length).toBeGreaterThan(0)
+    expect(discoveredRoutes).toContain('/')
+    expect(discoveredRoutes).toContain('/profile')
+    expect(discoveredRoutes).toContain('/admin')
+    expect(discoveredRoutes).toContain('/auth/login')
+    expect(discoveredRoutes).toContain('/auth/confirm')
+  })
+
+  it.each(publicRoutes)(
+    'should allow unauthenticated access to public route %s',
+    async (pathname) => {
+      const response = await updateSession(createRequest(pathname))
+
+      expect(response.status).toBe(200)
+      const location = response.headers.get('location')
+      expect(location === null || !location.includes('/auth/login')).toBe(true)
+    },
+  )
+
+  it.each(protectedRoutes)(
+    'should redirect unauthenticated users from protected route %s to login',
+    async (pathname) => {
+      const response = await updateSession(createRequest(pathname))
+
+      expect(response.status).toBe(307)
+      expect(response.headers.get('location')).toContain('/auth/login')
+    },
+  )
 })
