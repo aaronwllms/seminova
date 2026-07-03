@@ -14,9 +14,9 @@ Locked principles live in [LOCKED_RULES.md](../../LOCKED_RULES.md); roadmap and 
 
 ## What we adopted
 
-- DRY and SOLID principles
-- 150-line component size guideline
-- RORO pattern (Receive Object, Return Object)
+- DRY and SOLID principles (scoped rules — not duplicated in always-on context)
+- Module depth heuristic (Ousterhout): inspect at ~300–400 lines; split only when low-depth (god file or shallow/classitis), not on line count alone — see `project-standards.mdc`
+- RORO pattern (Receive Object, Return Object) — owned by `typescript.mdc`
 - Arrow functions and named exports
 - Conventional commits specification
 - Mobile-first responsive design
@@ -98,7 +98,22 @@ Locked principles live in [LOCKED_RULES.md](../../LOCKED_RULES.md); roadmap and 
 **Applies to:** `src/app/api/**/*.ts`, `src/app/**/actions.ts`, `src/app/**/error.tsx`
 
 - Error taxonomy, response envelopes, user-facing vs developer errors
-- Delegates log-level guidance to `logging.mdc`
+- Delegates log-level guidance to `logging.mdc`; defers toast routing to `notifications.mdc`
+
+### `forms.mdc`
+
+**Applies to:** `src/**/*.ts`, `src/**/*.tsx` (broad globs intentional — load-bearing on common edit paths)
+
+- Canonical form stack (`react-hook-form` + zod), save-model routing (blur-save vs explicit submit vs upload-on-complete)
+- Password-field `autocomplete` conventions
+- Cross-reference: `error-handling.mdc` owns error envelopes and `InlineError` / `ErrorPanel`; `notifications.mdc` owns toast vs inline-indicator success feedback
+
+### `notifications.mdc`
+
+**Applies to:** `src/**/*.ts`, `src/**/*.tsx` (broad globs intentional — load-bearing on common edit paths)
+
+- Toast vs inline indicator vs inline/panel routing; success/info/warning taxonomy
+- Cross-reference: `error-handling.mdc` owns error surfaces; errors never toast. `forms.mdc` owns save-model that drives toast-vs-indicator choice.
 
 ### `data-tables.mdc`
 
@@ -115,7 +130,7 @@ Locked principles live in [LOCKED_RULES.md](../../LOCKED_RULES.md); roadmap and 
 
 ### `git-workflow.mdc`
 
-**Applies to:** `src/**/*.ts`, `src/**/*.tsx`, `scripts/**/*.ts`, `.husky/**`, `.github/workflows/**`
+**Applies to:** `.husky/**`, `.github/workflows/**` (auto-attached); Agent Requested for commit/branch/PR work
 
 - Conventional commits, Husky hooks, PR format
 
@@ -140,9 +155,12 @@ Loaded when agents or skills request them (e.g. `/create-migration`) — no glob
 - `pm-collaboration.mdc` — PM + AI partnership mode
 - `do-migrations-pointer.mdc` — stub that triggers a read of `do-migrations-agent.mdc` before schema work
 
+### Agent Requested rules (no globs)
+
+- `project-standards.mdc` — file layout, Ousterhout depth heuristic, utils placement; use when creating new files or restructuring modules
+
 ### Context-attached rules (not global)
 
-- `project-standards.mdc` — coding conventions, imports, quality checks (`**/*.ts`, `**/*.tsx`)
 - `testing.mdc` — Vitest + RTL + MSW v2; minimalism-first philosophy; 80% coverage gates (test/mocks globs)
 - `do-migrations-agent.mdc` — full agent migration protocol (globs: `supabase/migrations/**/*.sql`, `**/*.plan.md`)
 - `rule-authoring-pointer.mdc` — stub that triggers a read of the `rule-authoring` skill before any rule edit (globs: `.cursor/rules/**`)

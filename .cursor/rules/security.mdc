@@ -63,8 +63,6 @@ Auth failures in server actions return typed error envelopes, never throw. Envel
 
 ## Input Validation
 
-### Input Validation
-
 Use zod at the server boundary per [`forms.mdc`](forms.mdc):
 
 - Use `schema.safeParse(input)` at the server boundary; return user-safe messages (never raw `ZodError` JSON to clients)

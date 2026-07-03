@@ -1,4 +1,5 @@
 ---
+# Broad src/** globs intentional — load-bearing rule on common edit paths (feedback routing, actions).
 description: Toast / transient-feedback conventions — what surfaces as a toast vs inline indicator vs inline/panel, and the success/info/warning taxonomy
 globs:
   - 'src/**/*.ts'

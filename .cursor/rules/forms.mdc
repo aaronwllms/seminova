@@ -1,4 +1,5 @@
 ---
+# Broad src/** globs intentional — load-bearing rule on common edit paths (forms, actions, profile).
 description: Canonical form stack (react-hook-form + zod), the save-model rule (blur vs explicit submit vs upload completion), and password-field autofill conventions
 globs:
   - 'src/**/*.ts'

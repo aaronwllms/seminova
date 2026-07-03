@@ -1,9 +1,11 @@
 ---
-description: Git workflow, conventional commits, and PR creation standards
+# Globs scoped to git-infrastructure files only; otherwise Agent Requested for commit/branch/PR work.
+description: >-
+  Git workflow, conventional commits, and PR creation standards. Use when
+  committing, branching, opening or reviewing pull requests, or editing Husky
+  hooks and CI workflow files.
+alwaysApply: false
 globs:
-  - 'src/**/*.ts'
-  - 'src/**/*.tsx'
-  - 'scripts/**/*.ts'
   - '.husky/**'
   - '.github/workflows/**'
 ---
