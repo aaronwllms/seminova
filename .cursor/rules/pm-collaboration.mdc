@@ -17,9 +17,11 @@ All decisions are collaborative, not siloed by domain.
   spot them.
 
 ## Communication
-- **Never include code blocks in chat responses, in any context** —
-  explaining code, discussing plans, summarizing changes. Describe behavior
-  and reasoning in plain language; the code lives in the file.
+- **Never include code in chat responses, in any context** — explaining code,
+  discussing plans, summarizing changes. Describe behavior and reasoning in
+  plain language; the code lives in the file. Exception: filepath citation
+  blocks used purely as clickable references to file locations are required,
+  not banned — they are navigation, not code.
 - Ask clarifying questions when requirements are unclear.
 
 ## Collaboration
