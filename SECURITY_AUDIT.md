@@ -138,7 +138,7 @@ _(none — no unauthenticated privileged data access, missing RLS on user tables
 
 ### High
 
-_(none — admin gates and RLS align with AGENTS.md locked rules.)_
+_(none — admin gates and RLS align with AGENTS.md § Hard constraints.)_
 
 ### Medium
 
