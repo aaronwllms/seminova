@@ -31,7 +31,7 @@ Portable AI workflow for this repo. **Skills-first** — use `/skill-name` in ch
 | `/sync-repo-docs`     | After behavior/routes/schema changes                    |
 | `/create-migration`   | New Supabase migration SQL (human runs `pnpm db:push`)  |
 | `/pre-release-review` | Before opening a PR                                     |
-| `/tech-debt-audit`    | Full-repo debt assessment → `TECH_DEBT_AUDIT.md`        |
+| `/audit-tech-debt`    | Debt assessment (full pass or sync) → `TECH_DEBT_AUDIT.md` |
 
 See [`skills/`](skills/) for full list. Skills with `disable-model-invocation: true` run only when you explicitly invoke them.
 

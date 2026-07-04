@@ -4,7 +4,7 @@ disable-model-invocation: true
 description: >-
   The standard for .cursor/rules/*.mdc files — size budgets, signal-to-noise,
   ownership, activation modes, and the pre-creation/pre-example checklists.
-  rule-audit reads this in full each run; the rule-authoring-pointer.mdc
+  audit-rules reads this in full each run; the rule-authoring-pointer.mdc
   stub triggers it on ordinary rule edits.
 ---
 

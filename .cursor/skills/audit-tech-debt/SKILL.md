@@ -1,11 +1,13 @@
 ---
-name: tech-debt-audit
+name: audit-tech-debt
 description: >-
   Thorough, user-invoked tech debt and architecture audit of the current
-  codebase. Produces TECH_DEBT_AUDIT.md with file-cited findings, severity,
-  effort estimates, and a required "looks bad but is actually fine" section. Use
-  when the user asks for a debt audit, codebase health check, architecture
-  review, or code quality assessment of an entire repo. Does not auto-invoke.
+  codebase. Two explicitly invoked run modes: full pass (full-repo audit) and
+  sync pass (incremental update of open findings only). Produces or updates
+  TECH_DEBT_AUDIT.md with file-cited findings, severity, effort estimates, and
+  a required "looks bad but is actually fine" section. Use when the user asks
+  for a debt audit, codebase health check, architecture review, or code quality
+  assessment. Does not auto-invoke.
 disable-model-invocation: true
 ---
 
@@ -20,7 +22,6 @@ Conducts a deliberate, opinionated audit of an entire codebase and produces `TEC
 - **`pre-release-review`** — scoped to changed files before a PR; quality gates + manual checklist
 - **`security-audit`** — security-focused; Plan Mode → Build → `SECURITY_AUDIT.md` at repo root
 - **`sync-repo-docs`** / **`sync-context-md`** — doc drift only, narrow window
-- **`refactor-cleaner`** skill + subagent — post-audit **hands-off cleanup** via `/refactor-cleaner`; subagent removes code and commits in batches; run only after this skill produces `TECH_DEBT_AUDIT.md`
 
 For human install notes, philosophy, and limitations, see [reference.md](reference.md).
 
@@ -33,6 +34,16 @@ Find what's actually wrong. Not diplomatic. Not surface-only. Don't pattern-matc
 Cite `startLine:endLine:filepath` for every concrete finding (Cursor code-citation format). Vague claims like "the code generally..." don't count. Read code before judging it — a pattern that looks wrong in isolation may be load-bearing.
 
 Respect **intentional design** documented in `AGENTS.md` § Hard constraints and the planning brief. Flag doc-vs-reality mismatches; do not treat hard constraints as debt.
+
+## Run modes
+
+The invocation states the mode explicitly (`/audit-tech-debt full pass` or `/audit-tech-debt sync`). Never infer the mode from whether `TECH_DEBT_AUDIT.md` exists. If the mode is not stated, ask.
+
+**Full pass** — Phase 1 (Orient) → Phase 2 (dimensions) → Phase 3 (write the deliverable). On a full pass, also prune the Resolved appendix: delete any entry older than the previous full audit date.
+
+**Sync pass** — read the existing `TECH_DEBT_AUDIT.md` → gather narrow evidence for open findings only (no full-repo scan) → verify each affected finding in code → make minimal edits → report what changed. Escalate to a full pass (after telling the user) if the file is stale, mostly wrong, or too many new findings surface mid-sync.
+
+**Verify-in-code gate (both modes):** nothing is marked resolved without confirming the fix exists in the code. A ticked checkbox or a commit message claiming a fix does not count. Resolved findings are removed from the Findings table and moved to the Resolved appendix with the date, keeping their ID.
 
 ## Phase 1: Orient
 
@@ -79,15 +90,18 @@ Use `rg` (Grep tool), shell commands, and language-native tooling to find concre
 
 ## Phase 3: Deliverable
 
-Write to `TECH_DEBT_AUDIT.md` in the repo root with this structure:
+Write to `TECH_DEBT_AUDIT.md` in the repo root with this structure. Finding IDs are stable across passes — never renumber.
 
+- **Last full audit** and **Last synced** — dates at the top (`YYYY-MM-DD`); update the relevant date on each run.
+- **Scope** — what this audit covers (repo-wide or scoped path).
 - **Executive summary** — max 10 bullets, ranked by impact.
 - **Architectural mental model** — your understanding of the system as it actually is.
-- **Findings table** — columns: `ID | Category | File:Line | Severity (Critical/High/Medium/Low) | Effort (S/M/L) | Description | Recommendation`. Aim for 30–80 findings; padding past that is noise. The **Declared debt** category (Phase 2, dimension 10) carries the author's own `// debt:` markers — keep that category label so self-declared shortcuts stay visibly distinct from auditor-discovered findings.
-- **Top 5 "if you fix nothing else, fix these"** — with concrete diff sketches or refactor outlines, not vague advice.
+- **Findings table** — columns: `ID | Category | File:Line | Severity (Critical/High/Medium/Low) | Description | Recommendation | Effort (S/M/L)`. Aim for 30–80 findings on a full pass; padding past that is noise. The **Declared debt** category (Phase 2, dimension 10) carries the author's own `// debt:` markers — keep that category label so self-declared shortcuts stay visibly distinct from auditor-discovered findings.
+- **Top 5** — "if you fix nothing else, fix these" with concrete diff sketches or refactor outlines, not vague advice.
 - **Quick wins** — Low effort × Medium+ severity, as a checklist.
 - **Things that look bad but are actually fine** — calls you considered flagging and chose not to, with reasoning. **This section is required.** If it's empty, you didn't look hard enough.
-- **Open questions for the maintainer** — things you couldn't tell were debt vs. intentional.
+- **Open questions** — things you couldn't tell were debt vs. intentional.
+- **Resolved** — appendix of findings verified fixed in code; each entry: `YYYY-MM-DD — F007: <one-line description>`. On a full pass, prune entries older than the previous full audit date.
 
 ## Rules
 
@@ -97,10 +111,6 @@ Write to `TECH_DEBT_AUDIT.md` in the repo root with this structure:
 - Don't pad. If a category has nothing material, write "Nothing material" and move on.
 - No sycophancy. Tell the user what's broken.
 - Do not fix code unless the user asks — this skill produces the audit artifact only.
-
-## After the audit
-
-This skill produces the report only. To **act on findings**, run **`/refactor-cleaner`** — a skill that delegates to the [`refactor-cleaner`](../../agents/refactor-cleaner.md) subagent for hands-off cleanup and batch commits (see [git-workflow.mdc](../../rules/git-workflow.mdc) subagent exception). Do not overlap with active feature development.
 
 ## Stack-specific tooling
 
@@ -120,20 +130,18 @@ If the repo is >50k LOC or has >5 top-level modules, dispatch subagents (`Task` 
 
 Each subagent gets: scope (one module), the dimensions list above, the citation requirement, and a 200-finding cap. The main agent merges, dedupes, and ranks.
 
-## Repeat-run mode
-
-If `TECH_DEBT_AUDIT.md` already exists in the repo, read it first. Mark resolved findings as `RESOLVED`, update stale ones, and tag new findings with `NEW`. This turns the audit into a living document tracked over time.
-
 ## Output template
 
 ```markdown
 # Tech Debt Audit — <repo name>
 
-Generated: YYYY-MM-DD
+Last full audit: YYYY-MM-DD
+Last synced: YYYY-MM-DD
+Scope: <what this audit covers>
 
 ## Executive summary
 
-- ...
+- (ranked bullets, max 10)
 
 ## Architectural mental model
 
@@ -141,9 +149,9 @@ Generated: YYYY-MM-DD
 
 ## Findings
 
-| ID   | Category | File:Line  | Severity | Effort | Description | Recommendation |
-| ---- | -------- | ---------- | -------- | ------ | ----------- | -------------- |
-| F001 | ...      | src/...:42 | High     | M      | ...         | ...            |
+| ID   | Category | File:Line  | Severity | Description | Recommendation | Effort |
+| ---- | -------- | ---------- | -------- | ----------- | -------------- | ------ |
+| F001 | ...      | src/...:42 | High     | ...         | ...            | M      |
 
 ## Top 5
 
@@ -160,4 +168,8 @@ Generated: YYYY-MM-DD
 ## Open questions
 
 - ...
+
+## Resolved
+
+- YYYY-MM-DD — F007: <one-line description>
 ```

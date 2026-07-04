@@ -1,21 +1,21 @@
 # Tech Debt Audit — Reference
 
-Human documentation for installing, using, and maintaining this skill. The agent reads [SKILL.md](SKILL.md) only when `/tech-debt-audit` is invoked.
+Human documentation for installing, using, and maintaining this skill. The agent reads [SKILL.md](SKILL.md) only when `/audit-tech-debt` is invoked.
 
 ## Installation
 
 **Project install** (recommended — shared with the repo):
 
 ```bash
-# Already at .cursor/skills/tech-debt-audit/ when copied with the portable .cursor stack
+# Already at .cursor/skills/audit-tech-debt/ when copied with the portable .cursor stack
 ```
 
 **Personal install** (available across all projects):
 
 ```bash
-mkdir -p ~/.cursor/skills/tech-debt-audit
-cp .cursor/skills/tech-debt-audit/SKILL.md ~/.cursor/skills/tech-debt-audit/
-cp .cursor/skills/tech-debt-audit/reference.md ~/.cursor/skills/tech-debt-audit/
+mkdir -p ~/.cursor/skills/audit-tech-debt
+cp .cursor/skills/audit-tech-debt/SKILL.md ~/.cursor/skills/audit-tech-debt/
+cp .cursor/skills/audit-tech-debt/reference.md ~/.cursor/skills/audit-tech-debt/
 ```
 
 Project-level skills in `.cursor/skills/` override or complement personal skills for that repo.
@@ -25,15 +25,23 @@ Project-level skills in `.cursor/skills/` override or complement personal skills
 In **Agent mode**, in the repo you want audited:
 
 ```
-/tech-debt-audit
+/audit-tech-debt full pass
 ```
 
-Output goes to `TECH_DEBT_AUDIT.md` in the repo root. First run takes 5–20 minutes depending on repo size; subsequent runs in repeat-run mode are faster.
+or
+
+```
+/audit-tech-debt sync
+```
+
+The mode must be stated in the invocation — full pass or sync — and is never inferred.
+
+Output goes to `TECH_DEBT_AUDIT.md` in the repo root. A full pass takes 5–20 minutes depending on repo size; a sync pass is faster.
 
 Optional scoping for very large repos:
 
 ```
-/tech-debt-audit src/payments
+/audit-tech-debt full pass src/payments
 ```
 
 ## Philosophy
@@ -59,7 +67,7 @@ The skill also forbids recommending rewrites and forbids padding categories — 
 
 ## Adaptation notes
 
-**Project-level overrides.** A `.cursor/skills/tech-debt-audit/SKILL.md` in a specific repo overrides a global copy. Useful when a project needs custom dimensions — e.g. prompt injection surface area for LLM apps.
+**Project-level overrides.** A `.cursor/skills/audit-tech-debt/SKILL.md` in a specific repo overrides a global copy. Useful when a project needs custom dimensions — e.g. prompt injection surface area for LLM apps.
 
 **Mid-audit course correction.** After Phase 1 completes, interrupt with: _"Before Phase 2, tell me what surprised you in Phase 1 and what you want to investigate that isn't in the dimensions list."_
 

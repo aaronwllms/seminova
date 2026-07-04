@@ -21,7 +21,7 @@ Conducts a deliberate, read-only security audit of an entire codebase and writes
 **Not the same as:**
 
 - **`pre-release-review`** — scoped to changed files before a PR; this skill is whole-repo
-- **`tech-debt-audit`** — code health and architecture; catches only obvious security hygiene
+- **`audit-tech-debt`** — code health and architecture; catches only obvious security hygiene
 
 ## Read first
 
