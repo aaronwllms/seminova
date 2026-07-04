@@ -90,8 +90,9 @@ describe('GET /auth/confirm', () => {
   })
 
   it('should redirect to error when verification fails', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
     mockVerifyOtp.mockResolvedValue({
-      error: { message: 'Invalid token' },
+      error: { message: 'Invalid token', code: 'otp_expired' },
     })
 
     const request = new NextRequest(
@@ -100,7 +101,12 @@ describe('GET /auth/confirm', () => {
 
     await expect(GET(request)).rejects.toThrow('NEXT_REDIRECT')
 
-    expect(redirectMock).toHaveBeenCalledWith('/auth/error?error=Invalid token')
+    expect(redirectMock).toHaveBeenCalledWith('/auth/error?source=confirm')
+    expect(redirectMock.mock.calls[0][0]).not.toContain('Invalid token')
+    expect(consoleError).toHaveBeenCalledWith(
+      '[auth-confirm] OTP verification failed',
+      { supabaseCode: 'otp_expired' },
+    )
   })
 
   it('should redirect to error when token params are missing', async () => {
@@ -108,9 +114,7 @@ describe('GET /auth/confirm', () => {
 
     await expect(GET(request)).rejects.toThrow('NEXT_REDIRECT')
 
-    expect(redirectMock).toHaveBeenCalledWith(
-      '/auth/error?error=No token hash or type',
-    )
+    expect(redirectMock).toHaveBeenCalledWith('/auth/error?source=invalid_link')
     expect(mockVerifyOtp).not.toHaveBeenCalled()
   })
 })

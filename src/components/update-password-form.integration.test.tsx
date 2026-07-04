@@ -98,7 +98,11 @@ describe('UpdatePasswordForm', () => {
     await user.type(screen.getByLabelText(/new password/i), 'weak')
     await user.click(screen.getByRole('button', { name: /save new password/i }))
 
-    expect(await screen.findByText(/password is too weak/i)).toBeInTheDocument()
+    expect(
+      await screen.findByText(
+        /something went wrong on our end\. please try again, or contact support if it continues\./i,
+      ),
+    ).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: /copy error details/i }),
     ).toBeInTheDocument()

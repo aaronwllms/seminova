@@ -9,9 +9,17 @@ export async function updateSession(request: NextRequest) {
     request,
   })
 
-  // If the env vars are not set, skip proxy check. You can remove this
-  // once you setup the project.
+  const isPublicRoute =
+    request.nextUrl.pathname === '/' ||
+    request.nextUrl.pathname.startsWith('/auth')
+
   if (!hasEnvVars) {
+    if (process.env.NODE_ENV === 'production' && !isPublicRoute) {
+      const url = request.nextUrl.clone()
+      url.pathname = LOGIN_PATH
+      return NextResponse.redirect(url)
+    }
+
     return supabaseResponse
   }
 
@@ -48,10 +56,6 @@ export async function updateSession(request: NextRequest) {
   // with the Supabase client, your users may be randomly logged out.
   const { data, error } = await supabase.auth.getClaims()
   const user = data?.claims
-
-  const isPublicRoute =
-    request.nextUrl.pathname === '/' ||
-    request.nextUrl.pathname.startsWith('/auth')
 
   if (!isPublicRoute && (error || !user)) {
     if (error) {

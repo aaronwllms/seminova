@@ -29,11 +29,12 @@ export async function GET(request: NextRequest) {
         next && isSafeRedirect(next, request.url) ? next : fallback
       redirect(destination)
     } else {
-      // redirect the user to an error page with some instructions
-      redirect(`/auth/error?error=${error?.message}`)
+      console.error('[auth-confirm] OTP verification failed', {
+        supabaseCode: error?.code,
+      })
+      redirect('/auth/error?source=confirm')
     }
   }
 
-  // redirect the user to an error page with some instructions
-  redirect(`/auth/error?error=No token hash or type`)
+  redirect('/auth/error?source=invalid_link')
 }

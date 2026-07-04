@@ -58,8 +58,8 @@ For roadmap and phase status, see [ROADMAP.md](ROADMAP.md); for active-phase pla
 
    | Variable | Description |
    | -------- | ----------- |
-   | `NEXT_PUBLIC_SUPABASE_URL` | Project URL |
-   | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable (anon) key |
+   | `NEXT_PUBLIC_SUPABASE_URL` | Project URL — **required for `pnpm build`** (production deploy blocker) |
+   | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable (anon) key — **required for `pnpm build`** |
    | `SUPABASE_SECRET_KEY` | Secret key (server/CLI only — see Initial setup) |
    | `CSP_ENFORCE` | Optional — set to `true` for enforcing CSP instead of report-only (see [AGENTS.md](AGENTS.md); requires nonce strategy before production use) |
 

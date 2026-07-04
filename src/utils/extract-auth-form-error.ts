@@ -77,8 +77,12 @@ export const extractAuthFormError = (caught: unknown): AppError => {
 
   const message = caught instanceof Error ? caught.message : 'An error occurred'
 
+  console.error('[extract-auth-form-error] Non-auth error', { message })
+
   return {
-    message,
+    message:
+      'Something went wrong on our end. Please try again, or contact support if it continues.',
+    code: 'INTERNAL_ERROR',
     kind: 'fault',
   }
 }

@@ -102,17 +102,33 @@ describe('extractAuthFormError', () => {
     )
   })
 
-  it('should return fault kind for non-auth errors', () => {
+  it('should return generic fault kind for non-auth errors', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+
     expect(extractAuthFormError(new Error('Something broke'))).toEqual({
-      message: 'Something broke',
+      message:
+        'Something went wrong on our end. Please try again, or contact support if it continues.',
+      code: 'INTERNAL_ERROR',
       kind: 'fault',
     })
+    expect(consoleError).toHaveBeenCalledWith(
+      '[extract-auth-form-error] Non-auth error',
+      { message: 'Something broke' },
+    )
   })
 
-  it('should return fault kind with fallback message for unknown values', () => {
+  it('should return generic fault kind with fallback message for unknown values', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+
     expect(extractAuthFormError(null)).toEqual({
-      message: 'An error occurred',
+      message:
+        'Something went wrong on our end. Please try again, or contact support if it continues.',
+      code: 'INTERNAL_ERROR',
       kind: 'fault',
     })
+    expect(consoleError).toHaveBeenCalledWith(
+      '[extract-auth-form-error] Non-auth error',
+      { message: 'An error occurred' },
+    )
   })
 })
