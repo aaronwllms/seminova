@@ -1,5 +1,5 @@
 ---
-description: Comprehensive error handling, logging, and monitoring standards
+description: Error taxonomy, response envelopes, and error UI surfaces (InlineError / ErrorPanel)
 alwaysApply: false
 globs:
   - 'src/app/api/**/*.ts'
@@ -7,7 +7,7 @@ globs:
   - 'src/app/**/error.tsx'
 ---
 
-# Error Handling & Logging Standards
+# Error Handling Standards
 
 ## Philosophy
 - **User-facing errors**: Clear, actionable, never expose internals
@@ -69,11 +69,7 @@ Include `kind: 'operational' | 'fault'` on every error envelope. Set `kind` at t
 
 ## Logging
 
-**Console log levels, tags, and when to use `console.error` vs `console.warn` vs `console.log` vs `console.debug` are canonical in [`logging.mdc`](logging.mdc).** This file only adds: when logging an *error* (failure case), pass the `Error` or Supabase error object as a second argument, and map it to the error-code taxonomy above for the response envelope.
-
-```typescript
-console.error('[api-posts] Unexpected error', error)
-```
+Log levels, tags, and when to use each `console.*` method are canonical in [`logging.mdc`](logging.mdc). When logging a failure, pass the `Error` or Supabase error object as a second argument.
 
 ## Error Handling Patterns
 

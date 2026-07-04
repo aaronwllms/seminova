@@ -24,6 +24,9 @@ scope difference, not an oversight.
   cost is paid on every request. Any single file over ~200 words must
   justify why its content earns always-on placement instead of a scoped
   mode.
+- Accepted exception: the current Always Apply set runs ~12 words over budget;
+  code-minimalism.mdc's always-on placement is justified as the project's core
+  ethos rule. Do not re-flag unless the set grows further.
 - **Everything else** (Auto Attached, Agent Requested, Manual): **300 lines
   is an inspect trigger, not a violation** — crossing it prompts a check
   that every section is high-signal, project-specific, and singly owned.
