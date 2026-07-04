@@ -23,8 +23,6 @@ Conducts a deliberate, opinionated audit of an entire codebase and produces `TEC
 - **`audit-security`** — security-focused; full pass or sync → `SECURITY_AUDIT.md` at repo root
 - **`sync-repo-docs`** / **`sync-context-md`** — doc drift only, narrow window
 
-For human install notes, philosophy, and limitations, see [reference.md](reference.md).
-
 ---
 
 ## Operating principles
@@ -90,18 +88,15 @@ Use `rg` (Grep tool), shell commands, and language-native tooling to find concre
 
 ## Phase 3: Deliverable
 
-Write to `TECH_DEBT_AUDIT.md` in the repo root with this structure. Finding IDs are stable across passes — never renumber.
+Write to `TECH_DEBT_AUDIT.md` in the repo root per the Output template below.
 
-- **Last full audit** and **Last synced** — dates at the top (`YYYY-MM-DD`); update the relevant date on each run.
-- **Scope** — what this audit covers (repo-wide or scoped path).
-- **Executive summary** — max 10 bullets, ranked by impact.
-- **Architectural mental model** — your understanding of the system as it actually is.
-- **Findings table** — columns: `ID | Category | File:Line | Severity (Critical/High/Medium/Low) | Description | Recommendation | Effort (S/M/L)`. Aim for 30–80 findings on a full pass; padding past that is noise. The **Declared debt** category (Phase 2, dimension 10) carries the author's own `// debt:` markers — keep that category label so self-declared shortcuts stay visibly distinct from auditor-discovered findings.
-- **Top 5** — "if you fix nothing else, fix these" with concrete diff sketches or refactor outlines, not vague advice.
-- **Quick wins** — Low effort × Medium+ severity, as a checklist.
-- **Things that look bad but are actually fine** — calls you considered flagging and chose not to, with reasoning. **This section is required.** If it's empty, you didn't look hard enough.
-- **Open questions** — things you couldn't tell were debt vs. intentional.
-- **Resolved** — appendix of findings verified fixed in code; each entry: `YYYY-MM-DD — F007: <one-line description>`. On a full pass, prune entries older than the previous full audit date.
+- Aim for 30–80 findings on a full pass; padding past that is noise
+- **Declared debt** stays a distinct category — self-declared `// debt:` markers remain visibly separate from auditor-discovered findings
+- **Top 5** needs concrete diff sketches or refactor outlines, not vague advice
+- **Quick wins** = Low effort × Medium+ severity
+- **Things that look bad but are actually fine** is required; if empty, the audit was shallow
+- On a full pass, prune Resolved entries older than the previous full audit date
+- Finding IDs are stable across passes — never renumber
 
 ## Rules
 
@@ -173,3 +168,5 @@ Scope: <what this audit covers>
 
 - YYYY-MM-DD — F007: <one-line description>
 ```
+
+Adapted from [ksimback/tech-debt-skill](https://github.com/ksimback/tech-debt-skill) (MIT).

@@ -56,16 +56,14 @@ Audit-specific judgment the skill doesn't carry:
 
 ## Phase 3: Deliverable
 
-Write or update `RULE_AUDIT.md` at repo root with this structure. Finding IDs are stable across passes — never renumber.
+Write or update `RULE_AUDIT.md` at repo root per the Output template below.
 
-- **Last full audit** and **Last synced** — dates at the top (`YYYY-MM-DD`); update the relevant date on each run.
-- **Scope** — `.cursor/rules/*.mdc` against the rule-authoring standard.
-- **Executive summary** — max 10 bullets, ranked by what would most confuse Cursor if left unfixed.
-- **Orient** — rule inventory: file list with activation modes.
-- **Findings table** — columns: `ID | Category | File:Line | Severity | Description | Recommendation`. Category is the rule-authoring principle violated, with Contradiction as a Category value — a contradiction finding names both rules and the specific conflicting scenario in its Description. Severity scale is Critical/High/Medium/Low, calibrated by how badly the problem would mislead Cursor.
-- **Rules that are fine** — required. If empty, you didn't look hard enough.
-- **Open questions** — anything you couldn't tell was a real problem vs. intentional.
-- **Resolved** — appendix of findings verified fixed in rule files; each entry: `YYYY-MM-DD — R003: <one-line description>`. On a full pass, prune entries older than the previous full audit date.
+- **Executive summary** — rank by what would most confuse Cursor if left unfixed
+- **Category** = rule-authoring principle violated, with Contradiction as a value — name both rules and the specific conflicting scenario in Description
+- **Severity** calibrated by how badly the problem would mislead Cursor
+- **Rules that are fine** is required; if empty, you didn't look hard enough
+- On a full pass, prune Resolved entries older than the previous full audit date
+- Finding IDs are stable across passes — never renumber
 
 ## Rules
 

@@ -40,7 +40,6 @@ The invocation states the mode explicitly (`/audit-security full pass` or `/audi
 1. [AGENTS.md](../../../AGENTS.md) — **Hard constraints** (auth boundary, admin gate, RLS patterns)
 2. [.cursor/rules/security.mdc](../../rules/security.mdc) — stack security patterns
 3. [.cursor/skills/pre-release-review/SKILL.md](../pre-release-review/SKILL.md) — Step 4 security criteria (this skill is the full-repo equivalent)
-4. [audit-template.md](audit-template.md) — output format for `SECURITY_AUDIT.md`
 
 ## Phase 1 — Orient and map surfaces (read-only)
 
@@ -91,18 +90,12 @@ For each finding: assign a stable **ID** (e.g. S001 — never renumber across pa
 
 ## Phase 3 — Write SECURITY_AUDIT.md
 
-Write the audit to `SECURITY_AUDIT.md` at the repo root, following [audit-template.md](audit-template.md):
+Write the audit to `SECURITY_AUDIT.md` at the repo root per the Output template below.
 
-- **Header** — set **Last full audit** and **Last synced** to today (`YYYY-MM-DD`, conversation system date) on the relevant run mode; state **Scope** (full repo, or the narrowed quick-scan scope)
-- **Executive summary** — max 10 bullets, ranked by exploitability
-- **Surface map** — the Phase 1 inventory table with counts and key paths
-- **Findings** — table with columns `ID | Category | File:Line | Severity | Description | Recommendation | Scenario`; plus **Deferred / accepted risk**
-- **Verified OK** — areas reviewed and found sound
-- **Human / tooling follow-ups** — `pnpm audit` for dependency CVEs, manual IDOR testing with a second account, and anything else requiring a human or tool rather than static review
-
-On a **sync pass**, update **Last synced** only; preserve **Last full audit** from the existing file unless this sync escalated to a full pass.
-
-Finding IDs are stable across passes — never renumber.
+- **Executive summary** — rank by exploitability
+- If the user says **quick scan**, state the narrowed scope in the output header
+- On a **sync pass**, update **Last synced** only; preserve **Last full audit** from the existing file unless this sync escalated to a full pass
+- Finding IDs are stable across passes — never renumber
 
 ## Rules
 
@@ -134,3 +127,54 @@ Before finishing:
 - [ ] Verified OK and Human/tooling follow-ups sections are populated
 - [ ] Output written to `SECURITY_AUDIT.md` at repo root with **Last full audit** / **Last synced** / **Scope** set correctly for the run mode
 - [ ] No application code was modified
+
+## Output template
+
+```markdown
+# Security Audit — <repo name>
+
+Last full audit: YYYY-MM-DD
+Last synced: YYYY-MM-DD
+Scope: <full repo, or narrowed quick-scan scope>
+
+## Executive summary
+
+- (max 10 bullets, ranked by exploitability)
+
+## Surface map
+
+| Surface            | Count | Key paths |
+| ------------------ | ----- | --------- |
+| Routes & layouts   |       |           |
+| Server actions     |       |           |
+| API routes         |       |           |
+| DB / RLS           |       |           |
+| Storage            |       |           |
+| Admin / privileged |       |           |
+
+## Findings
+
+| ID   | Category | File:Line | Severity | Description | Recommendation | Scenario |
+| ---- | -------- | --------- | -------- | ----------- | -------------- | -------- |
+| S001 | W2       | ...       | Critical | ...         | ...            | ...      |
+
+## Verified OK
+
+- (areas reviewed and found sound — required)
+
+## Deferred / accepted risk
+
+- ...
+
+## Human / tooling follow-ups
+
+- (e.g. `pnpm audit`, manual IDOR testing with a second account)
+
+## Open questions
+
+- ...
+
+## Resolved
+
+- YYYY-MM-DD — S002: <one-line description>
+```
