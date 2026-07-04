@@ -20,7 +20,7 @@ Conducts a deliberate, opinionated audit of an entire codebase and produces `TEC
 **Not the same as:**
 
 - **`pre-release-review`** — scoped to changed files before a PR; quality gates + manual checklist
-- **`security-audit`** — security-focused; Plan Mode → Build → `SECURITY_AUDIT.md` at repo root
+- **`audit-security`** — security-focused; full pass or sync → `SECURITY_AUDIT.md` at repo root
 - **`sync-repo-docs`** / **`sync-context-md`** — doc drift only, narrow window
 
 For human install notes, philosophy, and limitations, see [reference.md](reference.md).
@@ -82,7 +82,7 @@ Use `rg` (Grep tool), shell commands, and language-native tooling to find concre
 
 7. **Error handling & observability** — swallowed exceptions, blanket catches, errors logged but not handled, inconsistent error shapes across modules, missing structured logs on critical paths.
 
-8. **Security hygiene** — hardcoded secrets, string-concat SQL, missing input validation at trust boundaries, permissive auth or CORS, weak crypto. For deep security review, note that **`security-audit`** exists; this dimension catches obvious hygiene only.
+8. **Security hygiene** — hardcoded secrets, string-concat SQL, missing input validation at trust boundaries, permissive auth or CORS, weak crypto. For deep security review, note that **`audit-security`** exists; this dimension catches obvious hygiene only.
 
 9. **Documentation drift** — README or AGENTS.md claims that don't match reality, comments that contradict adjacent code, public APIs without docstrings.
 

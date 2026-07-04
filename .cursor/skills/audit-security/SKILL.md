@@ -1,12 +1,14 @@
 ---
-name: security-audit
+name: audit-security
 description: >-
-  Thorough, user-invoked security audit of the current codebase. Reads-only
-  across auth, RLS, server surface, storage, and exposure, then writes
-  SECURITY_AUDIT.md at repo root with severity-ranked findings, Verified OK
-  items, and human/tooling follow-ups. Use before launch, after auth/RLS
-  changes, for periodic hygiene, or when the user asks for a security audit or
-  whole-app security review. Does not auto-invoke.
+  Thorough, user-invoked security audit of the current codebase. Two explicitly
+  invoked run modes: full pass (full-repo security audit) and sync pass
+  (incremental update of open findings only). Reads across auth, RLS, server
+  surface, storage, and exposure, then writes or updates SECURITY_AUDIT.md at
+  repo root with severity-ranked findings, Verified OK items, and human/tooling
+  follow-ups. Use before launch, after auth/RLS changes, for periodic hygiene,
+  or when the user asks for a security audit or whole-app security review. Does
+  not auto-invoke.
 disable-model-invocation: true
 ---
 
@@ -22,6 +24,16 @@ Conducts a deliberate, read-only security audit of an entire codebase and writes
 
 - **`pre-release-review`** — scoped to changed files before a PR; this skill is whole-repo
 - **`audit-tech-debt`** — code health and architecture; catches only obvious security hygiene
+
+## Run modes
+
+The invocation states the mode explicitly (`/audit-security full pass` or `/audit-security sync`). Never infer the mode from whether `SECURITY_AUDIT.md` exists. If the mode is not stated, ask. The existing **quick scan** scoping option still applies within either mode.
+
+**Full pass** — Phase 1 (surface map) → Phase 2 (workstreams W1–W5) → Phase 3 (write the deliverable). On a full pass, also prune the Resolved appendix: delete any entry older than the previous full audit date.
+
+**Sync pass** — read the existing `SECURITY_AUDIT.md` → gather narrow evidence for open findings only (re-read only the files those findings cite; no full workstream sweep) → verify each affected finding in code → make minimal edits → report what changed. Escalate to a full pass (after telling the user) if the file is stale, mostly wrong, or too many new findings surface mid-sync.
+
+**Verify-in-code gate (both modes):** nothing is marked resolved without confirming the fix exists in the code. Resolved findings are removed from the Findings table and moved to the Resolved appendix with the date, keeping their ID.
 
 ## Read first
 
@@ -73,7 +85,7 @@ Per-workstream checklist (5–8 concrete checks each):
 - **W4 — Storage:** bucket read/write policies scope to the owning user (path segment = `auth.uid()`); uploads validated server-side (type, size, path); no world-writable buckets; public-read buckets intended.
 - **W5 — Exposure & secrets:** no secrets in client code or committed files; `SUPABASE_SECRET_KEY` never in client or `NEXT_PUBLIC_*`; responses return only needed fields (DTO discipline); privileged mutations enforced server-side, not client-only.
 
-For each finding: **severity** (Critical / High / Medium / Low), **evidence path**, **scenario** (how it's exploited), and **remediation hint**. Clean areas → record under **Verified OK**. **Do not invent issues** — if a workstream is solid, say so.
+For each finding: assign a stable **ID** (e.g. S001 — never renumber across passes), **Category** (workstream W1–W5), **severity** (Critical / High / Medium / Low), **File:Line** evidence, **Description** (the issue), **Recommendation** (remediation hint), and **Scenario** (how it's exploited). Clean areas → record under **Verified OK**. **Do not invent issues** — if a workstream is solid, say so.
 
 **Parallelism (large repos).** Default to running W1–W5 sequentially. If the repo is large (>50k LOC or >5 top-level modules), dispatch one subagent per workstream via the `Task` tool, each scoped to its files with its checklist and the read-only + citation requirements, then merge, dedupe, and rank the results. Subagents never edit code.
 
@@ -81,18 +93,21 @@ For each finding: **severity** (Critical / High / Medium / Low), **evidence path
 
 Write the audit to `SECURITY_AUDIT.md` at the repo root, following [audit-template.md](audit-template.md):
 
-- **Header** — set `Generated:` to today (`YYYY-MM-DD`, conversation system date); state scope (full repo, or the narrowed quick-scan scope); surfaces inventoried (counts from Phase 1)
+- **Header** — set **Last full audit** and **Last synced** to today (`YYYY-MM-DD`, conversation system date) on the relevant run mode; state **Scope** (full repo, or the narrowed quick-scan scope)
+- **Executive summary** — max 10 bullets, ranked by exploitability
 - **Surface map** — the Phase 1 inventory table with counts and key paths
-- **Findings** — Critical / High / Medium / Low, each with evidence path, scenario, remediation hint; plus **Deferred / accepted risk**
+- **Findings** — table with columns `ID | Category | File:Line | Severity | Description | Recommendation | Scenario`; plus **Deferred / accepted risk**
 - **Verified OK** — areas reviewed and found sound
 - **Human / tooling follow-ups** — `pnpm audit` for dependency CVEs, manual IDOR testing with a second account, and anything else requiring a human or tool rather than static review
 
-**Re-runs:** if `SECURITY_AUDIT.md` already exists, read it first, then merge/replace content for the new cycle and bump `Generated:`.
+On a **sync pass**, update **Last synced** only; preserve **Last full audit** from the existing file unless this sync escalated to a full pass.
+
+Finding IDs are stable across passes — never renumber.
 
 ## Rules
 
 - **Read-only** — never edit application code, run exploits, or open a browser
-- Every finding: severity, evidence path, scenario, remediation hint
+- Every finding: stable ID, category (W1–W5), severity, File:Line evidence, description, recommendation, scenario
 - **Do not invent issues** — clean areas go under Verified OK
 - Read code (and the relevant hard constraints) before judging it
 - Human/tooling items (`pnpm audit`, manual IDOR testing) are follow-ups, not agent fix tasks
@@ -100,7 +115,7 @@ Write the audit to `SECURITY_AUDIT.md` at the repo root, following [audit-templa
 
 ## When this skill ends
 
-Stop after `SECURITY_AUDIT.md` is written. Tell the user the file is ready at the repo root, summarize the finding counts by severity, and note that fixes happen in separate chats.
+Stop after `SECURITY_AUDIT.md` is written or updated. Tell the user the file is ready at the repo root, summarize the finding counts by severity, and note that fixes happen in separate chats.
 
 ## Principles
 
@@ -115,7 +130,7 @@ Before finishing:
 
 - [ ] Surface map has real paths and counts from discovery
 - [ ] Every workstream W1–W5 was reviewed (or explicitly scoped out for a quick scan)
-- [ ] Every finding has severity, evidence path, scenario, and remediation hint
+- [ ] Every finding has stable ID, category, severity, File:Line, description, recommendation, and scenario
 - [ ] Verified OK and Human/tooling follow-ups sections are populated
-- [ ] Output written to `SECURITY_AUDIT.md` at repo root with `Generated:` set to today
+- [ ] Output written to `SECURITY_AUDIT.md` at repo root with **Last full audit** / **Last synced** / **Scope** set correctly for the run mode
 - [ ] No application code was modified

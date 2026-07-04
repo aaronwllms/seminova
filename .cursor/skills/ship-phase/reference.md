@@ -44,7 +44,7 @@ One branch per phase; all epics accumulate on it until phase-end merge.
 | Phase | Branch |
 | ----- | ------ |
 | 1 | `phase-1/foundation-cleanup` |
-| 7 | `phase-7/security-audit-remediation` |
+| 7 | `phase-7/security-remediation` |
 | 8 | `phase-8/tech-debt-remediation` |
 
 Derive expected branch from the active PRD's phase number and slug (filename or ROADMAP PRD column). Halt if `git branch --show-current` does not match.

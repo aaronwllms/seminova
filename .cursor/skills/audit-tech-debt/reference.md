@@ -61,7 +61,7 @@ The skill also forbids recommending rewrites and forbids padding categories — 
 | Skill                         | When to use instead                                                              |
 | ----------------------------- | -------------------------------------------------------------------------------- |
 | `pre-release-review`          | Before a PR — scoped diff, quality gates, manual test checklist                  |
-| `security-audit` | Full-repo security audit via Plan Mode → Build                                   |
+| `audit-security` | Full-repo security audit (full pass or sync) → `SECURITY_AUDIT.md`               |
 | `sync-repo-docs`              | AGENTS.md / README drift after a feature                                         |
 | `sync-context-md`             | Planning brief drift after a phase                                               |
 
