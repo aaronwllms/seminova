@@ -27,7 +27,9 @@ Conducts a deliberate, read-only security audit of an entire codebase and writes
 
 ## Run modes
 
-The invocation states the mode explicitly (`/audit-security full pass` or `/audit-security sync`). Never infer the mode from whether `SECURITY_AUDIT.md` exists. If the mode is not stated, ask. The existing **quick scan** scoping option still applies within either mode.
+**Mode gate** — first step, before anything else: if the invocation does not state full pass or sync, ask the user which mode and stop. Do not proceed on an assumed or inferred mode, even when context makes one seem obvious (e.g. `SECURITY_AUDIT.md` already exists, so sync "must" be intended). Only after the mode is explicit, continue below.
+
+The existing **quick scan** scoping option still applies within either mode.
 
 **Full pass** — Phase 1 (surface map) → Phase 2 (workstreams W1–W5) → Phase 3 (write the deliverable). On a full pass, also prune the Resolved appendix: delete any entry older than the previous full audit date.
 

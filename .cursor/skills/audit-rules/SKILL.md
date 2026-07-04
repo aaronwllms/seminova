@@ -27,7 +27,7 @@ Read the actual referenced files and actual other rule files before flagging any
 
 ## Run modes
 
-The invocation states the mode explicitly (`/audit-rules full pass` or `/audit-rules sync`). Never infer the mode from whether `RULE_AUDIT.md` exists. If the mode is not stated, ask.
+**Mode gate** — first step, before anything else: if the invocation does not state full pass or sync, ask the user which mode and stop. Do not proceed on an assumed or inferred mode, even when context makes one seem obvious (e.g. `RULE_AUDIT.md` already exists, so sync "must" be intended). Only after the mode is explicit, continue below.
 
 **Full pass** — Phase 1 (Orient) → Phase 2 (Audit) → Phase 3 (write the deliverable). On a full pass, also prune the Resolved appendix: delete any entry older than the previous full audit date.
 
