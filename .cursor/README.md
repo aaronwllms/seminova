@@ -8,7 +8,7 @@ Portable AI workflow for this repo. **Skills-first** — use `/skill-name` in ch
 | -------------------------------------- | --------------------------------------------------------------------------------- |
 | [`rules/`](rules/)                     | How to write code (TypeScript, testing, Supabase, security) — auto-loaded by glob |
 | [`skills/`](skills/)                   | User-triggered workflows (`/plan-next-epic`, `/sync-repo-docs`, etc.)            |
-| [`agents/`](agents/)                   | Subagents delegated via Task tool (e.g. `refactor-cleaner` after tech-debt audit) |
+| [`agents/`](agents/)                   | Subagents delegated via Task tool (e.g. `seo-specialist`) |
 | [`plans/`](plans/)                     | Ephemeral epic plans — not shipped truth                                          |
 | [`commands-legacy/`](commands-legacy/) | **Deprecated** — superseded by skills                                             |
 

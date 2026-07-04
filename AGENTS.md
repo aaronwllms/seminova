@@ -36,7 +36,6 @@ For the planning-loop skills (`plan-next-epic`, `mark-epic-complete`, `ship-phas
 | `pre-release-review` | Finishing an epic or before opening a PR — quality gates, scoped code review, security check, hard-constraints check, manual test checklist |
 | `security-audit` | Before launch, after auth/RLS changes, or periodic hygiene — full-repo read-only audit → `SECURITY_AUDIT.md` |
 | `tech-debt-audit` | Codebase health check or architecture review — full-repo audit → `TECH_DEBT_AUDIT.md` |
-| `refactor-cleaner` | After `tech-debt-audit` — hands-off dead-code cleanup via subagent, batch commits. Agent mode required; not for use during active feature development |
 
 ### Design & copy
 

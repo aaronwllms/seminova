@@ -129,17 +129,9 @@ refactor/api-error-handling
 test/add-component-tests
 ```
 
-## Subagent commits
+## Commits
 
-**Default:** Agents do not commit unless the user explicitly asks.
-
-**Exception — `refactor-cleaner` subagent:** When the user explicitly invokes `refactor-cleaner` for post–tech-debt-audit **hands-off cleanup**, that subagent **may commit after each batch** once `pnpm type-check`, `pnpm lint`, and `pnpm test:ci` pass. User invocation of hands-off cleanup is the authorization.
-
-Still required without separate user instruction:
-
-- **Never push** to remote
-- **Never create PRs** (see below)
-- Use conventional commit format (`refactor:` / `chore:`); reference audit finding IDs in the body when applicable
+Agents do not commit unless the user explicitly asks.
 
 ## Pull Requests
 
