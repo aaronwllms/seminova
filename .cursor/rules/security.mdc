@@ -92,6 +92,18 @@ Session refresh and auth gating live in `proxy.ts` → `src/supabase/proxy.ts` (
 
 Use the shipped util `src/utils/is-safe-redirect.ts` — never re-implement redirect validation inline. See the `/auth/confirm` route for usage.
 
+### Security Headers
+
+Configure CSP, frame-ancestors (or X-Frame-Options), and HSTS via next.config headers. Start strict; `'unsafe-inline'` / `'unsafe-eval'` are temporary compatibility debt requiring a documented removal plan.
+
+**Reference (shipped pattern):** [`src/utils/security-headers.ts`](../../src/utils/security-headers.ts) wired through [`next.config.ts`](../../next.config.ts) — CSP is report-only by default; enforcing mode is opted into via `CSP_ENFORCE` (see the `// debt:` marker in that file for the nonce upgrade path before enforcement).
+
+**Reference:** [Next.js Security](https://nextjs.org/docs/app/building-your-application/configuring/security-headers)
+
+### Rate Limiting
+
+Auth-adjacent and expensive endpoints need rate limiting. Supabase Auth enforces rate limits on its own endpoints; custom API routes and server actions do not. Implementation choice is per-project (no prescribed library).
+
 ### CORS Configuration
 Only allow specific origins - never use wildcard on authenticated endpoints.
 
@@ -123,6 +135,7 @@ Always verify auth and ownership before operations — see Authentication & Auth
 - [ ] New/changed server inputs validated at the boundary (see `forms.mdc`)
 - [ ] Auth checks for protected routes
 - [ ] Authorization checks verify ownership
+- [ ] State-changing operations use server actions (Next.js origin check) or API routes that explicitly verify origin
 - [ ] No sensitive data in responses (DTOs)
 - [ ] No secrets in code (use env vars)
 - [ ] RLS enabled for new tables
