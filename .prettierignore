@@ -25,6 +25,9 @@ AGENTS.md
 ROADMAP.md
 LEXICON.md
 README.md
+RULE_AUDIT.md
+SECURITY_AUDIT.md
+TECH_DEBT_AUDIT.md
 
 # debug
 npm-debug.log*
