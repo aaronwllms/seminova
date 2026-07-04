@@ -56,9 +56,6 @@ The skill also forbids recommending rewrites and forbids padding categories — 
 | `security-audit` | Full-repo security audit via Plan Mode → Build                                   |
 | `sync-repo-docs`              | AGENTS.md / README drift after a feature                                         |
 | `sync-context-md`             | Planning brief drift after a phase                                               |
-| `sync-tech-debt-audit`        | Incremental TECH_DEBT_AUDIT.md refresh after shipped work or refactor-cleaner    |
-| `archive-tech-debt-audit`     | Archive to `archive/tech-debt-audits/` when all findings resolved                |
-| `archive-security-audit`      | Archive to `archive/security-audits/` when actionable security findings resolved |
 
 ## Adaptation notes
 

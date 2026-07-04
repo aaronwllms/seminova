@@ -64,8 +64,6 @@ If the Task tool is unavailable, tell the user to use Agent mode with a model th
 
 When the subagent completes, give the user a brief summary: batches committed, finding IDs resolved, deferred items, and suggested manual verification.
 
-If the subagent did not fully refresh summary sections, suggest **`/sync-tech-debt-audit`** to consolidate Quick wins, Top 5, and executive summary.
-
 Do **not** duplicate cleanup work in the main agent if the subagent succeeded.
 
 ---

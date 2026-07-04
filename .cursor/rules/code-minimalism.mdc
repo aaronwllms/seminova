@@ -37,7 +37,7 @@ project — when two rungs both work, take the higher one and move on.
 - **Mark intentional shortcuts** with a `// debt:` comment naming the ceiling and
   upgrade path: `// debt: in-memory cache, swap for Redis if multi-instance`. These
   markers are greppable and are harvested into `TECH_DEBT_AUDIT.md` by the
-  `tech-debt-audit` and `sync-tech-debt-audit` skills — no separate ledger.
+  `tech-debt-audit` skill — no separate ledger.
 
 ## Not Lazy About
 Minimalism never cuts these — they sit outside the ladder:

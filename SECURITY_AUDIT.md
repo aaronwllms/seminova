@@ -2,7 +2,7 @@
 
 <!-- Live file: SECURITY_AUDIT.md at repo root -->
 
-**Live file:** `SECURITY_AUDIT.md` (repo root) — archive snapshots → `archive/security-audits/` via `/archive-security-audit`
+**Live file:** `SECURITY_AUDIT.md` (repo root)
 
 **Generated:** 2026-06-23
 

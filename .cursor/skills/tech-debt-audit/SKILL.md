@@ -20,9 +20,6 @@ Conducts a deliberate, opinionated audit of an entire codebase and produces `TEC
 - **`pre-release-review`** — scoped to changed files before a PR; quality gates + manual checklist
 - **`security-audit`** — security-focused; Plan Mode → Build → `SECURITY_AUDIT.md` at repo root
 - **`sync-repo-docs`** / **`sync-context-md`** — doc drift only, narrow window
-- **`sync-tech-debt-audit`** — incremental TECH_DEBT_AUDIT.md refresh after recent changes; not a full re-audit
-- **`archive-tech-debt-audit`** — move completed audit to `archive/tech-debt-audits/` when all findings resolved
-- **`archive-security-audit`** — move completed security audit to `archive/security-audits/` when actionable findings resolved
 - **`refactor-cleaner`** skill + subagent — post-audit **hands-off cleanup** via `/refactor-cleaner`; subagent removes code and commits in batches; run only after this skill produces `TECH_DEBT_AUDIT.md`
 
 For human install notes, philosophy, and limitations, see [reference.md](reference.md).

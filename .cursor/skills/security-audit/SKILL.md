@@ -16,13 +16,12 @@ Conducts a deliberate, read-only security audit of an entire codebase and writes
 
 **Agent mode required** — this skill writes a file. Do not run in Ask mode.
 
-**Read-only** — this skill reviews and reports. It never edits application code, runs exploits, or opens a browser. Fixing findings happens in separate chats. When actionable findings are cleared, use **`/archive-security-audit`** to snapshot to `archive/security-audits/`.
+**Read-only** — this skill reviews and reports. It never edits application code, runs exploits, or opens a browser. Fixing findings happens in separate chats.
 
 **Not the same as:**
 
 - **`pre-release-review`** — scoped to changed files before a PR; this skill is whole-repo
 - **`tech-debt-audit`** — code health and architecture; catches only obvious security hygiene
-- **`archive-security-audit`** — moves the completed audit to `archive/security-audits/`
 
 ## Read first
 
@@ -88,7 +87,7 @@ Write the audit to `SECURITY_AUDIT.md` at the repo root, following [audit-templa
 - **Verified OK** — areas reviewed and found sound
 - **Human / tooling follow-ups** — `pnpm audit` for dependency CVEs, manual IDOR testing with a second account, and anything else requiring a human or tool rather than static review
 
-**Re-runs:** if `SECURITY_AUDIT.md` already exists, read it first, then merge/replace content for the new cycle and bump `Generated:`. Do not create dated files at root — `/archive-security-audit` snapshots to `archive/security-audits/security-audit-YYYY-MM-DD.md`.
+**Re-runs:** if `SECURITY_AUDIT.md` already exists, read it first, then merge/replace content for the new cycle and bump `Generated:`.
 
 ## Rules
 
@@ -101,7 +100,7 @@ Write the audit to `SECURITY_AUDIT.md` at the repo root, following [audit-templa
 
 ## When this skill ends
 
-Stop after `SECURITY_AUDIT.md` is written. Tell the user the file is ready at the repo root, summarize the finding counts by severity, and note that fixes happen in separate chats and `/archive-security-audit` closes the cycle once actionable findings are cleared.
+Stop after `SECURITY_AUDIT.md` is written. Tell the user the file is ready at the repo root, summarize the finding counts by severity, and note that fixes happen in separate chats.
 
 ## Principles
 
