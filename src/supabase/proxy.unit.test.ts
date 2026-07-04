@@ -8,6 +8,7 @@ import { discoverAppRoutes, isPublicAppRoute } from '@/test/discover-app-routes'
 import { updateSession } from './proxy'
 
 const mockGetClaims = vi.fn()
+const mockSignOut = vi.fn()
 
 vi.mock('@/utils/env', () => ({
   hasEnvVars: true,
@@ -17,6 +18,7 @@ vi.mock('@supabase/ssr', () => ({
   createServerClient: vi.fn(() => ({
     auth: {
       getClaims: mockGetClaims,
+      signOut: mockSignOut,
     },
   })),
 }))
@@ -27,7 +29,9 @@ const createRequest = (pathname: string) =>
 describe('updateSession', () => {
   beforeEach(() => {
     mockGetClaims.mockClear()
-    mockGetClaims.mockResolvedValue({ data: { claims: null } })
+    mockSignOut.mockClear()
+    mockSignOut.mockResolvedValue({ error: null })
+    mockGetClaims.mockResolvedValue({ data: { claims: null }, error: null })
   })
 
   it('should redirect unauthenticated users from protected routes', async () => {
@@ -35,6 +39,20 @@ describe('updateSession', () => {
 
     expect(response.status).toBe(307)
     expect(response.headers.get('location')).toContain('/auth/login')
+    expect(mockSignOut).toHaveBeenCalledOnce()
+  })
+
+  it('should redirect and sign out when getClaims returns an auth error', async () => {
+    mockGetClaims.mockResolvedValue({
+      data: { claims: null },
+      error: { message: 'Invalid Refresh Token: Already Used' },
+    })
+
+    const response = await updateSession(createRequest('/profile'))
+
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toContain('/auth/login')
+    expect(mockSignOut).toHaveBeenCalledOnce()
   })
 
   it('should allow unauthenticated access to public routes', async () => {
@@ -121,7 +139,9 @@ describe('auth boundary (discovered routes)', () => {
 
   beforeEach(() => {
     mockGetClaims.mockClear()
-    mockGetClaims.mockResolvedValue({ data: { claims: null } })
+    mockSignOut.mockClear()
+    mockSignOut.mockResolvedValue({ error: null })
+    mockGetClaims.mockResolvedValue({ data: { claims: null }, error: null })
   })
 
   it('should discover app routes from src/app', () => {

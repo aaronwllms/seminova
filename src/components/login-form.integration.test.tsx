@@ -6,6 +6,7 @@ import { LoginForm } from './login-form'
 
 const mockSignInWithPassword = vi.fn()
 const mockPush = vi.fn()
+const mockRefresh = vi.fn()
 
 vi.mock('@/supabase/client', () => ({
   createClient: () => ({
@@ -16,13 +17,14 @@ vi.mock('@/supabase/client', () => ({
 }))
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => ({ push: mockPush, refresh: mockRefresh }),
 }))
 
 describe('LoginForm', () => {
   beforeEach(() => {
     mockSignInWithPassword.mockReset()
     mockPush.mockReset()
+    mockRefresh.mockReset()
   })
 
   it('should expose password-manager autofill attributes', () => {
@@ -56,6 +58,7 @@ describe('LoginForm', () => {
         email: 'test@example.com',
         password: 'password123',
       })
+      expect(mockRefresh).toHaveBeenCalledOnce()
       expect(mockPush).toHaveBeenCalledWith('/profile')
     })
   })

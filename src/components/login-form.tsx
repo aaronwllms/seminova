@@ -44,6 +44,7 @@ export function LoginForm({
         password,
       })
       if (error) throw error
+      router.refresh()
       router.push(
         getPostAuthRedirectPath(data.user?.app_metadata as AppMetadata),
       )

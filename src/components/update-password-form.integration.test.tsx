@@ -6,6 +6,7 @@ import { UpdatePasswordForm } from './update-password-form'
 const mockUpdateUser = vi.fn()
 const mockGetUser = vi.fn()
 const mockPush = vi.fn()
+const mockRefresh = vi.fn()
 
 vi.mock('@/supabase/client', () => ({
   createClient: () => ({
@@ -17,7 +18,7 @@ vi.mock('@/supabase/client', () => ({
 }))
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => ({ push: mockPush, refresh: mockRefresh }),
 }))
 
 describe('UpdatePasswordForm', () => {
@@ -25,6 +26,7 @@ describe('UpdatePasswordForm', () => {
     mockUpdateUser.mockReset()
     mockGetUser.mockReset()
     mockPush.mockReset()
+    mockRefresh.mockReset()
     mockGetUser.mockResolvedValue({
       data: { user: { email: 'recover@example.com' } },
       error: null,
@@ -63,6 +65,7 @@ describe('UpdatePasswordForm', () => {
       expect(mockUpdateUser).toHaveBeenCalledWith({
         password: 'new-password-123',
       })
+      expect(mockRefresh).toHaveBeenCalledOnce()
       expect(mockPush).toHaveBeenCalledWith('/profile')
     })
   })

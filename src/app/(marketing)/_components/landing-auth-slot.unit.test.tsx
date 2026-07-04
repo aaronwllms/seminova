@@ -1,13 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
-const mockGetUser = vi.fn()
+const mockHasServerAuthSession = vi.fn()
 
-vi.mock('@/supabase/server', () => ({
-  createClient: vi.fn(async () => ({
-    auth: {
-      getUser: mockGetUser,
-    },
-  })),
+vi.mock('@/supabase/require-auth', () => ({
+  hasServerAuthSession: () => mockHasServerAuthSession(),
 }))
 
 vi.mock('@/utils/env', () => ({
@@ -20,13 +16,11 @@ import { LandingAuthSlot } from './landing-auth-slot'
 
 describe('LandingAuthSlot', () => {
   beforeEach(() => {
-    mockGetUser.mockReset()
+    mockHasServerAuthSession.mockReset()
   })
 
   it('should render Open app when the visitor is authenticated', async () => {
-    mockGetUser.mockResolvedValue({
-      data: { user: { id: 'user-1' } },
-    })
+    mockHasServerAuthSession.mockResolvedValue(true)
 
     render(await LandingAuthSlot({}))
 
@@ -37,9 +31,7 @@ describe('LandingAuthSlot', () => {
   })
 
   it('should render auth CTAs when the visitor is anonymous', async () => {
-    mockGetUser.mockResolvedValue({
-      data: { user: null },
-    })
+    mockHasServerAuthSession.mockResolvedValue(false)
 
     render(await LandingAuthSlot({}))
 
@@ -50,9 +42,7 @@ describe('LandingAuthSlot', () => {
   })
 
   it('should render stacked Open app CTA when authenticated on mobile', async () => {
-    mockGetUser.mockResolvedValue({
-      data: { user: { id: 'user-1' } },
-    })
+    mockHasServerAuthSession.mockResolvedValue(true)
 
     render(await LandingAuthSlot({ layout: 'stack' }))
 
