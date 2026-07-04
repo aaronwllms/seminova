@@ -2,7 +2,7 @@
 
 **Purpose:** One-time setup for a freshly cloned Seminova template — connecting Claude Desktop to the repo via MCP, installing the Claude-side skills this workflow depends on, and verifying it all works. For day-to-day usage once setup is complete, see [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md).
 
-**Last updated:** 2026-07-02
+**Last updated:** 2026-07-04
 
 **Audience:** Anyone setting up a project cloned from this template — no prior context assumed.
 
@@ -80,6 +80,7 @@ This workflow depends on a set of Claude-side skills. They are global to your Cl
 | `phase-planning` | Required | Aligns on terminology/decisions, then decomposes a phase into epics/stories and writes the PRD | Steady-state loop |
 | `plan-review` | Required | Reviews Cursor's implementation plan before build | Steady-state loop |
 | `lexicon-update` | Required | Writes or sharpens a LEXICON.md entry when a new term surfaces (often during `phase-planning`) | Steady-state loop, ad hoc trigger |
+| `create-mockup` | Required | Static UI mockups as reviewable inline widgets, saved to `.mockups/` for PRD stories to reference (invoked by `phase-planning` or ad hoc) | Steady-state loop, ad hoc trigger |
 | `skill-authoring` | Optional | Create, edit, or audit a skill. Applies the quality standard (invocation choices, information hierarchy, pruning, failure modes) while running an interview, draft, eval, iterate loop | Template extension work |
 
 ### Where skill files live

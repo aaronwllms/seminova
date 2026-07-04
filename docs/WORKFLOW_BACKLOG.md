@@ -39,21 +39,3 @@
 **What:** `WORKFLOW_GUIDE.md` currently lists "batch file edits, then write once" as a Tips-section suggestion. Given `filesystem:write_file` always does whole-file rewrites (no patch/diff), this may actually be a standing rule rather than a situational tip — worth moving into project instructions alongside the existing "read-before-write discipline" and "whole-file rewrites only" patterns.
 **Why deferred:** Don't want to update it in multiple places right now.
 **Revisit when:** Doing a broader pass on project instructions, or next time multiple sequential small edits in one session cause noticeable token bloat.
-
-### Propagate project-instructions edit-tooling & path-density fixes to template
-
-**What:** `WORKFLOW_SETUP.md` documents the filesystem workflow instructions that ship with the template. It needs updating to match Seminova's current project instructions: use `filesystem:edit_file` for targeted changes (not just whole-file `write_file`), and the path-density format (single `Project root` line, relative paths below it).
-**Why deferred:** These edits are new and unproven — waiting to confirm they hold up in practice (Claude consistently uses `edit_file` correctly, and correctly joins relative paths to the root) before locking them into the template that every spun-off project inherits.
-**Revisit when:** After a run of real file operations confirms both changes are reliable.
-
-### Remove archive-specific paths from template's filesystem paths section
-
-**What:** The **Cursor-generated plans** line (`.cursor/plans/` with its `archive/` subfolder) and the **Frozen pre-restructure archive** line (`docs/archive/CONTEXT_ARCHIVE.md`) both reference archived content specific to Seminova's own history. A fresh template clone won't have either yet — these lines shouldn't ship in the template's filesystem-paths section.
-**Why deferred:** Grouping with the item above — worth doing as part of the same template-sync pass rather than a separate edit.
-**Revisit when:** Same trigger as the item above — template-sync pass, alongside the tooling/path-density propagation.
-
-### Document (or skill-ify) the mockup workflow
-
-**What:** `.mockups/` exists but nothing documents how to use it — when to reach for a mockup, that Cursor is strong at producing them fast, and that they should stay **static mockups** (layout/look only) rather than **clickable prototypes** (wired-up interactivity). Two ways to land this: (A) write the workflow into `WORKFLOW_GUIDE.md` as prose guidance, or (B) build a Claude-side skill that encodes the workflow directly, in which case it also needs a line in `WORKFLOW_SETUP.md` (new skill to install) and a mention in `WORKFLOW_GUIDE.md` (when to invoke it).
-**Why deferred:** Leaning toward (B) but it's not decided — worth sitting with before committing to a skill.
-**Revisit when:** Ready to decide between plain doc guidance and a dedicated skill.
