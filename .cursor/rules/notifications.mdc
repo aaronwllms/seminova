@@ -1,9 +1,14 @@
 ---
-# Broad src/** globs intentional — load-bearing rule on common edit paths (feedback routing, actions).
+# Feedback surfaces only — forms, actions, toast API, table toasts, inline indicators. New feedback components must match these globs or be added to them.
 description: Toast / transient-feedback conventions — what surfaces as a toast vs inline indicator vs inline/panel, and the success/info/warning taxonomy
 globs:
-  - 'src/**/*.ts'
-  - 'src/**/*.tsx'
+  - 'src/**/*form*'
+  - 'src/**/actions.ts'
+  - 'src/utils/app-toast.ts'
+  - 'src/**/*password-dialog*'
+  - 'src/**/*table*.tsx'
+  - 'src/**/*avatar-field*'
+  - 'src/**/field-save-indicator.tsx'
 alwaysApply: false
 ---
 

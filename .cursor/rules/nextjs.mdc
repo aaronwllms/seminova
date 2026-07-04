@@ -42,6 +42,8 @@ Use a Route Handler (`route.ts`) only when:
 
 See `.cursor/rules/api-development.mdc` for Route Handler conventions when one is warranted.
 
+When building any user-facing form or feedback UI, read `forms.mdc` and `notifications.mdc`.
+
 ## Performance Optimization
 - Minimize 'use client' directives; favor React Server Components (RSC)
 - Minimize use of useEffect and useState; prefer server-side data fetching
@@ -60,7 +62,7 @@ See `.cursor/rules/api-development.mdc` for Route Handler conventions when one i
 - Use `revalidatePath` / `revalidateTag` after mutations (Server Actions) instead of client-side refetch-and-hope
 - Prefer time-based revalidation (`next: { revalidate: N }`) over no caching for data that's expensive to compute but tolerant of staleness
 
-**See `.cursor/rules/supabase.mdc` for database query optimization (N+1, indexing, pagination) and `.cursor/rules/create-rls-policies.mdc` for RLS performance patterns.**
+**See `.cursor/rules/supabase.mdc` for database query optimization (N+1, indexing, pagination) and `.cursor/rules/supabase-sql.mdc` for RLS performance patterns.**
 
 ## API Routes
 - Place in `src/app/api/` directory

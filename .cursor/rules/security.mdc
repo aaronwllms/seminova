@@ -79,7 +79,7 @@ Use zod at the server boundary per [`forms.mdc`](forms.mdc):
 
 Without RLS, anyone with the anon key can read/write ALL data. Enable RLS on every new table — no exceptions.
 
-Policy authoring patterns are owned by `create-rls-policies.mdc`; migration workflow by the `create-migration` skill and `supabase.mdc`.
+Policy authoring patterns are owned by `supabase-sql.mdc`; migration workflow by the `create-migration` skill and `supabase.mdc`.
 
 ### Secret key (elevated access — EXTREME CAUTION)
 - ❌ NEVER use the Supabase secret key in client code

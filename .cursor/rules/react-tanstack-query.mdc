@@ -19,26 +19,7 @@ globs:
 ## Custom Hooks Pattern
 Create custom hooks in `src/hooks/`. See `src/hooks/use-sign-out.ts` for the project's hook conventions (arrow export, `'use client'`, `@/` imports).
 
-For query hooks, see `src/hooks/useGetMessage.ts` (legacy demo hook — camelCase filename, axios `/api/message`):
-
-```typescript
-'use client'
-
-import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
-
-export function useGetMessage() {
-  return useQuery({
-    queryKey: ['/api/message'],
-    queryFn: async () => {
-      const { data } = await axios.get('/api/message')
-      return data
-    },
-  })
-}
-```
-
-When Supabase-backed data is added, use `createClient()` from `@/supabase/client` (RLS-scoped) in `queryFn` and descriptive query keys (e.g. `['profiles', userId]`).
+For query hooks, use `createClient()` from `@/supabase/client` (RLS-scoped) in `queryFn` with descriptive query keys (e.g. `['profiles', userId]` or `['resource', id]`).
 
 **Key points:**
 - Call data-access functions from `queryFn`; let errors propagate for React Query to catch
@@ -93,7 +74,6 @@ export function useUpdateUser() {
 
 ## Reference Examples
 - Hook conventions: `src/hooks/use-sign-out.ts`
-- Query hook (legacy demo): `src/hooks/useGetMessage.ts`
 - QueryClient provider: `src/providers/ReactQueryProvider.tsx`
 - Error UI: `src/components/inline-error.tsx`, `src/components/error-panel.tsx`
 - Error handling patterns: `.cursor/rules/error-handling.mdc`

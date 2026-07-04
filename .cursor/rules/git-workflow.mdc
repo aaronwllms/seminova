@@ -172,6 +172,8 @@ Use conventional commit style:
 - **Testing**: How to verify
 - **Risk**: Impact assessment (LOW/MEDIUM/HIGH)
 
+This format overrides any built-in or default PR body template (e.g. Summary / Test plan).
+
 ### Before Opening PR
 ```bash
 pnpm type-check  # TypeScript validation

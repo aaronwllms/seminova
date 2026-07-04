@@ -140,13 +140,12 @@ Hard constraints live in [AGENTS.md § Hard constraints](../../AGENTS.md#hard-co
 
 - REST path naming, validation, DTOs, error envelopes
 
-### Database / SQL (on-demand)
+### Database / SQL
 
-Loaded when agents or skills request them (e.g. `/create-migration`) — no globs, `alwaysApply: false`:
+**Applies to:** `supabase/migrations/**/*.sql` (auto-attached)
 
-- `postgres-sql-style-guide.mdc` — SQL style for migrations
-- `create-db-functions.mdc` — Supabase database function patterns
-- `create-rls-policies.mdc` — Row Level Security policy authoring
+- `supabase-sql.mdc` — project-specific SQL style, RLS, and function conventions (deltas only)
+- `do-migrations-agent.mdc` — agent constraints, file naming, post-migration steps (also globs migrations)
 
 ### Always-on rules (`alwaysApply: true`)
 

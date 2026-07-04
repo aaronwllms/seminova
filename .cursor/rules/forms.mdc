@@ -1,9 +1,11 @@
 ---
-# Broad src/** globs intentional — load-bearing rule on common edit paths (forms, actions, profile).
+# Form-shaped paths only — actions, *form* components, password dialogs, avatar upload. New form components must match these globs or be added to them.
 description: Canonical form stack (react-hook-form + zod), the save-model rule (blur vs explicit submit vs upload completion), and password-field autofill conventions
 globs:
-  - 'src/**/*.ts'
-  - 'src/**/*.tsx'
+  - 'src/**/*form*'
+  - 'src/**/actions.ts'
+  - 'src/**/*password-dialog*'
+  - 'src/**/*avatar-field*'
 alwaysApply: false
 ---
 

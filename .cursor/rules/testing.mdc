@@ -301,7 +301,7 @@ Before merge: run `pnpm test:ci`. If thresholds fail, add targeted high-value te
 - Always link to a GitHub issue when quarantining tests
 
 ## Examples
-- Unit tests: `src/utils/extract-auth-form-error.unit.test.ts`, `src/hooks/useGetMessage.unit.test.tsx` (legacy camelCase hook), `src/hooks/use-sign-out.unit.test.ts`
+- Unit tests: `src/utils/extract-auth-form-error.unit.test.ts`, `src/hooks/use-sign-out.unit.test.ts`
 - Integration tests: `src/components/login-form.integration.test.tsx`, `src/app/auth/confirm/route.integration.test.ts`
 
 ## File Naming Conventions

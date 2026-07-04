@@ -14,7 +14,7 @@ globs:
 
 **Shipped schema:** 3 custom migrations — `public.profiles` (1:1 with `auth.users`), `storage.avatars` bucket with owner-scoped RLS. See `AGENTS.md` data model section for full detail. Additional migrations live in `supabase/migrations/`; humans apply them via Supabase CLI; agents write SQL files only.
 
-**Agents** — see `do-migrations-agent.mdc` and `.cursor/skills/create-migration/SKILL.md`:
+**Agents** — see `do-migrations-agent.mdc`, `supabase-sql.mdc`, and `.cursor/skills/create-migration/SKILL.md`:
 
 - Write one SQL file in `supabase/migrations/` with a manual UTC timestamp
 - Never run push, reset, seed, link, or `supabase migration new`

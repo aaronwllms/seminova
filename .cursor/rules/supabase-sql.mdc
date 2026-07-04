@@ -1,0 +1,62 @@
+---
+# Auto-attaches on migration SQL edits — project deltas only; general Postgres/Supabase patterns live in docs.
+description: Project-specific Postgres SQL conventions for Supabase migrations — style, RLS, and functions (deltas only)
+globs:
+  - 'supabase/migrations/**/*.sql'
+alwaysApply: false
+---
+
+# Supabase Migration SQL (project deltas)
+
+General Postgres and Supabase SQL patterns: [Supabase database overview](https://supabase.com/docs/guides/database/overview). Migration **process and safety** (one file per change, no push): `do-migrations-agent.mdc`. App-level security workflow: `security.mdc` and `supabase.mdc`.
+
+## Style
+
+- Write SQL in **lowercase** with consistent indentation.
+- **snake_case** for tables and columns; **plural** table names.
+- Default primary key: `id bigint generated always as identity primary key` unless the table is 1:1 with `auth.users` (then `id uuid` FK to `auth.users(id)` — see profiles migration).
+- Always qualify schema (`public.profiles`, not bare `profiles`).
+- Add a `comment on table` describing purpose (up to 1024 chars).
+- Header comment block per migration: purpose, affected objects, RLS summary.
+
+**Canonical shipped example:** [`supabase/migrations/20260622120000_create_profiles.sql`](../../supabase/migrations/20260622120000_create_profiles.sql)
+
+## Row Level Security
+
+Enable RLS on every new table — no exceptions. See [Supabase RLS docs](https://supabase.com/docs/guides/auth/row-level-security) for general policy syntax.
+
+### Owner-scoped pattern (default for user data)
+
+Use `(select auth.uid()) = id` (or the owning column) in policy clauses. Canonical reference: [`20260622120000_create_profiles.sql`](../../supabase/migrations/20260622120000_create_profiles.sql).
+
+| Operation | Clause shape |
+| --------- | ------------ |
+| SELECT | `using` only |
+| INSERT | `with check` only |
+| UPDATE | `using` and `with check` |
+| DELETE | `using` only |
+
+- One policy per operation — never `for all`.
+- Always specify role with `to authenticated` (or `anon` when intentionally public).
+- Policies are **PERMISSIVE** by default. `as restrictive` is a **rare documented exception** only (e.g. MFA enforcement via `auth.jwt()->>'aal'`); do not use restrictive policies for routine owner checks.
+- Wrap `auth.uid()` and `auth.jwt()` in `(select …)` for planner caching — see [RLS performance](https://supabase.com/docs/guides/auth/row-level-security#rls-performance-recommendations).
+- Index columns referenced in policy `using` / `with check` clauses.
+
+Storage bucket policies follow the same owner pattern via `(storage.foldername(name))[1] = (select auth.uid())::text` — see [`20260623120000_create_avatars_bucket.sql`](../../supabase/migrations/20260623120000_create_avatars_bucket.sql).
+
+## Database functions
+
+Project conventions beyond Supabase defaults:
+
+- Default **`security invoker`**; use **`security definer`** only when required (e.g. signup trigger writing across schemas) and document why.
+- Always **`set search_path = ''`** and use fully qualified object names inside the function body.
+- Trigger functions: `returns trigger`, `language plpgsql`, attach with explicit `create trigger … execute function`.
+
+**Canonical shipped example:** `handle_new_user()` in [`20260622120000_create_profiles.sql`](../../supabase/migrations/20260622120000_create_profiles.sql). General function patterns: [Supabase database functions](https://supabase.com/docs/guides/database/functions).
+
+## Cross-references
+
+- `do-migrations-agent.mdc` — agent constraints, file naming, post-migration steps
+- `.cursor/skills/create-migration/SKILL.md` — migration file creation workflow
+- `security.mdc` — RLS requirement at trust boundaries, secret key usage
+- `supabase.mdc` — client usage, storage conventions, query optimization
