@@ -51,7 +51,7 @@ Full roles table and write discipline are authoritative in [docs/DOC_RULES.md](d
 **Step 1 — Clone the template**
 Fork or clone Seminova. You have the full template but no project identity yet.
 
-**Step 2 — Kickoff grill** *(Claude-side skill: `kickoff-grilling`)*
+**Step 2 — Kickoff grill** *(Claude-side skill: `project-kickoff`)*
 A structured grill session with Claude that captures everything needed to understand the new project and produce a populated `ROADMAP.md`. The grill is **wide but shallow** — it gets deep enough to understand the whole product and define all the phases, but stops there. Each phase gets its own deep grill when it's its turn (see `phase-planning` below).
 
 The grill must collect before writing anything:
@@ -123,7 +123,7 @@ Repeat Steps 4–7 for each phase.
 %%{init: {'flowchart': {'curve': 'stepAfter'}}}%%
 flowchart TD
     Start(["Step 1: Clone template"])
-    KG["Step 2: Kickoff grill<br/>(kickoff-grilling)"]
+    KG["Step 2: Kickoff grill<br/>(project-kickoff)"]
     IP["Step 3: Initialize project<br/>(initialize-project)"]
     PP["Step 4: Plan the phase<br/>(phase-planning)"]
     P5["Step 5a — Cursor (plan mode)<br/>plan-next-epic"]
@@ -203,7 +203,7 @@ A few practical habits that make this workflow smoother.
 
 Claude Sonnet 5 narrows the performance gap to Opus considerably while costing roughly 2.5x less — for most of this workflow's skills, effort level matters more than which model you pick.
 
-- **`phase-planning`, `plan-review`, `kickoff-grilling`** — Sonnet 5 at high or xhigh effort. Reach for Opus only when a specific decision is high-stakes enough to want the extra accuracy ceiling (e.g., an ADR-worthy call, or a plan-review verdict you're not confident in).
+- **`phase-planning`, `plan-review`, `project-kickoff`** — Sonnet 5 at high or xhigh effort. Reach for Opus only when a specific decision is high-stakes enough to want the extra accuracy ceiling (e.g., an ADR-worthy call, or a plan-review verdict you're not confident in).
 - **Lighter, more mechanical skills** — Sonnet 5 at low or medium effort.
 - `lexicon-update` inherits whatever model/effort its parent session is running.
 

@@ -37,7 +37,7 @@ Creating the Project has no prerequisites — make it empty for now. From here o
 1. Click **Projects** in the sidebar.
 2. Click **New project**.
 
-Name the Project after your product or repo (e.g. `Seminova`) so it's easy to find later. Leave custom instructions blank for now — `kickoff-grilling` will generate and paste them as its final step.
+Name the Project after your product or repo (e.g. `Seminova`) so it's easy to find later. Leave custom instructions blank for now — `project-kickoff` will generate and paste them as its final step.
 
 ---
 
@@ -76,11 +76,11 @@ This workflow depends on a set of Claude-side skills. They are global to your Cl
 
 | Skill | Required? | Purpose | Used in |
 |---|---|---|---|
-| `kickoff-grilling` | Required | One-time grill that populates `ROADMAP.md`, `site.ts`, `README.md`, `LEXICON.md` for a new project | Setup, before phase work begins |
+| `project-kickoff` | Required | One-time grill that populates `ROADMAP.md`, `site.ts`, `README.md`, `LEXICON.md` for a new project | Setup, before phase work begins |
 | `phase-planning` | Required | Aligns on terminology/decisions, then decomposes a phase into epics/stories and writes the PRD | Steady-state loop |
 | `plan-review` | Required | Reviews Cursor's implementation plan before build | Steady-state loop |
 | `lexicon-update` | Required | Writes or sharpens a LEXICON.md entry when a new term surfaces (often during `phase-planning`) | Steady-state loop, ad hoc trigger |
-| `writing-great-skills` | Optional | Create, edit, or audit a skill. Applies the quality standard (invocation choices, information hierarchy, pruning, failure modes) while running an interview, draft, eval, iterate loop | Template extension work |
+| `skill-authoring` | Optional | Create, edit, or audit a skill. Applies the quality standard (invocation choices, information hierarchy, pruning, failure modes) while running an interview, draft, eval, iterate loop | Template extension work |
 
 ### Where skill files live
 
@@ -100,7 +100,7 @@ Each skill ships in this repo as a ready-to-upload skill file at `docs/claude-sk
 
 Once the Project exists, MCP is connected, and skills are installed, confirm setup succeeded before starting real work:
 
-1. Ask Claude to list the contents of `AGENTS.md` (or read its first few lines). This confirms MCP filesystem access is working. (Not `ROADMAP.md` — at this point in setup, before `kickoff-grilling` has run, `ROADMAP.md` won't have real project content yet.)
-2. Ask Claude to invoke `kickoff-grilling` (or another installed required skill) and confirm it triggers correctly.
+1. Ask Claude to list the contents of `AGENTS.md` (or read its first few lines). This confirms MCP filesystem access is working. (Not `ROADMAP.md` — at this point in setup, before `project-kickoff` has run, `ROADMAP.md` won't have real project content yet.)
+2. Ask Claude to invoke `project-kickoff` (or another installed required skill) and confirm it triggers correctly.
 
 If both succeed, setup is complete. Move to [WORKFLOW_GUIDE.md → Starting a new project](WORKFLOW_GUIDE.md#starting-a-new-project) to begin the kickoff grill.
