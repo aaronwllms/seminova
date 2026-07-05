@@ -1,6 +1,6 @@
 # PRD — Phase 8: Tech Debt Audit Remediation
 
-**Status:** `Ready`
+**Status:** `Active`
 **Findings source:** [TECH_DEBT_AUDIT.md](../../TECH_DEBT_AUDIT.md) (full audit, 2026-07-04)
 **Last updated:** 2026-07-05
 
@@ -34,7 +34,7 @@ Resolve every open finding in TECH_DEBT_AUDIT.md except the explicitly deferred 
 
 ## Epics & stories
 
-### Epic 1: Purge starter demo & dead code
+### Epic 1: Purge starter demo & dead code `Complete`
 
 Findings: F001–F005, F010, F012, F013, F019, F020, F043, F044, F046
 
