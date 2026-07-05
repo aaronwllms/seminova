@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 
+import { ErrorPanel } from '@/components/error-panel'
 import { Skeleton } from '@/components/ui/skeleton'
 
 import { getCurrentUserProfile } from '@/app/(app)/_lib/get-current-user-profile'
@@ -28,6 +29,9 @@ const ProfilePageContent = async () => {
           Manage your account settings.
         </p>
       </div>
+      {profile.profileLoadFailed ? (
+        <ErrorPanel message="We couldn't load your profile. Try refreshing the page." />
+      ) : null}
       <ProfilePageClient
         userId={profile.userId}
         email={profile.email}

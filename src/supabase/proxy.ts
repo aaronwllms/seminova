@@ -4,6 +4,9 @@ import { LOGIN_PATH, PROFILE_PATH } from '@/constants/app-paths'
 import { getPublicSupabaseEnv, hasPublicSupabaseEnv } from '@/utils/env'
 import { isAdmin, type JwtClaims } from '@/utils/admin'
 
+const MISSING_SUPABASE_ENV_MESSAGE =
+  'Supabase environment variables are not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY before deploying to production.'
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -14,10 +17,8 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/auth')
 
   if (!hasPublicSupabaseEnv) {
-    if (process.env.NODE_ENV === 'production' && !isPublicRoute) {
-      const url = request.nextUrl.clone()
-      url.pathname = LOGIN_PATH
-      return NextResponse.redirect(url)
+    if (process.env.NODE_ENV === 'production') {
+      return new NextResponse(MISSING_SUPABASE_ENV_MESSAGE, { status: 503 })
     }
 
     return supabaseResponse

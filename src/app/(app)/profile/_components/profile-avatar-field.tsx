@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -32,9 +32,33 @@ export const ProfileAvatarField = ({
   onFileError,
 }: ProfileAvatarFieldProps) => {
   const inputRef = useRef<HTMLInputElement>(null)
+  const previewUrlRef = useRef<string | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const initials = getProfileInitials({ displayName, email })
   const imageSrc = previewUrl ?? avatarUrl
+
+  const clearPreview = () => {
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current)
+      previewUrlRef.current = null
+    }
+    setPreviewUrl(null)
+  }
+
+  const setPreview = (file: File) => {
+    clearPreview()
+    const objectUrl = URL.createObjectURL(file)
+    previewUrlRef.current = objectUrl
+    setPreviewUrl(objectUrl)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (previewUrlRef.current) {
+        URL.revokeObjectURL(previewUrlRef.current)
+      }
+    }
+  }, [])
 
   const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -46,19 +70,19 @@ export const ProfileAvatarField = ({
     const validation = validateAvatarFile(file)
 
     if (!validation.valid) {
-      setPreviewUrl(null)
+      clearPreview()
       onFileError(validation.message)
       event.target.value = ''
       return
     }
 
     onFileError(null)
-    setPreviewUrl(URL.createObjectURL(file))
+    setPreview(file)
 
     try {
       await onUpload(file)
-    } catch {
-      setPreviewUrl(null)
+      clearPreview()
+    } finally {
       event.target.value = ''
     }
   }

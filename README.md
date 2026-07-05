@@ -75,6 +75,8 @@ The full workflow — every step, skill, and document explained, plus the detail
    | `SUPABASE_SECRET_KEY` | Secret key (server/CLI only — see Initial setup) |
    | `CSP_ENFORCE` | Optional — set to `true` for enforcing CSP instead of report-only (see [AGENTS.md](AGENTS.md); requires nonce strategy before production use) |
 
+   **Development-only auth bypass:** if `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are not set, the auth proxy skips session checks in development so you can clone and explore the UI before wiring Supabase. Production deploys without those variables return **503** — configure env vars before shipping.
+
 4. Link your local repo to your Supabase project and apply the schema that ships with the template (this is what creates the `profiles` table Initial setup below depends on):
 
    ```bash
@@ -135,7 +137,7 @@ Once the template runs locally, turn it into *your* project — don't hand-edit 
 
 After that, the repo is a real project, not a template copy — and the phase-by-phase build loop in [docs/WORKFLOW_GUIDE.md](docs/WORKFLOW_GUIDE.md) takes over.
 
-**Re-skinning:** colors, type, and radius are per-product by design. [DESIGN.md](DESIGN.md) documents the token architecture and re-skin workflow. Landing page hero, features, and tech-stack copy live in [`src/config/landing-content.ts`](src/config/landing-content.ts); app name, logo, and nav/social links in [`src/config/site.ts`](src/config/site.ts).
+**Re-skinning:** colors, type, and radius are per-product by design. [DESIGN.md](DESIGN.md) documents the token architecture and re-skin workflow. Landing page hero, features, and tech-stack copy live in [`src/config/landing-content.ts`](src/config/landing-content.ts); app name, logo, and nav/social links in [`src/config/site.ts`](src/config/site.ts). Replace social preview images at [`src/app/opengraph-image.png`](src/app/opengraph-image.png) and [`src/app/twitter-image.png`](src/app/twitter-image.png) (Next.js metadata file convention).
 
 ---
 

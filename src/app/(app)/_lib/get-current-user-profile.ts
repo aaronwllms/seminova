@@ -11,6 +11,7 @@ export type CurrentUserProfile = {
   bio: string | null
   email: string
   isAdmin: boolean
+  profileLoadFailed: boolean
 }
 
 export const getCurrentUserProfile = cache(
@@ -36,6 +37,7 @@ export const getCurrentUserProfile = cache(
         bio: null,
         email,
         isAdmin: isAdminUser,
+        profileLoadFailed: true,
       }
     }
 
@@ -46,6 +48,7 @@ export const getCurrentUserProfile = cache(
       bio: profile.bio,
       email,
       isAdmin: isAdminUser,
+      profileLoadFailed: false,
     }
   },
 )

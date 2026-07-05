@@ -54,6 +54,7 @@ describe('AppShell', () => {
       bio: null,
       email: 'alex@example.com',
       isAdmin: false,
+      profileLoadFailed: false,
     })
 
     render(await AppShell({ children: <p>Profile content</p> }))

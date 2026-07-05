@@ -2,9 +2,9 @@ import { Inter, JetBrains_Mono } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
 import NextTopLoader from 'nextjs-toploader'
 import { Analytics } from '@vercel/analytics/react'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import './globals.css'
 import ReactQueryProvider from '@/providers/ReactQueryProvider'
+import { ReactQueryDevtoolsPanel } from '@/providers/react-query-devtools'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { getSiteMetadata } from '@/config/site'
@@ -50,7 +50,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <TooltipProvider>{children}</TooltipProvider>
             <Toaster />
             <Analytics />
-            <ReactQueryDevtools initialIsOpen={false} />
+            <ReactQueryDevtoolsPanel />
           </ReactQueryProvider>
         </ThemeProvider>
       </body>

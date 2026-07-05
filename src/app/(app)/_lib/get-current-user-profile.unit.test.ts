@@ -59,10 +59,11 @@ describe('getCurrentUserProfile', () => {
       bio: 'Builder',
       email: 'alex@example.com',
       isAdmin: false,
+      profileLoadFailed: false,
     })
   })
 
-  it('should tolerate profile read errors and still return the email', async () => {
+  it('should set profileLoadFailed when the profile read errors', async () => {
     mockRequireAuthClaims.mockResolvedValue({
       sub: 'user-1',
       email: 'alex@example.com',
@@ -80,6 +81,7 @@ describe('getCurrentUserProfile', () => {
       bio: null,
       email: 'alex@example.com',
       isAdmin: false,
+      profileLoadFailed: true,
     })
   })
 })

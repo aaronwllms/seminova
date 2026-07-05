@@ -7,8 +7,7 @@ Scope: Full repository pass — application code (`src/`, `scripts/`, `supabase/
 ## Executive summary
 
 - **Wide-interface god files remain churn magnets** — `users-table.tsx` (231) and `dropdown-menu.tsx` (257) still carry width; profile form and admin actions decomposed in Phase 8 Epic 5; sidebar primitive decomposed in Phase 8 Epic 4. The old ≤150-line locked rule is gone (ADR-0001) but the width problem is real where it remains.
-- **`ReactQueryDevtools` ships unconditionally in root layout** — client bundle cost on every route including marketing.
-- **Session hardening landed since last audit** — `require-auth.ts` + `read-auth-cookie.ts` fix refresh-token races and document the `getClaims` vs `getUser` split; `(app)/error.tsx` now exists. Proxy `/login` dead branch is gone.
+- **Session hardening landed since last audit** — `require-auth.ts` + `read-auth-cookie.ts` fix refresh-token races and document the `getClaims` vs `getUser` split; route-group `error.tsx` boundaries now cover `(app)/`, `admin/`, and `auth/`. Proxy `/login` dead branch is gone.
 - **One declared `// debt:` marker** — CSP report-only default in `security-headers.ts`; enforcing requires nonce strategy before `CSP_ENFORCE=true`.
 - **Quality gates pass** — `pnpm audit` clean; `type-check`, `lint`, `test:ci` green (251 tests, ~91% statements / ~84% branches).
 - **ROADMAP is stale on Phase 8** — still says the tech-debt audit has not been run.
@@ -33,38 +32,28 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 | ---- | ------------------------------ | -------------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------ |
 | F009 | Architectural decay            | `src/components/data-table1.tsx:1-175`                                           | Low      | Non-descriptive filename from shadcnblocks install (`data-table1`); canonical pattern but opaque to newcomers.                                                                                                                | Rename to `data-table-shell.tsx` (or similar) and update imports/docs in one pass.                                                | S      |
 | F011 | Architectural decay            | `src/app/(marketing)/_components/landing-container.tsx:1`                        | Low      | One-line re-export of `SiteContainer`; adds indirection without behavior (still imported by hero/features/tech-stack).                                                                                                        | Import `SiteContainer` directly in marketing components; delete alias.                                                            | S      |
-| F016 | Performance & resource hygiene | `src/app/layout.tsx:53`                                                          | Medium   | `ReactQueryDevtools` rendered unconditionally in root layout for all routes.                                                                                                                                                  | Wrap in `process.env.NODE_ENV === 'development'` guard or dynamic import.                                                         | S      |
-| F017 | Performance & resource hygiene | `src/app/(app)/profile/_components/profile-avatar-field.tsx:56`                  | Medium   | `URL.createObjectURL(file)` for preview never revoked — leaks object URLs on repeated uploads.                                                                                                                                | Call `URL.revokeObjectURL` on cleanup/replace.                                                                                    | S      |
-| F018 | Performance & resource hygiene | `src/utils/avatar-storage.ts:128-129`                                            | Low      | Canvas resize-to-WebP runs synchronously on main thread during upload.                                                                                                                                                        | Acceptable for 256px cap today; document limit or move to worker if large uploads become common.                                  | M      |
 | F021 | Consistency rot                | `src/supabase/require-auth.ts:52-58` vs `src/app/(app)/profile/actions.ts:56`    | Low      | `getClaims(jwt)` on read paths vs `getUser()` on mutations — now documented in `require-auth.ts` but not in `AGENTS.md` auth section; easy to regress when adding routes.                                                     | Add one paragraph to AGENTS.md § Auth & session mirroring the require-auth docblock.                                              | S      |
 | F022 | Consistency rot                | `src/components/login-form.tsx:19-29` / `profile-settings-form.tsx:4-6`          | Low      | Auth forms use `useState`; profile uses `react-hook-form` + zod. Two form stacks.                                                                                                                                             | **Intentional per `forms.mdc`** — no migration without cause.                                                                     | —      |
 | F023 | Consistency rot                | `src/components/data-table1.tsx:38`                                              | Low      | `UseDataTableOptions` / `useDataTable` naming vs file `data-table1`.                                                                                                                                                          | Rename with F009 for consistency.                                                                                                 | S      |
 | F024 | Type & contract debt           | `src/types/profile.ts:3-5`                                                       | Low      | `Profile` / `ProfileUpdate` aliases defined but **never imported**; pages use inline selects or local types like `CurrentUserProfile`.                                                                                        | Use `Profile` in `getCurrentUserProfile` return type and actions, or delete until a second consumer exists.                       | S      |
 | F025 | Type & contract debt           | `src/utils/admin.ts:5`                                                           | Low      | `AppMetadata = Record<string, unknown>` — role check is string compare only; loose for admin gate.                                                                                                                            | Narrow to `{ role?: string }` or parse `app_metadata` at boundary.                                                                | S      |
 | F027 | Type & contract debt           | `src/supabase/proxy.ts:77`                                                       | Low      | `user as JwtClaims` cast — claims shape not validated beyond truthiness.                                                                                                                                                      | Validate `sub` + `app_metadata.role` shape or use typed helper when available.                                                    | S      |
-| F035 | Error handling & observability | `src/app/(app)/profile/_components/profile-avatar-field.tsx:58-63`               | Medium   | Upload `catch` resets preview but **swallows error** — no `onFileError` call; user gets silent failure.                                                                                                                       | Propagate error message to `onFileError` in catch block.                                                                          | S      |
-| F037 | Error handling & observability | `src/app/(app)/_lib/get-current-user-profile.ts:30-39`                           | Low      | Profile read failure returns partial profile silently — user sees empty name/avatar without explanation.                                                                                                                      | Optional inline fault banner when `profileError` set.                                                                             | S      |
-| F038 | Error handling & observability | `src/app/admin/layout.tsx:10`                                                    | Medium   | **`error.tsx` only exists under `(app)/`** — admin and auth route groups still fall through to Next default on unhandled server errors.                                                                                       | Add `error.tsx` at `admin/` and `auth/` route groups per `error-handling.mdc`.                                                    | M      |
-| F039 | Security hygiene               | `src/supabase/proxy.ts:14-16`                                                    | Medium   | When `hasPublicSupabaseEnv` is false, **all auth proxy checks skipped** — every route public until env configured.                                                                                                              | Document in README; consider fail-closed in production via `NODE_ENV`.                                                            | S      |
 | F041 | Documentation drift            | `.cursor/plans/archive/phase_5_epic_4_toast_720328a7.plan.md:155`                | Low      | Archived epic plans still reference `src/app/(admin)/` paths removed in Phase 6.                                                                                                                                              | Bulk-find/replace in archive or add archive header noting path migration.                                                         | M      |
 | F042 | Documentation drift            | `docs/archive/CONTEXT_ARCHIVE.md`                                                | Low      | Archive narrative may still reference `(admin)` route group — verify on doc sync.                                                                                                                                             | Update archive to `/admin` namespace or add footnote.                                                                             | S      |
-| F047 | Architectural decay            | `src/providers/ReactQueryProvider.tsx:6-7`                                       | Low      | `QueryClient` constructed with **default options** — no `staleTime`/`retry` tuning for template.                                                                                                                              | Set conservative defaults when real client queries ship.                                                                          | S      |
-| F048 | Architectural decay            | `src/components/seminova-logo.tsx:15`                                            | Low      | Default `href={ADMIN_HOME}` — correct for admin sidebar but every consumer must override for marketing/app.                                                                                                                   | Consider required `href` prop to force explicit targeting.                                                                        | S      |
-| F050 | Performance & resource hygiene | `src/app/opengraph-image.png:1`                                                  | Low      | ~479 KB static OG image in app dir — large for a template repo.                                                                                                                                                               | Compress or generate from vector; document re-skin step.                                                                          | S      |
 | F053 | Declared debt                  | `src/utils/security-headers.ts:1`                                                | Medium   | Template-default CSP ships report-only. Enforcing (`CSP_ENFORCE=true`) requires nonce-based script handling for Next.js inline bootstrap scripts.                                                                             | Implement per-request nonce in middleware before setting `CSP_ENFORCE=true`; tighten directives per product surface.              | L      |
 | F054 | Documentation drift            | `ROADMAP.md:35`                                                                  | Low      | Phase 8 stub says tech-debt audit "has not yet been run" — false after this pass.                                                                                                                                             | Update Phase 8 stub on next planning sync.                                                                                        | S      |
 
 ## Top 5
 
-1. **F016 — Gate React Query Devtools** — Wrap `src/app/layout.tsx:53` in a development-only check or dynamic import. Immediate production bundle win with zero product behavior change.
+1. **F024 + F025 + F027 — Wire domain types at auth boundaries** — Profile type aliases, narrowed `app_metadata`, and validated JWT claims shape (Phase 8 Epic 7).
 
-2. **F035 + F037 — Surface swallowed errors** — Avatar upload catch and profile read failure should produce visible user-facing feedback.
+2. **F009 + F023 — Canonical data-table naming** — Rename `data-table1.tsx` and align hook/type names in one pass (Phase 8 Epic 7).
 
-3. **F038 — Error boundaries for admin and auth** — Add route-group `error.tsx` segments per `error-handling.mdc`.
+3. **F021 + F041 + F042 — Doc sync** — Mirror claims-vs-user auth split into AGENTS.md; fix stale archive path references (Phase 8 Epic 7).
 
 ## Quick wins
 
-- [ ] F016: Gate `ReactQueryDevtools` behind development-only check
+- [x] F016: Gate `ReactQueryDevtools` behind development-only check (Phase 8 Epic 6)
 - [x] F014: Remove duplicate `@radix-ui/react-*` packages (Phase 8 Epic 2)
 - [x] F001–F003: Delete demo hook, test, and MSW handler (Phase 8 Epic 1)
 - [x] F004: Delete unused `auth-button.tsx` (Phase 8 Epic 1)
@@ -72,8 +61,8 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 - [x] F010: Delete unused `landing-copyright.tsx` re-export (Phase 8 Epic 1)
 - [x] F045: Document `VERCEL_URL` in `.env.example` (Phase 8 Epic 2)
 - [x] F052: Remove dead `@/lib` alias from `components.json` (Phase 8 Epic 2)
-- [ ] F035: Surface avatar upload errors in `profile-avatar-field.tsx` catch block
-- [ ] F017: Revoke object URLs after avatar preview
+- [x] F035: Surface avatar upload errors in `profile-avatar-field.tsx` catch block (Phase 8 Epic 6)
+- [x] F017: Revoke object URLs after avatar preview (Phase 8 Epic 6)
 
 ## Things that look bad but are actually fine
 
@@ -100,11 +89,20 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 ## Open questions
 
 - **`Profile` type alias (F024):** Keep as forward-looking API surface for spinoffs, or delete until a second consumer appears?
-- **Production fail-closed on missing env (F039):** Should Vercel production builds hard-fail without Supabase env vars, or is permissive proxy correct for template clone-and-configure UX?
 - **Phase 8 scope:** Should remediation follow severity order (demo purge → coverage → god files) or batch by route area?
 
 ## Resolved
 
+- 2026-07-05 — **F016:** Gated `ReactQueryDevtools` behind `ReactQueryDevtoolsPanel` development-only wrapper in `src/providers/react-query-devtools.tsx`.
+- 2026-07-05 — **F017:** Avatar preview object URLs revoked on replace, unmount, and after successful upload in `profile-avatar-field.tsx`.
+- 2026-07-05 — **F018:** Documented `AVATAR_MAX_DIMENSION` (256px) as intentional main-thread resize bound in `avatar-storage.ts` (resolved under PRD story 6.5).
+- 2026-07-05 — **F035:** Removed silent `catch` in avatar field; upload errors surface via `useProfileAvatarUpload` → `InlineError` / `ErrorPanel`.
+- 2026-07-05 — **F037:** `getCurrentUserProfile` sets `profileLoadFailed`; profile page renders `ErrorPanel` when profile read fails.
+- 2026-07-05 — **F038:** Added `admin/error.tsx` and `auth/error.tsx` route boundaries; completes prior partial resolution from 2026-07-04.
+- 2026-07-05 — **F039:** Production returns 503 when Supabase env missing; dev bypass preserved; README documents clone-and-configure behavior.
+- 2026-07-05 — **F047:** Set conservative `QueryClient` defaultOptions in `ReactQueryProvider.tsx` (resolved under PRD story 6.5).
+- 2026-07-05 — **F048:** `SeminovaLogo` requires explicit `href: string | null`; admin sidebar passes `ADMIN_HOME` (resolved under PRD story 6.5).
+- 2026-07-05 — **F050:** Compressed `opengraph-image.png` and `twitter-image.png` (~479 KB → ~105 KB); README re-skin note added.
 - 2026-07-05 — F007: Extracted `useBlurSaveField`, `useProfileAvatarUpload`, and parameterized `profile-text-field.tsx`; `profile-settings-form.tsx` is now a thin orchestrator (~125 LOC).
 - 2026-07-05 — F008: Extracted `assert-admin-caller.ts`, `map-users-action-fault.ts`, and `run-role-mutation.ts` to `admin/users/_lib/`; `actions.ts` holds thin exports only.
 - 2026-07-05 — F026: Replaced non-null env assertions in `client.ts` and `server.ts` with `getPublicSupabaseEnv()` from shared `utils/env.ts`.
@@ -141,7 +139,6 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 - 2026-07-05 — F056: Checkbox Radix split pattern mooted by deleting unused primitive (F012).
 - 2026-07-04 — F036: `getCurrentUserProfile` no longer returns empty profile on missing auth — now calls `requireAuthClaims` which redirects.
 - 2026-07-04 — F040: Stale `/login` proxy path check removed; public routes are `/` and `/auth/**` only.
-- 2026-07-04 — F038 (partial): `(app)/error.tsx` added; admin and auth segments still open (finding retained as F038 with reduced scope).
 
 ## Tooling notes
 

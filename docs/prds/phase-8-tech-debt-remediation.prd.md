@@ -83,7 +83,7 @@ Findings: F007, F008, F026, F049, F055, F057, F058
 - **5.3 One env-loading module** (F026, F055, F057, F058). Consolidate the three Supabase env-loading patterns (app service client, admin CLI, boolean check) into one shared module with consumer-appropriate failure modes (throw vs exit vs boolean); replace non-null env assertions in the browser client with it; fold the redundant service-env alias into a single export.
   *Success: exactly one module answers "are Supabase env vars set"; app and CLI both consume it; no non-null assertions on Supabase env vars remain.*
 
-### Epic 6: Runtime & error-handling hygiene
+### Epic 6: Runtime & error-handling hygiene `Complete`
 
 Findings: F016, F017, F018, F035, F037, F038, F039, F047, F048, F050
 
