@@ -5,6 +5,7 @@ const mockGetClaims = vi.fn()
 const mockSignOut = vi.fn()
 const mockRedirect = vi.fn()
 const mockReadAccessTokenFromCookies = vi.fn()
+const mockCreateClient = vi.fn()
 
 vi.mock('next/navigation', () => ({
   redirect: (...args: unknown[]) => {
@@ -15,6 +16,10 @@ vi.mock('next/navigation', () => ({
 
 vi.mock('./read-auth-cookie', () => ({
   readAccessTokenFromCookies: () => mockReadAccessTokenFromCookies(),
+}))
+
+vi.mock('./server', () => ({
+  createClient: () => mockCreateClient(),
 }))
 
 import {
@@ -162,16 +167,36 @@ describe('requireAuthClaims', () => {
 describe('hasServerAuthSession', () => {
   beforeEach(() => {
     mockReadAccessTokenFromCookies.mockReset()
+    mockGetClaims.mockReset()
+    mockCreateClient.mockReset()
+    mockCreateClient.mockResolvedValue({
+      auth: { getClaims: mockGetClaims },
+    })
   })
 
-  it('should return true when an access token cookie exists', async () => {
+  it('should return true when the access token is valid', async () => {
     mockReadAccessTokenFromCookies.mockResolvedValue('access-token')
+    mockGetClaims.mockResolvedValue({
+      data: { claims: { sub: 'user-1' } },
+      error: null,
+    })
 
     await expect(hasServerAuthSession()).resolves.toBe(true)
+
+    expect(mockGetClaims).toHaveBeenCalledWith('access-token')
   })
 
   it('should return false when the access token cookie is missing', async () => {
     mockReadAccessTokenFromCookies.mockResolvedValue(null)
+
+    await expect(hasServerAuthSession()).resolves.toBe(false)
+
+    expect(mockGetClaims).not.toHaveBeenCalled()
+  })
+
+  it('should return false when getClaims throws for an expired token', async () => {
+    mockReadAccessTokenFromCookies.mockResolvedValue('access-token')
+    mockGetClaims.mockRejectedValue(new Error('JWT has expired'))
 
     await expect(hasServerAuthSession()).resolves.toBe(false)
   })

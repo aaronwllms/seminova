@@ -6,6 +6,7 @@ import { LOGIN_PATH } from '@/constants/app-paths'
 import type { JwtClaims } from '@/utils/admin'
 
 import { readAccessTokenFromCookies } from './read-auth-cookie'
+import { createClient } from './server'
 
 export type AuthenticatedClaims = JwtClaims & { sub: string }
 
@@ -95,10 +96,22 @@ export const requireAuthClaims = async (
 }
 
 /**
- * Lightweight session probe for public surfaces (e.g. marketing header). Does
- * not refresh tokens — relies on the proxy to keep cookies current.
+ * Lightweight session probe for public surfaces (e.g. marketing header).
+ * Validates the cookie-read access token via `getClaims(jwt)` — same path as
+ * `requireAuthClaims`, but returns false instead of redirecting. Does not
+ * refresh tokens; refresh is proxy-only (see ADR-0003).
  */
 export const hasServerAuthSession = async (): Promise<boolean> => {
   const accessToken = await readAccessTokenFromCookies()
-  return accessToken !== null
+  if (!accessToken) {
+    return false
+  }
+
+  try {
+    const supabase = await createClient()
+    const { error } = await supabase.auth.getClaims(accessToken)
+    return error === null
+  } catch {
+    return false
+  }
 }
