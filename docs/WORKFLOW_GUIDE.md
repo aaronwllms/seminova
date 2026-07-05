@@ -51,17 +51,17 @@ Full roles table and write discipline are authoritative in [docs/DOC_RULES.md](d
 **Step 1 — Clone the template**
 Fork or clone Seminova. You have the full template but no project identity yet.
 
-**Step 2 — Kickoff grill** *(Claude-side skill: `project-kickoff`)*
-A structured grill session with Claude that captures everything needed to understand the new project and produce a populated `ROADMAP.md`. The grill is **wide but shallow** — it gets deep enough to understand the whole product and define all the phases, but stops there. Each phase gets its own deep grill when it's its turn (see `phase-planning` below).
+**Step 2 — Project kickoff** *(Claude-side skill: `project-kickoff`)*
+A structured discovery session with Claude that captures everything needed to understand the new project and produce a populated `ROADMAP.md`. The session is **wide but shallow** — it gets deep enough to understand the whole product and define all the phases, but stops there. Each phase gets its own deep discovery pass when it's its turn (see `phase-planning` below).
 
-The grill must collect before writing anything:
+The session must collect before writing anything:
 - Project name, short description, longer pitch, and who it's for
 - GitHub URL
 - Logo choice (or "use placeholder")
 - Any domain vocabulary terms worth seeding into `LEXICON.md`
 - Phase stubs — the shape of the product's roadmap
 
-Outputs written by the kickoff grill:
+Outputs written by project kickoff:
 - `ROADMAP.md` — populated with real phase stubs
 - `src/config/site.ts` — name, description, GitHub URL
 - `README.md` — pitch, audience, what-it-is/is-not (Seminova framing replaced)
@@ -70,7 +70,7 @@ Outputs written by the kickoff grill:
 These lists are a summary — the skill itself is the source of truth on conflict.
 
 **Step 3 — Initialize project** *(Cursor-side skill: `initialize-project`)*
-Cursor reads `site.ts` and `README.md` for project identity and does the mechanical scrub pass — replacing Seminova-specific content with the new project's details across the repo. Runs once, immediately after the kickoff grill.
+Cursor reads `site.ts` and `README.md` for project identity and does the mechanical scrub pass — replacing Seminova-specific content with the new project's details across the repo. Runs once, immediately after project kickoff.
 
 What `initialize-project` touches:
 - `AGENTS.md` — replaces Seminova name references; resets "Implemented now" to baseline template state
@@ -78,9 +78,12 @@ What `initialize-project` touches:
 - `.cursor/plans/archive/` — purges Seminova's planning history
 - `LICENSE` — appends a new copyright line for the project owner; preserves the existing Troya and Williams attributions (MIT requirement)
 - `docs/WORKFLOW_BACKLOG.md` — clears Seminova's deferred workflow items, keeps the stub structure
+- `.mockups/` — purges Seminova's design mockups
+- `docs/archive/` — purges the frozen pre-restructure archive
+- `CONTRIBUTING.md` — deletes the file; the template's contribution guide doesn't apply to a spinoff product
 
 What it does not touch:
-- `ROADMAP.md`, `LEXICON.md`, `site.ts`, `README.md` — the kickoff grill already wrote these correctly
+- `ROADMAP.md`, `LEXICON.md`, `site.ts`, `README.md` — project kickoff already wrote these correctly
 - `.cursor/rules/`, `.cursor/skills/` — inherited unchanged; hard constraints inherit via AGENTS.md and `check:*` enforcement
 - `DESIGN.md` — inherited unchanged
 
@@ -123,7 +126,7 @@ Repeat Steps 4–7 for each phase.
 %%{init: {'flowchart': {'curve': 'stepAfter'}}}%%
 flowchart TD
     Start(["Step 1: Clone template"])
-    KG["Step 2: Kickoff grill<br/>(project-kickoff)"]
+    KG["Step 2: Project kickoff<br/>(project-kickoff)"]
     IP["Step 3: Initialize project<br/>(initialize-project)"]
     PP["Step 4: Plan the phase<br/>(phase-planning)"]
     P5["Step 5a — Cursor (plan mode)<br/>plan-next-epic"]

@@ -10,6 +10,12 @@
 
 ## Deferred items
 
+### project-kickoff README rewrite spec is stale
+
+**What:** The README gained new Seminova-specific surface (shields badges with hardcoded `aaronwllms/seminova` URLs, a PRs-welcome badge linking to `CONTRIBUTING.md`, a "Like Seminova?" CTA section, a hero-screenshot TODO). `project-kickoff` owns the README rewrite, but its spec predates these. It needs to: swap badge URLs to the new project's repo, drop the PRs-welcome badge (`initialize-project` now deletes `CONTRIBUTING.md`), and drop or replace the "Like Seminova?" section.
+**Why deferred:** Claude-side skill revision — edit source, repackage, reinstall — a separate session's work.
+**Revisit when:** Next `project-kickoff` revision session, and no later than before the first real spinoff runs project kickoff.
+
 ### Epic size threshold calibration
 
 **What:** The right epic size — where one agent build-window ends and context starts degrading — can't be set in advance. `phase-planning` encodes the principle (size epics to fit one build-window) but leaves the threshold to be felt out from real runs.

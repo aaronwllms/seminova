@@ -1,23 +1,23 @@
 ---
 name: initialize-project
-description: Scrub template artifacts and replace them with the new project's identity, immediately after kickoff-grilling has written that identity into site.ts, README.md, and ROADMAP.md. Use when the user says "initialize the project", "scrub the template", "run initialize-project", or has just finished a kickoff grill and is ready to turn the cloned template into a real repo.
+description: Scrub template artifacts and replace them with the new project's identity, immediately after project-kickoff has written that identity into site.ts, README.md, and ROADMAP.md. Use when the user says "initialize the project", "scrub the template", "run initialize-project", or has just finished project kickoff and is ready to turn the cloned template into a real repo.
 ---
 
 # Initialize Project
 
-Run the mechanical scrub pass that turns a freshly-grilled template clone into a real project repo. This is a deterministic find-and-replace job, not a planning or synthesis task — all judgment calls (name, pitch, phases) were already made in `kickoff-grilling`; this skill only propagates those facts into the files that still carry template framing.
+Run the mechanical scrub pass that turns a freshly-grilled template clone into a real project repo. This is a deterministic find-and-replace job, not a planning or synthesis task — all judgment calls (name, pitch, phases) were already made in `project-kickoff`; this skill only propagates those facts into the files that still carry template framing.
 
 ## Preconditions
 
 Before touching anything, verify all three of `src/config/site.ts`, `README.md`, and `ROADMAP.md` have already been updated away from template defaults (e.g. `site.ts`'s `name` field no longer reads `'Seminova'`).
 
 - **All three updated** → also check whether initialization has already run (see Idempotency below), then proceed.
-- **None updated** → halt. Report that `kickoff-grilling` hasn't been run yet; do not scrub anything.
+- **None updated** → halt. Report that `project-kickoff` hasn't been run yet; do not scrub anything.
 - **Some updated, some not** → halt. Report exactly which files are initialized and which still carry template defaults — this is a partial or interrupted grill, not something to guess past.
 
 ## Idempotency
 
-Before scrubbing, check all seven of this skill's outputs for whether they're already done:
+Before scrubbing, check all eight of this skill's outputs for whether they're already done:
 
 - **`LICENSE`** — has a line matching `Copyright (c) <any year> <owner name from site.ts>`
 - **`AGENTS.md`** — no remaining Seminova name references
@@ -26,11 +26,12 @@ Before scrubbing, check all seven of this skill's outputs for whether they're al
 - **`docs/WORKFLOW_BACKLOG.md`** — "Deferred items" section matches the stub placeholder (no real entries)
 - **`.mockups/`** — empty
 - **`docs/archive/`** — empty
+- **`CONTRIBUTING.md`** — absent (the file ships with every template clone; its absence means the scrub deleted it)
 
-Bucket on agreement across all seven:
+Bucket on agreement across all eight:
 
-- **All seven done** → skip the run, report it's already initialized.
-- **All seven not done** → proceed with the run.
+- **All eight done** → skip the run, report it's already initialized.
+- **All eight not done** → proceed with the run.
 - **Mixed** → halt. Report exactly which outputs are done and which aren't — this is a partial or interrupted prior run, not something to guess past. Do not pick one signal as authoritative over the others; any single check can be coincidentally true (an empty archive) or simply unwritten (LICENSE never touched) without reflecting the real state of the others.
 
 ## What it reads
@@ -66,9 +67,12 @@ These are the only sources of truth for identity. Do not ask the user for any of
 7. **`docs/archive/`**
    - Purge all contents (removes `CONTEXT_ARCHIVE.md`). This is Seminova's frozen pre-restructure history; it has no relevance to the new project.
 
+8. **`CONTRIBUTING.md`**
+   - Delete the file. It is Seminova's contribution guide — scope guidance, issue links, and framing specific to the public template; none of it applies to a spinoff product. A product that later opens to contributions writes its own. (`project-kickoff`'s README rewrite removes the references to this file, so no dead links remain.)
+
 ## What it never touches
 
-`ROADMAP.md`, `LEXICON.md`, `src/config/site.ts`, `README.md` — `kickoff-grilling` already wrote these correctly; touching them again risks clobbering grill output.
+`ROADMAP.md`, `LEXICON.md`, `src/config/site.ts`, `README.md` — `project-kickoff` already wrote these correctly; touching them again risks clobbering grill output.
 
 `.cursor/rules/`, `.cursor/skills/`, `DESIGN.md` — inherited unchanged. Hard constraints inherit via AGENTS.md and `check:*` enforcement. These are the template's value; every spinoff keeps them as-is.
 

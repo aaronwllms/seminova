@@ -104,4 +104,4 @@ Once the Project exists, MCP is connected, and skills are installed, confirm set
 1. Ask Claude to list the contents of `AGENTS.md` (or read its first few lines). This confirms MCP filesystem access is working. (Not `ROADMAP.md` — at this point in setup, before `project-kickoff` has run, `ROADMAP.md` won't have real project content yet.)
 2. Ask Claude to invoke `project-kickoff` (or another installed required skill) and confirm it triggers correctly.
 
-If both succeed, setup is complete. Move to [WORKFLOW_GUIDE.md → Starting a new project](WORKFLOW_GUIDE.md#starting-a-new-project) to begin the kickoff grill.
+If both succeed, setup is complete. Move to [WORKFLOW_GUIDE.md → Starting a new project](WORKFLOW_GUIDE.md#starting-a-new-project) to begin project kickoff.
