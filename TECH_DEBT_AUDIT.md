@@ -1,7 +1,7 @@
 # Tech Debt Audit — Seminova
 
 Last full audit: 2026-07-04
-Last synced: 2026-07-05
+Last synced: 2026-07-05 (sync pass — verified open findings F011, F022, F053; resolved F054)
 Scope: Full repository pass — application code (`src/`, `scripts/`, `supabase/migrations/`), config, and agent docs cross-check. Prior audit (2026-06-23) was removed from the repo in commit `85301c2`; this pass re-establishes the artifact and re-verifies every prior finding in code.
 
 ## Executive summary
@@ -9,8 +9,8 @@ Scope: Full repository pass — application code (`src/`, `scripts/`, `supabase/
 - **Wide-interface god files remain churn magnets** — `users-table.tsx` (231) and `dropdown-menu.tsx` (257) still carry width; profile form and admin actions decomposed in Phase 8 Epic 5; sidebar primitive decomposed in Phase 8 Epic 4. The old ≤150-line locked rule is gone (ADR-0001) but the width problem is real where it remains.
 - **Session hardening landed since last audit** — `require-auth.ts` + `read-auth-cookie.ts` fix refresh-token races and document the `getClaims` vs `getUser` split; route-group `error.tsx` boundaries now cover `(app)/`, `admin/`, and `auth/`. Proxy `/login` dead branch is gone.
 - **One declared `// debt:` marker** — CSP report-only default in `security-headers.ts`; enforcing requires nonce strategy before `CSP_ENFORCE=true`.
-- **Quality gates pass** — `pnpm audit` clean; `type-check`, `lint`, `test:ci` green.
-- **ROADMAP Phase 8 stub** — may still need sync on next planning pass (F054).
+- **Quality gates pass** — `pnpm audit` clean; `type-check`, `lint`, `test:ci` green (258 tests).
+- **Three open findings remain** — F011 (marketing wrapper, intentional boundary), F022 (dual form stacks, intentional per `forms.mdc`), F053 (CSP report-only declared debt).
 
 ## Architectural mental model
 
@@ -22,7 +22,7 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 
 **Cold corners:** CSP nonce strategy (F053 deferred).
 
-**Largest files (LOC):** `dropdown-menu.tsx` (257), `sidebar-menu.tsx` (274), `users-table.tsx` (231), `profile-password-dialog.tsx` (164), `avatar-storage.ts` (177).
+**Largest files (LOC):** `dropdown-menu.tsx` (257), `sidebar-menu.tsx` (274), `users-table.tsx` (234), `profile-password-dialog.tsx` (164), `avatar-storage.ts` (177).
 
 **Git churn (6 months):** Planning docs (`AGENTS.md`, `ROADMAP.md`, `.cursor/skills/`, `.cursor/rules/`) dominate; feature churn concentrated in auth session hardening, security remediation (Phase 7), and doc/hard-constraint enforcement.
 
@@ -33,7 +33,6 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 | F011 | Architectural decay            | `src/app/(marketing)/_components/landing-container.tsx:1`                        | Low      | One-line re-export of `SiteContainer`; adds indirection without behavior (still imported by hero/features/tech-stack).                                                                                                        | Import `SiteContainer` directly in marketing components; delete alias.                                                            | S      |
 | F022 | Consistency rot                | `src/components/login-form.tsx:19-29` / `profile-settings-form.tsx:4-6`          | Low      | Auth forms use `useState`; profile uses `react-hook-form` + zod. Two form stacks.                                                                                                                                             | **Intentional per `forms.mdc`** — no migration without cause.                                                                     | —      |
 | F053 | Declared debt                  | `src/utils/security-headers.ts:1`                                                | Medium   | Template-default CSP ships report-only. Enforcing (`CSP_ENFORCE=true`) requires nonce-based script handling for Next.js inline bootstrap scripts.                                                                             | Implement per-request nonce in middleware before setting `CSP_ENFORCE=true`; tighten directives per product surface.              | L      |
-| F054 | Documentation drift            | `ROADMAP.md:35`                                                                  | Low      | Phase 8 stub says tech-debt audit "has not yet been run" — false after this pass.                                                                                                                                             | Update Phase 8 stub on next planning sync.                                                                                        | S      |
 
 ## Top 5
 
@@ -41,7 +40,7 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 
 2. **F011 — LandingContainer wrapper** — Intentional marketing import boundary per audit assessment; low-priority cleanup only.
 
-3. **F054 — ROADMAP Phase 8 stub** — Update on next planning sync.
+3. **F022 — Dual form stacks** — Intentional per `forms.mdc`; no migration without cause.
 
 ## Quick wins
 
@@ -82,6 +81,7 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 
 ## Resolved
 
+- 2026-07-05 — **F054:** ROADMAP Phase 8 stub and PRD now reference the 2026-07-04 full audit; stale "has not yet been run" copy removed at planning time (`ROADMAP.md:35`, `docs/prds/phase-8-tech-debt-remediation.prd.md:4`).
 - 2026-07-05 — **F009:** Renamed `data-table1.tsx` → `data-table-shell.tsx`; updated imports and living docs (Phase 8 Epic 7).
 - 2026-07-05 — **F021:** Mirrored read-vs-mutation auth split into AGENTS.md § Auth & session (Phase 8 Epic 7).
 - 2026-07-05 — **F023:** Renamed `useDataTable` → `useDataTableShell` and `UseDataTableOptions` → `UseDataTableShellOptions` with F009 (Phase 8 Epic 7).
@@ -144,7 +144,7 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 | `pnpm audit`               | No known vulnerabilities                                                                                                                                                              |
 | `pnpm type-check`          | Pass                                                                                                                                                                                  |
 | `pnpm lint`                | Pass                                                                                                                                                                                  |
-| `pnpm test:ci`             | 251 tests pass; ~91.45% statements / 83.89% branches (thresholds met)                                                                                                               |
+| `pnpm test:ci`             | 258 tests pass; ~90.82% statements / 84.48% branches (thresholds met)                                                                                                             |
 | `npx knip`                 | No unused profile type consumers (F024 resolved) |
 | `npx madge --circular src` | Not run (optional; repo ~13k LOC — below subagent threshold)                                                                                                                          |
 
