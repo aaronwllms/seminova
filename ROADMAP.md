@@ -17,22 +17,18 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 | 5     | Admin Surface Polish & Toasting                                                      | `Shipped` | —   |
 | 6     | Data Model Foundation (profiles, admin namespace, authenticated shell, profile page) | `Shipped` | —   |
 | 7     | Security Audit Remediation                                                           | `Shipped` | —   |
-| 8     | Tech Debt Audit Remediation                                                          | `Active`  | [docs/prds/phase-8-tech-debt-remediation.prd.md](docs/prds/phase-8-tech-debt-remediation.prd.md) |
+| 8     | Tech Debt Audit Remediation                                                          | `Shipped` | [docs/prds/archive/phase-8-tech-debt-remediation.prd.md](docs/prds/archive/phase-8-tech-debt-remediation.prd.md) |
 | 9     | SEO & GEO                                                                            | `Draft`   | —   |
 | 10    | Pattern Reference Page                                                               | `Draft`   | —   |
 | 11    | Agent Tooling: Skills Suite                                                          | `Draft`   | —   |
 
 _Phases 1–7 pre-date the per-phase PRD system, so their PRD column is empty; their shipped detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md). From Phase 8 on, shipped rows link the archived PRD per [docs/DOC_RULES.md](docs/DOC_RULES.md)._
 
-**Active phase:** Phase 8 (Tech Debt Audit Remediation) — [docs/prds/phase-8-tech-debt-remediation.prd.md](docs/prds/phase-8-tech-debt-remediation.prd.md).
+**Active phase:** none — next up is Phase 9 (SEO & GEO, `Draft`).
 
 ---
 
 ## Upcoming phases
-
-### Phase 8 — Tech Debt Audit Remediation `Active`
-
-Remediates the open findings from the tech-debt audit (`TECH_DEBT_AUDIT.md`, run 2026-07-04). Scoped in [docs/prds/phase-8-tech-debt-remediation.prd.md](docs/prds/phase-8-tech-debt-remediation.prd.md): seven epics in severity order (demo purge → dependencies → coverage → sidebar decomposition → refactors → runtime hygiene → types/naming/docs). CSP enforcement (F053) is explicitly deferred — see open questions.
 
 ### Phase 9 — SEO & GEO `Draft`
 
