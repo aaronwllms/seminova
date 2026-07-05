@@ -6,7 +6,6 @@ Scope: Full repository pass — application code (`src/`, `scripts/`, `supabase/
 
 ## Executive summary
 
-- **Duplicate Radix dependency graph persists** — UI primitives import the `radix-ui` umbrella while `package.json` still lists three unused `@radix-ui/react-*` packages.
 - **Wide-interface god files remain the churn magnets** — `sidebar.tsx` (726 LOC), `profile-settings-form.tsx` (320), and `users/actions.ts` (299) expose many responsibilities through broad surfaces; the old ≤150-line locked rule is gone (ADR-0002) but the width problem is real.
 - **Coverage gates still hide admin shell and service client** — `vitest.config.ts` excludes four admin chrome components; `service.ts` reports 0% in-scope coverage while promote/demote depends on it.
 - **`ReactQueryDevtools` ships unconditionally in root layout** — client bundle cost on every route including marketing.
@@ -23,7 +22,7 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 
 **Hot paths:** `proxy.ts`, `require-auth.ts`, auth forms, `getCurrentUserProfile`, profile blur-save, admin users table + server actions, avatar upload pipeline.
 
-**Cold corners:** `types/profile.ts` aliases, unused `@radix-ui/react-*` packages in manifest.
+**Cold corners:** `types/profile.ts` aliases.
 
 **Largest files (LOC):** `sidebar.tsx` (726), `profile-settings-form.tsx` (320), `users/actions.ts` (299), `dropdown-menu.tsx` (257), `users-table.tsx` (231).
 
@@ -38,8 +37,6 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 | F008 | Architectural decay            | `src/app/admin/users/actions.ts:39-299`                                          | Medium   | Single file holds `assertAdminCaller`, list, promote, and demote with repeated try/catch envelopes.                                                                                                                           | Extract `assertAdminCaller` + shared fault mapper to `_lib/`; leave thin action exports.                                          | M      |
 | F009 | Architectural decay            | `src/components/data-table1.tsx:1-175`                                           | Low      | Non-descriptive filename from shadcnblocks install (`data-table1`); canonical pattern but opaque to newcomers.                                                                                                                | Rename to `data-table-shell.tsx` (or similar) and update imports/docs in one pass.                                                | S      |
 | F011 | Architectural decay            | `src/app/(marketing)/_components/landing-container.tsx:1`                        | Low      | One-line re-export of `SiteContainer`; adds indirection without behavior (still imported by hero/features/tech-stack).                                                                                                        | Import `SiteContainer` directly in marketing components; delete alias.                                                            | S      |
-| F014 | Dependency & config debt       | `package.json:45-48`                                                             | Medium   | Three `@radix-ui/react-*` packages listed; nearly all UI imports come from umbrella `radix-ui` (e.g. `src/components/ui/button.tsx:3`). Duplicate dependency graph.                                                            | Remove unused `@radix-ui/react-*` entries; keep umbrella `radix-ui` only.                                                         | S      |
-| F015 | Dependency & config debt       | `package.json:95`                                                                | Low      | `tailwindcss-animate` in devDependencies but **not wired** in `globals.css` or PostCSS config. `animate-in` / `fade-in-0` classes used in dialog/sheet/dropdown may be silently inert on TW4.                                 | Visual QA dialog/sheet open animations; wire plugin or remove dep.                                                                | S      |
 | F016 | Performance & resource hygiene | `src/app/layout.tsx:53`                                                          | Medium   | `ReactQueryDevtools` rendered unconditionally in root layout for all routes.                                                                                                                                                  | Wrap in `process.env.NODE_ENV === 'development'` guard or dynamic import.                                                         | S      |
 | F017 | Performance & resource hygiene | `src/app/(app)/profile/_components/profile-avatar-field.tsx:56`                  | Medium   | `URL.createObjectURL(file)` for preview never revoked — leaks object URLs on repeated uploads.                                                                                                                                | Call `URL.revokeObjectURL` on cleanup/replace.                                                                                    | S      |
 | F018 | Performance & resource hygiene | `src/utils/avatar-storage.ts:128-129`                                            | Low      | Canvas resize-to-WebP runs synchronously on main thread during upload.                                                                                                                                                        | Acceptable for 256px cap today; document limit or move to worker if large uploads become common.                                  | M      |
@@ -63,13 +60,11 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 | F039 | Security hygiene               | `src/supabase/proxy.ts:14-16`                                                    | Medium   | When `hasEnvVars` is false, **all auth proxy checks skipped** — every route public until env configured.                                                                                                                      | Document in README; consider fail-closed in production via `NODE_ENV`.                                                            | S      |
 | F041 | Documentation drift            | `.cursor/plans/archive/phase_5_epic_4_toast_720328a7.plan.md:155`                | Low      | Archived epic plans still reference `src/app/(admin)/` paths removed in Phase 6.                                                                                                                                              | Bulk-find/replace in archive or add archive header noting path migration.                                                         | M      |
 | F042 | Documentation drift            | `docs/archive/CONTEXT_ARCHIVE.md`                                                | Low      | Archive narrative may still reference `(admin)` route group — verify on doc sync.                                                                                                                                             | Update archive to `/admin` namespace or add footnote.                                                                             | S      |
-| F045 | Documentation drift            | `.env.example:1-10`                                                              | Low      | `VERCEL_URL` used in `src/app/layout.tsx:12-14` for metadata base URL but **not documented** in `.env.example`.                                                                                                               | Add optional `VERCEL_URL` comment for Vercel deploys.                                                                             | S      |
 | F047 | Architectural decay            | `src/providers/ReactQueryProvider.tsx:6-7`                                       | Low      | `QueryClient` constructed with **default options** — no `staleTime`/`retry` tuning for template.                                                                                                                              | Set conservative defaults when real client queries ship.                                                                          | S      |
 | F048 | Architectural decay            | `src/components/seminova-logo.tsx:15`                                            | Low      | Default `href={ADMIN_HOME}` — correct for admin sidebar but every consumer must override for marketing/app.                                                                                                                   | Consider required `href` prop to force explicit targeting.                                                                        | S      |
 | F049 | Consistency rot                | `src/app/admin/users/actions.ts:207-217` vs `278-288`                            | Low      | Promote and demote actions are near-duplicate try/catch/log/return blocks.                                                                                                                                                    | Extract shared `runRoleMutation` helper.                                                                                          | S      |
 | F050 | Performance & resource hygiene | `src/app/opengraph-image.png:1`                                                  | Low      | ~479 KB static OG image in app dir — large for a template repo.                                                                                                                                                               | Compress or generate from vector; document re-skin step.                                                                          | S      |
 | F051 | Test debt                      | `src/app/admin/_components/admin-auth-gate.tsx:13-24`                            | Medium   | Admin gate component **0% direct coverage** (layout excluded); critical security path now uses `requireAuthClaims`.                                                                                                           | Unit test redirect branches with mocked supabase + `requireAuthClaims`.                                                           | M      |
-| F052 | Architectural decay            | `components.json:18`                                                             | Low      | `"lib": "@/lib"` alias points to **non-existent** `src/lib/` directory.                                                                                                                                                       | Remove stale alias from `components.json`.                                                                                        | S      |
 | F053 | Declared debt                  | `src/utils/security-headers.ts:1`                                                | Medium   | Template-default CSP ships report-only. Enforcing (`CSP_ENFORCE=true`) requires nonce-based script handling for Next.js inline bootstrap scripts.                                                                             | Implement per-request nonce in middleware before setting `CSP_ENFORCE=true`; tighten directives per product surface.              | L      |
 | F054 | Documentation drift            | `ROADMAP.md:35`                                                                  | Low      | Phase 8 stub says tech-debt audit "has not yet been run" — false after this pass.                                                                                                                                             | Update Phase 8 stub on next planning sync.                                                                                        | S      |
 | F055 | Consistency rot                | `src/supabase/service.ts:3-19` vs `scripts/admin/lib/env.ts:6-24`                | Low      | Duplicate Supabase URL + secret-key env loading with different error handling (throw vs `process.exit`).                                                                                                                      | Extract shared `getSupabaseServiceEnv()` in `src/utils/` consumed by both app and CLI.                                            | M      |
@@ -78,26 +73,24 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 
 ## Top 5
 
-1. **F014 — Deduplicate Radix dependencies** — Remove three unused `@radix-ui/react-*` packages from `package.json`. One manifest change + lockfile refresh.
+1. **F028 + F029 + F051 — Close coverage blind spots on admin/security paths** — Remove admin chrome exclusions from `vitest.config.ts` incrementally; add tests for `createServiceClient` env failures, `AdminAuthGate` redirects, and remaining `users/actions.ts` catch branches. Admin promote/demote is the highest-risk undertested surface.
 
-2. **F028 + F029 + F051 — Close coverage blind spots on admin/security paths** — Remove admin chrome exclusions from `vitest.config.ts` incrementally; add tests for `createServiceClient` env failures, `AdminAuthGate` redirects, and remaining `users/actions.ts` catch branches. Admin promote/demote is the highest-risk undertested surface.
+2. **F006 + F007 — Split wide-interface components** — `sidebar.tsx`: move exported subcomponents into `ui/sidebar/` directory. `profile-settings-form.tsx`: extract blur-save hook + field components. Target narrow interfaces per ADR-0002 depth guidance, not arbitrary LOC caps.
 
-3. **F006 + F007 — Split wide-interface components** — `sidebar.tsx`: move exported subcomponents into `ui/sidebar/` directory. `profile-settings-form.tsx`: extract blur-save hook + field components. Target narrow interfaces per ADR-0002 depth guidance, not arbitrary LOC caps.
+3. **F016 — Gate React Query Devtools** — Wrap `src/app/layout.tsx:53` in a development-only check or dynamic import. Immediate production bundle win with zero product behavior change.
 
-4. **F016 — Gate React Query Devtools** — Wrap `src/app/layout.tsx:53` in a development-only check or dynamic import. Immediate production bundle win with zero product behavior change.
-
-5. **F035 + F037 — Surface swallowed errors** — Avatar upload catch and profile read failure should produce visible user-facing feedback.
+4. **F035 + F037 — Surface swallowed errors** — Avatar upload catch and profile read failure should produce visible user-facing feedback.
 
 ## Quick wins
 
 - [ ] F016: Gate `ReactQueryDevtools` behind development-only check
-- [ ] F014: Remove duplicate `@radix-ui/react-*` packages
+- [x] F014: Remove duplicate `@radix-ui/react-*` packages (Phase 8 Epic 2)
 - [x] F001–F003: Delete demo hook, test, and MSW handler (Phase 8 Epic 1)
 - [x] F004: Delete unused `auth-button.tsx` (Phase 8 Epic 1)
 - [x] F005: Delete unused `ThemeProvider.tsx` wrapper (Phase 8 Epic 1)
 - [x] F010: Delete unused `landing-copyright.tsx` re-export (Phase 8 Epic 1)
-- [ ] F045: Document `VERCEL_URL` in `.env.example`
-- [ ] F052: Remove dead `@/lib` alias from `components.json`
+- [x] F045: Document `VERCEL_URL` in `.env.example` (Phase 8 Epic 2)
+- [x] F052: Remove dead `@/lib` alias from `components.json` (Phase 8 Epic 2)
 - [ ] F035: Surface avatar upload errors in `profile-avatar-field.tsx` catch block
 - [ ] F017: Revoke object URLs after avatar preview
 
@@ -127,14 +120,16 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 
 ## Open questions
 
-- **`tailwindcss-animate` (F015):** Do dialog/sheet `animate-in` classes work correctly on Tailwind v4 without the plugin wired? Needs visual QA in light/dark.
-- **`radix-ui` umbrella vs per-primitive packages (F014/F056):** Was the umbrella migration intentional for shadcn v4? Confirm before removing individual `@radix-ui/*` deps.
 - **`Profile` type alias (F024):** Keep as forward-looking API surface for spinoffs, or delete until a second consumer appears?
 - **Production fail-closed on missing env (F039):** Should Vercel production builds hard-fail without Supabase env vars, or is permissive proxy correct for template clone-and-configure UX?
 - **Phase 8 scope:** Should remediation follow severity order (demo purge → coverage → god files) or batch by route area?
 
 ## Resolved
 
+- 2026-07-05 — F014: Removed unused `@radix-ui/react-dropdown-menu`, `@radix-ui/react-label`, `@radix-ui/react-slot`; umbrella `radix-ui` is sole Radix dependency.
+- 2026-07-05 — F015: Wired `tailwindcss-animate` via `@plugin` in `globals.css` after visual QA confirmed dialog/sheet/dropdown/alert-dialog/tooltip animations need the plugin on TW4.
+- 2026-07-05 — F045: Documented optional `VERCEL_URL` in `.env.example` (auto-set on Vercel; local dev falls back to localhost).
+- 2026-07-05 — F052: Removed stale `"lib": "@/lib"` alias from `components.json`.
 - 2026-07-05 — F001: Demo `useGetMessage` hook and test deleted; `react-tanstack-query.mdc` cites `use-sign-out.ts`.
 - 2026-07-05 — F002: `axios` dependency removed (sole consumer was demo hook).
 - 2026-07-05 — F003: `/api/message` MSW handler removed; MSW node infra retained.
@@ -161,7 +156,7 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 | `pnpm type-check`          | Pass                                                                                                                                                                                  |
 | `pnpm lint`                | Pass                                                                                                                                                                                  |
 | `pnpm test:ci`             | 210 tests pass; ~86.82% statements / 80.99% branches (thresholds met)                                                                                                                 |
-| `npx knip`                 | Unused: `profile.ts` type consumers, duplicate radix deps, `tailwindcss-animate` |
+| `npx knip`                 | Unused: `profile.ts` type consumers |
 | `npx madge --circular src` | Not run (optional; repo ~13k LOC — below subagent threshold)                                                                                                                          |
 
 Adapted from [ksimback/tech-debt-skill](https://github.com/ksimback/tech-debt-skill) (MIT).

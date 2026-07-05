@@ -43,7 +43,7 @@ Findings: F001–F005, F010, F012, F013, F019, F020, F043, F044, F046
 - **1.2 Remove dead components and re-exports** (F004, F005, F010, F012, F013, F044). Delete the unused starter auth button (including its coverage exclusion), the unused theme-provider wrapper, the unused copyright re-export alias, and the unused checkbox and collapsible primitives with their dependency imports. The landing container wrapper stays (see scope decisions).
   *Success: knip no longer reports these files; all surfaces render unchanged.*
 
-### Epic 2: Dependency & config hygiene
+### Epic 2: Dependency & config hygiene `Complete`
 
 Findings: F014, F015, F045, F052
 
