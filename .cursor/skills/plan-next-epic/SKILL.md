@@ -77,6 +77,8 @@ Confirm the output matches `phase-{N}/{slug}` exactly before proceeding to plan 
 
 Request `git_write` for any checkout/create/delete above. Report which branch was created, checked out, or recreated. **Do not push** — publishing the branch is separate (build work or `ship-phase`).
 
+**Branch setup must complete before plan generation.** If you cannot execute the checkout/create yourself (e.g. `git_write` is unavailable or denied), **halt** and ask the user to switch branches before continuing. Never silently defer branch setup into the generated plan — the plan may be executed later by an agent that resolves branch state incorrectly.
+
 ## Name the plan
 
 Cursor derives the filename from the YAML `name` field. Lead with the **phase + epic prefix** (so files sort and archive correctly), then a **short description** for context:
@@ -94,5 +96,9 @@ Cursor derives the filename from the YAML `name` field. Lead with the **phase + 
 Before writing the plan, assess whether this epic has clearly independent tracks with disjoint file ownership. If so, add a note at the top of the generated plan: "This epic is a good candidate for Build in Parallel." Otherwise say nothing — sequential is the default. Either way, write the plan sequentially.
 
 ## Close the plan
+
+On a **first epic**, open the generated plan with a branch precondition — a verification check only, never checkout or branch-resolution logic:
+
+> **Precondition:** confirm `git branch --show-current` outputs `phase-{N}/{slug}` (substitute the actual branch name). If it doesn't match, halt and ask the user — do not switch branches.
 
 End every generated plan with a final step instructing the implementing agent to run the **mark-epic-complete** skill once implementation is fully finished. This is how the epic gets tagged `` `Complete` `` in the active PRD — plan-next-epic itself never edits files.
