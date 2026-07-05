@@ -54,7 +54,7 @@ Findings: F014, F015, F045, F052
 - **2.3 Config cleanup** (F045, F052). Document the optional Vercel URL env var in the env example; remove the stale component-config alias that points at a non-existent directory.
   *Success: the env example covers every env var the app reads; no config alias targets a missing path.*
 
-### Epic 3: Close coverage blind spots
+### Epic 3: Close coverage blind spots `Complete`
 
 Findings: F028–F034, F051
 

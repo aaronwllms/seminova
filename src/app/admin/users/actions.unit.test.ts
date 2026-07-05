@@ -98,6 +98,43 @@ describe('promoteUserAction', () => {
       data: { status: 'promoted', email: 'alice@example.com' },
     })
   })
+
+  it('should return NOT_FOUND when the user does not exist', async () => {
+    promoteUserByIdMock.mockResolvedValue({
+      status: 'not_found',
+      email: 'missing@example.com',
+    })
+
+    const { promoteUserAction } = await import('./actions')
+    const result = await promoteUserAction({ userId: 'missing-user' })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'User not found',
+        code: 'NOT_FOUND',
+        kind: 'operational',
+      },
+    })
+  })
+
+  it('should return INTERNAL_ERROR when the service client fails', async () => {
+    createServiceClientMock.mockImplementation(() => {
+      throw new Error('service unavailable')
+    })
+
+    const { promoteUserAction } = await import('./actions')
+    const result = await promoteUserAction({ userId: 'target-user' })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Something went wrong promoting this user. Please try again.',
+        code: 'INTERNAL_ERROR',
+        kind: 'fault',
+      },
+    })
+  })
 })
 
 describe('demoteUserAction', () => {
@@ -146,6 +183,43 @@ describe('demoteUserAction', () => {
     expect(result).toEqual({
       success: true,
       data: { status: 'not_admin', email: 'bob@example.com' },
+    })
+  })
+
+  it('should return NOT_FOUND when the user does not exist', async () => {
+    demoteUserByIdMock.mockResolvedValue({
+      status: 'not_found',
+      email: 'missing@example.com',
+    })
+
+    const { demoteUserAction } = await import('./actions')
+    const result = await demoteUserAction({ userId: 'missing-user' })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'User not found',
+        code: 'NOT_FOUND',
+        kind: 'operational',
+      },
+    })
+  })
+
+  it('should return INTERNAL_ERROR when the service client fails', async () => {
+    createServiceClientMock.mockImplementation(() => {
+      throw new Error('service unavailable')
+    })
+
+    const { demoteUserAction } = await import('./actions')
+    const result = await demoteUserAction({ userId: 'other-user' })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Something went wrong demoting this user. Please try again.',
+        code: 'INTERNAL_ERROR',
+        kind: 'fault',
+      },
     })
   })
 })
