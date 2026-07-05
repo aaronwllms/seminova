@@ -45,3 +45,9 @@
 **What:** `WORKFLOW_GUIDE.md` currently lists "batch file edits, then write once" as a Tips-section suggestion. Given `filesystem:write_file` always does whole-file rewrites (no patch/diff), this may actually be a standing rule rather than a situational tip — worth moving into project instructions alongside the existing "read-before-write discipline" and "whole-file rewrites only" patterns.
 **Why deferred:** Don't want to update it in multiple places right now.
 **Revisit when:** Doing a broader pass on project instructions, or next time multiple sequential small edits in one session cause noticeable token bloat.
+
+### Model guidance should be task-shaped, not model-name-shaped
+
+**What:** WORKFLOW_GUIDE.md's "Model guidance" section currently names specific models (Sonnet 5, Opus, Composer 2.5). Reframe it around task characteristics instead — e.g., "high-reasoning models for X-type tasks (model A, model B)," "low-reasoning models for Y-type tasks (model C, model D)" — so the guidance stays useful as models churn, with current model names as examples rather than the organizing principle.
+**Why deferred:** Needs a considered rewrite, not a quick edit — a separate pass.
+**Revisit when:** Next WORKFLOW_GUIDE.md maintenance pass, or when current model names go stale enough to make the section confusing.

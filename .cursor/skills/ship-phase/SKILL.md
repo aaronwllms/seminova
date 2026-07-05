@@ -70,7 +70,7 @@ In [ROADMAP.md](../../../ROADMAP.md):
 - In the **Status** table, set the matching phase row's Status column to `` `Shipped` `` (match by phase number, not name substring).
 - Update the row's **PRD** column to `docs/prds/archive/<active-prd-file>` (e.g. `docs/prds/archive/phase-8-tech-debt-remediation.prd.md`).
 - Update **Last updated** at the top if present.
-- If a narrative line under the table still names this phase as the active one, revise it to reflect no active phase (point at the next `Draft` / `Ready` phase if obvious from the table). Do not rewrite draft-phase stub sections.
+- If a narrative line under the table still names this phase as the active one, revise it to reflect no active phase (point at the next upcoming phase — `Draft`, `Planning`, or `Ready` — if obvious from the table). Do not rewrite the Upcoming phases section's per-phase stubs.
 
 ### Step 4 — Commit
 

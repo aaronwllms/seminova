@@ -51,15 +51,31 @@ git branch --show-current
 
 **On `main` for the first epic:**
 
-```bash
-# If the branch already exists locally:
-git checkout phase-{N}/{slug}
+Check whether the branch already exists:
 
-# If it does not exist locally:
-git checkout -b phase-{N}/{slug}
+```bash
+git show-ref --verify --quiet refs/heads/phase-{N}/{slug}
 ```
 
-Use `git show-ref --verify --quiet refs/heads/phase-{N}/{slug}` to choose checkout vs `-b`. Request `git_write`. Report which branch was created or checked out. **Do not push** — publishing the branch is separate (build work or `ship-phase`).
+- **Doesn't exist:** `git checkout -b phase-{N}/{slug}` — safe, always fresh.
+- **Exists:** before checking out, compare it against `main`:
+
+  ```bash
+  git log main..phase-{N}/{slug} --oneline
+  ```
+
+  - **No commits ahead:** the branch is fresh (created but never built on). Safe to check out: `git checkout phase-{N}/{slug}`.
+  - **Commits ahead:** unexpected for a first epic — this branch likely holds abandoned or superseded work. **Halt.** Report the branch name and commit count, and ask the user whether to (a) delete and recreate it fresh, (b) check out and continue from that work, or (c) something else. Do not check out automatically.
+
+**After checkout or creation, always verify:**
+
+```bash
+git branch --show-current
+```
+
+Confirm the output matches `phase-{N}/{slug}` exactly before proceeding to plan generation. If it doesn't, halt and report — do not proceed onto `main` or any other branch by assumption.
+
+Request `git_write` for any checkout/create/delete above. Report which branch was created, checked out, or recreated. **Do not push** — publishing the branch is separate (build work or `ship-phase`).
 
 ## Name the plan
 
