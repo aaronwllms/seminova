@@ -36,6 +36,7 @@ import { updateProfileAction } from './actions'
 
 describe('updateProfileAction', () => {
   beforeEach(() => {
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://example.supabase.co')
     mockGetUser.mockReset()
     mockUpdate.mockReset()
     mockEq.mockReset()
@@ -61,6 +62,10 @@ describe('updateProfileAction', () => {
       data: { user: { id: USER_ID } },
       error: null,
     })
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
   })
 
   it('should return operational error when unauthenticated', async () => {

@@ -1,13 +1,13 @@
 ---
-description: Comprehensive error handling, logging, and monitoring standards
-autoAttach:
-  globs:
-    - "src/**/*.{ts,tsx}"
-    - "src/app/api/**/*.ts"
-    - "src/app/**/error.tsx"
+description: Error taxonomy, response envelopes, and error UI surfaces (InlineError / ErrorPanel)
+alwaysApply: false
+globs:
+  - 'src/app/api/**/*.ts'
+  - 'src/app/**/actions.ts'
+  - 'src/app/**/error.tsx'
 ---
 
-# Error Handling & Logging Standards
+# Error Handling Standards
 
 ## Philosophy
 - **User-facing errors**: Clear, actionable, never expose internals
@@ -69,11 +69,7 @@ Include `kind: 'operational' | 'fault'` on every error envelope. Set `kind` at t
 
 ## Logging
 
-**Console log levels, tags, and when to use `console.error` vs `console.warn` vs `console.log` vs `console.debug` are canonical in [`logging.mdc`](logging.mdc).** This file only adds: when logging an *error* (failure case), pass the `Error` or Supabase error object as a second argument, and map it to the error-code taxonomy above for the response envelope.
-
-```typescript
-console.error('[api-posts] Unexpected error', error)
-```
+Log levels, tags, and when to use each `console.*` method are canonical in [`logging.mdc`](logging.mdc). When logging a failure, pass the `Error` or Supabase error object as a second argument.
 
 ## Error Handling Patterns
 
@@ -85,7 +81,7 @@ console.error('[api-posts] Unexpected error', error)
 - Return generic user-friendly messages (never expose stack traces)
 - Use appropriate HTTP status codes
 
-Apply the same try/catch, logging, and response-envelope patterns described above (API routes will be added in Phase 5).
+No shipped `src/app/api/**` routes yet — when added, apply the same try/catch, logging, and response-envelope patterns above. See `api-development.mdc` for route conventions.
 
 ### Server Actions
 Follow same pattern as API routes, return objects instead of NextResponse.
@@ -97,7 +93,7 @@ Follow same pattern as API routes, return objects instead of NextResponse.
 
 ### Error Boundaries
 
-Use Next.js `error.tsx` for route-level error boundaries. Reusable `ErrorBoundary` / `ErrorFallback` components are planned for Phase 5 reference implementations.
+Use Next.js `error.tsx` for route-level error boundaries. For component-level errors, branch on `kind` to render [`inline-error.tsx`](../../src/components/inline-error.tsx) (operational) or [`error-panel.tsx`](../../src/components/error-panel.tsx) (fault) — see Error UI Patterns below. No reusable `ErrorBoundary` wrapper exists today; `error.tsx` is the route-level pattern.
 
 ## Supabase Error Handling
 
@@ -202,6 +198,7 @@ it('should handle errors gracefully', async () => {
   expect(response.status).toBe(500)
   expect(data.success).toBe(false)
   expect(data.error.code).toBe('INTERNAL_ERROR')
+  expect(data.error.kind).toBe('fault')
 })
 ```
 

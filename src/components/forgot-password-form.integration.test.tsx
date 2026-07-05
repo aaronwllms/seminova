@@ -56,7 +56,9 @@ describe('ForgotPasswordForm', () => {
     await user.click(screen.getByRole('button', { name: /send reset email/i }))
 
     expect(
-      await screen.findByText(/unable to send reset email/i),
+      await screen.findByText(
+        /something went wrong on our end\. please try again, or contact support if it continues\./i,
+      ),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: /copy error details/i }),

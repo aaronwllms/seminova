@@ -1,24 +1,42 @@
 # Seminova
 
-An opinionated, AI-native starter for building SaaS products with Next.js and Supabase.
+[![CI](https://github.com/aaronwllms/seminova/actions/workflows/pull-request.yaml/badge.svg)](https://github.com/aaronwllms/seminova/actions/workflows/pull-request.yaml)
+[![License: MIT](https://img.shields.io/github/license/aaronwllms/seminova)](LICENSE)
+[![Node](https://img.shields.io/badge/node-%3E%3D22-brightgreen)](.nvmrc)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](CONTRIBUTING.md)
+[![GitHub stars](https://img.shields.io/github/stars/aaronwllms/seminova?style=social)](https://github.com/aaronwllms/seminova)
 
-Seminova gives product managers who build with AI coding tools (Cursor, Claude) a curated foundation — design-system structure, UI conventions, accessibility defaults, and a documented agent workflow — so new projects start with good bones instead of a blank slate.
+**An opinionated, AI-native starter for building SaaS products with Next.js and Supabase — with the planning workflow built in.**
 
-For roadmap and phase planning, see [CONTEXT.md](CONTEXT.md). For agent repo truth, see [AGENTS.md](AGENTS.md). For design tokens and re-skinning, see [DESIGN.md](DESIGN.md). To change the app name, description, logo, browser tab title, and landing nav/social links, edit [`src/config/site.ts`](src/config/site.ts). Landing page hero, features, and tech-stack copy live in [`src/config/landing-content.ts`](src/config/landing-content.ts).
+<!-- TODO: hero screenshot — landing page, light and dark side by side, saved to images/ or .github/ -->
+
+## Why this exists
+
+Most starter templates hand you a blank slate with dependencies pre-installed. Seminova hands you a *curated* foundation: codified design-system structure, owned UI primitives, accessibility defaults, and — the part that makes it AI-native rather than just AI-friendly — a documented, skill-driven workflow for planning and building with AI coding tools. The structure enforces good patterns from the first commit, while each product built from it stays free to define its own identity and features on top.
+
+**Structure is fixed and inherited; theme is meant to be re-skinned.** Semantic tokens, primitive-first components, accessibility defaults, and the agent workflow carry into every product spun off Seminova unchanged. Colors, type, and radius don't — they're replaced per product.
+
+**What it is not:**
+
+- A finished product
+- A heavy boilerplate stuffed with billing, teams, or other features — those belong to individual products, not the template
+- A fixed visual identity
+
+**Who it's for:** the primary builder is a product manager who directs AI coding tools rather than writing most code by hand — making product and design calls and reviewing output, while the template encodes the engineering and design best practices. Seminova is public and open to contribution; its conventions, rules, and skills are documented precisely so others can adopt it, understand its opinions, and improve it.
 
 ---
 
-## Stack
+## The AI-native workflow
 
-- **Next.js 16** (App Router) — React 19, TypeScript
-- **Supabase** — auth, database, storage via `@supabase/ssr`
-- **Tailwind CSS + shadcn/ui** — owned primitives in `src/components/ui`
-- **TanStack Query v5** — client-side data fetching
-- **next-themes** — light/dark theming over CSS variables
-- **Vitest + React Testing Library + MSW v2** — testing and request mocking
-- **pnpm** — exclusive package manager
-- **Husky + lint-staged** — pre-commit quality checks
-- **GitHub Actions** — CI on pull requests
+Seminova ships with a two-environment planning system: **Claude** owns planning, decomposition, and adversarial review; **Cursor** owns implementation. Skills on both sides drive each step — from project kickoff, which turns a fresh clone into a real project, through phase planning, plan review, build, and ship.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="images/workflow-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="images/workflow-light.svg">
+  <img alt="Seminova workflow: project kickoff and initialize project feed into a phase loop (plan phase, then a nested epic loop of plan epic, review plan, build, then ship phase)" src="images/workflow-light.svg">
+</picture>
+
+The full workflow — every step, skill, and document explained, plus the detailed diagram — lives in [docs/WORKFLOW_GUIDE.md](docs/WORKFLOW_GUIDE.md). One-time setup (connecting Claude Desktop, installing the skills) is in [docs/WORKFLOW_SETUP.md](docs/WORKFLOW_SETUP.md).
 
 ---
 
@@ -27,16 +45,18 @@ For roadmap and phase planning, see [CONTEXT.md](CONTEXT.md). For agent repo tru
 - Node.js `>=22.22.2` (see [.nvmrc](.nvmrc))
 - [pnpm](https://pnpm.io/) 11
 - A [Supabase](https://supabase.com) project
+- [Cursor](https://cursor.com) — the IDE this template is built with
+- [GitHub CLI](https://cli.github.com) (`gh`) — install via `brew install gh` (Mac) or see [cli.github.com](https://cli.github.com) for other platforms, then authenticate once with `gh auth login`
 
 ---
 
 ## Quick start
 
-1. Clone this repository and install dependencies:
+1. Create your repository from this template — click **Use this template** on GitHub (or fork/clone if contributing to Seminova itself) — then install dependencies:
 
    ```bash
-   git clone <your-repo-url> seminova
-   cd seminova
+   git clone <your-new-repo-url> my-project
+   cd my-project
    pnpm install
    ```
 
@@ -50,11 +70,22 @@ For roadmap and phase planning, see [CONTEXT.md](CONTEXT.md). For agent repo tru
 
    | Variable | Description |
    | -------- | ----------- |
-   | `NEXT_PUBLIC_SUPABASE_URL` | Project URL |
-   | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable (anon) key |
+   | `NEXT_PUBLIC_SUPABASE_URL` | Project URL — **required for `pnpm build`** (production deploy blocker) |
+   | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable (anon) key — **required for `pnpm build`** |
    | `SUPABASE_SECRET_KEY` | Secret key (server/CLI only — see Initial setup) |
+   | `CSP_ENFORCE` | Optional — set to `true` for enforcing CSP instead of report-only (see [AGENTS.md](AGENTS.md); requires nonce strategy before production use) |
 
-4. Start the development server:
+4. Link your local repo to your Supabase project and apply the schema that ships with the template (this is what creates the `profiles` table Initial setup below depends on):
+
+   ```bash
+   pnpm exec supabase link
+   pnpm db:push
+   pnpm db:types
+   ```
+
+   `supabase link` requires Supabase dashboard access and only needs to run once per machine/clone. `db:push` applies the SQL files in [`supabase/migrations/`](supabase/migrations/) and will prompt for confirmation. `db:types` regenerates TypeScript types from the schema.
+
+5. Start the development server:
 
    ```bash
    pnpm dev
@@ -73,10 +104,9 @@ After Quick start, grant yourself admin access so you can use the admin shell:
 1. Start the dev server and sign up at [http://localhost:3000/auth/sign-up](http://localhost:3000/auth/sign-up).
 2. Add `SUPABASE_SECRET_KEY` to `.env.local` (from [Project Settings → API](https://app.supabase.com/project/_/settings/api) → **API Keys** → **secret key**, `sb_secret_...`). Never commit this key or use a `NEXT_PUBLIC_*` prefix.
 
-   > **Note:** Supabase’s **secret key** replaces the legacy **service role** key. This repo uses `SUPABASE_SECRET_KEY` — not `SUPABASE_SERVICE_ROLE_KEY`. The legacy JWT under “Legacy API keys” still works during Supabase’s migration period, but prefer the secret key from **API Keys**.
+   > **Note:** Supabase's **secret key** replaces the legacy **service role** key. This repo uses `SUPABASE_SECRET_KEY` — not `SUPABASE_SERVICE_ROLE_KEY`. The legacy JWT under "Legacy API keys" still works during Supabase's migration period, but prefer the secret key from **API Keys**.
 3. Grant yourself admin access — either:
 
-   - **In-app (after first admin exists):** another admin promotes you from `/admin/users`, or
    - **CLI (bootstrap):** promote your account:
 
    ```bash
@@ -85,11 +115,41 @@ After Quick start, grant yourself admin access so you can use the admin shell:
 
    The CLI prints the target Supabase project URL and asks for confirmation before acting. `SUPABASE_SECRET_KEY` is required for CLI commands only.
 
+   - **In-app (once an admin exists):** another admin promotes you from `/admin/users`
+
 4. **Re-login** if you were already signed in — the admin role is embedded in the JWT and won't appear until you start a fresh session.
 
 5. Open the admin area at [http://localhost:3000/admin](http://localhost:3000/admin) (admins land here after login; non-admins land on `/profile`). The Users page at `/admin/users` lists signed-up accounts with email search, pagination, and in-app promote/demote for admins.
 
 Companion CLI commands (bootstrap / automation): `pnpm demote-admin <email>`, `pnpm list-admins` (read-only, no confirmation).
+
+---
+
+## Starting your own product
+
+Once the template runs locally, turn it into *your* project — don't hand-edit Seminova's identity out; the workflow does it for you:
+
+1. **Set up the workflow** (one-time): [docs/WORKFLOW_SETUP.md](docs/WORKFLOW_SETUP.md) connects Claude Desktop to the repo and installs the planning skills.
+2. **Run project kickoff** (Claude, `project-kickoff`): a structured session that captures your project's identity and roadmap, then writes `ROADMAP.md`, `site.ts`, this README, and `LEXICON.md`.
+3. **Initialize the project** (Cursor, `/initialize-project`): the mechanical scrub pass that replaces remaining Seminova-specific content across the repo.
+
+After that, the repo is a real project, not a template copy — and the phase-by-phase build loop in [docs/WORKFLOW_GUIDE.md](docs/WORKFLOW_GUIDE.md) takes over.
+
+**Re-skinning:** colors, type, and radius are per-product by design. [DESIGN.md](DESIGN.md) documents the token architecture and re-skin workflow. Landing page hero, features, and tech-stack copy live in [`src/config/landing-content.ts`](src/config/landing-content.ts); app name, logo, and nav/social links in [`src/config/site.ts`](src/config/site.ts).
+
+---
+
+## Stack
+
+- **Next.js 16** (App Router) — React 19, TypeScript
+- **Supabase** — auth, database, storage via `@supabase/ssr`
+- **Tailwind CSS + shadcn/ui** — owned primitives in `src/components/ui`
+- **TanStack Query v5** — client-side data fetching
+- **next-themes** — light/dark theming over CSS variables
+- **Vitest + React Testing Library + MSW v2** — testing and request mocking
+- **pnpm** — exclusive package manager
+- **Husky + lint-staged** — pre-commit quality checks
+- **GitHub Actions** — CI on pull requests
 
 ---
 
@@ -122,15 +182,7 @@ Companion CLI commands (bootstrap / automation): `pnpm demote-admin <email>`, `p
 
 Schema changes live in [`supabase/migrations/`](supabase/migrations/). Agents write SQL files only; humans apply them.
 
-**One-time setup** (per machine / clone):
-
-```bash
-pnpm exec supabase link
-```
-
-Link your local repo to your Supabase project (requires dashboard access). Agents must not run `supabase link`.
-
-**After a new migration file lands:**
+The one-time `pnpm exec supabase link` step is covered in Quick start above. From then on, whenever a new migration file lands:
 
 1. Review the SQL in `supabase/migrations/`
 2. Apply: `pnpm db:push` (confirm when prompted)
@@ -140,14 +192,22 @@ See [AGENTS.md](AGENTS.md) and [`.cursor/rules/do-migrations-agent.mdc`](.cursor
 
 ---
 
-## Import paths
+## Documentation
 
-TypeScript path alias `@/` maps to `src/`:
-
-```tsx
-import { Button } from '@/components/ui/button'
-import { createClient } from '@/supabase/client'
-```
+| Document | Audience | Purpose |
+| -------- | -------- | ------- |
+| [ROADMAP.md](ROADMAP.md) | PM + agents | Phase status, planning horizon stubs |
+| [docs/prds/](docs/prds/) | PM + agents | Per-phase epics/stories while Active |
+| [docs/DOC_RULES.md](docs/DOC_RULES.md) | PM + agents | Doc maintenance — write discipline, doc roles, archive policy |
+| [docs/WORKFLOW_GUIDE.md](docs/WORKFLOW_GUIDE.md) | PM + agents | Primary planning and build workflow |
+| [docs/WORKFLOW_SETUP.md](docs/WORKFLOW_SETUP.md) | PM + agents | One-time workflow setup for new template users |
+| [docs/WORKFLOW_BACKLOG.md](docs/WORKFLOW_BACKLOG.md) | PM + agents | Deferred workflow-system decisions |
+| [LEXICON.md](LEXICON.md) | PM + agents | Architectural vocabulary |
+| [docs/adr/](docs/adr/) | PM + agents | Architecture Decision Records |
+| [AGENTS.md](AGENTS.md) | Agents | Repo truth — routes, hard constraints, data model |
+| [DESIGN.md](DESIGN.md) | PM + contributors | Token architecture and re-skin workflow |
+| [.cursor/rules/](.cursor/rules/) | Agents | Coding standards and conventions |
+| [.cursor/skills/](.cursor/skills/) | Agents | Workflows (`/sync-repo-docs`, `/create-migration`, etc.) |
 
 ---
 
@@ -165,27 +225,30 @@ Before opening a PR, run locally:
 pnpm pre-push
 ```
 
-Or step by step:
-
-```bash
-pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci
-```
+Imports use the TypeScript path alias `@/` → `src/` (e.g. `import { Button } from '@/components/ui/button'`).
 
 ---
 
-## Documentation
+## Like Seminova?
 
-| Document | Audience | Purpose |
-| -------- | -------- | ------- |
-| [CONTEXT.md](CONTEXT.md) | PM + agents | Roadmap, active epics, planning decisions |
-| [DOC_RULES.md](DOC_RULES.md) | PM + agents | Doc maintenance — write discipline, doc roles, archive policy |
-| [AGENTS.md](AGENTS.md) | Agents | Repo truth — routes, locked rules, data model |
-| [DESIGN.md](DESIGN.md) | PM + contributors | Token architecture and re-skin workflow |
-| [.cursor/rules/](.cursor/rules/) | Agents | Coding standards and conventions |
-| [.cursor/skills/](.cursor/skills/) | Agents | Workflows (`/sync-repo-docs`, `/create-migration`, etc.) |
+If Seminova gives your next product good bones, here's how to support it:
+
+- ⭐ **[Star the repo](https://github.com/aaronwllms/seminova)** — helps other builders find it
+- 🐛 **[Report bugs or rough edges](https://github.com/aaronwllms/seminova/issues)** — especially in the workflow docs; if a step confused you, it'll confuse others
+- 📢 **Share it** — if the workflow saved you planning pain, tell another PM who builds with AI
+
+---
+
+## Acknowledgments
+
+Seminova began as a fork of [supa-next-starter](https://github.com/michaeltroya/supa-next-starter) by [Michael Troya](https://github.com/michaeltroya), an MIT-licensed Next.js + Supabase starter kit. That project supplied the initial scaffolding — the Next.js/Supabase/Tailwind/shadcn wiring, tooling, and CI setup Seminova built on top of.
+
+The foundation has since been substantially rebuilt, but because Seminova derives from that work, the original MIT copyright is retained alongside Seminova's own. This is why [LICENSE](LICENSE) carries two copyright lines: Michael Troya's, covering the original starter, and Aaron Williams', covering Seminova. Both fall under the same MIT license. Thank you to Michael for the starting point.
+
+Some of the agent-skill conventions and workflow patterns draw on [mattpocock/skills](https://github.com/mattpocock/skills) by Matt Pocock (MIT-licensed) and [ECC (Everything Claude Code)](https://github.com/affaan-m/ECC) by Affaan Mustafa (MIT-licensed). Thanks to both for putting well-tested agent-workflow patterns into the open.
 
 ---
 
 ## License
 
-MIT — see [LICENSE.md](LICENSE.md).
+MIT — see [LICENSE](LICENSE). The two copyright lines are explained in [Acknowledgments](#acknowledgments) above.

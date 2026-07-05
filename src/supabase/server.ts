@@ -5,6 +5,11 @@ import { cookies } from 'next/headers'
  * Especially important if using Fluid compute: Don't put this client in a
  * global variable. Always create a new client within each function when using
  * it.
+ *
+ * Auth reads: use `requireAuthClaims()` / `hasServerAuthSession()` in layouts
+ * and server components (see `require-auth.ts`) so session refresh stays
+ * proxy-owned. Use `getUser()` only at mutation trust boundaries (server
+ * actions) where the Auth server must validate the access token.
  */
 export async function createClient() {
   const cookieStore = await cookies()

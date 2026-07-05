@@ -39,11 +39,15 @@ export function LoginForm({
     setFormError(null)
 
     try {
+      // Drop any stale session cookies before establishing a new one.
+      await supabase.auth.signOut({ scope: 'local' })
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
       if (error) throw error
+      router.refresh()
       router.push(
         getPostAuthRedirectPath(data.user?.app_metadata as AppMetadata),
       )

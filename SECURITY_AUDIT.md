@@ -1,194 +1,67 @@
-# Security Audit — Seminova
+# Security Audit — seminova
 
-<!-- Live file: SECURITY_AUDIT.md at repo root -->
+Last full audit: 2026-07-04
+Last synced: 2026-07-04
+Scope: W6 sync (transport & abuse hardening); W1–W5 unchanged from full pass same day
 
-**Live file:** `SECURITY_AUDIT.md` (repo root) — archive snapshots → `archive/security-audits/` via `/archive-security-audit`
+## Executive summary
 
-**Generated:** 2026-06-23
-
-**Scope:** Full repo static review (read-only)  
-**Produced by:** `/security-audit`  
-**Surfaces inventoried:** 10 pages, 6 layouts, 1 route handler, 0 API routes, 2 server-action modules, 1 custom table with RLS, 1 storage bucket, 2 admin pages, 3 migrations
+- **No Critical, High, or open Medium findings.** S001, S002, S003, and S005 were remediated on 2026-07-04.
+- **Low / accepted — CSP report-only (S004, W6):** Content-Security-Policy ships as report-only with a documented `// debt:` upgrade path; not enforcing until nonce-based script handling exists.
+- **W6 — transport sound with two accepted gaps:** Security headers are wired globally via `next.config.ts`; frame embedding blocked; HSTS present. State-changing surface is server actions only (Next.js origin check). No custom API routes. App-level rate limiting on server actions is absent — deferred; Supabase Auth covers hosted auth endpoints.
+- **Verified sound (W1–W5):** Dual admin gate, owner-scoped RLS, owner-folder storage RLS, server-only secret key, open-redirect guard, admin actions gated before service client, profile mutations scoped to authenticated user, avatar URL origin check, sanitized auth confirm errors, fail-closed proxy in production.
 
 ## Surface map
 
-| Surface            | Count                                | Key paths                                                                                                                                                    |
-| ------------------ | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Routes & layouts   | 10 pages, 6 layouts, 1 route handler | `src/app/(marketing)/`, `src/app/(app)/profile/`, `src/app/admin/`, `src/app/auth/**`, `src/app/auth/confirm/route.ts`, `proxy.ts` → `src/supabase/proxy.ts` |
-| Server actions     | 2 modules (4 exports)                | `src/app/(app)/profile/actions.ts`, `src/app/admin/users/actions.ts`                                                                                         |
-| API routes         | 0                                    | `src/app/api/` (empty)                                                                                                                                       |
-| DB / RLS           | 1 table, 3 migrations                | `supabase/migrations/20260622120000_create_profiles.sql`, `20260623120000_create_avatars_bucket.sql`, `20260623130000_add_avatars_select_policy.sql`         |
-| Storage            | 1 bucket                             | `avatars` — policies in migrations; client upload in `src/utils/avatar-storage.ts`; constants in `src/constants/storage-paths.ts`                            |
-| Admin / privileged | 2 pages + CLI                        | `src/app/admin/`, `src/app/admin/users/`, `src/app/admin/_components/admin-auth-gate.tsx`, `src/utils/admin-role-mutations.ts`, `scripts/admin/`             |
-| Env & secrets      | 3 vars documented                    | `.env.example` — `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`                                                   |
-
-**Review hotspots (inventory only):** auth confirm `next` redirect param; proxy env-var bypass path; profile `avatar_url` server validation; service client usage in admin actions; public-read `avatars` bucket; `handle_new_user` `SECURITY DEFINER` trigger.
-
----
-
-## Workstreams reviewed
-
-Read-only review across the five workstreams. No application code edits.
-
-### W1 — Auth & routing
-
-**Status:** done
-
-**Files reviewed:**
-
-- `proxy.ts`, `src/supabase/proxy.ts`, `src/supabase/proxy.unit.test.ts`, `src/supabase/proxy.no-env.unit.test.ts`
-- `src/app/admin/_components/admin-auth-gate.tsx`, `src/app/admin/layout.tsx`
-- `src/app/(app)/layout.tsx`, `src/app/auth/confirm/route.ts`
-- `src/components/login-form.tsx`, `src/components/update-password-form.tsx`
-- `src/utils/admin.ts`
-
-**Checklist:**
-
-- [x] Non-public routes require session — proxy redirects unauthenticated users to `/auth/login` (except `/` and `/auth/**`)
-- [x] Proxy boundary matches AGENTS.md — public: `/`, `/auth/**`; protected: all else; admin: `/admin`, `/admin/**`
-- [ ] No open redirects — **finding:** unvalidated `next` on `/auth/confirm` (see Medium)
-- [x] Admin segments gated server-side — proxy + `AdminAuthGate` both check `app_metadata.role === 'admin'`
-- [x] Post-login redirects safe — `getPostAuthRedirectPath` returns fixed `/admin` or `/profile` only
-
-### W2 — Data layer / RLS
-
-**Status:** done
-
-**Files reviewed:**
-
-- `supabase/migrations/20260622120000_create_profiles.sql`
-- `supabase/migrations/20260623120000_create_avatars_bucket.sql`
-- `supabase/migrations/20260623130000_add_avatars_select_policy.sql`
-- `src/types/database.types.ts`
-
-**Checklist:**
-
-- [x] RLS enabled on `public.profiles`
-- [x] Policy scope matches AGENTS.md — owner-scoped `auth.uid() = id` for SELECT, INSERT, UPDATE; no `role` column on profiles
-- [x] Separate policies per operation — SELECT, INSERT, UPDATE on profiles; SELECT/INSERT/UPDATE/DELETE on `storage.objects` for `avatars`
-- [x] No table relying on client-side filtering — isolation enforced in SQL policies
-- [x] `handle_new_user` trigger uses `security definer` with `set search_path = ''` (standard signup backfill pattern)
-
-### W3 — Server surface
-
-**Status:** done
-
-**Files reviewed:**
-
-- `src/app/(app)/profile/actions.ts`, `src/app/(app)/profile/_lib/profile-form-schema.ts`
-- `src/app/admin/users/actions.ts`, `src/app/admin/users/_lib/list-admin-users.ts`, `src/app/admin/users/_lib/admin-user-row.ts`
-- `src/app/auth/confirm/route.ts`
-- `src/utils/extract-auth-form-error.ts`
-
-**Checklist:**
-
-- [x] Server actions authenticate caller — `getUser()` / `getClaims()` + admin gate
-- [x] No IDOR on profile update — `.eq('id', user.id)` with RLS backup
-- [x] Admin mutations gated — `assertAdminCaller()` before service client; self-demote blocked
-- [x] Inputs validated with Zod at boundary — profile partial schema; admin page/userId trimmed
-- [ ] Avatar URL not scoped to owner storage path — **finding** (see Low)
-- [x] Errors use safe envelopes — generic user messages; auth forms map Supabase errors without user-enumeration copy
-
-### W4 — Storage
-
-**Status:** done
-
-**Files reviewed:**
-
-- `src/utils/avatar-storage.ts`, `src/constants/storage-paths.ts`
-- `supabase/migrations/20260623120000_create_avatars_bucket.sql`
-- `src/app/(app)/profile/_components/profile-settings-form.tsx`
-
-**Checklist:**
-
-- [x] Bucket write policies scope to owner — first path segment = `auth.uid()` for INSERT/UPDATE/DELETE
-- [x] Public-read bucket intentional — `public: true` on `avatars` per AGENTS.md / `supabase.mdc`
-- [x] Upload path fixed — `buildAvatarStoragePath(userId)` → `{userId}/avatar.webp`
-- [x] Client upload checks session user matches `userId` before upload
-- [x] Server-side bucket limits — `file_size_limit` (2 MB) and `allowed_mime_types` in migration mirror client validation
-- [x] Stored object always WebP after client resize — reduces MIME spoofing impact; bucket allowlist is a second layer
-
-### W5 — Exposure & secrets
-
-**Status:** done
-
-**Files reviewed:**
-
-- `src/supabase/service.ts`, `src/supabase/client.ts`, `src/supabase/server.ts`
-- `.env.example`, `.gitignore`, `next.config.ts`
-- `scripts/admin/lib/env.ts`, `scripts/admin/lib/service-client.ts`
-- `src/app/admin/users/_lib/admin-user-row.ts` (DTO mapping)
-
-**Checklist:**
-
-- [x] No secrets in client code — `createServiceClient` / `SUPABASE_SECRET_KEY` only in server actions and CLI
-- [x] `SUPABASE_SECRET_KEY` not prefixed `NEXT_PUBLIC_*`
-- [x] `.env*.local` gitignored
-- [x] Admin list returns DTO (`AdminUserRow`) — id, email, labels, `isAdmin`; no password hashes or tokens
-- [x] Privileged mutations server-enforced — promote/demote via service client behind admin gate
-- [x] No `dangerouslySetInnerHTML` in `src/`
-
----
+| Surface            | Count                                | Key paths                                                                                                                                                 |
+| ------------------ | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Routes & layouts   | 10 pages, 5 layouts, 1 route handler | `src/app/(marketing)/`, `src/app/(app)/profile/`, `src/app/auth/**`, `src/app/admin/**`; `proxy.ts` → `src/supabase/proxy.ts`                             |
+| Server actions     | 2 files, 4 exported actions          | `src/app/(app)/profile/actions.ts` (`updateProfileAction`), `src/app/admin/users/actions.ts` (`listUsersAction`, `promoteUserAction`, `demoteUserAction`) |
+| API routes         | 0                                    | No `src/app/api/` routes                                                                                                                                  |
+| DB / RLS           | 1 table, 3 migrations                | `public.profiles` — owner-scoped SELECT/INSERT/UPDATE; `handle_new_user` trigger (`security definer`, `search_path = ''`)                                 |
+| Storage            | 1 bucket, 4 object policies          | `storage.avatars` — public SELECT; owner-scoped INSERT/UPDATE/DELETE via first path segment = `auth.uid()`                                                |
+| Admin / privileged | 2 admin pages + CLI                  | `src/app/admin/` (`AdminAuthGate`, `assertAdminCaller`); `scripts/admin/` + `src/supabase/service.ts`                                                     |
 
 ## Findings
 
-### Critical
-
-_(none — no unauthenticated privileged data access, missing RLS on user tables, or secret key exposure found in static review.)_
-
-### High
-
-_(none — admin gates and RLS align with AGENTS.md locked rules.)_
-
-### Medium
-
-- [ ] **Open redirect after email OTP confirmation** — `src/app/auth/confirm/route.ts`
-  - **Issue:** The `next` query parameter is passed directly to `redirect(next)` after successful `verifyOtp`, with no same-origin validation.
-  - **Scenario:** An attacker crafts a confirmation link such as `/auth/confirm?token_hash=…&type=email&next=https://attacker.example/phish`. After the victim completes email verification, they are redirected off-site while authenticated, enabling phishing or token/session confusion attacks.
-  - **Remediation hint:** Validate `next` with a same-origin helper (see `.cursor/rules/security.mdc` `isSafeRedirect` pattern); allow only relative paths or an explicit allowlist; default to `getPostAuthRedirectPath` or `/profile`.
-
-### Low
-
-- [ ] **Profile `avatar_url` accepts arbitrary URLs server-side** — `src/app/(app)/profile/actions.ts`, `src/app/(app)/profile/_lib/profile-form-schema.ts`
-  - **Issue:** `updateProfileAction` validates `avatarUrl` as any HTTP(S) URL via Zod but does not require the URL to point at the user's own `avatars` storage object.
-  - **Scenario:** A signed-in user bypasses the upload UI and calls the server action with an external image URL, another user's public avatar URL, or a tracking pixel URL. The value is stored in `profiles.avatar_url` and rendered in the app header avatar.
-  - **Remediation hint:** Restrict server-side to URLs matching the project's public avatar path pattern (`…/avatars/{userId}/avatar.webp`) or reject `avatarUrl` updates that do not originate from `uploadUserAvatar` (e.g. server-side URL builder only).
-
-### Deferred / accepted risk
-
-- [ ] **Proxy skips auth when Supabase public env vars are unset** — `src/supabase/proxy.ts` (`hasEnvVars` early return). Intentional dev bootstrap (`proxy.no-env.unit.test.ts`). Production deployments must set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`; misconfiguration leaves routes ungated.
-- [ ] **Public-read `avatars` bucket** — by design per AGENTS.md and `supabase.mdc`; all avatar images are world-readable at known paths.
-- [ ] **Admin users table exposes email addresses** — intentional for `/admin/users`; gated behind admin role server-side.
-- [ ] **Client-side avatar validation only before upload** — acceptable with bucket `allowed_mime_types`, `file_size_limit`, and owner-scoped write RLS as server enforcement.
-- [ ] **No security headers in `next.config.ts`** — no CSP, `X-Frame-Options`, or HSTS at app config layer; defer to Vercel/platform hardening or a dedicated headers pass before launch.
-
----
+| ID   | Category | File:Line                                  | Severity | Description                                                                                                                             | Recommendation                                                                                                                                                            | Scenario                                                                                                                                              |
+| ---- | -------- | ------------------------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| S004 | W6       | `src/utils/security-headers.ts:1`, `51-54` | Low      | CSP is emitted as `Content-Security-Policy-Report-Only` unless `CSP_ENFORCE=true`. Inline script protections are not actively enforced. | Follow the existing `// debt:` plan: nonce-based script-src before flipping to enforcing CSP. Track as accepted template risk until product surfaces warrant enforcement. | Attacker who achieves XSS would not be blocked by CSP today; other layers (React escaping, no `dangerouslySetInnerHTML`) are the primary mitigations. |
 
 ## Verified OK
 
-- Auth proxy enforces session on non-public routes and redirects non-admins from `/admin/**` to `/profile` (`src/supabase/proxy.ts`).
-- Defense in depth on admin: proxy redirect + `AdminAuthGate` server layout gate (`src/app/admin/_components/admin-auth-gate.tsx`).
-- Post-login redirects use fixed internal paths via `getPostAuthRedirectPath` (`src/utils/admin.ts`) — no user-controlled redirect in login/password flows.
-- `public.profiles` has RLS enabled with owner-scoped SELECT, INSERT, and UPDATE policies; no `role` column (admin stays on `app_metadata.role`).
-- Profile server action scopes updates to `user.id` with Zod validation and safe error envelopes.
-- Admin server actions (`listUsersAction`, `promoteUserAction`, `demoteUserAction`) require admin claims before `createServiceClient()`; self-demote blocked.
-- `SUPABASE_SECRET_KEY` confined to `src/supabase/service.ts` and `scripts/admin/` — not imported from client bundles.
-- `AdminUserRow` DTO limits fields returned to the admin UI.
-- Storage RLS: owner-folder writes; public SELECT on `avatars` for upsert + public display.
-- Avatar upload enforces session `user.id === userId` and fixed storage path (`src/utils/avatar-storage.ts`).
-- Auth form errors use generic messaging via `extractAuthFormError`; no bespoke user-enumeration strings.
-- `.env.example` documents secrets correctly; `.env*.local` gitignored.
-- No `src/app/api/` routes — no unreviewed REST surface.
-- No `dangerouslySetInnerHTML` usage in application code.
+- **W1 — Auth & routing:** Public routes are `/` and `/auth/**` only per `src/supabase/proxy.ts`. Unauthenticated users redirect to `/auth/login`. Admin paths redirect non-admins to `/profile` at proxy and again in `AdminAuthGate`. `/auth/confirm` uses `isSafeRedirect` for optional `next` param. Production proxy fails closed when Supabase env is missing (`proxy.ts` + `scripts/checks/supabase-env.mjs` on build).
+- **W2 — RLS:** `public.profiles` has RLS enabled with separate owner-scoped SELECT, INSERT, and UPDATE policies (`20260622120000_create_profiles.sql`). No table relies on client-side filtering for isolation. Signup trigger uses `security definer` with empty `search_path`.
+- **W3 — Server surface:** Both server-action modules authenticate before mutation. Profile update uses `getUser()` + zod + `.eq('id', user.id)` with RLS. Admin actions use `assertAdminCaller()` before `createServiceClient()`; self-demotion is blocked. No API routes exist yet. Auth confirm errors use whitelisted `source` params and fixed copy (`auth-error-messages.ts`). Non-auth faults return generic copy via `extractAuthFormError`.
+- **W4 — Storage:** `avatars` bucket is intentionally public-read. Write policies scope to owner folder via `(storage.foldername(name))[1] = auth.uid()`. Bucket `file_size_limit` and `allowed_mime_types` mirror client constants. Client upload verifies session user matches `userId` before upload. `isOwnedAvatarStorageUrl` requires Supabase project origin + owned path suffix.
+- **W5 — Secrets & exposure:** `SUPABASE_SECRET_KEY` is referenced only in `src/supabase/service.ts` and `scripts/admin/` — never in client bundles or `NEXT_PUBLIC_*`. Admin user list DTO exposes id, email, verification/sign-in labels, and admin flag — appropriate for admin-only surface behind dual gate. Auth forms use fallback-first error mapping.
+- **W6 — Transport & abuse hardening:** Security headers applied globally via `next.config.ts` → `getSecurityHeaders()` on `/:path*`. CSP includes `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`; companion `X-Frame-Options: DENY` and HSTS (`max-age=31536000; includeSubDomains`). `script-src` is `'self'` plus Vercel Analytics — no `'unsafe-inline'` or `'unsafe-eval'`. All mutations go through `'use server'` actions (profile + admin); Next.js origin verification applies. No `src/app/api/` routes — no cookie-authenticated mutating API route lacking origin check. Sole route handler (`/auth/confirm`) is GET OTP verification from email links (token-bound). Unit tests cover CSP header mode and core directives (`security-headers.unit.test.ts`).
 
----
+## Deferred / accepted risk
+
+- **S004 — CSP report-only:** Documented intentional template default with upgrade path in `security-headers.ts`. Accept until nonce strategy is implemented for Next.js inline scripts.
+- **App-level rate limiting:** Supabase Auth enforces rate limits on sign-in, OTP, and email-send endpoints (hosted + local config in `supabase/config.toml`). Server actions (`updateProfileAction`, admin list/promote/demote) have no app-level throttle. Accept for current scope; revisit if custom API routes are added or abuse is observed.
+- **`style-src 'unsafe-inline'`:** Required for Tailwind inline styles; not separately marked with `// debt:` (script-src is strict). Accept as standard Next.js compatibility; revisit when CSP moves to enforcing mode.
+- **Client-side avatar resize/validation:** Upload path validates MIME and size in the browser before Supabase upload; bucket-level limits and RLS provide server-side enforcement. Direct Storage API calls by authenticated users are limited to their own folder — acceptable for current scope.
 
 ## Human / tooling follow-ups
 
-- [ ] Run `pnpm audit` for dependency CVEs (not executed in this static review).
-- [ ] Manual IDOR testing with two user accounts — confirm profile rows and avatar storage paths cannot be read or written cross-user.
-- [ ] Manual admin bypass attempt — call `listUsersAction` / `promoteUserAction` as a non-admin session (browser devtools or scripted); expect `FORBIDDEN`.
-- [ ] Verify production env — confirm `NEXT_PUBLIC_SUPABASE_*` and `SUPABASE_SECRET_KEY` are set in deploy environment; proxy must not hit the `hasEnvVars` bypass.
-- [ ] Open-redirect regression test — attempt `/auth/confirm?…&next=https://example.com` after fix; expect same-origin-only redirect.
-- [ ] RLS policy verification on linked Supabase project — run advisors / test policies with two JWTs after `pnpm db:push` (static SQL review only here).
-- [ ] Consider security headers pass (CSP, frame ancestors) in `next.config.ts` or Vercel config before public launch.
+- Run `pnpm audit` for dependency CVEs (not evaluated in this pass).
+- Manual IDOR test: two accounts — confirm neither can read or update the other's `profiles` row via client or server action.
+- Manual admin bypass test: non-admin session — hit `/admin/users` and invoke `promoteUserAction` / `listUsersAction` directly; expect 403-style operational errors.
+- Manual RLS test in Supabase SQL editor or local stack: verify anon role cannot SELECT `profiles`; verify user B cannot UPDATE user A's row.
+- Regression: avatar URL with matching path suffix on external host should not persist; stale confirm link shows generic copy only.
+- W6: Verify response headers in browser DevTools (CSP-Report-Only, X-Frame-Options, HSTS) on a deployed preview.
+
+## Open questions
+
+- _(none — S005 and S001 product decisions resolved by remediation)_
+
+## Resolved
+
+| ID   | Resolved   | Fix summary                                                                                                                                                                                                  |
+| ---- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| S005 | 2026-07-04 | `isOwnedAvatarStorageUrl` now requires origin match against `NEXT_PUBLIC_SUPABASE_URL` in addition to owned path suffix.                                                                                     |
+| S001 | 2026-07-04 | `/auth/confirm` redirects to `/auth/error?source=confirm` or `invalid_link`; error page renders whitelisted fixed copy only (`auth-error-messages.ts`). Supabase codes logged server-side, never in the URL. |
+| S003 | 2026-07-04 | Proxy fails closed in production when env missing; `scripts/checks/supabase-env.mjs` blocks `pnpm build` without real Supabase public vars.                                                                  |
+| S002 | 2026-07-04 | `extractAuthFormError` returns generic `INTERNAL_ERROR` fault copy for non-`AuthError` paths; original message logged server-side only.                                                                      |

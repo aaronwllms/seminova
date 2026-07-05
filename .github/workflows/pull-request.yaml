@@ -30,6 +30,15 @@ jobs:
       - name: Run type check
         run: pnpm type-check
 
+      - name: Check pnpm only
+        run: pnpm check:pnpm-only
+
+      - name: Check no shadcn npm package
+        run: pnpm check:no-shadcn-pkg
+
+      - name: Check semantic tokens
+        run: pnpm check:semantic-tokens
+
       - name: Check linting
         run: pnpm lint
 

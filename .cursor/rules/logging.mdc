@@ -1,7 +1,8 @@
 ---
 description: Console log level taxonomy and tag conventions — what level to use, when, and how to tag it
 globs:
-  - 'src/**/*.{ts,tsx}'
+  - 'src/**/*.ts'
+  - 'src/**/*.tsx'
   - 'scripts/**/*.ts'
 alwaysApply: false
 ---

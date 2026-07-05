@@ -1,74 +1,30 @@
 ---
-description: TypeScript strict mode conventions and best practices
-globs: 
-  - '**/*.ts'
-  - '**/*.tsx'
+description: Project-specific TypeScript conventions — named exports, Supabase types, shared-type placement
+# Globs: app + admin-script TypeScript only — excludes Vitest/config, Husky, migrations, .cursor/, and test files
+globs:
+  - 'src/**/*.ts'
+  - 'src/**/*.tsx'
+  - 'scripts/**/*.ts'
+alwaysApply: false
 ---
 
 # TypeScript Standards
 
-## Core Principles
-- Write concise, technical TypeScript code with accurate examples
-- Use TypeScript for all code; strict mode is enabled (tsconfig.json)
-- Prefer interfaces over types for object shapes
-- Avoid enums; use const objects or `as const` assertions instead
-- Define explicit return types for functions and exported values
-- Use type inference where it improves readability
+Strict mode is enabled (`tsconfig.json`). This file covers project-specific conventions only.
 
-## Code Style
-- Use functional and declarative programming patterns; avoid classes
-- Use arrow functions for components and handlers
-- **Prefer named exports** for all components and utilities (benefits: tree-shaking, easier refactoring)
-  - Note: Current codebase uses default exports; gradually migrate to named exports
-  - New code should use named exports
-- Use descriptive variable names with auxiliary verbs (e.g., `isLoading`, `hasError`, `canSubmit`)
-- Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements
+## Exports
+- **Prefer named exports** for all components and utilities (tree-shaking, easier refactoring)
+- Legacy codebase uses default exports; gradually migrate — **new code uses named exports**
 
-## Best Practices
-- Create shared types in appropriate locations, not inline
-- Type all component props with interfaces
-- Use TypeScript for all config files when possible
-- Generate and use Supabase TypeScript types for database models
-- Functional components must use TypeScript interfaces for props
+## Conventions
+- Prefer **interfaces over types** for object shapes
+- Avoid **enums**; use const objects or `as const` assertions instead
+- Define explicit return types for exported functions and values; use inference where it improves readability
 
-## Example Component Structure
-```typescript
-interface ComponentProps {
-  /** User ID for fetching data */
-  userId: string;
-  /** Callback fired on successful update */
-  onUpdate?: (data: UpdateData) => void;
-}
+## Supabase Types
+- Regenerate after schema changes: `pnpm db:types` → [`src/types/database.types.ts`](../../src/types/database.types.ts)
+- Use generated types for database models; domain aliases live in `src/types/` (e.g. [`src/types/profile.ts`](../../src/types/profile.ts))
 
-// Use arrow function and named export
-export const Component = ({ userId, onUpdate }: ComponentProps): JSX.Element => {
-  // Implementation
-  return <div>...</div>
-}
-```
-
-## RORO Pattern (Receive Object, Return Object)
-For complex functions, use RORO pattern:
-```typescript
-interface FetchUserParams {
-  userId: string
-  includeProfile?: boolean
-}
-
-interface FetchUserResult {
-  user: User
-  profile?: Profile
-}
-
-export const fetchUser = async (params: FetchUserParams): Promise<FetchUserResult> => {
-  // Implementation
-}
-```
-
-## Anti-patterns to Avoid
-- Don't use 'any' type
-- Don't use enums; use const objects instead
-- Don't use class components
-- Don't skip return type definitions for public functions
-- Don't ignore TypeScript errors; fix them properly
-- Don't create overly complex type gymnastics; keep types readable
+## Shared Types Placement
+- Create shared types in appropriate locations, not inline: `src/types/` for domain types, route `_lib/` for route-scoped shapes, `src/utils/` for utility-specific types
+- See `project-standards.mdc` for `_lib/` vs `src/utils/` depth heuristic

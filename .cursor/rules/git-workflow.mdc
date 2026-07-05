@@ -1,7 +1,13 @@
 ---
-description: Git workflow, conventional commits, and PR creation standards
+# Globs scoped to git-infrastructure files only; otherwise Agent Requested for commit/branch/PR work.
+description: >-
+  Git workflow, conventional commits, and PR creation standards. Use when
+  committing, branching, opening or reviewing pull requests, or editing Husky
+  hooks and CI workflow files.
+alwaysApply: false
 globs:
-  - '**/*'
+  - '.husky/**'
+  - '.github/workflows/**'
 ---
 
 # Git Workflow & Conventional Commits
@@ -123,21 +129,13 @@ refactor/api-error-handling
 test/add-component-tests
 ```
 
-## Subagent commits
+## Commits
 
-**Default:** Agents do not commit unless the user explicitly asks.
-
-**Exception — `refactor-cleaner` subagent:** When the user explicitly invokes `refactor-cleaner` for post–tech-debt-audit **hands-off cleanup**, that subagent **may commit after each batch** once `pnpm type-check`, `pnpm lint`, and `pnpm test:ci` pass. User invocation of hands-off cleanup is the authorization.
-
-Still required without separate user instruction:
-
-- **Never push** to remote
-- **Never create PRs** (see below)
-- Use conventional commit format (`refactor:` / `chore:`); reference audit finding IDs in the body when applicable
+Agents do not commit unless the user explicitly asks.
 
 ## Pull Requests
 
-**IMPORTANT**: Only create PRs when explicitly requested by the user. Do not automatically create PRs after making code changes. Never push branches or create PRs without explicit user instruction. Always wait for explicit user instruction before running `gh pr create` commands.
+**IMPORTANT**: Pushing a branch and opening its PR are one action — if a push is explicitly authorized (e.g. via `ship-phase`), the PR follows automatically with no separate confirmation. Never push a branch without explicit user instruction in the first place.
 
 ### Creating PRs via GitHub CLI
 
@@ -173,6 +171,8 @@ Use conventional commit style:
 - **What**: Key changes (2-4 bullets)
 - **Testing**: How to verify
 - **Risk**: Impact assessment (LOW/MEDIUM/HIGH)
+
+This format overrides any built-in or default PR body template (e.g. Summary / Test plan).
 
 ### Before Opening PR
 ```bash

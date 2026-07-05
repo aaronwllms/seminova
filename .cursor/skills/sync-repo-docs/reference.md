@@ -2,15 +2,15 @@
 
 ## Document roles
 
-See [DOC_RULES.md](../../../DOC_RULES.md) for the canonical document-roles table.
+See [DOC_RULES.md](../../../docs/DOC_RULES.md) for the canonical document-roles table.
 
 ## AGENTS.md section map (typical — adapt to each repo)
 
 | Section                        | Update when…                                              |
 | ------------------------------ | --------------------------------------------------------- |
-| Documentation map              | New top-level doc agents should know about                |
+| Doc-roles pointer (was: map)   | AGENTS.md only points to docs/DOC_RULES.md; register new top-level docs there, not here |
 | Setup and quality commands     | New/changed quality or install commands in `package.json` |
-| Locked rules (each subsection) | Mirror a locked-rule change already made via change protocol — never initiate |
+| Hard constraints (each bullet) | Mirror a hard-constraint change already made via change protocol (enforcement + AGENTS list together) — never initiate |
 | Implemented / shipped          | Shipped user-facing features, product routes, nav         |
 | Data model (summary)           | New tables/columns, ownership changes                     |
 | Where things live              | New top-level `src/` directories or major relocations     |
@@ -36,7 +36,7 @@ See [DOC_RULES.md](../../../DOC_RULES.md) for the canonical document-roles table
 ### New product route
 
 - [ ] AGENTS.md → implemented → product routes
-- [ ] AGENTS.md → locked rules → auth (if public/protected boundary changed)
+- [ ] AGENTS.md → hard constraints → auth (if public/protected boundary changed)
 - [ ] README opening paragraph if it names primary sections
 - [ ] Verify auth middleware/proxy matches documented boundary
 
@@ -44,7 +44,7 @@ See [DOC_RULES.md](../../../DOC_RULES.md) for the canonical document-roles table
 
 - [ ] AGENTS.md → migration count
 - [ ] AGENTS.md → data model table (new table, column, or ownership)
-- [ ] AGENTS.md → locked rules → RLS if policies added/changed
+- [ ] AGENTS.md → hard constraints / RLS guidance if policies added/changed
 - [ ] Do not claim migration is applied — user runs `pnpm db:push`
 
 ### New env variable
@@ -65,13 +65,12 @@ See [DOC_RULES.md](../../../DOC_RULES.md) for the canonical document-roles table
 
 ### Auth or default route change
 
-- [ ] Mirror locked-rule change via AGENTS.md change protocol if auth boundary changed (never initiate)
+- [ ] Mirror hard-constraint change via AGENTS.md change protocol if auth boundary changed (never initiate)
 - [ ] Verify redirect logic in auth middleware/proxy
 
-### Locked product rule change (any domain)
+### Hard constraint change (any domain)
 
-- [ ] Mirror a locked-rule change already made via AGENTS.md change protocol — never initiate
-- [ ] Planning brief locked-rules pointer if sync-context-md applies
+- [ ] Mirror a hard-constraint change already made via AGENTS.md change protocol (enforcement + list together) — never initiate
 
 ## Evidence commands
 
@@ -99,7 +98,7 @@ For unstaged work only: `git diff` and `git status`.
 - AGENTS.md → feature bullet if new capability
 - README → only if opening paragraph lists primary nav sections
 
-**Skip:** Locked rules (no auth boundary change).
+**Skip:** Hard constraints (no auth boundary change).
 
 ### Example B — New table + migration
 
@@ -109,7 +108,7 @@ For unstaged work only: `git diff` and `git status`.
 
 - AGENTS.md → bump migration count
 - AGENTS.md → data model row with ownership
-- AGENTS.md → RLS locked rule if ownership model is novel
+- AGENTS.md → hard constraints / RLS if ownership model is novel
 
 **Skip:** README (no human setup change).
 

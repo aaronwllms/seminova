@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const mockGetUser = vi.fn()
+const mockRequireAuthClaims = vi.fn()
 const mockFrom = vi.fn()
 const mockSelect = vi.fn()
 const mockEq = vi.fn()
@@ -8,18 +8,19 @@ const mockSingle = vi.fn()
 
 vi.mock('@/supabase/server', () => ({
   createClient: vi.fn(async () => ({
-    auth: {
-      getUser: mockGetUser,
-    },
     from: mockFrom,
   })),
+}))
+
+vi.mock('@/supabase/require-auth', () => ({
+  requireAuthClaims: (...args: unknown[]) => mockRequireAuthClaims(...args),
 }))
 
 import { getCurrentUserProfile } from './get-current-user-profile'
 
 describe('getCurrentUserProfile', () => {
   beforeEach(() => {
-    mockGetUser.mockReset()
+    mockRequireAuthClaims.mockReset()
     mockFrom.mockReset()
     mockSelect.mockReset()
     mockEq.mockReset()
@@ -30,23 +31,17 @@ describe('getCurrentUserProfile', () => {
     mockEq.mockReturnValue({ single: mockSingle })
   })
 
-  it('should return an empty profile when there is no authenticated user', async () => {
-    mockGetUser.mockResolvedValue({ data: { user: null }, error: null })
+  it('should redirect when there is no authenticated session', async () => {
+    mockRequireAuthClaims.mockRejectedValue(new Error('NEXT_REDIRECT'))
 
-    await expect(getCurrentUserProfile()).resolves.toEqual({
-      userId: '',
-      displayName: null,
-      avatarUrl: null,
-      bio: null,
-      email: '',
-      isAdmin: false,
-    })
+    await expect(getCurrentUserProfile()).rejects.toThrow('NEXT_REDIRECT')
   })
 
   it('should return profile fields for an authenticated user', async () => {
-    mockGetUser.mockResolvedValue({
-      data: { user: { id: 'user-1', email: 'alex@example.com' } },
-      error: null,
+    mockRequireAuthClaims.mockResolvedValue({
+      sub: 'user-1',
+      email: 'alex@example.com',
+      app_metadata: {},
     })
     mockSingle.mockResolvedValue({
       data: {
@@ -68,9 +63,10 @@ describe('getCurrentUserProfile', () => {
   })
 
   it('should tolerate profile read errors and still return the email', async () => {
-    mockGetUser.mockResolvedValue({
-      data: { user: { id: 'user-1', email: 'alex@example.com' } },
-      error: null,
+    mockRequireAuthClaims.mockResolvedValue({
+      sub: 'user-1',
+      email: 'alex@example.com',
+      app_metadata: {},
     })
     mockSingle.mockResolvedValue({
       data: null,

@@ -22,63 +22,20 @@ globs:
 ## Authentication & Authorization
 
 ### Server-Side Auth Check (REQUIRED)
-Always verify auth on the server - never trust client-side checks:
-
-```typescript
-import { createClient } from '@/supabase/server'
-import { NextResponse } from 'next/server'
-
-export async function GET() {
-  const supabase = await createClient()
-  const { data: { user }, error } = await supabase.auth.getUser()
-  
-  if (error || !user) {
-    return NextResponse.json(
-      { success: false, error: { message: 'Unauthorized', code: 'UNAUTHORIZED' } },
-      { status: 401 }
-    )
-  }
-  // Proceed with authenticated logic
-}
-```
+Always verify auth on the server — never trust client-side checks. Canonical gated-action pattern: [`src/app/admin/users/actions.ts`](../../src/app/admin/users/actions.ts) (`assertAdminCaller`). See `error-handling.mdc` for error envelope shape.
 
 ### Authorization (Resource Ownership)
-Verify user owns the resource before operations:
-
-```typescript
-const { data: resource } = await supabase.from('posts').select('user_id').eq('id', resourceId).single()
-
-if (resource?.user_id !== user.id) {
-  return NextResponse.json({ success: false, error: { message: 'Forbidden', code: 'FORBIDDEN' } }, { status: 403 })
-}
-```
+Verify the caller owns the resource before mutations; RLS is the database layer — app code still checks where needed.
 
 ### Server Actions
-```typescript
-'use server'
 
-import { createClient } from '@/supabase/server'
-
-export async function deletePost(postId: string) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) throw new Error('Unauthorized')
-  
-  const { data: post } = await supabase.from('posts').select('user_id').eq('id', postId).single()
-  if (post?.user_id !== user.id) throw new Error('Forbidden')
-  
-  // Proceed with deletion
-}
-```
+Auth failures in server actions return typed error envelopes, never throw. Envelope shape and error taxonomy are owned by `error-handling.mdc` § Response Envelopes; `src/app/admin/users/actions.ts` (`assertAdminCaller` and its callers) is the shipped canonical pattern.
 
 **Auth Error Handling:** Never leak user existence (use "Invalid credentials" not "User doesn't exist")
 
 **See `.cursor/rules/error-handling.mdc` for detailed error response patterns.**
 
 ## Input Validation
-
-### Input Validation
 
 Use zod at the server boundary per [`forms.mdc`](forms.mdc):
 
@@ -94,38 +51,9 @@ Use zod at the server boundary per [`forms.mdc`](forms.mdc):
 
 ## Supabase Row Level Security (RLS)
 
-### Enable RLS on All Tables (MANDATORY)
-Without RLS, anyone with the anon key can read/write ALL data.
+Without RLS, anyone with the anon key can read/write ALL data. Enable RLS on every new table — no exceptions.
 
-```sql
-CREATE TABLE posts (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID NOT NULL REFERENCES auth.users(id),
-  title TEXT NOT NULL,
-  content TEXT NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
-
--- Users can only read their own posts
-CREATE POLICY "Users can read own posts" ON posts FOR SELECT TO authenticated USING (auth.uid() = user_id);
-
--- Users can only insert their own posts
-CREATE POLICY "Users can insert own posts" ON posts FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
-
--- Users can only update their own posts
-CREATE POLICY "Users can update own posts" ON posts FOR UPDATE TO authenticated
-USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-
--- Users can only delete their own posts
-CREATE POLICY "Users can delete own posts" ON posts FOR DELETE TO authenticated USING (auth.uid() = user_id);
-```
-
-### Public Read Pattern
-```sql
-CREATE POLICY "Anyone can read published posts" ON posts FOR SELECT TO anon, authenticated USING (published = true);
-```
+Policy authoring patterns are owned by `supabase-sql.mdc`; migration workflow by the `create-migration` skill and `supabase.mdc`.
 
 ### Secret key (elevated access — EXTREME CAUTION)
 - ❌ NEVER use the Supabase secret key in client code
@@ -138,24 +66,7 @@ CREATE POLICY "Anyone can read published posts" ON posts FOR SELECT TO anon, aut
 ## Data Protection
 
 ### DTOs (Data Transfer Objects)
-Never expose raw database records:
-
-```typescript
-// ❌ WRONG: Exposing all fields
-const { data: user } = await supabase.from('users').select('*').single()
-return NextResponse.json({ user }) // Includes password_hash!
-
-// ✅ CORRECT: Explicit DTO
-interface UserDTO {
-  id: string
-  email: string
-  display_name: string
-  avatar_url: string | null
-}
-
-const { data: user } = await supabase.from('users').select('id, email, display_name, avatar_url').single()
-return NextResponse.json({ success: true, data: { id: user.id, email: user.email, display_name: user.display_name, avatar_url: user.avatar_url } })
-```
+Never expose raw database records — no `select('*')` or returning full rows. Select explicit fields only. Reference: [`src/app/admin/users/actions.ts`](../../src/app/admin/users/actions.ts) (admin user list field selection).
 
 **Never Expose:** `password_hash`, tokens (`reset_token`, `verification_token`), internal notes, PII (`ip_address`, `user_agent`), payment details, API keys, other users' email/PII
 
@@ -178,20 +89,20 @@ Session refresh and auth gating live in `proxy.ts` → `src/supabase/proxy.ts` (
 **Reference:** `src/supabase/proxy.ts`, `proxy.ts`
 
 ### Open Redirect Prevention
-```typescript
-function isSafeRedirect(url: string, baseUrl: string): boolean {
-  try {
-    const parsed = new URL(url, baseUrl)
-    return parsed.origin === new URL(baseUrl).origin
-  } catch {
-    return false
-  }
-}
 
-const redirectUrl = request.nextUrl.searchParams.get('redirect') || '/'
-const safeUrl = isSafeRedirect(redirectUrl, request.url) ? redirectUrl : '/'
-return NextResponse.redirect(new URL(safeUrl, request.url))
-```
+Use the shipped util `src/utils/is-safe-redirect.ts` — never re-implement redirect validation inline. See the `/auth/confirm` route for usage.
+
+### Security Headers
+
+Configure CSP, frame-ancestors (or X-Frame-Options), and HSTS via next.config headers. Start strict; `'unsafe-inline'` / `'unsafe-eval'` are temporary compatibility debt requiring a documented removal plan.
+
+**Reference (shipped pattern):** [`src/utils/security-headers.ts`](../../src/utils/security-headers.ts) wired through [`next.config.ts`](../../next.config.ts) — CSP is report-only by default; enforcing mode is opted into via `CSP_ENFORCE` (see the `// debt:` marker in that file for the nonce upgrade path before enforcement).
+
+**Reference:** [Next.js Security](https://nextjs.org/docs/app/building-your-application/configuring/security-headers)
+
+### Rate Limiting
+
+Auth-adjacent and expensive endpoints need rate limiting. Supabase Auth enforces rate limits on its own endpoints; custom API routes and server actions do not. Implementation choice is per-project (no prescribed library).
 
 ### CORS Configuration
 Only allow specific origins - never use wildcard on authenticated endpoints.
@@ -216,22 +127,7 @@ function isSafeUrl(url: string): boolean {
 ## Common Vulnerabilities
 
 ### Broken Access Control
-Always verify ownership before operations:
-
-```typescript
-// ❌ VULNERABLE
-await supabase.from('posts').delete().eq('id', params.id) // Any user can delete any post!
-
-// ✅ SECURE
-const supabase = await createClient()
-const { data: { user } } = await supabase.auth.getUser()
-if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-const { data: post } = await supabase.from('posts').select('user_id').eq('id', params.id).single()
-if (!post || post.user_id !== user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-
-await supabase.from('posts').delete().eq('id', params.id)
-```
+Always verify auth and ownership before operations — see Authentication & Authorization above and RLS policies in `supabase-sql.mdc`.
 
 ## Security Checklists
 
@@ -239,6 +135,7 @@ await supabase.from('posts').delete().eq('id', params.id)
 - [ ] New/changed server inputs validated at the boundary (see `forms.mdc`)
 - [ ] Auth checks for protected routes
 - [ ] Authorization checks verify ownership
+- [ ] State-changing operations use server actions (Next.js origin check) or API routes that explicitly verify origin
 - [ ] No sensitive data in responses (DTOs)
 - [ ] No secrets in code (use env vars)
 - [ ] RLS enabled for new tables

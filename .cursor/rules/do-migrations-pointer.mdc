@@ -1,0 +1,6 @@
+---
+alwaysApply: true
+---
+
+Before any database schema, migration, or Supabase storage work, read
+`.cursor/rules/do-migrations-agent.mdc` in full.

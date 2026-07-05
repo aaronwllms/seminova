@@ -54,30 +54,11 @@ The file MUST be named in the format `YYYYMMDDHHmmss_short_description.sql` with
 
 ## SQL Guidelines
 
-Write Postgres-compatible SQL code for Supabase migration files that:
+Follow [supabase-sql.mdc](../../rules/supabase-sql.mdc) for project-specific SQL style, RLS patterns, and function conventions. Summary for this skill:
 
-### Documentation
-
-- Includes a header comment with metadata about the migration, such as the purpose, affected tables/columns, and any special considerations.
-- Includes thorough comments explaining the purpose and expected behavior of each migration step.
-- Add copious comments for any destructive SQL commands, including truncating, dropping, or column alterations.
-
-### Syntax
-
-- Write all SQL in lowercase.
-
-### Security (CRITICAL)
-
-- When creating a new table, you MUST enable Row Level Security (RLS) even if the table is intended for public access.
-- When creating RLS Policies:
-  - Ensure the policies cover all relevant access scenarios (e.g. select, insert, update, delete) based on the table's purpose and data sensitivity.
-  - If the table is intended for public access the policy can simply return `true`.
-  - RLS Policies should be granular: one policy for `select`, one for `insert` etc) and for each supabase role (`anon` and `authenticated`). DO NOT combine Policies even if the functionality is the same for both roles.
-  - Include comments explaining the rationale and intended behavior of each security policy
-
-### Output Quality
-
-The generated SQL code should be production-ready, well-documented, and aligned with Supabase's best practices.
+- Header comment block: purpose, affected objects, RLS summary
+- Lowercase SQL; enable RLS on every new table
+- Owner-scoped policies per operation; see canonical [`20260622120000_create_profiles.sql`](../../../supabase/migrations/20260622120000_create_profiles.sql)
 
 ## Verification Marker
 

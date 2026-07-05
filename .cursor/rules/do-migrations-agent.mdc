@@ -3,7 +3,7 @@ description: Agent constraints for database migrations - prevents duplicates and
 globs:
   - 'supabase/migrations/**/*.sql'
   - '**/*.plan.md'
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Database Migration Agent Constraints
@@ -19,7 +19,7 @@ alwaysApply: true
 
 Manually create exactly one file: `supabase/migrations/YYYYMMDDHHMMSS_my_description.sql` with a correct UTC timestamp from system date/time.
 
-Use the **Create Database Migration** skill (`.cursor/skills/create-migration/SKILL.md`) for SQL content, RLS, and naming conventions.
+Use the **Create Database Migration** skill (`.cursor/skills/create-migration/SKILL.md`) for file workflow. SQL content conventions (style, RLS, functions): `supabase-sql.mdc`.
 
 ## Post-Migration (Tell the User)
 

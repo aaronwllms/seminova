@@ -32,7 +32,7 @@ describe('useSignOut', () => {
     await result.current()
 
     await waitFor(() => {
-      expect(mockSignOut).toHaveBeenCalled()
+      expect(mockSignOut).toHaveBeenCalledWith({ scope: 'local' })
       expect(mockPush).toHaveBeenCalledWith('/auth/login')
     })
   })

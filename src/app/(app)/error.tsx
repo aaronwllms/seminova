@@ -1,0 +1,37 @@
+'use client'
+
+import Link from 'next/link'
+import { useEffect } from 'react'
+
+import { ErrorPanel } from '@/components/error-panel'
+import { Button } from '@/components/ui/button'
+import { LOGIN_PATH } from '@/constants/app-paths'
+
+type AppErrorProps = {
+  error: Error & { digest?: string }
+  reset: () => void
+}
+
+export default function AppError({ error, reset }: AppErrorProps) {
+  useEffect(() => {
+    console.error('[app-error] Route error', error)
+  }, [error])
+
+  return (
+    <div className="flex w-full flex-col gap-4">
+      <h1 className="text-2xl font-bold">Something went wrong</h1>
+      <ErrorPanel
+        message="This page could not be loaded. Try again or sign in."
+        code={error.digest}
+      />
+      <div className="flex flex-wrap gap-2">
+        <Button type="button" onClick={() => reset()}>
+          Try again
+        </Button>
+        <Button type="button" variant="outline" asChild>
+          <Link href={LOGIN_PATH}>Sign in</Link>
+        </Button>
+      </div>
+    </div>
+  )
+}

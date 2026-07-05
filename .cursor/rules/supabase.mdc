@@ -12,9 +12,9 @@ globs:
 
 ## Migration Safety Protocol
 
-**No custom schema or migrations exist yet** — only Supabase `auth.users`. Custom migrations and storage buckets live in `supabase/migrations/`; humans apply them via Supabase CLI; agents write SQL files only.
+**Shipped schema:** 3 custom migrations — `public.profiles` (1:1 with `auth.users`), `storage.avatars` bucket with owner-scoped RLS. See `AGENTS.md` data model section for full detail. Additional migrations live in `supabase/migrations/`; humans apply them via Supabase CLI; agents write SQL files only.
 
-**Agents** — see `do-migrations-agent.mdc` and `.cursor/skills/create-migration/SKILL.md`:
+**Agents** — see `do-migrations-agent.mdc`, `supabase-sql.mdc`, and `.cursor/skills/create-migration/SKILL.md`:
 
 - Write one SQL file in `supabase/migrations/` with a manual UTC timestamp
 - Never run push, reset, seed, link, or `supabase migration new`
@@ -59,7 +59,7 @@ First bucket: **`avatars`** — public-read, owner-scoped writes. Pattern for al
 
 **Migration reference:** [`supabase/migrations/20260623120000_create_avatars_bucket.sql`](../../supabase/migrations/20260623120000_create_avatars_bucket.sql)
 
-**Epic 5 handoff:** profile page calls `uploadUserAvatar`, then a server action persists `publicUrl` to `profiles.avatar_url`.
+**Shipped flow:** [`src/app/(app)/profile/`](../../src/app/(app)/profile/) calls `uploadUserAvatar` ([`avatar-storage.ts`](../../src/utils/avatar-storage.ts)), then a server action persists `publicUrl` to `profiles.avatar_url`.
 
 **Security:** See [`security.mdc`](security.mdc) for upload validation at trust boundaries. Bucket `allowed_mime_types` + `file_size_limit` mirror client input validation; stored object is always WebP at the fixed path.
 
@@ -137,12 +137,13 @@ import { updateSession } from '@/supabase/proxy'
 
 ## Code Organization Patterns
 
-### Repository Pattern (Recommended)
-- Abstract database operations into service layer (`src/services/`)
-- Keep database logic separate from UI components
-- Create repository files per domain: `posts-repository.ts`, `users-repository.ts`, `auth-service.ts`
-- Export functions that encapsulate Supabase queries
-- Handle errors within repositories before returning to components
+### Data access placement (today)
+
+- **Server reads:** co-located `_lib/` helpers (e.g. [`get-current-user-profile.ts`](../../src/app/(app)/_lib/get-current-user-profile.ts))
+- **Client mutations:** hooks (e.g. [`use-sign-out.ts`](../../src/hooks/use-sign-out.ts))
+- **Server mutations:** `actions.ts` files (e.g. [`profile/actions.ts`](../../src/app/(app)/profile/actions.ts))
+
+When a shared service layer is introduced, add `src/services/` and update this rule.
 
 ### Business Logic Placement
 - ✅ **Application Code**: Complex business rules, multi-step workflows, validation
@@ -154,7 +155,7 @@ import { updateSession } from '@/supabase/proxy'
 
 ### ❌ Direct Database Access from UI Components
 - Never call Supabase directly from UI components
-- Use custom hooks (TanStack Query) or repository functions
+- Use hooks (TanStack Query) or server actions — see profile page patterns above
 - Keep data fetching logic testable and reusable
 
 ### ❌ Poor Query Performance
@@ -177,7 +178,7 @@ import { updateSession } from '@/supabase/proxy'
 
 ### ❌ Agent Migration Management
 - Agents must not run push, reset, seed, link, or `supabase migration new` — see `do-migrations-agent.mdc`
-- Humans: review SQL before applying migrations once Phase 6 tooling is in place
+- Humans: review SQL before applying via `pnpm db:push`
 
 ## Testing Supabase Integrations
 

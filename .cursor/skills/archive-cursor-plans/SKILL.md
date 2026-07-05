@@ -3,7 +3,7 @@ name: archive-cursor-plans
 description: >-
   Moves completed Cursor plan files from .cursor/plans/ into
   .cursor/plans/archive/. Use when the user asks to archive plans, clean the
-  plans folder, or after a phase ships (often after /sync-context-md). Supports
+  plans folder, or after a phase ships (often after /ship-phase). Supports
   bulk move-all or selective archive by phase or explicit list.
 disable-model-invocation: true
 ---
@@ -14,7 +14,7 @@ Move **live** Cursor plan files from [`.cursor/plans/`](../../plans/) into [`.cu
 
 **Not the same as:**
 
-- **`sync-context-md`** — updates `CONTEXT.md` / `CONTEXT_ARCHIVE.md` (semantic phase archive)
+- **`ship-phase`** — flips active PRD `Active→Shipped` and marks ROADMAP shipped per [docs/DOC_RULES.md rule 6](../../../docs/DOC_RULES.md); does not write to `docs/archive/CONTEXT_ARCHIVE.md` (frozen)
 - **`sync-repo-docs`** — updates `AGENTS.md` / `README.md` from shipped code
 - **`plan-next-epic`** — creates new plans (Plan Mode); does not move old ones
 
@@ -23,7 +23,7 @@ Plans are **repo-specific planning history** — not shipped truth. See AGENTS.m
 ## When to run
 
 - User says: archive plans, clean plans folder, move plans to archive
-- End of a phase after `/sync-context-md` when PM wants an empty active plans folder
+- End of a phase after `/ship-phase` when PM wants an empty active plans folder
 - Before a major planning push when old epic plans should be retired
 
 Do **not** run as part of routine doc sync — invoke explicitly.
@@ -40,7 +40,7 @@ Determine mode from the user's request:
 **Selective sources** (use the smallest set that matches intent):
 
 1. Explicit filenames or plan titles from the user
-2. Plans whose names match a shipped phase/epic in `CONTEXT.md` ACTIVE/archived sections or `AGENTS.md` "Implemented now"
+2. Plans whose names match a shipped phase/epic in `ROADMAP.md` (shipped phases) + `docs/prds/` (Active/Shipped PRDs) + `AGENTS.md` "Implemented now"
 3. Ask the user to confirm the list before moving if ambiguous
 
 If **bulk** and the user might still have in-progress work, list root plans and confirm before moving unless they already said "move all".
@@ -53,7 +53,7 @@ Archive plans progress:
 - [ ] Step 2: Resolve mode and confirm list if bulk or ambiguous
 - [ ] Step 3: Move files to .cursor/plans/archive/
 - [ ] Step 4: Report moved, skipped, and stale link warnings
-- [ ] Step 5: Suggest next steps (optional /sync-context-md already done)
+- [ ] Step 5: Suggest next steps (optional /ship-phase already done)
 ```
 
 ### Step 1 — List candidates
@@ -82,7 +82,7 @@ For each plan file:
 2. If basename already exists in archive, use `-2`, `-3`, … before `.plan.md` (see [reference.md](reference.md))
 3. **Move** with `git mv` when in a git repo; otherwise `mv`
 4. Do **not** copy and leave duplicates in root
-5. Do **not** edit plan contents, AGENTS.md, README, or CONTEXT unless the user asks
+5. Do **not** edit plan contents, AGENTS.md, README, ROADMAP.md, or PRDs unless the user asks
 
 Optional prepend (only if user asks for dated archive headers):
 
@@ -129,7 +129,7 @@ Cross-plan links between moved files remain valid relative to each other once al
 ### Next steps
 
 - Start next epic: `/plan-next-epic` (Plan Mode)
-- Planning brief still stale: `/sync-context-md`
+- Planning docs stale: `/ship-phase` or manual ROADMAP/PRD updates per docs/DOC_RULES.md
 - Repo truth stale: `/sync-repo-docs`
 ```
 
@@ -137,7 +137,7 @@ Do **not** commit unless the user asks.
 
 ## Typical phase-close sequence
 
-1. `/sync-context-md` — append phase to `CONTEXT_ARCHIVE.md`, trim `CONTEXT.md`
+1. `/ship-phase` — flip PRD Active→Shipped, mark ROADMAP shipped (rule 6)
 2. `/sync-repo-docs` — if AGENTS.md / README drifted
 3. **`/archive-cursor-plans`** — clear active plans folder
 

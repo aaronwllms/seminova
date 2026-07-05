@@ -1,32 +1,26 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Suspense } from 'react'
 
+import { getAuthErrorMessage } from '@/app/auth/_lib/auth-error-messages'
+
 async function ErrorContent({
   searchParams,
 }: {
-  searchParams: Promise<{ error: string }>
+  searchParams: Promise<{ source?: string }>
 }) {
   const params = await searchParams
 
   return (
-    <>
-      {params?.error ? (
-        <p className="text-muted-foreground text-sm">
-          Code error: {params.error}
-        </p>
-      ) : (
-        <p className="text-muted-foreground text-sm">
-          An unspecified error occurred.
-        </p>
-      )}
-    </>
+    <p className="text-muted-foreground text-sm">
+      {getAuthErrorMessage(params?.source)}
+    </p>
   )
 }
 
 export default function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ error: string }>
+  searchParams: Promise<{ source?: string }>
 }) {
   return (
     <Card>

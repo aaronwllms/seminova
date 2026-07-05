@@ -2,7 +2,7 @@
 name: pre-release-review
 description: >-
   End-of-feature review before PR: run quality gates, security check, project
-  locked rules from AGENTS.md, scoped code review, and a manual test checklist.
+  hard constraints from AGENTS.md, scoped code review, and a manual test checklist.
   Use when finishing an epic, before opening a PR, or when the user asks for a
   pre-release or ship review.
 disable-model-invocation: true
@@ -22,7 +22,7 @@ Pre-release review:
 - [ ] Step 2: Scope changed files
 - [ ] Step 3: Does it work? (code review)
 - [ ] Step 4: Security
-- [ ] Step 5: Project locked rules (AGENTS.md)
+- [ ] Step 5: Project hard constraints (AGENTS.md)
 - [ ] Step 6: Conditional passes (errors / a11y / DB)
 - [ ] Step 7: Report + manual test checklist
 ```
@@ -63,13 +63,13 @@ For each real issue: quote the code, explain failure conditions, suggest a fix. 
 
 ### Step 4 — Security (always when feature touches routes, auth, data, API, server actions, or migrations)
 
-Scoped static security review. Read `.cursor/rules/security.mdc` for patterns. Read AGENTS.md **Auth and routing** and **Row Level Security** locked rules when those areas are in scope.
+Scoped static security review. Read `.cursor/rules/security.mdc` for patterns. Read AGENTS.md **Hard constraints** (auth boundary, admin gate) when those areas are in scope.
 
 Check:
 
 1. **Authentication** — new routes/endpoints require auth when they should; middleware/auth proxy boundary respected (discover from repo — often `src/supabase/proxy.ts`, `src/middleware.ts`, or equivalent)
 2. **Authorization** — user cannot access or modify another user's data by changing an ID or parameter
-3. **RLS / ownership** — new or changed tables have appropriate policies; user-owned vs shared-catalog scope matches AGENTS.md locked rules (not only `user_id = auth.uid()` when the table is shared or scoped via FK)
+3. **RLS / ownership** — new or changed tables have appropriate policies; user-owned vs shared-catalog scope matches AGENTS.md hard constraints and `.cursor/rules/security.mdc` (not only `user_id = auth.uid()` when the table is shared or scoped via FK)
 4. **Input validation** — user input validated before DB queries, file uploads, or external API calls (Zod on API inputs per project rules)
 5. **Data exposure** — responses do not leak fields the client does not need; auth errors do not reveal user existence or internal details
 6. **Secrets** — no API keys, tokens, or credentials in client code or committed files; `SUPABASE_SECRET_KEY` never in client or `NEXT_PUBLIC_*` env vars
@@ -84,16 +84,18 @@ Prioritize by exploitability (Critical / High / Medium / Low). If the scoped cha
 
 Do not invent issues. If solid, say so briefly.
 
-### Step 5 — Project locked rules (when feature touches product behavior, data model, auth, or multi-step flows)
+### Step 5 — Project hard constraints (when feature touches product behavior, data model, auth, or multi-step flows)
 
-Read [AGENTS.md](../../../AGENTS.md) **Locked rules** (and change protocol). Check scoped code against **whatever locked rules that file defines** — do not assume domain-specific rules that are not documented there.
+Read [AGENTS.md](../../../AGENTS.md) **Hard constraints** (and change protocol). The five hard constraints are CI-enforced via `check:*` scripts — this manual pass confirms the scoped change did not disable, bypass, or contradict an enforcement mechanism.
+
+Check scoped code against **whatever hard constraints that section defines** — do not assume domain-specific rules that are not documented there.
 
 Also check generically:
 
 - **Partial failures** — multi-step flows (e.g. external API + DB) fail gracefully without corrupt state
 - **Business rule bypass** — ownership checks, required validations, illegal state transitions
 
-If AGENTS.md has no locked rules section, skip with "no locked rules documented" unless the user asks for a deeper pass.
+If AGENTS.md has no hard constraints section, skip with "no hard constraints documented" unless the user asks for a deeper pass.
 
 Severity: Critical / High / Medium / Low.
 
@@ -168,5 +170,5 @@ If docs may be stale, suggest running **sync-repo-docs** and/or **sync-context-m
 - **Tests pass ≠ feature works** — code review catches logic; manual checklist catches UX
 - **Do not open the browser** unless the user explicitly asks
 - **Do not fix code** without permission
-- **Scope to the feature** — avoid whole-repo audits (use **security-audit** + Build for full-repo audits)
+- **Scope to the feature** — avoid whole-repo audits (use **`audit-security` full pass** for full-repo audits)
 - **Project truth lives in AGENTS.md** — not in this skill file

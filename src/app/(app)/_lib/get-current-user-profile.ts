@@ -1,7 +1,8 @@
 import { cache } from 'react'
 
 import { createClient } from '@/supabase/server'
-import { isAdminFromAppMetadata } from '@/utils/admin'
+import { requireAuthClaims } from '@/supabase/require-auth'
+import { isAdmin, type JwtClaims } from '@/utils/admin'
 
 export type CurrentUserProfile = {
   userId: string
@@ -15,54 +16,36 @@ export type CurrentUserProfile = {
 export const getCurrentUserProfile = cache(
   async (): Promise<CurrentUserProfile> => {
     const supabase = await createClient()
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
+    const claims = await requireAuthClaims(supabase)
 
-    if (userError || !user) {
-      console.error(
-        '[app-shell] No authenticated user in app layout',
-        userError,
-      )
-      return {
-        userId: '',
-        displayName: null,
-        avatarUrl: null,
-        bio: null,
-        email: '',
-        isAdmin: false,
-      }
-    }
-
-    const email = user.email ?? ''
-    const isAdmin = isAdminFromAppMetadata(user.app_metadata)
+    const email = typeof claims.email === 'string' ? claims.email : ''
+    const isAdminUser = isAdmin(claims as JwtClaims)
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('display_name, avatar_url, bio')
-      .eq('id', user.id)
+      .eq('id', claims.sub)
       .single()
 
     if (profileError) {
       console.error('[app-shell] Failed to load profile', profileError)
       return {
-        userId: user.id,
+        userId: claims.sub,
         displayName: null,
         avatarUrl: null,
         bio: null,
         email,
-        isAdmin,
+        isAdmin: isAdminUser,
       }
     }
 
     return {
-      userId: user.id,
+      userId: claims.sub,
       displayName: profile.display_name,
       avatarUrl: profile.avatar_url,
       bio: profile.bio,
       email,
-      isAdmin,
+      isAdmin: isAdminUser,
     }
   },
 )

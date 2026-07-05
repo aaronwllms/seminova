@@ -3,7 +3,8 @@ import { redirect } from 'next/navigation'
 import { AdminShell } from '@/app/admin/_components/admin-shell'
 import { PROFILE_PATH } from '@/constants/app-paths'
 import { createClient } from '@/supabase/server'
-import { isAdmin, type JwtClaims } from '@/utils/admin'
+import { requireAuthClaims } from '@/supabase/require-auth'
+import { isAdmin } from '@/utils/admin'
 
 type AdminAuthGateProps = {
   children: React.ReactNode
@@ -11,13 +12,7 @@ type AdminAuthGateProps = {
 
 export const AdminAuthGate = async ({ children }: AdminAuthGateProps) => {
   const supabase = await createClient()
-  const { data, error } = await supabase.auth.getClaims()
-
-  if (error || !data?.claims) {
-    redirect('/auth/login')
-  }
-
-  const claims = data.claims as JwtClaims
+  const claims = await requireAuthClaims(supabase)
 
   if (!isAdmin(claims)) {
     redirect(PROFILE_PATH)

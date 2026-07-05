@@ -20,10 +20,14 @@
 
 # agent-authored docs — whole-file syncs; Prettier would reformat on every edit
 /.cursor
-CONTEXT.md
-CONTEXT_ARCHIVE.md
+docs/
 AGENTS.md
+ROADMAP.md
+LEXICON.md
 README.md
+RULE_AUDIT.md
+SECURITY_AUDIT.md
+TECH_DEBT_AUDIT.md
 
 # debug
 npm-debug.log*

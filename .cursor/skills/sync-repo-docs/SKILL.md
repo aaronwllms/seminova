@@ -29,7 +29,7 @@ Doc sync progress:
 - [ ] Step 1: Gather evidence of recent work
 - [ ] Step 2: Diff docs vs reality
 - [ ] Step 3: Classify each gap (AGENTS / README / neither)
-- [ ] Step 4: Propose minimal edits (locked rules mirror-only per change protocol)
+- [ ] Step 4: Propose minimal edits (hard constraints mirror-only per change protocol)
 - [ ] Step 5: Apply edits and summarize what changed
 ```
 
@@ -61,7 +61,7 @@ Common drift patterns:
 - Migration count or data-model summary stale
 - New `pnpm` script missing from README scripts table
 - New env var documented in neither README nor `.env.example`
-- Post-login default or auth boundary changed in code but not in locked rules
+- Post-login default or auth boundary changed in code but not in AGENTS.md hard constraints
 
 ### Step 3 — Classify gaps
 
@@ -69,10 +69,10 @@ Use [reference.md](reference.md) for section ownership. Quick rules:
 
 | Update                                                                                 | Target doc                                                   |
 | -------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| Locked rules, implemented features, routes, data model, agent checklist                | **AGENTS.md**                                                |
+| Hard constraints, implemented features, routes, data model, agent checklist                | **AGENTS.md**                                                |
 | Stack, prerequisites, env setup, scripts table, contributing hooks, doc map for humans | **README.md**                                                |
 | Coding style, testing policy, migrations how-to                                        | **`.cursor/rules/`** — not these docs                        |
-| Phase archive / planning detail                                                        | **Planning brief or archive doc** — only if explicitly asked |
+| Phase / planning detail                                                                | **ROADMAP / active PRD** — only if explicitly asked          |
 
 **Neither doc:** refactors, test-only changes, internal renames with no behavioral change.
 
@@ -80,7 +80,7 @@ Use [reference.md](reference.md) for section ownership. Quick rules:
 
 Follow AGENTS.md **change protocol** if present:
 
-- **Locked rules** — mirror a locked-rule change already made via AGENTS.md change protocol; never initiate one
+- **Hard constraints** — mirror a hard-constraint change already made via AGENTS.md change protocol (enforcement + list together); never initiate one
 - Everything else: apply concise, factual updates that match existing tone and structure
 
 Editing principles:
@@ -93,7 +93,7 @@ Editing principles:
 
 ### Step 5 — Apply and report
 
-After editing (or after proposing locked-rule changes):
+After editing (or after proposing hard-constraint changes):
 
 1. Summarize **what drift was found** and **what was updated**
 2. Call out **intentional non-updates** (e.g., internal refactor, planned but unshipped)
@@ -118,7 +118,7 @@ When reporting to the user:
 
 ### Needs your decision
 
-- [locked-rule drift to mirror via change protocol, or scope changes awaiting approval, or "none"]
+- [hard-constraint drift to mirror via change protocol, or scope changes awaiting approval, or "none"]
 
 ### Left unchanged (and why)
 
@@ -130,7 +130,7 @@ When reporting to the user:
 - Do not add features to "implemented" sections based on plans alone
 - Do not move coding standards into AGENTS.md (use `.cursor/rules/`)
 - Do not inflate README with agent guardrails already in AGENTS.md
-- Do not change locked rules — never initiate; mirror only per AGENTS.md change protocol
+- Do not change hard constraints — never initiate; mirror only per AGENTS.md change protocol
 - Do not run `pnpm db:push` or edit generated `database.types.ts` as part of doc sync
 
 ## Additional resources

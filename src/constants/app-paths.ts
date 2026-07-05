@@ -1,5 +1,7 @@
 export const PROFILE_PATH = '/profile' as const
 
+export const LOGIN_PATH = '/auth/login' as const
+
 // While APP_HOME === PROFILE_PATH, the admin-side Profile link in AdminNavUser
 // doubles as the switch into the app, so no separate "open app" entry is needed.
 // When a product moves APP_HOME off /profile, add an "Open app" entry targeting

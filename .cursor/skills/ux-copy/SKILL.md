@@ -1,17 +1,17 @@
 ---
 name: ux-copy
 description: >-
-  Write or review Cookloop UX copy — microcopy, error messages, empty states,
-  CTAs, and confirmation dialogs. Use when the user says "write copy for",
-  "what should this button say?", "review this error message", or when wording
-  a dialog, empty state, label, or cook-mode alert.
+  Write or review UX copy — microcopy, error messages, empty states, CTAs, and
+  confirmation dialogs. Use when the user says "write copy for", "what should
+  this button say?", "review this error message", or when wording a dialog,
+  empty state, label, or alert.
 argument-hint: '<context or copy to review>'
 disable-model-invocation: true
 ---
 
 # UX Copy
 
-Write or review interface copy for Cookloop. **Do not change code** unless the user asks to implement recommendations.
+Write or review interface copy for the project. **Do not change code** unless the user asks to implement recommendations.
 
 | Skill                                                | Role                                         |
 | ---------------------------------------------------- | -------------------------------------------- |
@@ -27,105 +27,82 @@ Write or review interface copy for Cookloop. **Do not change code** unless the u
 
 ## What I Need From You
 
-- **Context**: Screen, flow, or feature (e.g. pantry row click, shopping empty state)
-- **User state**: What are they trying to do? How might they feel (stuck, rushing, cooking)?
+- **Context**: Screen, flow, or feature (route, component, or user journey)
+- **User state**: What are they trying to do? How might they feel (stuck, rushed, first visit)?
 - **Mode**: Write new copy, review existing copy, or both
 - **Constraints** (optional): Character limits, must include a term, tone tweak
 
-## Read first (Cookloop voice)
+## Read first (project voice & terminology)
 
-When writing or reviewing, read only what applies:
+When writing or reviewing, read only what applies — **do not invent a voice guide; discover it from the project**:
 
-1. **[AGENTS.md](../../../AGENTS.md)** — product terms, routes, feature behavior
-2. **Planning brief** — discover path from AGENTS.md documentation map; typically [`CONTEXT.md`](../../../CONTEXT.md) Phase 10 dialog/CTA spec (Dialogs section under Epic 3)
-3. **Shipped copy in the same flow** — read nearby components under `src/app/` for consistency (pantry ↔ shopping ↔ recipes)
-4. **Shared message constants** — e.g. [`process-recipe-validation.ts`](../../../src/utils/process-recipe-validation.ts), [`resolve-recipe-archive-plan.ts`](../../../src/utils/resolve-recipe-archive-plan.ts)
-5. **Errors** — [`.cursor/rules/error-handling.mdc`](../../rules/error-handling.mdc): clear, actionable, no internals; 1–2 sentences
+1. **[AGENTS.md](../../../AGENTS.md)** — product terms, routes, feature behavior, error UI patterns
+2. **Planning brief** — [ROADMAP.md](../../../ROADMAP.md) + relevant phase PRD in [docs/prds/](../../../docs/prds/) for in-flight vocabulary and UX intent
+3. **Shipped copy in the same flow** — read nearby components under `src/app/` and `src/components/` for labels, buttons, empty states, and dialog wording already in production
+4. **Shared message constants** — search `src/utils/` and route `_lib/` for user-facing strings reused across flows (e.g. validation messages, auth errors)
+5. **Errors** — [`.cursor/rules/error-handling.mdc`](../../rules/error-handling.mdc): clear, actionable, no internals; operational vs fault copy
+6. **Notifications** — [`.cursor/rules/notifications.mdc`](../../rules/notifications.mdc) if toasts or success confirmations apply
+
+If the project adds a dedicated copy or content guide later, read that too — this skill does not duplicate one.
 
 ## Voice and terminology
 
-**Tone:** Direct, helpful, calm — a patient kitchen companion, not corporate SaaS. No exclamation overload.
+**Derive from shipped UI**, not from this file:
 
-**Use consistently:**
+- Read 2–3 screens in the same flow (or sibling routes) and note: sentence length, button casing, level of formality, use of questions in titles, acknowledgment labels
+- Pull product-specific terms from AGENTS.md and the active PRD — use the same nouns and verbs users already see elsewhere
+- Flag **drift** when proposed copy conflicts with a neighbor screen or planning doc
 
-| Term                              | Not                                                 |
-| --------------------------------- | --------------------------------------------------- |
-| Pantry · Recipes · Shopping       | Kitchen (retired nav label)                         |
-| have / low / out                  | in stock / missing (unless explaining to new users) |
-| Ready / Needs / Archived          | cookable / missing ingredients                      |
-| Cook                              | Start recipe, Begin                                 |
-| Save & process / Save & reprocess | Submit, Save                                        |
-| Got it (acknowledge alert)        | OK, Dismiss                                         |
-| Done shopping                     | Complete trip, Check out                            |
+**Structural habits** (template-level, not product voice):
 
-**Sentence style:** Prefer short sentences. Lead with the verb on buttons. Use sentence case for body copy; title case sparingly (dialog titles OK as questions: "Archive recipe?").
+- Prefer short sentences; lead with the verb on buttons
+- Sentence case for body copy; title case sparingly (dialog titles as questions are fine when the project already does that)
+- Avoid filler openers ("Oops!", "Uh oh") unless nearby screens use that tone
 
-## Copy patterns (Cookloop)
+## Copy patterns (structural)
+
+Apply these shapes; fill wording from discovered project copy.
 
 ### CTAs
 
-- Verb-first, outcome-specific: **Cook**, **Save meal**, **Add ingredient**, **Finish anyway**
-- Match the real action — **Archive** not OK; **Delete recipe** not Yes
-- Processing states: **Processing…**, **Archiving…**, **Saving…** (ellipsis, disabled control)
+- Verb-first, outcome-specific — name the real action, not generic **OK** / **Yes** when a specific verb exists in sibling screens
+- Processing states: present participle + ellipsis on the disabled control (e.g. **Saving…**) — match ellipsis and casing used elsewhere in the app
 
 ### Empty states
 
 Structure: **what this is** + **why empty** + **what to do**
 
-Examples from shipped UI:
-
-- "No meals yet. Create one to coordinate multi-recipe cooks."
-- "Nothing missing — nice! All recipes are ready to cook."
-- "No appliances yet. Add your kitchen appliances so recipes can…"
-
-Keep to 1–2 sentences. Avoid guilt or filler ("Oops!", "Uh oh").
+- Keep to 1–2 sentences
+- *(Illustrative example only — not this project's convention:)* "No items yet. Add one to get started."
 
 ### Error messages
 
 Structure: **what happened** + **what to try**
 
-- Follow error-handling.mdc — never expose stack traces or codes to users
-- Recipe process failure pattern: "Your recipe was saved but could not be processed. Try saving again."
-- Auth: generic credentials message — do not leak whether an account exists
+- Follow error-handling.mdc — never expose stack traces, internal codes, or raw provider messages to users
+- Match severity UI: operational (`InlineError`) vs fault (`ErrorPanel`) per existing patterns
+- Auth and security-sensitive flows: use generic messages where the project already avoids leaking account existence
 
 ### Confirmation dialogs
 
-**Archive (amber, reversible):**
+Discover button labels and title patterns from existing `AlertDialog` / dialog components in the codebase:
 
-- Title: action as question — "Archive recipe?"
-- Body: consequence + reversibility; meal cascade when applicable
-- Buttons: **Cancel** + **Archive** (warning variant)
+- **Reversible / caution** — title as question; body states consequence and reversibility; **Cancel** + specific action label (warning variant when the project uses one)
+- **Destructive** — title names the delete/remove action; body states consequence; **Cancel** + specific destructive label (not OK/Cancel alone)
+- **Soft confirms** — when the user can proceed despite a gap, both buttons should name the choice (not OK/Cancel)
 
-**Delete / remove (red, destructive):**
+### Section labels & metadata
 
-- Title: "Delete recipe?" / "Remove appliance?"
-- Body: consequence; list affected meals/recipes when cascading
-- Buttons: **Cancel** + action label (**Delete recipe**, **Remove**) — not OK/Cancel alone
-
-**Soft confirms (shopping):**
-
-- Title: "Finish shopping?"
-- Body: state the gap ("You still have N items unchecked.")
-- Buttons: **Keep shopping** / **Finish anyway** — both name the choice
-
-### Cook mode
-
-- Timer expiry: instruct acknowledgment — user must **Mark done** (no auto-complete copy implying otherwise)
-- Starting soon: recipe + appliance + time; **Got it** to dismiss
-- Exit cook mode: "Are you sure? You'll start from the beginning next time."
-
-### Section labels
-
-- Uppercase micro-labels with counts: **GOT IT · 3**, **TO BUY · 5** (see `SectionLabel` pattern)
-- Category labels under lists: normal case
+- Match casing and density of labels on comparable screens (e.g. table headers, form labels, sidebar groups)
+- If the project uses micro-labels or counts, mirror that pattern from a reference component — do not introduce a new label style without reason
 
 ## Principles
 
-1. **Clear** — one meaning; no jargon
+1. **Clear** — one meaning; no jargon unless the product already uses it consistently
 2. **Concise** — cut words that don't help the next action
-3. **Consistent** — same thing, same word everywhere
+3. **Consistent** — same thing, same word everywhere (per shipped UI + PRD)
 4. **Useful** — every string should help the user act or understand
-5. **Human** — plain language for a solo home cook
+5. **Human** — plain language appropriate to the audience described in the PRD
 
 ## Output
 
@@ -150,7 +127,7 @@ Structure: **what happened** + **what to try**
 
 ### Consistency check
 
-- [Matches Cookloop terms / nearby screens / or note drift]
+- [Matches shipped terms / nearby screens / or note drift]
 
 ### Rationale
 
@@ -169,12 +146,12 @@ Skip **Alternatives** when one clear option exists. Skip sections that don't app
 
 - **Do not open the browser** unless the user explicitly asks
 - **Do not fix code** without permission
-- **Project truth lives in CONTEXT.md + shipped UI** — propose copy that fits existing patterns
+- **Project truth lives in AGENTS.md + ROADMAP.md + active PRD + shipped UI** — propose copy that fits existing patterns
 - **English only** — no localization section unless user asks
 
 ## Tips
 
-1. **Be specific** — "Error when Save & process fails after network drop" beats "error message."
-2. **Read the neighbor screen** — shopping copy should sound like pantry copy.
-3. **Flag drift** — if review copy conflicts with CONTEXT.md or another screen, say so.
+1. **Be specific** — "Error when profile save fails after network drop" beats "error message."
+2. **Read the neighbor screen** — copy in one route should sound like its siblings.
+3. **Flag drift** — if review copy conflicts with the active PRD or planning docs (ROADMAP.md / docs/prds/) or another screen, say so.
 4. **Pair with design-critique** — layout review separately from wording review.

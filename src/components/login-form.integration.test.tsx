@@ -5,24 +5,30 @@ import { ADMIN_HOME } from '@/constants/admin-paths'
 import { LoginForm } from './login-form'
 
 const mockSignInWithPassword = vi.fn()
+const mockSignOut = vi.fn()
 const mockPush = vi.fn()
+const mockRefresh = vi.fn()
 
 vi.mock('@/supabase/client', () => ({
   createClient: () => ({
     auth: {
+      signOut: mockSignOut,
       signInWithPassword: mockSignInWithPassword,
     },
   }),
 }))
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => ({ push: mockPush, refresh: mockRefresh }),
 }))
 
 describe('LoginForm', () => {
   beforeEach(() => {
     mockSignInWithPassword.mockReset()
+    mockSignOut.mockReset()
     mockPush.mockReset()
+    mockRefresh.mockReset()
+    mockSignOut.mockResolvedValue({ error: null })
   })
 
   it('should expose password-manager autofill attributes', () => {
@@ -52,10 +58,12 @@ describe('LoginForm', () => {
     await user.click(screen.getByRole('button', { name: /^login$/i }))
 
     await waitFor(() => {
+      expect(mockSignOut).toHaveBeenCalledWith({ scope: 'local' })
       expect(mockSignInWithPassword).toHaveBeenCalledWith({
         email: 'test@example.com',
         password: 'password123',
       })
+      expect(mockRefresh).toHaveBeenCalledOnce()
       expect(mockPush).toHaveBeenCalledWith('/profile')
     })
   })
