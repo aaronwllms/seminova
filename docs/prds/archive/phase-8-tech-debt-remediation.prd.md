@@ -1,6 +1,6 @@
 # PRD — Phase 8: Tech Debt Audit Remediation
 
-**Status:** `Active`
+**Status:** `Shipped`
 **Findings source:** [TECH_DEBT_AUDIT.md](../../TECH_DEBT_AUDIT.md) (full audit, 2026-07-04)
 **Last updated:** 2026-07-05
 
