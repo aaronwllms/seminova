@@ -2,7 +2,8 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { LOGIN_PATH, PROFILE_PATH } from '@/constants/app-paths'
 import { getPublicSupabaseEnv, hasPublicSupabaseEnv } from '@/utils/env'
-import { isAdmin, type JwtClaims } from '@/utils/admin'
+import { isAdmin } from '@/utils/admin'
+import { parseAuthenticatedClaims } from '@/supabase/require-auth'
 
 const MISSING_SUPABASE_ENV_MESSAGE =
   'Supabase environment variables are not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY before deploying to production.'
@@ -53,13 +54,14 @@ export async function updateSession(request: NextRequest) {
   // IMPORTANT: If you remove getClaims() and you use server-side rendering
   // with the Supabase client, your users may be randomly logged out.
   const { data, error } = await supabase.auth.getClaims()
-  const user = data?.claims
+  const sessionClaims =
+    data?.claims !== undefined ? parseAuthenticatedClaims(data.claims) : null
 
   const clearLocalSession = async () => {
     await supabase.auth.signOut({ scope: 'local' })
   }
 
-  if (!isPublicRoute && (error || !user)) {
+  if (!isPublicRoute && (error || !sessionClaims)) {
     if (error) {
       console.error('[proxy] Session invalid on protected route', error)
     }
@@ -85,7 +87,7 @@ export async function updateSession(request: NextRequest) {
   const { pathname } = request.nextUrl
   const isAdminPath = pathname === '/admin' || pathname.startsWith('/admin/')
 
-  if (isAdminPath && user && !isAdmin(user as JwtClaims)) {
+  if (isAdminPath && sessionClaims && !isAdmin(sessionClaims)) {
     const url = request.nextUrl.clone()
     url.pathname = PROFILE_PATH
     return NextResponse.redirect(url)

@@ -3,12 +3,25 @@ import { redirect } from 'next/navigation'
 import { isAuthError, type SupabaseClient } from '@supabase/supabase-js'
 
 import { LOGIN_PATH } from '@/constants/app-paths'
-import type { JwtClaims } from '@/utils/admin'
+import { parseJwtClaims, type JwtClaims } from '@/utils/admin'
 
 import { readAccessTokenFromCookies } from './read-auth-cookie'
 import { createClient } from './server'
 
 export type AuthenticatedClaims = JwtClaims & { sub: string }
+
+export const parseAuthenticatedClaims = (
+  raw: unknown,
+): AuthenticatedClaims | null => {
+  const claims = parseJwtClaims(raw)
+  const sub = claims?.sub?.trim()
+
+  if (!sub) {
+    return null
+  }
+
+  return { ...claims, sub }
+}
 
 const isSessionFailureMessage = (message: string): boolean => {
   const normalized = message.toLowerCase()
@@ -79,13 +92,12 @@ export const requireAuthClaims = async (
       return clearSessionAndRedirect(supabase, error)
     }
 
-    const claims = data?.claims as JwtClaims | undefined
-    const sub = claims?.sub
-    if (typeof sub !== 'string' || sub.length === 0) {
+    const claims = parseAuthenticatedClaims(data?.claims)
+    if (!claims) {
       return clearSessionAndRedirect(supabase)
     }
 
-    return { ...claims, sub }
+    return claims
   } catch (error) {
     if (isSessionAuthFailure(error)) {
       return clearSessionAndRedirect(supabase, error)

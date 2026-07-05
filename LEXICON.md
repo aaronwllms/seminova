@@ -124,7 +124,7 @@ Public avatar URLs are versioned with a `?v=` query param so browsers fetch the 
 
 ### Canonical data table
 
-The reference pattern for admin tables: `DataTableShell` with single-column search, server-side Next/Previous pagination (50 rows), and skeleton loading via column meta. See [`src/components/data-table1.tsx`](src/components/data-table1.tsx) and the users table as the reference implementation. New admin list views should follow this pattern before reaching for a custom table.
+The reference pattern for admin tables: `DataTableShell` with single-column search, server-side Next/Previous pagination (50 rows), and skeleton loading via column meta. See [`src/components/data-table-shell.tsx`](src/components/data-table-shell.tsx) and the users table as the reference implementation. New admin list views should follow this pattern before reaching for a custom table.
 
 ---
 

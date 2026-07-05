@@ -98,7 +98,7 @@ Findings: F016, F017, F018, F035, F037, F038, F039, F047, F048, F050
 - **6.5 Small runtime defaults** (F018, F047, F048). Set conservative query-client defaults; make the logo component's link target a required prop so every consumer targets explicitly; document the avatar resize cap as the accepted main-thread bound.
   *Success: no consumer relies on an implicit logo link target; query-client defaults are explicit; the resize bound is documented.*
 
-### Epic 7: Types, naming & docs
+### Epic 7: Types, naming & docs `Complete`
 
 Findings: F009, F021, F023, F024, F025, F027, F041, F042
 

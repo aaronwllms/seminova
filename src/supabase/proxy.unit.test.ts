@@ -134,6 +134,31 @@ describe('updateSession', () => {
     expect(response.headers.get('location')).toContain('/auth/login')
   })
 
+  it('should redirect protected routes when claims are malformed', async () => {
+    mockGetClaims.mockResolvedValue({
+      data: { claims: { sub: 123 } },
+      error: null,
+    })
+
+    const response = await updateSession(createRequest('/profile'))
+
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toContain('/auth/login')
+    expect(mockSignOut).toHaveBeenCalledWith({ scope: 'local' })
+  })
+
+  it('should redirect protected routes when claims omit sub', async () => {
+    mockGetClaims.mockResolvedValue({
+      data: { claims: { email: 'user@example.com' } },
+      error: null,
+    })
+
+    const response = await updateSession(createRequest('/profile'))
+
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toContain('/auth/login')
+  })
+
   it('should not treat /administrative as an admin path', async () => {
     mockGetClaims.mockResolvedValue({
       data: { claims: { sub: 'user-1', app_metadata: {} } },

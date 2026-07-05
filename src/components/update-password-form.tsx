@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
-import { getPostAuthRedirectPath, type AppMetadata } from '@/utils/admin'
+import { getPostAuthRedirectPath } from '@/utils/admin'
 import { extractAuthFormError } from '@/utils/extract-auth-form-error'
 import type { AppError } from '@/types/app-error'
 
@@ -48,9 +48,7 @@ export function UpdatePasswordForm({
       const { data, error } = await supabase.auth.updateUser({ password })
       if (error) throw error
       router.refresh()
-      router.push(
-        getPostAuthRedirectPath(data.user?.app_metadata as AppMetadata),
-      )
+      router.push(getPostAuthRedirectPath(data.user?.app_metadata))
     } catch (caught: unknown) {
       setFormError(extractAuthFormError(caught))
     } finally {

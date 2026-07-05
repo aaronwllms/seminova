@@ -2,7 +2,7 @@
 
 import { createClient } from '@/supabase/server'
 import type { ErrorKind } from '@/types/app-error'
-import { isAdmin, type JwtClaims } from '@/utils/admin'
+import { isAdmin, parseJwtClaims } from '@/utils/admin'
 
 export type UsersActionErrorCode =
   | 'FORBIDDEN'
@@ -43,9 +43,9 @@ export const assertAdminCaller = async (): Promise<AssertAdminCallerResult> => {
     }
   }
 
-  const claims = data.claims as JwtClaims
+  const claims = parseJwtClaims(data.claims)
 
-  if (!isAdmin(claims)) {
+  if (!claims || !isAdmin(claims)) {
     return {
       success: false,
       error: {

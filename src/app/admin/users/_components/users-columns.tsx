@@ -3,7 +3,7 @@
 import type { ColumnDef } from '@tanstack/react-table'
 import { MoreHorizontal } from 'lucide-react'
 
-import { DataTableColumnHeader } from '@/components/data-table1'
+import { DataTableColumnHeader } from '@/components/data-table-shell'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {

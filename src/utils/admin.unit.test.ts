@@ -9,6 +9,8 @@ import {
   getPostAuthRedirectPath,
   isAdmin,
   isAdminFromAppMetadata,
+  parseAppMetadata,
+  parseJwtClaims,
 } from './admin'
 
 describe('isAdminFromAppMetadata', () => {
@@ -40,6 +42,42 @@ describe('getPostAuthRedirectPath', () => {
     expect(getPostAuthRedirectPath({ role: ADMIN_ROLE })).toBe(ADMIN_HOME)
     expect(getPostAuthRedirectPath({})).toBe(APP_HOME)
     expect(getPostAuthRedirectPath(undefined)).toBe(APP_HOME)
+  })
+
+  it('should fail toward non-admin when app_metadata is unparseable', () => {
+    expect(getPostAuthRedirectPath({ role: 1 })).toBe(APP_HOME)
+    expect(getPostAuthRedirectPath('not-metadata')).toBe(APP_HOME)
+  })
+})
+
+describe('parseAppMetadata', () => {
+  it('should parse string role and preserve other keys', () => {
+    expect(parseAppMetadata({ role: ADMIN_ROLE, plan: 'pro' })).toEqual({
+      role: ADMIN_ROLE,
+      plan: 'pro',
+    })
+  })
+
+  it('should return undefined for invalid role types', () => {
+    expect(parseAppMetadata({ role: 1 })).toBeUndefined()
+    expect(parseAppMetadata('bad')).toBeUndefined()
+  })
+})
+
+describe('parseJwtClaims', () => {
+  it('should parse valid claims', () => {
+    expect(
+      parseJwtClaims({ sub: 'user-1', app_metadata: { role: ADMIN_ROLE } }),
+    ).toEqual({
+      sub: 'user-1',
+      app_metadata: { role: ADMIN_ROLE },
+    })
+  })
+
+  it('should return null for malformed claims', () => {
+    expect(parseJwtClaims({ sub: 1 })).toBeNull()
+    expect(parseJwtClaims({ app_metadata: { role: 1 } })).toBeNull()
+    expect(parseJwtClaims(null)).toBeNull()
   })
 })
 

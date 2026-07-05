@@ -9,8 +9,8 @@ Scope: Full repository pass — application code (`src/`, `scripts/`, `supabase/
 - **Wide-interface god files remain churn magnets** — `users-table.tsx` (231) and `dropdown-menu.tsx` (257) still carry width; profile form and admin actions decomposed in Phase 8 Epic 5; sidebar primitive decomposed in Phase 8 Epic 4. The old ≤150-line locked rule is gone (ADR-0001) but the width problem is real where it remains.
 - **Session hardening landed since last audit** — `require-auth.ts` + `read-auth-cookie.ts` fix refresh-token races and document the `getClaims` vs `getUser` split; route-group `error.tsx` boundaries now cover `(app)/`, `admin/`, and `auth/`. Proxy `/login` dead branch is gone.
 - **One declared `// debt:` marker** — CSP report-only default in `security-headers.ts`; enforcing requires nonce strategy before `CSP_ENFORCE=true`.
-- **Quality gates pass** — `pnpm audit` clean; `type-check`, `lint`, `test:ci` green (251 tests, ~91% statements / ~84% branches).
-- **ROADMAP is stale on Phase 8** — still says the tech-debt audit has not been run.
+- **Quality gates pass** — `pnpm audit` clean; `type-check`, `lint`, `test:ci` green.
+- **ROADMAP Phase 8 stub** — may still need sync on next planning pass (F054).
 
 ## Architectural mental model
 
@@ -20,7 +20,7 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 
 **Hot paths:** `proxy.ts`, `require-auth.ts`, auth forms, `getCurrentUserProfile`, profile blur-save, admin users table + server actions, avatar upload pipeline.
 
-**Cold corners:** `types/profile.ts` aliases.
+**Cold corners:** CSP nonce strategy (F053 deferred).
 
 **Largest files (LOC):** `dropdown-menu.tsx` (257), `sidebar-menu.tsx` (274), `users-table.tsx` (231), `profile-password-dialog.tsx` (164), `avatar-storage.ts` (177).
 
@@ -30,26 +30,18 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 
 | ID   | Category                       | File:Line                                                                        | Severity | Description                                                                                                                                                                                                                   | Recommendation                                                                                                                    | Effort |
 | ---- | ------------------------------ | -------------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------ |
-| F009 | Architectural decay            | `src/components/data-table1.tsx:1-175`                                           | Low      | Non-descriptive filename from shadcnblocks install (`data-table1`); canonical pattern but opaque to newcomers.                                                                                                                | Rename to `data-table-shell.tsx` (or similar) and update imports/docs in one pass.                                                | S      |
 | F011 | Architectural decay            | `src/app/(marketing)/_components/landing-container.tsx:1`                        | Low      | One-line re-export of `SiteContainer`; adds indirection without behavior (still imported by hero/features/tech-stack).                                                                                                        | Import `SiteContainer` directly in marketing components; delete alias.                                                            | S      |
-| F021 | Consistency rot                | `src/supabase/require-auth.ts:52-58` vs `src/app/(app)/profile/actions.ts:56`    | Low      | `getClaims(jwt)` on read paths vs `getUser()` on mutations — now documented in `require-auth.ts` but not in `AGENTS.md` auth section; easy to regress when adding routes.                                                     | Add one paragraph to AGENTS.md § Auth & session mirroring the require-auth docblock.                                              | S      |
 | F022 | Consistency rot                | `src/components/login-form.tsx:19-29` / `profile-settings-form.tsx:4-6`          | Low      | Auth forms use `useState`; profile uses `react-hook-form` + zod. Two form stacks.                                                                                                                                             | **Intentional per `forms.mdc`** — no migration without cause.                                                                     | —      |
-| F023 | Consistency rot                | `src/components/data-table1.tsx:38`                                              | Low      | `UseDataTableOptions` / `useDataTable` naming vs file `data-table1`.                                                                                                                                                          | Rename with F009 for consistency.                                                                                                 | S      |
-| F024 | Type & contract debt           | `src/types/profile.ts:3-5`                                                       | Low      | `Profile` / `ProfileUpdate` aliases defined but **never imported**; pages use inline selects or local types like `CurrentUserProfile`.                                                                                        | Use `Profile` in `getCurrentUserProfile` return type and actions, or delete until a second consumer exists.                       | S      |
-| F025 | Type & contract debt           | `src/utils/admin.ts:5`                                                           | Low      | `AppMetadata = Record<string, unknown>` — role check is string compare only; loose for admin gate.                                                                                                                            | Narrow to `{ role?: string }` or parse `app_metadata` at boundary.                                                                | S      |
-| F027 | Type & contract debt           | `src/supabase/proxy.ts:77`                                                       | Low      | `user as JwtClaims` cast — claims shape not validated beyond truthiness.                                                                                                                                                      | Validate `sub` + `app_metadata.role` shape or use typed helper when available.                                                    | S      |
-| F041 | Documentation drift            | `.cursor/plans/archive/phase_5_epic_4_toast_720328a7.plan.md:155`                | Low      | Archived epic plans still reference `src/app/(admin)/` paths removed in Phase 6.                                                                                                                                              | Bulk-find/replace in archive or add archive header noting path migration.                                                         | M      |
-| F042 | Documentation drift            | `docs/archive/CONTEXT_ARCHIVE.md`                                                | Low      | Archive narrative may still reference `(admin)` route group — verify on doc sync.                                                                                                                                             | Update archive to `/admin` namespace or add footnote.                                                                             | S      |
 | F053 | Declared debt                  | `src/utils/security-headers.ts:1`                                                | Medium   | Template-default CSP ships report-only. Enforcing (`CSP_ENFORCE=true`) requires nonce-based script handling for Next.js inline bootstrap scripts.                                                                             | Implement per-request nonce in middleware before setting `CSP_ENFORCE=true`; tighten directives per product surface.              | L      |
 | F054 | Documentation drift            | `ROADMAP.md:35`                                                                  | Low      | Phase 8 stub says tech-debt audit "has not yet been run" — false after this pass.                                                                                                                                             | Update Phase 8 stub on next planning sync.                                                                                        | S      |
 
 ## Top 5
 
-1. **F024 + F025 + F027 — Wire domain types at auth boundaries** — Profile type aliases, narrowed `app_metadata`, and validated JWT claims shape (Phase 8 Epic 7).
+1. **F053 — CSP enforcement** — Requires per-request nonce strategy; deferred out of Phase 8 scope.
 
-2. **F009 + F023 — Canonical data-table naming** — Rename `data-table1.tsx` and align hook/type names in one pass (Phase 8 Epic 7).
+2. **F011 — LandingContainer wrapper** — Intentional marketing import boundary per audit assessment; low-priority cleanup only.
 
-3. **F021 + F041 + F042 — Doc sync** — Mirror claims-vs-user auth split into AGENTS.md; fix stale archive path references (Phase 8 Epic 7).
+3. **F054 — ROADMAP Phase 8 stub** — Update on next planning sync.
 
 ## Quick wins
 
@@ -68,11 +60,9 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 
 - **Dual admin gating (`proxy.ts` + `AdminAuthGate`)** — Defense-in-depth by design: proxy rejects early at the edge; layout gate catches test/dev bypass. Keep both unless proxy becomes sole enforcement by explicit decision.
 
-- **`getClaims()` on reads vs `getUser()` on mutations** — Now documented in `require-auth.ts`. Supabase recommends JWT validation for session refresh paths; Auth server validation for sensitive writes. Sound split — only needs AGENTS.md mirror (F021).
+- **`getClaims()` on reads vs `getUser()` on mutations** — Documented in `require-auth.ts` and AGENTS.md § Auth & session. Supabase recommends JWT validation for session refresh paths; Auth server validation for sensitive writes.
 
 - **Auth forms on `useState` while profile uses RHF+zod** — `forms.mdc` explicitly defers auth migration. Migrating login/sign-up to RHF would be churn without UX benefit.
-
-- **`data-table1.tsx` filename** — Ugly, but AGENTS.md and `data-tables.mdc` canonize it as the reference implementation; renaming is cosmetic (F009), not structural debt.
 
 - **Coverage exclusions for `page.tsx` / `layout.tsx` shells** — Thin re-exports with no logic; excluding them from the denominator is reasonable. Admin `_components` are now in-scope (F028 resolved Phase 8 Epic 3).
 
@@ -88,11 +78,18 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 
 ## Open questions
 
-- **`Profile` type alias (F024):** Keep as forward-looking API surface for spinoffs, or delete until a second consumer appears?
-- **Phase 8 scope:** Should remediation follow severity order (demo purge → coverage → god files) or batch by route area?
+- **Phase 8 ship:** Phase 8 epics complete — run `ship-phase` when ready.
 
 ## Resolved
 
+- 2026-07-05 — **F009:** Renamed `data-table1.tsx` → `data-table-shell.tsx`; updated imports and living docs (Phase 8 Epic 7).
+- 2026-07-05 — **F021:** Mirrored read-vs-mutation auth split into AGENTS.md § Auth & session (Phase 8 Epic 7).
+- 2026-07-05 — **F023:** Renamed `useDataTable` → `useDataTableShell` and `UseDataTableOptions` → `UseDataTableShellOptions` with F009 (Phase 8 Epic 7).
+- 2026-07-05 — **F024:** Wired `Profile` / `ProfileUpdate` in `getCurrentUserProfile`, profile actions, and `profile.ts` mappers; `CurrentUserProfile` composes from `ProfileFieldsView` (Phase 8 Epic 7).
+- 2026-07-05 — **F025:** Typed `AppMetadata` with `role?: string | null | undefined`; runtime gate in `isAdminFromAppMetadata`; `parseAppMetadata` at auth redirect boundaries (Phase 8 Epic 7).
+- 2026-07-05 — **F027:** Added `parseJwtClaims` / `parseAuthenticatedClaims`; proxy fail-closed on unparseable claims; replaced bare casts in require-auth, assert-admin-caller, admin users page (Phase 8 Epic 7).
+- 2026-07-05 — **F041:** Added `.cursor/plans/archive/README.md` path-migration header instead of bulk-editing archived plans (Phase 8 Epic 7).
+- 2026-07-05 — **F042:** Added post–Phase 6 path footnote to `docs/archive/CONTEXT_ARCHIVE.md` (Phase 8 Epic 7).
 - 2026-07-05 — **F016:** Gated `ReactQueryDevtools` behind `ReactQueryDevtoolsPanel` development-only wrapper in `src/providers/react-query-devtools.tsx`.
 - 2026-07-05 — **F017:** Avatar preview object URLs revoked on replace, unmount, and after successful upload in `profile-avatar-field.tsx`.
 - 2026-07-05 — **F018:** Documented `AVATAR_MAX_DIMENSION` (256px) as intentional main-thread resize bound in `avatar-storage.ts` (resolved under PRD story 6.5).
@@ -148,7 +145,7 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 | `pnpm type-check`          | Pass                                                                                                                                                                                  |
 | `pnpm lint`                | Pass                                                                                                                                                                                  |
 | `pnpm test:ci`             | 251 tests pass; ~91.45% statements / 83.89% branches (thresholds met)                                                                                                               |
-| `npx knip`                 | Unused: `profile.ts` type consumers |
+| `npx knip`                 | No unused profile type consumers (F024 resolved) |
 | `npx madge --circular src` | Not run (optional; repo ~13k LOC — below subagent threshold)                                                                                                                          |
 
 Adapted from [ksimback/tech-debt-skill](https://github.com/ksimback/tech-debt-skill) (MIT).

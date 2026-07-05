@@ -18,7 +18,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
-import { getPostAuthRedirectPath, type AppMetadata } from '@/utils/admin'
+import { getPostAuthRedirectPath } from '@/utils/admin'
 import { extractAuthFormError } from '@/utils/extract-auth-form-error'
 import type { AppError } from '@/types/app-error'
 
@@ -48,9 +48,7 @@ export function LoginForm({
       })
       if (error) throw error
       router.refresh()
-      router.push(
-        getPostAuthRedirectPath(data.user?.app_metadata as AppMetadata),
-      )
+      router.push(getPostAuthRedirectPath(data.user?.app_metadata))
     } catch (caught: unknown) {
       setFormError(extractAuthFormError(caught))
     } finally {

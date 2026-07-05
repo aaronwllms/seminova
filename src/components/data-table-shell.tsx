@@ -35,14 +35,16 @@ declare module '@tanstack/react-table' {
   }
 }
 
-type UseDataTableOptions<TData> = {
+type UseDataTableShellOptions<TData> = {
   data: Array<TData>
   columns: Array<ColumnDef<TData, unknown>>
   getRowId?: (row: TData) => string
   initialSorting?: SortingState
 }
 
-export const useDataTable = <TData,>(options: UseDataTableOptions<TData>) => {
+export const useDataTableShell = <TData,>(
+  options: UseDataTableShellOptions<TData>,
+) => {
   const { data, columns, getRowId, initialSorting = [] } = options
 
   const [sorting, setSorting] = React.useState<SortingState>(initialSorting)

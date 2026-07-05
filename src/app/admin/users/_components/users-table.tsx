@@ -1,6 +1,9 @@
 'use client'
 
-import { useDataTable, DataTableShell } from '@/components/data-table1'
+import {
+  useDataTableShell,
+  DataTableShell,
+} from '@/components/data-table-shell'
 import { ErrorPanel } from '@/components/error-panel'
 import { InlineError } from '@/components/inline-error'
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
@@ -107,7 +110,7 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
     [currentAdminUserId, handleDemote, handlePromote, pendingUserId],
   )
 
-  const { table } = useDataTable({
+  const { table } = useDataTableShell({
     data: rows,
     columns,
     getRowId: (row) => row.id,

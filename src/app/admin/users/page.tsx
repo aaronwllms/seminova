@@ -1,12 +1,12 @@
 import { createClient } from '@/supabase/server'
-import type { JwtClaims } from '@/utils/admin'
+import { parseJwtClaims } from '@/utils/admin'
 
 import { UsersTable } from './_components/users-table'
 
 export default async function UsersPage() {
   const supabase = await createClient()
   const { data } = await supabase.auth.getClaims()
-  const claims = data?.claims as JwtClaims | undefined
+  const claims = parseJwtClaims(data?.claims)
   const currentAdminUserId = claims?.sub?.trim() ?? ''
 
   return (
