@@ -7,7 +7,7 @@ vi.mock('@/supabase/require-auth', () => ({
 }))
 
 vi.mock('@/utils/env', () => ({
-  hasEnvVars: true,
+  hasPublicSupabaseEnv: true,
 }))
 
 import { render, screen } from '@/test/test-utils'

@@ -1,12 +1,12 @@
 import { createBrowserClient } from '@supabase/ssr'
 
+import { getPublicSupabaseEnv } from '@/utils/env'
+
 let stoppedBrowserAutoRefresh = false
 
 export function createClient() {
-  const client = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-  )
+  const { supabaseUrl, publishableKey } = getPublicSupabaseEnv()
+  const client = createBrowserClient(supabaseUrl, publishableKey)
 
   // Session refresh is owned by the server proxy. Browser auto-refresh races
   // with proxy rotation and causes "refresh token already used" errors.

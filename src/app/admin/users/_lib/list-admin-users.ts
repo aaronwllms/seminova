@@ -1,6 +1,6 @@
 import type { SupabaseClient, User } from '@supabase/supabase-js'
 
-import { getServiceEnvForFetch } from '@/supabase/service'
+import { getServiceSupabaseEnv } from '@/utils/env'
 
 import {
   mapUserToAdminRow,
@@ -34,7 +34,7 @@ const listUsersViaApi = async ({
   perPage: number
   emailFilter?: string
 }): Promise<User[]> => {
-  const { supabaseUrl, secretKey } = getServiceEnvForFetch()
+  const { supabaseUrl, secretKey } = getServiceSupabaseEnv()
   const query = new URLSearchParams({
     page: String(page),
     per_page: String(perPage),

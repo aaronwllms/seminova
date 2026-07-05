@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 const mockGetClaims = vi.fn()
 
 vi.mock('@/utils/env', () => ({
-  hasEnvVars: false,
+  hasPublicSupabaseEnv: false,
 }))
 
 vi.mock('@supabase/ssr', () => ({

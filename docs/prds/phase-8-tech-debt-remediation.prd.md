@@ -72,7 +72,7 @@ Findings: F006
 - **4.1 Split the sidebar into focused modules** (F006). Decompose the 700+-line sidebar primitive into a directory of focused files with the provider as orchestrator, preserving every existing export path and name so no consumer changes. Judge the split by interface width and responsibility count per the deep-module-vs-god-file principle (ADR-0001), not by line count.
   *Success: no resulting file has a wide multi-responsibility surface; all existing sidebar imports compile unchanged; sidebar behavior identical.*
 
-### Epic 5: Refactor form, actions & env loading
+### Epic 5: Refactor form, actions & env loading `Complete`
 
 Findings: F007, F008, F026, F049, F055, F057, F058
 

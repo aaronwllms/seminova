@@ -11,7 +11,11 @@ const mockGetClaims = vi.fn()
 const mockSignOut = vi.fn()
 
 vi.mock('@/utils/env', () => ({
-  hasEnvVars: true,
+  hasPublicSupabaseEnv: true,
+  getPublicSupabaseEnv: () => ({
+    supabaseUrl: 'https://example.supabase.co',
+    publishableKey: 'test-publishable-key',
+  }),
 }))
 
 vi.mock('@supabase/ssr', () => ({

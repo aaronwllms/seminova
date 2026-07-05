@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createServiceClient, getServiceEnvForFetch } from './service'
+import { createServiceClient } from './service'
 
 describe('createServiceClient', () => {
   beforeEach(() => {
@@ -16,7 +16,7 @@ describe('createServiceClient', () => {
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', '')
 
     expect(() => createServiceClient()).toThrow(
-      '[supabase-service] Missing NEXT_PUBLIC_SUPABASE_URL',
+      '[supabase-env] Missing NEXT_PUBLIC_SUPABASE_URL',
     )
   })
 
@@ -24,7 +24,7 @@ describe('createServiceClient', () => {
     vi.stubEnv('SUPABASE_SECRET_KEY', '')
 
     expect(() => createServiceClient()).toThrow(
-      '[supabase-service] Missing SUPABASE_SECRET_KEY',
+      '[supabase-env] Missing SUPABASE_SECRET_KEY',
     )
   })
 
@@ -33,31 +33,5 @@ describe('createServiceClient', () => {
 
     expect(client).toBeDefined()
     expect(client.auth).toBeDefined()
-  })
-})
-
-describe('getServiceEnvForFetch', () => {
-  beforeEach(() => {
-    vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://example.supabase.co')
-    vi.stubEnv('SUPABASE_SECRET_KEY', 'sb_secret_test')
-  })
-
-  afterEach(() => {
-    vi.unstubAllEnvs()
-  })
-
-  it('should throw when env vars are missing', () => {
-    vi.stubEnv('SUPABASE_SECRET_KEY', '')
-
-    expect(() => getServiceEnvForFetch()).toThrow(
-      '[supabase-service] Missing SUPABASE_SECRET_KEY',
-    )
-  })
-
-  it('should return env values when configured', () => {
-    expect(getServiceEnvForFetch()).toEqual({
-      supabaseUrl: 'https://example.supabase.co',
-      secretKey: 'sb_secret_test',
-    })
   })
 })

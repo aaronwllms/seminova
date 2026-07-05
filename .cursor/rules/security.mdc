@@ -22,14 +22,14 @@ globs:
 ## Authentication & Authorization
 
 ### Server-Side Auth Check (REQUIRED)
-Always verify auth on the server — never trust client-side checks. Canonical gated-action pattern: [`src/app/admin/users/actions.ts`](../../src/app/admin/users/actions.ts) (`assertAdminCaller`). See `error-handling.mdc` for error envelope shape.
+Always verify auth on the server — never trust client-side checks. Canonical gated-action pattern: [`src/app/admin/users/_lib/assert-admin-caller.ts`](../../src/app/admin/users/_lib/assert-admin-caller.ts) (`assertAdminCaller`). See `error-handling.mdc` for error envelope shape.
 
 ### Authorization (Resource Ownership)
 Verify the caller owns the resource before mutations; RLS is the database layer — app code still checks where needed.
 
 ### Server Actions
 
-Auth failures in server actions return typed error envelopes, never throw. Envelope shape and error taxonomy are owned by `error-handling.mdc` § Response Envelopes; `src/app/admin/users/actions.ts` (`assertAdminCaller` and its callers) is the shipped canonical pattern.
+Auth failures in server actions return typed error envelopes, never throw. Envelope shape and error taxonomy are owned by `error-handling.mdc` § Response Envelopes; [`src/app/admin/users/_lib/assert-admin-caller.ts`](../../src/app/admin/users/_lib/assert-admin-caller.ts) (`assertAdminCaller` and its callers) is the shipped canonical pattern.
 
 **Auth Error Handling:** Never leak user existence (use "Invalid credentials" not "User doesn't exist")
 

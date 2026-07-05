@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/utils/env', () => ({
-  hasEnvVars: true,
+  hasPublicSupabaseEnv: true,
 }))
 
 import { siteConfig } from '@/config/site'
