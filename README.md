@@ -30,28 +30,11 @@ Most starter templates hand you a blank slate with dependencies pre-installed. S
 
 Seminova ships with a two-environment planning system: **Claude** owns planning, decomposition, and adversarial review; **Cursor** owns implementation. Skills on both sides drive each step — from project kickoff, which turns a fresh clone into a real project, through phase planning, plan review, build, and ship.
 
-```mermaid
-flowchart LR
-    A["Project kickoff<br/>Claude"] --> B["Initialize project<br/>Cursor"]
-    B --> C
-
-    subgraph PL["↻ Phase loop"]
-      direction LR
-      C["Plan phase<br/>Claude"]
-      subgraph EL["↻ Epic loop"]
-        direction LR
-        D["Plan epic<br/>Cursor"] --> E["Review plan<br/>Claude"] --> F["Build<br/>Cursor"]
-        E -.revise.-> D
-      end
-      C --> D
-      F --> G["Ship phase<br/>Cursor"]
-    end
-
-    classDef claude fill:#EEEDFE,stroke:#534AB7,color:#26215C;
-    classDef cursor fill:#E1F5EE,stroke:#0F6E56,color:#04342C;
-    class A,C,E claude;
-    class B,D,F,G cursor;
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="images/workflow-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="images/workflow-light.svg">
+  <img alt="Seminova workflow: project kickoff and initialize project feed into a phase loop (plan phase, then a nested epic loop of plan epic, review plan, build, then ship phase)" src="images/workflow-light.svg">
+</picture>
 
 The full workflow — every step, skill, and document explained, plus the detailed diagram — lives in [docs/WORKFLOW_GUIDE.md](docs/WORKFLOW_GUIDE.md). One-time setup (connecting Claude Desktop, installing the skills) is in [docs/WORKFLOW_SETUP.md](docs/WORKFLOW_SETUP.md).
 
@@ -261,6 +244,8 @@ If Seminova gives your next product good bones, here's how to support it:
 Seminova began as a fork of [supa-next-starter](https://github.com/michaeltroya/supa-next-starter) by [Michael Troya](https://github.com/michaeltroya), an MIT-licensed Next.js + Supabase starter kit. That project supplied the initial scaffolding — the Next.js/Supabase/Tailwind/shadcn wiring, tooling, and CI setup Seminova built on top of.
 
 The foundation has since been substantially rebuilt, but because Seminova derives from that work, the original MIT copyright is retained alongside Seminova's own. This is why [LICENSE](LICENSE) carries two copyright lines: Michael Troya's, covering the original starter, and Aaron Williams', covering Seminova. Both fall under the same MIT license. Thank you to Michael for the starting point.
+
+Some of the agent-skill conventions and workflow patterns draw on [mattpocock/skills](https://github.com/mattpocock/skills) by Matt Pocock (MIT-licensed) and [ECC (Everything Claude Code)](https://github.com/affaan-m/ECC) by Affaan Mustafa (MIT-licensed). Thanks to both for putting well-tested agent-workflow patterns into the open.
 
 ---
 

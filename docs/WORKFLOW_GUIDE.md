@@ -223,17 +223,3 @@ Cursor supports a number of models, but this workflow uses Composer 2.5, which h
 Claude-side skill installation (account-wide, one-time) is covered in [WORKFLOW_SETUP.md](WORKFLOW_SETUP.md).
 
 **Cursor-side skills** live in `.cursor/skills/` and are invoked with `/skill-name` in Cursor chat. See [AGENTS.md › Agent skills](../AGENTS.md#agent-skills-cursorskills) for the full repo-maintenance catalog.
-
----
-
-## Credits
-
-Seminova itself is built on Michael Troya's original Next.js/Supabase starter template — the foundation this project's structure inherits from. Full attribution lives in [LICENSE](../LICENSE).
-
-Several pieces of this workflow are adapted from Matt Pocock's skills system ([aihero.dev](https://www.aihero.dev/)):
-
-- The `grill-me` skill itself
-- The grill-me-with-docs pattern, used inside `phase-planning`
-- The ADR framework (`docs/adr/`)
-
-Where possible, original language and structure have been preserved rather than rewritten from scratch.
