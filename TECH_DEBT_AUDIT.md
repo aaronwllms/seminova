@@ -6,7 +6,7 @@ Scope: Full repository pass — application code (`src/`, `scripts/`, `supabase/
 
 ## Executive summary
 
-- **Wide-interface god files remain the churn magnets** — `sidebar.tsx` (726 LOC), `profile-settings-form.tsx` (320), and `users/actions.ts` (299) expose many responsibilities through broad surfaces; the old ≤150-line locked rule is gone (ADR-0002) but the width problem is real.
+- **Wide-interface god files remain churn magnets** — `profile-settings-form.tsx` (320) and `users/actions.ts` (299) expose many responsibilities through broad surfaces; sidebar primitive decomposed in Phase 8 Epic 4. The old ≤150-line locked rule is gone (ADR-0002) but the width problem is real where it remains.
 - **`ReactQueryDevtools` ships unconditionally in root layout** — client bundle cost on every route including marketing.
 - **Session hardening landed since last audit** — `require-auth.ts` + `read-auth-cookie.ts` fix refresh-token races and document the `getClaims` vs `getUser` split; `(app)/error.tsx` now exists. Proxy `/login` dead branch is gone.
 - **One declared `// debt:` marker** — CSP report-only default in `security-headers.ts`; enforcing requires nonce strategy before `CSP_ENFORCE=true`.
@@ -23,7 +23,7 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 
 **Cold corners:** `types/profile.ts` aliases.
 
-**Largest files (LOC):** `sidebar.tsx` (726), `profile-settings-form.tsx` (320), `users/actions.ts` (299), `dropdown-menu.tsx` (257), `users-table.tsx` (231).
+**Largest files (LOC):** `profile-settings-form.tsx` (320), `users/actions.ts` (299), `dropdown-menu.tsx` (257), `users-table.tsx` (231), `sidebar-menu.tsx` (274).
 
 **Git churn (6 months):** Planning docs (`AGENTS.md`, `ROADMAP.md`, `.cursor/skills/`, `.cursor/rules/`) dominate; feature churn concentrated in auth session hardening, security remediation (Phase 7), and doc/hard-constraint enforcement.
 
@@ -31,7 +31,6 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 
 | ID   | Category                       | File:Line                                                                        | Severity | Description                                                                                                                                                                                                                   | Recommendation                                                                                                                    | Effort |
 | ---- | ------------------------------ | -------------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------ |
-| F006 | Architectural decay            | `src/components/ui/sidebar.tsx:1-726`                                            | Medium   | **726 lines**, wide export surface (menu, group, rail, inset, provider, etc.) — sidebar-07 baseline never split. Legitimate deep-module candidate only if treated as one primitive; today it is a multi-responsibility shell. | Extract subcomponents already exported at bottom into `ui/sidebar/` files; keep `SidebarProvider` as orchestrator.                | L      |
 | F007 | Architectural decay            | `src/app/(app)/profile/_components/profile-settings-form.tsx:51-320`             | Medium   | **320 lines** — blur-save orchestration, in-flight guards, avatar upload, and two text fields in one client component with a wide props/callback surface.                                                                     | Extract `useBlurSaveField` hook + per-field components; keep orchestrator thin.                                                   | M      |
 | F008 | Architectural decay            | `src/app/admin/users/actions.ts:39-299`                                          | Medium   | Single file holds `assertAdminCaller`, list, promote, and demote with repeated try/catch envelopes.                                                                                                                           | Extract `assertAdminCaller` + shared fault mapper to `_lib/`; leave thin action exports.                                          | M      |
 | F009 | Architectural decay            | `src/components/data-table1.tsx:1-175`                                           | Low      | Non-descriptive filename from shadcnblocks install (`data-table1`); canonical pattern but opaque to newcomers.                                                                                                                | Rename to `data-table-shell.tsx` (or similar) and update imports/docs in one pass.                                                | S      |
@@ -64,7 +63,7 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 
 ## Top 5
 
-1. **F006 + F007 — Split wide-interface components** — `sidebar.tsx`: move exported subcomponents into `ui/sidebar/` directory. `profile-settings-form.tsx`: extract blur-save hook + field components. Target narrow interfaces per ADR-0002 depth guidance, not arbitrary LOC caps.
+1. **F007 — Split wide-interface profile form** — `profile-settings-form.tsx`: extract blur-save hook + field components. Target narrow interfaces per ADR-0002 depth guidance, not arbitrary LOC caps.
 
 2. **F016 — Gate React Query Devtools** — Wrap `src/app/layout.tsx:53` in a development-only check or dynamic import. Immediate production bundle win with zero product behavior change.
 
@@ -103,8 +102,6 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 
 - **No `src/services/` repository layer yet** — `supabase.mdc` recommends it for future queries; only two tables exist. Premature abstraction would violate code-minimalism.
 
-- **`sidebar.tsx` at 726 LOC** — Large, but mostly shadcn-owned primitive with a cohesive sidebar API. Flagged as wide-interface (F006), not as a length violation — splitting is maintainability, not compliance.
-
 - **`require-auth.ts` + `read-auth-cookie.ts` added complexity** — Looks like over-engineering vs direct `getClaims()`, but fixes real refresh-token race bugs (commit `c3276dd`). Keep.
 
 ## Open questions
@@ -115,6 +112,7 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 
 ## Resolved
 
+- 2026-07-05 — F006: Decomposed `sidebar.tsx` monolith into `src/components/ui/sidebar/` focused modules (provider, shell, controls, layout, group, menu); public `@/components/ui/sidebar` import path unchanged.
 - 2026-07-05 — F028: Removed four admin `_components` from `vitest.config.ts` coverage exclude list; added smoke/integration tests for admin chrome.
 - 2026-07-05 — F029: Added `service.unit.test.ts` covering `getServiceEnv` throw paths and happy path for `createServiceClient` / `getServiceEnvForFetch`.
 - 2026-07-05 — F030: Extended `actions.unit.test.ts` with promote/demote `not_found` and service-client catch branches.

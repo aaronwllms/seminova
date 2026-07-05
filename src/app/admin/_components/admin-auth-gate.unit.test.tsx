@@ -19,6 +19,14 @@ vi.mock('@/supabase/require-auth', () => ({
   requireAuthClaims: (...args: unknown[]) => mockRequireAuthClaims(...args),
 }))
 
+vi.mock('next/headers', () => ({
+  cookies: vi.fn(() =>
+    Promise.resolve({
+      get: () => undefined,
+    }),
+  ),
+}))
+
 vi.mock('./admin-shell', () => ({
   AdminShell: ({
     children,

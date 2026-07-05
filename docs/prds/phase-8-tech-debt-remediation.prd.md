@@ -65,7 +65,7 @@ Findings: F028–F034, F051
 - **3.3 Eliminate test warnings** (F032, F033, F034). Fix the `act(...)` warnings in the users-table debounce tests and the profile blur-save tests; render the footer test inside a Suspense boundary matching production.
   *Success: `pnpm test:ci` output contains no `act(...)` or Suspense warnings.*
 
-### Epic 4: Decompose the sidebar primitive
+### Epic 4: Decompose the sidebar primitive `Complete`
 
 Findings: F006
 
