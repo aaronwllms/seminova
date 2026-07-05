@@ -9,29 +9,38 @@ import { readAccessTokenFromCookies } from './read-auth-cookie'
 
 export type AuthenticatedClaims = JwtClaims & { sub: string }
 
+const isSessionFailureMessage = (message: string): boolean => {
+  const normalized = message.toLowerCase()
+  return (
+    normalized.includes('refresh token') ||
+    normalized.includes('session') ||
+    normalized.includes('jwt') ||
+    normalized.includes('missing exp claim')
+  )
+}
+
 /**
  * Returns true when a Supabase auth error indicates the session is no longer
  * valid (expired, revoked, or refresh-token rotation conflict).
  */
 export const isSessionAuthFailure = (error: unknown): boolean => {
-  if (!isAuthError(error)) {
-    return false
+  if (isAuthError(error)) {
+    if (typeof error.code === 'string') {
+      return true
+    }
+
+    return isSessionFailureMessage(error.message)
   }
 
-  if (typeof error.code === 'string') {
-    return true
+  if (error instanceof Error) {
+    return isSessionFailureMessage(error.message)
   }
 
-  const message = error.message.toLowerCase()
-  return (
-    message.includes('refresh token') ||
-    message.includes('session') ||
-    message.includes('jwt')
-  )
+  return false
 }
 
 const clearSessionAndRedirect = async (
-  supabase: SupabaseClient,
+  _supabase: SupabaseClient,
   error?: unknown,
 ): Promise<never> => {
   if (error) {
@@ -40,12 +49,9 @@ const clearSessionAndRedirect = async (
     console.error('[require-auth] No authenticated session')
   }
 
-  try {
-    await supabase.auth.signOut()
-  } catch (signOutError) {
-    console.error('[require-auth] signOut failed', signOutError)
-  }
-
+  // Cookie clearing runs in the proxy on the login page — signOut from a Server
+  // Component cannot set cookies, and a global-scope signOut can hit the Auth
+  // API with a dead refresh token and leave stale cookies behind.
   redirect(LOGIN_PATH)
 }
 

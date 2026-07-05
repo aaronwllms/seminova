@@ -44,6 +44,10 @@ describe('isSessionAuthFailure', () => {
 
     expect(isSessionAuthFailure(error)).toBe(true)
   })
+
+  it('should return true when getClaims throws a plain JWT expired error', () => {
+    expect(isSessionAuthFailure(new Error('JWT has expired'))).toBe(true)
+  })
 })
 
 describe('requireAuthClaims', () => {
@@ -67,7 +71,7 @@ describe('requireAuthClaims', () => {
     )
 
     expect(mockGetClaims).not.toHaveBeenCalled()
-    expect(mockSignOut).toHaveBeenCalledOnce()
+    expect(mockSignOut).not.toHaveBeenCalled()
     expect(mockRedirect).toHaveBeenCalledWith('/auth/login')
   })
 
@@ -92,7 +96,7 @@ describe('requireAuthClaims', () => {
     )
 
     expect(mockGetClaims).toHaveBeenCalledWith('access-token')
-    expect(mockSignOut).toHaveBeenCalledOnce()
+    expect(mockSignOut).not.toHaveBeenCalled()
     expect(mockRedirect).toHaveBeenCalledWith('/auth/login')
   })
 
@@ -135,7 +139,23 @@ describe('requireAuthClaims', () => {
       'NEXT_REDIRECT',
     )
 
-    expect(mockSignOut).toHaveBeenCalledOnce()
+    expect(mockSignOut).not.toHaveBeenCalled()
+  })
+
+  it('should redirect when getClaims throws a plain JWT expired error', async () => {
+    mockReadAccessTokenFromCookies.mockResolvedValue('access-token')
+    mockGetClaims.mockRejectedValue(new Error('JWT has expired'))
+
+    const supabase = {
+      auth: { getClaims: mockGetClaims, signOut: mockSignOut },
+    }
+
+    await expect(requireAuthClaims(supabase as never)).rejects.toThrow(
+      'NEXT_REDIRECT',
+    )
+
+    expect(mockSignOut).not.toHaveBeenCalled()
+    expect(mockRedirect).toHaveBeenCalledWith('/auth/login')
   })
 })
 

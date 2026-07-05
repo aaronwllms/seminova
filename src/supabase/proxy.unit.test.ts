@@ -39,7 +39,7 @@ describe('updateSession', () => {
 
     expect(response.status).toBe(307)
     expect(response.headers.get('location')).toContain('/auth/login')
-    expect(mockSignOut).toHaveBeenCalledOnce()
+    expect(mockSignOut).toHaveBeenCalledWith({ scope: 'local' })
   })
 
   it('should redirect and sign out when getClaims returns an auth error', async () => {
@@ -52,7 +52,7 @@ describe('updateSession', () => {
 
     expect(response.status).toBe(307)
     expect(response.headers.get('location')).toContain('/auth/login')
-    expect(mockSignOut).toHaveBeenCalledOnce()
+    expect(mockSignOut).toHaveBeenCalledWith({ scope: 'local' })
   })
 
   it('should allow unauthenticated access to public routes', async () => {
@@ -65,6 +65,18 @@ describe('updateSession', () => {
     const response = await updateSession(createRequest('/auth/login'))
 
     expect(response.status).toBe(200)
+  })
+
+  it('should clear stale sessions on auth routes when getClaims returns an auth error', async () => {
+    mockGetClaims.mockResolvedValue({
+      data: { claims: null },
+      error: { message: 'Invalid Refresh Token: Refresh Token Not Found' },
+    })
+
+    const response = await updateSession(createRequest('/auth/login'))
+
+    expect(response.status).toBe(200)
+    expect(mockSignOut).toHaveBeenCalledWith({ scope: 'local' })
   })
 
   it('should allow authenticated users on protected routes', async () => {

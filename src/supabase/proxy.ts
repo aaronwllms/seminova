@@ -57,12 +57,16 @@ export async function updateSession(request: NextRequest) {
   const { data, error } = await supabase.auth.getClaims()
   const user = data?.claims
 
+  const clearLocalSession = async () => {
+    await supabase.auth.signOut({ scope: 'local' })
+  }
+
   if (!isPublicRoute && (error || !user)) {
     if (error) {
       console.error('[proxy] Session invalid on protected route', error)
     }
 
-    await supabase.auth.signOut()
+    await clearLocalSession()
 
     const url = request.nextUrl.clone()
     url.pathname = LOGIN_PATH
@@ -73,6 +77,11 @@ export async function updateSession(request: NextRequest) {
     }
 
     return redirectResponse
+  }
+
+  if (isPublicRoute && error) {
+    console.error('[proxy] Clearing stale session on public route', error)
+    await clearLocalSession()
   }
 
   const { pathname } = request.nextUrl

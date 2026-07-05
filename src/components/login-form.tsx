@@ -39,6 +39,9 @@ export function LoginForm({
     setFormError(null)
 
     try {
+      // Drop any stale session cookies before establishing a new one.
+      await supabase.auth.signOut({ scope: 'local' })
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
