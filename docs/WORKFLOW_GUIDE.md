@@ -204,17 +204,16 @@ A few practical habits that make this workflow smoother.
 
 ## Model guidance
 
-### Claude
+Pick model and effort level by task characteristics *and* how much budget headroom you have. Model names are current-generation examples — the categories are what should stay stable as models change.
 
-Claude Sonnet 5 narrows the performance gap to Opus considerably while costing roughly 2.5x less — for most of this workflow's skills, effort level matters more than which model you pick.
+| Task type | Budget-conscious | Standard |
+|---|---|---|
+| **Judgment-heavy** (`phase-planning`, `plan-review`, `project-kickoff`) | Sonnet 5, high effort | Opus 4.8, high effort |
+| **Hardest calls** (ADR-worthy decisions, low-confidence plan-review verdicts) | Opus 4.8, high effort | Fable 5, high effort |
+| **Mechanical / lighter tasks** | Sonnet 5, low effort | Sonnet 5, medium effort |
+| **Cursor execution** | Composer 2.5 Standard | Composer 2.5 Fast |
 
-- **`phase-planning`, `plan-review`, `project-kickoff`** — Sonnet 5 at high or xhigh effort. Reach for Opus only when a specific decision is high-stakes enough to want the extra accuracy ceiling (e.g., an ADR-worthy call, or a plan-review verdict you're not confident in).
-- **Lighter, more mechanical skills** — Sonnet 5 at low or medium effort.
-- `lexicon-update` inherits whatever model/effort its parent session is running.
-
-### Cursor
-
-Cursor supports a number of models, but this workflow uses Composer 2.5, which has two tiers of the same model: Fast (the default) and Standard. Fast just runs on faster hardware — same intelligence, no quality difference — but costs about 6x more per token. If you're not up against a token budget, Fast is fine. If you want your monthly allowance to last, switch to Standard; it's the same output for a fraction of the cost.
+Cursor's Fast vs. Standard tiers are a speed/cost choice, not a capability one — same intelligence either way; Fast just runs on faster hardware at a higher per-token cost.
 
 ---
 
