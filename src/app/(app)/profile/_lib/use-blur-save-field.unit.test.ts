@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react'
+import { act, renderHook, waitFor } from '@testing-library/react'
 import { useForm } from 'react-hook-form'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -67,7 +67,9 @@ describe('useBlurSaveField', () => {
       toPayload: (trimmed) => ({ displayName: trimmed }),
     })
 
-    await handler()
+    await act(async () => {
+      await handler()
+    })
 
     await waitFor(() => {
       expect(mockUpdateProfileAction).toHaveBeenCalledWith({
@@ -87,7 +89,9 @@ describe('useBlurSaveField', () => {
       toPayload: (trimmed) => ({ bio: trimmed }),
     })
 
-    await handler()
+    await act(async () => {
+      await handler()
+    })
 
     await waitFor(() => {
       expect(mockUpdateProfileAction).toHaveBeenCalledWith({ bio: 'Builder' })
@@ -107,24 +111,28 @@ describe('useBlurSaveField', () => {
 
     const { result } = renderHook(() => useTestBlurSaveField())
 
-    void result.current.persistField({
-      field: 'displayName',
-      payload: { displayName: 'Jordan' },
-      refresh: false,
-    })
-    void result.current.persistField({
-      field: 'displayName',
-      payload: { displayName: 'Jordan' },
-      refresh: false,
+    await act(async () => {
+      void result.current.persistField({
+        field: 'displayName',
+        payload: { displayName: 'Jordan' },
+        refresh: false,
+      })
+      void result.current.persistField({
+        field: 'displayName',
+        payload: { displayName: 'Jordan' },
+        refresh: false,
+      })
     })
 
     await waitFor(() => {
       expect(mockUpdateProfileAction).toHaveBeenCalledTimes(1)
     })
 
-    resolveUpdate({
-      success: true,
-      data: defaultValues,
+    await act(async () => {
+      resolveUpdate({
+        success: true,
+        data: defaultValues,
+      })
     })
   })
 })

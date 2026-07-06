@@ -10,6 +10,9 @@ import { getProfileInitials } from '@/utils/user-initials'
 
 import { FieldSaveIndicator, type FieldSaveState } from './field-save-indicator'
 
+export const getProfileAvatarAltText = (displayName: string | null): string =>
+  displayName?.trim() ? `${displayName.trim()} avatar` : 'Profile photo'
+
 type ProfileAvatarFieldProps = {
   avatarUrl: string | null
   displayName: string | null
@@ -36,6 +39,7 @@ export const ProfileAvatarField = ({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const initials = getProfileInitials({ displayName, email })
   const imageSrc = previewUrl ?? avatarUrl
+  const avatarAlt = getProfileAvatarAltText(displayName)
 
   const clearPreview = () => {
     if (previewUrlRef.current) {
@@ -98,7 +102,7 @@ export const ProfileAvatarField = ({
       </div>
       <div className="flex items-center gap-4">
         <Avatar className="h-16 w-16">
-          {imageSrc ? <AvatarImage src={imageSrc} alt="" /> : null}
+          {imageSrc ? <AvatarImage src={imageSrc} alt={avatarAlt} /> : null}
           <AvatarFallback className="text-lg">{initials}</AvatarFallback>
         </Avatar>
         <Button

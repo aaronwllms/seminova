@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ADMIN_ROLE } from '@/constants/admin-role'
 
-const getClaimsMock = vi.fn()
+const getUserMock = vi.fn()
 const createClientMock = vi.fn()
 const createServiceClientMock = vi.fn()
 const promoteUserByIdMock = vi.fn()
@@ -21,34 +21,33 @@ vi.mock('@/utils/admin-role-mutations', () => ({
   demoteUserById: (...args: unknown[]) => demoteUserByIdMock(...args),
 }))
 
-const adminClaims = {
-  sub: 'admin-user-id',
-  email: 'admin@example.com',
+const adminUser = {
+  id: 'admin-user-id',
   app_metadata: { role: ADMIN_ROLE },
 }
 
 describe('promoteUserAction', () => {
   beforeEach(() => {
     vi.resetModules()
-    getClaimsMock.mockReset()
+    getUserMock.mockReset()
     createClientMock.mockReset()
     createServiceClientMock.mockReset()
     promoteUserByIdMock.mockReset()
     demoteUserByIdMock.mockReset()
 
     createClientMock.mockResolvedValue({
-      auth: { getClaims: getClaimsMock },
+      auth: { getUser: getUserMock },
     })
     createServiceClientMock.mockReturnValue({})
-    getClaimsMock.mockResolvedValue({
-      data: { claims: adminClaims },
+    getUserMock.mockResolvedValue({
+      data: { user: adminUser },
       error: null,
     })
   })
 
   it('should return FORBIDDEN when caller is not admin', async () => {
-    getClaimsMock.mockResolvedValue({
-      data: { claims: { sub: 'user-1', app_metadata: {} } },
+    getUserMock.mockResolvedValue({
+      data: { user: { id: 'user-1', app_metadata: {} } },
       error: null,
     })
 
@@ -65,9 +64,9 @@ describe('promoteUserAction', () => {
     })
   })
 
-  it('should return FORBIDDEN when sub is missing', async () => {
-    getClaimsMock.mockResolvedValue({
-      data: { claims: { app_metadata: { role: ADMIN_ROLE } } },
+  it('should return FORBIDDEN when user id is missing', async () => {
+    getUserMock.mockResolvedValue({
+      data: { user: { id: '', app_metadata: { role: ADMIN_ROLE } } },
       error: null,
     })
 
@@ -140,18 +139,18 @@ describe('promoteUserAction', () => {
 describe('demoteUserAction', () => {
   beforeEach(() => {
     vi.resetModules()
-    getClaimsMock.mockReset()
+    getUserMock.mockReset()
     createClientMock.mockReset()
     createServiceClientMock.mockReset()
     promoteUserByIdMock.mockReset()
     demoteUserByIdMock.mockReset()
 
     createClientMock.mockResolvedValue({
-      auth: { getClaims: getClaimsMock },
+      auth: { getUser: getUserMock },
     })
     createServiceClientMock.mockReturnValue({})
-    getClaimsMock.mockResolvedValue({
-      data: { claims: adminClaims },
+    getUserMock.mockResolvedValue({
+      data: { user: adminUser },
       error: null,
     })
   })

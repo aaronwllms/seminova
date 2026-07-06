@@ -4,8 +4,14 @@ vi.mock('next/server', () => ({
   connection: vi.fn().mockResolvedValue(undefined),
 }))
 
+vi.mock('@/components/site-copyright', () => ({
+  SiteCopyright: () => (
+    <span>© {new Date().getFullYear()} Seminova. All rights reserved.</span>
+  ),
+}))
+
 import { siteConfig } from '@/config/site'
-import { render, screen, waitFor } from '@/test/test-utils'
+import { render, screen } from '@/test/test-utils'
 
 import { LandingFooter } from './landing-footer'
 
@@ -13,11 +19,9 @@ describe('LandingFooter', () => {
   it('should render copyright, legal stubs, and GitHub social link', async () => {
     render(<LandingFooter />)
 
-    await waitFor(() => {
-      expect(screen.getByText(/all rights reserved/i)).toHaveTextContent(
-        siteConfig.name,
-      )
-    })
+    expect(await screen.findByText(/all rights reserved/i)).toHaveTextContent(
+      siteConfig.name,
+    )
 
     for (const item of siteConfig.legal) {
       expect(screen.getByText(item.label)).toBeInTheDocument()

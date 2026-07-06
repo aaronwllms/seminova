@@ -188,44 +188,36 @@ describe('updateProfileAction', () => {
     })
   })
 
-  it('should omit avatar_url when client sends an external URL', async () => {
-    mockSingle.mockResolvedValue({
-      data: {
-        display_name: 'Alex',
-        avatar_url: null,
-        bio: null,
-      },
-      error: null,
-    })
-
+  it('should reject a non-owned avatar URL with a validation error', async () => {
     const result = await updateProfileAction({
       avatarUrl: 'https://evil.com/track.png',
     })
 
+    expect(result).toMatchObject({
+      success: false,
+      error: {
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+        message: 'Could not save your profile photo. Please try again.',
+      },
+    })
     expect(mockGetPublicUrl).not.toHaveBeenCalled()
-    expect(mockUpdate).toHaveBeenCalledWith({})
-    expect(mockUpdate.mock.calls[0]?.[0]).not.toHaveProperty('avatar_url')
-    expect(result).toMatchObject({ success: true })
+    expect(mockUpdate).not.toHaveBeenCalled()
   })
 
-  it('should omit avatar_url when client sends another user avatar path', async () => {
-    mockSingle.mockResolvedValue({
-      data: {
-        display_name: 'Alex',
-        avatar_url: null,
-        bio: null,
-      },
-      error: null,
-    })
-
+  it('should reject another user avatar path with a validation error', async () => {
     const otherUserPath = `https://example.supabase.co/storage/v1/object/public/avatars/${buildAvatarStoragePath('other-user')}`
 
-    await updateProfileAction({
+    const result = await updateProfileAction({
       avatarUrl: otherUserPath,
     })
 
+    expect(result).toMatchObject({
+      success: false,
+      error: { code: 'VALIDATION_ERROR', kind: 'operational' },
+    })
     expect(mockGetPublicUrl).not.toHaveBeenCalled()
-    expect(mockUpdate.mock.calls[0]?.[0]).not.toHaveProperty('avatar_url')
+    expect(mockUpdate).not.toHaveBeenCalled()
   })
 
   it('should clear avatar_url when client sends null', async () => {

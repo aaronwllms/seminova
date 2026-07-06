@@ -161,6 +161,8 @@ Use this format. Keep it concise — PM-readable.
 If repo docs may be stale, suggest running the **sync-repo-docs** skill.
 ```
 
+Deferred findings must not die with this report: append each Defer item to `TECH_DEBT_AUDIT.md` following that file's ID and format conventions. If the file does not exist, list the items and tell the user to log them via **`audit-tech-debt`**.
+
 ## Principles
 
 - **Tests pass ≠ feature works** — code review catches logic; manual checklist catches UX

@@ -99,6 +99,15 @@ export const updateProfileAction = async (
       const version =
         extractAvatarCacheBust(parsed.data.avatarUrl) ?? Date.now()
       updatePayload.avatar_url = withAvatarCacheBust(data.publicUrl, version)
+    } else {
+      return {
+        success: false,
+        error: {
+          message: 'Could not save your profile photo. Please try again.',
+          code: 'VALIDATION_ERROR',
+          kind: 'operational',
+        },
+      }
     }
   }
 

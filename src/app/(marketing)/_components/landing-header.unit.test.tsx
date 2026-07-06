@@ -1,15 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('@/utils/env', () => ({
-  hasPublicSupabaseEnv: true,
-}))
-
-vi.mock('@/supabase/server', () => ({
-  createClient: vi.fn(async () => ({
-    auth: {
-      getUser: vi.fn().mockResolvedValue({ data: { user: null } }),
-    },
-  })),
+vi.mock('./landing-auth-slot', () => ({
+  LandingAuthSlot: () => (
+    <>
+      <a href="/auth/login">Sign in</a>
+      <a href="/auth/sign-up">Sign up</a>
+    </>
+  ),
 }))
 
 import { siteConfig } from '@/config/site'
