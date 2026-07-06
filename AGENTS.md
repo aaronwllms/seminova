@@ -2,7 +2,7 @@
 
 **Purpose:** What exists in this repo today — hard-constraint governance, implemented features, routes, data model, and where to look. For planning and roadmap, see [ROADMAP.md](ROADMAP.md) and the per-phase PRDs in [docs/prds/](docs/prds/). For human setup, see [README.md](README.md). For how to write code, see [.cursor/rules/](.cursor/rules/) (not duplicated here).
 
-**Last updated:** 2026-07-05
+**Last updated:** 2026-07-06
 
 Document roles and the doc-maintenance procedure are authoritative in [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
@@ -35,6 +35,7 @@ For the planning-loop skills (`plan-next-epic`, `mark-epic-complete`, `ship-phas
 | ----- | -------- |
 | `pre-release-review` | Finishing an epic or before opening a PR — quality gates, scoped code review, security check, hard-constraints check, manual test checklist |
 | `audit-tech-debt` | Codebase health check or architecture review — full pass or sync → `TECH_DEBT_AUDIT.md` |
+| `audit-tests` | Test suite health check — full pass or sync → `TEST_AUDIT.md` |
 | `audit-rules` | Rules health check — full pass or sync → `RULE_AUDIT.md` |
 | `audit-security` | Before launch, after auth/RLS changes, or periodic hygiene — full pass or sync → `SECURITY_AUDIT.md` |
 
@@ -68,9 +69,11 @@ All skills are read-only or scoped-write as documented in their own `SKILL.md` �
 | `pnpm lint-fix` | ESLint with auto-fix |
 | `pnpm format` | Prettier write |
 | `pnpm format-check` | Prettier check (CI) |
-| `pnpm test` | Vitest watch mode (human dev only) |
+| `pnpm test` | Vitest run once (default; non-watch) |
+| `pnpm test:watch` | Vitest watch mode (human dev only) |
+| `pnpm test:file` | Run one test file or pattern (`pnpm test:file -- <path>`) |
 | `pnpm test:ci` | Vitest run once with coverage gates (agents, CI, pre-push) |
-| `pnpm pre-push` | Full CI mirror locally (type-check → lint → format-check → test:ci) |
+| `pnpm pre-push` | Full CI mirror locally (type-check → hard-constraint checks → lint → format-check → test:ci) |
 | `pnpm test:ui` | Vitest UI |
 | `pnpm analyze` | Bundle analyzer |
 | `pnpm promote-admin <email>` | Grant admin via secret key (`app_metadata.role`) |
@@ -103,7 +106,7 @@ Consumption detail for demoted guidance lives in `.cursor/rules/`. **Change prot
 
 Grouped by feature area. History of which phase/epic shipped what lives in git and in the archived PRDs (`docs/prds/archive/`) — this section describes current state only.
 
-**Foundation & tooling.** Starter tutorial/demo scaffolding removed; pnpm-only; Vitest 3 / Vite 6 / Next 16.2.x. `.cursor/rules/` stack-accurate and project-agnostic. Pre-push hook mirrors CI (`pnpm pre-push`: type-check → lint → format-check → `test:ci`); 80% Vitest coverage thresholds; `.prettierignore` / lint-staged audit (agent-authored docs remain Prettier-ignored). Planning layer is `ROADMAP.md` + per-phase PRDs in `docs/prds/`; doc roles in `docs/DOC_RULES.md`; hard constraints in this file (enforced via `check:*` scripts); architectural vocabulary in `LEXICON.md`; ADR process in `docs/adr/`.
+**Foundation & tooling.** Starter tutorial/demo scaffolding removed; pnpm-only; Vitest 3 / Vite 6 / Next 16.2.x. `.cursor/rules/` stack-accurate and project-agnostic. Pre-push hook mirrors CI (`pnpm pre-push`: type-check → hard-constraint checks → lint → format-check → `test:ci`); 80% Vitest coverage thresholds; `.prettierignore` / lint-staged audit (agent-authored docs remain Prettier-ignored). Planning layer is `ROADMAP.md` + per-phase PRDs in `docs/prds/`; doc roles in `docs/DOC_RULES.md`; hard constraints in this file (enforced via `check:*` scripts); architectural vocabulary in `LEXICON.md`; ADR process in `docs/adr/`.
 
 **Auth & session.** Supabase email/password flows under `/auth/**` (login, sign-up, forgot/update password, confirm, error) with shared auth layout. `proxy.ts` → `src/supabase/proxy.ts` refreshes the session, redirects unauthenticated users to `/auth/login`, and redirects non-admins from `/admin/**` to `/profile`. When public Supabase env is unset, the proxy skips session checks in development only; production returns **503**. Post-login redirect: admins → `/admin`, non-admins → `/profile`. Server Component reads (`requireAuthClaims`, `hasServerAuthSession`) validate the cookie-read access token via `getClaims(accessToken)` — neither refreshes; refresh is proxy-only ([ADR-0003](docs/adr/ADR-0003-no-refresh-in-rsc-auth-reads.md)). **Read vs mutation split:** layouts, server components, and gates (`AdminAuthGate`, `getCurrentUserProfile`) use `requireAuthClaims` / `hasServerAuthSession` from [`require-auth.ts`](src/supabase/require-auth.ts) and [`server.ts`](src/supabase/server.ts) — cookie token + `getClaims(accessToken)`, never refreshes. Server actions use `getUser()` at the trust boundary so the Auth server validates the access token (see [`updateProfileAction`](src/app/(app)/profile/actions.ts) and [`forms.mdc`](.cursor/rules/forms.mdc) step 1). Do not call bare `getClaims()` or `getSession()` on RSC read paths. [`extractAuthFormError`](src/utils/extract-auth-form-error.ts) is fallback-first — enumerated `AUTH_ERROR_OVERRIDES` for known Supabase codes, generic operational copy for unmapped codes, never raw Supabase messages. Four auth forms carry `autocomplete` tokens per [`forms.mdc`](.cursor/rules/forms.mdc); update-password includes a hidden paired username field from the recovery session. [`/auth/confirm`](src/app/auth/confirm/route.ts) validates an optional `next` query param via [`isSafeRedirect`](src/utils/is-safe-redirect.ts) (same-origin only) before redirecting, falling back to the role-based post-auth path.
 
@@ -121,7 +124,7 @@ Grouped by feature area. History of which phase/epic shipped what lives in git a
 
 **Data & storage.** Three migrations: [`create_profiles`](supabase/migrations/20260622120000_create_profiles.sql), [`create_avatars_bucket`](supabase/migrations/20260623120000_create_avatars_bucket.sql), [`add_avatars_select_policy`](supabase/migrations/20260623130000_add_avatars_select_policy.sql). `avatars` storage bucket is public-read with owner-scoped write RLS. Types generated to [`src/types/database.types.ts`](src/types/database.types.ts) via `pnpm db:types`; domain aliases in [`src/types/profile.ts`](src/types/profile.ts). Full schema detail in [Data model](#data-model-summary) below.
 
-**Testing & data fetching.** Vitest + React Testing Library + MSW v2 (`src/test/`, `src/mocks/` — server handlers only); unit/integration tests across auth, admin, profile, proxy, hooks, and utils; 80% coverage thresholds enforced via `pnpm test:ci`. TanStack Query v5 provider configured for client-side data fetching; devtools lazy-loaded via [`react-query-devtools.tsx`](src/providers/react-query-devtools.tsx).
+**Testing & data fetching.** Vitest + React Testing Library + MSW v2 (`src/test/`, `src/mocks/` — server handlers only); unit/integration tests across auth, admin, profile, proxy, hooks, and utils; 80% coverage thresholds enforced via `pnpm test:ci`; ESLint bans snapshots and unquarantined skips in test files (see [`.cursor/rules/testing.mdc`](.cursor/rules/testing.mdc)). TanStack Query v5 provider configured for client-side data fetching; devtools lazy-loaded via [`react-query-devtools.tsx`](src/providers/react-query-devtools.tsx).
 
 ---
 

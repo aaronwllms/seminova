@@ -168,9 +168,11 @@ After that, the repo is a real project, not a template copy — and the phase-by
 | `pnpm lint-fix` | ESLint with auto-fix |
 | `pnpm format` | Prettier write |
 | `pnpm format-check` | Prettier check |
-| `pnpm test` | Vitest watch mode (local dev) |
-| `pnpm test:ci` | Vitest run once (CI / agents) |
-| `pnpm pre-push` | Full local CI mirror (type-check → lint → format-check → test:ci) |
+| `pnpm test` | Vitest run once (default; non-watch) |
+| `pnpm test:watch` | Vitest watch mode (local dev) |
+| `pnpm test:file` | Run one test file or pattern (`pnpm test:file -- <path>`) |
+| `pnpm test:ci` | Vitest run once with coverage gates (CI / agents) |
+| `pnpm pre-push` | Full local CI mirror (type-check → hard-constraint checks → lint → format-check → test:ci) |
 | `pnpm test:ui` | Vitest UI |
 | `pnpm analyze` | Bundle analyzer |
 | `pnpm promote-admin <email>` | Grant admin role via CLI (requires secret key; bootstrap / automation) |
@@ -218,9 +220,9 @@ See [AGENTS.md](AGENTS.md) and [`.cursor/rules/do-migrations-agent.mdc`](.cursor
 
 **Pre-commit** (Husky): lint-staged on staged files — ESLint + Prettier for JS/TS; Prettier for markdown, JSON, YAML, and CSS (agent-authored docs in `.prettierignore` are skipped) — plus full-project type-check.
 
-**Pre-push** (Husky): `pnpm pre-push` — type-check → lint → format-check → `test:ci` (with 80% coverage thresholds). Mirrors CI exactly.
+**Pre-push** (Husky): `pnpm pre-push` — type-check → hard-constraint checks → lint → format-check → `test:ci` (with 80% coverage thresholds). Mirrors CI exactly.
 
-**CI** (pull requests to `main`): same order as pre-push. See [.github/workflows/pull-request.yaml](.github/workflows/pull-request.yaml).
+**CI** (pull requests to `main`): same order as pre-push (`check:pnpm-only`, `check:no-shadcn-pkg`, `check:semantic-tokens` before lint). See [.github/workflows/pull-request.yaml](.github/workflows/pull-request.yaml).
 
 Before opening a PR, run locally:
 
