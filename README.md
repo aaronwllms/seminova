@@ -149,7 +149,7 @@ After that, the repo is a real project, not a template copy — and the phase-by
 - **Tailwind CSS + shadcn/ui** — owned primitives in `src/components/ui`
 - **TanStack Query v5** — client-side data fetching
 - **next-themes** — light/dark theming over CSS variables
-- **Vitest + React Testing Library + MSW v2** — testing and request mocking
+- **Vitest + React Testing Library** — unit/integration tests (MSW v2 in devDependencies; global setup deferred until HTTP boundaries need it)
 - **pnpm** — exclusive package manager
 - **Husky + lint-staged** — pre-commit quality checks
 - **GitHub Actions** — CI on pull requests

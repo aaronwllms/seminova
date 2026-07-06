@@ -124,7 +124,7 @@ Grouped by feature area. History of which phase/epic shipped what lives in git a
 
 **Data & storage.** Three migrations: [`create_profiles`](supabase/migrations/20260622120000_create_profiles.sql), [`create_avatars_bucket`](supabase/migrations/20260623120000_create_avatars_bucket.sql), [`add_avatars_select_policy`](supabase/migrations/20260623130000_add_avatars_select_policy.sql). `avatars` storage bucket is public-read with owner-scoped write RLS. Types generated to [`src/types/database.types.ts`](src/types/database.types.ts) via `pnpm db:types`; domain aliases in [`src/types/profile.ts`](src/types/profile.ts). Full schema detail in [Data model](#data-model-summary) below.
 
-**Testing & data fetching.** Vitest + React Testing Library + MSW v2 (`src/test/`, `src/mocks/` — server handlers only); unit/integration tests across auth, admin, profile, proxy, hooks, and utils; 80% coverage thresholds enforced via `pnpm test:ci`; ESLint bans snapshots and unquarantined skips in test files (see [`.cursor/rules/testing.mdc`](.cursor/rules/testing.mdc)). TanStack Query v5 provider configured for client-side data fetching; devtools lazy-loaded via [`react-query-devtools.tsx`](src/providers/react-query-devtools.tsx).
+**Testing & data fetching.** Vitest + React Testing Library (`src/test/`); Supabase/auth boundaries use `vi.mock` at module level; MSW v2 is a dev dependency with global setup deferred until HTTP handlers are needed (see [`.cursor/rules/testing.mdc`](.cursor/rules/testing.mdc)); unit/integration tests across auth, admin, profile, proxy, hooks, and utils; 80% coverage thresholds enforced via `pnpm test:ci`; ESLint enforces snapshot ban, unquarantined-skip quarantine, and test-scope file naming in test files. TanStack Query v5 provider configured for client-side data fetching; devtools lazy-loaded via [`react-query-devtools.tsx`](src/providers/react-query-devtools.tsx).
 
 ---
 
@@ -192,7 +192,6 @@ Schema authority for shipped tables lives in this section once migrations land. 
 | `src/hooks/` | Custom hooks (`use-sign-out`, `use-mobile`, etc.) |
 | `src/hooks/use-sign-out.ts` | Shared client sign-out (`useSignOut` → Supabase `signOut` + redirect to `/auth/login`) |
 | `src/test/` | Test utilities (`render` with providers) |
-| `src/mocks/` | MSW handlers (testing only) |
 | `scripts/admin/` | Admin CLI (`promote-admin`, `demote-admin`, `list-admins`) |
 | `src/app/globals.css` | Global styles and CSS variable tokens (authoritative token values) |
 | `ROADMAP.md` | Phase status and planning horizon stubs |
