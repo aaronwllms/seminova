@@ -17,7 +17,7 @@ globs:
 - Never hardcode theme colors (raw hex or numeric Tailwind color scales for themeable color)
 
 ## Theming
-- Dark mode via `next-themes` in [`src/providers/ThemeProvider.tsx`](../../src/providers/ThemeProvider.tsx)
+- Dark mode via `next-themes` in [`src/app/layout.tsx`](../../src/app/layout.tsx)
 - shadcn/ui uses **CSS variables** for theming (configured in `components.json`)
 - Colors use semantic tokens (`bg-background`, `text-foreground`, `border-border`) — variables switch automatically in light/dark mode
 - Manual dark-mode classes rarely needed with shadcn components

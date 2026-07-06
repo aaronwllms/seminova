@@ -72,29 +72,26 @@ describe('UsersTable', () => {
   })
 
   it('should debounce search and call action with email filter', async () => {
-    vi.useFakeTimers({ shouldAdvanceTime: true })
-    const user = userEvent.setup({
-      advanceTimers: vi.advanceTimersByTime.bind(vi),
-    })
+    const user = userEvent.setup({ delay: null })
 
     renderTable()
 
     await waitFor(() => {
       expect(listUsersActionMock).toHaveBeenCalledTimes(1)
+      expect(screen.getByText('admin@example.com')).toBeInTheDocument()
     })
 
     await user.type(screen.getByLabelText(/search by email/i), 'abc')
 
-    await vi.advanceTimersByTimeAsync(300)
-
-    await waitFor(() => {
-      expect(listUsersActionMock).toHaveBeenCalledWith({
-        page: 1,
-        emailFilter: 'abc',
-      })
-    })
-
-    vi.useRealTimers()
+    await waitFor(
+      () => {
+        expect(listUsersActionMock).toHaveBeenLastCalledWith({
+          page: 1,
+          emailFilter: 'abc',
+        })
+      },
+      { timeout: 1000 },
+    )
   })
 
   it('should show an error with copy affordance when listUsersAction fails', async () => {
@@ -161,7 +158,7 @@ describe('UsersTable', () => {
   })
 
   it('should promote a user after confirmation and show success toast', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     listUsersActionMock.mockResolvedValue({
       success: true,

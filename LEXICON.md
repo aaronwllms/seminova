@@ -30,7 +30,7 @@ The only public routes are the landing page (`/`) and the auth screens (`/auth/*
 
 The proxy reads session state via `getClaims()`, not `getUser()`. `getClaims()` reads the JWT locally with no network round-trip; `getUser()` hits the Supabase Auth server. The proxy comment warns explicitly against swapping them — doing so can cause users to be randomly logged out.
 
-The proxy skips all enforcement when `hasEnvVars` is false (Supabase env vars not yet configured) — a dev-setup affordance. Remove or disable this bypass once the project is configured.
+The proxy skips all enforcement when `hasPublicSupabaseEnv` is false (Supabase env vars not yet configured) — a dev-setup affordance. Remove or disable this bypass once the project is configured.
 
 ### Admin gate
 
@@ -38,7 +38,7 @@ Admin access is keyed on `app_metadata.role` on the Supabase user — **not** a 
 
 ### Defense in depth (admin)
 
-Admin privilege is re-verified at every layer that can reach elevated operations: proxy redirect → `AdminAuthGate` in the layout → `assertAdminCaller()` in each server action before `createServiceClient()` runs. No single gate is considered sufficient. The service client is never reached without passing all three. Enforcement: `proxy.ts`, `AdminAuthGate`, and `assertAdminCaller()` in the gated server actions.
+Admin privilege is re-verified at every layer that can reach elevated operations: proxy redirect → `AdminAuthGate` in the layout → `assertAdminCaller()` in each server action before `createServiceClient()` runs. No single gate is considered sufficient. The service client is never reached without passing all three. Enforcement: `proxy.ts`, `AdminAuthGate`, and `assertAdminCaller()` in [`src/app/admin/users/_lib/assert-admin-caller.ts`](src/app/admin/users/_lib/assert-admin-caller.ts).
 
 ### Supabase clients (browser / server / service)
 
@@ -124,7 +124,7 @@ Public avatar URLs are versioned with a `?v=` query param so browsers fetch the 
 
 ### Canonical data table
 
-The reference pattern for admin tables: `DataTableShell` with single-column search, server-side Next/Previous pagination (50 rows), and skeleton loading via column meta. See [`src/components/data-table1.tsx`](src/components/data-table1.tsx) and the users table as the reference implementation. New admin list views should follow this pattern before reaching for a custom table.
+The reference pattern for admin tables: `DataTableShell` with single-column search, server-side Next/Previous pagination (50 rows), and skeleton loading via column meta. See [`src/components/data-table-shell.tsx`](src/components/data-table-shell.tsx) and the users table as the reference implementation. New admin list views should follow this pattern before reaching for a custom table.
 
 ---
 

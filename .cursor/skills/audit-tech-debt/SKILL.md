@@ -1,13 +1,8 @@
 ---
 name: audit-tech-debt
 description: >-
-  Thorough, user-invoked tech debt and architecture audit of the current
-  codebase. Two explicitly invoked run modes: full pass (full-repo audit) and
-  sync pass (incremental update of open findings only). Produces or updates
-  TECH_DEBT_AUDIT.md with file-cited findings, severity, effort estimates, and
-  a required "looks bad but is actually fine" section. Use when the user asks
-  for a debt audit, codebase health check, architecture review, or code quality
-  assessment. Does not auto-invoke.
+  Read-only tech debt and architecture audit of the whole repo (full pass or
+  sync); writes TECH_DEBT_AUDIT.md at the repo root.
 disable-model-invocation: true
 ---
 
@@ -35,7 +30,7 @@ Respect **intentional design** documented in `AGENTS.md` § Hard constraints and
 
 ## Run modes
 
-**Mode gate** — first step, before anything else: if the invocation does not state full pass or sync, ask the user which mode and stop. Do not proceed on an assumed or inferred mode, even when context makes one seem obvious (e.g. `TECH_DEBT_AUDIT.md` already exists, so sync "must" be intended). Only after the mode is explicit, continue below.
+**Mode gate** — first step, before anything else: if the invocation does not state full pass or sync, ask the user which mode as a numbered choice — e.g. `Which mode? 1 (Full pass) 2 (Sync)` — and stop. Do not proceed on an assumed or inferred mode, even when context makes one seem obvious (e.g. `TECH_DEBT_AUDIT.md` already exists, so sync "must" be intended). Only after the mode is explicit, continue below.
 
 **Full pass** — Phase 1 (Orient) → Phase 2 (dimensions) → Phase 3 (write the deliverable). On a full pass, also prune the Resolved appendix: delete any entry older than the previous full audit date.
 
@@ -72,7 +67,7 @@ Use `rg` (Grep tool), shell commands, and language-native tooling to find concre
 
 3. **Type & contract debt** — `any` / `unknown` / `as any` / `# type: ignore` / loose dicts. Untyped API boundaries. Missing schema validation at trust boundaries.
 
-4. **Test debt** — run coverage if configured; otherwise map high-churn files to test files. Tests that assert implementation rather than behavior. Skipped or flaky tests. High-churn files with no tests.
+4. **Test debt** — high-churn files with no tests (from the Phase 1 churn data). For suite depth — coverage gaps, over-testing, assertion quality, mocking hygiene — note that **`audit-tests`** exists; this dimension catches the churn-vs-coverage signal only.
 
 5. **Dependency & config debt** — `pnpm audit` / `npm audit` / stack equivalent for CVEs. Unused deps. Duplicate deps doing the same job. Env var sprawl (referenced but not documented; defaults inconsistent across envs).
 

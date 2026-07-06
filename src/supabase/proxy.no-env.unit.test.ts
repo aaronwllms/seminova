@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 const mockGetClaims = vi.fn()
 
 vi.mock('@/utils/env', () => ({
-  hasEnvVars: false,
+  hasPublicSupabaseEnv: false,
 }))
 
 vi.mock('@supabase/ssr', () => ({
@@ -37,24 +37,18 @@ describe('updateSession without env vars', () => {
     expect(mockGetClaims).not.toHaveBeenCalled()
   })
 
-  it('should redirect protected routes to login in production when env vars are missing', async () => {
+  it('should return 503 for all routes in production when env vars are missing', async () => {
     vi.stubEnv('NODE_ENV', 'production')
     const { updateSession } = await import('./proxy')
 
-    const response = await updateSession(createRequest('/profile'))
+    for (const pathname of ['/profile', '/', '/auth/login']) {
+      const response = await updateSession(createRequest(pathname))
 
-    expect(response.status).toBe(307)
-    expect(response.headers.get('location')).toContain('/auth/login')
-    expect(mockGetClaims).not.toHaveBeenCalled()
-  })
-
-  it('should allow public routes in production when env vars are missing', async () => {
-    vi.stubEnv('NODE_ENV', 'production')
-    const { updateSession } = await import('./proxy')
-
-    const response = await updateSession(createRequest('/'))
-
-    expect(response.status).toBe(200)
-    expect(mockGetClaims).not.toHaveBeenCalled()
+      expect(response.status).toBe(503)
+      expect(await response.text()).toContain(
+        'Supabase environment variables are not configured',
+      )
+      expect(mockGetClaims).not.toHaveBeenCalled()
+    }
   })
 })

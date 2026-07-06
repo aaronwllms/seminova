@@ -1,10 +1,8 @@
 ---
 name: archive-cursor-plans
 description: >-
-  Moves completed Cursor plan files from .cursor/plans/ into
-  .cursor/plans/archive/. Use when the user asks to archive plans, clean the
-  plans folder, or after a phase ships (often after /ship-phase). Supports
-  bulk move-all or selective archive by phase or explicit list.
+  Moves completed Cursor plan files from `.cursor/plans/` into
+  `.cursor/plans/archive/` (bulk or selective).
 disable-model-invocation: true
 ---
 

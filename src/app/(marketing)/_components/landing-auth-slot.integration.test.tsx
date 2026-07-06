@@ -7,7 +7,7 @@ vi.mock('@/supabase/require-auth', () => ({
 }))
 
 vi.mock('@/utils/env', () => ({
-  hasEnvVars: true,
+  hasPublicSupabaseEnv: true,
 }))
 
 import { render, screen } from '@/test/test-utils'
@@ -41,13 +41,18 @@ describe('LandingAuthSlot', () => {
     )
   })
 
-  it('should render stacked Open app CTA when authenticated on mobile', async () => {
-    mockHasServerAuthSession.mockResolvedValue(true)
+  it('should render stacked auth CTAs when anonymous on mobile', async () => {
+    mockHasServerAuthSession.mockResolvedValue(false)
 
     render(await LandingAuthSlot({ layout: 'stack' }))
 
-    expect(screen.getByRole('link', { name: /open app/i })).toHaveClass(
-      'w-full',
+    expect(screen.getByRole('link', { name: /sign in/i })).toHaveAttribute(
+      'href',
+      '/auth/login',
+    )
+    expect(screen.getByRole('link', { name: /sign up/i })).toHaveAttribute(
+      'href',
+      '/auth/sign-up',
     )
   })
 })

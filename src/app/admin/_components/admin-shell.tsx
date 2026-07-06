@@ -14,11 +14,16 @@ import { AdminSidebar } from './admin-sidebar'
 type AdminShellProps = {
   children: React.ReactNode
   userEmail: string
+  defaultSidebarOpen?: boolean
 }
 
-export const AdminShell = ({ children, userEmail }: AdminShellProps) => {
+export const AdminShell = ({
+  children,
+  userEmail,
+  defaultSidebarOpen,
+}: AdminShellProps) => {
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={defaultSidebarOpen}>
       <AdminSidebar email={userEmail} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">

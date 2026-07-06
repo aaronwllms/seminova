@@ -4,8 +4,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { USERS_PAGE_SIZE } from './admin-user-row'
 import { listAdminUsersPage } from './list-admin-users'
 
-vi.mock('@/supabase/service', () => ({
-  getServiceEnvForFetch: vi.fn(() => ({
+vi.mock('@/utils/env', () => ({
+  getServiceSupabaseEnv: vi.fn(() => ({
     supabaseUrl: 'https://example.supabase.co',
     secretKey: 'secret-key',
   })),

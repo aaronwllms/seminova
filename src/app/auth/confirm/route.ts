@@ -1,5 +1,5 @@
 import { createClient } from '@/supabase/server'
-import { getPostAuthRedirectPath, type AppMetadata } from '@/utils/admin'
+import { getPostAuthRedirectPath } from '@/utils/admin'
 import { isSafeRedirect } from '@/utils/is-safe-redirect'
 import { type EmailOtpType } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
@@ -22,9 +22,7 @@ export async function GET(request: NextRequest) {
       const {
         data: { user },
       } = await supabase.auth.getUser()
-      const fallback = getPostAuthRedirectPath(
-        user?.app_metadata as AppMetadata,
-      )
+      const fallback = getPostAuthRedirectPath(user?.app_metadata)
       const destination =
         next && isSafeRedirect(next, request.url) ? next : fallback
       redirect(destination)

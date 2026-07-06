@@ -153,6 +153,10 @@ describe('ProfileSettingsForm', () => {
       success: true,
       data: { displayName: 'Jordan', bio: null, avatarUrl: null },
     })
+
+    await waitFor(() => {
+      expect(mockUpdateProfileAction).toHaveBeenCalledTimes(1)
+    })
   })
 
   it('should skip duplicate blur-save while bio save is in flight', async () => {
@@ -191,6 +195,10 @@ describe('ProfileSettingsForm', () => {
     resolveUpdate({
       success: true,
       data: { displayName: 'Alex', bio: 'Designer', avatarUrl: null },
+    })
+
+    await waitFor(() => {
+      expect(mockUpdateProfileAction).toHaveBeenCalledTimes(1)
     })
   })
 

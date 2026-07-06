@@ -1,10 +1,8 @@
 ---
 name: plan-next-epic
 description: >-
-  Plan the next uncompleted epic using the repo planning brief and AGENTS.md.
-  On the first epic of a phase, creates or checks out the phase branch from main.
-  Use in Plan Mode when starting a new epic, when the user asks to plan the next
-  epic, or before external planning sessions.
+  Plans the next uncompleted epic from the repo brief and AGENTS.md; creates the
+  phase branch on the first epic of a phase.
 disable-model-invocation: true
 ---
 
@@ -51,15 +49,33 @@ git branch --show-current
 
 **On `main` for the first epic:**
 
-```bash
-# If the branch already exists locally:
-git checkout phase-{N}/{slug}
+Check whether the branch already exists:
 
-# If it does not exist locally:
-git checkout -b phase-{N}/{slug}
+```bash
+git show-ref --verify --quiet refs/heads/phase-{N}/{slug}
 ```
 
-Use `git show-ref --verify --quiet refs/heads/phase-{N}/{slug}` to choose checkout vs `-b`. Request `git_write`. Report which branch was created or checked out. **Do not push** — publishing the branch is separate (build work or `ship-phase`).
+- **Doesn't exist:** `git checkout -b phase-{N}/{slug}` — safe, always fresh.
+- **Exists:** before checking out, compare it against `main`:
+
+  ```bash
+  git log main..phase-{N}/{slug} --oneline
+  ```
+
+  - **No commits ahead:** the branch is fresh (created but never built on). Safe to check out: `git checkout phase-{N}/{slug}`.
+  - **Commits ahead:** unexpected for a first epic — this branch likely holds abandoned or superseded work. **Halt.** Report the branch name and commit count, and ask the user whether to (a) delete and recreate it fresh, (b) check out and continue from that work, or (c) something else. Do not check out automatically.
+
+**After checkout or creation, always verify:**
+
+```bash
+git branch --show-current
+```
+
+Confirm the output matches `phase-{N}/{slug}` exactly before proceeding to plan generation. If it doesn't, halt and report — do not proceed onto `main` or any other branch by assumption.
+
+Request `git_write` for any checkout/create/delete above. Report which branch was created, checked out, or recreated. **Do not push** — publishing the branch is separate (build work or `ship-phase`).
+
+**Branch setup must complete before plan generation.** If you cannot execute the checkout/create yourself (e.g. `git_write` is unavailable or denied), **halt** and ask the user to switch branches before continuing. Never silently defer branch setup into the generated plan — the plan may be executed later by an agent that resolves branch state incorrectly.
 
 ## Name the plan
 
@@ -78,5 +94,9 @@ Cursor derives the filename from the YAML `name` field. Lead with the **phase + 
 Before writing the plan, assess whether this epic has clearly independent tracks with disjoint file ownership. If so, add a note at the top of the generated plan: "This epic is a good candidate for Build in Parallel." Otherwise say nothing — sequential is the default. Either way, write the plan sequentially.
 
 ## Close the plan
+
+On a **first epic**, open the generated plan with a branch precondition — a verification check only, never checkout or branch-resolution logic:
+
+> **Precondition:** confirm `git branch --show-current` outputs `phase-{N}/{slug}` (substitute the actual branch name). If it doesn't match, halt and ask the user — do not switch branches.
 
 End every generated plan with a final step instructing the implementing agent to run the **mark-epic-complete** skill once implementation is fully finished. This is how the epic gets tagged `` `Complete` `` in the active PRD — plan-next-epic itself never edits files.

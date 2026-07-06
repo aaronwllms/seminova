@@ -1,7 +1,10 @@
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 import { AdminShell } from '@/app/admin/_components/admin-shell'
 import { PROFILE_PATH } from '@/constants/app-paths'
+import { parseSidebarOpenCookie } from '@/components/ui/sidebar/cookie'
+import { SIDEBAR_COOKIE_NAME } from '@/components/ui/sidebar/constants'
 import { createClient } from '@/supabase/server'
 import { requireAuthClaims } from '@/supabase/require-auth'
 import { isAdmin } from '@/utils/admin'
@@ -21,5 +24,14 @@ export const AdminAuthGate = async ({ children }: AdminAuthGateProps) => {
   const userEmail =
     typeof claims.email === 'string' ? claims.email : 'Signed-in user'
 
-  return <AdminShell userEmail={userEmail}>{children}</AdminShell>
+  const cookieStore = await cookies()
+  const defaultSidebarOpen = parseSidebarOpenCookie(
+    cookieStore.get(SIDEBAR_COOKIE_NAME)?.value,
+  )
+
+  return (
+    <AdminShell userEmail={userEmail} defaultSidebarOpen={defaultSidebarOpen}>
+      {children}
+    </AdminShell>
+  )
 }

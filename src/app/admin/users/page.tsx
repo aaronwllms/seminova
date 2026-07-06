@@ -1,13 +1,12 @@
 import { createClient } from '@/supabase/server'
-import type { JwtClaims } from '@/utils/admin'
+import { requireAuthClaims } from '@/supabase/require-auth'
 
 import { UsersTable } from './_components/users-table'
 
 export default async function UsersPage() {
   const supabase = await createClient()
-  const { data } = await supabase.auth.getClaims()
-  const claims = data?.claims as JwtClaims | undefined
-  const currentAdminUserId = claims?.sub?.trim() ?? ''
+  const claims = await requireAuthClaims(supabase)
+  const currentAdminUserId = claims.sub
 
   return (
     <div className="flex flex-col gap-6">

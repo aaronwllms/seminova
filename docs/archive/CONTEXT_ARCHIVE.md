@@ -4,6 +4,8 @@
 
 **Resolved decisions** from the planning brief also append here under `## Resolved decisions`.
 
+**Path note (post–Phase 6):** Entries for Phases 3–5 describe routes as shipped at the time. The admin console moved from the invisible `(admin)` route group + `/users` to `src/app/admin/` + `/admin/*` in Phase 6 Epic 2. Non-admin post-login landing moved from `/protected` to `/profile` in Phase 6 Epic 5. Current truth: [AGENTS.md](../../AGENTS.md).
+
 ---
 
 ## Phase 1 — Foundation & Cleanup `Shipped` (2026-06-18)

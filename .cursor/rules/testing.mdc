@@ -19,27 +19,19 @@ alwaysApply: false
 Write the minimum tests that catch real bugs. Before each test, ask what user-facing behavior would break if untested — and whether another test already covers it. See `code-minimalism.mdc` for the broader ethos; this file owns test-specific application.
 
 ### Test File Size Guidelines
-- **Target**: <300 lines per test file
-- **Maximum**: 500 lines (complex features may justify more)
-- **Red flag**: >800 lines indicates over-testing or testing too many concerns in one file
 
-When a test file grows beyond 400 lines, review for redundant cases, irrelevant edge cases, and over-mocking.
+Past ~400 lines, review the file for redundant cases, irrelevant edge cases, and over-mocking before adding more tests.
 
 ## Goals & Philosophy
 - Test **behavior over implementation details**; follow Arrange-Act-Assert
 - Never change dependencies/lockfiles to "fix" tests
-- Keep tests fast (<1s each) and reliable
 - Write tests for components with logic or user interactions
-- Use descriptive test names; cover Happy, Invalid, and Boundary with **1-2 representative tests each**
+- Use descriptive test names; cover Happy, Invalid, and Boundary per the [H/I/B Pattern](#hib-pattern-quality-over-quantity) section
 - Use `render`, `screen`, `waitFor` from `@/test/test-utils` (includes ReactQueryProvider)
 
 ## Test Pyramid Guidelines
-Balance your testing efforts across layers:
-- **E2E (≤15%)**: Only top user journeys and critical paths
-- **Integration (25-45%)**: API routes, auth flows, database interactions
-- **Unit (remainder)**: Pure functions, hooks, component logic
 
-These are guidelines, not strict quotas. Adjust based on what provides the most value.
+Prefer integration tests for components with external dependencies (forms, API routes, auth flows); unit tests for pure functions, hooks, and isolated logic. No E2E infrastructure exists yet.
 
 ## Mocking Policy
 **Only mock system boundaries** - not your own business logic:
@@ -48,9 +40,9 @@ These are guidelines, not strict quotas. Adjust based on what provides the most 
 - Mock at the system boundary, not internal implementation
 
 ### Mock Service Worker (MSW v2)
-- Mock external API calls in [`src/mocks/handlers.ts`](../../src/mocks/handlers.ts)
+- Mock external API calls in `src/mocks/handlers.ts` when a real HTTP boundary needs it
 - MSW is configured for testing only (not in production)
-- Server setup in `src/mocks/server.ts`
+- Global `server.listen()` in `vitest.setup.ts` is **deferred** until handlers exist — Supabase/auth boundaries use `vi.mock` at module level today
 
 ### Mocking Supabase
 - Mock Supabase client only at the system boundary when necessary
@@ -59,26 +51,26 @@ These are guidelines, not strict quotas. Adjust based on what provides the most 
 
 ## Running Tests
 
-**Agents and automation must use non-watch mode** — bare `pnpm test` starts Vitest in watch mode and never exits in agent terminals.
-
 | Context | Command |
 |---------|---------|
-| Agents / CI / quality checks | `pnpm test:ci` |
-| Human local dev (watch) | `pnpm test` |
-| Single file | `pnpm test:ci -- path/to/file.unit.test.ts` |
+| Default (agents, automation, one-shot) | `pnpm test` |
+| Human local dev (watch) | `pnpm test:watch` |
+| CI / pre-push (coverage) | `pnpm test:ci` |
+| Single file (no coverage) | `pnpm test:file -- <path>` |
 
 ```bash
-# Full suite (agents, pre-push, CI)
-pnpm test:ci
-
-# Watch mode — human dev only
+# Full suite, non-watch (default)
 pnpm test
 
-# Targeted run
-pnpm test:ci -- src/utils/foo.unit.test.ts
-```
+# Watch mode — human dev only
+pnpm test:watch
 
-**Do not** run bare `pnpm test` in agent terminals — it hangs waiting for file changes.
+# CI / pre-push with coverage thresholds
+pnpm test:ci
+
+# Targeted run without coverage
+pnpm test:file -- src/utils/foo.unit.test.ts
+```
 
 ## H/I/B Pattern: Quality Over Quantity
 
@@ -96,7 +88,7 @@ Test these three scenarios with **1-3 representative cases each**:
   - Example: Empty list displays "no items" message
   - Don't test: empty string, whitespace, unicode, emoji, special chars unless specifically relevant
 
-**Typical range: 5-10 tests per function/component.** If you exceed 15 tests, review for redundancy.
+If a function or component needs more than ~15 tests, investigate for redundancy.
 
 **Exception**: Complex, security-critical, or high-risk code may justify more comprehensive testing. The goal is to catch real bugs efficiently, not to hit arbitrary limits.
 
@@ -111,6 +103,7 @@ Test these three scenarios with **1-3 representative cases each**:
 - **Combinations of edge cases**: Don't test "empty string with whitespace" or "unicode emoji"
 - **Implementation details**: Don't test internal state, private methods, or CSS classes
 - **Multiple ways to trigger the same behavior**: Don't test keyboard AND mouse if they do the same thing
+- **Render smoke tests for components visible in normal dev flow**: See the render-only rule under UI Components & Pages
 
 #### Test These Instead:
 - **User-facing behavior**: What the user sees and experiences
@@ -126,17 +119,18 @@ Avoid many near-duplicate edge-case or validation micro-tests, or asserting impl
 ## Test Authoring by Type
 
 ### UI Components & Pages
-- **Typical range**: 5-10 tests per component (simple components may need fewer, complex ones may need more)
+- If a component needs more than ~10 tests, investigate for redundancy. There is no minimum — some components need zero tests.
 - Use Vitest + React Testing Library
 - Use role/name/text queries (e.g., `getByRole`, `getByText`)
 - Include at least one user interaction (e.g., `userEvent.click`)
 - Assert accessibility attributes for interactive elements only
-- No snapshot tests - write explicit assertions
+- No snapshot tests — lint-enforced; write explicit assertions instead
 - Test loading and error states only if they're critical to UX
+- **Render-only tests** (assert only that expected content appears, no interaction or branch): allowed *only* for surfaces unreachable during normal development — error boundaries and fallback states. Static content components (marketing sections, config-driven copy) get no render tests; TypeScript and visual review cover them. Everything else must assert behavior.
 - **Don't test**: Every possible prop combination, internal state changes, CSS classes
 
 ### API Routes & Handlers
-- **Typical range**: 3-6 tests per route
+- If a route needs more than ~6 tests, investigate for redundancy. There is no minimum.
 - Test success path with valid input
 - Test authentication/authorization failures
 - Validate request/response shapes for key scenarios
@@ -145,7 +139,7 @@ Avoid many near-duplicate edge-case or validation micro-tests, or asserting impl
 - **Don't test**: Every validation error scenario, database errors (unless route-specific behavior)
 
 ### Hooks & Utilities
-- **Typical range**: 4-8 tests per hook/utility
+- If a hook or utility needs more than ~8 tests, investigate for redundancy. There is no minimum.
 - Test happy path with typical inputs
 - Test common failure cases
 - Test critical edge cases (null, empty, boundary values)
@@ -158,15 +152,16 @@ Avoid many near-duplicate edge-case or validation micro-tests, or asserting impl
 
 **Enforced:** 80% minimum thresholds (lines, functions, branches, statements) via [`vitest.config.ts`](../../vitest.config.ts). `pnpm test:ci` runs `vitest run --coverage` — failures block CI and pre-push.
 
-**In scope:** app logic under `src/` (auth forms, hooks, utils, route handlers, `src/supabase/proxy.ts`). **Excluded from denominator:** shadcn UI primitives, mocks, test infra, page/layout shells, thin providers, Supabase client factories, `auth-button`, root `proxy.ts` delegate.
+**In scope:** app logic under `src/` (auth forms, hooks, utils, route handlers, `src/supabase/proxy.ts`). **Excluded from denominator:** shadcn UI primitives, mocks, test infra, page/layout shells, thin providers, Supabase client factories, root `proxy.ts` delegate.
 
 Before merge: run `pnpm test:ci`. If thresholds fail, add targeted high-value tests — not per-file 80% crusades. If useful tests cannot reach 80%, revisit threshold or exclude set (PM decision)—do not pad with filler.
 
 ## Performance & Reliability
-- Keep tests fast: aim for <1 second per test
+- Keep tests fast — Vitest flags tests slower than its `slowTestThreshold` (default 300ms) in run output
 - Avoid flaky tests - if a test is unreliable, fix or quarantine it
 - Use `describe.skip()` with "QUARANTINE: reason" for temporarily disabled tests
 - Always link to a GitHub issue when quarantining tests
+- The `seminova-test/no-unquarantined-skips` ESLint rule enforces the quarantine convention
 
 ## Examples
 - Unit tests: `src/utils/extract-auth-form-error.unit.test.ts`, `src/hooks/use-sign-out.unit.test.ts`
@@ -187,12 +182,9 @@ The file naming helps identify test scope at a glance and organize test runs (e.
 
 ## Authoring Checklist
 Before submitting a PR with tests:
-- [ ] Typically 5-10 tests per function/component? (If 15+, review for redundancy)
-- [ ] Test file under 500 lines? (If 800+, likely over-testing or split needed)
-- [ ] Happy, Invalid, and Boundary cases covered with 1-3 tests each?
+- [ ] Each H/I/B category either covered or consciously skipped as irrelevant?
 - [ ] Behavior-level assertions (not implementation details)?
 - [ ] Not testing framework/library behavior?
 - [ ] Only system boundaries mocked?
-- [ ] Tests run fast (<1s each)?
 - [ ] Coverage thresholds met? (`pnpm test:ci` — 80% global on in-scope files)
 - [ ] No flaky or skipped tests without issue links?

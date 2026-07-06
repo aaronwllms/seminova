@@ -1,6 +1,8 @@
-import { server } from '@/mocks/server'
 import { QueryCache } from '@tanstack/react-query'
 import '@testing-library/jest-dom/vitest'
+
+// MSW global setup is deferred until a real HTTP boundary needs it.
+// Supabase/auth boundaries use vi.mock at module level per testing.mdc.
 
 if (typeof window !== 'undefined') {
   Object.defineProperty(window, 'matchMedia', {
@@ -20,11 +22,6 @@ if (typeof window !== 'undefined') {
 
 const queryCache = new QueryCache()
 
-beforeAll(() => server.listen())
-
 afterEach(() => {
-  server.resetHandlers()
   queryCache.clear()
 })
-
-afterAll(() => server.close())

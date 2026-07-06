@@ -207,6 +207,47 @@ describe('uploadUserAvatar', () => {
 
     expect(mockUpload).not.toHaveBeenCalled()
   })
+
+  it('should reject upload when session user id does not match userId', async () => {
+    const otherUserId = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22'
+
+    await expect(
+      avatarStorage.uploadUserAvatar({
+        userId: otherUserId,
+        file: makeFile({ type: 'image/png' }),
+      }),
+    ).rejects.toMatchObject({
+      message: 'Could not upload your image. Please try again.',
+    })
+
+    expect(mockUpload).not.toHaveBeenCalled()
+  })
+
+  it('should reject upload when Supabase storage returns an error', async () => {
+    mockUpload.mockResolvedValue({ error: { message: 'Storage full' } })
+
+    await expect(
+      avatarStorage.uploadUserAvatar({
+        userId: TEST_USER_ID,
+        file: makeFile({ type: 'image/png' }),
+      }),
+    ).rejects.toMatchObject({
+      message: 'Could not upload your image. Please try again.',
+    })
+  })
+
+  it('should re-wrap a thrown non-AvatarUploadError with a user-safe message', async () => {
+    mockUpload.mockRejectedValue(new Error('network failure'))
+
+    await expect(
+      avatarStorage.uploadUserAvatar({
+        userId: TEST_USER_ID,
+        file: makeFile({ type: 'image/png' }),
+      }),
+    ).rejects.toMatchObject({
+      message: 'Could not upload your image. Please try again.',
+    })
+  })
 })
 
 describe('getAvatarPublicUrl', () => {

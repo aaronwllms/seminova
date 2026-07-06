@@ -1,15 +1,8 @@
 ---
 name: audit-security
 description: >-
-  Thorough, user-invoked security audit of the current codebase. Two explicitly
-  invoked run modes: full pass (full-repo security audit) and sync pass
-  (incremental update of open findings only). Reads across auth, RLS, server
-  surface, storage, exposure, and transport/abuse hardening, then writes or
-  updates SECURITY_AUDIT.md at repo root with severity-ranked findings, Verified
-  OK items, and human/tooling
-  follow-ups. Use before launch, after auth/RLS changes, for periodic hygiene,
-  or when the user asks for a security audit or whole-app security review. Does
-  not auto-invoke.
+  Read-only security audit of the whole repo (full pass or sync); writes
+  SECURITY_AUDIT.md at the repo root.
 disable-model-invocation: true
 ---
 
@@ -28,7 +21,7 @@ Conducts a deliberate, read-only security audit of an entire codebase and writes
 
 ## Run modes
 
-**Mode gate** — first step, before anything else: if the invocation does not state full pass or sync, ask the user which mode and stop. Do not proceed on an assumed or inferred mode, even when context makes one seem obvious (e.g. `SECURITY_AUDIT.md` already exists, so sync "must" be intended). Only after the mode is explicit, continue below.
+**Mode gate** — first step, before anything else: if the invocation does not state full pass or sync, ask the user which mode as a numbered choice — e.g. `Which mode? 1 (Full pass) 2 (Sync)` — and stop. Do not proceed on an assumed or inferred mode, even when context makes one seem obvious (e.g. `SECURITY_AUDIT.md` already exists, so sync "must" be intended). Only after the mode is explicit, continue below.
 
 The existing **quick scan** scoping option still applies within either mode.
 

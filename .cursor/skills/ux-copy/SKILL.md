@@ -1,36 +1,19 @@
 ---
 name: ux-copy
 description: >-
-  Write or review UX copy — microcopy, error messages, empty states, CTAs, and
-  confirmation dialogs. Use when the user says "write copy for", "what should
-  this button say?", "review this error message", or when wording a dialog,
-  empty state, label, or alert.
+  Write or review UX microcopy — CTAs, empty states, error messages, and
+  confirmation dialogs.
 argument-hint: '<context or copy to review>'
 disable-model-invocation: true
 ---
 
 # UX Copy
 
-Write or review interface copy for the project. **Do not change code** unless the user asks to implement recommendations.
+Write or review interface copy — button labels, error text, empty states, dialogs. **Do not change code** unless the user asks to implement recommendations. English only unless the user asks; don't open the browser unless asked.
 
-| Skill                                                | Role                                         |
-| ---------------------------------------------------- | -------------------------------------------- |
-| **This skill**                                       | Words — CTAs, empty states, errors, confirms |
-| [design-critique](../design-critique/SKILL.md)       | Visual layout, hierarchy, system fit         |
-| [pre-release-review](../pre-release-review/SKILL.md) | Shipped code before PR                       |
+If the ask is really about visual layout or shipped code rather than wording, point the user to `design-critique` or `pre-release-review`.
 
-## Usage
-
-```
-/ux-copy $ARGUMENTS
-```
-
-## What I Need From You
-
-- **Context**: Screen, flow, or feature (route, component, or user journey)
-- **User state**: What are they trying to do? How might they feel (stuck, rushed, first visit)?
-- **Mode**: Write new copy, review existing copy, or both
-- **Constraints** (optional): Character limits, must include a term, tone tweak
+If the request doesn't name the screen/flow or say whether to write new copy or review existing copy, ask before proceeding.
 
 ## Read first (project voice & terminology)
 
@@ -96,14 +79,6 @@ Discover button labels and title patterns from existing `AlertDialog` / dialog c
 - Match casing and density of labels on comparable screens (e.g. table headers, form labels, sidebar groups)
 - If the project uses micro-labels or counts, mirror that pattern from a reference component — do not introduce a new label style without reason
 
-## Principles
-
-1. **Clear** — one meaning; no jargon unless the product already uses it consistently
-2. **Concise** — cut words that don't help the next action
-3. **Consistent** — same thing, same word everywhere (per shipped UI + PRD)
-4. **Useful** — every string should help the user act or understand
-5. **Human** — plain language appropriate to the audience described in the PRD
-
 ## Output
 
 ```markdown
@@ -141,17 +116,3 @@ Discover button labels and title patterns from existing `AlertDialog` / dialog c
 ```
 
 Skip **Alternatives** when one clear option exists. Skip sections that don't apply.
-
-## Principles (workflow)
-
-- **Do not open the browser** unless the user explicitly asks
-- **Do not fix code** without permission
-- **Project truth lives in AGENTS.md + ROADMAP.md + active PRD + shipped UI** — propose copy that fits existing patterns
-- **English only** — no localization section unless user asks
-
-## Tips
-
-1. **Be specific** — "Error when profile save fails after network drop" beats "error message."
-2. **Read the neighbor screen** — copy in one route should sound like its siblings.
-3. **Flag drift** — if review copy conflicts with the active PRD or planning docs (ROADMAP.md / docs/prds/) or another screen, say so.
-4. **Pair with design-critique** — layout review separately from wording review.

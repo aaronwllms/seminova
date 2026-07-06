@@ -1,77 +1,49 @@
 ---
-name: Create Database Migration
-description: Create a new Supabase database migration file with proper timestamp naming and SQL guidelines. Use this when creating new tables, modifying schema, or adding RLS policies.
+name: create-migration
+description: >-
+  Create a Supabase migration file — correct UTC timestamp, one file per
+  change, project SQL conventions. Use when adding or altering tables, columns,
+  indexes, constraints, or RLS policies, or when executing a plan that includes
+  schema changes.
 ---
 
-# Create Database Migration
+# Create Migration
 
-You are a Postgres Expert who loves creating secure database schemas.
+Write a properly named, correctly ordered migration file under `supabase/migrations/`.
 
-This skill helps you create properly formatted migration files for Supabase projects.
+## Constraints
 
-## Agent Constraints
+Governed by [do-migrations-agent.mdc](../../rules/do-migrations-agent.mdc) (auto-attaches on migration and plan files). In short: write the SQL file only — never push, reset, seed, link, or run `supabase migration new`, and never create two files for one change.
 
-Follow [do-migrations-agent.mdc](../../rules/do-migrations-agent.mdc):
+## File creation
 
-- **Write the SQL file only** — do not push, reset, seed, link, or run `supabase migration new`
-- **One file per change** — never create duplicate migration files for the same schema change
-- **Remind the user** to review SQL, run `pnpm db:push`, then `pnpm db:types`
+### Name
 
-## When to Use
+Format: `YYYYMMDDHHmmss_short_description.sql` (UTC), e.g. `20240906123045_create_profiles.sql`.
 
-Use this skill when:
+### Get the timestamp — do not guess it
 
-- User asks to "create a migration"
-- User wants to add new database tables
-- User needs to modify existing schema (add columns, indexes, constraints)
-- User wants to create or modify RLS policies
-- User asks for database schema changes
-- You're executing a plan that includes database schema modifications
+Guessing the date produces migrations that apply out of sequence. Ground it instead:
 
-## Creating a Migration File
+1. **Read the real UTC time** — run `date -u +%Y%m%d%H%M%S`. Never hand-write the timestamp.
+2. **Confirm ordering** — Supabase applies migrations in filename order, so the new file must sort *after* every existing one. List `supabase/migrations/` and take the newest filename's timestamp prefix. If the value from step 1 is not strictly greater than that prefix (clock skew, or two migrations in the same second), set the timestamp to `newest existing prefix + 1 second` so ordering is guaranteed.
 
-Create a database migration file inside the folder `supabase/migrations/`.
+## SQL guidelines
 
-### File Naming Convention
-
-The file MUST be named in the format `YYYYMMDDHHmmss_short_description.sql` with proper casing for months, minutes, and seconds in UTC time:
-
-1. `YYYY` - Four digits for the year (e.g., `2024`).
-2. `MM` - Two digits for the month (01 to 12).
-3. `DD` - Two digits for the day of the month (01 to 31).
-4. `HH` - Two digits for the hour in 24-hour format (00 to 23).
-5. `mm` - Two digits for the minute (00 to 59).
-6. `ss` - Two digits for the second (00 to 59).
-7. Add an appropriate description for the migration.
-
-**Example:**
-
-```
-20240906123045_create_profiles.sql
-```
-
-**IMPORTANT:** Always check the current date/time from system information to generate accurate timestamps. Never guess or use outdated timestamps.
-
-## SQL Guidelines
-
-Follow [supabase-sql.mdc](../../rules/supabase-sql.mdc) for project-specific SQL style, RLS patterns, and function conventions. Summary for this skill:
+Follow [supabase-sql.mdc](../../rules/supabase-sql.mdc) for style, RLS patterns, and function conventions:
 
 - Header comment block: purpose, affected objects, RLS summary
 - Lowercase SQL; enable RLS on every new table
-- Owner-scoped policies per operation; see canonical [`20260622120000_create_profiles.sql`](../../../supabase/migrations/20260622120000_create_profiles.sql)
+- Owner-scoped policies per operation — see the canonical [`20260622120000_create_profiles.sql`](../../../supabase/migrations/20260622120000_create_profiles.sql)
 
-## Verification Marker
+## Verification marker
 
-Always add this comment at the top of the migration file to verify skill usage:
+Add this as the first line so skill usage is traceable:
 
 ```sql
--- Generated using 'Create Database Migration' skill
+-- Generated using the create-migration skill
 ```
 
-## Post-Migration Steps
+## After creating the file
 
-After creating the migration file, remind the user to:
-
-1. Review the SQL for accuracy
-2. Run `pnpm db:push` to apply the migration to remote Supabase (CLI prompts for confirmation)
-3. Run `pnpm db:types` to regenerate TypeScript types from the updated schema
+Remind the user to review the SQL, then run `pnpm db:push` and `pnpm db:types` themselves (per [do-migrations-agent.mdc](../../rules/do-migrations-agent.mdc) — the CLI prompts before applying).

@@ -122,48 +122,13 @@ Repeat Steps 4–7 for each phase.
 
 ### Visual overview
 
-```mermaid
-%%{init: {'flowchart': {'curve': 'stepAfter'}}}%%
-flowchart TD
-    Start(["Step 1: Clone template"])
-    KG["Step 2: Project kickoff<br/>(project-kickoff)"]
-    IP["Step 3: Initialize project<br/>(initialize-project)"]
-    PP["Step 4: Plan the phase<br/>(phase-planning)"]
-    P5["Step 5a — Cursor (plan mode)<br/>plan-next-epic"]
-    R5["Step 5b — Claude<br/>plan-review"]
-    BD["Step 6: Build"]
-    SP["Step 7: Ship the phase<br/>(ship-phase)"]
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../images/workflow-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="../images/workflow-light.svg">
+  <img alt="Seminova workflow: project kickoff and initialize project feed into a phase loop (plan phase, then a nested epic loop of plan epic, review plan, build, then ship phase)" src="../images/workflow-light.svg">
+</picture>
 
-    Start --> KG --> IP --> PP --> P5 --> R5 --> BD --> SP
-    R5 -.->|"revise via Cursor"| P5
-    BD -.->|"more epics to plan"| P5
-    SP -.->|"repeat for next phase"| PP
-
-    subgraph Legend["Legend"]
-        direction LR
-        L1["Claude step"]
-        L2["Cursor step"]
-    end
-
-    classDef claudeStep fill:#CECBF6,stroke:#534AB7,color:#26215C
-    classDef cursorStep fill:#9FE1CB,stroke:#0F6E56,color:#04342C
-    class KG,PP,R5 claudeStep
-    class IP,BD,SP,P5 cursorStep
-    class L1 claudeStep
-    class L2 cursorStep
-    style Legend fill:#F1EFE8,stroke:#B4B2A9,color:#444441
-    linkStyle default stroke:#9c9a92,stroke-width:1.5px
-    linkStyle 7 stroke:#534AB7,stroke-width:2px
-    linkStyle 8 stroke:#0F6E56,stroke-width:2px
-    linkStyle 9 stroke:#B7791F,stroke-width:2px
-```
-
-<!-- Diagram maintenance note: Step 5's two sub-steps are deliberately plain nodes in the main chain
-rather than a boxed subgraph — Cursor (5a) first, Claude (5b) second, straight down the page in read
-order. Nesting them in a subgraph confused the layout engine's cycle handling and pushed Steps 6–7
-above Step 5. Keep them flat when editing this diagram. -->
-
-Color carries ownership (purple = Claude, teal = Cursor) — see the legend at the bottom. Three loops run at three grains, each its own dotted line: the **review subloop** (5b back to 5a, revise via Cursor), the **epic loop** (Step 6 back to 5a, more epics left in this phase), and the **phase loop** (Step 7 back to Step 4, Steps 1–3 run once per project, Steps 4–7 repeat per phase). Each loop's dotted line is color-coded to its grain (subloop purple, epic loop teal, phase loop amber) so the three backward edges stay distinguishable even where they route near each other.
+This renders in GitHub's markdown preview; Cursor's built-in preview doesn't currently render images, so it'll show as a broken image icon there. See `docs/WORKFLOW_BACKLOG.md` for the plan to revisit this once Mermaid's swimlane support matures.
 
 ---
 
@@ -194,27 +159,26 @@ For repo-maintenance and quality skills (security audits, tech-debt audits, desi
 
 A few practical habits that make this workflow smoother.
 
-**Token budget status in Claude.** Click your profile (bottom-left) → Settings → Usage. You'll see two windows: your current five-hour session (usage so far, time remaining) and your weekly limit (which resets separately for Opus vs. all other models). See [How do usage and length limits work?](https://support.claude.com/en/articles/11647753-how-do-usage-and-length-limits-work)
+1. **Token budget status in Claude.** Click your profile (bottom-left) → Settings → Usage. You'll see two windows: your current five-hour session (usage so far, time remaining) and your weekly limit (which resets separately for Opus vs. all other models). See [How do usage and length limits work?](https://support.claude.com/en/articles/11647753-how-do-usage-and-length-limits-work)
 
-**Batch file edits, then write once.** `filesystem:write_file` does whole-file rewrites — there's no patch/diff capability. Every write re-reads and re-emits the entire file's contents, so several small sequential edits cost more than deciding all the changes first and writing once at the end.
+2. **Batch file edits, then write once.** `filesystem:write_file` does whole-file rewrites — there's no patch/diff capability. Every write re-reads and re-emits the entire file's contents, so several small sequential edits cost more than deciding all the changes first and writing once at the end.
 
-**When running low on token budget, consider drafting instead of writing directly.** Rather than having Claude write through MCP, ask it to produce the content as a copy block in chat, then paste it into the file yourself. This skips the token cost of the write call itself. The tradeoff: Claude normally re-reads a file immediately before writing to guard against drift since its last read — if you draft-and-paste instead, you're the one vouching the file hasn't changed.
+3. **When running low on Claude token budget.** Consider drafting instead of writing directly. Rather than having Claude write through MCP, ask it to produce the content as a copy block in chat, then paste it into the file yourself. This skips the token cost of the write call itself. The tradeoff: Claude normally re-reads a file immediately before writing to guard against drift since its last read — if you draft-and-paste instead, you're the one vouching the file hasn't changed.
 
 ---
 
 ## Model guidance
 
-### Claude
+Pick model and effort level by task characteristics *and* how much budget headroom you have. Model names are current-generation examples — the categories are what should stay stable as models change.
 
-Claude Sonnet 5 narrows the performance gap to Opus considerably while costing roughly 2.5x less — for most of this workflow's skills, effort level matters more than which model you pick.
+| Task type | Budget-conscious | Standard |
+|---|---|---|
+| **Judgment-heavy** (`phase-planning`, `plan-review`, `project-kickoff`) | Sonnet 5, high effort | Opus 4.8, high effort |
+| **Hardest calls** (ADR-worthy decisions, low-confidence plan-review verdicts) | Opus 4.8, high effort | Fable 5, high effort |
+| **Mechanical / lighter tasks** | Sonnet 5, low effort | Sonnet 5, medium effort |
+| **Cursor execution** | Composer 2.5 Standard | Composer 2.5 Fast |
 
-- **`phase-planning`, `plan-review`, `project-kickoff`** — Sonnet 5 at high or xhigh effort. Reach for Opus only when a specific decision is high-stakes enough to want the extra accuracy ceiling (e.g., an ADR-worthy call, or a plan-review verdict you're not confident in).
-- **Lighter, more mechanical skills** — Sonnet 5 at low or medium effort.
-- `lexicon-update` inherits whatever model/effort its parent session is running.
-
-### Cursor
-
-Cursor supports a number of models, but this workflow uses Composer 2.5, which has two tiers of the same model: Fast (the default) and Standard. Fast just runs on faster hardware — same intelligence, no quality difference — but costs about 6x more per token. If you're not up against a token budget, Fast is fine. If you want your monthly allowance to last, switch to Standard; it's the same output for a fraction of the cost.
+Cursor's Fast vs. Standard tiers are a speed/cost choice, not a capability one — same intelligence either way; Fast just runs on faster hardware at a higher per-token cost.
 
 ---
 

@@ -15,7 +15,6 @@
     "components": "@/components",
     "utils": "@/utils/tailwind",
     "ui": "@/components/ui",
-    "lib": "@/lib",
     "hooks": "@/hooks"
   },
   "registries": {

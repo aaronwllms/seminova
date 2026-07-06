@@ -5,7 +5,7 @@ import { SeminovaLogo } from './seminova-logo'
 
 describe('SeminovaLogo', () => {
   it('should render the site wordmark from site config', () => {
-    render(<SeminovaLogo href={undefined} />)
+    render(<SeminovaLogo href={null} />)
 
     expect(screen.getByText(siteConfig.name)).toBeInTheDocument()
   })

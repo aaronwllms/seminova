@@ -49,7 +49,7 @@ describe('DataTableSkeletonBody', () => {
     )
   })
 
-  it('should apply meta.skeletonClassName on a column', () => {
+  it('should mark skeleton placeholders as aria-hidden', () => {
     const { container } = render(
       <table>
         <tbody>
@@ -59,6 +59,9 @@ describe('DataTableSkeletonBody', () => {
     )
 
     const skeletons = container.querySelectorAll('[data-slot="skeleton"]')
-    expect(skeletons[0]).toHaveClass('h-5', 'w-32')
+    expect(skeletons).toHaveLength(testColumns.length)
+    for (const skeleton of skeletons) {
+      expect(skeleton).toHaveAttribute('aria-hidden', 'true')
+    }
   })
 })

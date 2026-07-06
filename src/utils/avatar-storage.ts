@@ -64,6 +64,8 @@ const computeDrawDimensions = (
 }
 
 export const resizeAvatarToWebp = async (file: File): Promise<Blob> => {
+  // AVATAR_MAX_DIMENSION (256px) is the intentional main-thread resize bound for
+  // template scope. Migrate to a Web Worker if products need larger source images.
   const bitmap = await createImageBitmap(file)
 
   try {

@@ -1,10 +1,8 @@
 ---
 name: lexicon-audit
 description: >-
-  Audit the codebase for LEXICON.md candidate terms and drift flags. Use when
-  the user wants to find missing lexicon terms, check for drift between LEXICON.md
-  and the codebase, or asks for a "lexicon audit" or "lexicon health check".
-  Does not write to LEXICON.md. Does not auto-invoke.
+  Read-only audit of the codebase for LEXICON.md candidate terms and drift;
+  reports findings in chat (does not edit LEXICON.md).
 disable-model-invocation: true
 ---
 

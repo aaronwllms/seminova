@@ -10,6 +10,13 @@ import {
 import { createClient } from '@/supabase/server'
 import type { ErrorKind } from '@/types/app-error'
 import {
+  profileFieldsToView,
+  profilePartialToUpdate,
+  type ProfileFields,
+  type ProfileFieldsView,
+  type ProfileUpdate,
+} from '@/types/profile'
+import {
   extractAvatarCacheBust,
   isOwnedAvatarStorageUrl,
   withAvatarCacheBust,
@@ -31,15 +38,9 @@ type ProfileActionError = {
   }
 }
 
-type ProfileActionData = {
-  displayName: string | null
-  avatarUrl: string | null
-  bio: string | null
-}
-
 type ProfileActionSuccess = {
   success: true
-  data: ProfileActionData
+  data: ProfileFieldsView
 }
 
 export type UpdateProfileActionResult =
@@ -79,19 +80,13 @@ export const updateProfileAction = async (
     }
   }
 
-  const updatePayload: {
-    display_name?: string | null
-    bio?: string | null
-    avatar_url?: string | null
-  } = {}
-
-  if (parsed.data.displayName !== undefined) {
-    updatePayload.display_name = parsed.data.displayName
-  }
-
-  if (parsed.data.bio !== undefined) {
-    updatePayload.bio = parsed.data.bio
-  }
+  const updatePayload: Pick<
+    ProfileUpdate,
+    'display_name' | 'avatar_url' | 'bio'
+  > = profilePartialToUpdate({
+    displayName: parsed.data.displayName,
+    bio: parsed.data.bio,
+  })
 
   if (parsed.data.avatarUrl !== undefined) {
     if (parsed.data.avatarUrl === null) {
@@ -104,6 +99,15 @@ export const updateProfileAction = async (
       const version =
         extractAvatarCacheBust(parsed.data.avatarUrl) ?? Date.now()
       updatePayload.avatar_url = withAvatarCacheBust(data.publicUrl, version)
+    } else {
+      return {
+        success: false,
+        error: {
+          message: 'Could not save your profile photo. Please try again.',
+          code: 'VALIDATION_ERROR',
+          kind: 'operational',
+        },
+      }
     }
   }
 
@@ -131,10 +135,6 @@ export const updateProfileAction = async (
 
   return {
     success: true,
-    data: {
-      displayName: profile.display_name,
-      avatarUrl: profile.avatar_url,
-      bio: profile.bio,
-    },
+    data: profileFieldsToView(profile as ProfileFields),
   }
 }

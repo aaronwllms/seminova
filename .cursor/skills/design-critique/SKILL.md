@@ -1,41 +1,26 @@
 ---
 name: design-critique
 description: >-
-  Structured design feedback on usability, hierarchy, and consistency against
-  the project's design system. Use when the user says "review this design",
-  "critique this mockup", "what do you think of this screen?", or shares a
-  screenshot, HTML mockup, or description at any stage from exploration to
-  final polish.
+  Structured design feedback on usability, hierarchy, consistency, and
+  accessibility against the project design system.
 argument-hint: '<screenshot, HTML mockup path, or description>'
 disable-model-invocation: true
 ---
 
 # Design Critique
 
-Structured design feedback for mockups, screenshots, and explorations. **Do not change code** unless the user asks to implement recommendations.
+Structured design feedback for mockups, screenshots, and explorations — critique the design artifact, not shipped code, so no quality gates or security review here. **Do not change code** unless the user asks to implement recommendations. Don't open the browser unless asked. Calibrate depth to the stage: early exploration gets different feedback than final polish.
 
 For **shipped code** before PR, use [pre-release-review](../pre-release-review/SKILL.md) instead.
 
-## Usage
-
-```
-/design-critique $ARGUMENTS
-```
-
-Review the design: @$1
-
-**Input sources (no Figma connector in this repo):**
+**Locate the artifact:**
 
 - Screenshot or image attachment — read with the Read tool
-- HTML mockup — read file: **new mockups** in `.mockups/*.html`; **archived** mockups in `.mockups/archive/*.html` (if present)
+- HTML mockup — **new** mockups in `.mockups/*.html`; **archived** in `.mockups/archive/*.html` (if present)
 - Live route — describe or `@`-reference the page; read relevant components under `src/app/` if comparing to shipped UI
 - Verbal description — ask clarifying questions if context is thin
 
-## What I Need From You
-
-- **The design**: screenshot, mockup path, route, or detailed description
-- **Context**: What is this? Who is it for? What stage (exploration, refinement, final)?
-- **Focus** (optional): e.g. "Focus on mobile" or "Focus on the form layout"
+If the artifact or its stage (exploration / refinement / final) is unclear, ask before proceeding.
 
 ## Read first (project design system)
 
@@ -111,14 +96,6 @@ After reading project sources, check the artifact against what is actually shipp
 - Keyboard/focus for interactive patterns (see ui-accessibility.mdc)
 - Alternative text for images and icon-only buttons
 
-## How to Give Feedback
-
-- **Be specific**: "The CTA competes with the navigation" not "the layout is confusing"
-- **Explain why**: Connect feedback to design principles or user needs
-- **Suggest alternatives**: Don't just identify problems, propose solutions
-- **Acknowledge what works**: Good feedback includes positive observations
-- **Match the stage**: Early exploration gets different feedback than final polish
-
 ## Output
 
 ```markdown
@@ -186,18 +163,3 @@ After reading project sources, check the artifact against what is actually shipp
 2. **[Second priority]** — [Why and how]
 3. **[Third priority]** — [Why and how]
 ```
-
-## Principles
-
-- **Mockups ≠ shipped code** — critique the design artifact; don't run quality gates or security review
-- **Do not open the browser** unless the user explicitly asks
-- **Do not fix code** without permission
-- **Project truth lives in DESIGN.md + AGENTS.md + ROADMAP.md + active PRD (docs/prds/)** — not in this skill file
-
-## Tips
-
-1. **Share the context** — stage, user goal, and which flow this belongs to helps give relevant feedback.
-2. **Specify your stage** — Early exploration gets different feedback than final polish.
-3. **Ask me to focus** — "Just look at the navigation" gives more depth on one area.
-4. **Reference mockups** — new explorations live in `.mockups/`; archived HTML may live in `.mockups/archive/`.
-5. **Ask about reuse** — "Should this compose existing components or need a new primitive?" focuses system-fit feedback.

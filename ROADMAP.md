@@ -2,7 +2,7 @@
 
 The planning horizon: anticipated phases as thin stubs, plus living status. Shipped phase detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md); build-time workflow and authoritative schema in [AGENTS.md](AGENTS.md). Phase status vocabulary and PRD lifecycle in [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
-**Last updated:** 2026-07-02
+**Last updated:** 2026-07-05
 
 ---
 
@@ -17,22 +17,18 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 | 5     | Admin Surface Polish & Toasting                                                      | `Shipped` | —   |
 | 6     | Data Model Foundation (profiles, admin namespace, authenticated shell, profile page) | `Shipped` | —   |
 | 7     | Security Audit Remediation                                                           | `Shipped` | —   |
-| 8     | Tech Debt Audit Remediation                                                          | `Draft`   | —   |
+| 8     | Tech Debt Audit Remediation                                                          | `Shipped` | [docs/prds/archive/phase-8-tech-debt-remediation.prd.md](docs/prds/archive/phase-8-tech-debt-remediation.prd.md) |
 | 9     | SEO & GEO                                                                            | `Draft`   | —   |
 | 10    | Pattern Reference Page                                                               | `Draft`   | —   |
 | 11    | Agent Tooling: Skills Suite                                                          | `Draft`   | —   |
 
 _Phases 1–7 pre-date the per-phase PRD system, so their PRD column is empty; their shipped detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md). From Phase 8 on, shipped rows link the archived PRD per [docs/DOC_RULES.md](docs/DOC_RULES.md)._
 
-**No active phase.** Phase 8 (Tech Debt Audit Remediation) is next in `Draft` — promote via `phase-planning` when ready to start.
+**Active phase:** none — next up is Phase 9 (SEO & GEO, `Draft`).
 
 ---
 
-## Draft phases
-
-### Phase 8 — Tech Debt Audit Remediation `Draft`
-
-Not yet scoped. Remediates findings from the tech-debt audit (`TECH_DEBT_AUDIT.md`), which has not yet been run. Scope, epics, and stories pend the audit output. Note: the `tech-debt-audit` skill is itself due for an update (ADR-0001, deep module vs. god file) before the audit is run, so it doesn't flag legitimate deep modules as god-file violations.
+## Upcoming phases
 
 ### Phase 9 — SEO & GEO `Draft`
 
@@ -58,6 +54,18 @@ Nothing here is blocking current work unless noted.
 **Solution:** Implement as a separate, theme-only skill distinct from the structure-establishing design-system skill.
 _Defer until: Phase 10_
 
+### CSP enforcement (nonce strategy)
+
+**Problem:** The template-default CSP ships report-only (`// debt:` marker in `security-headers.ts`, audit F053). Flipping to enforcing (`CSP_ENFORCE=true`) requires per-request nonce handling for Next.js inline bootstrap scripts — a design-and-build effort, deliberately excluded from Phase 8 remediation.
+**Solution:** Not yet scoped. Implement per-request nonces in middleware, then tighten directives per product surface.
+_Defer until: a future security phase_
+
+### Profile settings as a modal
+
+**Problem:** The profile settings surface could work better as a modal than a dedicated page — keeping the current blur-save / upload-on-complete save models, which suit a dismissable container well (no unsaved state to lose). But `/profile` is currently `APP_HOME`: non-admins land there after login, so a modal conversion first requires a real app home to exist.
+**Solution:** Not yet scoped. Depends on APP_HOME diverging from the profile path; revisit when a genuine app home surface is planned.
+_Defer until: a real app home exists_
+
 ### Admin Logging page
 
 **Problem:** Warn/error/info/debug logs now have a canonical taxonomy (`logging.mdc`), but they currently only surface in Vercel's log viewer — there's no in-app way to browse them. A dedicated admin page (filterable by level, color-coded — e.g. debug in green) would make this template-level convention actually visible and useful day-to-day.
@@ -80,10 +88,4 @@ _Defer until: unscoped — revisit when prioritizing landing UX expansions_
 
 **Problem:** Feature card #4's punchline ("start building your product, not your login screen") implies login/auth is the thing skipped, but the actual content is the admin shell + role gating. As more reference surfaces ship (Phase 5+), this card should describe the fuller set of packaged components available, not just admin shell.
 **Solution:** Revisit copy now that Phase 5 reference surfaces (error, loading, toast, in-app promote/demote) are shipped.
-_Defer until: opportunistic_
-
-### `useGetMessage` filename violates kebab-case rule
-
-**Problem:** `src/hooks/useGetMessage.ts` (and its test `useGetMessage.unit.test.tsx`) is camelCase, violating the locked kebab-case file-naming convention in `project-standards.mdc`. The sibling `use-mobile.ts` is correct; this is the lone deviation.
-**Solution:** Rename to `use-get-message.ts` + `use-get-message.unit.test.tsx` and update any imports. Low priority, low risk — straightforward cleanup whenever convenient.
 _Defer until: opportunistic_

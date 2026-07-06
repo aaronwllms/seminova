@@ -2,15 +2,18 @@ import { cache } from 'react'
 
 import { createClient } from '@/supabase/server'
 import { requireAuthClaims } from '@/supabase/require-auth'
-import { isAdmin, type JwtClaims } from '@/utils/admin'
+import { isAdmin } from '@/utils/admin'
+import {
+  profileFieldsToView,
+  type ProfileFields,
+  type ProfileFieldsView,
+} from '@/types/profile'
 
-export type CurrentUserProfile = {
+export type CurrentUserProfile = ProfileFieldsView & {
   userId: string
-  displayName: string | null
-  avatarUrl: string | null
-  bio: string | null
   email: string
   isAdmin: boolean
+  profileLoadFailed: boolean
 }
 
 export const getCurrentUserProfile = cache(
@@ -19,7 +22,7 @@ export const getCurrentUserProfile = cache(
     const claims = await requireAuthClaims(supabase)
 
     const email = typeof claims.email === 'string' ? claims.email : ''
-    const isAdminUser = isAdmin(claims as JwtClaims)
+    const isAdminUser = isAdmin(claims)
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
@@ -36,16 +39,16 @@ export const getCurrentUserProfile = cache(
         bio: null,
         email,
         isAdmin: isAdminUser,
+        profileLoadFailed: true,
       }
     }
 
     return {
       userId: claims.sub,
-      displayName: profile.display_name,
-      avatarUrl: profile.avatar_url,
-      bio: profile.bio,
+      ...profileFieldsToView(profile as ProfileFields),
       email,
       isAdmin: isAdminUser,
+      profileLoadFailed: false,
     }
   },
 )

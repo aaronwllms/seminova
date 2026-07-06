@@ -74,6 +74,9 @@ The full workflow — every step, skill, and document explained, plus the detail
    | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable (anon) key — **required for `pnpm build`** |
    | `SUPABASE_SECRET_KEY` | Secret key (server/CLI only — see Initial setup) |
    | `CSP_ENFORCE` | Optional — set to `true` for enforcing CSP instead of report-only (see [AGENTS.md](AGENTS.md); requires nonce strategy before production use) |
+   | `VERCEL_URL` | Optional — auto-set on Vercel deploys for Open Graph / metadata base URL; local dev falls back to `http://localhost:3000` (do not set locally) |
+
+   **Development-only auth bypass:** if `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are not set, the auth proxy skips session checks in development so you can clone and explore the UI before wiring Supabase. Production deploys without those variables return **503** — configure env vars before shipping.
 
 4. Link your local repo to your Supabase project and apply the schema that ships with the template (this is what creates the `profiles` table Initial setup below depends on):
 
@@ -135,7 +138,7 @@ Once the template runs locally, turn it into *your* project — don't hand-edit 
 
 After that, the repo is a real project, not a template copy — and the phase-by-phase build loop in [docs/WORKFLOW_GUIDE.md](docs/WORKFLOW_GUIDE.md) takes over.
 
-**Re-skinning:** colors, type, and radius are per-product by design. [DESIGN.md](DESIGN.md) documents the token architecture and re-skin workflow. Landing page hero, features, and tech-stack copy live in [`src/config/landing-content.ts`](src/config/landing-content.ts); app name, logo, and nav/social links in [`src/config/site.ts`](src/config/site.ts).
+**Re-skinning:** colors, type, and radius are per-product by design. [DESIGN.md](DESIGN.md) documents the token architecture and re-skin workflow. Landing page hero, features, and tech-stack copy live in [`src/config/landing-content.ts`](src/config/landing-content.ts); app name, logo, and nav/social links in [`src/config/site.ts`](src/config/site.ts). Replace social preview images at [`src/app/opengraph-image.png`](src/app/opengraph-image.png) and [`src/app/twitter-image.png`](src/app/twitter-image.png) (Next.js metadata file convention).
 
 ---
 
@@ -146,7 +149,7 @@ After that, the repo is a real project, not a template copy — and the phase-by
 - **Tailwind CSS + shadcn/ui** — owned primitives in `src/components/ui`
 - **TanStack Query v5** — client-side data fetching
 - **next-themes** — light/dark theming over CSS variables
-- **Vitest + React Testing Library + MSW v2** — testing and request mocking
+- **Vitest + React Testing Library** — unit/integration tests (MSW v2 in devDependencies; global setup deferred until HTTP boundaries need it)
 - **pnpm** — exclusive package manager
 - **Husky + lint-staged** — pre-commit quality checks
 - **GitHub Actions** — CI on pull requests
@@ -165,9 +168,11 @@ After that, the repo is a real project, not a template copy — and the phase-by
 | `pnpm lint-fix` | ESLint with auto-fix |
 | `pnpm format` | Prettier write |
 | `pnpm format-check` | Prettier check |
-| `pnpm test` | Vitest watch mode (local dev) |
-| `pnpm test:ci` | Vitest run once (CI / agents) |
-| `pnpm pre-push` | Full local CI mirror (type-check → lint → format-check → test:ci) |
+| `pnpm test` | Vitest run once (default; non-watch) |
+| `pnpm test:watch` | Vitest watch mode (local dev) |
+| `pnpm test:file` | Run one test file or pattern (`pnpm test:file -- <path>`) |
+| `pnpm test:ci` | Vitest run once with coverage gates (CI / agents) |
+| `pnpm pre-push` | Full local CI mirror (type-check → hard-constraint checks → lint → format-check → test:ci) |
 | `pnpm test:ui` | Vitest UI |
 | `pnpm analyze` | Bundle analyzer |
 | `pnpm promote-admin <email>` | Grant admin role via CLI (requires secret key; bootstrap / automation) |
@@ -215,9 +220,9 @@ See [AGENTS.md](AGENTS.md) and [`.cursor/rules/do-migrations-agent.mdc`](.cursor
 
 **Pre-commit** (Husky): lint-staged on staged files — ESLint + Prettier for JS/TS; Prettier for markdown, JSON, YAML, and CSS (agent-authored docs in `.prettierignore` are skipped) — plus full-project type-check.
 
-**Pre-push** (Husky): `pnpm pre-push` — type-check → lint → format-check → `test:ci` (with 80% coverage thresholds). Mirrors CI exactly.
+**Pre-push** (Husky): `pnpm pre-push` — type-check → hard-constraint checks → lint → format-check → `test:ci` (with 80% coverage thresholds). Mirrors CI exactly.
 
-**CI** (pull requests to `main`): same order as pre-push. See [.github/workflows/pull-request.yaml](.github/workflows/pull-request.yaml).
+**CI** (pull requests to `main`): same order as pre-push (`check:pnpm-only`, `check:no-shadcn-pkg`, `check:semantic-tokens` before lint). See [.github/workflows/pull-request.yaml](.github/workflows/pull-request.yaml).
 
 Before opening a PR, run locally:
 

@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 import { EnvVarWarning } from '@/components/env-var-warning'
 import { Button } from '@/components/ui/button'
-import { hasEnvVars } from '@/utils/env'
+import { hasPublicSupabaseEnv } from '@/utils/env'
 import { cn } from '@/utils/tailwind'
 
 type LandingAuthButtonsProps = {
@@ -14,7 +14,7 @@ export const LandingAuthButtons = ({
   className,
   layout = 'row',
 }: LandingAuthButtonsProps) => {
-  if (!hasEnvVars) {
+  if (!hasPublicSupabaseEnv) {
     return <EnvVarWarning />
   }
 
