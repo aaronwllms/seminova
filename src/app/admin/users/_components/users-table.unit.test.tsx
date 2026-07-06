@@ -72,7 +72,7 @@ describe('UsersTable', () => {
   })
 
   it('should debounce search and call action with email filter', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     renderTable()
 
@@ -158,7 +158,7 @@ describe('UsersTable', () => {
   })
 
   it('should promote a user after confirmation and show success toast', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     listUsersActionMock.mockResolvedValue({
       success: true,

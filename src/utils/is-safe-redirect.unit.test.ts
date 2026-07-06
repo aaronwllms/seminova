@@ -14,4 +14,8 @@ describe('isSafeRedirect', () => {
   it('should reject protocol-relative off-origin URLs', () => {
     expect(isSafeRedirect('//evil.com', baseUrl)).toBe(false)
   })
+
+  it('should return false when URL parsing throws', () => {
+    expect(isSafeRedirect('http://[%', baseUrl)).toBe(false)
+  })
 })

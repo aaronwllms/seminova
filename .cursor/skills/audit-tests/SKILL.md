@@ -32,7 +32,9 @@ Find what's actually wrong, in both directions: missing tests that would catch r
 
 Cite `startLine:endLine:filepath` for every concrete finding. Read the test *and* its subject before judging — a test that looks trivial may pin a regression.
 
-Where a violation is mechanically checkable, the Recommendation must propose a lint rule, config change, or CI gate — not just a one-time fix (see `no-unquarantined-skips` and the snapshot ban for shipped examples of this pattern).
+Where a violation is mechanically checkable, the Recommendation must propose a lint rule, config change, or CI gate — not just a one-time fix (see `no-unquarantined-skips` and the snapshot ban for shipped examples of this pattern). State the enforcement as the recommendation itself, never as an optional aside.
+
+**Anti-example** — a shipped finding once recommended a filename-convention fix like this: "Rename to `.integration.test.tsx`. Optionally add an ESLint or filename lint mirroring the convention." The "optionally" hedges away the enforcement. Corrected: "Rename to `.integration.test.tsx`. Add a filename lint rule enforcing the `.unit`/`.integration` suffix matches actual mocking scope."
 
 ## Run modes
 
@@ -58,7 +60,7 @@ Use `TodoWrite` to publish a plan so the user can see progress.
 ## Phase 2: Audit across these dimensions
 
 1. **Coverage gaps** — in-scope critical paths (auth, mutations, trust boundaries) with no tests or happy-path-only tests; high-churn files with thin coverage; threshold health (how close to the 80% floor, and whether it's propped up by over-tested easy files); whether the `vitest.config.ts` exclude list has grown beyond its documented rationale to dodge the denominator.
-2. **Over-testing** — the inverse gap, per `testing.mdc`'s investigate signals (~400-line files, per-type test counts): near-duplicate edge-case permutations, tests of framework/library behavior, tests on trivial code, exhaustive validation-rule coverage where 1-2 representative cases suffice. Investigate signals are triggers to read the file, not verdicts.
+2. **Over-testing** — the inverse gap, per `testing.mdc`'s investigate signals (~400-line files, per-type test counts): near-duplicate edge-case permutations, tests of framework/library behavior, tests on trivial code, exhaustive validation-rule coverage where 1-2 representative cases suffice, render-only tests on surfaces reachable in normal dev flow (per the render-only rule in `testing.mdc`). Investigate signals are triggers to read the file, not verdicts.
 3. **Assertion quality** — tests that pass while verifying nothing (no meaningful assertion, asserting the mock); implementation-detail assertions (internal state, CSS classes); H/I/B categories missing with no sign of a conscious skip.
 4. **Mocking hygiene** — own business logic mocked; mocking inside the boundary instead of at it; MSW handlers bypassed with ad-hoc fetch mocks; Supabase mocked where the policy prefers a test database.
 5. **Reliability & speed** — flaky tests; tests over the slow-test threshold; quarantined tests whose QUARANTINE issue links are stale or whose quarantine has outlived its reason.
@@ -70,6 +72,7 @@ Use `TodoWrite` to publish a plan so the user can see progress.
 Write to `TEST_AUDIT.md` in the repo root per the Output template below.
 
 - Category values are the seven dimension names
+- Before finalizing: reread every Recommendation cell for a mechanically-checkable finding — if it contains "optionally," "consider," or similar hedges around enforcement, rewrite it as the direct recommendation (see anti-example under Operating principles)
 - Severity calibration: **Critical** = untested security/auth path, or flaky test in the CI gate; **High** = coverage gap on a core flow, mock-testing-the-mock; **Medium** = over-testing, convention violations; **Low** = speed, naming nits
 - **Verified OK** is required; if empty, the audit was shallow
 - Finding IDs (`TS001`…) are stable across passes — never renumber

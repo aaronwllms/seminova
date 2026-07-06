@@ -7,6 +7,7 @@ const createClientMock = vi.fn()
 const createServiceClientMock = vi.fn()
 const promoteUserByIdMock = vi.fn()
 const demoteUserByIdMock = vi.fn()
+const listAdminUsersPageMock = vi.fn()
 
 vi.mock('@/supabase/server', () => ({
   createClient: () => createClientMock(),
@@ -19,6 +20,10 @@ vi.mock('@/supabase/service', () => ({
 vi.mock('@/utils/admin-role-mutations', () => ({
   promoteUserById: (...args: unknown[]) => promoteUserByIdMock(...args),
   demoteUserById: (...args: unknown[]) => demoteUserByIdMock(...args),
+}))
+
+vi.mock('./_lib/list-admin-users', () => ({
+  listAdminUsersPage: (...args: unknown[]) => listAdminUsersPageMock(...args),
 }))
 
 const adminUser = {
@@ -216,6 +221,124 @@ describe('demoteUserAction', () => {
       success: false,
       error: {
         message: 'Something went wrong demoting this user. Please try again.',
+        code: 'INTERNAL_ERROR',
+        kind: 'fault',
+      },
+    })
+  })
+})
+
+describe('listUsersAction', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    getUserMock.mockReset()
+    createClientMock.mockReset()
+    createServiceClientMock.mockReset()
+    listAdminUsersPageMock.mockReset()
+
+    createClientMock.mockResolvedValue({
+      auth: { getUser: getUserMock },
+    })
+    createServiceClientMock.mockReturnValue({})
+    getUserMock.mockResolvedValue({
+      data: { user: adminUser },
+      error: null,
+    })
+  })
+
+  it('should return FORBIDDEN when caller is not admin', async () => {
+    getUserMock.mockResolvedValue({
+      data: { user: { id: 'user-1', app_metadata: {} } },
+      error: null,
+    })
+
+    const { listUsersAction } = await import('./actions')
+    const result = await listUsersAction()
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Forbidden',
+        code: 'FORBIDDEN',
+        kind: 'operational',
+      },
+    })
+    expect(listAdminUsersPageMock).not.toHaveBeenCalled()
+  })
+
+  it('should return FORBIDDEN when getUser returns an error', async () => {
+    getUserMock.mockResolvedValue({
+      data: { user: null },
+      error: new Error('session invalid'),
+    })
+
+    const { listUsersAction } = await import('./actions')
+    const result = await listUsersAction()
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Unauthorized',
+        code: 'FORBIDDEN',
+        kind: 'operational',
+      },
+    })
+    expect(listAdminUsersPageMock).not.toHaveBeenCalled()
+  })
+
+  it('should return VALIDATION_ERROR for invalid page', async () => {
+    const { listUsersAction } = await import('./actions')
+    const result = await listUsersAction({ page: 0 })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Page must be a positive integer',
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
+    })
+    expect(listAdminUsersPageMock).not.toHaveBeenCalled()
+  })
+
+  it('should return success envelope with listed users', async () => {
+    const pageData = {
+      rows: [
+        {
+          id: 'user-1',
+          email: 'alice@example.com',
+          isVerified: true,
+          createdAtLabel: 'Jun 1, 2024',
+          lastSignInAtLabel: 'Jun 2, 2024',
+          isAdmin: false,
+        },
+      ],
+      hasNextPage: false,
+      page: 1,
+    }
+    listAdminUsersPageMock.mockResolvedValue(pageData)
+
+    const { listUsersAction } = await import('./actions')
+    const result = await listUsersAction()
+
+    expect(result).toEqual({ success: true, data: pageData })
+    expect(createServiceClientMock).toHaveBeenCalled()
+    expect(listAdminUsersPageMock).toHaveBeenCalledWith(
+      {},
+      { page: 1, emailFilter: undefined },
+    )
+  })
+
+  it('should return INTERNAL_ERROR when listAdminUsersPage throws', async () => {
+    listAdminUsersPageMock.mockRejectedValue(new Error('db down'))
+
+    const { listUsersAction } = await import('./actions')
+    const result = await listUsersAction()
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Something went wrong loading users. Please try again.',
         code: 'INTERNAL_ERROR',
         kind: 'fault',
       },

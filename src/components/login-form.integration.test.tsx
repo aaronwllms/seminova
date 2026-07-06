@@ -49,7 +49,7 @@ describe('LoginForm', () => {
       error: null,
       data: { user: { app_metadata: {} } },
     })
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(<LoginForm />)
 
@@ -73,7 +73,7 @@ describe('LoginForm', () => {
       error: null,
       data: { user: { app_metadata: { role: 'admin' } } },
     })
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(<LoginForm />)
 
@@ -94,7 +94,7 @@ describe('LoginForm', () => {
         'invalid_credentials',
       ),
     })
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(<LoginForm />)
 

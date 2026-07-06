@@ -40,9 +40,9 @@ Prefer integration tests for components with external dependencies (forms, API r
 - Mock at the system boundary, not internal implementation
 
 ### Mock Service Worker (MSW v2)
-- Mock external API calls in [`src/mocks/handlers.ts`](../../src/mocks/handlers.ts)
+- Mock external API calls in `src/mocks/handlers.ts` when a real HTTP boundary needs it
 - MSW is configured for testing only (not in production)
-- Server setup in `src/mocks/server.ts`
+- Global `server.listen()` in `vitest.setup.ts` is **deferred** until handlers exist — Supabase/auth boundaries use `vi.mock` at module level today
 
 ### Mocking Supabase
 - Mock Supabase client only at the system boundary when necessary
@@ -103,6 +103,7 @@ If a function or component needs more than ~15 tests, investigate for redundancy
 - **Combinations of edge cases**: Don't test "empty string with whitespace" or "unicode emoji"
 - **Implementation details**: Don't test internal state, private methods, or CSS classes
 - **Multiple ways to trigger the same behavior**: Don't test keyboard AND mouse if they do the same thing
+- **Render smoke tests for components visible in normal dev flow**: See the render-only rule under UI Components & Pages
 
 #### Test These Instead:
 - **User-facing behavior**: What the user sees and experiences
@@ -125,6 +126,7 @@ Avoid many near-duplicate edge-case or validation micro-tests, or asserting impl
 - Assert accessibility attributes for interactive elements only
 - No snapshot tests — lint-enforced; write explicit assertions instead
 - Test loading and error states only if they're critical to UX
+- **Render-only tests** (assert only that expected content appears, no interaction or branch): allowed *only* for surfaces unreachable during normal development — error boundaries and fallback states. Static content components (marketing sections, config-driven copy) get no render tests; TypeScript and visual review cover them. Everything else must assert behavior.
 - **Don't test**: Every possible prop combination, internal state changes, CSS classes
 
 ### API Routes & Handlers

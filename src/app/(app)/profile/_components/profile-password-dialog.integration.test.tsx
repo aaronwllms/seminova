@@ -25,8 +25,8 @@ describe('ProfilePasswordDialog', () => {
     mockShowSuccessToast.mockReset()
   })
 
-  it('should show validation error when passwords do not match', async () => {
-    const user = userEvent.setup()
+  it('should show validation errors for mismatched and short passwords', async () => {
+    const user = userEvent.setup({ delay: null })
 
     render(<ProfilePasswordDialog email="test@example.com" />)
 
@@ -40,15 +40,9 @@ describe('ProfilePasswordDialog', () => {
       await screen.findByText(/passwords do not match/i),
     ).toBeInTheDocument()
     expect(mockUpdateUser).not.toHaveBeenCalled()
-  })
 
-  it('should show validation error for short passwords', async () => {
-    const user = userEvent.setup()
-
-    render(<ProfilePasswordDialog email="test@example.com" />)
-
-    await user.click(screen.getByRole('button', { name: /change password/i }))
-    await user.type(screen.getByLabelText(/current password/i), 'old-password')
+    await user.clear(screen.getByLabelText(/^new password$/i))
+    await user.clear(screen.getByLabelText(/confirm new password/i))
     await user.type(screen.getByLabelText(/^new password$/i), '123')
     await user.type(screen.getByLabelText(/confirm new password/i), '123')
     await user.click(screen.getByRole('button', { name: /update password/i }))
@@ -61,7 +55,7 @@ describe('ProfilePasswordDialog', () => {
 
   it('should update password with current_password and show toast', async () => {
     mockUpdateUser.mockResolvedValue({ error: null })
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(<ProfilePasswordDialog email="test@example.com" />)
 
