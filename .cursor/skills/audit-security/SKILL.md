@@ -28,7 +28,7 @@ Conducts a deliberate, read-only security audit of an entire codebase and writes
 
 ## Run modes
 
-**Mode gate** — first step, before anything else: if the invocation does not state full pass or sync, ask the user which mode and stop. Do not proceed on an assumed or inferred mode, even when context makes one seem obvious (e.g. `SECURITY_AUDIT.md` already exists, so sync "must" be intended). Only after the mode is explicit, continue below.
+**Mode gate** — first step, before anything else: if the invocation does not state full pass or sync, ask the user which mode as a numbered choice — e.g. `Which mode? 1 (Full pass) 2 (Sync)` — and stop. Do not proceed on an assumed or inferred mode, even when context makes one seem obvious (e.g. `SECURITY_AUDIT.md` already exists, so sync "must" be intended). Only after the mode is explicit, continue below.
 
 The existing **quick scan** scoping option still applies within either mode.
 
