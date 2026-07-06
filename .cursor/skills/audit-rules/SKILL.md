@@ -1,11 +1,8 @@
 ---
 name: audit-rules
 description: >-
-  Thorough, user-invoked audit of .cursor/rules/*.mdc against the standard in
-  the rule-authoring skill. Two explicitly invoked run modes: full pass (full
-  rules audit) and sync pass (incremental update of open findings only).
-  Produces or updates RULE_AUDIT.md at the repo root with cited findings. Does
-  not auto-invoke.
+  Audit of `.cursor/rules/*.mdc` against the rule-authoring standard (full pass
+  or sync); writes RULE_AUDIT.md at the repo root.
 disable-model-invocation: true
 ---
 

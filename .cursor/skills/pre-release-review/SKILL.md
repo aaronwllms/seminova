@@ -1,8 +1,8 @@
 ---
 name: pre-release-review
 description: >-
-  End-of-feature review before PR: automated gates, scoped code review,
-  security pass, hard constraints, and a manual test checklist.
+  End-of-feature review before PR — quality gates, scoped review, security,
+  hard constraints, and a manual test checklist.
 disable-model-invocation: true
 ---
 

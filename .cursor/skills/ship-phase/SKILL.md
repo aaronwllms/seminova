@@ -1,10 +1,8 @@
 ---
 name: ship-phase
 description: >-
-  Release close-out for a completed phase: archive cursor plans, sync repo docs,
-  flip the active PRD and ROADMAP row to Shipped, push the phase branch, and open
-  a PR — then stop. Does not merge to main. Use when a phase is fully built and the
-  user invokes ship-phase, /ship-phase, or asks to ship or close out the current phase.
+  Release close-out for a completed phase — archive plans, sync repo docs, mark
+  PRD/ROADMAP Shipped, push the phase branch, and open a PR (does not merge).
 disable-model-invocation: true
 ---
 

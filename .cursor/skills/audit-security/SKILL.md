@@ -1,15 +1,8 @@
 ---
 name: audit-security
 description: >-
-  Thorough, user-invoked security audit of the current codebase. Two explicitly
-  invoked run modes: full pass (full-repo security audit) and sync pass
-  (incremental update of open findings only). Reads across auth, RLS, server
-  surface, storage, exposure, and transport/abuse hardening, then writes or
-  updates SECURITY_AUDIT.md at repo root with severity-ranked findings, Verified
-  OK items, and human/tooling
-  follow-ups. Use before launch, after auth/RLS changes, for periodic hygiene,
-  or when the user asks for a security audit or whole-app security review. Does
-  not auto-invoke.
+  Read-only security audit of the whole repo (full pass or sync); writes
+  SECURITY_AUDIT.md at the repo root.
 disable-model-invocation: true
 ---
 

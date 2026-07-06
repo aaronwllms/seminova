@@ -1,10 +1,8 @@
 ---
 name: plan-next-epic
 description: >-
-  Plan the next uncompleted epic using the repo planning brief and AGENTS.md.
-  On the first epic of a phase, creates or checks out the phase branch from main.
-  Use in Plan Mode when starting a new epic, when the user asks to plan the next
-  epic, or before external planning sessions.
+  Plans the next uncompleted epic from the repo brief and AGENTS.md; creates the
+  phase branch on the first epic of a phase.
 disable-model-invocation: true
 ---
 

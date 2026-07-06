@@ -1,12 +1,8 @@
 ---
 name: audit-tests
 description: >-
-  Thorough, user-invoked audit of the test suite — coverage gaps, over-testing,
-  assertion quality, mocking hygiene, reliability, orphaned tests, and
-  adherence to testing.mdc. Two explicitly invoked run modes: full pass and
-  sync pass (open findings only). Produces or updates TEST_AUDIT.md at the
-  repo root with file-cited findings. Use when the user asks for a test audit,
-  test suite health check, or coverage review. Does not auto-invoke.
+  Read-only test suite audit of the whole repo (full pass or sync); writes
+  TEST_AUDIT.md at the repo root.
 disable-model-invocation: true
 ---
 

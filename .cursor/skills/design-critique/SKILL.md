@@ -1,11 +1,8 @@
 ---
 name: design-critique
 description: >-
-  Structured design feedback on usability, hierarchy, and consistency against
-  the project's design system. Use when the user says "review this design",
-  "critique this mockup", "what do you think of this screen?", or shares a
-  screenshot, HTML mockup, or description at any stage from exploration to
-  final polish.
+  Structured design feedback on usability, hierarchy, consistency, and
+  accessibility against the project design system.
 argument-hint: '<screenshot, HTML mockup path, or description>'
 disable-model-invocation: true
 ---

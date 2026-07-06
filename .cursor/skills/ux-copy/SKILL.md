@@ -1,10 +1,8 @@
 ---
 name: ux-copy
 description: >-
-  Write or review UX copy — microcopy, error messages, empty states, CTAs, and
-  confirmation dialogs. Use when the user says "write copy for", "what should
-  this button say?", "review this error message", or when wording a dialog,
-  empty state, label, or alert.
+  Write or review UX microcopy — CTAs, empty states, error messages, and
+  confirmation dialogs.
 argument-hint: '<context or copy to review>'
 disable-model-invocation: true
 ---
