@@ -74,6 +74,7 @@ The full workflow — every step, skill, and document explained, plus the detail
    | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable (anon) key — **required for `pnpm build`** |
    | `SUPABASE_SECRET_KEY` | Secret key (server/CLI only — see Initial setup) |
    | `CSP_ENFORCE` | Optional — set to `true` for enforcing CSP instead of report-only (see [AGENTS.md](AGENTS.md); requires nonce strategy before production use) |
+   | `VERCEL_URL` | Optional — auto-set on Vercel deploys for Open Graph / metadata base URL; local dev falls back to `http://localhost:3000` (do not set locally) |
 
    **Development-only auth bypass:** if `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are not set, the auth proxy skips session checks in development so you can clone and explore the UI before wiring Supabase. Production deploys without those variables return **503** — configure env vars before shipping.
 
