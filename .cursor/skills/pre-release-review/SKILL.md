@@ -1,18 +1,14 @@
 ---
 name: pre-release-review
 description: >-
-  End-of-feature review before PR: run quality gates, security check, project
-  hard constraints from AGENTS.md, scoped code review, and a manual test checklist.
-  Use when finishing an epic, before opening a PR, or when the user asks for a
-  pre-release or ship review.
+  End-of-feature review before PR: automated gates, scoped code review,
+  security pass, hard constraints, and a manual test checklist.
 disable-model-invocation: true
 ---
 
 # Pre-Release Review
 
-Scoped review before PR. Do not change code unless the user asks to fix findings.
-
-If the user names a feature, use that scope. Otherwise infer scope from `git diff main...HEAD` (or unstaged changes if no branch divergence).
+Scoped static review before PR. Do not open the browser, and do not change code unless the user asks to fix findings.
 
 ## Workflow
 
@@ -41,13 +37,13 @@ Stop if any fail. List failures briefly. Ask whether to fix before continuing.
 
 ### Step 2 — Scope (always)
 
-Identify files to review from the feature scope or diff. Prefer changed application code under `src/`, migrations, and relevant rules — not the whole repo.
+If the user names a feature, use that scope. Otherwise infer scope from `git diff main...HEAD` (or unstaged changes if no branch divergence). Prefer changed application code under `src/`, migrations, and relevant rules — not the whole repo.
 
 State the scope in one line at the top of the report (e.g. "Reviewing settings page — 8 files").
 
 ### Step 3 — Does it work? (always, code review)
 
-Read scoped code only. This is **static review**, not browser testing.
+Read scoped code only.
 
 Check:
 
@@ -61,32 +57,32 @@ Skip: linter/style nitpicks, scope creep suggestions, "could be more elegant" fe
 
 For each real issue: quote the code, explain failure conditions, suggest a fix. If nothing significant, say so briefly — do not manufacture issues.
 
-### Step 4 — Security (always when feature touches routes, auth, data, API, server actions, or migrations)
+Done when every file in scope has been read and checked against 1–5.
 
-Scoped static security review. Read `.cursor/rules/security.mdc` for patterns. Read AGENTS.md **Hard constraints** (auth boundary, admin gate) when those areas are in scope.
+### Step 4 — Security (when the feature touches routes, auth, data, API, server actions, or migrations)
 
-Check:
+Scoped static security review. The criteria live in `.cursor/rules/security.mdc` (stack patterns) and AGENTS.md **Hard constraints** (auth boundary, admin gate, RLS scoping) — read both before judging. This step names the areas to check; those sources own the rules. For whole-repo depth, that's **`audit-security`**, not this step.
 
-1. **Authentication** — new routes/endpoints require auth when they should; middleware/auth proxy boundary respected (discover from repo — often `src/supabase/proxy.ts`, `src/middleware.ts`, or equivalent)
-2. **Authorization** — user cannot access or modify another user's data by changing an ID or parameter
-3. **RLS / ownership** — new or changed tables have appropriate policies; user-owned vs shared-catalog scope matches AGENTS.md hard constraints and `.cursor/rules/security.mdc` (not only `user_id = auth.uid()` when the table is shared or scoped via FK)
-4. **Input validation** — user input validated before DB queries, file uploads, or external API calls (Zod on API inputs per project rules)
-5. **Data exposure** — responses do not leak fields the client does not need; auth errors do not reveal user existence or internal details
-6. **Secrets** — no API keys, tokens, or credentials in client code or committed files; `SUPABASE_SECRET_KEY` never in client or `NEXT_PUBLIC_*` env vars
+Always check scoped code for:
 
-**Conditional — run when the scoped change touches that surface:**
+1. **Authentication** — new routes/endpoints gated the way the rest of the app is
+2. **Authorization** — no cross-user access or modification by changing an ID or parameter
+3. **RLS / ownership** — new or changed tables carry policies matching their intent per AGENTS.md
+4. **Input validation** — user input validated before DB queries, file handling, or external calls
+5. **Data exposure** — responses and auth errors don't leak fields, internals, or user existence
+6. **Secrets** — no keys, tokens, or credentials in client code or committed files
 
-7. **Route boundaries** (new/changed routes, layouts, or nav links) — every new product route aligns with AGENTS.md public vs protected list; no page reachable without the auth gate the rest of the app uses
-8. **Storage** (file uploads, Storage buckets, or signed URLs) — bucket policies restrict read/write to the owning user (or intended role); uploads validated server-side (type, size, path); no world-writable buckets
-9. **Privileged access** (admin UI, elevated roles, or catalog mutations) — role enforced server-side (e.g. JWT `app_metadata` per AGENTS.md), not client-only; non-admins cannot hit admin actions by URL or API directly
+Conditional — when the scoped change touches that surface:
 
-Prioritize by exploitability (Critical / High / Medium / Low). If the scoped change has no security surface (e.g. copy-only UI tweak), say "security pass skipped — no auth/data/API changes" and move on.
+7. **Route boundaries** (new/changed routes, layouts, nav) — every new route aligns with the public-vs-protected list; nothing reachable without the app's auth gate
+8. **Storage** (uploads, buckets, signed URLs) — bucket policies scope to the intended owner/role; uploads validated server-side
+9. **Privileged access** (admin UI, elevated roles) — role enforced server-side, not client-only; admin actions unreachable by direct URL or API
 
-Do not invent issues. If solid, say so briefly.
+Prioritize by exploitability (Critical / High / Medium / Low). Done when every scoped file has been checked against every applicable area. If the scoped change has no security surface (e.g. copy-only UI tweak), say "security pass skipped — no auth/data/API changes" and move on.
 
 ### Step 5 — Project hard constraints (when feature touches product behavior, data model, auth, or multi-step flows)
 
-Read [AGENTS.md](../../../AGENTS.md) **Hard constraints** (and change protocol). The five hard constraints are CI-enforced via `check:*` scripts — this manual pass confirms the scoped change did not disable, bypass, or contradict an enforcement mechanism.
+Read [AGENTS.md](../../../AGENTS.md) **Hard constraints** (and change protocol). Hard constraints are CI-enforced via `check:*` scripts — this manual pass confirms the scoped change did not disable, bypass, or contradict an enforcement mechanism.
 
 Check scoped code against **whatever hard constraints that section defines** — do not assume domain-specific rules that are not documented there.
 
@@ -155,20 +151,18 @@ Use this format. Keep it concise — PM-readable.
 
 ### Manual test checklist
 
-3–5 bullets for the PM to click through in the app. Specific to this feature — not generic.
+3–5 bullets for the user to click through in the app. Specific to this feature — not generic.
 
 ### Docs
 
 - [ ] AGENTS.md / README may need sync — yes/no + why
-- [ ] Planning brief may need sync — yes/no + why
+- [ ] Active PRD may need sync — yes/no + why
 
-If docs may be stale, suggest running **sync-repo-docs** and/or **sync-context-md** skills.
+If repo docs may be stale, suggest running the **sync-repo-docs** skill.
 ```
 
 ## Principles
 
 - **Tests pass ≠ feature works** — code review catches logic; manual checklist catches UX
-- **Do not open the browser** unless the user explicitly asks
-- **Do not fix code** without permission
-- **Scope to the feature** — avoid whole-repo audits (use **`audit-security` full pass** for full-repo audits)
+- **Scope to the feature** — whole-repo security work belongs to **`audit-security`**
 - **Project truth lives in AGENTS.md** — not in this skill file
