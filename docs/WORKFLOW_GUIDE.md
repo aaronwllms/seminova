@@ -122,48 +122,13 @@ Repeat Steps 4–7 for each phase.
 
 ### Visual overview
 
-```mermaid
-%%{init: {'flowchart': {'curve': 'stepAfter'}}}%%
-flowchart TD
-    Start(["Step 1: Clone template"])
-    KG["Step 2: Project kickoff<br/>(project-kickoff)"]
-    IP["Step 3: Initialize project<br/>(initialize-project)"]
-    PP["Step 4: Plan the phase<br/>(phase-planning)"]
-    P5["Step 5a — Cursor (plan mode)<br/>plan-next-epic"]
-    R5["Step 5b — Claude<br/>plan-review"]
-    BD["Step 6: Build"]
-    SP["Step 7: Ship the phase<br/>(ship-phase)"]
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../images/workflow-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="../images/workflow-light.svg">
+  <img alt="Seminova workflow: project kickoff and initialize project feed into a phase loop (plan phase, then a nested epic loop of plan epic, review plan, build, then ship phase)" src="../images/workflow-light.svg">
+</picture>
 
-    Start --> KG --> IP --> PP --> P5 --> R5 --> BD --> SP
-    R5 -.->|"revise via Cursor"| P5
-    BD -.->|"more epics to plan"| P5
-    SP -.->|"repeat for next phase"| PP
-
-    subgraph Legend["Legend"]
-        direction LR
-        L1["Claude step"]
-        L2["Cursor step"]
-    end
-
-    classDef claudeStep fill:#CECBF6,stroke:#534AB7,color:#26215C
-    classDef cursorStep fill:#9FE1CB,stroke:#0F6E56,color:#04342C
-    class KG,PP,R5 claudeStep
-    class IP,BD,SP,P5 cursorStep
-    class L1 claudeStep
-    class L2 cursorStep
-    style Legend fill:#F1EFE8,stroke:#B4B2A9,color:#444441
-    linkStyle default stroke:#9c9a92,stroke-width:1.5px
-    linkStyle 7 stroke:#534AB7,stroke-width:2px
-    linkStyle 8 stroke:#0F6E56,stroke-width:2px
-    linkStyle 9 stroke:#B7791F,stroke-width:2px
-```
-
-<!-- Diagram maintenance note: Step 5's two sub-steps are deliberately plain nodes in the main chain
-rather than a boxed subgraph — Cursor (5a) first, Claude (5b) second, straight down the page in read
-order. Nesting them in a subgraph confused the layout engine's cycle handling and pushed Steps 6–7
-above Step 5. Keep them flat when editing this diagram. -->
-
-Color carries ownership (purple = Claude, teal = Cursor) — see the legend at the bottom. Three loops run at three grains, each its own dotted line: the **review subloop** (5b back to 5a, revise via Cursor), the **epic loop** (Step 6 back to 5a, more epics left in this phase), and the **phase loop** (Step 7 back to Step 4, Steps 1–3 run once per project, Steps 4–7 repeat per phase). Each loop's dotted line is color-coded to its grain (subloop purple, epic loop teal, phase loop amber) so the three backward edges stay distinguishable even where they route near each other.
+This renders in GitHub's markdown preview; Cursor's built-in preview doesn't currently render images, so it'll show as a broken image icon there. See `docs/WORKFLOW_BACKLOG.md` for the plan to revisit this once Mermaid's swimlane support matures.
 
 ---
 
