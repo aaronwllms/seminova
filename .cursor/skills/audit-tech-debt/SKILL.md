@@ -72,7 +72,7 @@ Use `rg` (Grep tool), shell commands, and language-native tooling to find concre
 
 3. **Type & contract debt** — `any` / `unknown` / `as any` / `# type: ignore` / loose dicts. Untyped API boundaries. Missing schema validation at trust boundaries.
 
-4. **Test debt** — run coverage if configured; otherwise map high-churn files to test files. Tests that assert implementation rather than behavior. Skipped or flaky tests. High-churn files with no tests.
+4. **Test debt** — high-churn files with no tests (from the Phase 1 churn data). For suite depth — coverage gaps, over-testing, assertion quality, mocking hygiene — note that **`audit-tests`** exists; this dimension catches the churn-vs-coverage signal only.
 
 5. **Dependency & config debt** — `pnpm audit` / `npm audit` / stack equivalent for CVEs. Unused deps. Duplicate deps doing the same job. Env var sprawl (referenced but not documented; defaults inconsistent across envs).
 
