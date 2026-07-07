@@ -15,7 +15,6 @@ describe('getSiteMetadata', () => {
     expect(metadata.openGraph).toEqual({
       title: siteConfig.name,
       description: siteConfig.description,
-      images: [siteConfig.defaultOgImage],
     })
   })
 })

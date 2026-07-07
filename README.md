@@ -143,7 +143,7 @@ Companion CLI commands (bootstrap / automation): `pnpm demote-admin <email>`, `p
 
 After that, the repo is a real project, not a template copy — and the phase-by-phase build loop in [docs/WORKFLOW_GUIDE.md](docs/WORKFLOW_GUIDE.md) takes over.
 
-**Re-skinning:** colors, type, and radius are per-product by design. [DESIGN.md](DESIGN.md) documents the token architecture and re-skin workflow. Landing page hero, features, and tech-stack copy live in [`src/config/landing-content.ts`](src/config/landing-content.ts); app name, logo, and nav/social links in [`src/config/site.ts`](src/config/site.ts). Replace social preview images at [`src/app/opengraph-image.png`](src/app/opengraph-image.png) and [`src/app/twitter-image.png`](src/app/twitter-image.png) (Next.js metadata file convention).
+**Re-skinning:** colors, type, and radius are per-product by design. [DESIGN.md](DESIGN.md) documents the token architecture and re-skin workflow. Landing page hero, features, and tech-stack copy live in [`src/config/landing-content.ts`](src/config/landing-content.ts); app name, logo, and nav/social links in [`src/config/site.ts`](src/config/site.ts). Social preview images are generated dynamically via [`src/utils/og-image.tsx`](src/utils/og-image.tsx) and per-route `opengraph-image.tsx` files — update the template colors (mirroring `globals.css` light tokens) and font at [`src/assets/fonts/Inter-SemiBold.ttf`](src/assets/fonts/Inter-SemiBold.ttf); copy [`src/app/auth/login/opengraph-image.tsx`](src/app/auth/login/opengraph-image.tsx) for new routes.
 
 ---
 
