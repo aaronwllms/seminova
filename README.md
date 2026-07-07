@@ -76,7 +76,8 @@ The full workflow — every step, skill, and document explained, plus the detail
    | `CSP_ENFORCE` | Optional — set to `true` for enforcing CSP instead of report-only (see [AGENTS.md](AGENTS.md); requires nonce strategy before production use) |
    | `VERCEL_URL` | Optional — auto-set on Vercel deploys for Open Graph / metadata base URL; local dev falls back to `http://localhost:3000` (do not set locally) |
 
-   **Development-only auth bypass:** if `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are not set, the auth proxy skips session checks in development so you can clone and explore the UI before wiring Supabase. Production deploys without those variables return **503** — configure env vars before shipping.
+   > [!WARNING]
+   > **Development-only auth bypass:** if `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are not set, the auth proxy skips session checks in development so you can explore the UI before wiring Supabase. **Production deploys without those variables return 503** — configure env vars before shipping.
 
 4. Link your local repo to your Supabase project and apply the schema that ships with the template (this is what creates the `profiles` table Initial setup below depends on):
 
@@ -105,9 +106,10 @@ The full workflow — every step, skill, and document explained, plus the detail
 After Quick start, grant yourself admin access so you can use the admin shell:
 
 1. Start the dev server and sign up at [http://localhost:3000/auth/sign-up](http://localhost:3000/auth/sign-up).
-2. Add `SUPABASE_SECRET_KEY` to `.env.local` (from [Project Settings → API](https://app.supabase.com/project/_/settings/api) → **API Keys** → **secret key**, `sb_secret_...`). Never commit this key or use a `NEXT_PUBLIC_*` prefix.
+2. Add `SUPABASE_SECRET_KEY` to `.env.local` (from [Project Settings → API](https://app.supabase.com/project/_/settings/api) → **API Keys** → **secret key**, `sb_secret_...`):
 
-   > **Note:** Supabase's **secret key** replaces the legacy **service role** key. This repo uses `SUPABASE_SECRET_KEY` — not `SUPABASE_SERVICE_ROLE_KEY`. The legacy JWT under "Legacy API keys" still works during Supabase's migration period, but prefer the secret key from **API Keys**.
+   > [!WARNING]
+   > **Never commit `SUPABASE_SECRET_KEY` or use a `NEXT_PUBLIC_*` prefix.** Supabase's **secret key** replaces the legacy **service role** key. This repo uses `SUPABASE_SECRET_KEY` — not `SUPABASE_SERVICE_ROLE_KEY`. The legacy JWT under "Legacy API keys" still works during Supabase's migration period, but prefer the secret key from **API Keys**.
 3. Grant yourself admin access — either:
 
    - **CLI (bootstrap):** promote your account:
@@ -130,7 +132,8 @@ Companion CLI commands (bootstrap / automation): `pnpm demote-admin <email>`, `p
 
 ## Starting your own product
 
-Once the template runs locally, turn it into *your* project — don't hand-edit Seminova's identity out; the workflow does it for you:
+> [!IMPORTANT]
+> **Don't hand-edit Seminova's identity out of the repo.** Once the template runs locally, turn it into *your* project through the workflow below — find-and-replace skips files the scrub pass handles and misses ones it doesn't.
 
 1. **Set up the workflow** (one-time): [docs/WORKFLOW_SETUP.md](docs/WORKFLOW_SETUP.md) connects Claude Desktop to the repo and installs the planning skills.
 2. **Run project kickoff** (Claude, `project-kickoff`): a structured session that captures your project's identity and roadmap, then writes `ROADMAP.md`, `site.ts`, this README, and `LEXICON.md`.

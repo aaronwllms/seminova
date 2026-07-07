@@ -1,8 +1,24 @@
 # WORKFLOW_GUIDE.md — Seminova's planning & build workflow
 
-**Purpose:** How phases move from idea to shipped code — the tools, the documents, the workflow, and the key vocabulary. For write discipline and doc-maintenance rules, see [docs/DOC_RULES.md](docs/DOC_RULES.md).
+**Purpose:** How phases move from idea to shipped code — the tools, the documents, and the workflow. For write discipline and doc-maintenance rules, see [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
-**Last updated:** 2026-07-04
+**Last updated:** 2026-07-07
+
+---
+
+## Contents
+
+- [The two-environment split](#the-two-environment-split)
+- [The documents](#the-documents)
+- [The full workflow](#the-full-workflow)
+  - [Starting a new project](#starting-a-new-project)
+  - [Building phase by phase](#building-phase-by-phase)
+  - [Visual overview](#visual-overview)
+- [Other planning-system skills](#other-planning-system-skills)
+- [Tips](#tips)
+- [Model guidance](#model-guidance)
+- [Where the skills live](#where-the-skills-live)
+- [FAQ — Why this workflow looks this way](#faq--why-this-workflow-looks-this-way)
 
 ---
 
@@ -10,23 +26,18 @@
 
 Seminova's planning system runs across two tools with a hard boundary between them:
 
-- **Claude** owns planning, alignment, and review — kicking off new projects, decomposing phases into epics and stories, and reviewing Cursor's implementation plans before they build.
+- **Claude Desktop** owns planning, alignment, and review — kicking off new projects, decomposing phases into epics and stories, and reviewing Cursor's implementation plans before they build.
 - **Cursor** owns implementation — initializing the project from the template, turning epics into implementation plans, and writing code.
+
+> [!IMPORTANT]
+> **Claude-side planning requires Claude Desktop with MCP — not claude.ai web.** Skills write planning docs (`ROADMAP.md`, PRDs, `LEXICON.md`) directly into the repo via a one-time filesystem MCP connection. The web app cannot do this. One-time setup is in [WORKFLOW_SETUP.md](WORKFLOW_SETUP.md).
 
 The primary handoff artifacts between them:
 
 - **PRD** (`docs/prds/`) — Claude writes it; Cursor builds from it.
 - **Implementation plan** — Cursor generates it (in `.cursor/plans/`); you select **Markdown view** from the plan's ellipsis (`⋯`) menu, copy the contents, and paste it into Claude while invoking `plan-review`.
 
-**Why split tools instead of doing everything in one?**
-
-- **Adversarial verification.** A frontier model reviewing a separate, cheaper execution model's work catches more than a model grading its own output. Claude reviews and plans; Cursor's Composer model executes.
-- **Cost and quota separation.** Running high-reasoning models inside Cursor burns Cursor's own usage limits faster, and at worse economics, than doing the same reasoning in Claude. Composer is capable enough at execution that it doesn't need the frontier-model tax.
-- **This is a current-state workaround, not a permanent architecture.** If Cursor's execution model eventually gets good enough that adversarial review stops adding value, the intent is to collapse this back into a single tool.
-
-**Why not Claude Cowork instead of MCP?**
-
-Cowork is built around heavier file-aware operations, which makes it slow for requests that are mostly conversational — talking through epics, reasoning about tradeoffs, planning. Anthropic's general guidance is to chat in claude.ai and use Cowork for file work, but this workflow moves fluidly between the two within a single session — splitting that across two separate tools/chats breaks the flow. The MCP filesystem connection lets Claude Desktop do both in one place: reason in chat, write files when needed, without Cowork's standing overhead.
+**Why this way?** [Why split across two tools?](#why-split-tools-instead-of-doing-everything-in-one) · [Why MCP instead of Cowork?](#why-mcp-instead-of-cowork)
 
 ---
 
@@ -42,6 +53,9 @@ Full roles table and write discipline are authoritative in [docs/DOC_RULES.md](d
 | `LEXICON.md` | Shared architectural vocabulary. Inherited by every spinoff; spinoffs add domain terms on top. |
 | `docs/DOC_RULES.md` | How the planning docs are maintained — authoritative roles, write discipline, lifecycle rules. |
 
+> [!NOTE]
+> **PRDs describe what you're planning to build; AGENTS describes what's actually in the repo today.** Cursor builds from the PRD and checks plans against AGENTS — don't treat them as interchangeable.
+
 ---
 
 ## The full workflow
@@ -52,7 +66,7 @@ Full roles table and write discipline are authoritative in [docs/DOC_RULES.md](d
 Fork or clone Seminova. You have the full template but no project identity yet.
 
 **Step 2 — Project kickoff** *(Claude-side skill: `project-kickoff`)*
-A structured discovery session with Claude that captures everything needed to understand the new project and produce a populated `ROADMAP.md`. The session is **wide but shallow** — it gets deep enough to understand the whole product and define all the phases, but stops there. Each phase gets its own deep discovery pass when it's its turn (see `phase-planning` below).
+A structured discovery session with Claude that captures everything needed to understand the new project and produce a populated `ROADMAP.md`. The session is **wide but shallow** — it gets deep enough to understand the whole product and define all the phases, but stops there. Each phase gets its own deep discovery pass when it's its turn.
 
 The session must collect before writing anything:
 - Project name, short description, longer pitch, and who it's for
@@ -95,7 +109,7 @@ After `initialize-project` completes, the repo is a real project, not a template
 
 ### Building phase by phase
 
-Once the project is initialized, the phase-by-phase loop begins.
+Once the project is initialized, the phase-by-phase loop begins — one phase planned, built, and shipped before the next gets a deep pass.
 
 **Step 4 — Plan the phase** *(Claude-side skill: `phase-planning`)*
 Claude reads ROADMAP, AGENTS.md (hard constraints), and the phase's ROADMAP stub, then works with you to decompose the target phase into numbered epics and vertical-slice stories. Each story carries a success condition — the observable behavior that proves it's done, in product terms. The decomposition is shaped in chat during `Planning` and written into the PRD at the `Ready` flip; Claude writes the PRD only when you ask.
@@ -120,6 +134,8 @@ Flips the PRD to `Shipped`, moves it to `docs/prds/archive/`, updates ROADMAP, c
 
 Repeat Steps 4–7 for each phase.
 
+**Why this way?** See [Why phase by phase?](#why-phase-by-phase).
+
 ### Visual overview
 
 <picture>
@@ -128,18 +144,8 @@ Repeat Steps 4–7 for each phase.
   <img alt="Seminova workflow: project kickoff and initialize project feed into a phase loop (plan phase, then a nested epic loop of plan epic, review plan, build, then ship phase)" src="../images/workflow-light.svg">
 </picture>
 
-This renders in GitHub's markdown preview; Cursor's built-in preview doesn't currently render images, so it'll show as a broken image icon there. See `docs/WORKFLOW_BACKLOG.md` for the plan to revisit this once Mermaid's swimlane support matures.
-
----
-
-## Key vocabulary
-
-### Hard constraint
-
-A non-negotiable constraint on how the project is built — enforced deterministically via `check:*` scripts, lint rules, or tests; a violation fails `pnpm pre-push` and CI. The five hard constraints are listed in [AGENTS.md § Hard constraints](../AGENTS.md#hard-constraints). Changing one requires PM approval, updates to enforcement code, and the AGENTS list together — routed through the change protocol in `AGENTS.md`. Coding agents treat them as hard constraints; `plan-review` flags any plan that violates one as a blocking finding.
-
-### Repo truth
-The authoritative record of what is actually implemented right now — routes, schema, implemented features, agent workflow. Lives in `AGENTS.md`. Kept current by the `/sync-repo-docs` skill after behavior, routes, schema, or env changes. The PRD is forward intent; `AGENTS.md` is what shipped.
+> [!NOTE]
+> **This diagram renders on GitHub; Cursor's built-in preview shows a broken image icon.** That's expected — Cursor doesn't currently render images in markdown preview. See `docs/WORKFLOW_BACKLOG.md` for the plan to revisit this once Mermaid's swimlane support matures.
 
 ---
 
@@ -161,7 +167,7 @@ A few practical habits that make this workflow smoother.
 
 1. **Token budget status in Claude.** Click your profile (bottom-left) → Settings → Usage. You'll see two windows: your current five-hour session (usage so far, time remaining) and your weekly limit (which resets separately for Opus vs. all other models). See [How do usage and length limits work?](https://support.claude.com/en/articles/11647753-how-do-usage-and-length-limits-work)
 
-2. **Batch file edits, then write once.** `filesystem:write_file` does whole-file rewrites — there's no patch/diff capability. Every write re-reads and re-emits the entire file's contents, so several small sequential edits cost more than deciding all the changes first and writing once at the end.
+2. **Batch file edits, then write once.** MCP's `filesystem:write_file` does whole-file rewrites — there's no patch/diff capability. Every write re-reads and re-emits the entire file's contents, so several small sequential edits cost more than deciding all the changes first and writing once at the end.
 
 3. **When running low on Claude token budget.** Consider drafting instead of writing directly. Rather than having Claude write through MCP, ask it to produce the content as a copy block in chat, then paste it into the file yourself. This skips the token cost of the write call itself. The tradeoff: Claude normally re-reads a file immediately before writing to guard against drift since its last read — if you draft-and-paste instead, you're the one vouching the file hasn't changed.
 
@@ -187,3 +193,28 @@ Cursor's Fast vs. Standard tiers are a speed/cost choice, not a capability one �
 Claude-side skill installation (account-wide, one-time) is covered in [WORKFLOW_SETUP.md](WORKFLOW_SETUP.md).
 
 **Cursor-side skills** live in `.cursor/skills/` and are invoked with `/skill-name` in Cursor chat. See [AGENTS.md › Agent skills](../AGENTS.md#agent-skills-cursorskills) for the full repo-maintenance catalog.
+
+---
+
+## FAQ — Why this workflow looks this way
+
+Optional depth — the procedural sections above stand on their own. Read these when you want the reasoning behind a design choice.
+
+### Why split tools instead of doing everything in one?
+
+- **Adversarial verification.** A frontier model reviewing a separate, cheaper execution model's work catches more than a model grading its own output. Claude reviews and plans; Cursor's Composer model executes.
+- **Cost and quota separation.** Running high-reasoning models inside Cursor burns Cursor's own usage limits faster, and at worse economics, than doing the same reasoning in Claude. Composer is capable enough at execution that it doesn't need the frontier-model tax.
+- **This is a current-state workaround, not a permanent architecture.** If Cursor's execution model eventually gets good enough that adversarial review stops adding value, the intent is to collapse this back into a single tool.
+
+### Why MCP instead of Cowork?
+
+Claude-side skills write planning docs directly into the repo. That requires Claude Desktop with a one-time MCP filesystem connection to your local clone (see [WORKFLOW_SETUP.md](WORKFLOW_SETUP.md)). Most of a planning session is conversational; file writes are occasional punctuations, not the whole session.
+
+Cowork is built around heavier file-aware operations, which makes it slow for requests that are mostly conversational — talking through epics, reasoning about tradeoffs, planning. Anthropic's general guidance is to chat in claude.ai and use Cowork for file work, but this workflow moves fluidly between the two within a single session — splitting that across two separate tools/chats breaks the flow. The MCP filesystem connection lets Claude Desktop do both in one place: reason in chat, write files when needed, without Cowork's standing overhead.
+
+### Why phase by phase?
+
+Kickoff defines the horizon; the steady-state loop goes deep on one phase at a time. That's intentional — planning, building, and shipping a phase before starting the next lets you fold in what you learned (scope changes, better ideas, constraints you didn't see upfront) instead of locking every phase's PRD before any code ships.
+
+- **You can plan every phase upfront** if you prefer — run `phase-planning` for each ROADMAP stub before building anything. Nothing in the skills prevents it. The tradeoff is less agility: later phases won't benefit from what earlier shipping taught you.
+- **Unattended multi-phase automation is a different model.** If the goal is agents looping through all phases with minimal human involvement, you'd typically plan everything first — but that bypasses the plan-review gate, your Ready/Active approvals, and the adversarial Claude/Cursor split this workflow is built around. Faster throughput, less verification.
