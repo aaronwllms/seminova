@@ -1,6 +1,6 @@
 # WORKFLOW_GUIDE.md — Seminova's planning & build workflow
 
-**Purpose:** How phases move from idea to shipped code — the tools, the documents, and the workflow. For write discipline and doc-maintenance rules, see [docs/DOC_RULES.md](docs/DOC_RULES.md).
+**Purpose:** How phases move from idea to shipped code — the tools, the documents, and the workflow. For write discipline and doc-maintenance rules, see [DOC_RULES.md](DOC_RULES.md).
 
 **Last updated:** 2026-07-07
 
@@ -43,7 +43,7 @@ The primary handoff artifacts between them:
 
 ## The documents
 
-Full roles table and write discipline are authoritative in [docs/DOC_RULES.md](docs/DOC_RULES.md). Quick reference:
+Full roles table and write discipline are authoritative in [DOC_RULES.md](DOC_RULES.md). Quick reference:
 
 | Document | What it is |
 | -------- | ---------- |
@@ -145,7 +145,7 @@ Repeat Steps 4–7 for each phase.
 </picture>
 
 > [!NOTE]
-> **This diagram renders on GitHub; Cursor's built-in preview shows a broken image icon.** That's expected — Cursor doesn't currently render images in markdown preview. See `docs/WORKFLOW_BACKLOG.md` for the plan to revisit this once Mermaid's swimlane support matures.
+> **This diagram renders on GitHub; Cursor's built-in preview shows a broken image icon.** That's expected — Cursor doesn't currently render images in markdown preview. See [WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md) for the plan to revisit this once Mermaid's swimlane support matures.
 
 ---
 
@@ -200,6 +200,9 @@ Claude-side skill installation (account-wide, one-time) is covered in [WORKFLOW_
 
 Optional depth — the procedural sections above stand on their own. Read these when you want the reasoning behind a design choice.
 
+<details>
+<summary>Read the FAQ</summary>
+
 ### Why split tools instead of doing everything in one?
 
 - **Adversarial verification.** A frontier model reviewing a separate, cheaper execution model's work catches more than a model grading its own output. Claude reviews and plans; Cursor's Composer model executes.
@@ -218,3 +221,5 @@ Kickoff defines the horizon; the steady-state loop goes deep on one phase at a t
 
 - **You can plan every phase upfront** if you prefer — run `phase-planning` for each ROADMAP stub before building anything. Nothing in the skills prevents it. The tradeoff is less agility: later phases won't benefit from what earlier shipping taught you.
 - **Unattended multi-phase automation is a different model.** If the goal is agents looping through all phases with minimal human involvement, you'd typically plan everything first — but that bypasses the plan-review gate, your Ready/Active approvals, and the adversarial Claude/Cursor split this workflow is built around. Faster throughput, less verification.
+
+</details>
