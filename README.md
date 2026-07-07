@@ -110,17 +110,18 @@ After Quick start, grant yourself admin access so you can use the admin shell:
 
    > [!WARNING]
    > **Never commit `SUPABASE_SECRET_KEY` or use a `NEXT_PUBLIC_*` prefix.** Supabase's **secret key** replaces the legacy **service role** key. This repo uses `SUPABASE_SECRET_KEY` — not `SUPABASE_SERVICE_ROLE_KEY`. The legacy JWT under "Legacy API keys" still works during Supabase's migration period, but prefer the secret key from **API Keys**.
+
 3. Grant yourself admin access — either:
 
-   - **CLI (bootstrap):** promote your account:
+    - **CLI (bootstrap):** promote your account:
 
-   ```bash
-   pnpm promote-admin your@email.com
-   ```
+      ```bash
+      pnpm promote-admin your@email.com
+      ```
 
-   The CLI prints the target Supabase project URL and asks for confirmation before acting. `SUPABASE_SECRET_KEY` is required for CLI commands only.
+    The CLI prints the target Supabase project URL and asks for confirmation before acting. `SUPABASE_SECRET_KEY` is required for CLI commands only.
 
-   - **In-app (once an admin exists):** another admin promotes you from `/admin/users`
+    - **In-app (once an admin exists):** another admin promotes you from `/admin/users`
 
 4. **Re-login** if you were already signed in — the admin role is embedded in the JWT and won't appear until you start a fresh session.
 
