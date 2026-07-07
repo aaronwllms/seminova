@@ -1,9 +1,6 @@
 ---
 name: github-docs-authoring
-description: >-
-  GitHub Docs Authoring — write or review repo markdown for GFM alerts, links,
-  tables, images, task lists, and renderer gaps (GitHub vs Cursor preview).
-argument-hint: '<file path(s) or "write <section>" context>'
+description: Review or write repo markdown for GitHub rendering (user-invoked).
 disable-model-invocation: true
 ---
 
@@ -41,14 +38,20 @@ Derive conventions from shipped docs + reference.md — do not invent a separate
 Audit the named file(s) against [reference.md](reference.md). Report only —
 no edits unless asked.
 
-**Severity:**
+**Severity** — grade each finding by what it means, not by matching a fixed
+example list. The concrete issue catalog (which specific problems land at each
+level) lives in reference.md; these are the meanings:
 
 | Level | Meaning |
 | ----- | ------- |
-| **Must-fix** | Broken links, missing alt text on meaningful images, absolute in-repo links that fail on clone, heading hierarchy that breaks GitHub's outline |
-| **Should-consider** | Alert overload, optional depth that would benefit from collapsed sections, fragile section anchors, missing language tags on fenced blocks |
+| **Must-fix** | Breaks rendering or navigation — the doc is wrong on GitHub or a clone until fixed |
+| **Should-consider** | Renders correctly but degrades skimmability, portability, or maintainability |
 | **Optional** | Nice-to-have polish aligned with reference.md |
 | **Already good** | Patterns worth keeping — include at least one when the file is mostly clean |
+
+Apply every checklist item in reference.md to every named file — mark an item
+N/A rather than skipping it silently — before writing the report. A finding is
+done only when its severity is set from the reference.md catalog, not guessed.
 
 Do not flag intentional tradeoffs documented in the file (e.g. WORKFLOW_GUIDE's
 GitHub-vs-Cursor diagram note). Do not restate generic Markdown tutorials.

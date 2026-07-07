@@ -211,4 +211,4 @@ See [.cursor/rules/error-handling.mdc](.cursor/rules/error-handling.mdc). Never 
 | Planning / roadmap | Update [ROADMAP.md](ROADMAP.md) and the active PRD in [docs/prds/](docs/prds/) |
 | Coding standards | Update `.cursor/rules/` — not AGENTS.md |
 
-`/sync-repo-docs` never initiates hard-constraint changes — it mirrors changes already made through this protocol.
+Sync skills never initiate hard-constraint changes — they mirror changes already made through this protocol.

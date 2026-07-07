@@ -1,7 +1,6 @@
 # GitHub Docs Authoring — reference
 
-Seminova-specific markdown conventions for files rendered on GitHub. Generic
-syntax lives in GitHub's docs — link out; do not duplicate their tables here.
+Seminova-specific markdown conventions for files rendered on GitHub.
 
 ## External authority
 
@@ -127,6 +126,13 @@ Apply to each file under review:
 - Multiple WARNING/IMPORTANT blocks in README Quick start (env/auth setup)
 - Manual "Contents" TOC in long docs (WORKFLOW_GUIDE) — complements GitHub outline
 - Agent-authored docs listed in `.prettierignore` — formatting may differ; do not demand Prettier conformance via this skill
+
+## Common must-fix findings
+
+- Broken links (target file or anchor does not exist)
+- Missing `alt` text on meaningful images
+- Leading-slash root-relative links (`/docs/FOO.md`) — resolve on GitHub but break local markdown preview, which reads them against the filesystem root; use a relative path instead
+- Heading hierarchy that breaks GitHub's outline (skipped levels, multiple h1)
 
 ## Common should-consider findings
 
