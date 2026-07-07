@@ -110,6 +110,7 @@ text lives in AGENTS.md plus its enforcement code; `.mdc` files carry guidance.
 | Supabase tools | `supabase.mdc` | Cross-ref from `security.mdc` |
 | Test writing | `testing.mdc` | Security testing lives in `security.mdc` |
 | Error patterns | `error-handling.mdc` | Cross-ref from everywhere |
+| SEO wire-up + content standards | `seo.mdc` | Hard constraint text in AGENTS.md; cross-ref from `nextjs.mdc` |
 
 *This table is the highest-churn content in this file — it hardcodes
 filenames that can be renamed or split. Verify it against the actual

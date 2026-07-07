@@ -1,9 +1,9 @@
 /**
- * Next.js requires matcher entries to be statically analyzable — no runtime helpers.
+ * Canonical auth-proxy matcher regex (without leading/trailing slashes for RegExp).
  *
- * Metadata image paths (/opengraph-image, nested segment opengraph-image, same for
- * twitter-image) bypass session refresh like static assets so cookieless crawlers
- * receive PNG responses instead of auth redirects.
+ * Next.js requires `proxy.ts` `config.matcher` entries to be string literals — this
+ * module is the testable source of truth; keep it in sync with the literal in
+ * `proxy.ts` (enforced by proxy-matcher.unit.test.ts).
  */
 export const PROXY_MATCHER_PATTERN =
   '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$|opengraph-image$|.*\\/opengraph-image$|twitter-image$|.*\\/twitter-image$).*)'

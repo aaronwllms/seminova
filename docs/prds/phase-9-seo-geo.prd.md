@@ -54,7 +54,7 @@ Ship the reusable technical-SEO foundation the template inherits — a metadata 
 - **3.1 Dynamic per-page OG images.** Establish the reusable dynamic OG-image pattern — a branded template that renders each page's own title/description into a preview image at request time, values drawn from page metadata and site config, with the font-loading and image-caching plumbing handled once in the template. Demonstrate it on the landing page and one auth route so two distinct per-page cards are visibly produced, proving it is per-page rather than a single global image. Depends on Epic 1's env-driven base URL.
   *Success: the landing page and a second route each generate a distinct social-preview image built from their own title, and the pattern is reusable on any new route.*
 
-### Epic 4: Agent conventions
+### Epic 4: Agent conventions `Complete`
 
 - **4.1 The SEO rule.** Author `seo.mdc` covering (a) the wire-up conventions from Epics 1–3 — metadata in site config, per-surface indexing, per-page OG, the structured-data helper, and the robots stance with its "review training-consent per product" note — and (b) SEO standards not owned elsewhere: unique intentional title + description per page, answer-first content structure, and canonical / no-duplicate-content. It points to `ui-accessibility.mdc` and `nextjs.mdc` for the semantic and performance bar rather than restating them.
   *Success: a new page built by an agent following only the rule inherits the metadata, indexing, OG, and structured-data conventions, and the rule restates nothing already owned by the a11y or Next.js rules.*
