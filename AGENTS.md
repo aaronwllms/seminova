@@ -45,6 +45,7 @@ For the planning-loop skills (`plan-next-epic`, `mark-epic-complete`, `ship-phas
 | ----- | -------- |
 | `design-critique` | Reviewing a mockup, screenshot, or screen at any stage — usability, hierarchy, consistency, accessibility feedback |
 | `ux-copy` | Writing or reviewing microcopy — CTAs, empty states, error messages, confirmation dialogs |
+| `github-docs-authoring` | GitHub Docs Authoring — write or review repo markdown (README, workflow docs, PRDs) for GFM conventions and renderer gaps |
 
 ### Housekeeping
 
