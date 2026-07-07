@@ -7,7 +7,6 @@ globs:
   - '**/*.unit.test.tsx'
   - '**/*.integration.test.ts'
   - '**/*.integration.test.tsx'
-  - 'src/mocks/**/*.ts'
   - 'src/test/**/*.tsx'
 alwaysApply: false
 ---
@@ -40,9 +39,9 @@ Prefer integration tests for components with external dependencies (forms, API r
 - Mock at the system boundary, not internal implementation
 
 ### Mock Service Worker (MSW v2)
-- Mock external API calls in `src/mocks/handlers.ts` when a real HTTP boundary needs it
-- MSW is configured for testing only (not in production)
-- Global `server.listen()` in `vitest.setup.ts` is **deferred** until handlers exist — Supabase/auth boundaries use `vi.mock` at module level today
+- **No `src/mocks/` directory yet** — MSW is a dev dependency but global setup is deferred until a real HTTP boundary needs it (`vitest.setup.ts` comment). Supabase/auth boundaries use `vi.mock` at module level today.
+- **When the first HTTP-boundary test ships:** recreate minimal global infra — `src/mocks/handlers.ts` (start with `export const handlers = []`), thin `src/mocks/server.ts`, wire `server.listen()` / `resetHandlers()` in `vitest.setup.ts`. Use per-test `server.use()` only for test-specific overrides on top of shared handlers.
+- MSW is for testing only (not in production).
 
 ### Mocking Supabase
 - Mock Supabase client only at the system boundary when necessary

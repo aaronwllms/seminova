@@ -12,7 +12,7 @@ globs:
 ## Philosophy
 - **User-facing errors**: Clear, actionable, never expose internals
 - **Developer errors**: Rich context, stack traces, debugging info
-- **Security-first**: Never log sensitive data (passwords, tokens, PII)
+- **Security-first**: Sensitive-data logging boundaries live in `logging.mdc` and `security.mdc`
 - **Fail gracefully**: Always provide fallback UI and recovery paths
 
 ## Error Taxonomy
@@ -124,25 +124,9 @@ Auth forms (`login-form`, `sign-up-form`, `forgot-password-form`, `update-passwo
 
 **Reference:** See `.cursor/rules/security.mdc` for detailed auth patterns
 
-## Security: What NOT to Log
-
-**Never log:** Passwords, API keys, auth tokens, credit cards, SSNs, full request/response bodies
-
-**Safe to log:** User IDs, request paths, error codes, non-sensitive metadata (avoid logging email unless required for auth debugging)
-
 ## User-Facing Error Messages
 
-**Good Examples:**
-- "We couldn't find that post. It may have been deleted."
-- "Your session expired. Please sign in again."
-- "Something went wrong. Please try again, or contact support if this continues."
-
-**Bad Examples:**
-- "Error: ECONNREFUSED" (too technical)
-- "An error occurred" (too vague)
-- "Internal server error at line 42" (leaks internals)
-
-**Guidelines:** Be clear, actionable, empathetic, honest, and concise (1-2 sentences max)
+User-safe, actionable, empathetic copy — 1–2 sentences max. Never leak internals (stack traces, connection errors, line numbers).
 
 ## Error UI Patterns
 

@@ -46,26 +46,12 @@ In components using queries:
 For critical errors at the route level, use Next.js `error.tsx` with `InlineError` (`src/components/inline-error.tsx`) or `ErrorPanel` (`src/components/error-panel.tsx`).
 
 ## Mutations
-```typescript
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-export function useUpdateUser() {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: async (userData) => {
-      const response = await fetch('/api/user', {
-        method: 'PUT',
-        body: JSON.stringify(userData),
-      })
-      return response.json()
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user'] })
-    },
-  })
-}
-```
+**Default to Server Actions** for internal UI mutations (`nextjs.mdc`) — not `fetch('/api/…')`. The repo has no shipped API routes today.
+
+- Call a Server Action from `mutationFn`; branch on `{ success, data }` / `{ success: false, error }` envelope
+- `onSuccess`: `queryClient.invalidateQueries({ queryKey: […] })` for affected keys
+- Reference: [`src/app/(app)/profile/actions.ts`](../../src/app/(app)/profile/actions.ts), [`src/app/admin/users/actions.ts`](../../src/app/admin/users/actions.ts)
 
 ## Configuration
 - QueryClient is already configured in `src/providers/ReactQueryProvider.tsx`

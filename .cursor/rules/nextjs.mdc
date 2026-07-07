@@ -8,17 +8,6 @@ globs:
 
 # Next.js 16 App Router Best Practices
 
-## Server vs Client Components
-- **Default to Server Components** for all components
-- **Minimize use of 'use client'**: Favor server components and Next.js SSR
-- **Only use 'use client' when necessary:**
-  - Event handlers (onClick, onChange, etc.)
-  - React hooks (useState, useEffect, useContext, etc.)
-  - Browser APIs (localStorage, window, document, etc.)
-  - Third-party libraries requiring client-side rendering
-  - Use only for Web API access in small components
-  - Avoid for data fetching or state management
-
 ## File Conventions
 - Use `error.tsx` for error boundaries
 - Use `loading.tsx` for loading states
@@ -45,12 +34,9 @@ See `.cursor/rules/api-development.mdc` for Route Handler conventions when one i
 When building any user-facing form or feedback UI, read `forms.mdc` and `notifications.mdc`.
 
 ## Performance Optimization
-- Minimize 'use client' directives; favor React Server Components (RSC)
-- Minimize use of useEffect and useState; prefer server-side data fetching
-- Use dynamic imports for heavy components: `const Heavy = dynamic(() => import('./Heavy'))`
-- Wrap client components in Suspense with meaningful fallbacks
-- Use `next/image` with explicit dimensions (width and height); lazy loading where appropriate
-- Optimize Web Vitals (LCP, CLS, FID) for better user experience
+
+- Wrap client components in Suspense with meaningful fallbacks (see `LandingAuthSlot` pattern)
+- Use `next/image` with explicit dimensions
 
 ### Avoiding Data-Fetching Waterfalls
 - Fetch independent data in parallel (multiple awaited calls or `Promise.all`), not sequentially, when one fetch doesn't depend on another's result
@@ -80,7 +66,5 @@ When building any user-facing form or feedback UI, read `forms.mdc` and `notific
 - Adopt modular structure where each feature has its own folder
 
 ## Anti-patterns to Avoid
-- Don't use 'use client' at the top of every file by default
-- Don't fetch data with useEffect when Server Components can be used
-- Don't create deeply nested component hierarchies
-- Don't use 'use client' for data fetching or state management
+- Don't fetch data with `useEffect` when a Server Component or Server Action can do it
+- Don't use Route Handlers for internal UI mutations — see Server Actions default above

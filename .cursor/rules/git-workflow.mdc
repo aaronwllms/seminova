@@ -51,7 +51,7 @@ feat: add user profile avatar upload component
 
 fix: resolve authentication redirect loop on login page
 
-test: add integration tests for message API endpoint
+test: add integration tests for profile avatar upload
 
 refactor: extract email validation into reusable utility
 
@@ -64,17 +64,8 @@ perf: optimize image loading with next/image priority
 Add scope for better context:
 ```bash
 feat(auth): add password reset functionality
-fix(api): handle null response in message endpoint
-test(components): add tests for AuthButton component
-```
-
-## Commit Message Structure
-```
-<type>(<scope>): <subject>
-
-<body>
-
-<footer>
+fix(admin): handle empty page in users table pagination
+test(components): add tests for login-form component
 ```
 
 ## Commit Best Practices

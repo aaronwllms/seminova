@@ -1,16 +1,15 @@
 # Rule Audit — seminova
 
-Last full audit: 2026-07-04
-Last synced: 2026-07-04
+Last full audit: 2026-07-07
+Last synced: 2026-07-07
 Scope: `.cursor/rules/*.mdc` against the rule-authoring standard
 
 ## Executive summary
 
-- **Always Apply set:** ~812 words combined (~12 over the ~800-word budget). Accepted as a documented exception — `code-minimalism.mdc` always-on placement justified as core ethos rule (see rule-authoring skill Size budgets).
-- **`testing.mdc` trimmed** to ≤250 lines — over-testing examples collapsed, minimalism deduped, mocking policy preserved with handler pointer.
-- **`typescript.mdc` globs narrowed** to `src/**/*.ts`, `src/**/*.tsx`, `scripts/**/*.ts`; generic TS tutorial content removed.
-- **UI rules trimmed** (`ui-shadcn`, `ui-accessibility`, `ui-styling`) — project-specific guidance and file pointers only.
-- **Three rules still share broad `src/**` globs** (logging, security, supabase). Forms and notifications were narrowed to form-shaped paths and feedback surfaces (2026-07-04 remediation).
+- **All open findings (R014–R023) remediated** in `.cursor/rules/` on 2026-07-07.
+- **MSW policy locked:** deferred until first HTTP-boundary test; global setup (`handlers.ts` + `server.ts` + `vitest.setup.ts`) on trigger; per-test `server.use()` for overrides only.
+- **Broad `src/**` globs on `logging.mdc`, `security.mdc`, `supabase.mdc`:** no change — acceptable until a file crosses 300 lines or a fourth broad rule is added.
+- **Always Apply set under budget** (~776 words combined).
 
 ## Orient
 
@@ -38,7 +37,7 @@ Scope: `.cursor/rules/*.mdc` against the rule-authoring standard
 | `security.mdc`               | Auto Attached — `src/**`, proxy, API, migrations                                        |
 | `supabase.mdc`               | Auto Attached — `src/**`, proxy, migrations                                             |
 | `supabase-sql.mdc`           | Auto Attached — `supabase/migrations/**/*.sql`                                          |
-| `testing.mdc`                | Auto Attached — test files, mocks, test utils                                           |
+| `testing.mdc`                | Auto Attached — test files, test utils                                                    |
 | `typescript.mdc`             | Auto Attached — `src/**/*.ts`, `src/**/*.tsx`, `scripts/**/*.ts`                        |
 | `ui-accessibility.mdc`       | Auto Attached — components + app TSX                                                    |
 | `ui-shadcn.mdc`              | Auto Attached — UI primitives + components + app                                        |
@@ -46,58 +45,64 @@ Scope: `.cursor/rules/*.mdc` against the rule-authoring standard
 
 ## Findings
 
-No open findings. All items from the 2026-07-04 audit are resolved (see Resolved table below).
+No open findings.
 
 ## Rules that are fine
 
-- **`data-tables.mdc`** — Tight, project-specific (search column flag, Next/Previous pagination, skeleton via `DataTableShell`). Cites shipped `users-table.tsx`. Good signal density.
-- **`do-migrations-agent.mdc`** — Clear agent/human split, correct globs, points to create-migration skill and `supabase-sql.mdc`. No duplication with AGENTS.md beyond intentional cross-ref.
+- **`code-minimalism.mdc`** — Core ethos rule; always-on placement earned.
 - **`do-migrations-pointer.mdc`** — Minimal always-on pointer; earns its token cost.
-- **`forms.mdc`** — Strong ownership of save model and autofill conventions. Globs narrowed to form-shaped paths; frontmatter documents glob-maintenance obligation. Good cross-refs to notifications and error-handling.
-- **`notifications.mdc`** — Clear toast vs inline vs panel routing. Globs narrowed to feedback surfaces. Complements `error-handling.mdc` without redefining error taxonomy.
-- **`supabase-sql.mdc`** — Project-delta-only SQL conventions; cites shipped migrations; Auto Attached on migration globs. Replaces three upstream template rules.
-- **`logging.mdc`** — Focused level taxonomy and tag convention. Correctly deferrals to error-handling for failure envelopes.
-- **`documentation.mdc`** — Thin structural guardrail as intended. Paths verified (`WORKFLOW_BACKLOG.md`, `DOC_RULES.md`, `docs/prds/archive/` policy).
+- **`do-migrations-agent.mdc`** — Clear agent/human split, correct globs.
+- **`general-conventions.mdc`** — Appropriate always-on date/env awareness.
+- **`pm-collaboration.mdc`** — Genuinely universal working-mode guidance.
 - **`rule-authoring-pointer.mdc`** — Correct glob trigger for rule edits; minimal.
-- **`general-conventions.mdc`** — Appropriate always-on date/env awareness; within per-file word budget.
-- **`project-standards.mdc`** — Agent Requested with specific description. Depth heuristic and `_lib/` vs `src/utils/` placement are project-specific and useful.
-- **`api-development.mdc`** — Forward-looking (no API routes shipped yet) but well-scoped globs and strong cross-refs to error-handling. No restated hard constraints.
-- **`nextjs.mdc`** — Reasonable App Router guidance with Server Actions default and cross-refs to supabase/RLS performance. Globs match relevance shape.
-- **`pm-collaboration.mdc`** — Genuinely universal working-mode guidance; deserves always-on placement.
-- **`code-minimalism.mdc`** — Core ethos rule; always-on placement documented as accepted exception in rule-authoring skill.
-- **`supabase.mdc`** — Strong project-specific storage and client-usage sections. Migration safety correctly delegates to `do-migrations-agent.mdc`.
-- **`error-handling.mdc`** — Canonical owner for error taxonomy, envelopes, and UI branching (`InlineError` / `ErrorPanel`). Logging defers to `logging.mdc`.
-- **`security.mdc`** — Auth, DTO, and access-control guidance via principles + shipped file refs (`assertAdminCaller` in admin users actions). Cross-refs to error-handling and api-development.
-- **`testing.mdc`** — Minimalism applied once; H/I/B, mocking policy, coverage gates, and authoring checklist intact. Over-testing guidance points at shipped tests.
-- **`typescript.mdc`** — Project-delta only (named exports, Supabase types, shared-type placement). Globs scoped to app + scripts TypeScript.
-- **`ui-shadcn.mdc`** — CLI `-y -o` flags, primitive-first workflow, customization via shipped `src/components/ui/` patterns.
-- **`ui-accessibility.mdc`** — WCAG 2.1 AA target, Radix preservation, token-based focus rings; generic ARIA/keyboard tutorials removed.
-- **`ui-styling.mdc`** — Semantic tokens, `globals.css`, `DESIGN.md`; generic breakpoint/cn() tutorials removed.
-- **`react-tanstack-query.mdc`** — Supabase query-key principle; cites `use-sign-out.ts` for hook conventions.
+- **`data-tables.mdc`** — Tight, project-specific table conventions.
+- **`documentation.mdc`** — Thin structural guardrail; paths verified.
+- **`forms.mdc`** — Strong ownership of save model and autofill conventions.
+- **`notifications.mdc`** — Clear toast vs inline vs panel routing.
+- **`logging.mdc`** — Focused level taxonomy; broad `src/**` glob acceptable.
+- **`project-standards.mdc`** — Agent Requested with specific description.
+- **`typescript.mdc`** — Project-delta only; globs scoped to app + scripts.
+- **`supabase-sql.mdc`** — Project-delta-only SQL conventions; cites shipped migrations.
+- **`ui-shadcn.mdc`** — CLI flags, primitive-first workflow.
+- **`ui-accessibility.mdc`** — WCAG 2.1 AA target, Radix preservation.
+- **`ui-styling.mdc`** — Semantic tokens, `globals.css`, `DESIGN.md`.
+- **`api-development.mdc`** — Forward-looking API route guidance; envelope shapes defer to error-handling.
+- **`error-handling.mdc`** — Canonical error taxonomy and UI surfaces; logging boundaries cross-referenced.
+- **`git-workflow.mdc`** — Conventional commits and PR format with precedence line.
+- **`nextjs.mdc`** — Server Actions default, Suspense/waterfall guidance, project cross-refs.
+- **`react-tanstack-query.mdc`** — Server Action mutation pattern; Supabase query-key conventions.
+- **`security.mdc`** — Trust-boundary guidance via principles + shipped file refs; broad glob acceptable.
+- **`supabase.mdc`** — Storage, client usage, migration safety; broad glob acceptable.
+- **`testing.mdc`** — MSW deferred policy documented; mocking policy intact.
+
+## Open questions
+
+None — both resolved 2026-07-07 (see Resolved).
 
 ## Resolved
 
-| ID   | Verification note |
-| ---- | ----------------- |
-| R001 | Accepted exception — set ~12 words over budget; code-minimalism always-on justified as core ethos rule; exception recorded in rule-authoring skill Size budgets |
-| R002 | Over-testing examples collapsed; minimalism deduped; file ≤250 lines; mocking policy preserved with handler pointer to `src/mocks/handlers.ts` |
-| R003 | Globs narrowed to `src/**/*.ts`, `src/**/*.tsx`, `scripts/**/*.ts`; generic TS tutorial cut; glob rationale in frontmatter |
-| R004 | `useGetMessage` hook + test deleted; orphaned `axios` and `/api/message` MSW handler removed; `react-tanstack-query.mdc` cites Supabase query-key principle + `use-sign-out.ts`; `pnpm test:ci` passes |
-| R005 | Conflicting "avoid id" bullet removed via consolidation; convention is `id bigint generated always as identity` |
-| R006 | `forms.mdc` and `notifications.mdc` globs narrowed; all shipped consumers verified against new patterns |
-| R007 | Precedence line added to `git-workflow.mdc` PR Description |
-| R008 | Three template SQL rules replaced by project-delta-only `supabase-sql.mdc` |
-| R009 | ui-shadcn, ui-accessibility, ui-styling trimmed to project-specific guidance + file pointers |
-| R010 | error-handling description scoped to taxonomy/envelopes/UI; logging defers to logging.mdc |
-| R011 | security auth/DTO inline blocks replaced with principles + shipped file refs (`assertAdminCaller` in `src/app/admin/users/actions.ts`) |
-| R012 | `supabase-sql.mdc` Auto Attached on `supabase/migrations/**/*.sql` |
-| R013 | PERMISSIVE default documented; MFA restrictive noted as rare exception |
-
-### Open questions — answered (2026-07-04)
-
-| Question | Resolution |
-| -------- | ---------- |
-| Broad `src/**` globs | Narrowing forms + notifications to form-shaped paths, actions, and feedback call sites is acceptable; implemented in R006 fix |
-| Legacy demo cleanup | Remove `useGetMessage` + test, orphaned `axios` dep, and `/api/message` MSW handler; update rule references (R004 fix) |
-| PR format authority | Repo `git-workflow.mdc` Why/What/Testing/Risk format wins; explicit precedence line added (R007 fix) |
-| SQL helper rules | Consolidated into `supabase-sql.mdc` with migration globs (R005/R008/R012/R013 fix) |
+- 2026-07-07 — R014: `testing.mdc` — removed stale `src/mocks` glob; MSW deferred + global-setup-on-trigger policy documented
+- 2026-07-07 — R015: `git-workflow.mdc` — commit examples updated to shipped surfaces (profile avatar, admin users, login-form)
+- 2026-07-07 — R016: `react-tanstack-query.mdc` — mutation example replaced with Server Action + invalidation pointer
+- 2026-07-07 — R017: `error-handling.mdc` — good/bad message comparison block collapsed to one principle line
+- 2026-07-07 — R018: `error-handling.mdc` — never-log list removed; cross-ref to `logging.mdc` / `security.mdc`
+- 2026-07-07 — R019: `nextjs.mdc` — generic Server/Client and Web Vitals tutorial trimmed; project-delta retained
+- 2026-07-07 — R020: `supabase.mdc` — generic Production Operations section removed; dashboard cross-ref kept
+- 2026-07-07 — R021: `security.mdc` — SSRF inline code block replaced with principle + `is-safe-redirect.ts` pointer
+- 2026-07-07 — R022: `api-development.mdc` — duplicate envelope code blocks removed; cross-ref to error-handling retained
+- 2026-07-07 — R023: `git-workflow.mdc` — duplicate commit format template removed
+- 2026-07-07 — Open question (MSW): deferred until first HTTP-boundary test; global setup on trigger; per-test `server.use()` for overrides only
+- 2026-07-07 — Open question (broad globs): no narrowing; revisit when any file crosses 300 lines or a fourth broad `src/**` rule is added
+- 2026-07-04 — R001: Always Apply set over budget — now ~776 words (under ~800)
+- 2026-07-04 — R002: `testing.mdc` trimmed to ≤250 lines
+- 2026-07-04 — R003: `typescript.mdc` globs narrowed; generic TS tutorial cut
+- 2026-07-04 — R004: demo `useGetMessage` / `/api/message` cleanup (mutation example regressed in R016, fixed 2026-07-07)
+- 2026-07-04 — R005: SQL `id` convention consolidated
+- 2026-07-04 — R006: `forms.mdc` and `notifications.mdc` globs narrowed
+- 2026-07-04 — R007: PR format precedence line in `git-workflow.mdc`
+- 2026-07-04 — R008: template SQL rules replaced by `supabase-sql.mdc`
+- 2026-07-04 — R009: UI rules trimmed to project-specific guidance
+- 2026-07-04 — R010: error-handling description scoped; logging ownership clarified
+- 2026-07-04 — R011: security auth/DTO blocks replaced with principles + file refs
+- 2026-07-04 — R012: `supabase-sql.mdc` Auto Attached on migration globs
+- 2026-07-04 — R013: PERMISSIVE default documented in `supabase-sql.mdc`
