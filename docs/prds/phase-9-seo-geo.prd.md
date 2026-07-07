@@ -40,7 +40,7 @@ Ship the reusable technical-SEO foundation the template inherits — a metadata 
 - **1.2 Per-surface indexing policy.** Public marketing routes are indexable; the auth screens set noindex; the authenticated app surface also sets noindex as defense-in-depth, even though the auth redirect already hides it — so a route accidentally made public cannot leak into an index.
   *Success: marketing routes are index-eligible while auth and app routes emit a noindex directive.*
 
-### Epic 2: Crawler-facing surface
+### Epic 2: Crawler-facing surface `Complete`
 
 - **2.1 Opinionated robots policy.** Ship a robots policy with the allow/block split above and a reference to the sitemap. Active disallow lines block the training crawlers; the broader churn-prone bot roster ships as a clearly-labelled commented reference block a spinoff edits when it revisits training consent.
   *Success: fetching the robots policy shows retrieval and user-fetch bots allowed, training crawlers disallowed, and a sitemap reference present.*

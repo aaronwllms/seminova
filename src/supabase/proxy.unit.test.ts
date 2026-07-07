@@ -4,7 +4,10 @@
 import { join } from 'node:path'
 import { NextRequest } from 'next/server'
 import { ADMIN_ROLE } from '@/constants/admin-role'
-import { discoverAppRoutes, isPublicAppRoute } from '@/test/discover-app-routes'
+import {
+  discoverAppRoutes,
+  isPublicAppRoute,
+} from '@/utils/discover-app-routes'
 import { updateSession } from './proxy'
 
 const mockGetClaims = vi.fn()
