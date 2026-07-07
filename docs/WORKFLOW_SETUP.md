@@ -6,7 +6,7 @@
 
 **Audience:** Anyone setting up a project cloned from this template — no prior context assumed.
 
-**Prerequisite:** Complete [README.md](../README.md)'s Quick start and Initial setup first — dev environment, Supabase, and the repo running locally. Also requires Claude Desktop (not claude.ai web) — MCP filesystem server configuration is a Desktop-only feature.
+**Prerequisite:** Complete [README.md](../README.md)'s [Quick start](../README.md#quick-start) and [Initial setup](../README.md#initial-setup) first — dev environment, Supabase, and the repo running locally. Also requires Claude Desktop (not claude.ai web) — MCP filesystem server configuration is a Desktop-only feature.
 
 ---
 
@@ -53,7 +53,7 @@ Config file location and exact steps differ between Mac and Windows; Claude will
 
 **Predefined setup prompt** — paste this into a fresh chat (inside your Project from Section 2), with your repo path filled in at the bottom:
 
-```
+```text
 I need to set up the filesystem MCP server in Claude Desktop so you can
 read and write files in my local repo. Walk me through how to do this
 step by step, including where the config file lives, what to add to it,
@@ -91,7 +91,7 @@ Each skill ships in this repo as a ready-to-upload skill file at `docs/claude-sk
 
 1. In Claude, go to **Customize > Skills**.
 2. Click **"Add,"** then **"Upload a skill."**
-3. Select the corresponding `.skill` file from `docs/claude-skills/` in your local repo clone.
+3. Select the corresponding `.skill` file from [docs/claude-skills/](claude-skills/) in your local repo clone.
 4. Confirm the skill appears in your skills list, then toggle it on.
 5. Repeat for each skill in the Required list above (and any Optional ones you want).
 
@@ -101,7 +101,7 @@ Each skill ships in this repo as a ready-to-upload skill file at `docs/claude-sk
 
 Once the Project exists, MCP is connected, and skills are installed, confirm setup succeeded before starting real work:
 
-1. Ask Claude to list the contents of `AGENTS.md` (or read its first few lines). This confirms MCP filesystem access is working. (Not `ROADMAP.md` — at this point in setup, before `project-kickoff` has run, `ROADMAP.md` won't have real project content yet.)
+1. Ask Claude to list the contents of [AGENTS.md](../AGENTS.md) (or read its first few lines). This confirms MCP filesystem access is working. (Not [ROADMAP.md](../ROADMAP.md) — at this point in setup, before `project-kickoff` has run, ROADMAP.md won't have real project content yet.)
 2. Ask Claude to invoke `project-kickoff` (or another installed required skill) and confirm it triggers correctly.
 
-If both succeed, setup is complete. Move to [WORKFLOW_GUIDE.md → Starting a new project](WORKFLOW_GUIDE.md#starting-a-new-project) to begin project kickoff.
+If both succeed, setup is complete. Move to [Starting a new project](WORKFLOW_GUIDE.md#starting-a-new-project) in [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md) to begin project kickoff.
