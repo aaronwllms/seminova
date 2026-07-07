@@ -2,7 +2,7 @@
 
 The planning horizon: anticipated phases as thin stubs, plus living status. Shipped phase detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md); build-time workflow and authoritative schema in [AGENTS.md](AGENTS.md). Phase status vocabulary and PRD lifecycle in [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
-**Last updated:** 2026-07-05
+**Last updated:** 2026-07-06
 
 ---
 
@@ -18,29 +18,26 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 | 6     | Data Model Foundation (profiles, admin namespace, authenticated shell, profile page) | `Shipped` | —   |
 | 7     | Security Audit Remediation                                                           | `Shipped` | —   |
 | 8     | Tech Debt Audit Remediation                                                          | `Shipped` | [docs/prds/archive/phase-8-tech-debt-remediation.prd.md](docs/prds/archive/phase-8-tech-debt-remediation.prd.md) |
-| 9     | SEO & GEO                                                                            | `Draft`   | —   |
+| 9     | SEO & GEO                                                                            | `Active`  | [docs/prds/phase-9-seo-geo.prd.md](docs/prds/phase-9-seo-geo.prd.md) |
 | 10    | Pattern Reference Page                                                               | `Draft`   | —   |
-| 11    | Agent Tooling: Skills Suite                                                          | `Draft`   | —   |
 
 _Phases 1–7 pre-date the per-phase PRD system, so their PRD column is empty; their shipped detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md). From Phase 8 on, shipped rows link the archived PRD per [docs/DOC_RULES.md](docs/DOC_RULES.md)._
 
-**Active phase:** none — next up is Phase 9 (SEO & GEO, `Draft`).
+**Active phase:** Phase 9 (SEO & GEO).
 
 ---
 
 ## Upcoming phases
 
-### Phase 9 — SEO & GEO `Draft`
+### Phase 9 — SEO & GEO `Active`
 
-Not yet scoped. Covers traditional SEO (metadata, sitemap, structured data) and GEO (generative-engine optimization — how the product surfaces in AI assistant answers) for the marketing/landing surface shipped in Phase 4. No hard sequencing dependency beyond Phase 4 being shipped.
+Scoped — see [docs/prds/phase-9-seo-geo.prd.md](docs/prds/phase-9-seo-geo.prd.md). Ships the reusable technical-SEO foundation (metadata source-of-truth, robots + sitemap, structured-data and per-page OG patterns, and a codified SEO rule); GEO collapses into that foundation rather than a separate track. No hard sequencing dependency beyond Phase 4 being shipped.
 
 ### Phase 10 — Pattern Reference Page `Draft`
 
 A dedicated page that demonstrates the canonized component patterns established across prior phases: data table, error states (operational `InlineError` + fault `ErrorPanel`), skeleton loading, toast, and the form/settings pattern (from Phase 6). The page imports and showcases the real, already-established components — it does not reimplement them. It is explicitly deletable scaffolding: deleting it loses zero canonical pattern, since every pattern it demonstrates is established in real code elsewhere (admin users table, profile page, etc.). Sequenced after Phase 6 so it can show the form/profile pattern alongside everything from Phase 5, rather than shipping thin now and needing a follow-up addition later.
 
-### Phase 11 — Agent Tooling: Skills Suite `Draft`
-
-Finalize the generic (de-specialized) skills suite: a design-critique skill, a design-system skill (establish-structure + audit + AI-slop detection), and a separate theme "regenerate" skill. Skills land at the end because they operate on the token layer (Phase 2) and the reference surfaces (Phases 3–10). Rules correctness is handled in Phase 1; this phase includes only a light final pass to confirm the rules set is still complete and project-agnostic.
+Also folds in the **PM/agent workflow explainer page** (moved here from open questions): a click-through page off the landing surface explaining Seminova's two differentiators — the agent-ready conventions (`AGENTS.md` + `.cursor/rules/` + `.cursor/skills/`) and the PM/agent collaboration model (the Claude Desktop planning setup, MCP, and paired skills) — since a one-line landing card each doesn't convey how either works. Whether it co-ships with the pattern reference or broadens this phase's name/scope is settled at Phase 10 planning.
 
 ---
 
@@ -78,14 +75,14 @@ _Defer until: unscoped — revisit when a storage approach is decided_
 **Solution:** Plan to claim `seminova.dev` (or similar) and carry keywords in the repo description/topics rather than the name. Low priority.
 _Defer until: opportunistic_
 
-### PM/agent workflow explainer page
-
-**Problem:** The landing page names both halves of Seminova's core differentiator — agent-ready conventions and the PM/agent collaboration model — but a one-line card each doesn't explain how either actually works. Someone who clones the template should be able to click through and understand the mechanics, not read a README.
-**Solution:** Not yet scoped. Likely a dedicated in-app page (not a doc) reachable from the landing page, with two threads: (1) agent-ready conventions — how AGENTS.md + `.cursor/rules/` + `.cursor/skills/` keep any coding agent's output consistent; (2) PM/agent collaboration model — the Claude Desktop planning setup, MCP, and paired skills that turn a plan into agent-ready work. Needs its own epic to define content and layout.
-_Defer until: unscoped — revisit when prioritizing landing UX expansions_
-
 ### Admin shell feature copy revisit
 
 **Problem:** Feature card #4's punchline ("start building your product, not your login screen") implies login/auth is the thing skipped, but the actual content is the admin shell + role gating. As more reference surfaces ship (Phase 5+), this card should describe the fuller set of packaged components available, not just admin shell.
 **Solution:** Revisit copy now that Phase 5 reference surfaces (error, loading, toast, in-app promote/demote) are shipped.
 _Defer until: opportunistic_
+
+### Deterministic a11y enforcement (h1 / alt / heading order)
+
+**Problem:** `ui-accessibility.mdc` ships as guidance only — no `check:*` script. Several of its standards are genuinely deterministic and lintable: exactly one `<h1>` per page, images carry non-empty `alt`, headings nest in order without skipping levels. Nothing enforces them today, so an agent can violate them silently. Surfaced during Phase 9 planning, where SEO deliberately declined to add an SEO-only lint for these (they're a11y's domain, not SEO's).
+**Solution:** Not yet scoped. Add a `check:a11y` (lint-based) covering the deterministic subset, leaving subjective a11y (contrast intent, screen-reader UX) as guidance. Enforcement decision belongs with the a11y rule, not SEO.
+_Defer until: unscoped — revisit when prioritizing rule-enforcement hardening_

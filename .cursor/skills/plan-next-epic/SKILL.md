@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 # Plan Next Epic
 
-Plan Mode only. Do not edit planning or repo files (git branch checkout/create for first-epic setup is allowed).
+Plan Mode only. Do not edit planning or repo files (exceptions for first-epic setup: git branch checkout/create, and the `Active` status flip below).
 
 ## Read first
 
@@ -71,7 +71,9 @@ git show-ref --verify --quiet refs/heads/phase-{N}/{slug}
 git branch --show-current
 ```
 
-Confirm the output matches `phase-{N}/{slug}` exactly before proceeding to plan generation. If it doesn't, halt and report — do not proceed onto `main` or any other branch by assumption.
+Confirm the output matches `phase-{N}/{slug}` exactly before proceeding. If it doesn't, halt and report — do not proceed onto `main` or any other branch by assumption.
+
+**Flip status to Active (first epic only).** After branch verification, update the active PRD's `**Status:**` line and its ROADMAP row (Status table + any "Active phase" line) from `` `Ready` `` to `` `Active` ``. Confirm both files read `` `Active` `` before proceeding to plan generation.
 
 Request `git_write` for any checkout/create/delete above. Report which branch was created, checked out, or recreated. **Do not push** — publishing the branch is separate (build work or `ship-phase`).
 
