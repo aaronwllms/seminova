@@ -23,7 +23,7 @@ pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci
 ```
 
 4. **Doc sync** after behavior, routes, schema, or env changes:
-   - `/sync-repo-docs` — AGENTS.md + README.md
+   - `/sync-repo-docs` — AGENTS.md, README.md, DESIGN.md, `.cursor/rules/README.md`
 
 ---
 

@@ -181,7 +181,7 @@ When forking Seminova for a new product, change **theme values only** — preser
    - Replace color, font, shadow, radius, and spacing **values**.
    - **Preserve** the `@theme inline` block structure and Seminova-only tokens (`radius-2xl`–`radius-4xl`).
    - Do not duplicate `@import`, `@custom-variant`, or `@layer base` from the export.
-4. **Update fonts** in `src/app/layout.tsx` if families change — wire new `next/font` loaders and update `--font-*` references in globals.
+4. **Update fonts** in `src/app/layout.tsx` if families change — wire new `next/font` loaders and update `--font-*` references in globals. Replace [`src/assets/fonts/Inter-SemiBold.ttf`](src/assets/fonts/Inter-SemiBold.ttf) if social preview images should match the new typeface (see [`src/utils/og-image.tsx`](src/utils/og-image.tsx)).
 5. **Update `components.json`** `baseColor` if the neutral hue family changes (slate vs neutral vs zinc, etc.).
 6. **Audit `src/`** for hardcoded colors:
 

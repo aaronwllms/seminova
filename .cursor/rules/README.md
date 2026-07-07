@@ -2,7 +2,7 @@
 
 Modular Cursor AI rules (`.mdc` format) for the Seminova template: an opinionated, AI-native starter built on Next.js 16, Supabase, Tailwind, shadcn/ui, Vitest, and TanStack Query v5.
 
-**25 rule files** in this directory. See [`.cursor/README.md`](../README.md) for skills, agents, and planning doc layout. Before creating or editing any rule, read [`.cursor/skills/rule-authoring/SKILL.md`](../skills/rule-authoring/SKILL.md) — `rule-authoring-pointer.mdc` triggers that read automatically.
+**26 rule files** in this directory. See [`.cursor/README.md`](../README.md) for skills, agents, and planning doc layout. Before creating or editing any rule, read [`.cursor/skills/rule-authoring/SKILL.md`](../skills/rule-authoring/SKILL.md) — `rule-authoring-pointer.mdc` triggers that read automatically.
 
 ## What this rule set covers
 
@@ -59,6 +59,7 @@ Roadmap and active build scope: [ROADMAP.md](../../ROADMAP.md) and [docs/prds/](
 | `react-tanstack-query.mdc` | Auto attached | `hooks/**`, `components/**`, provider | TanStack Query v5 keys, hooks, mutations |
 | `rule-authoring-pointer.mdc` | Auto attached | `.cursor/rules/**` | Stub → read rule-authoring skill before rule edits |
 | `security.mdc` | Auto attached | `src/**`, `proxy.ts`, migrations | Auth, validation, RLS, OWASP patterns |
+| `seo.mdc` | Auto attached | `src/app/**`, SEO utils, `site.ts` | Metadata wire-up, crawler surface, social previews |
 | `supabase-sql.mdc` | Auto attached | `migrations/**` | Project SQL style, RLS, functions (deltas only) |
 | `supabase.mdc` | Auto attached | `src/**`, `supabase/**`, `proxy.ts` | `@supabase/ssr` clients, auth proxy |
 | `testing.mdc` | Auto attached | `*.test.*`, `src/test/**` | Vitest + RTL + MSW v2; 80% coverage gates |
@@ -87,6 +88,15 @@ Per-rule detail (topics and cross-references):
 - Server vs Client Component patterns
 - Next.js 16 conventions (`error.tsx`, `loading.tsx`, `route.ts`)
 - Data fetching strategies and performance
+
+### `seo.mdc`
+
+**Applies to:** `src/app/**`, `src/config/site.ts`, SEO utilities (`site-url`, `robots-policy`, `sitemap-routes`, `structured-data`, `og-image`, `discover-app-routes`, `proxy-matcher`)
+
+- Metadata wire-up (`getSiteMetadata`, per-page `metadata` / `generateMetadata`)
+- Crawler surface (`robots.ts`, `sitemap.ts`, JSON-LD)
+- Dynamic social previews (`opengraph-image.tsx` convention)
+- Cross-reference: `ui-accessibility.mdc` owns semantic HTML; `nextjs.mdc` owns App Router mechanics
 
 ### `react-tanstack-query.mdc`
 
