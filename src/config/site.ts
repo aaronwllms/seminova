@@ -22,6 +22,7 @@ export interface SiteLegalStub {
 export interface SiteConfig {
   name: string
   description: string
+  defaultOgImage: string
   Logo: LucideIcon
   links: {
     github: string
@@ -35,6 +36,7 @@ export const siteConfig: SiteConfig = {
   name: 'Seminova',
   description:
     'An opinionated, AI-native starter for building SaaS products with Next.js and Supabase.',
+  defaultOgImage: '/og-default.png',
   Logo: Sparkles,
   links: {
     github: GITHUB_URL,
@@ -55,4 +57,9 @@ export const getSiteMetadata = (metadataBase: URL): Metadata => ({
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
+  openGraph: {
+    title: siteConfig.name,
+    description: siteConfig.description,
+    images: [siteConfig.defaultOgImage],
+  },
 })

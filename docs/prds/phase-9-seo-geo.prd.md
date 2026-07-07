@@ -1,7 +1,7 @@
 # PRD — Phase 9: SEO & GEO
 
 **Status:** `Active`
-**Last updated:** 2026-07-06
+**Last updated:** 2026-07-07
 
 ---
 
@@ -33,7 +33,7 @@ Ship the reusable technical-SEO foundation the template inherits — a metadata 
 
 ## Epics & stories
 
-### Epic 1: Metadata foundation
+### Epic 1: Metadata foundation `Complete`
 
 - **1.1 Centralize SEO metadata defaults.** Establish the site-config file as the single source of truth for SEO defaults — site name, title template, default description, default OG image — with the root layout's metadata reading from it, and the canonical base URL sourced from an environment variable (with a localhost fallback for dev) so OG and canonical URLs resolve to absolute URLs per deployment. Individual pages override via the framework metadata API.
   *Success: every public page's rendered head carries an intentional title (via the template), a description, and a self-referential canonical URL, all resolving against the env-driven base URL.*

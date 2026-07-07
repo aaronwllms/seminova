@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { Users } from 'lucide-react'
 import Link from 'next/link'
 
@@ -8,6 +9,10 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { ADMIN_USERS } from '@/constants/admin-paths'
+
+export const metadata: Metadata = {
+  title: 'Admin',
+}
 
 export default function AdminDashboardPage() {
   return (

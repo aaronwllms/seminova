@@ -87,7 +87,7 @@ All skills are read-only or scoped-write as documented in their own `SKILL.md` �
 | `pnpm db:push` | Apply pending SQL migrations to linked Supabase project (human only; CLI prompts) |
 | `pnpm db:types` | Regenerate `src/types/database.types.ts` from linked project schema |
 
-**Prerequisites:** Node `>=22.22.2` (see [.nvmrc](.nvmrc)), pnpm 11, Supabase project. Env vars in [.env.example](.env.example) (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` for admin CLI). `next-env.d.ts` is Next.js-generated and gitignored — run `pnpm dev` or `pnpm build` once after clone if `pnpm type-check` reports a missing file.
+**Prerequisites:** Node `>=22.22.2` (see [.nvmrc](.nvmrc)), pnpm 11, Supabase project. Env vars in [.env.example](.env.example) (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` for admin CLI; optional `NEXT_PUBLIC_SITE_URL` for production metadata base URL). `next-env.d.ts` is Next.js-generated and gitignored — run `pnpm dev` or `pnpm build` once after clone if `pnpm type-check` reports a missing file.
 
 ---
 
@@ -132,7 +132,11 @@ Supabase email/password flows under `/auth/**` (login, sign-up, forgot/update pa
 
 ### Landing page
 
-`(marketing)` route group at `/`: hero, six-card features grid (`id="features"`), and a tech-stack marquee (six logos, icon+name cells, edge fades, pause on hover; SVG assets in `public/tech/`; marquee primitive in [`src/components/kibo-ui/marquee/`](src/components/kibo-ui/marquee/)). Shared chrome — [`SiteHeader`](src/components/site-header.tsx), [`SiteFooter`](src/components/site-footer.tsx), [`SiteContainer`](src/components/site-container.tsx) (`max-w-7xl`), `SiteNavLinks`, `SiteCopyright` — is reused by both the marketing surface and the `(app)` shell. Session-aware header CTA via PPR-safe [`LandingAuthSlot`](src/app/(marketing)/_components/landing-auth-slot.tsx) in Suspense — probes session with `hasServerAuthSession` (read mechanics in [Auth & session](#auth--session) above). All user-visible identity (name, description, logo, nav/social/legal links, `getSiteMetadata()` for tab title and SEO) is driven from [`src/config/site.ts`](src/config/site.ts); hero/features/tech-stack copy lives in [`src/config/landing-content.ts`](src/config/landing-content.ts) — re-skin from these two files.
+`(marketing)` route group at `/`: hero, six-card features grid (`id="features"`), and a tech-stack marquee (six logos, icon+name cells, edge fades, pause on hover; SVG assets in `public/tech/`; marquee primitive in [`src/components/kibo-ui/marquee/`](src/components/kibo-ui/marquee/)). Shared chrome — [`SiteHeader`](src/components/site-header.tsx), [`SiteFooter`](src/components/site-footer.tsx), [`SiteContainer`](src/components/site-container.tsx) (`max-w-7xl`), `SiteNavLinks`, `SiteCopyright` — is reused by both the marketing surface and the `(app)` shell. Session-aware header CTA via PPR-safe [`LandingAuthSlot`](src/app/(marketing)/_components/landing-auth-slot.tsx) in Suspense — probes session with `hasServerAuthSession` (read mechanics in [Auth & session](#auth--session) above). All user-visible identity (name, description, logo, nav/social/legal links) is driven from [`src/config/site.ts`](src/config/site.ts); hero/features/tech-stack copy lives in [`src/config/landing-content.ts`](src/config/landing-content.ts) — re-skin from these two files.
+
+### SEO & metadata
+
+Metadata defaults (site name, title template, description, default OG image) live in [`src/config/site.ts`](src/config/site.ts) with [`getSiteMetadata()`](src/config/site.ts) consumed by the root layout. Canonical base URL resolves via [`getSiteUrl()`](src/utils/site-url.ts): `NEXT_PUBLIC_SITE_URL` → `https://${VERCEL_URL}` → `http://localhost:3000`. Default OG asset: `public/og-default.png`. Landing page (`/`) is indexable with `alternates.canonical: '/'`; auth, `(app)`, and admin route-group layouts export `robots: { index: false, follow: false }`; per-page titles on auth screens, `/profile`, and admin pages.
 
 ### Design system & theming
 
@@ -191,7 +195,7 @@ Directory-level map. File-level detail lives in the [Implemented now](#implement
 | `src/supabase/` | `client.ts`, `server.ts`, `service.ts` (secret key), `proxy.ts`, `require-auth.ts` |
 | `proxy.ts` | Root auth proxy entry (delegates to `src/supabase/proxy.ts`) |
 | `src/types/` | Shared types (`app-error.ts`, generated `database.types.ts`, `profile.ts`) |
-| `src/utils/` | Shared utilities (auth error mapping, redirect/avatar guards, security headers, admin helpers, toasts, env) |
+| `src/utils/` | Shared utilities (auth error mapping, redirect/avatar guards, security headers, site URL, admin helpers, toasts, env) |
 | `src/test/` | Test utilities (`render` with providers) |
 | `scripts/admin/` | Admin CLI (promote / demote / list) |
 | `supabase/migrations/` | SQL migrations (list in [Data model](#data-model-summary)) |
