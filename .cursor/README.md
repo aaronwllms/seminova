@@ -8,7 +8,6 @@ Portable AI workflow for this repo. **Skills-first** — use `/skill-name` in ch
 | ---- | ------- |
 | [`rules/`](rules/) | How to write code (TypeScript, testing, Supabase, security) — auto-loaded by glob |
 | [`skills/`](skills/) | User-triggered workflows (`/plan-next-epic`, `/sync-repo-docs`, etc.) |
-| [`agents/`](agents/) | Subagents delegated via Task tool (e.g. `seo-specialist`) |
 | [`plans/`](plans/) | Ephemeral epic plans — not shipped truth |
 
 ## Planning & repo truth
@@ -44,4 +43,4 @@ See [`skills/`](skills/) for full list. Skills with `disable-model-invocation: t
 
 ## Copying this folder
 
-When porting to another repo: copy `rules/`, `skills/`, `agents/`, and this README; adapt hard constraints and doc map in AGENTS.md, ROADMAP.md, and [docs/DOC_RULES.md](../docs/DOC_RULES.md) for that product.
+When porting to another repo: copy `rules/`, `skills/`, and this README; adapt hard constraints and doc map in AGENTS.md, ROADMAP.md, and [docs/DOC_RULES.md](../docs/DOC_RULES.md) for that product.
