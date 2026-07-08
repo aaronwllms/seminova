@@ -19,7 +19,6 @@
   - [plan-review thinning + automated review](#plan-review-thinning-automated-review)
   - [Promote "batch edits, write once" from tip to standing rule](#promote-batch-edits-write-once-from-tip-to-standing-rule)
   - [Workflow Guide visual overview: Mermaid vs. image tradeoff](#workflow-guide-visual-overview-mermaid-vs-image-tradeoff)
-  - [Grill-me numeric answer mode](#grill-me-numeric-answer-mode)
 
 ---
 
@@ -72,12 +71,3 @@
 **Why deferred:** Swimlane support isn't broadly available yet; not worth hand-rolling a workaround now.
 
 **Revisit when:** Mermaid's swimlane feature is confirmed stable and widely available.
-
-### Grill-me numeric answer mode
-
-**What:** `phase-planning`'s grilling section currently expects free-text answers. Add support for numeric responses — `1` for yes/recommended, and numbered options when the question presents a set of choices — so Aaron can answer faster without typing.
-
-**Why deferred:** Not yet scoped or written.
-
-**Revisit when:** Next maintenance pass on `phase-planning`.
-
