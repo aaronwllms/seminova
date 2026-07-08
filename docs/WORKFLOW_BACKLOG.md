@@ -19,6 +19,7 @@
   - [plan-review thinning + automated review](#plan-review-thinning-automated-review)
   - [Promote "batch edits, write once" from tip to standing rule](#promote-batch-edits-write-once-from-tip-to-standing-rule)
   - [Workflow Guide visual overview: Mermaid vs. image tradeoff](#workflow-guide-visual-overview-mermaid-vs-image-tradeoff)
+  - [Auto-commit after agent coding runs](#auto-commit-after-agent-coding-runs)
 
 ---
 
@@ -71,3 +72,11 @@
 **Why deferred:** Swimlane support isn't broadly available yet; not worth hand-rolling a workaround now.
 
 **Revisit when:** Mermaid's swimlane feature is confirmed stable and widely available.
+
+### Auto-commit after agent coding runs
+
+**What:** Investigate having Cursor automatically commit at the end of an agent coding run (e.g. via hooks, or a skill-level instruction), so every session ends with a clean, committed working tree.
+
+**Why deferred:** Surfaced as a prerequisite-adjacent need for the planned `code-review` skill, whose clean-tree precondition (dirty tree → stop, ask to commit first) only avoids friction if commits already happen reliably after each run. Not yet investigated.
+
+**Revisit when:** Building or refining the `code-review` skill's clean-tree check, or whenever the manual "did you commit?" step becomes a recurring annoyance.
