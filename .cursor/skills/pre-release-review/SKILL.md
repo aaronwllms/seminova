@@ -10,6 +10,8 @@ disable-model-invocation: true
 
 Scoped static review before PR. Do not open the browser, and do not change code unless the user asks to fix findings.
 
+**Not the same as `code-review`** — that skill runs a deeper two-axis (Standards + Spec) review against a fixed git ref via parallel subagents, typically at epic completion. Step 3 below is a quick fit/logic check, not a substitute. If `code-review` has already run for this change, skip re-litigating Step 3's pattern-fit check and reference its findings instead.
+
 ## Workflow
 
 ```
@@ -167,4 +169,5 @@ Deferred findings must not die with this report: append each Defer item to `TECH
 
 - **Tests pass ≠ feature works** — code review catches logic; manual checklist catches UX
 - **Scope to the feature** — whole-repo security work belongs to **`audit-security`**
+- **Deeper diff review belongs to `code-review`** — Standards + Spec two-axis review against a PRD story/epic
 - **Project truth lives in AGENTS.md** — not in this skill file

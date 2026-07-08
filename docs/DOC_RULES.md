@@ -26,6 +26,7 @@ This table is authoritative. [AGENTS.md](../AGENTS.md) carries a one-line pointe
 | **[WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md)** | PM | Deferred workflow-system decisions (revisit-triggered) |
 | **[.cursor/rules/](../.cursor/rules/)** | Agents (style & process) | How to write code, test, migrate — not product truth |
 | **[.cursor/skills/](../.cursor/skills/)** | Agents | User-triggered workflows |
+| **[.cursor/agents/](../.cursor/agents/)** | Agents | Readonly subagent definitions, invoked only by the skills that dispatch them — never directly or automatically |
 | **[.cursor/plans/](../.cursor/plans/)** | In-repo planning | Ephemeral epic plans; evidence of intent, not shipped truth |
 | **`.mockups/`** | PM / design | HTML mockup explorations |
 | **`.mockups/archive/`** | PM / design | Superseded or shipped-phase mockups |

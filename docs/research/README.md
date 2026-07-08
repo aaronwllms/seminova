@@ -18,9 +18,13 @@ before a PRD section is written.
 ## Staleness
 
 Each brief carries `**Researched:** YYYY-MM-DD`. A brief is **stale** when that
-date is more than **six months** old. There is no status field — readers (and
-the `/research` skill) refresh stale briefs **in place** on use, bumping the
-date and updating findings. Keep the same filename.
+date is more than **six months** old.
+
+> [!IMPORTANT]
+> There is no status field. Readers and the
+> [`/research`](../../.cursor/skills/research/SKILL.md) skill refresh stale
+> briefs **in place** on use — bump the date, update findings, and keep the
+> same filename.
 
 ## Format
 
@@ -66,7 +70,7 @@ Links, docs, files consulted.
 Optional links to ROADMAP open questions, PRD sections, ADRs.
 ```
 
-## Numbering and filenames
+## Numbering & filenames
 
 - Next sequential number, zero-padded to four digits (`0001`, `0002`, …).
 - Filename: `RESEARCH-NNNN-short-slug.md` (e.g. `RESEARCH-0001-auth-provider-options.md`).
@@ -77,7 +81,7 @@ Optional links to ROADMAP open questions, PRD sections, ADRs.
 | --------------------- | --------- |
 | A committed architectural decision | [docs/adr/](../adr/) — see [adr/README.md](../adr/README.md) |
 | Build scope for a phase | Active PRD in [docs/prds/](../prds/) |
-| A planning horizon question | [ROADMAP.md](../../ROADMAP.md) open questions (optional link from brief) |
+| A planning horizon question | [ROADMAP.md › Open questions](../../ROADMAP.md#open-questions--deferred-decisions) (optional link from brief) |
 
 ## Spinoffs
 

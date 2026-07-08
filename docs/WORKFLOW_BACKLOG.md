@@ -23,6 +23,7 @@
   - [Cursor ignore files (.cursorignore / .cursorindexingignore)](#cursor-ignore-files-cursorignore--cursorindexingignore)
   - [Ad hoc planning workflow (between phases)](#ad-hoc-planning-workflow-between-phases)
   - [Cursor directory scope audit (.cursor/README + guidance drift)](#cursor-directory-scope-audit-cursorreadme--guidance-drift)
+  - [Integrate quality skills into the documented workflow](#integrate-quality-skills-into-the-documented-workflow)
 
 ---
 
@@ -107,3 +108,11 @@
 **Why deferred:** The current setup works well enough day to day; this is a hygiene and template-portability pass, not a blocker. The right boundary needs a deliberate read of what's actually loaded by Cursor (rules globs, skills, AGENTS.md as repo truth) vs. what's merely linked from `.cursor/README.md` for convenience.
 
 **Revisit when:** Preparing to fork or export the template to another product, after a noticeable "where does this instruction live?" confusion in a build session, or during a broader docs/workflow cleanup pass where DOC_RULES roles and `.cursor/` layout can be reconciled in one sitting.
+
+### Integrate quality skills into the documented workflow
+
+**What:** Consider adding the quality/review skills (`pre-release-review`, `code-review`, `audit-tech-debt`, `audit-tests`, `audit-security`, `audit-rules`, etc.) into the workflow as described in [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md) — currently they're only cataloged in [AGENTS.md › Agent skills](../AGENTS.md#agent-skills-cursorskills) and deliberately left out of the numbered phase loop. Extend to [WORKFLOW_SETUP.md](WORKFLOW_SETUP.md) as needed if any setup step is implied.
+
+**Why deferred:** The current split (numbered planning loop in WORKFLOW_GUIDE, situational quality skills cataloged in AGENTS.md) was a deliberate choice, not an oversight — revisiting it means deciding whether quality skills should become a first-class step in the loop (e.g. after Step 6 Build, before Step 7 Ship) or stay situational/invoke-by-name. Not a quick doc tweak.
+
+**Revisit when:** Doing a broader pass on WORKFLOW_GUIDE.md's phase loop, or once `code-review` has been run enough times in practice to know whether it belongs as a named step rather than an ad hoc invocation.

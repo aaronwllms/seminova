@@ -38,6 +38,7 @@ For the planning-loop skills (`plan-next-epic`, `mark-epic-complete`, `ship-phas
 | Skill | Use when |
 | ----- | -------- |
 | `pre-release-review` | Finishing an epic or before opening a PR — quality gates, scoped code review, security check, hard-constraints check, manual test checklist |
+| `code-review` | Reviewing an epic or branch since a fixed git ref — two-axis (Standards + Spec) review via parallel readonly subagents |
 | `audit-tech-debt` | Codebase health check or architecture review — full pass or sync → `TECH_DEBT_AUDIT.md` |
 | `audit-tests` | Test suite health check — full pass or sync → `TEST_AUDIT.md` |
 | `audit-rules` | Rules health check — full pass or sync → `RULE_AUDIT.md` |
