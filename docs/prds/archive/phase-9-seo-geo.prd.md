@@ -1,6 +1,6 @@
 # PRD — Phase 9: SEO & GEO
 
-**Status:** `Active`
+**Status:** `Shipped`
 **Last updated:** 2026-07-07
 
 ---
