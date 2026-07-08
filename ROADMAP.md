@@ -2,7 +2,7 @@
 
 The planning horizon: anticipated phases as thin stubs, plus living status. Shipped phase detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md); build-time workflow and authoritative schema in [AGENTS.md](AGENTS.md). Phase status vocabulary and PRD lifecycle in [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
-**Last updated:** 2026-07-06
+**Last updated:** 2026-07-07
 
 ---
 
@@ -18,7 +18,7 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 | 6 | Data Model Foundation (profiles, admin namespace, authenticated shell, profile page) | `Shipped` | — |
 | 7 | Security Audit Remediation | `Shipped` | — |
 | 8 | Tech Debt Audit Remediation | `Shipped` | [Phase 8 PRD](docs/prds/archive/phase-8-tech-debt-remediation.prd.md) |
-| 9 | SEO & GEO | `Active` | [Phase 9 PRD](docs/prds/phase-9-seo-geo.prd.md) |
+| 9 | SEO & GEO | `Shipped` | [Phase 9 PRD](docs/prds/archive/phase-9-seo-geo.prd.md) |
 | 10 | Pattern Reference Page | `Draft` | — |
 
 > [!NOTE]
