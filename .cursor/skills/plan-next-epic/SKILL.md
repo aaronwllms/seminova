@@ -67,7 +67,9 @@ Confirm the output matches `phase-{N}/{slug}` exactly before proceeding. If it d
 
 **Remove the phase stub (first epic only).** In the same ROADMAP pass, delete this phase's stub from the **Upcoming phases** section — the entire `### Phase {N} — …` block, through the line before the next `###` heading (or the section's end). Remove only this phase's block; leave every other phase's stub intact.
 
-Request `git_write` for any checkout/create/delete above. Report which branch was created, checked out, or recreated. **Do not push** — publishing the branch is separate (build work or `ship-phase`).
+**Commit the status flip (first epic only).** Immediately after the Active flip and stub removal, commit those planning-doc edits as a `docs:` commit (request `git_write`). Stage only the PRD and ROADMAP edits from this step. The skill never leaves its own edits uncommitted.
+
+Request `git_write` for any checkout/create/delete/commit above. Report which branch was created, checked out, or recreated. **Do not push** — publishing the branch is separate (build work or `ship-phase`).
 
 **Branch setup must complete before plan generation.** If you cannot execute the checkout/create yourself (e.g. `git_write` is unavailable or denied), **halt** and ask the user to switch branches before continuing. Never defer branch setup into the generated plan.
 
@@ -103,4 +105,46 @@ On a **first epic**, open the generated plan with a branch precondition — a ve
 
 > **Precondition:** confirm `git branch --show-current` outputs `phase-{N}/{slug}` (substitute the actual branch name). If it doesn't match, halt and ask the user — do not switch branches.
 
-End every generated plan with a final step instructing the implementing agent to run the **mark-epic-complete** skill once implementation is fully finished.
+Every generated plan must also include these preconditions near the top of the body (after the tracking line and any branch precondition):
+
+> **Precondition:** `git status --porcelain` must be empty before recording the epic baseline. If dirty, halt and ask the user to commit or stash.
+>
+> **Epic baseline:** Run `git rev-parse HEAD` immediately before the first implementation edit. Record the SHA in the plan body (e.g. `**Epic baseline:** abc1234`) — this is the fixed point for `code-review`.
+
+## Generated plan todos (frontmatter)
+
+After the story-level todos, always append these two entries. Do **not** include `code-review` or `mark-epic-complete` todos — those are manual follow-ups in fresh agent windows.
+
+| Todo id | Purpose |
+|---------|---------|
+| `quality-gate` | Run `pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci` |
+| `commit-epic` | Conventional commit for this epic's changes |
+
+## Generated plan closing sections (body)
+
+Always append these three sections at the end of every generated plan, in order:
+
+### Verification
+
+Quality bar — same commands as [WORKFLOW_GUIDE Step 5 exit condition](../../../docs/WORKFLOW_GUIDE.md). Stop on failure:
+
+```bash
+pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci
+```
+
+### Commit epic
+
+Authorized by this approved plan:
+
+1. Review diff; stage only files in scope for this epic.
+2. Write a conventional commit message (`feat`/`fix`/`docs`/etc.) referencing phase + epic id.
+3. Commit (request `git_write`). Pre-commit hook runs automatically — if it fails, **fix and retry the commit** (a failed pre-commit hook aborts the commit, so there is nothing to amend).
+4. Verify `git status --porcelain` is empty after commit.
+
+**Do not push** — push remains `ship-phase`.
+
+### Handoff
+
+End the run by telling the user, including the epic baseline SHA and epic identifier from the plan (substitute actual values), e.g.:
+
+*"Epic committed. Next: open a new agent window and run `/code-review` — epic baseline `<sha>`, Epic `<id>`."*

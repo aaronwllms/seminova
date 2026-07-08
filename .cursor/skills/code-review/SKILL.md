@@ -29,7 +29,9 @@ Runs at **epic completion**, before `pre-release-review`.
 
 ### 1. Pin the fixed point
 
-The user supplies the fixed point — a commit SHA, branch name, tag, or `main`. If they didn't, ask for it.
+The fixed point and epic identifier come from the **user's invocation message** (carried by the build handoff), e.g. `epic baseline abc1234, Epic 3`. If either is missing, fall back to asking the user.
+
+The user may also supply a branch name, tag, or `main` instead of a SHA — `git rev-parse` must still succeed.
 
 Preconditions — all three must pass before spawning anything:
 
@@ -93,6 +95,13 @@ If the spec is missing, dispatch only the Standards subagent.
 Present the two reports under `## Standards` and `## Spec` headings, verbatim or lightly cleaned. Do **not** merge or rerank findings across axes — the separation is the point (see below).
 
 End with a one-line summary per axis: total findings and the worst issue *within that axis*. Never pick a single winner across axes.
+
+### 6. Handoff
+
+After presenting both reports, tell the user — carrying the **epic identifier** forward:
+
+- **If fixes are needed:** apply them, commit them, then open a new agent window and run `/mark-epic-complete for Epic <id>`.
+- **If no fixes are needed:** open a new agent window and run `/mark-epic-complete for Epic <id>` now.
 
 ## Why two axes
 

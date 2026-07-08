@@ -125,10 +125,17 @@ This step is a subloop — plan and review go back and forth until Claude signs 
 - **5c.** If Claude flags issues: discuss and settle the feedback in chat (this can take a few exchanges), then ask Claude for a standalone copy-block prompt summarizing the agreed change.
 - **5d.** Paste that prompt into the same Cursor plan-mode session; Cursor updates the plan.
 - **5e.** Copy the updated plan's markdown and paste it back to Claude for re-review. Repeat 5c–5e until clean — occasionally a revision introduces a new issue, which just runs another lap of the loop.
-- **Exit condition:** Claude confirms the plan is good to build. A solid plan typically includes the quality bar (`pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci`) and a closing `mark-epic-complete` step, tagging the epic `` `Complete` `` in the PRD once implementation is finished — confirm both are present during review rather than expecting to run them by hand later.
+- **Exit condition:** Claude confirms the plan is good to build. A solid plan includes: (1) a quality gate (`pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci`), (2) a **Commit epic** step authorized by the approved plan, and (3) a closing handoff instructing the user to run `/code-review` in a new agent window, including the epic baseline SHA and epic identifier.
 
-**Step 6 — Build**
-Press the build button on the approved plan in Cursor. Cursor implements it end to end, including the quality-bar and `mark-epic-complete` steps the plan already specifies. If the phase has more unbuilt epics, return to **Step 5** to plan and review the next one. Once every epic in the phase is built, move to Step 7.
+**Step 6 — Build and follow-up**
+Press the build button on the approved plan in Cursor. The build window implements the epic end to end, runs the quality gate, and commits the epic. It ends with a handoff to run `/code-review` in a **new agent window**, passing the baseline SHA and epic id from the plan.
+
+After build, each follow-up runs in its own fresh agent window:
+
+1. **`/code-review`** — pass the baseline SHA and epic id from the build handoff. Apply and commit any fixes if needed.
+2. **`/mark-epic-complete for Epic <id>`** — epic id from the code-review breadcrumb; commits the PRD `` `Complete` `` tag.
+
+If the phase has more unbuilt epics, return to **Step 5** to plan and review the next one. Once every epic in the phase is built, move to Step 7.
 
 **Step 7 — Ship the phase** *(Cursor-side skill: `ship-phase`)*
 Flips the PRD to `Shipped`, moves it to `docs/prds/archive/`, updates ROADMAP, commits, pushes, and opens a PR. Merge to main is a separate human step.
