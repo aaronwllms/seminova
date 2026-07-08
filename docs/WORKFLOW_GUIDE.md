@@ -94,6 +94,7 @@ What `initialize-project` touches:
 - `docs/WORKFLOW_BACKLOG.md` — clears Seminova's deferred workflow items, keeps the stub structure
 - `.mockups/` — purges Seminova's design mockups
 - `docs/archive/` — purges the frozen pre-restructure archive
+- `docs/research/` — deletes Seminova's `RESEARCH-*.md` briefs; keeps `README.md`
 - `CONTRIBUTING.md` — deletes the file; the template's contribution guide doesn't apply to a spinoff product
 
 What it does not touch:
@@ -156,6 +157,8 @@ Not part of the numbered loop above, but operate on the planning docs rather tha
 **`lexicon-audit`** *(Cursor-side)* — scans the codebase for LEXICON.md candidate terms and drift between the lexicon and actual usage. Read-only, chat output only — does not write to LEXICON.md. Run when you want a health check on the lexicon or suspect terminology drift. To act on findings, use the Claude-side `lexicon-update` skill.
 
 **`create-mockup`** *(Claude-side)* — builds a static UI mockup as an inline widget, iterates on your feedback, and saves the approved version to `.mockups/`. Invoked ad hoc ("mock up this screen") or by `phase-planning` when a story's UI is worth seeing before build, with the file path written into the story. The static-only rule (mockups, not clickable prototypes) is defined in the skill itself.
+
+**`research`** *(Cursor-side)* — investigates a product, technical, competitive, or codebase question; persists findings to `docs/research/` (Document mode, default) or delivers in chat only (Chat mode). Docs-only — never edits product code. Invoke with `/research`.
 
 For repo-maintenance and quality skills (security audits, tech-debt audits, design/copy review, etc.) not specific to the planning system, see [AGENTS.md › Agent skills](../AGENTS.md#agent-skills-cursorskills).
 

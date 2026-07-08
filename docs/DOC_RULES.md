@@ -1,6 +1,6 @@
 # DOC_RULES — File Management Rules
 
-**Purpose:** Invariant doc-maintenance procedure governing the planning docs ([ROADMAP.md](../ROADMAP.md), the PRDs in [prds/](prds/), and the frozen [archive/](archive/)). This is not project state — it applies to every product built from this template. Governs the planning skills (`phase-planning`, `plan-next-epic`, `mark-epic-complete`, `ship-phase`) and the repo-sync skill (`sync-repo-docs`).
+**Purpose:** Invariant doc-maintenance procedure governing the planning docs ([ROADMAP.md](../ROADMAP.md), the PRDs in [prds/](prds/), and the frozen [archive/](archive/)). This is not project state — it applies to every product built from this template. Governs the planning skills (`phase-planning`, `plan-next-epic`, `mark-epic-complete`, `ship-phase`), the research skill (`research`), and the repo-sync skill (`sync-repo-docs`).
 
 **Last updated:** 2026-07-08
 
@@ -19,6 +19,7 @@ This table is authoritative. [AGENTS.md](../AGENTS.md) carries a one-line pointe
 | **[LEXICON.md](../LEXICON.md)** | PM / agents | Architectural vocabulary |
 | **[DESIGN.md](../DESIGN.md)** | PM / agents | Token architecture, structure-vs-theme split, re-skin workflow |
 | **[adr/](adr/)** | PM / agents | Architecture Decision Records — immutable decision history; rules in [adr/README.md](adr/README.md) |
+| **[research/](research/)** | PM / agents | Exploratory research briefs — revisable working knowledge; 6-month staleness; rules in [research/README.md](research/README.md) |
 | **[archive/](archive/)** | PM / agents (reference) | Frozen pre-restructure history — **closed; append nothing** |
 | **[WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md)** | PM | Planning & build workflow — the tool split, the phase loop, model guidance |
 | **[WORKFLOW_SETUP.md](WORKFLOW_SETUP.md)** | PM | One-time Claude-side workflow setup (MCP connection, skill installs, verification) |

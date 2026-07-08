@@ -16,6 +16,7 @@ Portable AI workflow for this repo. **Skills-first** — use `/skill-name` in ch
 | --- | -------- | ---- |
 | [ROADMAP.md](../ROADMAP.md) | PM + agents | Phase status, planning horizon stubs |
 | [docs/prds/](../docs/prds/) | PM + agents | Active-phase build scope (epics/stories) |
+| [docs/research/](../docs/research/) | PM + agents | Exploratory research briefs |
 | [docs/archive/CONTEXT_ARCHIVE.md](../docs/archive/CONTEXT_ARCHIVE.md) | PM + agents (on demand) | Frozen shipped narratives (read-only) |
 | [AGENTS.md](../AGENTS.md) | Agents | Hard constraints, what's implemented, data model summary |
 

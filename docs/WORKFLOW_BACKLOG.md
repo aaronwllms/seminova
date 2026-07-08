@@ -20,6 +20,9 @@
   - [Promote "batch edits, write once" from tip to standing rule](#promote-batch-edits-write-once-from-tip-to-standing-rule)
   - [Workflow Guide visual overview: Mermaid vs. image tradeoff](#workflow-guide-visual-overview-mermaid-vs-image-tradeoff)
   - [Auto-commit after agent coding runs](#auto-commit-after-agent-coding-runs)
+  - [Cursor ignore files (.cursorignore / .cursorindexingignore)](#cursor-ignore-files-cursorignore--cursorindexingignore)
+  - [Ad hoc planning workflow (between phases)](#ad-hoc-planning-workflow-between-phases)
+  - [Cursor directory scope audit (.cursor/README + guidance drift)](#cursor-directory-scope-audit-cursorreadme--guidance-drift)
 
 ---
 
@@ -80,3 +83,27 @@
 **Why deferred:** Surfaced as a prerequisite-adjacent need for the planned `code-review` skill, whose clean-tree precondition (dirty tree → stop, ask to commit first) only avoids friction if commits already happen reliably after each run. Not yet investigated.
 
 **Revisit when:** Building or refining the `code-review` skill's clean-tree check, or whenever the manual "did you commit?" step becomes a recurring annoyance.
+
+### Cursor ignore files (.cursorignore / .cursorindexingignore)
+
+**What:** Research Cursor's two ignore mechanisms — [`.cursorignore`](https://cursor.com/docs/reference/ignore-file) (hard block: excluded from indexing, Agent, Tab, and @-mentions) and [`.cursorindexingignore`](https://cursor.com/docs/reference/ignore-file) (soft block: excluded from automatic codebase indexing only; still readable when @-mentioned or dragged in) — then decide whether either belongs in this repo and, if yes, commit a minimal, documented baseline.
+
+**Why deferred:** Spotted in another repo; unclear whether Seminova needs them. Cursor already respects `.gitignore` and ships a large default indexing-exclusion list (lockfiles, `node_modules`, `.next`, binaries, media, etc.), so extra ignore files may be redundant for a repo this size. The wrong `.cursorignore` could also hide things agents need — especially under `.cursor/` (rules, skills, plans) or generated types agents rely on. Worth a deliberate pass, not a copy-paste from elsewhere.
+
+**Revisit when:** Indexing feels slow or noisy (@Codebase returns stale or irrelevant hits), agents repeatedly pull in archived plans or audit artifacts, or before spinning off a new product from the template — that's when ignore policy becomes part of what every fork inherits.
+
+### Ad hoc planning workflow (between phases)
+
+**What:** Design a lightweight, in-the-moment planning path that sits alongside the phased loop in [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md) — for work that doesn't warrant (or doesn't fit) a full ROADMAP phase: spikes, opportunistic improvements, research-driven explorations, or "we learned something mid-phase and want to act on it now." The workflow would be agile by default (shape → plan → build in one sitting or a short sequence) rather than Draft → Planning → Ready → Active. It would run between phases or alongside an active phase when the scope is small and self-contained. A PRD would be optional — created only when the work is large or ambiguous enough to benefit from the same epic/story decomposition the phased path uses. Primary home is likely a Cursor-side skill (plan mode → build), but cloud agents are a viable alternative for longer research or parallel exploration. May compose with a `research` skill currently in flight — research surfaces options and constraints; ad hoc planning turns a chosen direction into an implementation plan without forcing it through `phase-planning`.
+
+**Why deferred:** The phased loop (`phase-planning` → `plan-next-epic` → build → `ship-phase`) is the only defined planning path today. Ad hoc work still happens informally, but there's no skill, no doc contract, and no clear rule for when to skip a PRD vs. write a lightweight one vs. promote the work into the next ROADMAP phase. Defining that boundary needs a few real ad hoc runs — and the research skill needs to exist first if the two are meant to chain.
+
+**Revisit when:** A concrete between-phases task surfaces that doesn't fit the phase loop (e.g. a spike, a workflow improvement, or a research finding that needs a quick build), or when the `research` skill lands and its output needs a defined "what happens next" handoff.
+
+### Cursor directory scope audit (.cursor/README + guidance drift)
+
+**What:** Audit how Cursor is wired in this repo — starting with [`.cursor/README.md`](../.cursor/README.md) as the stated entry point — and decide what belongs inside `.cursor/` vs. elsewhere. [DOC_RULES.md](DOC_RULES.md) says agent guidance lives in `.cursor/` (rules and skills) and should not be duplicated into product code, but repo truth and workflow docs now carry substantial agent-facing content too ([AGENTS.md](../AGENTS.md), [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md), audit artifacts, planning docs). Clarify the intended split: what is portable Cursor config (rules, skills, plans, README), what is product/repo truth that agents read but humans own, and what has drifted or duplicated across boundaries. Update `.cursor/README.md` and cross-links so the layout matches the decision — trim outbound pointers that belong in repo docs, or pull guidance back into `.cursor/` where it should live.
+
+**Why deferred:** The current setup works well enough day to day; this is a hygiene and template-portability pass, not a blocker. The right boundary needs a deliberate read of what's actually loaded by Cursor (rules globs, skills, AGENTS.md as repo truth) vs. what's merely linked from `.cursor/README.md` for convenience.
+
+**Revisit when:** Preparing to fork or export the template to another product, after a noticeable "where does this instruction live?" confusion in a build session, or during a broader docs/workflow cleanup pass where DOC_RULES roles and `.cursor/` layout can be reconciled in one sitting.
