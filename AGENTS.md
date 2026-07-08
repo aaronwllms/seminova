@@ -197,7 +197,7 @@ Directory-level map. File-level detail lives in the [Implemented now](#implement
 | `src/supabase/` | `client.ts`, `server.ts`, `service.ts` (secret key), `proxy.ts`, `require-auth.ts` |
 | `proxy.ts` | Root auth proxy entry (delegates to `src/supabase/proxy.ts`) |
 | `src/types/` | Shared types (`app-error.ts`, generated `database.types.ts`, `profile.ts`) |
-| `src/utils/` | Shared utilities (auth error mapping, redirect/avatar guards, security headers, site URL, admin helpers, toasts, env) |
+| `src/utils/` | Shared utilities (auth error mapping, redirect/avatar guards, security headers, site URL, SEO helpers, admin helpers, toasts, env) |
 | `src/test/` | Test utilities (`render` with providers) |
 | `scripts/admin/` | Admin CLI (promote / demote / list) |
 | `supabase/migrations/` | SQL migrations (list in [Data model](#data-model-summary)) |

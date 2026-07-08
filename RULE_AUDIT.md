@@ -6,14 +6,15 @@ Scope: `.cursor/rules/*.mdc` against the rule-authoring standard
 
 ## Executive summary
 
-- **All open findings (R014–R023) remediated** in `.cursor/rules/` on 2026-07-07.
-- **MSW policy locked:** deferred until first HTTP-boundary test; global setup (`handlers.ts` + `server.ts` + `vitest.setup.ts`) on trigger; per-test `server.use()` for overrides only.
-- **Broad `src/**` globs on `logging.mdc`, `security.mdc`, `supabase.mdc`:** no change — acceptable until a file crosses 300 lines or a fourth broad rule is added.
-- **Always Apply set under budget** (~776 words combined).
+- **All open findings (R014–R027) remediated** in `.cursor/rules/` on 2026-07-07.
+- **`seo.mdc` added** since the prior orient (25 → 26 files); activation mode, globs, and ownership split with `nextjs.mdc` / `ui-accessibility.mdc` verified.
+- **Always Apply set under budget** (~776 body words combined; accepted code-minimalism exception unchanged).
+- **Broad `src/**` globs** on `logging.mdc`, `security.mdc`, `supabase.mdc` — still acceptable; revisit if any file crosses 300 lines or a fourth broad rule is added.
+- **MSW global setup** remains deferred until the first HTTP-boundary test; policy in `testing.mdc` matches `vitest.setup.ts`.
 
 ## Orient
 
-25 rule files audited. Activation modes resolved from frontmatter (no invalid keys like `autoAttach` found).
+26 rule files audited. Activation modes resolved from frontmatter (no invalid keys like `autoAttach` found).
 
 | File                         | Mode                                                                                    |
 | ---------------------------- | --------------------------------------------------------------------------------------- |
@@ -35,6 +36,7 @@ Scope: `.cursor/rules/*.mdc` against the rule-authoring standard
 | `react-tanstack-query.mdc`   | Auto Attached — hooks, components, ReactQueryProvider                                   |
 | `rule-authoring-pointer.mdc` | Auto Attached — `.cursor/rules/**`                                                      |
 | `security.mdc`               | Auto Attached — `src/**`, proxy, API, migrations                                        |
+| `seo.mdc`                    | Auto Attached — app routes, site config, SEO utils, proxy matcher                       |
 | `supabase.mdc`               | Auto Attached — `src/**`, proxy, migrations                                             |
 | `supabase-sql.mdc`           | Auto Attached — `supabase/migrations/**/*.sql`                                          |
 | `testing.mdc`                | Auto Attached — test files, test utils                                                    |
@@ -55,8 +57,9 @@ No open findings.
 - **`general-conventions.mdc`** — Appropriate always-on date/env awareness.
 - **`pm-collaboration.mdc`** — Genuinely universal working-mode guidance.
 - **`rule-authoring-pointer.mdc`** — Correct glob trigger for rule edits; minimal.
+- **`seo.mdc`** — New; tight ownership of metadata wire-up, crawler surface, and content standards; hard-constraint pointer defers to AGENTS.md correctly.
 - **`data-tables.mdc`** — Tight, project-specific table conventions.
-- **`documentation.mdc`** — Thin structural guardrail; paths verified.
+- **`documentation.mdc`** — Thin structural guardrail; cited paths verified (`docs/WORKFLOW_BACKLOG.md`, `docs/prds/README.md`, `docs/adr/README.md`).
 - **`forms.mdc`** — Strong ownership of save model and autofill conventions.
 - **`notifications.mdc`** — Clear toast vs inline vs panel routing.
 - **`logging.mdc`** — Focused level taxonomy; broad `src/**` glob acceptable.
@@ -67,17 +70,18 @@ No open findings.
 - **`ui-accessibility.mdc`** — WCAG 2.1 AA target, Radix preservation.
 - **`ui-styling.mdc`** — Semantic tokens, `globals.css`, `DESIGN.md`.
 - **`api-development.mdc`** — Forward-looking API route guidance; envelope shapes defer to error-handling.
-- **`error-handling.mdc`** — Canonical error taxonomy and UI surfaces; logging boundaries cross-referenced.
-- **`git-workflow.mdc`** — Conventional commits and PR format with precedence line.
-- **`nextjs.mdc`** — Server Actions default, Suspense/waterfall guidance, project cross-refs.
-- **`react-tanstack-query.mdc`** — Server Action mutation pattern; Supabase query-key conventions.
+- **`error-handling.mdc`** — Canonical error taxonomy and UI surfaces; shipped test pointers replace fictional REST example.
+- **`git-workflow.mdc`** — Conventional commits and PR format with precedence line; Husky/pre-push detail is project-specific.
+- **`nextjs.mdc`** — Server Actions default, Suspense/waterfall guidance; SEO defers to `seo.mdc`.
+- **`react-tanstack-query.mdc`** — Server Action mutation pattern; query-key guidance consolidated in one section.
 - **`security.mdc`** — Trust-boundary guidance via principles + shipped file refs; broad glob acceptable.
 - **`supabase.mdc`** — Storage, client usage, migration safety; broad glob acceptable.
-- **`testing.mdc`** — MSW deferred policy documented; mocking policy intact.
+- **`testing.mdc`** — MSW deferred policy documented; Radix/shadcn third-party skip example.
 
 ## Open questions
 
-None — both resolved 2026-07-07 (see Resolved).
+- **Broad `src/**` globs:** no narrowing yet — revisit when any of `logging.mdc`, `security.mdc`, or `supabase.mdc` crosses 300 lines or a fourth broad rule is added.
+- **MSW global setup:** deferred until first HTTP-boundary test; per-test `server.use()` for overrides only (policy locked in `testing.mdc`).
 
 ## Resolved
 
@@ -93,16 +97,7 @@ None — both resolved 2026-07-07 (see Resolved).
 - 2026-07-07 — R023: `git-workflow.mdc` — duplicate commit format template removed
 - 2026-07-07 — Open question (MSW): deferred until first HTTP-boundary test; global setup on trigger; per-test `server.use()` for overrides only
 - 2026-07-07 — Open question (broad globs): no narrowing; revisit when any file crosses 300 lines or a fourth broad `src/**` rule is added
-- 2026-07-04 — R001: Always Apply set over budget — now ~776 words (under ~800)
-- 2026-07-04 — R002: `testing.mdc` trimmed to ≤250 lines
-- 2026-07-04 — R003: `typescript.mdc` globs narrowed; generic TS tutorial cut
-- 2026-07-04 — R004: demo `useGetMessage` / `/api/message` cleanup (mutation example regressed in R016, fixed 2026-07-07)
-- 2026-07-04 — R005: SQL `id` convention consolidated
-- 2026-07-04 — R006: `forms.mdc` and `notifications.mdc` globs narrowed
-- 2026-07-04 — R007: PR format precedence line in `git-workflow.mdc`
-- 2026-07-04 — R008: template SQL rules replaced by `supabase-sql.mdc`
-- 2026-07-04 — R009: UI rules trimmed to project-specific guidance
-- 2026-07-04 — R010: error-handling description scoped; logging ownership clarified
-- 2026-07-04 — R011: security auth/DTO blocks replaced with principles + file refs
-- 2026-07-04 — R012: `supabase-sql.mdc` Auto Attached on migration globs
-- 2026-07-04 — R013: PERMISSIVE default documented in `supabase-sql.mdc`
+- 2026-07-07 — R024: `testing.mdc` — TipTap example replaced with Radix/shadcn
+- 2026-07-07 — R025: `error-handling.mdc` — fictional REST test block replaced with shipped test file pointers
+- 2026-07-07 — R026: `nextjs.mdc` — SEO bullet replaced with `seo.mdc` cross-reference
+- 2026-07-07 — R027: `react-tanstack-query.mdc` — duplicate Query Key Conventions section removed
