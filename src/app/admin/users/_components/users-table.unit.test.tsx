@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@/test/test-utils'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -47,8 +48,17 @@ describe('UsersTable', () => {
     })
   })
 
-  const renderTable = () =>
-    render(<UsersTable currentAdminUserId={CURRENT_ADMIN_ID} />)
+  const renderTable = () => {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    })
+
+    return render(
+      <QueryClientProvider client={queryClient}>
+        <UsersTable currentAdminUserId={CURRENT_ADMIN_ID} />
+      </QueryClientProvider>,
+    )
+  }
 
   it('should load users on mount and render email column', async () => {
     renderTable()
@@ -106,11 +116,13 @@ describe('UsersTable', () => {
 
     renderTable()
 
-    expect(
-      await screen.findByText(
-        'Something went wrong loading users. Please try again.',
-      ),
-    ).toBeInTheDocument()
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          'Something went wrong loading users. Please try again.',
+        ),
+      ).toBeInTheDocument()
+    })
     expect(
       screen.getByRole('button', { name: /copy error details/i }),
     ).toBeInTheDocument()
@@ -202,6 +214,63 @@ describe('UsersTable', () => {
     })
 
     expect(showSuccessToastMock).toHaveBeenCalledWith('User promoted to admin')
-    expect(listUsersActionMock.mock.calls.length).toBeGreaterThan(1)
+    await waitFor(() => {
+      expect(listUsersActionMock.mock.calls.length).toBeGreaterThan(1)
+    })
+  })
+
+  it('should show mutation faults inline without replacing table rows', async () => {
+    const user = userEvent.setup({ delay: null })
+
+    listUsersActionMock.mockResolvedValue({
+      success: true,
+      data: {
+        rows: [
+          {
+            id: 'user-2',
+            email: 'bob@example.com',
+            isVerified: true,
+            createdAtLabel: 'Jun 1, 2024',
+            lastSignInAtLabel: 'Jun 2, 2024',
+            isAdmin: false,
+          },
+        ],
+        hasNextPage: false,
+        page: 1,
+      },
+    })
+
+    promoteUserActionMock.mockResolvedValue({
+      success: false,
+      error: {
+        message: 'Something went wrong updating the user. Please try again.',
+        code: 'INTERNAL_ERROR',
+        kind: 'fault',
+      },
+    })
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(screen.getByText('bob@example.com')).toBeInTheDocument()
+    })
+
+    await user.click(
+      screen.getByRole('button', { name: /actions for bob@example.com/i }),
+    )
+    await user.click(
+      screen.getByRole('menuitem', { name: /promote to admin/i }),
+    )
+    await user.click(screen.getByRole('button', { name: /^promote$/i }))
+
+    expect(
+      await screen.findByText(
+        'Something went wrong updating the user. Please try again.',
+      ),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: /copy error details/i }),
+    ).not.toBeInTheDocument()
+    expect(screen.getByText('bob@example.com')).toBeInTheDocument()
   })
 })

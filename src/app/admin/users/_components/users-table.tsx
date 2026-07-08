@@ -6,26 +6,18 @@ import {
 } from '@/components/data-table-shell'
 import { ErrorPanel } from '@/components/error-panel'
 import { InlineError } from '@/components/inline-error'
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import type { AppError } from '@/types/app-error'
-import {
-  getRoleMutationToastMessage,
-  type RoleMutationSuccessStatus,
-} from '@/utils/admin-role-mutations'
-import { showSuccessToast } from '@/utils/app-toast'
 
 import {
   USERS_SEARCH_MIN_LENGTH,
   type AdminUserRow,
 } from '../_lib/admin-user-row'
-import {
-  demoteUserAction,
-  listUsersAction,
-  promoteUserAction,
-} from '../actions'
+import { useAdminUserRoleMutation } from '../_lib/use-admin-user-role-mutation'
+import { useAdminUsersList } from '../_lib/use-admin-users-list'
 import {
   PromoteDemoteDialog,
   type RoleConfirmAction,
@@ -39,42 +31,35 @@ interface UsersTableProps {
 }
 
 export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
-  const [rows, setRows] = useState<AdminUserRow[]>([])
   const [page, setPage] = useState(1)
-  const [hasNextPage, setHasNextPage] = useState(false)
   const [searchInput, setSearchInput] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
-  const [error, setError] = useState<AppError | null>(null)
-  const [actionError, setActionError] = useState<AppError | null>(null)
   const [confirmAction, setConfirmAction] = useState<RoleConfirmAction | null>(
     null,
   )
-  const [pendingUserId, setPendingUserId] = useState<string | null>(null)
-  const [isPending, startTransition] = useTransition()
 
-  const loadUsers = useCallback(() => {
-    startTransition(async () => {
-      const result = await listUsersAction({
-        page,
-        emailFilter: debouncedSearch || undefined,
-      })
+  const {
+    rows,
+    hasNextPage,
+    isLoading,
+    isFetching,
+    error: listError,
+  } = useAdminUsersList({
+    page,
+    emailFilter: debouncedSearch || undefined,
+  })
 
-      if (!result.success) {
-        setError({
-          message: result.error.message,
-          code: result.error.code,
-          kind: result.error.kind,
-        })
-        setRows([])
-        setHasNextPage(false)
-        return
-      }
+  const {
+    mutate: mutateRole,
+    isPending: isMutationPending,
+    error: mutationError,
+    variables: mutationVariables,
+    reset: resetMutation,
+  } = useAdminUserRoleMutation()
 
-      setError(null)
-      setRows(result.data.rows)
-      setHasNextPage(result.data.hasNextPage)
-    })
-  }, [debouncedSearch, page])
+  const mutationAppError = mutationError
+    ? (mutationError as unknown as AppError)
+    : null
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -85,19 +70,25 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
     return () => window.clearTimeout(timer)
   }, [searchInput])
 
-  useEffect(() => {
-    loadUsers()
-  }, [loadUsers])
+  const handlePromote = useCallback(
+    (row: AdminUserRow) => {
+      resetMutation()
+      setConfirmAction({ type: 'promote', userId: row.id, email: row.email })
+    },
+    [resetMutation],
+  )
 
-  const handlePromote = useCallback((row: AdminUserRow) => {
-    setActionError(null)
-    setConfirmAction({ type: 'promote', userId: row.id, email: row.email })
-  }, [])
+  const handleDemote = useCallback(
+    (row: AdminUserRow) => {
+      resetMutation()
+      setConfirmAction({ type: 'demote', userId: row.id, email: row.email })
+    },
+    [resetMutation],
+  )
 
-  const handleDemote = useCallback((row: AdminUserRow) => {
-    setActionError(null)
-    setConfirmAction({ type: 'demote', userId: row.id, email: row.email })
-  }, [])
+  const pendingUserId = isMutationPending
+    ? (mutationVariables?.userId ?? null)
+    : null
 
   const columns = useMemo(
     () =>
@@ -122,41 +113,20 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
     }
 
     const { type, userId } = confirmAction
-    setPendingUserId(userId)
 
-    startTransition(async () => {
-      const result =
-        type === 'promote'
-          ? await promoteUserAction({ userId })
-          : await demoteUserAction({ userId })
-
-      setPendingUserId(null)
-      setConfirmAction(null)
-
-      if (!result.success) {
-        setActionError({
-          message: result.error.message,
-          code: result.error.code,
-          kind: result.error.kind,
-        })
-        return
-      }
-
-      setActionError(null)
-      showSuccessToast(
-        getRoleMutationToastMessage(
-          result.data.status as RoleMutationSuccessStatus,
-        ),
-      )
-      loadUsers()
-    })
+    mutateRole(
+      { type, userId },
+      {
+        onSettled: () => {
+          setConfirmAction(null)
+        },
+      },
+    )
   }
 
   const showSearchHint =
     searchInput.trim().length > 0 &&
     searchInput.trim().length < USERS_SEARCH_MIN_LENGTH
-
-  const displayError = actionError ?? error
 
   return (
     <div className="flex flex-col gap-4">
@@ -182,17 +152,21 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
         ) : null}
       </div>
 
-      {displayError?.kind === 'fault' ? (
-        <ErrorPanel message={displayError.message} code={displayError.code} />
-      ) : displayError ? (
-        <InlineError message={displayError.message} />
+      {listError?.kind === 'fault' ? (
+        <ErrorPanel message={listError.message} code={listError.code} />
+      ) : listError ? (
+        <InlineError message={listError.message} />
       ) : null}
 
-      <div aria-busy={isPending}>
+      {mutationAppError ? (
+        <InlineError message={mutationAppError.message} />
+      ) : null}
+
+      <div aria-busy={isFetching}>
         <DataTableShell
           table={table}
           columns={columns}
-          isLoading={isPending && rows.length === 0}
+          isLoading={isLoading && rows.length === 0}
           loadingLabel="Loading users…"
           emptyMessage="No users found."
         />
@@ -203,7 +177,7 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
           type="button"
           variant="outline"
           size="sm"
-          disabled={page <= 1 || isPending}
+          disabled={page <= 1 || isFetching}
           onClick={() => setPage((current) => Math.max(1, current - 1))}
         >
           Previous
@@ -212,7 +186,7 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
           type="button"
           variant="outline"
           size="sm"
-          disabled={!hasNextPage || isPending}
+          disabled={!hasNextPage || isFetching}
           onClick={() => setPage((current) => current + 1)}
         >
           Next
