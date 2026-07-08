@@ -95,7 +95,7 @@ If a function or component needs more than ~15 tests, investigate for redundancy
 
 #### Skip These:
 - **Framework behavior**: Don't test that React renders, Next.js routes work, or React Query caches
-- **Third-party libraries**: Don't test that Supabase queries work or TipTap editors function
+- **Third-party libraries**: Don't test that Supabase queries work or Radix/shadcn primitives render correctly
 - **Trivial code**: Don't test simple getters/setters, pass-through functions, or type definitions
 - **Every validation rule**: If you have 10 form validations, test 1-2 representative cases, not all 10
 - **Every edge case**: Don't test empty string AND whitespace AND unicode AND emoji AND special chars

@@ -12,7 +12,7 @@ globs:
 - Use `error.tsx` for error boundaries
 - Use `loading.tsx` for loading states
 - Use `route.ts` for API endpoints in `app/api/`
-- Use proper metadata exports for SEO
+- See `seo.mdc` for metadata, indexing, and social-preview wire-up.
 
 ## Data Fetching
 - Fetch directly in Server Components when possible

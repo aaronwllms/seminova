@@ -19,19 +19,12 @@ globs:
 ## Custom Hooks Pattern
 Create custom hooks in `src/hooks/`. See `src/hooks/use-sign-out.ts` for the project's hook conventions (arrow export, `'use client'`, `@/` imports).
 
-For query hooks, use `createClient()` from `@/supabase/client` (RLS-scoped) in `queryFn` with descriptive query keys (e.g. `['profiles', userId]` or `['resource', id]`).
+For query hooks, use `createClient()` from `@/supabase/client` (RLS-scoped) in `queryFn` with descriptive query keys (e.g. `['profiles', userId]`).
 
 **Key points:**
 - Call data-access functions from `queryFn`; let errors propagate for React Query to catch
 - Use descriptive query key arrays: `['resource', id]` or `['resource', 'list', filters]`
 - For route handlers, check `response.ok` and parse `{ success, data?, error? }` before returning
-
-## Query Key Conventions
-- Use descriptive arrays: `['resource', id]` or `['resource', 'list', filters]`
-- Examples:
-  - `['user', userId]`
-  - `['posts', 'list', { status: 'published' }]`
-  - `['post', postId, 'comments']`
 
 ## Error Handling
 

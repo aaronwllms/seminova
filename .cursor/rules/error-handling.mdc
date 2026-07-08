@@ -173,18 +173,11 @@ render the panel at a page/section region rather than reaching for a toast.
 
 **See `.cursor/rules/testing.mdc` for comprehensive testing patterns.**
 
-```typescript
-it('should handle errors gracefully', async () => {
-  vi.mocked(fetchPosts).mockRejectedValue(new Error('DB error'))
-  const response = await GET(mockRequest)
-  const data = await response.json()
-  
-  expect(response.status).toBe(500)
-  expect(data.success).toBe(false)
-  expect(data.error.code).toBe('INTERNAL_ERROR')
-  expect(data.error.kind).toBe('fault')
-})
-```
+Test user-visible error UI for operational failures and envelope `kind`/`code` at the producer boundary — do not invent API-route handler tests when the feature uses Server Actions or client Supabase calls.
+
+- [`src/components/login-form.integration.test.tsx`](../../src/components/login-form.integration.test.tsx) — operational auth failure renders inline message, no `ErrorPanel` copy affordance
+- [`src/utils/extract-auth-form-error.unit.test.ts`](../../src/utils/extract-auth-form-error.unit.test.ts) — operational vs fault mapping
+- [`src/app/(app)/profile/actions.unit.test.ts`](../../src/app/(app)/profile/actions.unit.test.ts) — Server Action envelope assertions (`success: false`, `kind`, `code`)
 
 ## Quick Checklist
 
