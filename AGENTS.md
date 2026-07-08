@@ -13,8 +13,8 @@ Document roles and the doc-maintenance procedure are authoritative in [docs/DOC_
 1. **Read** AGENTS.md + relevant `.cursor/rules/` and skills before coding.
 2. **Migrations:** agents write SQL files in `supabase/migrations/` only. Humans run `pnpm db:push` and `pnpm db:types`. See [.cursor/rules/do-migrations-agent.mdc](.cursor/rules/do-migrations-agent.mdc).
 
-   > [!IMPORTANT]
-   > **Migrations are human-only.** Agents write SQL migration files; humans run `pnpm db:push` and `pnpm db:types` against the linked Supabase project.
+> [!IMPORTANT]
+> **Migrations are human-only.** Agents write SQL migration files; humans run `pnpm db:push` and `pnpm db:types` against the linked Supabase project.
 
 3. **Quality bar** before finishing work:
 

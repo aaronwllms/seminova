@@ -51,6 +51,10 @@ weigh context before flagging overload.
 
 **Placement:** Avoid consecutive alerts; separate with prose.
 
+**Nesting:** Alerts must start at column 0. Indenting one to sit under a list
+item makes GitHub render a plain blockquote — no icon, no box. Pull the callout
+to root level (between list items, or its own subsection) instead.
+
 ### Links
 
 - **In-repo files:** relative paths (`docs/WORKFLOW_GUIDE.md`, `../AGENTS.md`) —
@@ -110,7 +114,7 @@ Apply to each file under review:
 - [ ] **Links:** in-repo targets use relative paths and resolve from the file's directory
 - [ ] **Anchors:** internal `#section` links match current heading text
 - [ ] **Headings:** single h1; no skipped levels; outline-friendly h2/h3
-- [ ] **Alerts:** GFM alert syntax; not excessive or back-to-back without prose
+- [ ] **Alerts:** GFM alert syntax; top-level (not indented under list items); not excessive or back-to-back without prose
 - [ ] **Images:** alt text present; relative paths for repo assets
 - [ ] **Picture elements:** fallback `img` + light/dark sources where used; Cursor preview caveat noted if user-facing
 - [ ] **Tables:** reference data only; columns align readable in source
@@ -133,6 +137,7 @@ Apply to each file under review:
 - Missing `alt` text on meaningful images
 - Leading-slash root-relative links (`/docs/FOO.md`) — resolve on GitHub but break local markdown preview, which reads them against the filesystem root; use a relative path instead
 - Heading hierarchy that breaks GitHub's outline (skipped levels, multiple h1)
+- Indented GFM alerts (`> [!IMPORTANT]` nested under a list item) — GitHub strips the icon and box and renders a plain blockquote; the alert must start at column 0
 
 ## Common should-consider findings
 

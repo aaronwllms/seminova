@@ -59,8 +59,8 @@ These rules apply to anyone updating the planning docs — PM or coding agent.
 
 2. **PRD creation and promotion are split by lifecycle stage.** `phase-planning` (Claude-side planning skill) creates the PRD at `Planning` and flips it to `Ready` on PM sign-off, decomposing it into numbered epics and vertical-slice stories at that point. `plan-next-epic` (Cursor-side) flips it to `Active` when it generates the plan for the phase's first epic — the flip precedes the plan so every plan review sees an `Active` phase. Each skill updates the ROADMAP row to match at its transition.
 
-   > [!IMPORTANT]
-   > **`mark-epic-complete` must never promote** — if an epic is marked `Complete` while its PRD or ROADMAP row reads `Draft`, `Planning`, or `Ready`, halt and report the inconsistency; do not auto-correct.
+> [!IMPORTANT]
+> **`mark-epic-complete` must never promote** — if an epic is marked `Complete` while its PRD or ROADMAP row reads `Draft`, `Planning`, or `Ready`, halt and report the inconsistency; do not auto-correct.
 
    PRD lifecycle detail lives in [prds/README.md](prds/README.md).
 
@@ -76,8 +76,8 @@ These rules apply to anyone updating the planning docs — PM or coding agent.
 
 8. **[archive/](archive/) holds frozen pre-restructure history only.**
 
-   > [!IMPORTANT]
-   > **This archive is closed** — never append to it, never edit it.
+> [!IMPORTANT]
+> **This archive is closed** — never append to it, never edit it.
 
 9. **Epics must be numbered.** Format as shown below (sequential within the phase, starting at 1). Once implemented, the **mark-epic-complete** skill appends a `Complete` tag to the heading — never added manually or inferred from code.
 

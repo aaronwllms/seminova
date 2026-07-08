@@ -77,8 +77,8 @@ The full workflow — every step, skill, and document explained, plus the detail
    | `CSP_ENFORCE` | Optional — set to `true` for enforcing CSP instead of report-only (see [AGENTS.md](AGENTS.md); requires nonce strategy before production use) |
    | `VERCEL_URL` | Optional — auto-set on Vercel deploys; used as metadata base when `NEXT_PUBLIC_SITE_URL` is unset (do not set locally) |
 
-   > [!WARNING]
-   > **Development-only auth bypass:** if `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are not set, the auth proxy skips session checks in development so you can explore the UI before wiring Supabase. **Production deploys without those variables return 503** — configure env vars before shipping.
+> [!WARNING]
+> **Development-only auth bypass:** if `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are not set, the auth proxy skips session checks in development so you can explore the UI before wiring Supabase. **Production deploys without those variables return 503** — configure env vars before shipping.
 
 4. Link your local repo to your Supabase project and apply the schema that ships with the template (this is what creates the `profiles` table Initial setup below depends on):
 
@@ -109,8 +109,8 @@ After Quick start, grant yourself admin access so you can use the admin shell:
 1. Start the dev server and sign up at [http://localhost:3000/auth/sign-up](http://localhost:3000/auth/sign-up).
 2. Add `SUPABASE_SECRET_KEY` to `.env.local` (from [Project Settings → API](https://app.supabase.com/project/_/settings/api) → **API Keys** → **secret key**, `sb_secret_...`):
 
-   > [!WARNING]
-   > **Never commit `SUPABASE_SECRET_KEY` or use a `NEXT_PUBLIC_*` prefix.** Supabase's **secret key** replaces the legacy **service role** key. This repo uses `SUPABASE_SECRET_KEY` — not `SUPABASE_SERVICE_ROLE_KEY`. The legacy JWT under "Legacy API keys" still works during Supabase's migration period, but prefer the secret key from **API Keys**.
+> [!WARNING]
+> **Never commit `SUPABASE_SECRET_KEY` or use a `NEXT_PUBLIC_*` prefix.** Supabase's **secret key** replaces the legacy **service role** key. This repo uses `SUPABASE_SECRET_KEY` — not `SUPABASE_SERVICE_ROLE_KEY`. The legacy JWT under "Legacy API keys" still works during Supabase's migration period, but prefer the secret key from **API Keys**.
 
 3. Grant yourself admin access — either:
 
