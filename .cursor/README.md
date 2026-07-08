@@ -34,6 +34,7 @@ Portable AI workflow for this repo. **Skills-first** — use `/skill-name` in ch
 | `/pre-release-review` | Before opening a PR |
 | `/audit-tech-debt` | Debt assessment (full pass or sync) → `TECH_DEBT_AUDIT.md` |
 | `/audit-security` | Security audit (full pass or sync) → `SECURITY_AUDIT.md` |
+| `/archive-research` | Retire served research briefs to `docs/research/archive/` — @-attach brief(s) |
 
 See [`skills/`](skills/) for full list. Skills with `disable-model-invocation: true` run only when you explicitly invoke them.
 
@@ -44,7 +45,7 @@ See [`skills/`](skills/) for full list. Skills with `disable-model-invocation: t
 
 ## Ignore files (repo root)
 
-Two files at the project root control what Cursor indexes and what agents can read. Full rationale: [RESEARCH-0001](../docs/research/RESEARCH-0001-cursor-ignore-files.md).
+Two files at the project root control what Cursor indexes and what agents can read. Full rationale: [RESEARCH-0001](../docs/research/archive/RESEARCH-0001-cursor-ignore-files.md).
 
 | File | Role |
 | ---- | ---- |

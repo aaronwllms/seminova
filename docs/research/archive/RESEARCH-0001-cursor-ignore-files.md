@@ -68,7 +68,7 @@ Cursor recommends global user ignore patterns for secrets (`.env*`, credentials,
 
 ### Template spinoff angle
 
-`initialize-project` already purges Seminova-specific history (`plans/archive/`, `docs/archive/`, `RESEARCH-*.md`, backlog entries). A committed ignore baseline would mainly help **forks that accumulate their own** archive noise over time — not Seminova's current indexing performance.
+`initialize-project` already purges Seminova-specific history (`plans/archive/`, `docs/archive/`, active and archived `RESEARCH-*.md`, backlog entries). A committed ignore baseline would mainly help **forks that accumulate their own** archive noise over time — not Seminova's current indexing performance.
 
 If a baseline is adopted, it should ship with the template, be documented in `.cursor/README.md`, use **soft** indexing exclusions for archives, and a **minimal hard** `.cursorignore` for secrets only.
 
@@ -107,7 +107,7 @@ docs/research/archive/
 **/id_rsa
 ```
 
-Documented in [`.cursor/README.md`](../.cursor/README.md). Workflow backlog item removed.
+Documented in [`.cursor/README.md`](../../../.cursor/README.md). Workflow backlog item removed.
 
 Do **not** expand `.cursorignore` to archives, `.cursor/rules/`, `.cursor/skills/`, or `src/types/database.types.ts`.
 
@@ -129,5 +129,5 @@ Do **not** expand `.cursorignore` to archives, `.cursor/rules/`, `.cursor/skills
 
 ## Related
 
-- [docs/WORKFLOW_BACKLOG.md › Cursor directory scope audit](../WORKFLOW_BACKLOG.md#cursor-directory-scope-audit-cursorreadme--guidance-drift) — adjacent hygiene pass
+- [docs/WORKFLOW_BACKLOG.md › Cursor directory scope audit](../../WORKFLOW_BACKLOG.md#cursor-directory-scope-audit-cursorreadme--guidance-drift) — adjacent hygiene pass
 - `.cursor/skills/initialize-project` — what spinoffs inherit vs. purge

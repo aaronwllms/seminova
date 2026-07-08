@@ -1,5 +1,4 @@
 # Soft block — excluded from @Codebase indexing only; still readable via @-mention.
-# See docs/research/RESEARCH-0001-cursor-ignore-files.md
 
 .cursor/plans/archive/
 docs/archive/

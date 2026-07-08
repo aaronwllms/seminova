@@ -39,6 +39,8 @@ paths are not accepted.
 Archived briefs live in [archive/](archive/) and are **frozen** — never
 refreshed by `/research`. Archive-only metadata:
 
+**Cursor indexing:** `docs/research/archive/` is in [`.cursorindexingignore`](../../.cursorindexingignore) — excluded from @Codebase search, still readable via @-mention. See [`.cursor/README.md` › Ignore files](../../.cursor/README.md#ignore-files-repo-root).
+
 ```markdown
 **Archived:** YYYY-MM-DD
 

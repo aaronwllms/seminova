@@ -1,5 +1,5 @@
 # Hard block — excluded from indexing, Agent, Tab, and @-mentions.
-# Agent terminal and MCP tools are not blocked. See docs/research/RESEARCH-0001-cursor-ignore-files.md
+# Agent terminal and MCP tools are not blocked. See docs/research/archive/RESEARCH-0001-cursor-ignore-files.md
 
 **/.env
 **/.env.*
