@@ -171,6 +171,8 @@ A few practical habits that make this workflow smoother.
 
 3. **When running low on Claude token budget.** Consider drafting instead of writing directly. Rather than having Claude write through MCP, ask it to produce the content as a copy block in chat, then paste it into the file yourself. This skips the token cost of the write call itself. The tradeoff: Claude normally re-reads a file immediately before writing to guard against drift since its last read — if you draft-and-paste instead, you're the one vouching the file hasn't changed.
 
+4. **Refresh `seo.mdc` before running `audit-seo`.** SEO practice is shifting fast as AI-driven discovery evolves, and the audit checks code against the rule as written — a stale rule means a stale audit. Do a quick review of the rule against current practice first.
+
 ---
 
 ## Model guidance

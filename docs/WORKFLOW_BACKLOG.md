@@ -6,7 +6,7 @@
 
 **How to use it.** Each entry is a deferred decision with its reason for deferral and the signal that should bring it back. Pull an item out when its trigger fires; delete it when it's resolved (record the resolution as an [ADR](adr/README.md) if it qualifies).
 
-**Last updated:** 2026-07-07
+**Last updated:** 2026-07-08
 
 ---
 
@@ -20,9 +20,6 @@
   - [Promote "batch edits, write once" from tip to standing rule](#promote-batch-edits-write-once-from-tip-to-standing-rule)
   - [Workflow Guide visual overview: Mermaid vs. image tradeoff](#workflow-guide-visual-overview-mermaid-vs-image-tradeoff)
   - [Grill-me numeric answer mode](#grill-me-numeric-answer-mode)
-  - [SEO landscape volatility note](#seo-landscape-volatility-note)
-  - [audit-seo skill](#audit-seo-skill)
-  - [project-kickoff / project-initiation SEO updates](#project-kickoff-project-initiation-seo-updates)
 
 ---
 
@@ -84,26 +81,3 @@
 
 **Revisit when:** Next maintenance pass on `phase-planning`.
 
-### SEO landscape volatility note
-
-**What:** Add a note to [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md) (or the relevant [README.md](../README.md)) reminding users that the SEO/GEO landscape shifts quickly — before doing SEO work, research current best practices with the agent rather than relying on the rule as fixed truth.
-
-**Why deferred:** Belongs alongside the Phase 9 SEO rule, which hasn't shipped yet.
-
-**Revisit when:** Phase 9 ships.
-
-### audit-seo skill
-
-**What:** New skill in the `audit-*` family (alongside `audit-tech-debt`, `audit-security`, `audit-rules`, `audit-tests`) that audits a project's SEO implementation against the SEO `.mdc` rule.
-
-**Why deferred:** Depends on the Phase 9 SEO rule shipping first.
-
-**Revisit when:** Phase 9 ships.
-
-### project-kickoff / project-initiation SEO updates
-
-**What:** Update the `project-kickoff` skill (and project-initiation, if separate) so new projects cloned from the template account for the new SEO rule and `audit-seo` skill during kickoff grilling.
-
-**Why deferred:** Depends on the Phase 9 SEO rule and `audit-seo` skill shipping first.
-
-**Revisit when:** Phase 9 ships and `audit-seo` exists.
