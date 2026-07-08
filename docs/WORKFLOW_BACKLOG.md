@@ -1,20 +1,109 @@
 # Workflow Backlog
 
-**What this is.** Deferred improvements to the _collaboration system itself_ — the planning/build workflow, skills, and docs that the PM and the agents use to develop Seminova. This is **not** product roadmap (that's `ROADMAP.md`); nothing here ships in the product. These are decisions consciously parked to revisit later, kept here so they outlive any temporary handoff doc.
+**What this is.** Deferred improvements to the _collaboration system itself_ — the planning/build workflow, skills, and docs that the PM and the agents use to develop Seminova. This is **not** product roadmap (that's [ROADMAP.md](../ROADMAP.md)); nothing here ships in the product. These are decisions consciously parked to revisit later, kept here so they outlive any temporary handoff doc. Placement in the doc stack is defined in [DOC_RULES.md › Document roles](DOC_RULES.md#document-roles).
 
 **Why it exists.** Parked workflow decisions used to live inside the docs-restructure handoff plan — a doc slated for deletion once the restructure ships. Without a permanent home, those decisions would vanish with it. This file is that home.
 
-**How to use it.** Each entry is a deferred decision with its reason for deferral and the signal that should bring it back. Pull an item out when its trigger fires; delete it when it's resolved (record the resolution as an ADR if it qualifies).
+**How to use it.** Each entry is a deferred decision with its reason for deferral and the signal that should bring it back. Pull an item out when its trigger fires; delete it when it's resolved (record the resolution as an [ADR](adr/README.md) if it qualifies).
+
+**Last updated:** 2026-07-07
+
+---
+
+## Contents
+
+- [Deferred items](#deferred-items)
+  - [Epic size threshold calibration](#epic-size-threshold-calibration)
+  - [TDD-first as the plan's verification loop](#tdd-first-as-the-plans-verification-loop)
+  - [Phase 7 decomposition fork](#phase-7-decomposition-fork)
+  - [plan-review thinning + automated review](#plan-review-thinning-automated-review)
+  - [Promote "batch edits, write once" from tip to standing rule](#promote-batch-edits-write-once-from-tip-to-standing-rule)
+  - [Workflow Guide visual overview: Mermaid vs. image tradeoff](#workflow-guide-visual-overview-mermaid-vs-image-tradeoff)
+  - [Grill-me numeric answer mode](#grill-me-numeric-answer-mode)
+  - [SEO landscape volatility note](#seo-landscape-volatility-note)
+  - [audit-seo skill](#audit-seo-skill)
+  - [project-kickoff / project-initiation SEO updates](#project-kickoff-project-initiation-seo-updates)
 
 ---
 
 ## Deferred items
 
-| Item | Detail |
-|---|---|
-| **Epic size threshold calibration** | **What:** The right epic size — where one agent build-window ends and context starts degrading — can't be set in advance. `phase-planning` encodes the principle (size epics to fit one build-window) but leaves the threshold to be felt out from real runs. <br> **Why deferred:** No real build data yet. The threshold is PM-owned and experience-driven. <br> **Revisit when:** A build starts degrading mid-epic — agent loses coherence, makes contradictory changes, or needs repeated correction. That's the signal to tighten the size guidance in `phase-planning`. |
-| **TDD-first as the plan's verification loop** | **What:** Adopt test-driven development as the build loop — write tests first (as the spec), confirm they fail, then build to green — instead of the current build-then-test-at-the-end approach. This is Cursor's officially recommended pattern for giving the agent a verifiable target ([best-practices guide](https://cursor.com/blog/agent-best-practices)). <br> **Why deferred:** It's a change to the planning/build structure, not a quick skill tweak, and Aaron deliberately chose end-stage testing for now (avoids mid-build debug loops bloating the context window). Worth a considered adoption, not a reflex. <br> **Revisit when:** Doing a focused pass on planning-structure improvements, or when end-stage testing starts producing failures that are expensive to localize. |
-| **Phase 7 decomposition fork (enrich phase-planning vs. adopt to-prd/to-issues)** | **What:** Decide the long-term shape of decomposition — (A) enrich the existing `phase-planning` + `plan-next-epic` pipeline, keeping single-source, human-in-loop workflow; or (B) adopt Pocock's `to-prd` + `to-issues` and move toward independently-grabbable, parallel-agent issues. <br> **Why deferred:** The two paths lead to different workflows, and the choice shouldn't be pre-made. The biggest architectural-alignment win may already arrive through better grilling input, making this fork less urgent than it looks. **Current posture: the existing pipeline stays; the swap is deferred indefinitely, not scheduled.** <br> **Revisit when:** After running a full real planning cycle on the restructured system, with grilling in place — let lived experience decide. |
-| **plan-review thinning + automated review** | **What:** Two linked moves. (1) As front-loaded grilling proves it produces complete-enough plans, shrink `plan-review` from "catch architectural mistakes" to "verify execution." (2) Only once that thinning has happened, consider an automated Opus-reviews-the-build loop (distinct from today's Claude-as-thinking-partner role). <br> **Why deferred:** plan-review currently earns its keep as a second-model check on a single agent's blind spots and covers Aaron's self-identified architecture-experience gap. It's transitional, but dropping it now is premature — keep it until judgment grows. <br> **Revisit when:** Confidence is high that grilling → constrained plans rarely surface architectural errors at review time. |
-| **Promote "batch edits, write once" from tip to standing rule** | **What:** `WORKFLOW_GUIDE.md` currently lists "batch file edits, then write once" as a Tips-section suggestion. Given `filesystem:write_file` always does whole-file rewrites (no patch/diff), this may actually be a standing rule rather than a situational tip — worth moving into project instructions alongside the existing "read-before-write discipline" and "whole-file rewrites only" patterns. <br> **Why deferred:** Don't want to update it in multiple places right now. <br> **Revisit when:** Doing a broader pass on project instructions, or next time multiple sequential small edits in one session cause noticeable token bloat. |
-| **Workflow Guide visual overview: Mermaid vs. image tradeoff** | **What:** `WORKFLOW_GUIDE.md`'s Visual overview now uses the same `images/workflow-dark.svg` / `workflow-light.svg` picture-tag pattern as `README.md`, replacing a jumbled Mermaid flowchart. Mermaid renders in both Cursor and GitHub's markdown previews; the image only renders in GitHub's. Revisit once Mermaid's swimlane feature is stable enough to redo the diagram cleanly in Mermaid — evaluate whether it should replace the image or sit alongside it so Cursor viewers get a rendered diagram too. <br> **Why deferred:** Swimlane support isn't broadly available yet; not worth hand-rolling a workaround now. <br> **Revisit when:** Mermaid's swimlane feature is confirmed stable and widely available. |
+### Epic size threshold calibration
+
+**What:** The right epic size — where one agent build-window ends and context starts degrading — can't be set in advance. `phase-planning` encodes the principle (size epics to fit one build-window) but leaves the threshold to be felt out from real runs.
+
+**Why deferred:** No real build data yet. The threshold is PM-owned and experience-driven.
+
+**Revisit when:** A build starts degrading mid-epic — agent loses coherence, makes contradictory changes, or needs repeated correction. That's the signal to tighten the size guidance in `phase-planning`.
+
+### TDD-first as the plan's verification loop
+
+**What:** Adopt test-driven development as the build loop — write tests first (as the spec), confirm they fail, then build to green — instead of the current build-then-test-at-the-end approach. This is Cursor's officially recommended pattern for giving the agent a verifiable target ([best-practices guide](https://cursor.com/blog/agent-best-practices)).
+
+**Why deferred:** It's a change to the planning/build structure, not a quick skill tweak, and Aaron deliberately chose end-stage testing for now (avoids mid-build debug loops bloating the context window). Worth a considered adoption, not a reflex.
+
+**Revisit when:** Doing a focused pass on planning-structure improvements, or when end-stage testing starts producing failures that are expensive to localize.
+
+### Phase 7 decomposition fork
+
+**What:** Decide the long-term shape of decomposition — (A) enrich the existing `phase-planning` + `plan-next-epic` pipeline, keeping single-source, human-in-loop workflow; or (B) adopt Pocock's `to-prd` + `to-issues` and move toward independently-grabbable, parallel-agent issues.
+
+**Why deferred:** The two paths lead to different workflows, and the choice shouldn't be pre-made. The biggest architectural-alignment win may already arrive through better grilling input, making this fork less urgent than it looks. **Current posture: the existing pipeline stays; the swap is deferred indefinitely, not scheduled.**
+
+**Revisit when:** After running a full real planning cycle on the restructured system, with grilling in place — let lived experience decide.
+
+### plan-review thinning + automated review
+
+**What:** Two linked moves. (1) As front-loaded grilling proves it produces complete-enough plans, shrink `plan-review` from "catch architectural mistakes" to "verify execution." (2) Only once that thinning has happened, consider an automated Opus-reviews-the-build loop (distinct from today's Claude-as-thinking-partner role).
+
+**Why deferred:** plan-review currently earns its keep as a second-model check on a single agent's blind spots and covers Aaron's self-identified architecture-experience gap. It's transitional, but dropping it now is premature — keep it until judgment grows.
+
+**Revisit when:** Confidence is high that grilling → constrained plans rarely surface architectural errors at review time.
+
+### Promote "batch edits, write once" from tip to standing rule
+
+**What:** [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md) currently lists "batch file edits, then write once" as a Tips-section suggestion. Given `filesystem:write_file` always does whole-file rewrites (no patch/diff), this may actually be a standing rule rather than a situational tip — worth moving into project instructions alongside the existing "read-before-write discipline" and "whole-file rewrites only" patterns.
+
+**Why deferred:** Don't want to update it in multiple places right now.
+
+**Revisit when:** Doing a broader pass on project instructions, or next time multiple sequential small edits in one session cause noticeable token bloat.
+
+### Workflow Guide visual overview: Mermaid vs. image tradeoff
+
+**What:** [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md)'s Visual overview now uses the same `images/workflow-dark.svg` / `workflow-light.svg` picture-tag pattern as [README.md](../README.md), replacing a jumbled Mermaid flowchart. Mermaid renders in both Cursor and GitHub's markdown previews; the image only renders in GitHub's. Revisit once Mermaid's swimlane feature is stable enough to redo the diagram cleanly in Mermaid — evaluate whether it should replace the image or sit alongside it so Cursor viewers get a rendered diagram too.
+
+**Why deferred:** Swimlane support isn't broadly available yet; not worth hand-rolling a workaround now.
+
+**Revisit when:** Mermaid's swimlane feature is confirmed stable and widely available.
+
+### Grill-me numeric answer mode
+
+**What:** `phase-planning`'s grilling section currently expects free-text answers. Add support for numeric responses — `1` for yes/recommended, and numbered options when the question presents a set of choices — so Aaron can answer faster without typing.
+
+**Why deferred:** Not yet scoped or written.
+
+**Revisit when:** Next maintenance pass on `phase-planning`.
+
+### SEO landscape volatility note
+
+**What:** Add a note to [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md) (or the relevant [README.md](../README.md)) reminding users that the SEO/GEO landscape shifts quickly — before doing SEO work, research current best practices with the agent rather than relying on the rule as fixed truth.
+
+**Why deferred:** Belongs alongside the Phase 9 SEO rule, which hasn't shipped yet.
+
+**Revisit when:** Phase 9 ships.
+
+### audit-seo skill
+
+**What:** New skill in the `audit-*` family (alongside `audit-tech-debt`, `audit-security`, `audit-rules`, `audit-tests`) that audits a project's SEO implementation against the SEO `.mdc` rule.
+
+**Why deferred:** Depends on the Phase 9 SEO rule shipping first.
+
+**Revisit when:** Phase 9 ships.
+
+### project-kickoff / project-initiation SEO updates
+
+**What:** Update the `project-kickoff` skill (and project-initiation, if separate) so new projects cloned from the template account for the new SEO rule and `audit-seo` skill during kickoff grilling.
+
+**Why deferred:** Depends on the Phase 9 SEO rule and `audit-seo` skill shipping first.
+
+**Revisit when:** Phase 9 ships and `audit-seo` exists.

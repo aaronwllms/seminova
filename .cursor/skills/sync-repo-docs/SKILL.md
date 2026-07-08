@@ -7,9 +7,9 @@ description: >-
   asks to sync/update/refresh AGENTS.md or README.md, or when docs may be stale.
 ---
 
-# Sync AGENTS.md & README.md
+# Sync repo docs
 
-Keep [AGENTS.md](../../AGENTS.md) and [README.md](../../README.md) aligned with what the repo actually does. AGENTS.md is **agent repo truth**; README.md is **human onboarding**. Do not duplicate `.cursor/rules/` content.
+Keep the repo's **fact-tracking docs** aligned with what the code actually does — [AGENTS.md](../../AGENTS.md) (agent repo truth), [README.md](../../README.md) (human onboarding), [DESIGN.md](../../DESIGN.md) (token architecture ↔ `globals.css`), and [`.cursor/rules/README.md`](../../.cursor/rules/README.md) (rule-file index ↔ `.cursor/rules/*.mdc`). Do not duplicate `.cursor/rules/` guidance content.
 
 ## When to run
 
@@ -17,6 +17,8 @@ Keep [AGENTS.md](../../AGENTS.md) and [README.md](../../README.md) aligned with 
 - User says: sync docs, update AGENTS, refresh README, keep docs current
 - Before opening a PR when product behavior or setup changed
 - After merging migrations or adding product routes
+- After adding, removing, or reclassifying a `.cursor/rules/*.mdc` file
+- After token or theme changes in `globals.css`, `components.json`, or font wiring in `layout.tsx`
 
 Skip when changes are purely internal refactors with no user-facing or agent-guardrail impact.
 
@@ -28,7 +30,7 @@ Copy and track:
 Doc sync progress:
 - [ ] Step 1: Gather evidence of recent work
 - [ ] Step 2: Diff docs vs reality
-- [ ] Step 3: Classify each gap (AGENTS / README / neither)
+- [ ] Step 3: Classify each gap (route to the owning doc, or neither)
 - [ ] Step 4: Propose minimal edits (hard constraints mirror-only per change protocol)
 - [ ] Step 5: Apply edits and summarize what changed
 ```
@@ -47,12 +49,14 @@ Inspect **recent work**, not the whole codebase. Prefer the smallest window that
 | `package.json` scripts                                                | New/changed/removed commands                    |
 | `.env.example` (if present)                                           | New required env vars                           |
 | `src/services/`, `src/components/`                                    | Major feature surfaces (only if user-visible)   |
+| `src/app/globals.css`, `components.json`, `src/app/layout.tsx`        | Token names/groups, `baseColor`, font wiring — DESIGN.md truth |
+| `.cursor/rules/*.mdc`                                                 | Rule files added/removed or mode/glob changed — rules-README index |
 
 Do **not** treat `.cursor/plans/` or planning archives as shipped truth unless code confirms it.
 
 ### Step 2 — Diff docs vs reality
 
-Read current [AGENTS.md](../../AGENTS.md) and [README.md](../../README.md). For each evidence item, ask: **Is this already documented accurately?**
+Read the relevant target doc(s) — AGENTS.md, README.md, DESIGN.md, or `.cursor/rules/README.md`. For each evidence item, ask: **Is this already documented accurately?**
 
 Common drift patterns:
 
@@ -62,6 +66,8 @@ Common drift patterns:
 - New `pnpm` script missing from README scripts table
 - New env var documented in neither README nor `.env.example`
 - Post-login default or auth boundary changed in code but not in AGENTS.md hard constraints
+- DESIGN.md token group or re-skin step no longer matches `globals.css` / `components.json`
+- `.cursor/rules/README.md` rule table (row count or mode/glob columns) out of sync with the actual `.mdc` files
 
 ### Step 3 — Classify gaps
 
@@ -71,6 +77,8 @@ Use [reference.md](reference.md) for section ownership. Quick rules:
 | -------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
 | Hard constraints, implemented features, routes, data model, agent checklist                | **AGENTS.md**                                                |
 | Stack, prerequisites, env setup, scripts table, contributing hooks, doc map for humans | **README.md**                                                |
+| Token names/groups, re-skin workflow, theme provenance                                 | **DESIGN.md**                                                |
+| Rule-file index — name, mode, glob, purpose (not the rule guidance itself)             | **`.cursor/rules/README.md`**                                |
 | Coding style, testing policy, migrations how-to                                        | **`.cursor/rules/`** — not these docs                        |
 | Phase / planning detail                                                                | **ROADMAP / active PRD** — only if explicitly asked          |
 
@@ -113,8 +121,7 @@ When reporting to the user:
 
 ### Updates applied
 
-- AGENTS.md: [sections touched, or "none"]
-- README.md: [sections touched, or "none"]
+- [one line per touched doc — AGENTS.md, README.md, DESIGN.md, or `.cursor/rules/README.md` — with sections touched; omit docs left untouched]
 
 ### Needs your decision
 
@@ -132,6 +139,10 @@ When reporting to the user:
 - Do not inflate README with agent guardrails already in AGENTS.md
 - Do not change hard constraints — never initiate; mirror only per AGENTS.md change protocol
 - Do not run `pnpm db:push` or edit generated `database.types.ts` as part of doc sync
+
+## Related workflow
+
+- After applying factual edits, chain [`github-docs-authoring`](../github-docs-authoring/SKILL.md) to confirm the touched docs still render on GitHub — this skill fixes facts, not formatting.
 
 ## Additional resources
 

@@ -8,12 +8,9 @@ import { ReactQueryDevtoolsPanel } from '@/providers/react-query-devtools'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { getSiteMetadata } from '@/config/site'
+import { getSiteUrl } from '@/utils/site-url'
 
-const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : 'http://localhost:3000'
-
-export const metadata = getSiteMetadata(new URL(defaultUrl))
+export const metadata = getSiteMetadata(getSiteUrl())
 
 const inter = Inter({
   variable: '--font-inter',

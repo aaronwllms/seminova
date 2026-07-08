@@ -62,18 +62,8 @@ Quick reference:
 - Leverage Zod inference: `type Input = z.infer<typeof InputSchema>`
 
 ## Response Structure
-**Success:**
-```typescript
-NextResponse.json({ success: true, data: result }, { status: 200 })
-```
 
-**Error:**
-```typescript
-NextResponse.json(
-  { success: false, error: { message: 'Invalid input', code: 'VALIDATION_ERROR', kind: 'operational' } },
-  { status: 400 }
-)
-```
+See `error-handling.mdc` § Response Envelopes for success/error shapes and `kind` semantics.
 
 ## Authentication
 - Check auth at route handler start for protected endpoints

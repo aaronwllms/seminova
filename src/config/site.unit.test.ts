@@ -12,5 +12,9 @@ describe('getSiteMetadata', () => {
       template: `%s | ${siteConfig.name}`,
     })
     expect(metadata.description).toBe(siteConfig.description)
+    expect(metadata.openGraph).toEqual({
+      title: siteConfig.name,
+      description: siteConfig.description,
+    })
   })
 })

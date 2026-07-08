@@ -31,6 +31,24 @@ See [DOC_RULES.md](../../../docs/DOC_RULES.md) for the canonical document-roles 
 | Contributing & quality | Husky hook behavior or CI workflow changes              |
 | Documentation table    | New human-facing docs worth linking                     |
 
+## DESIGN.md section map
+
+| Section                     | Update when…                                              |
+| --------------------------- | --------------------------------------------------------- |
+| Structure vs theme lists    | Token name/grouping added, or the re-skinnable set changes in `globals.css` |
+| Token groups tables         | A token is added, removed, or renamed in `globals.css` (names only — never copy values) |
+| Typography table            | Font family or `next/font` wiring changes in `layout.tsx` |
+| Default theme               | Theme provenance or `components.json` `baseColor` changes |
+| Re-skinning steps           | The re-skin workflow itself changes                       |
+
+## `.cursor/rules/README.md` section map
+
+| Section                          | Update when…                                              |
+| -------------------------------- | --------------------------------------------------------- |
+| Rule count + rule-files table    | A `.mdc` file is added, removed, or renamed               |
+| Mode / Globs columns             | A rule's `alwaysApply` or `globs` changes (reclassification) |
+| Per-rule detail (details blocks) | A rule's purpose or scope materially changes              |
+
 ## Audit checklist (by change type)
 
 ### New product route
@@ -72,6 +90,19 @@ See [DOC_RULES.md](../../../docs/DOC_RULES.md) for the canonical document-roles 
 
 - [ ] Mirror a hard-constraint change already made via AGENTS.md change protocol (enforcement + list together) — never initiate
 
+### New or reclassified Cursor rule
+
+- [ ] `.cursor/rules/README.md` → rule-files table row (add/remove/rename)
+- [ ] Mode + Globs columns match the `.mdc` frontmatter
+- [ ] Per-rule detail block if purpose/scope changed
+- [ ] Row count equals the actual `.mdc` file count in `.cursor/rules/`
+
+### Token or theme change
+
+- [ ] DESIGN.md → token group table (name add/remove/rename)
+- [ ] DESIGN.md → typography or default-theme if fonts or `baseColor` changed
+- [ ] Values stay in `globals.css` — DESIGN.md names tokens, never values
+
 ## Evidence commands
 
 Run as needed during Step 1:
@@ -82,6 +113,7 @@ git diff main...HEAD --stat
 git diff --stat
 ls supabase/migrations/
 ls src/app/
+ls .cursor/rules/
 ```
 
 For unstaged work only: `git diff` and `git status`.

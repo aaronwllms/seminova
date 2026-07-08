@@ -36,14 +36,15 @@ Every PR must pass the same checks CI runs. Before pushing:
 pnpm pre-push
 ```
 
-This runs, in order: `type-check` → `lint` → `format-check` → `test:ci` (with 80% coverage thresholds). It mirrors CI exactly — if it passes locally, CI should pass too.
+This runs, in order: `type-check` → hard-constraint checks → `lint` → `format-check` → `test:ci` (with 80% coverage thresholds). It mirrors CI exactly — if it passes locally, CI should pass too. See [README](README.md#contributing-and-quality) or [AGENTS.md](AGENTS.md) for the full script list.
 
 Husky enforces most of this automatically:
 
 - **Pre-commit** — lint-staged (ESLint + Prettier on staged files) plus a full-project type-check
 - **Pre-push** — the full `pnpm pre-push` sequence
 
-Don't bypass hooks with `--no-verify`; a PR that fails CI won't be merged.
+> [!IMPORTANT]
+> Don't bypass hooks with `--no-verify`; a PR that fails CI won't be merged.
 
 ---
 
@@ -54,7 +55,7 @@ The repo's standards live in the repo, not in this file:
 - [AGENTS.md](AGENTS.md) — repo truth and **hard constraints** (non-negotiable, enforced by `check:*` scripts and CI)
 - [.cursor/rules/](.cursor/rules/) — coding standards and conventions
 - [DESIGN.md](DESIGN.md) — token architecture and design-system rules
-- [docs/DOC_RULES.md](docs/DOC_RULES.md) — how the planning docs are maintained, if your change touches them
+- [docs/DOC_RULES.md](docs/DOC_RULES.md) — document roles and maintenance procedure, if your change touches them
 
 If you build with AI coding tools, the rules and skills in `.cursor/` are loaded automatically in Cursor. If you write by hand, the same constraints apply — CI checks them either way.
 
@@ -62,16 +63,19 @@ If you build with AI coding tools, the rules and skills in `.cursor/` are loaded
 
 ## Database migrations
 
-Schema changes are SQL files in [`supabase/migrations/`](supabase/migrations/) — write the migration file, don't apply it. Applying (`pnpm db:push`) is a human step, done by the person reviewing or merging. See [AGENTS.md](AGENTS.md) and [.cursor/rules/do-migrations-agent.mdc](.cursor/rules/do-migrations-agent.mdc).
+Schema changes are SQL files in [`supabase/migrations/`](supabase/migrations/) — write the migration file, don't apply it. See [AGENTS.md](AGENTS.md) and [.cursor/rules/do-migrations-agent.mdc](.cursor/rules/do-migrations-agent.mdc).
+
+> [!WARNING]
+> **Applying migrations is a human step** — `pnpm db:push` is done by the person reviewing or merging, not the PR author.
 
 ---
 
 ## Pull requests
 
-1. Branch off `main`
-2. Keep PRs small and focused — one concern per PR
-3. Run `pnpm pre-push` before pushing
-4. Describe _why_, not just _what_ — especially for anything touching template opinions
+- [ ] Branch off `main`
+- [ ] Keep PRs small and focused — one concern per PR
+- [ ] Run `pnpm pre-push` before pushing
+- [ ] Describe _why_, not just _what_ — especially for anything touching template opinions
 
 CI runs on every PR to `main`. Merge requires green CI.
 

@@ -108,21 +108,7 @@ Auth-adjacent and expensive endpoints need rate limiting. Supabase Auth enforces
 Only allow specific origins - never use wildcard on authenticated endpoints.
 
 ### SSRF (Server-Side Request Forgery)
-Whitelist domains for user-controlled URLs:
-
-```typescript
-const ALLOWED_DOMAINS = ['api.example.com']
-
-function isSafeUrl(url: string): boolean {
-  try {
-    const parsed = new URL(url)
-    if (['localhost', '127.0.0.1', '::1'].includes(parsed.hostname)) return false
-    return ALLOWED_DOMAINS.includes(parsed.hostname)
-  } catch {
-    return false
-  }
-}
-```
+Whitelist hostnames for any user-controlled outbound URL — block localhost and private ranges. No shipped outbound-fetch util yet; add one alongside the first feature that needs it (redirect validation lives in [`src/utils/is-safe-redirect.ts`](../../src/utils/is-safe-redirect.ts)).
 
 ## Common Vulnerabilities
 

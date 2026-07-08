@@ -2,7 +2,7 @@
 
 Modular Cursor AI rules (`.mdc` format) for the Seminova template: an opinionated, AI-native starter built on Next.js 16, Supabase, Tailwind, shadcn/ui, Vitest, and TanStack Query v5.
 
-**27 rule files** in this directory. See [`.cursor/README.md`](../README.md) for skills, agents, and planning doc layout. Rule authoring standard lives in [`.cursor/skills/rule-authoring/SKILL.md`](../skills/rule-authoring/SKILL.md) — `rule-authoring-pointer.mdc` (see below) triggers a read of it before any rule file is created or edited.
+**26 rule files** in this directory. See [`.cursor/README.md`](../README.md) for skills, agents, and planning doc layout. Before creating or editing any rule, read [`.cursor/skills/rule-authoring/SKILL.md`](../skills/rule-authoring/SKILL.md) — `rule-authoring-pointer.mdc` triggers that read automatically.
 
 ## What this rule set covers
 
@@ -10,7 +10,10 @@ Modular Cursor AI rules (`.mdc` format) for the Seminova template: an opinionate
 - **Template conventions** — primitive-first UI, semantic tokens, WCAG 2.1 AA, conventional commits
 - **Agent workflow** — migration safety, testing minimalism, git hooks (see `git-workflow.mdc`)
 
-Hard constraints live in [AGENTS.md § Hard constraints](../../AGENTS.md#hard-constraints); roadmap and active build scope in [ROADMAP.md](../../ROADMAP.md) and [docs/prds/](../../docs/prds/). Repo truth for agents lives in [AGENTS.md](../../AGENTS.md).
+> [!IMPORTANT]
+> Hard constraints live in [AGENTS.md — Hard constraints](../../AGENTS.md#hard-constraints). Agents **write migration SQL only** — humans run `pnpm db:push` and `pnpm db:types`.
+
+Roadmap and active build scope: [ROADMAP.md](../../ROADMAP.md) and [docs/prds/](../../docs/prds/). Repo truth for agents: [AGENTS.md](../../AGENTS.md).
 
 ## What we adopted
 
@@ -36,9 +39,43 @@ Hard constraints live in [AGENTS.md § Hard constraints](../../AGENTS.md#hard-co
 
 ## Rule files
 
+| Rule | Mode | Globs (summary) | Purpose |
+| ---- | ---- | --------------- | ------- |
+| `code-minimalism.mdc` | Always on | — | Laziest-solution-that-works ladder |
+| `do-migrations-pointer.mdc` | Always on | — | Stub → read `do-migrations-agent.mdc` before schema work |
+| `general-conventions.mdc` | Always on | — | Dates, migration timestamps, environment awareness |
+| `pm-collaboration.mdc` | Always on | — | PM + AI partnership mode |
+| `project-standards.mdc` | Agent requested | — | File layout, module depth heuristic, utils placement |
+| `api-development.mdc` | Auto attached | `src/app/api/**` | REST paths, validation, DTOs, error envelopes |
+| `data-tables.mdc` | Auto attached | `*table*.tsx` | Canonical data table pattern (search column, pagination) |
+| `do-migrations-agent.mdc` | Auto attached | `migrations/**`, `*.plan.md` | Agent migration protocol; no auto-push |
+| `documentation.mdc` | Auto attached | `docs/**` | `docs/` layout and archiving guardrail |
+| `error-handling.mdc` | Auto attached | `api/**`, `actions.ts`, `error.tsx` | Error taxonomy, envelopes, InlineError / ErrorPanel |
+| `forms.mdc` | Auto attached | form-shaped paths | react-hook-form + zod, save models, autocomplete |
+| `git-workflow.mdc` | Auto + Agent requested | `.husky/**`, `.github/workflows/**` | Conventional commits, hooks, PR format |
+| `logging.mdc` | Auto attached | `src/**`, `scripts/**` | Log levels and bracket tags for Vercel search |
+| `nextjs.mdc` | Auto attached | `src/app/**`, `src/components/**` | App Router, RSC patterns, Next 16 conventions |
+| `notifications.mdc` | Auto attached | feedback surfaces | Toast vs inline routing; success taxonomy |
+| `react-tanstack-query.mdc` | Auto attached | `hooks/**`, `components/**`, provider | TanStack Query v5 keys, hooks, mutations |
+| `rule-authoring-pointer.mdc` | Auto attached | `.cursor/rules/**` | Stub → read rule-authoring skill before rule edits |
+| `security.mdc` | Auto attached | `src/**`, `proxy.ts`, migrations | Auth, validation, RLS, OWASP patterns |
+| `seo.mdc` | Auto attached | `src/app/**`, SEO utils, `site.ts` | Metadata wire-up, crawler surface, social previews |
+| `supabase-sql.mdc` | Auto attached | `migrations/**` | Project SQL style, RLS, functions (deltas only) |
+| `supabase.mdc` | Auto attached | `src/**`, `supabase/**`, `proxy.ts` | `@supabase/ssr` clients, auth proxy |
+| `testing.mdc` | Auto attached | `*.test.*`, `src/test/**` | Vitest + RTL + MSW v2; 80% coverage gates |
+| `typescript.mdc` | Auto attached | `src/**`, `scripts/**` | Strict TS, named exports, shared types |
+| `ui-accessibility.mdc` | Auto attached | `components/**`, `app/**` | WCAG 2.1 AA patterns |
+| `ui-shadcn.mdc` | Auto attached | `components/**`, `app/**` | shadcn/ui composition and customization |
+| `ui-styling.mdc` | Auto attached | `components/**`, `app/**` | Tailwind, semantic tokens, `cn()` |
+
+Per-rule detail (topics and cross-references):
+
+<details>
+<summary>TypeScript, Next.js, and data fetching</summary>
+
 ### `typescript.mdc`
 
-**Applies to:** All TypeScript files (`**/*.ts`, `**/*.tsx`)
+**Applies to:** `src/**/*.ts`, `src/**/*.tsx`, `scripts/**/*.ts`
 
 - TypeScript strict mode conventions
 - Interface vs type preferences
@@ -46,28 +83,20 @@ Hard constraints live in [AGENTS.md § Hard constraints](../../AGENTS.md#hard-co
 
 ### `nextjs.mdc`
 
-**Applies to:** Next.js App Router files (`src/app/**/*`, `src/components/**/*`)
+**Applies to:** `src/app/**/*`, `src/components/**/*`
 
 - Server vs Client Component patterns
 - Next.js 16 conventions (`error.tsx`, `loading.tsx`, `route.ts`)
 - Data fetching strategies and performance
 
-### `supabase.mdc`
+### `seo.mdc`
 
-**Applies to:** Source files, `src/supabase/**`, `proxy.ts`, migrations
+**Applies to:** `src/app/**`, `src/config/site.ts`, SEO utilities (`site-url`, `robots-policy`, `sitemap-routes`, `structured-data`, `og-image`, `discover-app-routes`, `proxy-matcher`)
 
-- Context-specific Supabase client usage (`@/supabase/client`, `@/supabase/server`)
-- Auth proxy session handling
-- Migration safety (agents write SQL only)
-
-### `security.mdc`
-
-**Applies to:** Source files, API routes, proxy, migrations
-
-- Authentication and authorization patterns
-- Input validation (Zod at server boundary — profile forms, server actions)
-- RLS policies, DTOs, OWASP patterns
-- Auth proxy route protection
+- Metadata wire-up (`getSiteMetadata`, per-page `metadata` / `generateMetadata`)
+- Crawler surface (`robots.ts`, `sitemap.ts`, JSON-LD)
+- Dynamic social previews (`opengraph-image.tsx` convention)
+- Cross-reference: `ui-accessibility.mdc` owns semantic HTML; `nextjs.mdc` owns App Router mechanics
 
 ### `react-tanstack-query.mdc`
 
@@ -77,13 +106,80 @@ Hard constraints live in [AGENTS.md § Hard constraints](../../AGENTS.md#hard-co
 - Custom hook creation and query keys
 - Mutation patterns with cache invalidation
 
+</details>
+
+<details>
+<summary>Supabase, security, and migrations</summary>
+
+### `supabase.mdc`
+
+**Applies to:** `src/**/*.ts`, `src/**/*.tsx`, `src/supabase/**`, `proxy.ts`, migrations
+
+- Context-specific Supabase client usage (`@/supabase/client`, `@/supabase/server`)
+- Auth proxy session handling
+- Migration safety (agents write SQL only)
+
+### `security.mdc`
+
+**Applies to:** `src/**`, `proxy.ts`, `src/app/api/**`, migrations
+
+- Authentication and authorization patterns
+- Input validation (Zod at server boundary — profile forms, server actions)
+- RLS policies, DTOs, OWASP patterns
+- Auth proxy route protection
+
+### `supabase-sql.mdc`
+
+**Applies to:** `supabase/migrations/**/*.sql`
+
+- Project-specific SQL style, RLS, and function conventions (deltas only)
+
+### `do-migrations-agent.mdc`
+
+**Applies to:** `supabase/migrations/**/*.sql`, `**/*.plan.md`
+
+- Agent constraints, file naming, post-migration steps
+- Never run `pnpm db:push` or other human-only migration commands
+
+</details>
+
+<details>
+<summary>UI, forms, and tables</summary>
+
 ### `ui-shadcn.mdc` / `ui-styling.mdc` / `ui-accessibility.mdc`
 
-**Applies to:** Component files
+**Applies to:** Component and app route files (see table for glob overlap)
 
 - shadcn/ui CLI usage, customization, composition
 - Tailwind + semantic tokens + `cn()` from `@/utils/tailwind`
 - WCAG 2.1 AA accessibility patterns
+
+### `forms.mdc`
+
+**Applies to:** Form-shaped paths (`*form*`, `actions.ts`, password/avatar components)
+
+- Canonical form stack (`react-hook-form` + zod), save-model routing (blur-save vs explicit submit vs upload-on-complete)
+- Password-field `autocomplete` conventions
+- Cross-reference: `error-handling.mdc` owns error envelopes and `InlineError` / `ErrorPanel`; `notifications.mdc` owns toast vs inline-indicator success feedback
+
+### `notifications.mdc`
+
+**Applies to:** Feedback surfaces (forms, actions, toasts, table toasts, inline indicators)
+
+- Toast vs inline indicator vs inline/panel routing; success/info/warning taxonomy
+- Cross-reference: `error-handling.mdc` owns error surfaces; errors never toast. `forms.mdc` owns save-model that drives toast-vs-indicator choice.
+
+### `data-tables.mdc`
+
+**Applies to:** `*table*.tsx` under `src/components/**` and `src/app/**`
+
+- Canonical data table pattern (single designated search column, Next/Previous pagination)
+- Referenced by admin users-table epic in planning docs
+
+</details>
+
+<details>
+<summary>Errors, logging, and API</summary>
 
 ### `logging.mdc`
 
@@ -100,27 +196,16 @@ Hard constraints live in [AGENTS.md § Hard constraints](../../AGENTS.md#hard-co
 - Error taxonomy, response envelopes, user-facing vs developer errors
 - Delegates log-level guidance to `logging.mdc`; defers toast routing to `notifications.mdc`
 
-### `forms.mdc`
+### `api-development.mdc`
 
-**Applies to:** `src/**/*.ts`, `src/**/*.tsx` (broad globs intentional — load-bearing on common edit paths)
+**Applies to:** `src/app/api/**/*.ts`, `src/app/api/**/*.tsx` (schemas co-located in route `_lib/`)
 
-- Canonical form stack (`react-hook-form` + zod), save-model routing (blur-save vs explicit submit vs upload-on-complete)
-- Password-field `autocomplete` conventions
-- Cross-reference: `error-handling.mdc` owns error envelopes and `InlineError` / `ErrorPanel`; `notifications.mdc` owns toast vs inline-indicator success feedback
+- REST path naming, validation, DTOs, error envelopes
 
-### `notifications.mdc`
+</details>
 
-**Applies to:** `src/**/*.ts`, `src/**/*.tsx` (broad globs intentional — load-bearing on common edit paths)
-
-- Toast vs inline indicator vs inline/panel routing; success/info/warning taxonomy
-- Cross-reference: `error-handling.mdc` owns error surfaces; errors never toast. `forms.mdc` owns save-model that drives toast-vs-indicator choice.
-
-### `data-tables.mdc`
-
-**Applies to:** `*table*.tsx` under `src/components/**` and `src/app/**`
-
-- Canonical data table pattern (single designated search column, Next/Previous pagination)
-- Referenced by admin users-table epic in planning docs
+<details>
+<summary>Docs, git, and testing</summary>
 
 ### `documentation.mdc`
 
@@ -134,42 +219,39 @@ Hard constraints live in [AGENTS.md § Hard constraints](../../AGENTS.md#hard-co
 
 - Conventional commits, Husky hooks, PR format
 
-### `api-development.mdc`
+### `testing.mdc`
 
-**Applies to:** `src/app/api/**/*.ts`, `src/app/api/**/*.tsx` (schemas co-located in route `_lib/`)
+**Applies to:** `**/*.test.*`, `src/test/**`
 
-- REST path naming, validation, DTOs, error envelopes
+- Vitest + RTL + MSW v2; minimalism-first philosophy; 80% coverage gates
 
-### Database / SQL
+</details>
 
-**Applies to:** `supabase/migrations/**/*.sql` (auto-attached)
+<details>
+<summary>Always-on, pointers, and agent-requested</summary>
 
-- `supabase-sql.mdc` — project-specific SQL style, RLS, and function conventions (deltas only)
-- `do-migrations-agent.mdc` — agent constraints, file naming, post-migration steps (also globs migrations)
-
-### Always-on rules (`alwaysApply: true`)
+### Always-on (`alwaysApply: true`)
 
 - `general-conventions.mdc` — dates, migration timestamps
 - `code-minimalism.mdc` — laziest-solution-that-works ladder for code generation
 - `pm-collaboration.mdc` — PM + AI partnership mode
 - `do-migrations-pointer.mdc` — stub that triggers a read of `do-migrations-agent.mdc` before schema work
 
-### Agent Requested rules (no globs)
+### Agent Requested (no globs)
 
 - `project-standards.mdc` — file layout, Ousterhout depth heuristic, utils placement; use when creating new files or restructuring modules
 
-### Context-attached rules (not global)
+### Pointer stubs (auto-attached on matching paths)
 
-- `testing.mdc` — Vitest + RTL + MSW v2; minimalism-first philosophy; 80% coverage gates (test/mocks globs)
-- `do-migrations-agent.mdc` — full agent migration protocol (globs: `supabase/migrations/**/*.sql`, `**/*.plan.md`)
-- `rule-authoring-pointer.mdc` — stub that triggers a read of the `rule-authoring` skill before any rule edit (globs: `.cursor/rules/**`)
-- `git-workflow.mdc`, `error-handling.mdc`, `api-development.mdc` — see entries above
+- `rule-authoring-pointer.mdc` — triggers a read of the rule-authoring skill before any rule edit (globs: `.cursor/rules/**`)
+
+</details>
 
 ## How it works
 
-Cursor loads rules based on frontmatter — only three keys are real: `description`, `globs`, `alwaysApply`. Any other key is silently ignored. See [`rule-authoring`](../skills/rule-authoring/SKILL.md) for the full activation-mode taxonomy.
+Cursor loads rules based on frontmatter — only three keys are real: `description`, `globs`, `alwaysApply`. Any other key is silently ignored. See the rule authoring standard in the opening paragraph for the full activation-mode taxonomy.
 
-1. **`alwaysApply: true`** — loaded in every session (four rules; see above)
+1. **`alwaysApply: true`** — loaded in every session (four rules; see table)
 2. **`globs` set** — attached when you work on matching files (Auto Attached)
 3. **No globs, `alwaysApply: false`, specific `description`** — agent decides at runtime whether it's relevant (Agent Requested)
 4. **On-demand** — database/SQL rules and skills (e.g. `/create-migration`) pull in guidance when needed
@@ -185,7 +267,7 @@ Cursor loads rules based on frontmatter — only three keys are real: `descripti
 
 - [Cursor Rules Documentation](https://docs.cursor.com/context/rules)
 - [`.cursor/README.md`](../README.md) — skills, agents, planning layout
-- [`.cursor/skills/rule-authoring/SKILL.md`](../skills/rule-authoring/SKILL.md) — rule authoring standard
+- Rule authoring standard — see opening paragraph
 - [ROADMAP.md](../../ROADMAP.md) — roadmap and phase status
 - [AGENTS.md](../../AGENTS.md) — hard constraints, implemented features, routes, data model
 - [docs/DOC_RULES.md](../../docs/DOC_RULES.md) — doc maintenance procedure

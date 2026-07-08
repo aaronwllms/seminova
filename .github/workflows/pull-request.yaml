@@ -39,6 +39,9 @@ jobs:
       - name: Check semantic tokens
         run: pnpm check:semantic-tokens
 
+      - name: Check SEO base URL
+        run: pnpm check:seo-base-url
+
       - name: Check linting
         run: pnpm lint
 

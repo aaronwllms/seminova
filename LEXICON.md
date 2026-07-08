@@ -6,7 +6,34 @@
 
 **Discipline:** Entries are short — a sentence or two of meaning, plus a pointer to the canonical home (a rule, `DESIGN.md`, [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints), an ADR) where the authoritative detail and any values live. Do not duplicate token values, rule wording, or schema here; point to the source of truth instead.
 
-**Last updated:** 2026-07-02
+**Last updated:** 2026-07-07
+
+---
+
+## Contents
+
+- [Architectural terms](#architectural-terms)
+  - [Primitive-first](#primitive-first)
+  - [Semantic token](#semantic-token)
+  - [Structure vs theme](#structure-vs-theme)
+  - [Auth boundary](#auth-boundary--auth)
+  - [Admin gate](#admin-gate)
+  - [Defense in depth (admin)](#defense-in-depth-admin)
+  - [Supabase clients](#supabase-clients-browser--server--service)
+  - [Operational vs fault error](#operational-vs-fault-error)
+  - [Deep module vs god file](#deep-module-vs-god-file)
+  - [Route groups](#route-groups-marketing--app)
+  - [App shell / Admin shell](#app-shell--admin-shell)
+  - [Server Action](#server-action)
+  - [Response envelope](#response-envelope)
+  - [Site config](#site-config)
+  - [Save model](#save-model)
+  - [Feedback routing](#feedback-routing)
+  - [Post-auth redirect](#post-auth-redirect)
+  - [Owned storage path](#owned-storage-path)
+  - [Avatar cache bust](#avatar-cache-bust)
+  - [Canonical data table](#canonical-data-table)
+- [Domain terms](#domain-terms)
 
 ---
 
@@ -14,7 +41,7 @@
 
 ### Primitive-first
 
-UI is built from a collection of _owned_ low-level shadcn/ui primitives (Radix-based) in `src/components/ui/`, composed upward into app components — rather than reaching for ad-hoc markup or third-party composite widgets. The primitives are vendored into the repo and owned, not imported from a package, so they can be themed and audited in place. Hard constraint (enforced: `check:no-shadcn-pkg`); consumption detail in [`.cursor/rules/ui-shadcn.mdc`](.cursor/rules/ui-shadcn.mdc). See [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints).
+UI is built from a collection of _owned_ low-level shadcn/ui primitives (Radix-based) in [`src/components/ui/`](src/components/ui/), composed upward into app components — rather than reaching for ad-hoc markup or third-party composite widgets. The primitives are vendored into the repo and owned, not imported from a package, so they can be themed and audited in place. Hard constraint (enforced: `check:no-shadcn-pkg`); consumption detail in [`.cursor/rules/ui-shadcn.mdc`](.cursor/rules/ui-shadcn.mdc). See [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints).
 
 ### Semantic token
 
@@ -22,11 +49,11 @@ A design value referred to by _role_, not by raw value — `primary`, `muted-for
 
 ### Structure vs theme
 
-The split that makes Seminova re-skinnable. _Structure_ — token names, component primitives, the `@theme inline` bridge, the agent workflow — is fixed and inherited by every spinoff. _Theme_ — color/font/radius/shadow values — is replaced per product. Guidance in [`.cursor/rules/ui-styling.mdc`](.cursor/rules/ui-styling.mdc). See [DESIGN.md › Structure vs theme](DESIGN.md).
+The split that makes Seminova re-skinnable. _Structure_ — token names, component primitives, the `@theme inline` bridge, the agent workflow — is fixed and inherited by every spinoff. _Theme_ — color/font/radius/shadow values — is replaced per product. Guidance in [`.cursor/rules/ui-styling.mdc`](.cursor/rules/ui-styling.mdc). See [DESIGN.md › Structure vs theme](DESIGN.md#structure-vs-theme).
 
 ### Auth boundary (`/` + `/auth/**`)
 
-The only public routes are the landing page (`/`) and the auth screens (`/auth/**`). Everything else requires an authenticated session. The boundary is enforced in `proxy.ts` (→ `src/supabase/proxy.ts`), which refreshes the session and redirects unauthenticated users to `/auth/login`. Adding a public route outside these two is a hard-constraint change. Hard constraint (enforced: `check:auth-boundary`). See [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints).
+The only public routes are the landing page (`/`) and the auth screens (`/auth/**`). Everything else requires an authenticated session. The boundary is enforced in [`proxy.ts`](proxy.ts) (→ [`src/supabase/proxy.ts`](src/supabase/proxy.ts)), which refreshes the session and redirects unauthenticated users to `/auth/login`. Adding a public route outside these two is a hard-constraint change. Hard constraint (enforced: `check:auth-boundary`). See [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints).
 
 The proxy reads session state via `getClaims()`, not `getUser()`. `getClaims()` reads the JWT locally with no network round-trip; `getUser()` hits the Supabase Auth server. The proxy comment warns explicitly against swapping them — doing so can cause users to be randomly logged out.
 
@@ -34,19 +61,19 @@ The proxy skips all enforcement when `hasPublicSupabaseEnv` is false (Supabase e
 
 ### Admin gate
 
-Admin access is keyed on `app_metadata.role` on the Supabase user — **not** a `role` column on `profiles`. The gate is enforced in `proxy.ts` (non-admins redirected away from `/admin/**`) and `AdminAuthGate`. Roles are granted in-app on `/admin/users` (promote/demote) or via the secret-key CLI (`pnpm promote-admin`). Keeping the gate on `app_metadata` rather than the database is a hard constraint (enforced: `check:admin-gate`). See [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints).
+Admin access is keyed on `app_metadata.role` on the Supabase user — **not** a `role` column on `profiles`. The gate is enforced in [`proxy.ts`](proxy.ts) (non-admins redirected away from `/admin/**`) and [`AdminAuthGate`](src/app/admin/_components/admin-auth-gate.tsx). Roles are granted in-app on `/admin/users` (promote/demote) or via the secret-key CLI (`pnpm promote-admin`). Keeping the gate on `app_metadata` rather than the database is a hard constraint (enforced: `check:admin-gate`). See [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints).
 
 ### Defense in depth (admin)
 
-Admin privilege is re-verified at every layer that can reach elevated operations: proxy redirect → `AdminAuthGate` in the layout → `assertAdminCaller()` in each server action before `createServiceClient()` runs. No single gate is considered sufficient. The service client is never reached without passing all three. Enforcement: `proxy.ts`, `AdminAuthGate`, and `assertAdminCaller()` in [`src/app/admin/users/_lib/assert-admin-caller.ts`](src/app/admin/users/_lib/assert-admin-caller.ts).
+Admin privilege is re-verified at every layer that can reach elevated operations: proxy redirect → [`AdminAuthGate`](src/app/admin/_components/admin-auth-gate.tsx) in the layout → `assertAdminCaller()` in each server action before `createServiceClient()` runs. No single gate is considered sufficient. The service client is never reached without passing all three. Enforcement: [`proxy.ts`](proxy.ts), [`AdminAuthGate`](src/app/admin/_components/admin-auth-gate.tsx), and `assertAdminCaller()` in [`src/app/admin/users/_lib/assert-admin-caller.ts`](src/app/admin/users/_lib/assert-admin-caller.ts).
 
 ### Supabase clients (browser / server / service)
 
 Three distinct Supabase clients, each with a different trust level — picking the right one is a recurring decision:
 
-- **Browser client** (`src/supabase/client.ts`) — runs in the browser, acts as the signed-in user, subject to RLS.
-- **Server client** (`src/supabase/server.ts`) — SSR/server components and actions, still user-scoped via the session cookie, subject to RLS.
-- **Service client** (`src/supabase/service.ts`) — uses the **secret key**, bypasses RLS, and must only be used inside an already-gated server path (e.g. listing all auth users for the admin table). Never reachable from the browser.
+- **Browser client** ([`src/supabase/client.ts`](src/supabase/client.ts)) — runs in the browser, acts as the signed-in user, subject to RLS.
+- **Server client** ([`src/supabase/server.ts`](src/supabase/server.ts)) — SSR/server components and actions, still user-scoped via the session cookie, subject to RLS.
+- **Service client** ([`src/supabase/service.ts`](src/supabase/service.ts)) — uses the **secret key**, bypasses RLS, and must only be used inside an already-gated server path (e.g. listing all auth users for the admin table). Never reachable from the browser.
 
 "Service client" specifically means the RLS-bypassing secret-key client — reach for it only when a gated server operation genuinely needs to act outside a single user's row.
 
@@ -76,7 +103,7 @@ Parenthesized App Router folders that co-locate layout and components without af
 
 ### App shell / Admin shell
 
-The authenticated layout wrappers. `AppShell` (`src/app/(app)/_components/app-shell.tsx`) composes site chrome, nav, and page content for the main app surface. `AdminShell` adds a sidebar and breadcrumb behind the admin gate. Both are the composition point for navigation state — extending authenticated layouts means extending a shell, not adding chrome elsewhere.
+The authenticated layout wrappers. [`AppShell`](src/app/(app)/_components/app-shell.tsx) composes site chrome, nav, and page content for the main app surface. [`AdminShell`](src/app/admin/_components/admin-shell.tsx) adds a sidebar and breadcrumb behind the admin gate. Both are the composition point for navigation state — extending authenticated layouts means extending a shell, not adding chrome elsewhere.
 
 ### Server Action
 
@@ -98,7 +125,7 @@ The rule for when a form field persists. Seminova uses three modes, and the choi
 - **Explicit submit** — for coupled or high-stakes fields (e.g. password change via modal).
 - **Upload-on-complete** — persists immediately when an upload finishes (e.g. avatar).
 
-Each mode carries different success feedback. Reference implementation: `profile-settings-form.tsx`. Consumption detail in [`.cursor/rules/forms.mdc`](.cursor/rules/forms.mdc).
+Each mode carries different success feedback. Reference implementation: [`profile-settings-form.tsx`](src/app/(app)/profile/_components/profile-settings-form.tsx). Consumption detail in [`.cursor/rules/forms.mdc`](.cursor/rules/forms.mdc).
 
 ### Feedback routing
 
@@ -112,11 +139,11 @@ Consumption detail in [`.cursor/rules/notifications.mdc`](.cursor/rules/notifica
 
 ### Post-auth redirect
 
-After sign-in, users are routed by role: admins → `/admin`, everyone else → `APP_HOME` (`/profile`). The logic lives in `getPostAuthRedirectPath()` and is wired through `/auth/confirm` and the login flow. When adding new roles or surfaces, this is the function to extend — not the auth flow itself.
+After sign-in, users are routed by role: admins → `/admin`, everyone else → `APP_HOME` (`/profile`). The logic lives in [`getPostAuthRedirectPath()`](src/utils/admin.ts) and is wired through [`/auth/confirm`](src/app/auth/confirm/route.ts) and the login flow. When adding new roles or surfaces, this is the function to extend — not the auth flow itself.
 
 ### Owned storage path
 
-A storage URL is only valid if it belongs to the current user's bucket path (`{userId}/avatar.webp`). `isOwnedAvatarStorageUrl()` enforces this server-side before persisting any URL — rejecting external or cross-user paths. When extending storage to new file types, apply the same ownership check at the server boundary. See [`src/utils/avatar-cache-bust.ts`](src/utils/avatar-cache-bust.ts) and [`src/utils/storage-paths.ts`](src/utils/storage-paths.ts).
+A storage URL is only valid if it belongs to the current user's bucket path (`{userId}/avatar.webp`). `isOwnedAvatarStorageUrl()` enforces this server-side before persisting any URL — rejecting external or cross-user paths. When extending storage to new file types, apply the same ownership check at the server boundary. See [`src/utils/avatar-cache-bust.ts`](src/utils/avatar-cache-bust.ts) and [`src/constants/storage-paths.ts`](src/constants/storage-paths.ts).
 
 ### Avatar cache bust
 

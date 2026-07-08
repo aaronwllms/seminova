@@ -73,10 +73,12 @@ The full workflow — every step, skill, and document explained, plus the detail
    | `NEXT_PUBLIC_SUPABASE_URL` | Project URL — **required for `pnpm build`** (production deploy blocker) |
    | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable (anon) key — **required for `pnpm build`** |
    | `SUPABASE_SECRET_KEY` | Secret key (server/CLI only — see Initial setup) |
+   | `NEXT_PUBLIC_SITE_URL` | Optional — canonical site URL for Open Graph and metadata (include `https://`); falls back to `VERCEL_URL` on Vercel, then `http://localhost:3000` locally |
    | `CSP_ENFORCE` | Optional — set to `true` for enforcing CSP instead of report-only (see [AGENTS.md](AGENTS.md); requires nonce strategy before production use) |
-   | `VERCEL_URL` | Optional — auto-set on Vercel deploys for Open Graph / metadata base URL; local dev falls back to `http://localhost:3000` (do not set locally) |
+   | `VERCEL_URL` | Optional — auto-set on Vercel deploys; used as metadata base when `NEXT_PUBLIC_SITE_URL` is unset (do not set locally) |
 
-   **Development-only auth bypass:** if `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are not set, the auth proxy skips session checks in development so you can clone and explore the UI before wiring Supabase. Production deploys without those variables return **503** — configure env vars before shipping.
+   > [!WARNING]
+   > **Development-only auth bypass:** if `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are not set, the auth proxy skips session checks in development so you can explore the UI before wiring Supabase. **Production deploys without those variables return 503** — configure env vars before shipping.
 
 4. Link your local repo to your Supabase project and apply the schema that ships with the template (this is what creates the `profiles` table Initial setup below depends on):
 
@@ -105,20 +107,22 @@ The full workflow — every step, skill, and document explained, plus the detail
 After Quick start, grant yourself admin access so you can use the admin shell:
 
 1. Start the dev server and sign up at [http://localhost:3000/auth/sign-up](http://localhost:3000/auth/sign-up).
-2. Add `SUPABASE_SECRET_KEY` to `.env.local` (from [Project Settings → API](https://app.supabase.com/project/_/settings/api) → **API Keys** → **secret key**, `sb_secret_...`). Never commit this key or use a `NEXT_PUBLIC_*` prefix.
+2. Add `SUPABASE_SECRET_KEY` to `.env.local` (from [Project Settings → API](https://app.supabase.com/project/_/settings/api) → **API Keys** → **secret key**, `sb_secret_...`):
 
-   > **Note:** Supabase's **secret key** replaces the legacy **service role** key. This repo uses `SUPABASE_SECRET_KEY` — not `SUPABASE_SERVICE_ROLE_KEY`. The legacy JWT under "Legacy API keys" still works during Supabase's migration period, but prefer the secret key from **API Keys**.
+   > [!WARNING]
+   > **Never commit `SUPABASE_SECRET_KEY` or use a `NEXT_PUBLIC_*` prefix.** Supabase's **secret key** replaces the legacy **service role** key. This repo uses `SUPABASE_SECRET_KEY` — not `SUPABASE_SERVICE_ROLE_KEY`. The legacy JWT under "Legacy API keys" still works during Supabase's migration period, but prefer the secret key from **API Keys**.
+
 3. Grant yourself admin access — either:
 
-   - **CLI (bootstrap):** promote your account:
+    - **CLI (bootstrap):** promote your account:
 
-   ```bash
-   pnpm promote-admin your@email.com
-   ```
+      ```bash
+      pnpm promote-admin your@email.com
+      ```
 
-   The CLI prints the target Supabase project URL and asks for confirmation before acting. `SUPABASE_SECRET_KEY` is required for CLI commands only.
+    The CLI prints the target Supabase project URL and asks for confirmation before acting. `SUPABASE_SECRET_KEY` is required for CLI commands only.
 
-   - **In-app (once an admin exists):** another admin promotes you from `/admin/users`
+    - **In-app (once an admin exists):** another admin promotes you from `/admin/users`
 
 4. **Re-login** if you were already signed in — the admin role is embedded in the JWT and won't appear until you start a fresh session.
 
@@ -130,7 +134,8 @@ Companion CLI commands (bootstrap / automation): `pnpm demote-admin <email>`, `p
 
 ## Starting your own product
 
-Once the template runs locally, turn it into *your* project — don't hand-edit Seminova's identity out; the workflow does it for you:
+> [!IMPORTANT]
+> **Don't hand-edit Seminova's identity out of the repo.** Once the template runs locally, turn it into *your* project through the workflow below — find-and-replace skips files the scrub pass handles and misses ones it doesn't.
 
 1. **Set up the workflow** (one-time): [docs/WORKFLOW_SETUP.md](docs/WORKFLOW_SETUP.md) connects Claude Desktop to the repo and installs the planning skills.
 2. **Run project kickoff** (Claude, `project-kickoff`): a structured session that captures your project's identity and roadmap, then writes `ROADMAP.md`, `site.ts`, this README, and `LEXICON.md`.
@@ -138,7 +143,7 @@ Once the template runs locally, turn it into *your* project — don't hand-edit 
 
 After that, the repo is a real project, not a template copy — and the phase-by-phase build loop in [docs/WORKFLOW_GUIDE.md](docs/WORKFLOW_GUIDE.md) takes over.
 
-**Re-skinning:** colors, type, and radius are per-product by design. [DESIGN.md](DESIGN.md) documents the token architecture and re-skin workflow. Landing page hero, features, and tech-stack copy live in [`src/config/landing-content.ts`](src/config/landing-content.ts); app name, logo, and nav/social links in [`src/config/site.ts`](src/config/site.ts). Replace social preview images at [`src/app/opengraph-image.png`](src/app/opengraph-image.png) and [`src/app/twitter-image.png`](src/app/twitter-image.png) (Next.js metadata file convention).
+**Re-skinning:** colors, type, and radius are per-product by design. [DESIGN.md](DESIGN.md) documents the token architecture and re-skin workflow. Landing page hero, features, and tech-stack copy live in [`src/config/landing-content.ts`](src/config/landing-content.ts); app name, logo, and nav/social links in [`src/config/site.ts`](src/config/site.ts). Social preview images are generated dynamically via [`src/utils/og-image.tsx`](src/utils/og-image.tsx) and per-route `opengraph-image.tsx` files — update the template colors (mirroring `globals.css` light tokens) and font at [`src/assets/fonts/Inter-SemiBold.ttf`](src/assets/fonts/Inter-SemiBold.ttf); copy [`src/app/auth/login/opengraph-image.tsx`](src/app/auth/login/opengraph-image.tsx) for new routes.
 
 ---
 
@@ -173,6 +178,7 @@ After that, the repo is a real project, not a template copy — and the phase-by
 | `pnpm test:file` | Run one test file or pattern (`pnpm test:file -- <path>`) |
 | `pnpm test:ci` | Vitest run once with coverage gates (CI / agents) |
 | `pnpm pre-push` | Full local CI mirror (type-check → hard-constraint checks → lint → format-check → test:ci) |
+| `pnpm check:seo-base-url` | SEO base-URL centralization (hard constraint) |
 | `pnpm test:ui` | Vitest UI |
 | `pnpm analyze` | Bundle analyzer |
 | `pnpm promote-admin <email>` | Grant admin role via CLI (requires secret key; bootstrap / automation) |
@@ -222,7 +228,7 @@ See [AGENTS.md](AGENTS.md) and [`.cursor/rules/do-migrations-agent.mdc`](.cursor
 
 **Pre-push** (Husky): `pnpm pre-push` — type-check → hard-constraint checks → lint → format-check → `test:ci` (with 80% coverage thresholds). Mirrors CI exactly.
 
-**CI** (pull requests to `main`): same order as pre-push (`check:pnpm-only`, `check:no-shadcn-pkg`, `check:semantic-tokens` before lint). See [.github/workflows/pull-request.yaml](.github/workflows/pull-request.yaml).
+**CI** (pull requests to `main`): same order as pre-push (`check:pnpm-only`, `check:no-shadcn-pkg`, `check:semantic-tokens`, `check:seo-base-url` before lint). See [.github/workflows/pull-request.yaml](.github/workflows/pull-request.yaml).
 
 Before opening a PR, run locally:
 

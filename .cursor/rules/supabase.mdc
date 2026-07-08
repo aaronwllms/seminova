@@ -132,8 +132,7 @@ import { updateSession } from '@/supabase/proxy'
 
 ### Load Testing & Monitoring
 - Test migrations in staging before production
-- Monitor slow queries in Supabase Dashboard
-- Contact support 48h before anticipated traffic spikes
+- Monitor slow queries in [Supabase Dashboard](https://supabase.com/dashboard) — see Supabase ops docs for backups, PITR, and capacity planning
 
 ## Code Organization Patterns
 
@@ -194,22 +193,3 @@ When a shared service layer is introduced, add `src/services/` and update this r
 - **Mocks**: Fast unit tests, component tests, isolated logic
 - **Local Supabase**: Integration tests, migration validation, RLS testing, E2E tests
 - Mock Supabase client by returning objects with chainable methods that resolve to `{ data, error }`
-
-## Production Operations
-
-### Monitoring
-- Monitor slow queries in Supabase Dashboard (Query Performance tab)
-- Set up alerts for connection pool exhaustion
-- Track API response times with Vercel Analytics
-- Review and optimize query patterns regularly
-
-### Backup & Recovery
-- Supabase provides daily automatic backups
-- Enable Point-in-Time Recovery (PITR) for production databases
-- Test restore procedures in staging
-- Document recovery runbook
-
-### Capacity Planning
-- Monitor database size and connection usage
-- Plan upgrades proactively based on growth trends
-- Contact Supabase support 48h before anticipated traffic spikes

@@ -15,7 +15,7 @@ const toUrlPath = (segments: string[]): string => {
 }
 
 /**
- * Discover App Router URL paths from page.tsx and route.ts files under src/app/.
+ * Discover App Router URL paths from page.tsx and route.ts files under a directory.
  * Route groups (parenthesized folders) contribute no URL segment.
  */
 export const discoverAppRoutes = (appDir: string): string[] => {
@@ -45,6 +45,10 @@ export const discoverAppRoutes = (appDir: string): string[] => {
   walk(appDir, [])
   return [...routes].sort()
 }
+
+/** Indexable marketing routes under the (marketing) route group. */
+export const discoverMarketingRoutes = (appDir: string): string[] =>
+  discoverAppRoutes(join(appDir, '(marketing)'))
 
 export const isPublicAppRoute = (pathname: string): boolean =>
   pathname === '/' || pathname.startsWith('/auth/')

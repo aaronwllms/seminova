@@ -55,4 +55,8 @@ export const getSiteMetadata = (metadataBase: URL): Metadata => ({
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
+  openGraph: {
+    title: siteConfig.name,
+    description: siteConfig.description,
+  },
 })

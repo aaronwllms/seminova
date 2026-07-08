@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
 import { ErrorPanel } from '@/components/error-panel'
@@ -6,6 +7,10 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { getCurrentUserProfile } from '@/app/(app)/_lib/get-current-user-profile'
 
 import { ProfilePageClient } from './_components/profile-page-client'
+
+export const metadata: Metadata = {
+  title: 'Profile',
+}
 
 const ProfilePageSkeleton = () => (
   <div className="flex w-full flex-col gap-8">

@@ -24,7 +24,7 @@ is in flight, the file lives in `docs/prds/`.
 3. **Active** — `phase-planning` flips to `Active` when the build starts. Only
    one phase should be `Active` at a time in practice.
 4. **Shipped** — `ship-phase` flips the PRD and ROADMAP row to `Shipped` in the
-   same pass, **moves the file to `docs/prds/archive/`**, and updates the
+   same pass, **moves the file to [archive/](archive/)**, and updates the
    ROADMAP PRD column to the archived path.
 
 ## What a PRD is — and isn't
@@ -33,7 +33,7 @@ is in flight, the file lives in `docs/prds/`.
   outcome that proves the phase worked.
 - **No file paths, no code snippets.** They go stale fast and turn a forward spec
   into a brittle as-built record — the exact lifecycle-mixing this restructure
-  exists to kill. As-built truth lives in `AGENTS.md`; history lives in the
+  exists to kill. As-built truth lives in [AGENTS.md](../../AGENTS.md); history lives in the
   frozen archive.
 - Epics and stories are added by `phase-planning` when the PRD goes `Ready` —
   that skill owns their shape (vertical slice + success condition + epic sizing).
@@ -50,7 +50,7 @@ Two valid approaches — the skill supports both:
 
 ## Where PRDs sit in the flow
 
-`ROADMAP.md` holds **thin** phase stubs — the planning horizon. A phase is
+[ROADMAP.md](../../ROADMAP.md) holds **thin** phase stubs — the planning horizon. A phase is
 grilled into a PRD only **when it's its turn** (or when deliberately planning
 ahead). Grilling is most accurate close to the work, so PRDs should not be
 front-loaded speculatively.

@@ -1,0 +1,80 @@
+---
+description: SEO metadata wire-up, crawler surface, social previews, and content standards for App Router routes
+globs:
+  - 'src/app/**/*.ts'
+  - 'src/app/**/*.tsx'
+  - 'src/config/site.ts'
+  - 'src/utils/site-url.ts'
+  - 'src/utils/robots-policy.ts'
+  - 'src/utils/sitemap-routes.ts'
+  - 'src/utils/structured-data.ts'
+  - 'src/utils/og-image.tsx'
+  - 'src/utils/discover-app-routes.ts'
+  - 'src/utils/proxy-matcher.ts'
+alwaysApply: false
+---
+
+# SEO Conventions
+
+Metadata defaults, crawler policy, structured data, and social-preview patterns for this template. Semantic HTML, heading order, and alt text live in `ui-accessibility.mdc`. SSR, `next/image`, and metadata API mechanics live in `nextjs.mdc`. Auth boundary and route groups: `AGENTS.md`, `LEXICON.md`.
+
+**Hard constraint (enforced):** never hardcode `http://localhost:3000`, read `NEXT_PUBLIC_SITE_URL` outside the resolver, or construct `new URL()` with a literal origin — see AGENTS.md § Hard constraints (`check:seo-base-url`). Bare-string absolute canonicals are guidance-only (canonical discipline below).
+
+## Metadata source of truth
+
+- Site-wide defaults: [`src/config/site.ts`](../../src/config/site.ts) (`getSiteMetadata`) — name, title template, description, root Open Graph defaults.
+- Root wire-up: [`src/app/layout.tsx`](../../src/app/layout.tsx) calls `getSiteMetadata(getSiteUrl())`.
+- Per-page overrides: export `metadata` or `generateMetadata` on the page/layout; inherit the title template from root.
+
+## Base URL
+
+[`src/utils/site-url.ts`](../../src/utils/site-url.ts) is the **only** resolver for `NEXT_PUBLIC_SITE_URL`, `VERCEL_URL`, and the `http://localhost:3000` dev fallback.
+
+- Absolute URLs (sitemap, robots sitemap ref, JSON-LD, OG metadata base): `getSiteUrl()` or `metadataBase` from root layout.
+- Relative canonicals (e.g. `alternates: { canonical: '/' }`) resolve against `metadataBase` — preferred over hardcoded absolute origins.
+- External product links (GitHub, docs) may stay bare literals; they are not site-base URLs.
+
+## Per-surface indexing
+
+| Surface | Policy | Layout |
+| ------- | ------ | ------ |
+| Marketing `(marketing)` | Indexable | Landing page sets canonical |
+| Auth `/auth/**` | `noindex` | [`src/app/auth/layout.tsx`](../../src/app/auth/layout.tsx) |
+| App `(app)` | `noindex` | [`src/app/(app)/layout.tsx`](../../src/app/(app)/layout.tsx) |
+| Admin `/admin/**` | `noindex` | [`src/app/admin/layout.tsx`](../../src/app/admin/layout.tsx) |
+
+Defense-in-depth on top of the auth proxy — a route accidentally made public cannot leak into an index.
+
+## Crawler surface
+
+- **Robots:** [`src/utils/robots-policy.ts`](../../src/utils/robots-policy.ts) + [`src/app/robots.ts`](../../src/app/robots.ts) — retrieval/user-fetch bots allowed; training crawlers (GPTBot, ClaudeBot, CCBot, Google-Extended, Applebot-Extended) blocked by default. **Review training-consent per product** — the commented reference bot roster in the policy file is the edit surface when a spinoff reverses the default.
+- **Sitemap:** [`src/utils/sitemap-routes.ts`](../../src/utils/sitemap-routes.ts) via [`discoverMarketingRoutes()`](../../src/utils/discover-app-routes.ts) — `(marketing)` routes only; auth/app/admin never listed.
+
+## Structured data
+
+[`src/utils/structured-data.ts`](../../src/utils/structured-data.ts) — `Organization` + `WebSite` JSON-LD on the landing page ([`src/app/(marketing)/page.tsx`](../../src/app/(marketing)/page.tsx)). Extend the helper for new schema types; do not inline JSON-LD on pages.
+
+## Social preview images
+
+- Shared template: [`src/utils/og-image.tsx`](../../src/utils/og-image.tsx) (`createOgImageResponse`).
+- Per-route segment files: `opengraph-image.tsx` (e.g. root + [`src/app/auth/login/opengraph-image.tsx`](../../src/app/auth/login/opengraph-image.tsx)). New public routes add their own segment file; title/description come from page metadata + site config.
+- OG/twitter image paths bypass auth via [`src/utils/proxy-matcher.ts`](../../src/utils/proxy-matcher.ts) — keep in sync with [`proxy.ts`](../../proxy.ts).
+
+## Content standards (guidance)
+
+- **Unique title + description** on every page — auth screens already export per-page titles; follow that pattern.
+- **Answer-first structure** — lead with the user's question or need, then detail.
+- **Canonical discipline** — one self-referential canonical per indexable page; no duplicate indexable URLs; prefer relative paths resolved via `metadataBase`.
+
+## New public page checklist
+
+- [ ] `metadata` export with intentional title and description
+- [ ] Route group correct for indexing (`(marketing)` = indexable; others inherit `noindex` from layout)
+- [ ] `opengraph-image.tsx` if the page is public marketing surface
+- [ ] Sitemap auto-includes new `(marketing)` routes via discovery — no manual sitemap edit unless discovery rules change
+- [ ] JSON-LD only at landing level unless extending `structured-data.ts` for a new schema type
+
+## Cross-references
+
+- See `ui-accessibility.mdc` for semantic HTML, heading hierarchy, and alt text
+- See `nextjs.mdc` for SSR, `next/image`, and metadata API usage

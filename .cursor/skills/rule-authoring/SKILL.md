@@ -38,6 +38,15 @@ length alone has not been shown to reduce rule compliance.
 
 ## Signal-to-noise
 
+**The no-op test** — a **no-op** is a line the agent already obeys by
+default, so you pay context cost to say nothing. The test: does the line
+change behaviour versus the default? Run it on every sentence in
+isolation; when one fails, delete the whole sentence rather than trim
+words from it. A line can be project-specific and true and still fail —
+"be thoughtful about RLS policies" changes no behaviour; "every table gets
+an RLS policy in the same migration that creates it" does. The Keep/Cut
+lists below are the common instances.
+
 **Keep:** project-specific patterns and configs, unique setup/workflow
 requirements, safety protocols, anti-pattern warnings stated as principles,
 file paths to reference implementations, version numbers where behavior is
@@ -61,7 +70,31 @@ Generic anti-patterns (N+1 queries) don't need justification; "avoid Edge
 Functions to prevent vendor lock-in" does, because the reason is local to
 this project.
 
+## Leading words
+
+A **leading word** is a compact pretrained concept the agent thinks with
+while applying the rule — one word that carries what a sentence would
+otherwise spell out. Two uses:
+
+- **Collapse restatements.** A quality restated across a rule ("fast,
+  deterministic, low-overhead") collapses into one pretrained word (a
+  _tight_ loop). Assume every rule is carrying restatements that leading
+  words retire — go find them.
+- **Put the operative word first.** "Never commit directly to `main`", not
+  "It's important to remember that committing directly to `main` should be
+  avoided." The first word should signal whether the line is a command, a
+  prohibition, or context.
+
+A weak leading word is itself a **no-op** (_be thorough_ when the agent is
+already thorough-ish); the fix is a stronger word (_relentless_), not a
+different technique.
+
 ## Single ownership
+
+This is the **single source of truth** principle applied to the rules
+directory — each meaning lives in one authoritative place, so changing the
+behaviour is a one-place edit; the same meaning in more than one place is
+**duplication**.
 
 Each concern has exactly one primary-owner file; every other rule
 cross-references it rather than repeating it ("See `error-handling.mdc` for
@@ -77,6 +110,7 @@ text lives in AGENTS.md plus its enforcement code; `.mdc` files carry guidance.
 | Supabase tools | `supabase.mdc` | Cross-ref from `security.mdc` |
 | Test writing | `testing.mdc` | Security testing lives in `security.mdc` |
 | Error patterns | `error-handling.mdc` | Cross-ref from everywhere |
+| SEO wire-up + content standards | `seo.mdc` | Hard constraint text in AGENTS.md; cross-ref from `nextjs.mdc` |
 
 *This table is the highest-churn content in this file — it hardcodes
 filenames that can be renamed or split. Verify it against the actual
@@ -115,8 +149,13 @@ exceptions with reasoning inline.
 ## Deprecation
 
 Mark retired patterns `⚠️ DEPRECATED (YYYY-MM)` with a migration path to the
-replacement. Remove once all code has migrated — don't let deprecated
-guidance accumulate as sediment.
+replacement. Remove once all code has migrated.
+
+**Sediment** — stale layers that settle because adding feels safe and
+removing feels risky — is the default fate of any rule without a pruning
+discipline, and it isn't confined to deprecated blocks: a still-true line
+whose reason has left the codebase is sediment too. Flag it anywhere it
+appears.
 
 ## Creating a new rule
 
@@ -137,6 +176,8 @@ through this checklist:
       even where the topics don't overlap enough to trip the duplication
       check?
 - [ ] Does it contradict itself anywhere in its own body?
+- [ ] Does every line pass the no-op test — would deleting it change the
+      agent's behaviour?
 
 **Before adding a code example:** is the pattern unique to this project?
 Could a file reference replace it? Does showing code add value over

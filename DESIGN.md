@@ -1,8 +1,8 @@
 # Seminova — Design System
 
-**Purpose:** Document the token architecture, the structure-vs-theme split, and how to re-skin the template for a new product. For agents: read this for design-system conventions; token **values** live only in [`src/app/globals.css`](src/app/globals.css). For repo truth and hard constraints, see [AGENTS.md](AGENTS.md). For roadmap, see [ROADMAP.md](ROADMAP.md); for active-phase design scope, see [docs/prds/](docs/prds/).
+**Purpose:** Document the token architecture, the structure-vs-theme split, and how to re-skin the template for a new product. For agents: read this for design-system conventions. For repo truth and hard constraints, see [AGENTS.md](AGENTS.md). For roadmap, see [ROADMAP.md](ROADMAP.md); for active-phase design scope, see [docs/prds/](docs/prds/).
 
-**Last updated:** 2026-06-18
+**Last updated:** 2026-07-07
 
 ---
 
@@ -17,7 +17,7 @@
 | [docs/prds/](docs/prds/)                                           | Active-phase forward intent (design work in flight)                        |
 | [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md) | Frozen pre-restructure phase history                                       |
 
-This file names tokens and explains the system. It does **not** duplicate oklch/hsl values from `globals.css` — that file is the single source of truth for values.
+This file names tokens and explains the system — not individual oklch/hsl values (see [Authoritative source](#authoritative-source)).
 
 ---
 
@@ -104,11 +104,11 @@ Token **names** below. Values: see `globals.css` only.
 
 ### Typography
 
-| CSS variable   | Tailwind utility | Loaded via                                                        |
-| -------------- | ---------------- | ----------------------------------------------------------------- |
-| `--font-sans`  | `font-sans`      | Inter — `next/font` in [`src/app/layout.tsx`](src/app/layout.tsx) |
-| `--font-serif` | `font-serif`     | Merriweather — CSS fallback only (not `next/font` today)          |
-| `--font-mono`  | `font-mono`      | JetBrains Mono — `next/font` in `layout.tsx`                      |
+| CSS variable   | Tailwind utility | Loaded via                                                                 |
+| -------------- | ---------------- | -------------------------------------------------------------------------- |
+| `--font-sans`  | `font-sans`      | Inter — `next/font` in [`src/app/layout.tsx`](src/app/layout.tsx)          |
+| `--font-serif` | `font-serif`     | Merriweather — CSS fallback only (not `next/font` today)                   |
+| `--font-mono`  | `font-mono`      | JetBrains Mono — `next/font` in [`src/app/layout.tsx`](src/app/layout.tsx) |
 
 Body uses `font-sans antialiased`. Mono stacks apply to code blocks and `font-mono` utilities.
 
@@ -136,7 +136,7 @@ Body uses `font-sans antialiased`. Mono stacks apply to code blocks and `font-mo
 
 ## Dark mode
 
-- [`next-themes`](https://github.com/pacocoursey/next-themes) `ThemeProvider` in `layout.tsx` uses `attribute="class"` and `defaultTheme="system"`.
+- [`next-themes`](https://github.com/pacocoursey/next-themes) `ThemeProvider` in [`src/app/layout.tsx`](src/app/layout.tsx) uses `attribute="class"` and `defaultTheme="system"`.
 - Toggling theme adds/removes `.dark` on the document; the `.dark` block in `globals.css` swaps token values.
 - Prefer semantic utilities over manual `dark:` color classes — shadcn components inherit automatically.
 
@@ -148,7 +148,7 @@ Body uses `font-sans antialiased`. Mono stacks apply to code blocks and `font-mo
 
 - Use semantic Tailwind utilities for themeable color: `bg-background`, `text-primary`, `border-border`, `text-destructive`.
 - Use `role="alert"` with `text-destructive` for inline form errors (see auth forms under `src/components/`).
-- Pass CSS variables to third-party color props: `color="var(--primary)"` (see `NextTopLoader` in `layout.tsx`).
+- Pass CSS variables to third-party color props: `color="var(--primary)"` (see `NextTopLoader` in [`src/app/layout.tsx`](src/app/layout.tsx)).
 - Use `focus-visible:ring-ring` and token-based rings for keyboard focus.
 
 ### Don't
@@ -165,7 +165,7 @@ For full hard-constraint wording, see [AGENTS.md › Hard constraints](AGENTS.md
 
 Seminova ships **tweakcn Clean Slate** as the default theme:
 
-- **Provenance:** [https://tweakcn.com/r/themes/clean-slate.json](https://tweakcn.com/r/themes/clean-slate.json)
+- **Provenance:** [tweakcn Clean Slate theme export](https://tweakcn.com/r/themes/clean-slate.json)
 - **Character:** Indigo primary; cool slate-tinted neutrals; Inter / Merriweather / JetBrains Mono type stack.
 - **shadcn CLI metadata:** `components.json` uses `"baseColor": "slate"` to align CLI defaults with the cool-hue neutrals (CSS tokens remain authoritative).
 
@@ -181,7 +181,7 @@ When forking Seminova for a new product, change **theme values only** — preser
    - Replace color, font, shadow, radius, and spacing **values**.
    - **Preserve** the `@theme inline` block structure and Seminova-only tokens (`radius-2xl`–`radius-4xl`).
    - Do not duplicate `@import`, `@custom-variant`, or `@layer base` from the export.
-4. **Update fonts** in `src/app/layout.tsx` if families change — wire new `next/font` loaders and update `--font-*` references in globals.
+4. **Update fonts** in `src/app/layout.tsx` if families change — wire new `next/font` loaders and update `--font-*` references in globals. Replace [`src/assets/fonts/Inter-SemiBold.ttf`](src/assets/fonts/Inter-SemiBold.ttf) if social preview images should match the new typeface (see [`src/utils/og-image.tsx`](src/utils/og-image.tsx)).
 5. **Update `components.json`** `baseColor` if the neutral hue family changes (slate vs neutral vs zinc, etc.).
 6. **Audit `src/`** for hardcoded colors:
 
@@ -200,7 +200,8 @@ Phase 7 will add a dedicated theme-regeneration skill; until then, this manual w
 
 ## Authoritative source
 
-All token **values** live in [`src/app/globals.css`](src/app/globals.css). When documentation and CSS disagree, trust the CSS. Update this file when architecture or workflow changes — not when tweaking individual oklch values.
+> [!IMPORTANT]
+> All token **values** live in [`src/app/globals.css`](src/app/globals.css). When documentation and CSS disagree, trust the CSS. Update this file when architecture or workflow changes — not when tweaking individual oklch values.
 
 ---
 
