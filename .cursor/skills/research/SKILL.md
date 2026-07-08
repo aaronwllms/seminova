@@ -23,40 +23,9 @@ not run file writes in Ask mode.
 - **Audit skills** (`audit-tech-debt`, `audit-security`, etc.) — repo health
   artifacts at repo root, not exploratory briefs
 - **`plan-next-epic`** — implementation planning from an active PRD
+- **`archive-research`** — retires served briefs to `docs/research/archive/`
+  (PM @-attached files only; frozen)
 - **`sync-repo-docs`** — mirrors shipped code into AGENTS.md / README
-
----
-
-## Mode gate (first step — halt if unclear)
-
-Determine mode from the user's request. If mode is ambiguous, ask once:
-
-> Document (default) — save findings to `docs/research/`  
-> Chat — findings in chat only, no new file
-
-| Mode | Triggers | Output |
-| ---- | -------- | ------ |
-| **Document** (default) | unspecified, "save", "document" | File in `docs/research/` + short chat summary |
-| **Chat** | "chat only", "don't save", "ephemeral" | Chat only unless reroute rules apply |
-
-Also collect if missing: the **research question** and optional **type(s)**
-(product / technical / competitive / codebase).
-
----
-
-## Reroute rule (Chat mode)
-
-After scanning `docs/research/` for topic matches (titles + opening
-paragraphs):
-
-| Match state | Action |
-| ----------- | ------ |
-| **Stale** matching doc exists | Switch to **Document** mode; refresh that file in place; announce reroute in one line |
-| **Fresh** matching doc exists | Summarize from the file in chat — no duplicate research |
-| **No match** | Chat only; offer once to persist if findings seem durable |
-
-**Staleness:** `**Researched:**` date more than six months ago (see
-[`docs/research/README.md`](../../../docs/research/README.md)).
 
 ---
 
@@ -66,15 +35,27 @@ paragraphs):
 Research progress:
 - [ ] Step 1: Mode gate + collect question and type(s)
 - [ ] Step 2: Read context (AGENTS.md, active PRD if phase-related)
-- [ ] Step 3: Scan docs/research/ for matches; apply reroute if Chat mode
+- [ ] Step 3: Scan active docs/research/ for matches; apply reroute if Chat mode
 - [ ] Step 4: Research (codebase, web, optional Task subagents)
 - [ ] Step 5: Write or refresh brief (Document) or deliver chat summary
-- [ ] Step 6: Close-out — path, staleness note, optional downstream links
+- [ ] Step 6: Close-out — path, refresh vs new, optional downstream links
 ```
 
-### Step 1 — Mode gate
+### Step 1 — Mode gate (halt if unclear)
 
-Resolve mode and question before any research. Stop if mode is unclear.
+Determine mode from the user's request. If mode is ambiguous, ask once:
+
+> Document (default) — save findings to `docs/research/`  
+> Chat — findings in chat only, no new file
+
+| Mode | Triggers | Output |
+| ---- | -------- | ------ |
+| **Document** (default) | unspecified, "save", "document" | File in `docs/research/` + short chat summary |
+| **Chat** | "chat only", "don't save", "ephemeral" | Chat only unless rerouted in Step 3 |
+
+Also collect if missing: the **research question** and optional **type(s)**
+(product / technical / competitive / codebase). Done when mode and question
+are both resolved — no research before that.
 
 ### Step 2 — Read context
 
@@ -86,12 +67,27 @@ When the question touches the current build phase:
 
 ### Step 3 — Scan existing briefs
 
-List and read [`docs/research/`](../../../docs/research/) — match on title,
-slug, and opening paragraphs (Question section). Determine fresh vs stale per
-the six-month rule.
+List and read **active** briefs in [`docs/research/`](../../../docs/research/)
+only — **exclude** [`docs/research/archive/`](../../../docs/research/archive/).
+Match on title, slug, and opening paragraphs (Question section). Determine
+fresh vs stale per the staleness rule in
+[`docs/research/README.md`](../../../docs/research/README.md).
 
-Assign the next `RESEARCH-NNNN` number only when creating a **new** file (highest
-existing number + 1, zero-padded).
+Archived briefs are frozen; never refresh or match against
+`docs/research/archive/`.
+
+**Reroute (Chat mode only):**
+
+| Match state | Action |
+| ----------- | ------ |
+| **Stale** matching doc exists | Switch to **Document** mode; refresh that file in place; announce reroute in one line |
+| **Fresh** matching doc exists | Summarize from the file in chat — no duplicate research |
+| **No match** | Chat only; offer once to persist if findings seem durable |
+
+When creating a **new** file, assign the next `RESEARCH-NNNN` per
+[README › Numbering & filenames](../../../docs/research/README.md#numbering--filenames)
+— scan **both** active `docs/research/` and `docs/research/archive/` for the
+highest existing number.
 
 ### Step 4 — Research
 
@@ -103,9 +99,12 @@ existing number + 1, zero-padded).
 **Hard boundary:** never edit product code, migrations, or config. This skill is
 docs-only.
 
+Done when every aspect of the research question has either an evidence-backed
+finding or an explicit entry under Open questions — nothing silently dropped.
+
 ### Step 5 — Write or deliver
 
-**Document mode** — write or refresh per
+**Document mode** — write or refresh per the
 [`docs/research/README.md`](../../../docs/research/README.md) template. Refresh
 stale briefs in place (same filename, bump `**Researched:**` date).
 
@@ -118,16 +117,6 @@ Report:
 - Path written (Document) or chat-only confirmation (Chat)
 - Whether an existing brief was refreshed vs newly created
 - Optional downstream suggestions (ROADMAP open question, PRD section, ADR) —
-  never required
+  suggest only; never create them unless the user explicitly asks
 
 Do **not** commit unless the user asks.
-
----
-
-## Anti-patterns
-
-- Do not edit product code, migrations, or config
-- Do not create ADRs or PRD sections unless the user explicitly asks
-- Do not duplicate research when a fresh matching brief exists
-- Do not leave a stale brief unrefreshed when Document mode or reroute applies
-- Do not seed example `RESEARCH-*.md` files in the template — README only

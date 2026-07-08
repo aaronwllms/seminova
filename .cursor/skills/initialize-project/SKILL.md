@@ -26,7 +26,7 @@ Before scrubbing, check all nine of this skill's outputs for whether they're alr
 - **`docs/WORKFLOW_BACKLOG.md`** — "Deferred items" section matches the stub placeholder (no real entries)
 - **`.mockups/`** — empty
 - **`docs/archive/`** — empty
-- **`docs/research/`** — contains only `README.md` (no `RESEARCH-*.md`)
+- **`docs/research/`** — active dir contains only `README.md` (no `RESEARCH-*.md`); `docs/research/archive/` has no `RESEARCH-*.md` (`.gitkeep` alone is OK)
 - **`CONTRIBUTING.md`** — absent (the file ships with every template clone; its absence means the scrub deleted it)
 
 Bucket on agreement across all nine:
@@ -69,7 +69,8 @@ These are the only sources of truth for identity. Do not ask the user for any of
    - Purge all contents (removes `CONTEXT_ARCHIVE.md`). This is Seminova's frozen pre-restructure history; it has no relevance to the new project.
 
 8. **`docs/research/`**
-   - Delete all `RESEARCH-*.md` files. These are Seminova's own research briefs; they have no relevance to the new project.
+   - Delete all `RESEARCH-*.md` files in the active directory. These are Seminova's own research briefs; they have no relevance to the new project.
+   - Purge all contents of `docs/research/archive/` (Seminova's archived briefs). Preserve an empty `archive/` folder (`.gitkeep` is fine).
    - Preserve `README.md` unchanged — the research mechanism itself is part of what every spinoff inherits, just empty until the new project writes its first brief.
 
 9. **`CONTRIBUTING.md`**

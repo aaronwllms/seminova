@@ -13,7 +13,7 @@ docs/
   DOC_RULES.md         # doc-maintenance procedure + authoritative document roles
   WORKFLOW_BACKLOG.md  # permanently deferred workflow items
   adr/                 # Architecture Decision Records (immutable history)
-  research/            # exploratory research briefs (revisable)
+  research/            # exploratory research briefs (revisable; archive/ frozen)
   prds/                # one PRD per phase (forward intent)
   archive/             # frozen pre-restructure history — closed
 ```
@@ -24,4 +24,4 @@ docs/
 - An exploratory research brief → `docs/research/`. See [research/README.md](mdc:docs/research/README.md).
 - Anything about *how docs are maintained* (write discipline, phase-ship procedure, roles) is governed by [DOC_RULES.md](mdc:docs/DOC_RULES.md) — read it before restructuring docs.
 ## Archiving
-`docs/archive/` is **closed** — it holds frozen pre-restructure history only. Never add to it, never edit it, and never move shipped PRDs into it. Shipped PRDs move to `docs/prds/archive/` when the phase ships. The archive policy is owned by [DOC_RULES.md](mdc:docs/DOC_RULES.md).
+`docs/archive/` is **closed** — it holds frozen pre-restructure history only. Never add to it, never edit it, and never move shipped PRDs into it. Shipped PRDs move to `docs/prds/archive/` when the phase ships. Served research briefs move to `docs/research/archive/` via `/archive-research` (PM @-attach only). The archive policy is owned by [DOC_RULES.md](mdc:docs/DOC_RULES.md).

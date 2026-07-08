@@ -94,7 +94,7 @@ What `initialize-project` touches:
 - `docs/WORKFLOW_BACKLOG.md` — clears Seminova's deferred workflow items, keeps the stub structure
 - `.mockups/` — purges Seminova's design mockups
 - `docs/archive/` — purges the frozen pre-restructure archive
-- `docs/research/` — deletes Seminova's `RESEARCH-*.md` briefs; keeps `README.md`
+- `docs/research/` — deletes Seminova's active `RESEARCH-*.md` briefs; purges `docs/research/archive/`; keeps `README.md`
 - `CONTRIBUTING.md` — deletes the file; the template's contribution guide doesn't apply to a spinoff product
 
 What it does not touch:
@@ -159,6 +159,8 @@ Not part of the numbered loop above, but operate on the planning docs rather tha
 **`create-mockup`** *(Claude-side)* — builds a static UI mockup as an inline widget, iterates on your feedback, and saves the approved version to `.mockups/`. Invoked ad hoc ("mock up this screen") or by `phase-planning` when a story's UI is worth seeing before build, with the file path written into the story. The static-only rule (mockups, not clickable prototypes) is defined in the skill itself.
 
 **`research`** *(Cursor-side)* — investigates a product, technical, competitive, or codebase question; persists findings to `docs/research/` (Document mode, default) or delivers in chat only (Chat mode). Docs-only — never edits product code. Invoke with `/research`.
+
+**`archive-research`** *(Cursor-side)* — retires served briefs to `docs/research/archive/` when the PM @-attaches one or more active `RESEARCH-*.md` files in the same invocation. @-mention is required. Archived briefs are frozen. Invoke with `/archive-research`.
 
 For repo-maintenance and quality skills (security audits, tech-debt audits, design/copy review, etc.) not specific to the planning system, see [AGENTS.md › Agent skills](../AGENTS.md#agent-skills-cursorskills).
 

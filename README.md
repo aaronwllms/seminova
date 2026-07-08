@@ -215,7 +215,7 @@ See [AGENTS.md](AGENTS.md) and [`.cursor/rules/do-migrations-agent.mdc`](.cursor
 | [docs/WORKFLOW_BACKLOG.md](docs/WORKFLOW_BACKLOG.md) | PM + agents | Deferred workflow-system decisions |
 | [LEXICON.md](LEXICON.md) | PM + agents | Architectural vocabulary |
 | [docs/adr/](docs/adr/) | PM + agents | Architecture Decision Records |
-| [docs/research/](docs/research/) | PM + agents | Exploratory research briefs |
+| [docs/research/](docs/research/) | PM + agents | Exploratory research briefs (`docs/research/archive/` when retired) |
 | [AGENTS.md](AGENTS.md) | Agents | Repo truth — routes, hard constraints, data model |
 | [DESIGN.md](DESIGN.md) | PM + contributors | Token architecture and re-skin workflow |
 | [.cursor/rules/](.cursor/rules/) | Agents | Coding standards and conventions |

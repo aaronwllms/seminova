@@ -1,6 +1,6 @@
 # DOC_RULES — File Management Rules
 
-**Purpose:** Invariant doc-maintenance procedure governing the planning docs ([ROADMAP.md](../ROADMAP.md), the PRDs in [prds/](prds/), and the frozen [archive/](archive/)). This is not project state — it applies to every product built from this template. Governs the planning skills (`phase-planning`, `plan-next-epic`, `mark-epic-complete`, `ship-phase`), the research skill (`research`), and the repo-sync skill (`sync-repo-docs`).
+**Purpose:** Invariant doc-maintenance procedure governing the planning docs ([ROADMAP.md](../ROADMAP.md), the PRDs in [prds/](prds/), and the frozen [archive/](archive/)). This is not project state — it applies to every product built from this template. Governs the planning skills (`phase-planning`, `plan-next-epic`, `mark-epic-complete`, `ship-phase`), the research skills (`research`, `archive-research`), and the repo-sync skill (`sync-repo-docs`).
 
 **Last updated:** 2026-07-08
 
@@ -90,6 +90,8 @@ These rules apply to anyone updating the planning docs — PM or coding agent.
 
 10. **HTML mockups:** save new explorations as `.mockups/*.html`. When a mockup is superseded or tied to a shipped phase, move it to `.mockups/archive/`.
 
-11. **Stub sections and files are intentional.** Empty-by-design structure (e.g. ROADMAP phase stubs, the LEXICON domain-terms stub) is kept so the shape is inherited by every product built from this template. Do not delete stubs. Exception: an individual phase's stub is removed when the phase goes `Active` (rule 2); the **Upcoming phases** section itself always stays.
+11. **Research briefs:** active briefs live in [research/](research/). When a brief has served its purpose, the PM archives it via **[archive-research](../.cursor/skills/archive-research/SKILL.md)** — @-attach the brief(s) in the same invocation. Move to [research/archive/](research/archive/); briefs there are frozen. Procedure in [research/README.md](research/README.md).
 
-12. **Propose WORKFLOW_BACKLOG.md entries when they surface.** When a planning conversation deliberately defers a decision about the workflow/skills/docs system itself — not product scope — propose adding it to [WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md) using its existing entry format (What / Why deferred / Revisit when). Product-roadmap items don't belong here — those go to [ROADMAP.md](../ROADMAP.md) open questions instead.
+12. **Stub sections and files are intentional.** Empty-by-design structure (e.g. ROADMAP phase stubs, the LEXICON domain-terms stub) is kept so the shape is inherited by every product built from this template. Do not delete stubs. Exception: an individual phase's stub is removed when the phase goes `Active` (rule 2); the **Upcoming phases** section itself always stays.
+
+13. **Propose WORKFLOW_BACKLOG.md entries when they surface.** When a planning conversation deliberately defers a decision about the workflow/skills/docs system itself — not product scope — propose adding it to [WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md) using its existing entry format (What / Why deferred / Revisit when). Product-roadmap items don't belong here — those go to [ROADMAP.md](../ROADMAP.md) open questions instead.

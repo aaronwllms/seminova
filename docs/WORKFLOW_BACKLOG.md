@@ -20,7 +20,6 @@
   - [Promote "batch edits, write once" from tip to standing rule](#promote-batch-edits-write-once-from-tip-to-standing-rule)
   - [Workflow Guide visual overview: Mermaid vs. image tradeoff](#workflow-guide-visual-overview-mermaid-vs-image-tradeoff)
   - [Auto-commit after agent coding runs](#auto-commit-after-agent-coding-runs)
-  - [Cursor ignore files (.cursorignore / .cursorindexingignore)](#cursor-ignore-files-cursorignore--cursorindexingignore)
   - [Ad hoc planning workflow (between phases)](#ad-hoc-planning-workflow-between-phases)
   - [Cursor directory scope audit (.cursor/README + guidance drift)](#cursor-directory-scope-audit-cursorreadme--guidance-drift)
   - [Integrate quality skills into the documented workflow](#integrate-quality-skills-into-the-documented-workflow)
@@ -84,14 +83,6 @@
 **Why deferred:** Surfaced as a prerequisite-adjacent need for the planned `code-review` skill, whose clean-tree precondition (dirty tree → stop, ask to commit first) only avoids friction if commits already happen reliably after each run. Not yet investigated.
 
 **Revisit when:** Building or refining the `code-review` skill's clean-tree check, or whenever the manual "did you commit?" step becomes a recurring annoyance.
-
-### Cursor ignore files (.cursorignore / .cursorindexingignore)
-
-**What:** Research Cursor's two ignore mechanisms — [`.cursorignore`](https://cursor.com/docs/reference/ignore-file) (hard block: excluded from indexing, Agent, Tab, and @-mentions) and [`.cursorindexingignore`](https://cursor.com/docs/reference/ignore-file) (soft block: excluded from automatic codebase indexing only; still readable when @-mentioned or dragged in) — then decide whether either belongs in this repo and, if yes, commit a minimal, documented baseline.
-
-**Why deferred:** Spotted in another repo; unclear whether Seminova needs them. Cursor already respects `.gitignore` and ships a large default indexing-exclusion list (lockfiles, `node_modules`, `.next`, binaries, media, etc.), so extra ignore files may be redundant for a repo this size. The wrong `.cursorignore` could also hide things agents need — especially under `.cursor/` (rules, skills, plans) or generated types agents rely on. Worth a deliberate pass, not a copy-paste from elsewhere.
-
-**Revisit when:** Indexing feels slow or noisy (@Codebase returns stale or irrelevant hits), agents repeatedly pull in archived plans or audit artifacts, or before spinning off a new product from the template — that's when ignore policy becomes part of what every fork inherits.
 
 ### Ad hoc planning workflow (between phases)
 

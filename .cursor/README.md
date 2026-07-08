@@ -16,7 +16,7 @@ Portable AI workflow for this repo. **Skills-first** — use `/skill-name` in ch
 | --- | -------- | ---- |
 | [ROADMAP.md](../ROADMAP.md) | PM + agents | Phase status, planning horizon stubs |
 | [docs/prds/](../docs/prds/) | PM + agents | Active-phase build scope (epics/stories) |
-| [docs/research/](../docs/research/) | PM + agents | Exploratory research briefs |
+| [docs/research/](../docs/research/) | PM + agents | Exploratory research briefs (active); [archive/](../docs/research/archive/) when retired |
 | [docs/archive/CONTEXT_ARCHIVE.md](../docs/archive/CONTEXT_ARCHIVE.md) | PM + agents (on demand) | Frozen shipped narratives (read-only) |
 | [AGENTS.md](../AGENTS.md) | Agents | Hard constraints, what's implemented, data model summary |
 
@@ -42,6 +42,17 @@ See [`skills/`](skills/) for full list. Skills with `disable-model-invocation: t
 > [!IMPORTANT]
 > Agents **write SQL files only**. Humans run `pnpm db:push` and `pnpm db:types`. See [`rules/do-migrations-agent.mdc`](rules/do-migrations-agent.mdc).
 
+## Ignore files (repo root)
+
+Two files at the project root control what Cursor indexes and what agents can read. Full rationale: [RESEARCH-0001](../docs/research/RESEARCH-0001-cursor-ignore-files.md).
+
+| File | Role |
+| ---- | ---- |
+| [`.cursorignore`](../.cursorignore) | **Hard block** — secrets (env files, keys, credentials). Blocks Agent, Tab, and @-mentions. `.env.example` is explicitly allowed. |
+| [`.cursorindexingignore`](../.cursorindexingignore) | **Soft block** — archived plans, frozen docs, and archived research briefs. Hidden from @Codebase search; still readable on demand. |
+
+Do not hard-block `.cursor/rules/`, `.cursor/skills/`, or `src/types/database.types.ts`.
+
 ## Copying this folder
 
-When porting to another repo: copy `rules/`, `skills/`, and this README; adapt hard constraints and doc map in AGENTS.md, ROADMAP.md, and [docs/DOC_RULES.md](../docs/DOC_RULES.md) for that product.
+When porting to another repo: copy `rules/`, `skills/`, and this README; keep repo-root [`.cursorignore`](../.cursorignore) and [`.cursorindexingignore`](../.cursorindexingignore) as the template baseline; adapt hard constraints and doc map in AGENTS.md, ROADMAP.md, and [docs/DOC_RULES.md](../docs/DOC_RULES.md) for that product.

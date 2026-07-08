@@ -59,6 +59,7 @@ For the planning-loop skills (`plan-next-epic`, `mark-epic-complete`, `ship-phas
 | `create-migration` | Adding tables, columns, indexes, or RLS policies — writes a correctly-named, RLS-compliant migration file |
 | `archive-cursor-plans` | After a phase ships, or before a planning push — moves completed plans from `.cursor/plans/` to `.cursor/plans/archive/` |
 | `research` | Exploratory investigation (product, technical, competitive, codebase) → `docs/research/` brief or chat-only |
+| `archive-research` | Retires served research briefs to `docs/research/archive/` — @-attach brief(s) in the same invocation |
 
 All skills are read-only or scoped-write as documented in their own `SKILL.md` — see `.cursor/skills/<name>/SKILL.md` for full workflow detail. None auto-invoke except `sync-repo-docs`.
 
@@ -209,7 +210,7 @@ Directory-level map. File-level detail lives in the [Implemented now](#implement
 | `docs/DOC_RULES.md` | Doc roles and maintenance procedure |
 | `docs/prds/` | Per-phase PRDs (`docs/prds/archive/` when shipped) |
 | `docs/adr/` | Architecture Decision Records |
-| `docs/research/` | Exploratory research briefs (`docs/research/README.md`) |
+| `docs/research/` | Exploratory research briefs (`docs/research/README.md`; `docs/research/archive/` when retired) |
 | `DESIGN.md` | Token architecture and re-skin workflow (names only — values in globals.css) |
 | `.cursor/rules/` | Agent coding standards |
 | `.cursor/skills/` | Agent workflows |
