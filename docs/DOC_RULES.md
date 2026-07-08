@@ -2,7 +2,7 @@
 
 **Purpose:** Invariant doc-maintenance procedure governing the planning docs ([ROADMAP.md](../ROADMAP.md), the PRDs in [prds/](prds/), and the frozen [archive/](archive/)). This is not project state — it applies to every product built from this template. Governs the planning skills (`phase-planning`, `plan-next-epic`, `mark-epic-complete`, `ship-phase`) and the repo-sync skill (`sync-repo-docs`).
 
-**Last updated:** 2026-07-07
+**Last updated:** 2026-07-08
 
 ---
 
@@ -57,7 +57,7 @@ These rules apply to anyone updating the planning docs — PM or coding agent.
 
 1. **The active phase's PRD is the source of truth for what is planned but not yet shipped.** The docs must never contradict the repo.
 
-2. **PRD creation and promotion are split by lifecycle stage.** `phase-planning` (Claude-side planning skill) creates the PRD at `Planning` and flips it to `Ready` on PM sign-off, decomposing it into numbered epics and vertical-slice stories at that point. `plan-next-epic` (Cursor-side) flips it to `Active` when it generates the plan for the phase's first epic — the flip precedes the plan so every plan review sees an `Active` phase. Each skill updates the ROADMAP row to match at its transition.
+2. **PRD creation and promotion are split by lifecycle stage.** `phase-planning` (Claude-side planning skill) creates the PRD at `Planning` and flips it to `Ready` on PM sign-off, decomposing it into numbered epics and vertical-slice stories at that point. `plan-next-epic` (Cursor-side) flips it to `Active` when it generates the plan for the phase's first epic — the flip precedes the plan so every plan review sees an `Active` phase. Each skill updates the ROADMAP row to match at its transition. On the same first-epic pass, `plan-next-epic` removes the phase's stub from ROADMAP's **Upcoming phases** section — an `Active` phase's PRD owns its scope, so the stub would drift.
 
 > [!IMPORTANT]
 > **`mark-epic-complete` must never promote** — if an epic is marked `Complete` while its PRD or ROADMAP row reads `Draft`, `Planning`, or `Ready`, halt and report the inconsistency; do not auto-correct.
@@ -88,6 +88,6 @@ These rules apply to anyone updating the planning docs — PM or coding agent.
 
 10. **HTML mockups:** save new explorations as `.mockups/*.html`. When a mockup is superseded or tied to a shipped phase, move it to `.mockups/archive/`.
 
-11. **Stub sections and files are intentional.** Empty-by-design structure (e.g. ROADMAP phase stubs, the LEXICON domain-terms stub) is kept so the shape is inherited by every product built from this template. Do not delete stubs.
+11. **Stub sections and files are intentional.** Empty-by-design structure (e.g. ROADMAP phase stubs, the LEXICON domain-terms stub) is kept so the shape is inherited by every product built from this template. Do not delete stubs. Exception: an individual phase's stub is removed when the phase goes `Active` (rule 2); the **Upcoming phases** section itself always stays.
 
 12. **Propose WORKFLOW_BACKLOG.md entries when they surface.** When a planning conversation deliberately defers a decision about the workflow/skills/docs system itself — not product scope — propose adding it to [WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md) using its existing entry format (What / Why deferred / Revisit when). Product-roadmap items don't belong here — those go to [ROADMAP.md](../ROADMAP.md) open questions instead.

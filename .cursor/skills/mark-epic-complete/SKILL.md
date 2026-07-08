@@ -20,7 +20,7 @@ Only when explicitly instructed by the closing step of an implemented plan (`.cu
 
 1. Open the active phase's PRD in `docs/prds/`. Find the epic heading matching the plan just implemented (`### Epic N: Name`).
 2. Append `` `Complete` `` to that heading: `### Epic N: Name` → `### Epic N: Name \`Complete\``.
-3. **Consistency check:** if the PRD's status OR its ROADMAP row still reads `` `Draft` ``, `` `Planning` ``, or `` `Ready` ``, halt and report the inconsistency — do not change tags. Phase promotion (Ready→Active) is owned by `phase-planning` (see [DOC_RULES.md](../../../docs/DOC_RULES.md) rule 2).
+3. **Consistency check:** if the PRD's status OR its ROADMAP row still reads `` `Draft` ``, `` `Planning` ``, or `` `Ready` ``, halt and report the inconsistency — do not change tags. Phase promotion (Ready→Active) is owned by `plan-next-epic` (see [DOC_RULES.md](../../../docs/DOC_RULES.md) rule 2).
 4. If the PRD carries a **Last updated** line, set it to the current date.
 5. Report: which epic was marked complete; if step 3 halted, report the Draft-tag inconsistency instead of completing.
 
@@ -30,4 +30,4 @@ Only when explicitly instructed by the closing step of an implemented plan (`.cu
 - Do not edit `docs/archive/`.
 - Do not edit AGENTS.md or README.md.
 - Do not infer "complete" from code inspection — only act on explicit instruction from a plan's closing step.
-- Do not promote a phase (flip `Ready` → `Active`) — that is owned by `phase-planning`; halt and report if status is inconsistent (step 3).
+- Do not promote a phase (flip `Ready` → `Active`) — that is owned by `plan-next-epic`; halt and report if status is inconsistent (step 3).
