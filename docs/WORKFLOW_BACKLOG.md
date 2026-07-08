@@ -21,8 +21,8 @@
   - [Workflow Guide visual overview: Mermaid vs. image tradeoff](#workflow-guide-visual-overview-mermaid-vs-image-tradeoff)
   - [Auto-commit after agent coding runs](#auto-commit-after-agent-coding-runs)
   - [Ad hoc planning workflow (between phases)](#ad-hoc-planning-workflow-between-phases)
-  - [Cursor directory scope audit (.cursor/README + guidance drift)](#cursor-directory-scope-audit-cursorreadme--guidance-drift)
   - [Integrate quality skills into the documented workflow](#integrate-quality-skills-into-the-documented-workflow)
+  - [Cursor capability utilization audit](#cursor-capability-utilization-audit)
 
 ---
 
@@ -92,14 +92,6 @@
 
 **Revisit when:** A concrete between-phases task surfaces that doesn't fit the phase loop (e.g. a spike, a workflow improvement, or a research finding that needs a quick build), or when the `research` skill lands and its output needs a defined "what happens next" handoff.
 
-### Cursor directory scope audit (.cursor/README + guidance drift)
-
-**What:** Audit how Cursor is wired in this repo — starting with [`.cursor/README.md`](../.cursor/README.md) as the stated entry point — and decide what belongs inside `.cursor/` vs. elsewhere. [DOC_RULES.md](DOC_RULES.md) says agent guidance lives in `.cursor/` (rules and skills) and should not be duplicated into product code, but repo truth and workflow docs now carry substantial agent-facing content too ([AGENTS.md](../AGENTS.md), [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md), audit artifacts, planning docs). Clarify the intended split: what is portable Cursor config (rules, skills, plans, README), what is product/repo truth that agents read but humans own, and what has drifted or duplicated across boundaries. Update `.cursor/README.md` and cross-links so the layout matches the decision — trim outbound pointers that belong in repo docs, or pull guidance back into `.cursor/` where it should live.
-
-**Why deferred:** The current setup works well enough day to day; this is a hygiene and template-portability pass, not a blocker. The right boundary needs a deliberate read of what's actually loaded by Cursor (rules globs, skills, AGENTS.md as repo truth) vs. what's merely linked from `.cursor/README.md` for convenience.
-
-**Revisit when:** Preparing to fork or export the template to another product, after a noticeable "where does this instruction live?" confusion in a build session, or during a broader docs/workflow cleanup pass where DOC_RULES roles and `.cursor/` layout can be reconciled in one sitting.
-
 ### Integrate quality skills into the documented workflow
 
 **What:** Consider adding the quality/review skills (`pre-release-review`, `code-review`, `audit-tech-debt`, `audit-tests`, `audit-security`, `audit-rules`, etc.) into the workflow as described in [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md) — currently they're only cataloged in [AGENTS.md › Agent skills](../AGENTS.md#agent-skills-cursorskills) and deliberately left out of the numbered phase loop. Extend to [WORKFLOW_SETUP.md](WORKFLOW_SETUP.md) as needed if any setup step is implied.
@@ -107,3 +99,13 @@
 **Why deferred:** The current split (numbered planning loop in WORKFLOW_GUIDE, situational quality skills cataloged in AGENTS.md) was a deliberate choice, not an oversight — revisiting it means deciding whether quality skills should become a first-class step in the loop (e.g. after Step 6 Build, before Step 7 Ship) or stay situational/invoke-by-name. Not a quick doc tweak.
 
 **Revisit when:** Doing a broader pass on WORKFLOW_GUIDE.md's phase loop, or once `code-review` has been run enough times in practice to know whether it belongs as a named step rather than an ad hoc invocation.
+
+### Cursor capability utilization audit
+
+**What:** A full scan of **official Cursor documentation** (product docs, agent best-practices, hooks, skills, rules, subagents, MCP, cloud agents, modes, indexing) against **this repo's actual setup** — rules, skills, plans, agents, ignore files, workflow docs, and how the PM + agents use Cursor day to day. Goal: find places where we're **underutilizing** Cursor — features we could adopt, wire up, or document without fighting the existing workflow. Complements the resolved `.cursor/` scope hygiene pass (thin `.cursor/README.md` router + DOC_RULES audit-artifact row, 2026-07-08); this item is about *what* Cursor can do that we're not using yet.
+
+**Deliverable:** A research brief in `docs/research/` (`RESEARCH-NNNN-cursor-utilization-audit.md`) with: (1) inventory of Cursor capabilities relevant to this template, (2) inventory of what Seminova already uses, (3) gap list ranked by effort vs. payoff, (4) concrete recommendations (adopt now / backlog / skip with reason). Follow-on work may spawn new skills, hooks, rules, workflow-guide updates, or backlog items — but the audit itself is read-only.
+
+**Why deferred:** The current workflow is productive; a utilization pass is optimization, not a blocker. It needs dedicated time to read Cursor docs thoroughly (they evolve quickly) and map them against a repo that has grown substantial `.cursor/` surface area — not a side task during a build.
+
+**Revisit when:** Between phases with a half-day budget for workflow improvement, before forking the template to a new product (so spinoffs inherit current Cursor best practices), or when a specific "could Cursor do this?" question keeps coming up in build sessions.

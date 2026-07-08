@@ -28,6 +28,7 @@ This table is authoritative. [AGENTS.md](../AGENTS.md) carries a one-line pointe
 | **[.cursor/skills/](../.cursor/skills/)** | Agents | User-triggered workflows |
 | **[.cursor/agents/](../.cursor/agents/)** | Agents | Readonly subagent definitions, invoked only by the skills that dispatch them — never directly or automatically |
 | **[.cursor/plans/](../.cursor/plans/)** | In-repo planning | Ephemeral epic plans; evidence of intent, not shipped truth |
+| **Root audit artifacts** (`TECH_DEBT_AUDIT.md`, `TEST_AUDIT.md`, `RULE_AUDIT.md`, `SECURITY_AUDIT.md`) | PM + agents | Regenerated repo-health snapshots from audit skills (`/audit-tech-debt`, `/audit-tests`, `/audit-rules`, `/audit-security`); not shipped product truth |
 | **`.mockups/`** | PM / design | HTML mockup explorations |
 | **`.mockups/archive/`** | PM / design | Superseded or shipped-phase mockups |
 
