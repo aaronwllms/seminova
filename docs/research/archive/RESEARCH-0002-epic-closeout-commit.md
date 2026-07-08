@@ -1,5 +1,7 @@
 # RESEARCH-0002: Epic close-out commit workflow
 
+**Archived:** 2026-07-08
+
 **Researched:** 2026-07-08
 
 **Type:** technical
