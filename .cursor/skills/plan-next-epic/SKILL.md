@@ -47,6 +47,12 @@ Cursor derives the filename from the YAML `name` field. Lead with the **phase + 
 
 Before writing the plan, assess whether this epic has clearly independent tracks with disjoint file ownership. If so, add a note at the top of the generated plan: "This epic is a good candidate for Build in Parallel." Otherwise say nothing — sequential is the default. Either way, write the plan sequentially.
 
+## Decompose stories into plan steps
+
+Stories define **what ships** and **how it's verified**, not build order. The epic lands as a single commit, so the plan must not construct interim states with no consumer outside the executing agent — temporary wiring built for a later story to replace, or test expectations that hold only between stories.
+
+Where stories touch the same file or component, build the end state directly and verify it once. Verification checkpoints (running tests after a risky change before layering more on top) are not interim states.
+
 ## Frame the plan
 
 Open every generated plan with a tracking line at the very top of the body, before the branch precondition below:
