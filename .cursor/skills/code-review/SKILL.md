@@ -108,7 +108,7 @@ End with a one-line summary per axis: verdict, finding count, and the worst issu
 
 Read [`grading.md`](grading.md) — it owns the severity ladder, the verdict function, and the close-out gate. Then:
 
-- **Gate not met** — list exactly what remains: blockers to fix, debt findings still needing a `// debt:` marker at their cited site, spec defects awaiting a PRD edit or a decision, standard defects awaiting a rule edit. Apply the fixes, commit, then re-check the gate.
+- **Gate not met** — list exactly what remains: blockers to fix, debt findings still needing a `// debt:` marker at their cited site, spec defects awaiting resolution, standard defects awaiting a rule edit. Apply the fixes, commit, then re-check the gate.
 - **Gate met** — open a new agent window and run `/mark-epic-complete`. That skill resolves the epic itself and syncs repo docs before stamping the PRD; no separate doc-sync step is needed here.
 
 ## Why two axes

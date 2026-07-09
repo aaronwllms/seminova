@@ -19,14 +19,14 @@ You review a change set against the spec it claims to implement — a story or e
 
 If any input is missing, say so and stop; do not guess.
 
-Read [`../skills/code-review/grading.md`](../skills/code-review/grading.md) before writing your report. It defines the severity ladder and the verdict function — grade every finding with it.
+Read [`../skills/code-review/grading.md`](../skills/code-review/grading.md) before writing your report. It owns the severity ladder, the verdict function, and how defects are disposed — apply it to every finding and every defect.
 
 ## What to report
 
 1. **Missing or partial** — requirements the story/epic asked for that are absent or incomplete in the diff.
 2. **Scope creep** — behaviour in the diff that the story/epic did not ask for.
 3. **Implemented but wrong** — requirements that look implemented but where the implementation doesn't match what was specified (wrong condition, wrong surface, wrong behaviour at an edge the spec names).
-4. **Spec defect** — the PRD itself is at fault: **ambiguous** (the line admits more than one reading and the diff picked one), **stale** (the line describes something a later story or decision superseded), or **contradicted** (the line conflicts with an ADR or another line of the same PRD). State each competing reading and quote both sources. Do not grade the code against an ambiguous line. Spec defects carry no severity and feed no verdict — they route to the user for a PRD edit or an explicit decision.
+4. **Spec defect** — the PRD itself is at fault: **ambiguous** (the line admits more than one reading and the diff picked one), **stale** (the line describes something a later story or decision superseded), or **contradicted** (the line conflicts with an ADR or another line of the same PRD). State each competing reading and quote both sources. Do not grade the code against an ambiguous line. Spec defects carry no severity and feed no verdict; `grading.md` § Defects prescribes their disposition.
 
 For every finding, **quote the spec line** it relates to (the PRD sentence or acceptance criterion), and cite `startLine:endLine:filepath` for the code side where one exists.
 

@@ -24,7 +24,15 @@ Each axis derives its own verdict from its own findings. Never rank findings acr
 
 **Every finding carries an explicit severity label.** A section written into cannot report zero findings — if you listed something, grade it, and let the ladder move the verdict.
 
-**Defects carry no severity and feed no verdict.** A **spec defect** grades the PRD; a **standard defect** grades a rule. Neither grades the diff. Report them separately; they gate close-out on their own, and never take a `// debt:` marker — markers are harvested from code, and a wrong document is not a tradeoff to declare.
+## Defects
+
+**Defects carry no severity and feed no verdict.** A **spec defect** grades the PRD; a **standard defect** grades a rule. Neither grades the diff. Report them separately; they never take a `// debt:` marker — markers are harvested from code, and a wrong document is not a tradeoff to declare.
+
+A story built by the epic under review is **spent**: the code is now the truth, and the story text steers nothing further. Resolve a spec defect in a spent story by reporting it for the user's decision. Do not propose a PRD edit.
+
+A story in a later epic is **live** — Cursor will read it before building it. A spec defect there requires a PRD edit before that story is planned.
+
+A standard defect is always live, because a rule steers every later build. Resolve it by a rule edit.
 
 ## Close-out gate
 
@@ -32,4 +40,4 @@ Each axis derives its own verdict from its own findings. Never rank findings acr
 
 1. Zero blockers on both axes.
 2. Every debt finding fixed, or carrying a `// debt:` marker at its cited site.
-3. Zero open defects — each spec defect resolved by a PRD edit or an explicit decision from the user; each standard defect resolved by a rule edit.
+3. Zero open defects — each resolved as § Defects prescribes.
