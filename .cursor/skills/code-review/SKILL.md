@@ -1,16 +1,16 @@
 ---
 name: code-review
 description: >-
-  Two-axis review of changes since a fixed git ref — Standards (repo rules +
-  smell baseline) and Spec (does the diff match the PRD story/epic?) — run as
-  two parallel readonly subagents, reported side by side. Use when the user
-  asks to review an epic, a branch, or "review since <ref>".
+  Two-axis review of a fixed git range — Standards (repo rules + smell baseline)
+  and Spec (does the diff match the PRD story/epic?) — run as two parallel
+  readonly subagents, reported side by side. Use when the user asks to review an
+  epic, a branch, or "review since <ref>".
 disable-model-invocation: true
 ---
 
 # Code Review
 
-Two-axis review of the diff between a fixed point and `HEAD`, run as **two parallel readonly subagents** so the axes don't pollute each other's context:
+Two-axis review of the diff across a fixed git range, run as **two parallel readonly subagents** so the axes don't pollute each other's context:
 
 - **Standards** — does the code conform to this repo's rules and the smell baseline?
 - **Spec** — does the code faithfully implement what the PRD story/epic asked for?
@@ -27,22 +27,28 @@ Runs at **epic completion**, before `pre-release-review`.
 
 ## Process
 
-### 1. Pin the fixed point
+### 1. Pin the range
 
-The fixed point and epic identifier come from the **user's invocation message** (carried by the build handoff), e.g. `epic baseline abc1234, Epic 3`. If either is missing, fall back to asking the user.
+The **baseline**, optional **tip**, and epic identifier come from the **user's invocation message** (carried by the build handoff), e.g. `epic baseline abc1234, Epic 3`.
 
-The user may also supply a branch name, tag, or `main` instead of a SHA — `git rev-parse` must still succeed.
+- **Baseline** — required. The commit the epic branched from.
+- **Tip** — optional, defaults to `HEAD`. The epic's last commit. Supply it whenever anything landed after the epic — workflow commits, doc commits, a later epic — or those commits fall inside the range and get reviewed as if they were the epic.
+- Range syntax `<baseline>..<tip>` is accepted in place of two arguments.
+
+Either end may be a SHA, branch name, tag, or `main` — `git rev-parse` must succeed on both. If the baseline or the epic identifier is missing, ask the user.
 
 Preconditions — all three must pass before spawning anything:
 
-1. **Clean tree** — `git status --porcelain` must be empty. If dirty, stop and ask the user to commit first; the review verdict must pin to a state that can be named.
-2. **Ref resolves** — `git rev-parse <fixed-point>` succeeds.
-3. **Non-empty diff** — `git diff <fixed-point>...HEAD --stat` shows changes.
+1. **No tracked modifications** — `git status --porcelain --untracked-files=no` must be empty. If non-empty, stop and ask the user to commit first; the verdict must pin to a state that can be named. Untracked files are **not** a halt — the range is commit-to-commit, so they cannot affect the diff. List them in the report's tree note and move on.
+2. **Refs resolve** — `git rev-parse <baseline>` and `git rev-parse <tip>` both succeed.
+3. **Non-empty diff** — `git diff <baseline>...<tip> --stat` shows changes.
 
 Capture once and reuse verbatim in both subagent prompts:
 
-- Diff command: `git diff <fixed-point>...HEAD` (three-dot — comparison is against the merge-base)
-- Commit list: `git log <fixed-point>..HEAD --oneline`
+- Diff command: `git diff <baseline>...<tip>` (three-dot — comparison is against the merge-base)
+- Commit list: `git log <baseline>..<tip> --oneline`
+
+Report the resolved range in the review header so the reader can see exactly what was, and was not, in scope.
 
 ### 2. Resolve the spec source
 
