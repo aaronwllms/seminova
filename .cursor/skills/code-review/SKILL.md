@@ -14,7 +14,7 @@ disable-model-invocation: true
 Two-axis review of the diff across a fixed git range, run as **two parallel readonly subagents** so the axes don't pollute each other's context:
 
 - **Standards** — does the code conform to this repo's rules and the smell baseline?
-- **Spec** — does the code faithfully implement what the PRD story/epic asked for?
+- **Spec** — does the code faithfully implement what the PRD story/epic asked for, and match the plan it was built from?
 
 Runs at **epic completion**, before `pre-release-review`.
 
@@ -56,9 +56,11 @@ Capture once and reuse verbatim in both subagent prompts:
 
 Report the resolved range in the review header so the reader can see exactly what was, and was not, in scope.
 
-### 2. Resolve the spec source
+### 2. Resolve the spec sources
 
 The epic identifier is already resolved in step 1 — do not re-derive it, and never match the diff to a story by content. Record the exact PRD file path and the story/epic identifier(s) to pass to the Spec subagent.
+
+Also resolve the **epic plan** — the file the build was planned from. Glob `.cursor/plans/*.plan.md` (then `.cursor/plans/archive/`) for the one naming this phase and epic, e.g. `phase_10_epic_1_*.plan.md`. Exactly one match → record its path. Zero or more than one → record none and note "no plan available"; the plan is supplementary and never halts the review.
 
 On the override path, ask the user for the epic identifier if the invocation didn't carry one. If they say there is no spec, skip the Spec subagent and note "no spec available" in the report.
 
@@ -95,6 +97,7 @@ Subagents start with a clean context — each prompt must be self-contained. Pas
 
 - The diff command and commit list from step 1
 - The PRD file path and story/epic identifier(s) from step 2
+- The epic plan file path from step 2, if one was found
 
 If the spec is missing, dispatch only the Standards subagent.
 

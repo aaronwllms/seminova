@@ -26,7 +26,7 @@ Read [`../skills/code-review/grading.md`](../skills/code-review/grading.md) befo
 Per file/hunk where relevant:
 
 1. **Documented-standard violations** — every place the diff violates a documented standard. Cite the standard: source file + the specific rule.
-2. **Baseline smells** — any smell from the baseline below. Name it and quote the offending hunk.
+2. **Baseline smells** — any smell from the baseline below. Name it.
 3. **Standard defects** — a documented standard the diff has *invalidated*: a rule citing a path, route, symbol, or behaviour the diff moved or removed. The rule is wrong, not the code. Quote the rule line and cite the diff hunk that invalidated it. Propose the corrected line where it's obvious.
 
 Binding rules:
@@ -57,8 +57,10 @@ Each smell reads *what it is* → *how to fix*; match against the diff:
 
 ## Output
 
-A single report, **under 400 words**. Open with your verdict on its own line, derived from the ladder in `grading.md` over findings 1–2 only. Then group those findings by severity — blockers, then debt, then nits — omitting any severity with nothing in it. Report standard defects last, under their own heading, ungraded.
+A single report. Open with your verdict on its own line, derived from the ladder in `grading.md` over findings 1–2 only. Then group those findings by severity — blockers, then debt, then nits — omitting any severity with nothing in it. Report standard defects last, under their own heading, ungraded.
 
 **Every finding you list carries an explicit severity label.** A section you have written into cannot report zero findings.
 
-Cite `startLine:endLine:filepath` for every finding. If there are no findings at all, say "Nothing material" — no filler, no praise.
+**Report every finding you have.** Length is set by the findings, not by a budget — never drop, merge, or downgrade a finding to keep the report short. Spend words on findings and nothing else: no summary, no restatement of the diff, no list of what passed, no praise.
+
+For every finding, cite `startLine:endLine:filepath` **and quote the lines the finding rests on**. A finding you cannot quote is a finding you have not verified — drop it. If there are no findings at all, say "Nothing material."
