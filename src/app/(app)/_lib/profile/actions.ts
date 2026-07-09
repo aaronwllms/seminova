@@ -2,7 +2,6 @@
 
 import { revalidatePath } from 'next/cache'
 
-import { PROFILE_PATH } from '@/constants/app-paths'
 import {
   AVATAR_BUCKET,
   buildAvatarStoragePath,
@@ -22,7 +21,7 @@ import {
   withAvatarCacheBust,
 } from '@/utils/avatar-cache-bust'
 
-import { parseProfilePartialInput } from './_lib/profile-form-schema'
+import { parseProfilePartialInput } from './profile-form-schema'
 
 type ProfileActionErrorCode =
   | 'UNAUTHORIZED'
@@ -131,7 +130,7 @@ export const updateProfileAction = async (
     }
   }
 
-  revalidatePath(PROFILE_PATH)
+  revalidatePath('/(app)', 'layout')
 
   return {
     success: true,

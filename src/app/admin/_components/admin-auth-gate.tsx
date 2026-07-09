@@ -2,7 +2,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 import { AdminShell } from '@/app/admin/_components/admin-shell'
-import { PROFILE_PATH } from '@/constants/app-paths'
+import { APP_HOME } from '@/constants/app-paths'
 import { parseSidebarOpenCookie } from '@/components/ui/sidebar/cookie'
 import { SIDEBAR_COOKIE_NAME } from '@/components/ui/sidebar/constants'
 import { createClient } from '@/supabase/server'
@@ -18,7 +18,7 @@ export const AdminAuthGate = async ({ children }: AdminAuthGateProps) => {
   const claims = await requireAuthClaims(supabase)
 
   if (!isAdmin(claims)) {
-    redirect(PROFILE_PATH)
+    redirect(APP_HOME)
   }
 
   const userEmail =

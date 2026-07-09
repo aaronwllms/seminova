@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@/test/test-utils'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
-import { ProfilePasswordDialog } from './profile-password-dialog'
+import { ProfilePasswordSection } from './profile-password-section'
 
 const mockUpdateUser = vi.fn()
 const mockShowSuccessToast = vi.fn()
@@ -19,7 +19,7 @@ vi.mock('@/utils/app-toast', () => ({
   showSuccessToast: (...args: unknown[]) => mockShowSuccessToast(...args),
 }))
 
-describe('ProfilePasswordDialog', () => {
+describe('ProfilePasswordSection', () => {
   beforeEach(() => {
     mockUpdateUser.mockReset()
     mockShowSuccessToast.mockReset()
@@ -28,9 +28,8 @@ describe('ProfilePasswordDialog', () => {
   it('should show validation errors for mismatched and short passwords', async () => {
     const user = userEvent.setup({ delay: null })
 
-    render(<ProfilePasswordDialog email="test@example.com" />)
+    render(<ProfilePasswordSection email="test@example.com" />)
 
-    await user.click(screen.getByRole('button', { name: /change password/i }))
     await user.type(screen.getByLabelText(/current password/i), 'old-password')
     await user.type(screen.getByLabelText(/^new password$/i), 'password123')
     await user.type(screen.getByLabelText(/confirm new password/i), 'different')
@@ -57,9 +56,8 @@ describe('ProfilePasswordDialog', () => {
     mockUpdateUser.mockResolvedValue({ error: null })
     const user = userEvent.setup({ delay: null })
 
-    render(<ProfilePasswordDialog email="test@example.com" />)
+    render(<ProfilePasswordSection email="test@example.com" />)
 
-    await user.click(screen.getByRole('button', { name: /change password/i }))
     await user.type(screen.getByLabelText(/current password/i), 'old-password')
     await user.type(screen.getByLabelText(/^new password$/i), 'password123')
     await user.type(

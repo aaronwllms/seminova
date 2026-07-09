@@ -7,14 +7,16 @@ import { useForm, useWatch } from 'react-hook-form'
 import { Form } from '@/components/ui/form'
 import { InlineError } from '@/components/inline-error'
 import { ErrorPanel } from '@/components/error-panel'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 import {
   profileFormInputSchema,
   type ProfileFormInputValues,
   type ProfileFormValues,
-} from '../_lib/profile-form-schema'
-import { useBlurSaveField } from '../_lib/use-blur-save-field'
-import { useProfileAvatarUpload } from '../_lib/use-profile-avatar-upload'
+} from '@/app/(app)/_lib/profile/profile-form-schema'
+import { useBlurSaveField } from '@/app/(app)/_lib/profile/use-blur-save-field'
+import { useProfileAvatarUpload } from '@/app/(app)/_lib/profile/use-profile-avatar-upload'
 import { ProfileAvatarField } from './profile-avatar-field'
 import { ProfileTextField } from './profile-text-field'
 
@@ -94,16 +96,29 @@ export const ProfileSettingsForm = ({
           onFileError={setFileError}
         />
 
-        <ProfileTextField
-          control={form.control}
-          name="displayName"
-          label="Display name"
-          placeholder="Your name"
-          controlType="input"
-          saveState={saveStates.displayName}
-          onSavedComplete={() => setFieldSaveState('displayName', 'idle')}
-          onBlurSave={handleDisplayNameBlur}
-        />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <ProfileTextField
+            control={form.control}
+            name="displayName"
+            label="Display name"
+            placeholder="Your name"
+            controlType="input"
+            saveState={saveStates.displayName}
+            onSavedComplete={() => setFieldSaveState('displayName', 'idle')}
+            onBlurSave={handleDisplayNameBlur}
+          />
+
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="profile-username">Username</Label>
+            <Input
+              id="profile-username"
+              value={email}
+              readOnly
+              disabled
+              autoComplete="username"
+            />
+          </div>
+        </div>
 
         <ProfileTextField
           control={form.control}

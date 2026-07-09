@@ -18,6 +18,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
+import { APP_HOME } from '@/constants/app-paths'
 import { extractAuthFormError } from '@/utils/extract-auth-form-error'
 import type { AppError } from '@/types/app-error'
 
@@ -52,7 +53,7 @@ export function SignUpForm({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/profile`,
+          emailRedirectTo: `${window.location.origin}${APP_HOME}`,
         },
       })
       if (error) throw error

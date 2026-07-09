@@ -3,6 +3,7 @@
 import { LayoutDashboard, LogOut, User } from 'lucide-react'
 import Link from 'next/link'
 
+import { useProfileDialog } from '@/app/(app)/_components/profile/profile-dialog-provider'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -12,7 +13,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { PROFILE_PATH } from '@/constants/app-paths'
 import { ADMIN_HOME } from '@/constants/admin-paths'
 import { useSignOut } from '@/hooks/use-sign-out'
 import { getProfileInitials } from '@/utils/user-initials'
@@ -31,6 +31,7 @@ export const AppNavUser = ({
   isAdmin,
 }: AppNavUserProps) => {
   const handleSignOut = useSignOut()
+  const { openProfile } = useProfileDialog()
   const initials = getProfileInitials({ displayName, email })
 
   return (
@@ -50,11 +51,14 @@ export const AppNavUser = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" sideOffset={4}>
-        <DropdownMenuItem asChild>
-          <Link href={PROFILE_PATH}>
-            <User />
-            Profile
-          </Link>
+        <DropdownMenuItem
+          onSelect={(event) => {
+            event.preventDefault()
+            openProfile()
+          }}
+        >
+          <User />
+          Profile
         </DropdownMenuItem>
         {isAdmin ? (
           <DropdownMenuItem asChild>

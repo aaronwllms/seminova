@@ -26,7 +26,7 @@ describe('LandingAuthSlot', () => {
 
     expect(screen.getByRole('link', { name: /open app/i })).toHaveAttribute(
       'href',
-      '/profile',
+      '/home',
     )
   })
 

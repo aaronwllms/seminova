@@ -8,7 +8,7 @@ import { useBlurSaveField } from './use-blur-save-field'
 const mockUpdateProfileAction = vi.fn()
 const mockRefresh = vi.fn()
 
-vi.mock('../actions', () => ({
+vi.mock('./actions', () => ({
   updateProfileAction: (...args: unknown[]) => mockUpdateProfileAction(...args),
 }))
 

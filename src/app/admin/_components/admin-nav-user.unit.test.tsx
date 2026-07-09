@@ -34,7 +34,7 @@ vi.mock('@/components/ui/sidebar', () => ({
   useSidebar: () => ({ isMobile: false }),
 }))
 
-import { PROFILE_PATH } from '@/constants/app-paths'
+import { APP_HOME } from '@/constants/app-paths'
 import { render, screen, waitFor } from '@/test/test-utils'
 
 import { AdminNavUser } from './admin-nav-user'
@@ -45,7 +45,7 @@ describe('AdminNavUser', () => {
     mockPush.mockReset()
   })
 
-  it('should open menu with profile link and sign out', async () => {
+  it('should open menu with open app link and sign out', async () => {
     mockSignOut.mockResolvedValue({ error: null })
     const user = userEvent.setup()
 
@@ -53,10 +53,13 @@ describe('AdminNavUser', () => {
 
     await user.click(screen.getByRole('button'))
 
-    expect(screen.getByRole('menuitem', { name: /profile/i })).toHaveAttribute(
+    expect(screen.getByRole('menuitem', { name: /open app/i })).toHaveAttribute(
       'href',
-      PROFILE_PATH,
+      APP_HOME,
     )
+    expect(
+      screen.queryByRole('menuitem', { name: /profile/i }),
+    ).not.toBeInTheDocument()
 
     await user.click(screen.getByRole('menuitem', { name: /sign out/i }))
 

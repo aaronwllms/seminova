@@ -3,6 +3,7 @@ import { SiteFooter } from '@/components/site-footer'
 import { SiteHeader } from '@/components/site-header'
 import { APP_HOME } from '@/constants/app-paths'
 
+import { ProfileDialogProvider } from './profile/profile-dialog-provider'
 import { AppNavUser } from './app-nav-user'
 import { getCurrentUserProfile } from '../_lib/get-current-user-profile'
 
@@ -14,7 +15,16 @@ export const AppShell = async ({ children }: AppShellProps) => {
   const profile = await getCurrentUserProfile()
 
   return (
-    <>
+    <ProfileDialogProvider
+      userId={profile.userId}
+      email={profile.email}
+      profileLoadFailed={profile.profileLoadFailed}
+      defaultValues={{
+        displayName: profile.displayName,
+        bio: profile.bio,
+        avatarUrl: profile.avatarUrl,
+      }}
+    >
       <SiteHeader
         logoHref={APP_HOME}
         showNav={false}
@@ -43,6 +53,6 @@ export const AppShell = async ({ children }: AppShellProps) => {
         showNav={false}
         publicSiteLink={{ href: '/', label: 'Back to website' }}
       />
-    </>
+    </ProfileDialogProvider>
   )
 }

@@ -7,7 +7,7 @@ import { ProfileSettingsForm } from './profile-settings-form'
 const mockUpdateProfileAction = vi.fn()
 const mockRefresh = vi.fn()
 
-vi.mock('../actions', () => ({
+vi.mock('@/app/(app)/_lib/profile/actions', () => ({
   updateProfileAction: (...args: unknown[]) => mockUpdateProfileAction(...args),
 }))
 

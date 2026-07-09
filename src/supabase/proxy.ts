@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import { LOGIN_PATH, PROFILE_PATH } from '@/constants/app-paths'
+import { APP_HOME, LOGIN_PATH } from '@/constants/app-paths'
 import { getPublicSupabaseEnv, hasPublicSupabaseEnv } from '@/utils/env'
 import { isAdmin } from '@/utils/admin'
 import { parseAuthenticatedClaims } from '@/supabase/require-auth'
@@ -89,7 +89,7 @@ export async function updateSession(request: NextRequest) {
 
   if (isAdminPath && sessionClaims && !isAdmin(sessionClaims)) {
     const url = request.nextUrl.clone()
-    url.pathname = PROFILE_PATH
+    url.pathname = APP_HOME
     return NextResponse.redirect(url)
   }
 

@@ -49,7 +49,7 @@ describe('UpdatePasswordForm', () => {
     )
   })
 
-  it('should update password and redirect non-admins to /profile', async () => {
+  it('should update password and redirect non-admins to /home', async () => {
     mockUpdateUser.mockResolvedValue({
       error: null,
       data: { user: { app_metadata: {} } },
@@ -66,7 +66,7 @@ describe('UpdatePasswordForm', () => {
         password: 'new-password-123',
       })
       expect(mockRefresh).toHaveBeenCalledOnce()
-      expect(mockPush).toHaveBeenCalledWith('/profile')
+      expect(mockPush).toHaveBeenCalledWith('/home')
     })
   })
 

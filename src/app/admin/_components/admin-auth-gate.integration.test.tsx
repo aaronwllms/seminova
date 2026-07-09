@@ -42,7 +42,7 @@ vi.mock('./admin-shell', () => ({
 }))
 
 import { ADMIN_ROLE } from '@/constants/admin-role'
-import { PROFILE_PATH } from '@/constants/app-paths'
+import { APP_HOME } from '@/constants/app-paths'
 import { render, screen } from '@/test/test-utils'
 
 import { AdminAuthGate } from './admin-auth-gate'
@@ -63,7 +63,7 @@ describe('AdminAuthGate', () => {
     ).rejects.toThrow('NEXT_REDIRECT')
   })
 
-  it('should redirect non-admin users to profile', async () => {
+  it('should redirect non-admin users to app home', async () => {
     mockRequireAuthClaims.mockResolvedValue({
       sub: 'user-1',
       email: 'user@example.com',
@@ -74,7 +74,7 @@ describe('AdminAuthGate', () => {
       AdminAuthGate({ children: <p>Admin content</p> }),
     ).rejects.toThrow('NEXT_REDIRECT')
 
-    expect(mockRedirect).toHaveBeenCalledWith(PROFILE_PATH)
+    expect(mockRedirect).toHaveBeenCalledWith(APP_HOME)
   })
 
   it('should render admin shell for admin users', async () => {

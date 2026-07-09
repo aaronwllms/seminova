@@ -42,7 +42,7 @@ describe('updateSession', () => {
   })
 
   it('should redirect unauthenticated users from protected routes', async () => {
-    const response = await updateSession(createRequest('/profile'))
+    const response = await updateSession(createRequest('/home'))
 
     expect(response.status).toBe(307)
     expect(response.headers.get('location')).toContain('/auth/login')
@@ -55,7 +55,7 @@ describe('updateSession', () => {
       error: { message: 'Invalid Refresh Token: Already Used' },
     })
 
-    const response = await updateSession(createRequest('/profile'))
+    const response = await updateSession(createRequest('/home'))
 
     expect(response.status).toBe(307)
     expect(response.headers.get('location')).toContain('/auth/login')
@@ -91,12 +91,12 @@ describe('updateSession', () => {
       data: { claims: { sub: 'user-1' } },
     })
 
-    const response = await updateSession(createRequest('/profile'))
+    const response = await updateSession(createRequest('/home'))
 
     expect(response.status).toBe(200)
   })
 
-  it('should redirect non-admin authenticated users from /admin to /profile', async () => {
+  it('should redirect non-admin authenticated users from /admin to /home', async () => {
     mockGetClaims.mockResolvedValue({
       data: { claims: { sub: 'user-1', app_metadata: {} } },
     })
@@ -104,10 +104,10 @@ describe('updateSession', () => {
     const response = await updateSession(createRequest('/admin'))
 
     expect(response.status).toBe(307)
-    expect(response.headers.get('location')).toContain('/profile')
+    expect(response.headers.get('location')).toContain('/home')
   })
 
-  it('should redirect non-admin authenticated users from /admin/users to /profile', async () => {
+  it('should redirect non-admin authenticated users from /admin/users to /home', async () => {
     mockGetClaims.mockResolvedValue({
       data: { claims: { sub: 'user-1', app_metadata: {} } },
     })
@@ -115,7 +115,7 @@ describe('updateSession', () => {
     const response = await updateSession(createRequest('/admin/users'))
 
     expect(response.status).toBe(307)
-    expect(response.headers.get('location')).toContain('/profile')
+    expect(response.headers.get('location')).toContain('/home')
   })
 
   it('should allow admin users on /admin/users', async () => {
@@ -143,7 +143,7 @@ describe('updateSession', () => {
       error: null,
     })
 
-    const response = await updateSession(createRequest('/profile'))
+    const response = await updateSession(createRequest('/home'))
 
     expect(response.status).toBe(307)
     expect(response.headers.get('location')).toContain('/auth/login')
@@ -156,7 +156,7 @@ describe('updateSession', () => {
       error: null,
     })
 
-    const response = await updateSession(createRequest('/profile'))
+    const response = await updateSession(createRequest('/home'))
 
     expect(response.status).toBe(307)
     expect(response.headers.get('location')).toContain('/auth/login')
@@ -191,7 +191,8 @@ describe('auth boundary (discovered routes)', () => {
   it('should discover app routes from src/app', () => {
     expect(discoveredRoutes.length).toBeGreaterThan(0)
     expect(discoveredRoutes).toContain('/')
-    expect(discoveredRoutes).toContain('/profile')
+    expect(discoveredRoutes).toContain('/home')
+    expect(discoveredRoutes).not.toContain('/profile')
     expect(discoveredRoutes).toContain('/admin')
     expect(discoveredRoutes).toContain('/auth/login')
     expect(discoveredRoutes).toContain('/auth/confirm')

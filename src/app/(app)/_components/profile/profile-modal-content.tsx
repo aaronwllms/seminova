@@ -2,34 +2,30 @@
 
 import { Separator } from '@/components/ui/separator'
 
-import type { ProfileFormValues } from '../_lib/profile-form-schema'
-import { ProfilePasswordDialog } from './profile-password-dialog'
+import type { ProfileFormValues } from '@/app/(app)/_lib/profile/profile-form-schema'
+
+import { ProfilePasswordSection } from './profile-password-section'
 import { ProfileSettingsForm } from './profile-settings-form'
 import { ProfileThemeSegment } from './profile-theme-segment'
 
-type ProfilePageClientProps = {
+type ProfileModalContentProps = {
   userId: string
   email: string
   defaultValues: ProfileFormValues
 }
 
-export const ProfilePageClient = ({
+export const ProfileModalContent = ({
   userId,
   email,
   defaultValues,
-}: ProfilePageClientProps) => {
+}: ProfileModalContentProps) => {
   return (
-    <div className="flex w-full max-w-prose flex-col gap-8">
-      <section className="flex flex-col gap-4">
-        <p className="text-muted-foreground text-sm">
-          Update your display name, photo, and bio.
-        </p>
-        <ProfileSettingsForm
-          userId={userId}
-          email={email}
-          defaultValues={defaultValues}
-        />
-      </section>
+    <div className="flex w-full flex-col gap-6">
+      <ProfileSettingsForm
+        userId={userId}
+        email={email}
+        defaultValues={defaultValues}
+      />
 
       <Separator className="bg-border/40" />
 
@@ -40,7 +36,7 @@ export const ProfilePageClient = ({
             Change your account password.
           </p>
         </div>
-        <ProfilePasswordDialog email={email} />
+        <ProfilePasswordSection email={email} />
       </section>
 
       <Separator className="bg-border/40" />

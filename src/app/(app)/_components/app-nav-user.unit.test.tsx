@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockSignOut = vi.fn()
 const mockPush = vi.fn()
+const mockOpenProfile = vi.fn()
 
 vi.mock('@/supabase/client', () => ({
   createClient: () => ({
@@ -16,7 +17,10 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush }),
 }))
 
-import { PROFILE_PATH } from '@/constants/app-paths'
+vi.mock('@/app/(app)/_components/profile/profile-dialog-provider', () => ({
+  useProfileDialog: () => ({ openProfile: mockOpenProfile }),
+}))
+
 import { ADMIN_HOME } from '@/constants/admin-paths'
 import { render, screen, waitFor } from '@/test/test-utils'
 
@@ -26,9 +30,10 @@ describe('AppNavUser', () => {
   beforeEach(() => {
     mockSignOut.mockReset()
     mockPush.mockReset()
+    mockOpenProfile.mockReset()
   })
 
-  it('should open menu with profile link and sign out', async () => {
+  it('should open profile dialog from menu and sign out', async () => {
     mockSignOut.mockResolvedValue({ error: null })
     const user = userEvent.setup()
 
@@ -43,10 +48,10 @@ describe('AppNavUser', () => {
 
     await user.click(screen.getByRole('button', { name: /account menu/i }))
 
-    expect(screen.getByRole('menuitem', { name: /profile/i })).toHaveAttribute(
-      'href',
-      PROFILE_PATH,
-    )
+    const profileItem = screen.getByRole('menuitem', { name: /profile/i })
+    expect(profileItem).not.toHaveAttribute('href')
+    await user.click(profileItem)
+    expect(mockOpenProfile).toHaveBeenCalled()
     expect(
       screen.queryByRole('menuitem', { name: /admin console/i }),
     ).not.toBeInTheDocument()
