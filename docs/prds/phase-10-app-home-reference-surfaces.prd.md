@@ -1,7 +1,7 @@
 # PRD — Phase 10: App Home, Reference Surfaces & Chrome Polish
 
-**Status:** `Ready`
-**Last updated:** 2026-07-08
+**Status:** `Active`
+**Last updated:** 2026-07-09
 
 ---
 

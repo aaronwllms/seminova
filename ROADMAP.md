@@ -2,7 +2,7 @@
 
 The planning horizon: anticipated phases as thin stubs, plus living status. Shipped phase detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md); build-time workflow and authoritative schema in [AGENTS.md](AGENTS.md). Phase status vocabulary and PRD lifecycle in [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
-**Last updated:** 2026-07-08
+**Last updated:** 2026-07-09
 
 ---
 
@@ -19,29 +19,10 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 | 7 | Security Audit Remediation | `Shipped` | — |
 | 8 | Tech Debt Audit Remediation | `Shipped` | [Phase 8 PRD](docs/prds/archive/phase-8-tech-debt-remediation.prd.md) |
 | 9 | SEO & GEO | `Shipped` | [Phase 9 PRD](docs/prds/archive/phase-9-seo-geo.prd.md) |
-| 10 | App Home, Reference Surfaces & Chrome Polish | `Ready` | [Phase 10 PRD](docs/prds/phase-10-app-home-reference-surfaces.prd.md) |
+| 10 | App Home, Reference Surfaces & Chrome Polish | `Active` | [Phase 10 PRD](docs/prds/phase-10-app-home-reference-surfaces.prd.md) |
 
 > [!NOTE]
 > Phases 1–7 pre-date the per-phase PRD system, so their PRD column is empty; their shipped detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md). From Phase 8 on, shipped rows link the archived PRD per [docs/DOC_RULES.md](docs/DOC_RULES.md).
-
----
-
-## Upcoming phases
-
-### Phase 10 — App Home, Reference Surfaces & Chrome Polish `Ready`
-
-A dedicated page that demonstrates the canonized component patterns established across prior phases: data table, error states (operational `InlineError` + fault `ErrorPanel`), skeleton loading, toast, and the form/settings pattern (from Phase 6). The page imports and showcases the real, already-established components — it does not reimplement them.
-
-It is explicitly deletable scaffolding: deleting it loses zero canonical pattern, since every pattern it demonstrates is established in real code elsewhere (admin users table, profile page, etc.). Sequenced after Phase 6 so it can show the form/profile pattern alongside everything from Phase 5, rather than shipping thin now and needing a follow-up addition later.
-
-Also folds in the **PM/agent workflow explainer page** (moved here from open questions): a click-through page off the landing surface explaining Seminova's two differentiators:
-
-- The agent-ready conventions (`AGENTS.md` + `.cursor/rules/` + `.cursor/skills/`)
-- The PM/agent collaboration model (the Claude Desktop planning setup, MCP, and paired skills)
-
-A one-line landing card for each doesn't convey how either works. The explainer co-ships here.
-
-Scope broadened at planning to include a real authenticated home (unblocking profile settings as a modal), site chrome fixes, and public legal placeholder pages. The PRD owns the full scope.
 
 ---
 
