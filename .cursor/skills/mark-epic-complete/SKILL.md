@@ -20,12 +20,14 @@ Epic numbering and `` `Complete` `` tag rules: [DOC_RULES.md](../../../docs/DOC_
 
 Manually invoked in a **fresh agent window** once `code-review`'s close-out gate is met — see [grading.md](../code-review/grading.md).
 
-The **epic identifier** comes from the user's invocation message (carried by the `code-review` breadcrumb), e.g. `/mark-epic-complete for Epic 3`. If missing, ask the user which epic to mark — **do not infer it from code inspection**.
+Takes **no arguments**. The epic to mark is the **first `### Epic` heading in the active phase's PRD without a `` `Complete` `` tag** — the same lookup `plan-next-epic` and `code-review` use. Never infer it from code inspection.
+
+The user may override by naming one explicitly, e.g. `/mark-epic-complete for Epic 3`.
 
 ## Preconditions (halt if any fail)
 
 1. **Clean tree** — `git status --porcelain` is empty. If dirty, halt and ask the user to commit outstanding work first.
-2. **Epic heading resolves** — the active phase's PRD contains a `### Epic N: Name` heading matching the invocation.
+2. **Epic resolves** — at least one `### Epic N: Name` heading in the active phase's PRD lacks a `` `Complete` `` tag; take the first. If every epic is already tagged, halt — the phase is done, and `/ship-phase` is the next step. On the override path, the named heading must exist.
 3. **Status consistent** — neither the PRD's status nor its ROADMAP row reads `` `Draft` ``, `` `Planning` ``, or `` `Ready` ``. If either does, halt and report the inconsistency — do not change tags. Phase promotion (Ready→Active) is owned by `plan-next-epic` (see [DOC_RULES.md](../../../docs/DOC_RULES.md) rule 2).
 
 Check all three before editing anything, so a halt never leaves a dirty tree behind.
@@ -72,5 +74,5 @@ Report which epic was marked complete, and what `sync-repo-docs` changed — or 
 - Do not mark a phase `Shipped` — phase-ship is a separate step at phase end (see [DOC_RULES.md](../../../docs/DOC_RULES.md) rule 6).
 - Do not edit `docs/archive/`.
 - Do not edit `.cursor/rules/*.mdc` rule bodies — `sync-repo-docs` touches the rule *index* only.
-- Do not infer "complete" from code inspection — only act on explicit instruction from the user's invocation.
+- Do not infer "complete" from code inspection — resolve the epic from the PRD's `` `Complete` `` tags, never from the state of the codebase.
 - Do not promote a phase (flip `Ready` → `Active`) — that is owned by `plan-next-epic`; halt and report if status is inconsistent (precondition 3).

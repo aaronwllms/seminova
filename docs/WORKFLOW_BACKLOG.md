@@ -6,7 +6,7 @@
 
 **How to use it.** Each entry is a deferred decision with its reason for deferral and the signal that should bring it back. Pull an item out when its trigger fires; delete it when it's resolved (record the resolution as an [ADR](adr/README.md) if it qualifies).
 
-**Last updated:** 2026-07-09 (skill naming convention alignment backlog item)
+**Last updated:** 2026-07-09 (skills deterministic scripts research resolved)
 
 ---
 
@@ -28,6 +28,7 @@
   - [Rename LEXICON.md to CONTEXT.md; separate glossary from as-built pointers](#rename-lexiconmd-to-contextmd-separate-glossary-from-as-built-pointers)
   - [Rules & skills: stage-stable guidance vs. direct code references](#rules--skills-stage-stable-guidance-vs-direct-code-references)
   - [Skill naming convention alignment (Cursor + Claude)](#skill-naming-convention-alignment-cursor--claude)
+  - [~~Deterministic scripts in agent skills~~](#deterministic-scripts-in-agent-skills) *(resolved)*
 
 ---
 
@@ -210,3 +211,13 @@
 **Why deferred:** Names grew organically as skills landed; nothing is broken today. Renaming is high-touch (Cursor paths, Claude account-wide reinstall, every doc reference) and should follow a deliberate convention choice, not ad hoc fixes when one name feels wrong.
 
 **Revisit when:** A dedicated workflow-improvement session (half-day), before forking the template (so spinoffs inherit clean names), when adding a new skill and the "what should we call it?" question takes more than a minute, or alongside the [LEXICON → CONTEXT rename](#rename-lexiconmd-to-contextmd-separate-glossary-from-as-built-pointers) pass if `lexicon-audit` / `lexicon-update` are in scope anyway.
+
+### ~~Deterministic scripts in agent skills~~
+
+**Resolved 2026-07-09** — [RESEARCH-0003](research/RESEARCH-0003-skills-deterministic-scripts.md).
+
+**What:** Whether skills with heavy procedural logic should incorporate executable `scripts/` (per Cursor's skill convention) for more deterministic runs — which skills, what scripts, and where they live vs. existing `scripts/checks/` CI gates.
+
+**Verdict (summary):** Hybrid, not blanket scripting. **Do now:** `initialize-project` and `archive-cursor-plans` (mechanical cores). **Do next:** shared audit/sync orient evidence scripts; keep judgment-primary skills (`code-review`, `lexicon-audit`, planning skills) prose-only. Invariants stay in `scripts/checks/` per ADR-0002.
+
+**Follow-on (not this research pass):** implement Tier A scripts, update skill-authoring contract, optional `scripts/workflow/` shared orient layer.
