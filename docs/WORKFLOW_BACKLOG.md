@@ -6,7 +6,7 @@
 
 **How to use it.** Each entry is a deferred decision with its reason for deferral and the signal that should bring it back. Pull an item out when its trigger fires; delete it when it's resolved (record the resolution as an [ADR](adr/README.md) if it qualifies).
 
-**Last updated:** 2026-07-08 (pre-release-review value audit backlog item)
+**Last updated:** 2026-07-09 (rules/skills code-reference stability backlog item)
 
 ---
 
@@ -26,6 +26,7 @@
   - [Workflow skill next-step breadcrumb audit](#workflow-skill-next-step-breadcrumb-audit)
   - [Pre-release review value audit](#pre-release-review-value-audit)
   - [Rename LEXICON.md to CONTEXT.md; separate glossary from as-built pointers](#rename-lexiconmd-to-contextmd-separate-glossary-from-as-built-pointers)
+  - [Rules & skills: stage-stable guidance vs. direct code references](#rules--skills-stage-stable-guidance-vs-direct-code-references)
 
 ---
 
@@ -157,3 +158,23 @@
 **Why deferred:** The rename touches every reference to `LEXICON.md` — the `DOC_RULES.md` document-roles table, `AGENTS.md`, the `lexicon-update` skill (name and content), likely `phase-planning` and `project-kickoff`, and possibly `WORKFLOW_GUIDE.md`. Needs a full inventory pass, not a mid-session edit. The content split (glossary vs. pointers) is a design decision on its own — where do the pointers go instead? A section in `AGENTS.md`? Dropped entirely as redundant? — worth settling deliberately rather than deciding in passing.
 
 **Revisit when:** A dedicated workflow-improvement session, ideally before the next phase that touches LEXICON entries, so the split is in place before more entries accumulate the same mixed shape.
+
+### Rules & skills: stage-stable guidance vs. direct code references
+
+**What:** Audit every `.cursor/rules/*.mdc` file and every `.cursor/skills/**/SKILL.md` (plus related templates like `rule-authoring/TEMPLATE.md` and rules with "Reference Implementations" sections) for **direct references to repo-specific code** — file paths, function/component names tied to a single implementation, line-number citations, and "see `src/...`" pointers — and inventory which guidance **allows or actively encourages** that pattern today. The target posture: rules and skills should remain **true at any repo stage** (empty template, mid-build, shipped product) by stating **principles and illustrative examples** rather than anchoring to whatever file happens to exist right now. Code *examples* (short, fictional or generic snippets that demonstrate shape) are fine; **live code pointers** that go stale when files move, rename, or delete are not.
+
+**Questions to answer:**
+
+1. **Inventory** — Which rules and skills cite `src/...` paths, specific components, or "reference implementation" bullets? Rank by frequency and how central the pointer is to the rule's directive (decorative vs. the rule is unusable without the path).
+2. **Encouragement sources** — Where does the system tell authors to do this? Primary suspect: [`rule-authoring`](../.cursor/skills/rule-authoring/SKILL.md) explicitly lists "file paths to reference implementations" under **Keep** and says "Point at a real file over writing a code block." Also check `audit-rules` currency checks, `data-tables.mdc` / `forms.mdc` Reference Implementations sections, AGENTS.md prose links, and any rule README guidance.
+3. **Replacement pattern** — For each category of pointer (error envelopes, forms, data tables, auth, storage, tests), what should replace it? Options to evaluate: generic example blocks, role-based descriptions ("the canonical server-action envelope"), pointers to **stable abstractions** (a directory convention, a filename pattern) vs. a specific file, or deferring as-built detail entirely to AGENTS.md (repo truth) while rules stay pattern-only.
+4. **Boundary** — What still legitimately needs a path? Candidates: glob attach patterns, migration directory, check-script names, `.cursor/` self-references. Separate "where to look in *this* repo today" (AGENTS.md, audit artifacts) from "how to behave in any repo using this template" (rules/skills).
+5. **Follow-on** — Update `rule-authoring` standard, `audit-rules` criteria, and affected rules/skills; optionally add a lightweight lint or `audit-rules` finding category for new direct `src/` citations in rules.
+
+**Deliverable:** A research brief in `docs/research/` (`RESEARCH-NNNN-rules-skills-code-reference-audit.md`) with: (1) inventory table (file → reference type → stability risk), (2) list of guidance that encourages direct references, (3) recommended replacement pattern per category, (4) phased migration plan (rule-authoring first, then highest-churn rules). Follow-on work updates standards and rules — the audit itself is read-only.
+
+**Relationship to other items:** Complements [Rename LEXICON.md to CONTEXT.md](#rename-lexiconmd-to-contextmd-separate-glossary-from-as-built-pointers) (glossary vs. as-built pointers) and [Documentation surface area & context-bloat audit](#documentation-surface-area--context-bloat-audit) (overlap and duplication) — but this item is specifically about **reference stability across repo lifecycle**, not doc size alone.
+
+**Why deferred:** The current `rule-authoring` standard deliberately favors project-specific pointers ("stays DRY and current with the codebase"), and many rules were written under that contract — including during template phases where paths were the fastest way to onboard agents. Reversing it touches most of `.cursor/rules/`, the rule-authoring skill, and several audit skills; needs a deliberate inventory and a new authoring contract before mass edits, or we risk swapping stale paths for vague rules.
+
+**Revisit when:** A dedicated workflow-improvement session (half-day), before forking the template to a new product (so spinoffs inherit stage-stable rules), after a build where agents followed a rule to a moved/deleted file, or when doing the LEXICON → CONTEXT split (same "as-built vs. timeless" design thread).
