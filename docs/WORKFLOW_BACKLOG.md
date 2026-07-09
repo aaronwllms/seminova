@@ -6,7 +6,7 @@
 
 **How to use it.** Each entry is a deferred decision with its reason for deferral and the signal that should bring it back. Pull an item out when its trigger fires; delete it when it's resolved (record the resolution as an [ADR](adr/README.md) if it qualifies).
 
-**Last updated:** 2026-07-09 (rules/skills code-reference stability backlog item)
+**Last updated:** 2026-07-09 (skill naming convention alignment backlog item)
 
 ---
 
@@ -27,6 +27,7 @@
   - [Pre-release review value audit](#pre-release-review-value-audit)
   - [Rename LEXICON.md to CONTEXT.md; separate glossary from as-built pointers](#rename-lexiconmd-to-contextmd-separate-glossary-from-as-built-pointers)
   - [Rules & skills: stage-stable guidance vs. direct code references](#rules--skills-stage-stable-guidance-vs-direct-code-references)
+  - [Skill naming convention alignment (Cursor + Claude)](#skill-naming-convention-alignment-cursor--claude)
 
 ---
 
@@ -178,3 +179,34 @@
 **Why deferred:** The current `rule-authoring` standard deliberately favors project-specific pointers ("stays DRY and current with the codebase"), and many rules were written under that contract — including during template phases where paths were the fastest way to onboard agents. Reversing it touches most of `.cursor/rules/`, the rule-authoring skill, and several audit skills; needs a deliberate inventory and a new authoring contract before mass edits, or we risk swapping stale paths for vague rules.
 
 **Revisit when:** A dedicated workflow-improvement session (half-day), before forking the template to a new product (so spinoffs inherit stage-stable rules), after a build where agents followed a rule to a moved/deleted file, or when doing the LEXICON → CONTEXT split (same "as-built vs. timeless" design thread).
+
+### Skill naming convention alignment (Cursor + Claude)
+
+**What:** Audit skill **names** (invoke strings and directory / `.skill` filenames) across **both environments** — Cursor-side (`.cursor/skills/`) and Claude-side (`docs/claude-skills/`, installed per [WORKFLOW_SETUP.md](WORKFLOW_SETUP.md)) — and decide on a **consistent naming convention** before any mass renames. Today the catalog mixes several patterns without an explicit rule:
+
+| Pattern | Examples | Notes |
+| ------- | -------- | ----- |
+| `audit-{thing}` | `audit-rules`, `audit-tests`, `audit-tech-debt`, `audit-security`, `audit-seo` | Largest audit family — action (`audit`) first |
+| `{thing}-audit` | `lexicon-audit` | Same job shape as above, opposite word order |
+| `{verb}-{noun}` (action first) | `ship-phase`, `plan-next-epic`, `mark-epic-complete`, `initialize-project`, `sync-repo-docs`, `archive-cursor-plans`, `archive-research`, `kickoff-phase`, `create-migration`, `create-mockup` | Workflow / lifecycle verbs lead |
+| `{noun}-{verb}` or `{thing}-{action}` | `code-review`, `pre-release-review`, `design-critique`, `rule-authoring`, `github-docs-authoring`, `skill-authoring`, `instructions-authoring` | Subject or artifact leads |
+| `{thing}-{verb}` (Claude lexicon) | `lexicon-update`, `project-kickoff`, `phase-planning`, `plan-review` | Overlaps conceptually with Cursor names but different order (`kickoff-phase` vs `project-kickoff`) |
+| Bare noun | `research` | No verb prefix |
+| Specialty short form | `ux-copy` | Domain-specific, not verb-led |
+
+**Questions to answer:**
+
+1. **Primary axis** — Should names be **verb-first** (`audit-rules`, `ship-phase`) or **noun-first** (`rules-audit`, `phase-ship`)? Or different rules per family (audits vs. workflow steps vs. authoring helpers)?
+2. **Audit family** — Standardize on `audit-{thing}` (rename `lexicon-audit` → `audit-lexicon`) or `{thing}-audit` (rename five `audit-*` skills)? Consider discoverability when typing `/audit` in Cursor vs. grouping lexicon work with `lexicon-update` on Claude.
+3. **Cross-environment pairs** — Where Claude and Cursor skills are handoff partners, should names **echo** each other (`kickoff-phase` ↔ `project-kickoff`, `plan-next-epic` ↔ `plan-review`, `lexicon-audit` ↔ `lexicon-update`)? If yes, which side is canonical for word order?
+4. **Authoring / meta skills** — Keep `{thing}-authoring` (`rule-authoring`, `skill-authoring`) or move to `author-{thing}` / `create-{thing}` to match `create-migration` / `create-mockup`?
+5. **Rename cost** — Inventory every reference: skill `name:` frontmatter, `SKILL.md` cross-links, [AGENTS.md](../AGENTS.md) catalog, [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md), [WORKFLOW_SETUP.md](WORKFLOW_SETUP.md), plans, backlog items, and PM muscle memory. Separate **must-rename** (true inconsistency) from **grandfather** (rename cost > payoff).
+6. **Authoring contract** — If a convention is chosen, where does it live? Candidates: `skill-authoring` skill, a short section in WORKFLOW_GUIDE or DOC_RULES, or a checklist in `docs/claude-skills/README.md` (if added).
+
+**Deliverable:** A short research brief in `docs/research/` (`RESEARCH-NNNN-skill-naming-convention-audit.md`) with: (1) full inventory table (Cursor + Claude, required vs. optional, workflow vs. situational), (2) pattern taxonomy and outliers, (3) recommended convention per family with rationale, (4) rename map (old → new) or explicit grandfather list, (5) follow-on work estimate (docs-only vs. directory renames + Claude re-upload). Record as an [ADR](adr/README.md) only if the convention becomes a hard template contract for spinoffs.
+
+**Relationship to other items:** Complements [Workflow skill next-step breadcrumb audit](#workflow-skill-next-step-breadcrumb-audit) (skill *content* at close-out) and [Integrate quality skills into the documented workflow](#integrate-quality-skills-into-the-documented-workflow) (skill *placement* in the loop) — this item is specifically about **invoke-name consistency and discoverability**, not what skills do or when to run them.
+
+**Why deferred:** Names grew organically as skills landed; nothing is broken today. Renaming is high-touch (Cursor paths, Claude account-wide reinstall, every doc reference) and should follow a deliberate convention choice, not ad hoc fixes when one name feels wrong.
+
+**Revisit when:** A dedicated workflow-improvement session (half-day), before forking the template (so spinoffs inherit clean names), when adding a new skill and the "what should we call it?" question takes more than a minute, or alongside the [LEXICON → CONTEXT rename](#rename-lexiconmd-to-contextmd-separate-glossary-from-as-built-pointers) pass if `lexicon-audit` / `lexicon-update` are in scope anyway.
