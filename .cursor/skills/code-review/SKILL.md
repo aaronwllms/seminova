@@ -92,16 +92,16 @@ If the spec is missing, dispatch only the Standards subagent.
 
 ### 5. Aggregate
 
-Present the two reports under `## Standards` and `## Spec` headings, verbatim or lightly cleaned. Do **not** merge or rerank findings across axes — the separation is the point (see below).
+Present the two reports under `## Standards` and `## Spec` headings, verbatim or lightly cleaned. Each carries its own verdict over its own findings. Do **not** merge or rerank findings across axes — the separation is the point (see below).
 
-End with a one-line summary per axis: total findings and the worst issue *within that axis*. Never pick a single winner across axes.
+End with a one-line summary per axis: verdict, finding count, and the worst issue *within that axis*. Never pick a single winner across axes.
 
 ### 6. Handoff
 
-After presenting both reports, tell the user — carrying the **epic identifier** forward:
+Read [`grading.md`](grading.md) — it owns the severity ladder, the verdict function, and the close-out gate. Carry the **epic identifier** forward. Then:
 
-- **If fixes are needed:** apply them, commit them, then open a new agent window and run `/mark-epic-complete for Epic <id>`.
-- **If no fixes are needed:** open a new agent window and run `/mark-epic-complete for Epic <id>` now.
+- **Gate not met** — list exactly what remains: blockers to fix, debt findings still needing a `// debt:` marker at their cited site, spec defects awaiting a PRD edit or a decision. Apply the fixes, commit, then re-check the gate.
+- **Gate met** — open a new agent window and run `/mark-epic-complete for Epic <id>`. That skill syncs repo docs before stamping the PRD; no separate doc-sync step is needed here.
 
 ## Why two axes
 

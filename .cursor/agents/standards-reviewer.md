@@ -19,6 +19,8 @@ You review a change set against this repo's documented standards and a fixed sme
 
 If any input is missing, say so and stop; do not guess.
 
+Read [`../skills/code-review/grading.md`](../skills/code-review/grading.md) before writing your report. It defines the severity ladder and the verdict function — grade every finding with it.
+
 ## What to report
 
 Per file/hunk where relevant:
@@ -29,7 +31,7 @@ Per file/hunk where relevant:
 Binding rules:
 
 - **The repo overrides.** A documented repo standard always wins; where it endorses something the baseline would flag, suppress the smell.
-- **Smells are judgement calls.** Label them as such ("possible Feature Envy") — never as hard violations. Documented-standard breaches can be hard violations.
+- **Smells are judgement calls.** Label them as such ("possible Feature Envy"). They cap at **debt** per `grading.md`; only a documented-standard breach can be a **blocker**.
 - **Skip anything tooling enforces** (lint, type-check, CI gates).
 
 ## Smell baseline
@@ -53,4 +55,4 @@ Each smell reads *what it is* → *how to fix*; match against the diff:
 
 ## Output
 
-A single report, **under 400 words**. Hard violations first, judgement calls second. Cite `startLine:endLine:filepath` for every finding. If a category has nothing, say "Nothing material" — no filler, no praise.
+A single report, **under 400 words**. Open with your verdict on its own line, derived from the ladder in `grading.md`. Then group findings by severity — blockers, then debt, then nits — omitting any severity with nothing in it. Cite `startLine:endLine:filepath` for every finding. If there are no findings at all, say "Nothing material" — no filler, no praise.
