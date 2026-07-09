@@ -1,0 +1,6 @@
+# Soft block — excluded from @Codebase indexing only; still readable via @-mention.
+
+.cursor/plans/archive/
+docs/archive/
+docs/prds/archive/
+docs/research/archive/

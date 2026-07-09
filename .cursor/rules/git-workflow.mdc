@@ -122,7 +122,11 @@ test/add-component-tests
 
 ## Commits
 
-Agents do not commit unless the user explicitly asks.
+Agents do not commit unless one of these narrow exceptions applies:
+
+- **(a)** The user explicitly asks
+- **(b)** An approved implementation plan in `.cursor/plans/` includes an authorized **Commit epic** step
+- **(c)** An explicitly invoked skill authorizes a commit scoped to **its own edits** — `ship-phase`, `plan-next-epic` status-flip commit, `mark-epic-complete` tag commit
 
 ## Pull Requests
 

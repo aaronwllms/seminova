@@ -17,7 +17,7 @@ Before touching anything, verify all three of `src/config/site.ts`, `README.md`,
 
 ## Idempotency
 
-Before scrubbing, check all eight of this skill's outputs for whether they're already done:
+Before scrubbing, check all nine of this skill's outputs for whether they're already done:
 
 - **`LICENSE`** — has a line matching `Copyright (c) <any year> <owner name from site.ts>`
 - **`AGENTS.md`** — no remaining Seminova name references
@@ -26,12 +26,13 @@ Before scrubbing, check all eight of this skill's outputs for whether they're al
 - **`docs/WORKFLOW_BACKLOG.md`** — "Deferred items" section matches the stub placeholder (no real entries)
 - **`.mockups/`** — empty
 - **`docs/archive/`** — empty
+- **`docs/research/`** — active dir contains only `README.md` (no `RESEARCH-*.md`); `docs/research/archive/` has no `RESEARCH-*.md` (`.gitkeep` alone is OK)
 - **`CONTRIBUTING.md`** — absent (the file ships with every template clone; its absence means the scrub deleted it)
 
-Bucket on agreement across all eight:
+Bucket on agreement across all nine:
 
-- **All eight done** → skip the run, report it's already initialized.
-- **All eight not done** → proceed with the run.
+- **All nine done** → skip the run, report it's already initialized.
+- **All nine not done** → proceed with the run.
 - **Mixed** → halt. Report exactly which outputs are done and which aren't — this is a partial or interrupted prior run, not something to guess past. Do not pick one signal as authoritative over the others; any single check can be coincidentally true (an empty archive) or simply unwritten (LICENSE never touched) without reflecting the real state of the others.
 
 ## What it reads
@@ -67,7 +68,12 @@ These are the only sources of truth for identity. Do not ask the user for any of
 7. **`docs/archive/`**
    - Purge all contents (removes `CONTEXT_ARCHIVE.md`). This is Seminova's frozen pre-restructure history; it has no relevance to the new project.
 
-8. **`CONTRIBUTING.md`**
+8. **`docs/research/`**
+   - Delete all `RESEARCH-*.md` files in the active directory. These are Seminova's own research briefs; they have no relevance to the new project.
+   - Purge all contents of `docs/research/archive/` (Seminova's archived briefs). Preserve an empty `archive/` folder (`.gitkeep` is fine).
+   - Preserve `README.md` unchanged — the research mechanism itself is part of what every spinoff inherits, just empty until the new project writes its first brief.
+
+9. **`CONTRIBUTING.md`**
    - Delete the file. It is Seminova's contribution guide — scope guidance, issue links, and framing specific to the public template; none of it applies to a spinoff product. A product that later opens to contributions writes its own. (`project-kickoff`'s README rewrite removes the references to this file, so no dead links remain.)
 
 ## What it never touches

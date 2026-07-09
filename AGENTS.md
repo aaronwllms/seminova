@@ -13,8 +13,8 @@ Document roles and the doc-maintenance procedure are authoritative in [docs/DOC_
 1. **Read** AGENTS.md + relevant `.cursor/rules/` and skills before coding.
 2. **Migrations:** agents write SQL files in `supabase/migrations/` only. Humans run `pnpm db:push` and `pnpm db:types`. See [.cursor/rules/do-migrations-agent.mdc](.cursor/rules/do-migrations-agent.mdc).
 
-   > [!IMPORTANT]
-   > **Migrations are human-only.** Agents write SQL migration files; humans run `pnpm db:push` and `pnpm db:types` against the linked Supabase project.
+> [!IMPORTANT]
+> **Migrations are human-only.** Agents write SQL migration files; humans run `pnpm db:push` and `pnpm db:types` against the linked Supabase project.
 
 3. **Quality bar** before finishing work:
 
@@ -38,6 +38,7 @@ For the planning-loop skills (`plan-next-epic`, `mark-epic-complete`, `ship-phas
 | Skill | Use when |
 | ----- | -------- |
 | `pre-release-review` | Finishing an epic or before opening a PR — quality gates, scoped code review, security check, hard-constraints check, manual test checklist |
+| `code-review` | Reviewing an epic or branch since a fixed git ref — two-axis (Standards + Spec) review via parallel readonly subagents |
 | `audit-tech-debt` | Codebase health check or architecture review — full pass or sync → `TECH_DEBT_AUDIT.md` |
 | `audit-tests` | Test suite health check — full pass or sync → `TEST_AUDIT.md` |
 | `audit-rules` | Rules health check — full pass or sync → `RULE_AUDIT.md` |
@@ -57,6 +58,8 @@ For the planning-loop skills (`plan-next-epic`, `mark-epic-complete`, `ship-phas
 | ----- | -------- |
 | `create-migration` | Adding tables, columns, indexes, or RLS policies — writes a correctly-named, RLS-compliant migration file |
 | `archive-cursor-plans` | After a phase ships, or before a planning push — moves completed plans from `.cursor/plans/` to `.cursor/plans/archive/` |
+| `research` | Exploratory investigation (product, technical, competitive, codebase) → `docs/research/` brief or chat-only |
+| `archive-research` | Retires served research briefs to `docs/research/archive/` — @-attach brief(s) in the same invocation |
 
 All skills are read-only or scoped-write as documented in their own `SKILL.md` — see `.cursor/skills/<name>/SKILL.md` for full workflow detail. None auto-invoke except `sync-repo-docs`.
 
@@ -207,6 +210,7 @@ Directory-level map. File-level detail lives in the [Implemented now](#implement
 | `docs/DOC_RULES.md` | Doc roles and maintenance procedure |
 | `docs/prds/` | Per-phase PRDs (`docs/prds/archive/` when shipped) |
 | `docs/adr/` | Architecture Decision Records |
+| `docs/research/` | Exploratory research briefs (`docs/research/README.md`; `docs/research/archive/` when retired) |
 | `DESIGN.md` | Token architecture and re-skin workflow (names only — values in globals.css) |
 | `.cursor/rules/` | Agent coding standards |
 | `.cursor/skills/` | Agent workflows |

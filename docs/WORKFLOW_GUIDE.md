@@ -2,7 +2,7 @@
 
 **Purpose:** How phases move from idea to shipped code — the tools, the documents, and the workflow. For write discipline and doc-maintenance rules, see [DOC_RULES.md](DOC_RULES.md).
 
-**Last updated:** 2026-07-07
+**Last updated:** 2026-07-08
 
 ---
 
@@ -94,6 +94,7 @@ What `initialize-project` touches:
 - `docs/WORKFLOW_BACKLOG.md` — clears Seminova's deferred workflow items, keeps the stub structure
 - `.mockups/` — purges Seminova's design mockups
 - `docs/archive/` — purges the frozen pre-restructure archive
+- `docs/research/` — deletes Seminova's active `RESEARCH-*.md` briefs; purges `docs/research/archive/`; keeps `README.md`
 - `CONTRIBUTING.md` — deletes the file; the template's contribution guide doesn't apply to a spinoff product
 
 What it does not touch:
@@ -114,20 +115,27 @@ Once the project is initialized, the phase-by-phase loop begins — one phase pl
 **Step 4 — Plan the phase** *(Claude-side skill: `phase-planning`)*
 Claude reads ROADMAP, AGENTS.md (hard constraints), and the phase's ROADMAP stub, then works with you to decompose the target phase into numbered epics and vertical-slice stories. Each story carries a success condition — the observable behavior that proves it's done, in product terms. The decomposition is shaped in chat during `Planning` and written into the PRD at the `Ready` flip; Claude writes the PRD only when you ask.
 
-Phase status moves: `Draft → Planning` (PRD created, scope being shaped) → `Ready` (locked, approved to build). When the build is about to start, `phase-planning` also flips the PRD and ROADMAP row to `Active`.
+Phase status moves: `Draft → Planning` (PRD created, scope being shaped) → `Ready` (locked, approved to build). The `Active` flip happens later — `plan-next-epic` performs it when generating the phase's first epic plan.
 
 **Step 5 — Plan and review the epic** *(Cursor: `plan-next-epic` ↔ Claude: `plan-review`)*
 This step is a subloop — plan and review go back and forth until Claude signs off, which can take one pass or several:
 
-- **5a.** You invoke `plan-next-epic` in Cursor with **plan mode** active. This generates an implementation plan for the next unbuilt epic in the active PRD. Plans are always written sequentially; if an epic has clearly independent tracks, the plan notes it as a Build-in-Parallel candidate for you to act on.
+- **5a.** You invoke `plan-next-epic` in Cursor with **plan mode** active. This generates an implementation plan for the next unbuilt epic in the active PRD. On the phase's first epic it also creates the phase branch and flips the PRD and ROADMAP row to `Active`. Plans are always written sequentially; if an epic has clearly independent tracks, the plan notes it as a Build-in-Parallel candidate for you to act on.
 - **5b.** Select **Markdown view** from the plan's ellipsis (`⋯`) menu, copy the markdown, and paste it into Claude, invoking `plan-review`.
 - **5c.** If Claude flags issues: discuss and settle the feedback in chat (this can take a few exchanges), then ask Claude for a standalone copy-block prompt summarizing the agreed change.
 - **5d.** Paste that prompt into the same Cursor plan-mode session; Cursor updates the plan.
 - **5e.** Copy the updated plan's markdown and paste it back to Claude for re-review. Repeat 5c–5e until clean — occasionally a revision introduces a new issue, which just runs another lap of the loop.
-- **Exit condition:** Claude confirms the plan is good to build. A solid plan typically includes the quality bar (`pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci`) and a closing `mark-epic-complete` step, tagging the epic `` `Complete` `` in the PRD once implementation is finished — confirm both are present during review rather than expecting to run them by hand later.
+- **Exit condition:** Claude confirms the plan is good to build. A solid plan includes: (1) a quality gate (`pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci`), (2) a **Commit epic** step authorized by the approved plan, and (3) a closing handoff instructing the user to run `/code-review` in a new agent window, including the epic baseline SHA and epic identifier.
 
-**Step 6 — Build**
-Press the build button on the approved plan in Cursor. Cursor implements it end to end, including the quality-bar and `mark-epic-complete` steps the plan already specifies. If the phase has more unbuilt epics, return to **Step 5** to plan and review the next one. Once every epic in the phase is built, move to Step 7.
+**Step 6 — Build and follow-up**
+Press the build button on the approved plan in Cursor. The build window implements the epic end to end, runs the quality gate, and commits the epic. It ends with a handoff to run `/code-review` in a **new agent window**, passing the baseline SHA and epic id from the plan.
+
+After build, each follow-up runs in its own fresh agent window:
+
+1. **`/code-review`** — pass the baseline SHA and epic id from the build handoff. Apply and commit any fixes if needed.
+2. **`/mark-epic-complete for Epic <id>`** — epic id from the code-review breadcrumb; commits the PRD `` `Complete` `` tag.
+
+If the phase has more unbuilt epics, return to **Step 5** to plan and review the next one. Once every epic in the phase is built, move to Step 7.
 
 **Step 7 — Ship the phase** *(Cursor-side skill: `ship-phase`)*
 Flips the PRD to `Shipped`, moves it to `docs/prds/archive/`, updates ROADMAP, commits, pushes, and opens a PR. Merge to main is a separate human step.
@@ -157,6 +165,10 @@ Not part of the numbered loop above, but operate on the planning docs rather tha
 
 **`create-mockup`** *(Claude-side)* — builds a static UI mockup as an inline widget, iterates on your feedback, and saves the approved version to `.mockups/`. Invoked ad hoc ("mock up this screen") or by `phase-planning` when a story's UI is worth seeing before build, with the file path written into the story. The static-only rule (mockups, not clickable prototypes) is defined in the skill itself.
 
+**`research`** *(Cursor-side)* — investigates a product, technical, competitive, or codebase question; persists findings to `docs/research/` (Document mode, default) or delivers in chat only (Chat mode). Docs-only — never edits product code. Invoke with `/research`.
+
+**`archive-research`** *(Cursor-side)* — retires served briefs to `docs/research/archive/` when the PM @-attaches one or more active `RESEARCH-*.md` files in the same invocation. @-mention is required. Archived briefs are frozen. Invoke with `/archive-research`.
+
 For repo-maintenance and quality skills (security audits, tech-debt audits, design/copy review, etc.) not specific to the planning system, see [AGENTS.md › Agent skills](../AGENTS.md#agent-skills-cursorskills).
 
 ---
@@ -170,6 +182,8 @@ A few practical habits that make this workflow smoother.
 2. **Batch file edits, then write once.** MCP's `filesystem:write_file` does whole-file rewrites — there's no patch/diff capability. Every write re-reads and re-emits the entire file's contents, so several small sequential edits cost more than deciding all the changes first and writing once at the end.
 
 3. **When running low on Claude token budget.** Consider drafting instead of writing directly. Rather than having Claude write through MCP, ask it to produce the content as a copy block in chat, then paste it into the file yourself. This skips the token cost of the write call itself. The tradeoff: Claude normally re-reads a file immediately before writing to guard against drift since its last read — if you draft-and-paste instead, you're the one vouching the file hasn't changed.
+
+4. **Refresh `seo.mdc` before running `audit-seo`.** SEO practice is shifting fast as AI-driven discovery evolves, and the audit checks code against the rule as written — a stale rule means a stale audit. Do a quick review of the rule against current practice first.
 
 ---
 

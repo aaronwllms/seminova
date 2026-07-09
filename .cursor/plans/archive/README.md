@@ -2,6 +2,8 @@
 
 Historical Cursor implementation plans — not shipped repo truth. Part of the [Cursor configuration layout](../../README.md). For current routes, auth, and patterns, see [AGENTS.md](../../../AGENTS.md).
 
+**Cursor indexing:** this directory is in [`.cursorindexingignore`](../../../.cursorindexingignore) — excluded from @Codebase search, still readable via @-mention. See [`.cursor/README.md` › Ignore files](../../README.md#ignore-files-repo-root).
+
 ## Path migration (Phase 6 Epic 2, shipped 2026-06-23)
 
 - `src/app/(admin)/` → `src/app/admin/`
