@@ -13,7 +13,8 @@ import {
 } from '@/components/ui/form'
 
 import type { ProfileFormInputValues } from '@/app/(app)/_lib/profile/profile-form-schema'
-import { FieldSaveIndicator, type FieldSaveState } from './field-save-indicator'
+import type { FieldSaveState } from '@/app/(app)/_lib/profile/field-save-state'
+import { FieldSaveIndicator } from './field-save-indicator'
 
 type TextFieldName = 'displayName' | 'bio'
 

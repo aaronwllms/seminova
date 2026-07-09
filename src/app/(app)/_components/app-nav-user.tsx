@@ -51,12 +51,7 @@ export const AppNavUser = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" sideOffset={4}>
-        <DropdownMenuItem
-          onSelect={(event) => {
-            event.preventDefault()
-            openProfile()
-          }}
-        >
+        <DropdownMenuItem onSelect={openProfile}>
           <User />
           Profile
         </DropdownMenuItem>

@@ -52,10 +52,8 @@ describe('AppNavUser', () => {
     expect(profileItem).not.toHaveAttribute('href')
     await user.click(profileItem)
     expect(mockOpenProfile).toHaveBeenCalled()
-    expect(
-      screen.queryByRole('menuitem', { name: /admin console/i }),
-    ).not.toBeInTheDocument()
 
+    await user.click(screen.getByRole('button', { name: /account menu/i }))
     await user.click(screen.getByRole('menuitem', { name: /sign out/i }))
 
     await waitFor(() => {

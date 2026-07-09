@@ -1,6 +1,13 @@
 'use client'
 
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react'
 
 import type { ProfileFormValues } from '@/app/(app)/_lib/profile/profile-form-schema'
 
@@ -45,9 +52,11 @@ export const ProfileDialogProvider = ({
   defaultValues,
 }: ProfileDialogProviderProps) => {
   const [open, setOpen] = useState(false)
+  const openProfile = useCallback(() => setOpen(true), [])
+  const value = useMemo(() => ({ openProfile }), [openProfile])
 
   return (
-    <ProfileDialogContext.Provider value={{ openProfile: () => setOpen(true) }}>
+    <ProfileDialogContext.Provider value={value}>
       {children}
       <ProfileSettingsDialog
         open={open}

@@ -177,7 +177,7 @@ Test user-visible error UI for operational failures and envelope `kind`/`code` a
 
 - [`src/components/login-form.integration.test.tsx`](../../src/components/login-form.integration.test.tsx) — operational auth failure renders inline message, no `ErrorPanel` copy affordance
 - [`src/utils/extract-auth-form-error.unit.test.ts`](../../src/utils/extract-auth-form-error.unit.test.ts) — operational vs fault mapping
-- [`src/app/(app)/profile/actions.unit.test.ts`](../../src/app/(app)/profile/actions.unit.test.ts) — Server Action envelope assertions (`success: false`, `kind`, `code`)
+- [`src/app/(app)/_lib/profile/actions.unit.test.ts`](../../src/app/(app)/_lib/profile/actions.unit.test.ts) — Server Action envelope assertions (`success: false`, `kind`, `code`)
 
 ## Quick Checklist
 

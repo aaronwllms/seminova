@@ -59,7 +59,7 @@ First bucket: **`avatars`** — public-read, owner-scoped writes. Pattern for al
 
 **Migration reference:** [`supabase/migrations/20260623120000_create_avatars_bucket.sql`](../../supabase/migrations/20260623120000_create_avatars_bucket.sql)
 
-**Shipped flow:** [`src/app/(app)/profile/`](../../src/app/(app)/profile/) calls `uploadUserAvatar` ([`avatar-storage.ts`](../../src/utils/avatar-storage.ts)), then a server action persists `publicUrl` to `profiles.avatar_url`.
+**Shipped flow:** [`src/app/(app)/_components/profile/`](../../src/app/(app)/_components/profile/) calls `uploadUserAvatar` ([`avatar-storage.ts`](../../src/utils/avatar-storage.ts)), then [`src/app/(app)/_lib/profile/actions.ts`](../../src/app/(app)/_lib/profile/actions.ts) persists `publicUrl` to `profiles.avatar_url`.
 
 **Security:** See [`security.mdc`](security.mdc) for upload validation at trust boundaries. Bucket `allowed_mime_types` + `file_size_limit` mirror client input validation; stored object is always WebP at the fixed path.
 
@@ -140,7 +140,7 @@ import { updateSession } from '@/supabase/proxy'
 
 - **Server reads:** co-located `_lib/` helpers (e.g. [`get-current-user-profile.ts`](../../src/app/(app)/_lib/get-current-user-profile.ts))
 - **Client mutations:** hooks (e.g. [`use-sign-out.ts`](../../src/hooks/use-sign-out.ts))
-- **Server mutations:** `actions.ts` files (e.g. [`profile/actions.ts`](../../src/app/(app)/profile/actions.ts))
+- **Server mutations:** `actions.ts` files (e.g. [`src/app/(app)/_lib/profile/actions.ts`](../../src/app/(app)/_lib/profile/actions.ts))
 
 When a shared service layer is introduced, add `src/services/` and update this rule.
 

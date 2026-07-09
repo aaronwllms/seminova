@@ -6,7 +6,7 @@
 
 **Discipline:** Entries are short — a sentence or two of meaning, plus a pointer to the canonical home (a rule, `DESIGN.md`, [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints), an ADR) where the authoritative detail and any values live. Do not duplicate token values, rule wording, or schema here; point to the source of truth instead.
 
-**Last updated:** 2026-07-07
+**Last updated:** 2026-07-09
 
 ---
 
@@ -107,11 +107,11 @@ The authenticated layout wrappers. [`AppShell`](src/app/(app)/_components/app-sh
 
 ### Server Action
 
-A `'use server'` function — the default path for authenticated reads and mutations in Seminova. Actions return a typed **response envelope** (see below) rather than raw HTTP responses, and are co-located in `actions.ts` alongside the route they serve. Reach for a server action before reaching for an API route. Consumption detail in [`.cursor/rules/forms.mdc`](.cursor/rules/forms.mdc).
+A `'use server'` function — the default path for authenticated reads and mutations in Seminova. Actions return a typed **response envelope** (see below) rather than raw HTTP responses, and are co-located with the surface they serve: `actions.ts` beside the route's `page.tsx`, or in the route group's `_lib/` when the surface has no route of its own (e.g. the profile modal). Reach for a server action before reaching for an API route. Placement rule in [`.cursor/rules/project-standards.mdc`](.cursor/rules/project-standards.mdc); action pattern in [`.cursor/rules/forms.mdc`](.cursor/rules/forms.mdc).
 
 ### Response envelope
 
-The standard return shape for server actions: `{ success: true, data }` or `{ success: false, error: { message, code, kind } }`. The `kind` field links to the operational/fault classification. Callers discriminate on `success` before using `data`. Never return raw thrown errors or untyped objects from an action. See [`src/app/(app)/profile/actions.ts`](src/app/(app)/profile/actions.ts) as the reference implementation.
+The standard return shape for server actions: `{ success: true, data }` or `{ success: false, error: { message, code, kind } }`. The `kind` field links to the operational/fault classification. Callers discriminate on `success` before using `data`. Never return raw thrown errors or untyped objects from an action. See [`src/app/(app)/_lib/profile/actions.ts`](src/app/(app)/_lib/profile/actions.ts) as the reference implementation.
 
 ### Site config
 
@@ -122,10 +122,10 @@ The re-skin entry point for product identity. [`src/config/site.ts`](src/config/
 The rule for when a form field persists. Seminova uses three modes, and the choice is intentional per field:
 
 - **Blur-save** — persists when the field loses focus (e.g. display name).
-- **Explicit submit** — for coupled or high-stakes fields (e.g. password change via modal).
+- **Explicit submit** — for coupled or high-stakes fields (e.g. password change).
 - **Upload-on-complete** — persists immediately when an upload finishes (e.g. avatar).
 
-Each mode carries different success feedback. Reference implementation: [`profile-settings-form.tsx`](src/app/(app)/profile/_components/profile-settings-form.tsx). Consumption detail in [`.cursor/rules/forms.mdc`](.cursor/rules/forms.mdc).
+Each mode carries different success feedback. Reference implementation: [`profile-settings-form.tsx`](src/app/(app)/_components/profile/profile-settings-form.tsx). Consumption detail in [`.cursor/rules/forms.mdc`](.cursor/rules/forms.mdc).
 
 ### Feedback routing
 
@@ -139,7 +139,7 @@ Consumption detail in [`.cursor/rules/notifications.mdc`](.cursor/rules/notifica
 
 ### Post-auth redirect
 
-After sign-in, users are routed by role: admins → `/admin`, everyone else → `APP_HOME` (`/profile`). The logic lives in [`getPostAuthRedirectPath()`](src/utils/admin.ts) and is wired through [`/auth/confirm`](src/app/auth/confirm/route.ts) and the login flow. When adding new roles or surfaces, this is the function to extend — not the auth flow itself.
+After sign-in, users are routed by role: admins → `/admin`, everyone else → `APP_HOME` (`/home`). The logic lives in [`getPostAuthRedirectPath()`](src/utils/admin.ts) and is wired through [`/auth/confirm`](src/app/auth/confirm/route.ts) and the login flow. When adding new roles or surfaces, this is the function to extend — not the auth flow itself.
 
 ### Owned storage path
 

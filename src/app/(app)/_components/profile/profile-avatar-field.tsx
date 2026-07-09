@@ -8,7 +8,8 @@ import { InlineError } from '@/components/inline-error'
 import { validateAvatarFile } from '@/utils/avatar-storage'
 import { getProfileInitials } from '@/utils/user-initials'
 
-import { FieldSaveIndicator, type FieldSaveState } from './field-save-indicator'
+import type { FieldSaveState } from '@/app/(app)/_lib/profile/field-save-state'
+import { FieldSaveIndicator } from './field-save-indicator'
 
 export const getProfileAvatarAltText = (displayName: string | null): string =>
   displayName?.trim() ? `${displayName.trim()} avatar` : 'Profile photo'

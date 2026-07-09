@@ -5,6 +5,7 @@ globs:
   - 'src/**/*form*'
   - 'src/**/actions.ts'
   - 'src/**/*password-dialog*'
+  - 'src/**/*password-section*'
   - 'src/**/*avatar-field*'
 alwaysApply: false
 ---
@@ -13,7 +14,7 @@ alwaysApply: false
 
 ## Canonical stack
 
-Profile page (`src/app/(app)/profile/`) is the reference implementation.
+Profile settings modal (`src/app/(app)/_lib/profile/` + `src/app/(app)/_components/profile/`) is the reference implementation.
 
 | Layer | Tool |
 | ----- | ---- |
@@ -77,7 +78,7 @@ Auth forms (`login-form`, `sign-up-form`, etc.) remain `useState` until intentio
 4. `revalidatePath` for affected routes
 5. Return `{ success: true, data }` or `{ success: false, error: { message, code, kind } }`
 
-See [`src/app/(app)/profile/actions.ts`](../../src/app/(app)/profile/actions.ts) and [`src/app/admin/users/actions.ts`](../../src/app/admin/users/actions.ts).
+See [`src/app/(app)/_lib/profile/actions.ts`](../../src/app/(app)/_lib/profile/actions.ts) and [`src/app/admin/users/actions.ts`](../../src/app/admin/users/actions.ts).
 
 ## Cross-references
 

@@ -7,7 +7,7 @@ import type { UseFormReturn } from 'react-hook-form'
 import type { AppError } from '@/types/app-error'
 
 import { updateProfileAction } from './actions'
-import type { FieldSaveState } from '@/app/(app)/_components/profile/field-save-indicator'
+import type { FieldSaveState } from './field-save-state'
 import type {
   ProfileFormInputValues,
   ProfileFormValues,
