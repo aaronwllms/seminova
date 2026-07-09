@@ -44,3 +44,5 @@ Judge only against the named story/epic — do not review code quality, conventi
 A single report, in the four sections above. Open with your verdict on its own line, derived from findings 1–3 only. Group those findings by severity — blockers, then debt, then nits. Report spec defects last, under their own heading, ungraded. If a section has nothing, say "Nothing material."
 
 **Report every finding you have.** Length is set by the findings, not by a budget — never drop, merge, or downgrade a finding to keep the report short. Spend words on findings and nothing else: no summary, no restatement of the diff, no list of what passed, no praise.
+
+**State what each finding breaks before you label it** — one concrete clause naming what the user gets that the spec or plan did not ask for. If the outcome the user sees is unchanged, say so plainly. The consequence chooses the severity; write them in that order.
