@@ -6,7 +6,7 @@
 
 **How to use it.** Each entry is a deferred decision with its reason for deferral and the signal that should bring it back. Pull an item out when its trigger fires; delete it when it's resolved (record the resolution as an [ADR](adr/README.md) if it qualifies).
 
-**Last updated:** 2026-07-08 (epic close-out commit workflow; auto-commit backlog item resolved)
+**Last updated:** 2026-07-08 (pre-release-review value audit backlog item)
 
 ---
 
@@ -24,6 +24,8 @@
   - [Cursor capability utilization audit](#cursor-capability-utilization-audit)
   - [Documentation surface area & context-bloat audit](#documentation-surface-area--context-bloat-audit)
   - [Workflow skill next-step breadcrumb audit](#workflow-skill-next-step-breadcrumb-audit)
+  - [Pre-release review value audit](#pre-release-review-value-audit)
+  - [Rename LEXICON.md to CONTEXT.md; separate glossary from as-built pointers](#rename-lexiconmd-to-contextmd-separate-glossary-from-as-built-pointers)
 
 ---
 
@@ -124,3 +126,34 @@
 **Why deferred:** Breadcrumbs exist ad hoc on a few skills (`ship-phase`, `archive-cursor-plans`, parts of `research`) but are absent on others that sit on critical handoff points (`mark-epic-complete`, `initialize-project`, `lexicon-audit`, `archive-research`, and likely several Claude-side skills). Standardizing without an inventory risks wrong or redundant "next step" copy — especially where the correct handoff depends on context (more epics vs. phase ship vs. back to Claude for `plan-review`).
 
 **Revisit when:** Between phases with a short workflow-improvement window, after a build session where the PM had to ask "what do I do now?" at a skill boundary, or when adding a new planning-system skill (define the breadcrumb contract up front).
+
+### Pre-release review value audit
+
+**What:** Decide whether `pre-release-review` earns a place in the documented workflow — or should be deleted, merged, or left situational only. The workflow is accumulating named steps (`code-review` after epic commit, quality gate in every build plan, `mark-epic-complete`, `ship-phase`, etc.), and `pre-release-review` may be redundant junk or may cover a gap nothing else does. This is a **focused verdict on one skill**, not the broader quality-skills integration pass in [Integrate quality skills into the documented workflow](#integrate-quality-skills-into-the-documented-workflow).
+
+**Questions to answer:**
+
+1. **Overlap map** — What does each step of `pre-release-review` duplicate vs. what already runs elsewhere?
+   - Step 1 (automated gates) vs. build-plan quality gate and `pnpm pre-push`
+   - Step 3 (scoped code review) vs. `code-review` Standards axis
+   - Step 4 (security) vs. `audit-security` and `.cursor/rules/security.mdc`
+   - Step 5 (hard constraints) vs. `code-review` Standards + CI `check:*` scripts
+   - Step 6 (errors / a11y / DB) vs. rules + `code-review`
+   - Step 7 (manual test checklist + docs sync prompt) vs. build handoff and `sync-repo-docs`
+2. **Unique value** — If anything in `pre-release-review` is not covered elsewhere, is it worth a standalone skill or should it fold into an existing step (e.g. add manual-test checklist to `code-review` close-out)?
+3. **Placement** — If kept: named loop step (where — after `code-review`? before PR? phase ship only?), situational invoke-by-name, or delete the skill entirely.
+4. **Cost** — Context window, PM friction, and "another step" fatigue vs. catch rate from real runs (has it ever surfaced something `code-review` or the build gate missed?).
+
+**Deliverable:** A short research brief in `docs/research/` (`RESEARCH-NNNN-pre-release-review-audit.md`) with: (1) overlap table (step → already covered by → gap?), (2) unique-value summary, (3) recommendation — **keep as named step** / **keep situational** / **merge into `code-review` or build plan** / **delete skill**, (4) if kept or merged, the exact WORKFLOW_GUIDE.md step wording to add. Record as an [ADR](adr/README.md) only if the decision changes workflow contracts other skills depend on.
+
+**Why deferred:** `code-review` just landed as a named post-epic step (2026-07-08); running this audit before a few real epic cycles would guess at overlap instead of measuring it. The skill may be junk, but the call needs evidence — not a reflex delete while steps are still being wired up.
+
+**Revisit when:** Between phases with a short workflow-improvement window, before updating WORKFLOW_GUIDE.md / WORKFLOW_SETUP.md with the next batch of named steps, or after 1–2 epic cycles where `code-review` ran but `pre-release-review` was skipped — compare whether anything was missed.
+
+### Rename LEXICON.md to CONTEXT.md; separate glossary from as-built pointers
+
+**What:** Two linked changes, surfaced during Phase 10 planning. (1) Rename `LEXICON.md` to `CONTEXT.md` to align terminology with Matt Pocock's domain-modeling skill, which this workflow's grilling/ADR pattern was adapted from — reduces future confusion about where the pattern originated and what maps to what. (2) In Pocock's model, `CONTEXT.md` is a pure glossary — "totally devoid of implementation details." Seminova's `LEXICON.md` mixes that with as-built reference-implementation pointers (e.g. `check:auth-boundary`, specific file paths as "reference implementation") — content that duplicates what `AGENTS.md` already owns and that goes stale the moment the pointed-to code moves, independent of whether the underlying term's meaning changed. Phase 10 hit this directly: two entries (auth boundary, post-auth redirect) have real definitional changes that could be written the moment the decision was made, while two others (response envelope, save model) only need pointer updates that can't be written until Cursor decides where code lands — one file, two different update timings, because it's carrying two different kinds of content.
+
+**Why deferred:** The rename touches every reference to `LEXICON.md` — the `DOC_RULES.md` document-roles table, `AGENTS.md`, the `lexicon-update` skill (name and content), likely `phase-planning` and `project-kickoff`, and possibly `WORKFLOW_GUIDE.md`. Needs a full inventory pass, not a mid-session edit. The content split (glossary vs. pointers) is a design decision on its own — where do the pointers go instead? A section in `AGENTS.md`? Dropped entirely as redundant? — worth settling deliberately rather than deciding in passing.
+
+**Revisit when:** A dedicated workflow-improvement session, ideally before the next phase that touches LEXICON entries, so the split is in place before more entries accumulate the same mixed shape.

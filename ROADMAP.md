@@ -2,7 +2,7 @@
 
 The planning horizon: anticipated phases as thin stubs, plus living status. Shipped phase detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md); build-time workflow and authoritative schema in [AGENTS.md](AGENTS.md). Phase status vocabulary and PRD lifecycle in [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
-**Last updated:** 2026-07-07
+**Last updated:** 2026-07-08
 
 ---
 
@@ -19,7 +19,7 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 | 7 | Security Audit Remediation | `Shipped` | — |
 | 8 | Tech Debt Audit Remediation | `Shipped` | [Phase 8 PRD](docs/prds/archive/phase-8-tech-debt-remediation.prd.md) |
 | 9 | SEO & GEO | `Shipped` | [Phase 9 PRD](docs/prds/archive/phase-9-seo-geo.prd.md) |
-| 10 | Pattern Reference Page | `Draft` | — |
+| 10 | App Home, Reference Surfaces & Chrome Polish | `Ready` | [Phase 10 PRD](docs/prds/phase-10-app-home-reference-surfaces.prd.md) |
 
 > [!NOTE]
 > Phases 1–7 pre-date the per-phase PRD system, so their PRD column is empty; their shipped detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md). From Phase 8 on, shipped rows link the archived PRD per [docs/DOC_RULES.md](docs/DOC_RULES.md).
@@ -28,7 +28,7 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 
 ## Upcoming phases
 
-### Phase 10 — Pattern Reference Page `Draft`
+### Phase 10 — App Home, Reference Surfaces & Chrome Polish `Ready`
 
 A dedicated page that demonstrates the canonized component patterns established across prior phases: data table, error states (operational `InlineError` + fault `ErrorPanel`), skeleton loading, toast, and the form/settings pattern (from Phase 6). The page imports and showcases the real, already-established components — it does not reimplement them.
 
@@ -39,7 +39,9 @@ Also folds in the **PM/agent workflow explainer page** (moved here from open que
 - The agent-ready conventions (`AGENTS.md` + `.cursor/rules/` + `.cursor/skills/`)
 - The PM/agent collaboration model (the Claude Desktop planning setup, MCP, and paired skills)
 
-A one-line landing card for each doesn't convey how either works. Whether the explainer co-ships with the pattern reference or broadens this phase's name/scope is settled at Phase 10 planning.
+A one-line landing card for each doesn't convey how either works. The explainer co-ships here.
+
+Scope broadened at planning to include a real authenticated home (unblocking profile settings as a modal), site chrome fixes, and public legal placeholder pages. The PRD owns the full scope.
 
 ---
 
@@ -62,15 +64,6 @@ _Defer until: Phase 10_
 **Problem:** The template-default CSP ships report-only (`// debt:` marker in `security-headers.ts`, audit F053). Flipping to enforcing (`CSP_ENFORCE=true`) requires per-request nonce handling for Next.js inline bootstrap scripts — a design-and-build effort, deliberately excluded from Phase 8 remediation.
 **Solution:** Not yet scoped. Implement per-request nonces in middleware, then tighten directives per product surface.
 _Defer until: a future security phase_
-
-</details>
-
-<details>
-<summary>Profile settings as a modal</summary>
-
-**Problem:** The profile settings surface could work better as a modal than a dedicated page — keeping the current blur-save / upload-on-complete save models, which suit a dismissable container well (no unsaved state to lose). But `/profile` is currently `APP_HOME`: non-admins land there after login, so a modal conversion first requires a real app home to exist.
-**Solution:** Not yet scoped. Depends on APP_HOME diverging from the profile path; revisit when a genuine app home surface is planned.
-_Defer until: a real app home exists_
 
 </details>
 
