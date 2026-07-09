@@ -45,4 +45,4 @@ A single report, in the four sections above. Open with your verdict on its own l
 
 **Report every finding you have.** Length is set by the findings, not by a budget — never drop, merge, or downgrade a finding to keep the report short. Spend words on findings and nothing else: no summary, no restatement of the diff, no list of what passed, no praise.
 
-**State what each finding breaks before you label it** — one concrete clause naming what the user gets that the spec or plan did not ask for. If the outcome the user sees is unchanged, say so plainly. The consequence chooses the severity; write them in that order.
+**State what each finding breaks before you label it** — one concrete clause naming what the user gets that the spec or plan did not ask for. This informs the reader, not the grade: severity comes from the questions in `grading.md`, and a consequence you cannot verify never lowers it.

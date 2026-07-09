@@ -63,6 +63,6 @@ A single report. Open with your verdict on its own line, derived from the ladder
 
 **Report every finding you have.** Length is set by the findings, not by a budget — never drop, merge, or downgrade a finding to keep the report short. Spend words on findings and nothing else: no summary, no restatement of the diff, no list of what passed, no praise.
 
-**State what each finding breaks before you label it** — one concrete clause naming what a user, a build, or a later change hits because of it. If nothing breaks at runtime, say so plainly. The consequence chooses the severity; write them in that order.
+**State what each finding breaks before you label it** — one concrete clause naming what a user, a build, or a later change hits because of it. This informs the reader, not the grade: severity comes from the questions in `grading.md`, and a consequence you cannot verify never lowers it.
 
 For every finding, cite `startLine:endLine:filepath` **and quote the lines the finding rests on**. A finding you cannot quote is a finding you have not verified — drop it. If there are no findings at all, say "Nothing material."

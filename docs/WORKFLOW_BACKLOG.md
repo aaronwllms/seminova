@@ -28,6 +28,8 @@
   - [Rename LEXICON.md to CONTEXT.md; separate glossary from as-built pointers](#rename-lexiconmd-to-contextmd-separate-glossary-from-as-built-pointers)
   - [Rules & skills: stage-stable guidance vs. direct code references](#rules--skills-stage-stable-guidance-vs-direct-code-references)
   - [Skill naming convention alignment (Cursor + Claude)](#skill-naming-convention-alignment-cursor--claude)
+  - [code-review: per-rule fan-out to fix recall variance](#code-review-per-rule-fan-out-to-fix-recall-variance)
+  - [Move mechanically-checkable rules to lint (starting with import-direction boundaries)](#move-mechanically-checkable-rules-to-lint-starting-with-import-direction-boundaries)
   - [~~Deterministic scripts in agent skills~~](#deterministic-scripts-in-agent-skills) *(resolved)*
 
 ---
@@ -211,6 +213,22 @@
 **Why deferred:** Names grew organically as skills landed; nothing is broken today. Renaming is high-touch (Cursor paths, Claude account-wide reinstall, every doc reference) and should follow a deliberate convention choice, not ad hoc fixes when one name feels wrong.
 
 **Revisit when:** A dedicated workflow-improvement session (half-day), before forking the template (so spinoffs inherit clean names), when adding a new skill and the "what should we call it?" question takes more than a minute, or alongside the [LEXICON → CONTEXT rename](#rename-lexiconmd-to-contextmd-separate-glossary-from-as-built-pointers) pass if `lexicon-audit` / `lexicon-update` are in scope anyway.
+
+### code-review: per-rule fan-out to fix recall variance
+
+**What:** `standards-reviewer` currently holds every in-scope `.cursor/rules/*.mdc` file plus a 12-item smell baseline in one context and sweeps the whole diff against all of it. Six back-to-back `code-review` runs on the identical frozen range (`de518bd...68c196b`, one commit, no code changes between runs) produced largely disjoint finding sets — two runs with the fullest reports still shared only 2 of 8 graded findings (Jaccard ≈ 0.25), and a real data-clump finding (`ProfileDialogProfile`) that one run caught was silently absent from every other run. Recall degrades with search-space size; the fix is to shrink the space per subagent rather than keep tuning prose. Proposed shape: one subagent per glob-matched rule file (via each `.mdc`'s frontmatter `globs:`), each reading only the rule and the files its globs match — not the whole diff — plus one unscoped subagent for the smell baseline (smells are whole-diff observations, not tied to a rule) and always-apply rules (`typescript.mdc`, `project-standards.mdc`, `code-minimalism.mdc`, `general-conventions.mdc`, `AGENTS.md` § Hard constraints), which see the full diff by necessity. Two known costs to design around: (1) splitting rules from smells breaks today's "the repo overrides" suppression (a rule-holding agent can suppress a smell the baseline would flag; a smell-only agent can't) — suppression would need to move to the aggregation step in `SKILL.md`; (2) more parallel subagents means more tokens per review, permanently, for checks that don't need judgment — see the lint item below, which shrinks the search space instead of parallelizing it.
+
+**Why deferred:** This is an architecture change to `code-review`'s subagent dispatch (`SKILL.md` step 3–4 and both `.cursor/agents/*.md` files), not a prose edit. Four rounds of prose-only fixes already landed — cap removal, mandatory quoting, the epic-plan input, and a severity classifier replacing the judgment-based ladder (`grading.md`) — and each measurably improved something (recall, fabrication, blocker detection). Fan-out is the next lever once prose is exhausted, and it should be scoped and measured, not built reactively mid-epic.
+
+**Revisit when:** Prose-tuning `code-review`'s agent files stops producing measurable gains between runs (diminishing returns), before relying on `code-review` as a hard gate for a higher-stakes epic, or when token cost is not a binding constraint and the recall gap is.
+
+### Move mechanically-checkable rules to lint (starting with import-direction boundaries)
+
+**What:** Some `code-review` findings are pure pattern-matching with no judgment involved — e.g. `use-blur-save-field.ts` (under `_lib/`) importing a type from `_components/profile/field-save-indicator.tsx`, inverting the repo's `_lib` → `_components` dependency direction. This is exactly what ESLint's built-in `no-restricted-imports` rule is for: a few lines of `eslint.config.*` forbidding `_lib/**` from importing `_components/**` (or the inverse, whichever direction is canonical) turns a probabilistic, sometimes-missed review finding into a deterministic, always-caught lint failure at save/commit time — before code review ever runs. `testing.mdc`'s render-only-test restriction may be a second candidate (detectable via a custom lint rule or a coverage-exclude check) but needs a closer look at feasibility. Every rule moved to lint permanently shrinks `code-review`'s search space on every future run, independent of whichever prose or fan-out state the skill is in.
+
+**Why deferred:** Surfaced as a side finding during the `code-review` reliability deep-dive (2026-07-09), not yet scoped as its own task — needs an inventory pass across `.cursor/rules/*.mdc` for which rules are genuinely mechanical vs. which need judgment, then the actual eslint config change and a check that it doesn't fight existing lint setup.
+
+**Revisit when:** Doing the `code-review` fan-out item above (natural place to also ask "should this rule even be in the reviewer's scope, or should it be lint instead"), or the next time a `code-review` run misses an import-direction or similarly mechanical violation that a prior run caught.
 
 ### ~~Deterministic scripts in agent skills~~
 

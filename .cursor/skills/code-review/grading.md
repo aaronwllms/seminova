@@ -2,15 +2,24 @@
 
 Every finding carries a severity, and the severity **is** its disposition.
 
-Severity is set by **what the finding breaks**, not by which document it violates. Name the consequence, then read the label off the ladder.
+Severity is not a judgement. Answer four questions about the finding, each decidable from the diff, the plan, the PRD, and the rules — without running anything:
 
-- **blocker** — fix before close-out. Breaks behaviour at runtime, mishandles credentials or auth, violates `AGENTS.md` § Hard constraints, or leaves a spec or plan requirement missing, or implemented so the user-visible outcome differs from what was specified.
-- **debt** — merge-able, never silently dropped. Violates a documented convention (`.cursor/rules/*.mdc`), or diverges from the spec or plan, with no runtime or user-visible consequence. Before close-out each debt finding is either **fixed** or **declared**: a `// debt:` marker at the finding's cited site, naming the ceiling and the upgrade path (`code-minimalism.mdc`). `audit-tech-debt` harvests markers from code — do not write to `TECH_DEBT_AUDIT.md`, and do not open a separate ledger.
+1. Does the code contradict an explicit commitment in the epic plan?
+2. Does it touch credentials, tokens, sessions, or the auth boundary?
+3. Does it violate `AGENTS.md` § Hard constraints?
+4. Is an acceptance criterion of the story unimplemented?
+
+**Any yes → blocker.** No yes → **debt** if it violates a documented convention or diverges from the spec, plan, or a rule; **nit** if cosmetic only. A question you lack the input to answer is answered *no*.
+
+**You cannot run the code.** Never make severity depend on runtime behaviour you would have to execute to confirm. "May break," "worth verifying," and "likely fine" are not severity inputs — if a question above answers yes, the finding is a blocker whether or not you can observe the failure.
+
+- **blocker** — fix before close-out.
+- **debt** — merge-able, never silently dropped. Before close-out each debt finding is either **fixed** or **declared**: a `// debt:` marker at the finding's cited site, naming the ceiling and the upgrade path (`code-minimalism.mdc`). `audit-tech-debt` harvests markers from code — do not write to `TECH_DEBT_AUDIT.md`, and do not open a separate ledger.
 - **nit** — no action. Cosmetic only.
 
 Baseline smells max out at **debt**. They are judgement calls.
 
-**A count is never a reason.** Grade each finding on its own consequence before you look at the set. Five blockers is a legitimate verdict; a long report is a legitimate report. Never soften a severity because the total would read as severe, and never pick the verdict first and fit the findings to it.
+**A count is never a reason.** Answer the four questions for each finding on its own, before you look at the set. Five blockers is a legitimate verdict; a long report is a legitimate report. Never soften a severity because the total would read as severe, and never pick the verdict first and fit the findings to it.
 
 **Pre-existing never lowers a severity.** Seminova is a template — every pattern in it is inherited by each spinoff, so a pre-existing pattern carried into new code is amplified, not excused. Grade the pattern, not its novelty.
 
@@ -45,5 +54,5 @@ A standard defect is always live, because a rule steers every later build. Resol
 `mark-epic-complete` may run only when all three hold:
 
 1. Zero blockers on both axes.
-2. Every debt finding fixed, or carrying a `// debt:` marker at its cited site.
+2. Every debt finding fixed, or carrying a `// debt:` marker at its cited site. A finding touching credentials, tokens, sessions, or the auth boundary is never eligible for a marker — fix it.
 3. Zero open defects — each resolved as § Defects prescribes.
