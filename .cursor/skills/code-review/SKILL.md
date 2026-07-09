@@ -1,10 +1,11 @@
 ---
 name: code-review
 description: >-
-  Two-axis review of a fixed git range — Standards (repo rules + smell baseline)
+  Two-axis review of one epic's commit — Standards (repo rules + smell baseline)
   and Spec (does the diff match the PRD story/epic?) — run as two parallel
-  readonly subagents, reported side by side. Use when the user asks to review an
-  epic, a branch, or "review since <ref>".
+  readonly subagents, reported side by side. Takes no arguments; finds the epic
+  commit by its `Epic:` git trailer. Use when the user asks to review an epic, a
+  branch, or "review since <ref>".
 disable-model-invocation: true
 ---
 
@@ -27,21 +28,26 @@ Runs at **epic completion**, before `pre-release-review`.
 
 ## Process
 
-### 1. Pin the range
+### 1. Resolve the range
 
-The **baseline**, optional **tip**, and epic identifier come from the **user's invocation message** (carried by the build handoff), e.g. `epic baseline abc1234, Epic 3`.
+Takes **no arguments**. The range is derived from git — nothing records it, so nothing can go stale.
 
-- **Baseline** — required. The commit the epic branched from.
-- **Tip** — optional, defaults to `HEAD`. The epic's last commit. Supply it whenever anything landed after the epic — workflow commits, doc commits, a later epic — or those commits fall inside the range and get reviewed as if they were the epic.
-- Range syntax `<baseline>..<tip>` is accepted in place of two arguments.
+1. **Identify the epic.** The active epic is the first `### Epic` heading in the active PRD (`ROADMAP.md` names the Active phase; its PRD lives in `docs/prds/`) without a `` `Complete` `` tag. Its canonical id is `{phase}.{epic-id}` — e.g. `10.1`, `7.5.1A`.
+2. **Find the epic commit.** `plan-next-epic` requires every epic commit to carry an `Epic:` git trailer. Match it exactly:
 
-Either end may be a SHA, branch name, tag, or `main` — `git rev-parse` must succeed on both. If the baseline or the epic identifier is missing, ask the user.
+   ```bash
+   git log --grep='^Epic: 10\.1$' --format=%H
+   ```
 
-Preconditions — all three must pass before spawning anything:
+   Anchor both ends and escape the dots — an unanchored grep for `Epic: 1` also matches `Epic: 10.1`. Zero matches or more than one → **halt** and report what you found.
+3. **Derive the range.** Tip is that commit. Baseline is its parent, `<tip>^`. Commits made after the epic — workflow, docs, a later epic — fall outside by construction, however many there are.
 
-1. **No tracked modifications** — `git status --porcelain --untracked-files=no` must be empty. If non-empty, stop and ask the user to commit first; the verdict must pin to a state that can be named. Untracked files are **not** a halt — the range is commit-to-commit, so they cannot affect the diff. List them in the report's tree note and move on.
-2. **Refs resolve** — `git rev-parse <baseline>` and `git rev-parse <tip>` both succeed.
-3. **Non-empty diff** — `git diff <baseline>...<tip> --stat` shows changes.
+**Override.** The user may supply an explicit range instead — `/code-review <baseline>..<tip>` or `/code-review <baseline>` (tip defaults to `HEAD`) — for reviewing a branch or an arbitrary ref. When given, skip steps 1–3; `git rev-parse` must succeed on both ends, which may be a SHA, branch, tag, or `main`.
+
+Preconditions — both must pass before spawning anything:
+
+1. **No tracked modifications** — `git status --porcelain --untracked-files=no` must be empty. If non-empty, stop and ask the user to commit first; the verdict must pin to a state that can be named. Untracked files are **not** a halt — the range is commit-to-commit, so they cannot affect the diff. List them in the report's tree note and move on. (The active plan file is normally untracked; `ship-phase` commits it.)
+2. **Non-empty diff** — `git diff <baseline>...<tip> --stat` shows changes.
 
 Capture once and reuse verbatim in both subagent prompts:
 
@@ -52,13 +58,9 @@ Report the resolved range in the review header so the reader can see exactly wha
 
 ### 2. Resolve the spec source
 
-In order:
+The epic identifier is already resolved in step 1 — do not re-derive it, and never match the diff to a story by content. Record the exact PRD file path and the story/epic identifier(s) to pass to the Spec subagent.
 
-1. The story/epic the user named — find it in the active PRD.
-2. The active PRD (`ROADMAP.md` identifies the Active phase; its PRD lives in `docs/prds/`) — match the diff to a story/epic by content; confirm the match with the user if ambiguous.
-3. If neither resolves, ask the user. If they say there is no spec, skip the Spec subagent and note "no spec available" in the report.
-
-Record the exact PRD file path and the story/epic identifier(s) to pass to the Spec subagent.
+On the override path, ask the user for the epic identifier if the invocation didn't carry one. If they say there is no spec, skip the Spec subagent and note "no spec available" in the report.
 
 ### 3. Scope the standards sources
 
@@ -106,7 +108,7 @@ End with a one-line summary per axis: verdict, finding count, and the worst issu
 
 Read [`grading.md`](grading.md) — it owns the severity ladder, the verdict function, and the close-out gate. Carry the **epic identifier** forward. Then:
 
-- **Gate not met** — list exactly what remains: blockers to fix, debt findings still needing a `// debt:` marker at their cited site, spec defects awaiting a PRD edit or a decision. Apply the fixes, commit, then re-check the gate.
+- **Gate not met** — list exactly what remains: blockers to fix, debt findings still needing a `// debt:` marker at their cited site, spec defects awaiting a PRD edit or a decision, standard defects awaiting a rule edit. Apply the fixes, commit, then re-check the gate.
 - **Gate met** — open a new agent window and run `/mark-epic-complete for Epic <id>`. That skill syncs repo docs before stamping the PRD; no separate doc-sync step is needed here.
 
 ## Why two axes

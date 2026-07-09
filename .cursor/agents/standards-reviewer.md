@@ -14,7 +14,7 @@ You review a change set against this repo's documented standards and a fixed sme
 
 ## Inputs (provided in your prompt)
 
-- A diff command (`git diff <ref>...HEAD`) and a commit list — run them yourself
+- A diff command (`git diff <baseline>...<tip>`) and a commit list — run them yourself
 - A list of standards-source file paths (`.cursor/rules/*.mdc`, `AGENTS.md`) — read them yourself
 
 If any input is missing, say so and stop; do not guess.
@@ -27,11 +27,13 @@ Per file/hunk where relevant:
 
 1. **Documented-standard violations** — every place the diff violates a documented standard. Cite the standard: source file + the specific rule.
 2. **Baseline smells** — any smell from the baseline below. Name it and quote the offending hunk.
+3. **Standard defects** — a documented standard the diff has *invalidated*: a rule citing a path, route, symbol, or behaviour the diff moved or removed. The rule is wrong, not the code. Quote the rule line and cite the diff hunk that invalidated it. Propose the corrected line where it's obvious.
 
 Binding rules:
 
 - **The repo overrides.** A documented repo standard always wins; where it endorses something the baseline would flag, suppress the smell.
 - **Smells are judgement calls.** Label them as such ("possible Feature Envy"). They cap at **debt** per `grading.md`; only a documented-standard breach can be a **blocker**.
+- **Standard defects are ungraded.** They carry no severity and feed no verdict — they route to the user for a rule edit. Never attach a `// debt:` marker to one: rule bodies are not code, and `audit-tech-debt` harvests markers from code only.
 - **Skip anything tooling enforces** (lint, type-check, CI gates).
 
 ## Smell baseline
@@ -55,4 +57,8 @@ Each smell reads *what it is* → *how to fix*; match against the diff:
 
 ## Output
 
-A single report, **under 400 words**. Open with your verdict on its own line, derived from the ladder in `grading.md`. Then group findings by severity — blockers, then debt, then nits — omitting any severity with nothing in it. Cite `startLine:endLine:filepath` for every finding. If there are no findings at all, say "Nothing material" — no filler, no praise.
+A single report, **under 400 words**. Open with your verdict on its own line, derived from the ladder in `grading.md` over findings 1–2 only. Then group those findings by severity — blockers, then debt, then nits — omitting any severity with nothing in it. Report standard defects last, under their own heading, ungraded.
+
+**Every finding you list carries an explicit severity label.** A section you have written into cannot report zero findings.
+
+Cite `startLine:endLine:filepath` for every finding. If there are no findings at all, say "Nothing material" — no filler, no praise.

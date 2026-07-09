@@ -22,7 +22,9 @@ The verdict is a function of the worst finding, not a separate assessment:
 
 Each axis derives its own verdict from its own findings. Never rank findings across axes.
 
-**Spec defects carry no severity** and feed no verdict — they grade the PRD, not the diff. Report them separately; they gate close-out on their own.
+**Every finding carries an explicit severity label.** A section written into cannot report zero findings — if you listed something, grade it, and let the ladder move the verdict.
+
+**Defects carry no severity and feed no verdict.** A **spec defect** grades the PRD; a **standard defect** grades a rule. Neither grades the diff. Report them separately; they gate close-out on their own, and never take a `// debt:` marker — markers are harvested from code, and a wrong document is not a tradeoff to declare.
 
 ## Close-out gate
 
@@ -30,4 +32,4 @@ Each axis derives its own verdict from its own findings. Never rank findings acr
 
 1. Zero blockers on both axes.
 2. Every debt finding fixed, or carrying a `// debt:` marker at its cited site.
-3. Zero open spec defects — each resolved by a PRD edit or an explicit decision from the user.
+3. Zero open defects — each spec defect resolved by a PRD edit or an explicit decision from the user; each standard defect resolved by a rule edit.

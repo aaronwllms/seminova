@@ -63,11 +63,9 @@ On a **first epic**, open the generated plan with a branch precondition — a ve
 
 > **Precondition:** confirm `git branch --show-current` outputs `phase-{N}/{slug}` (substitute the actual branch name). If it doesn't match, halt and ask the user — do not switch branches.
 
-Every generated plan must also include these preconditions near the top of the body (after the tracking line and any branch precondition):
+Every generated plan must also include this precondition near the top of the body (after the tracking line and any branch precondition):
 
-> **Precondition:** `git status --porcelain` must be empty before recording the epic baseline. If dirty, halt and ask the user to commit or stash.
->
-> **Epic baseline:** Run `git rev-parse HEAD` immediately before the first implementation edit. Record the SHA in the plan body (e.g. `**Epic baseline:** abc1234`) — this is the fixed point for `code-review`.
+> **Precondition:** `git status --porcelain` must be empty before the first implementation edit. If dirty, halt and ask the user to commit or stash. The epic must land as a single commit containing only this epic's work — `code-review` derives its range from that commit.
 
 ## Generated plan todos (frontmatter)
 
@@ -95,7 +93,15 @@ pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci
 Authorized by this approved plan:
 
 1. Review diff; stage only files in scope for this epic.
-2. Write a conventional commit message (`feat`/`fix`/`docs`/etc.) referencing phase + epic id.
+2. Write a conventional commit message (`feat`/`fix`/`docs`/etc.). It **must** end with an `Epic:` git trailer — this is the only thing `code-review` uses to find the commit:
+
+   ```
+   feat(phase-10): app home and profile modal
+
+   Epic: 10.1
+   ```
+
+   Format is `Epic: {phase}.{id}` — phase number as written in ROADMAP (decimals OK: `7.5`), epic id as written (`1`, `1A`). Blank line before the trailer, nothing after it. Exactly one commit in the repo may carry a given `Epic:` value.
 3. Commit (request `git_write`). Pre-commit hook runs automatically — if it fails, **fix and retry the commit** (a failed pre-commit hook aborts the commit, so there is nothing to amend).
 4. Verify `git status --porcelain` is empty after commit.
 
@@ -103,6 +109,8 @@ Authorized by this approved plan:
 
 ### Handoff
 
-End the run by telling the user, including the epic baseline SHA and epic identifier from the plan (substitute actual values), e.g.:
+End the run by telling the user:
 
-*"Epic committed. Next: open a new agent window and run `/code-review` — epic baseline `<sha>`, Epic `<id>`."*
+*"Epic committed. Next: open a new agent window and run `/code-review`."*
+
+Pass nothing else. `code-review` resolves the epic, its commit, and the baseline from the PRD and git.
