@@ -39,7 +39,7 @@ Give the authenticated surface a real home, convert profile settings to a modal,
 
 ## Epics & stories
 
-### Epic 1: App home & profile modal
+### Epic 1: App home & profile modal `Complete`
 
 - **1.1 A real app home.** Introduce a minimal placeholder surface as the authenticated landing page and diverge `APP_HOME` from the profile path. Retarget the post-auth redirect and the admin gate's non-admin redirect at the new home, and give the admin shell's user menu a direct "open app" entry — previously unnecessary while the profile link doubled as the switch into the app.
   *Success: a non-admin signing in lands on the app home rather than profile settings; an admin can reach the app home in one step from the admin shell; the profile route still resolves.*
