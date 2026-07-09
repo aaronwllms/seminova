@@ -1,14 +1,14 @@
 ---
 name: plan-next-epic
 description: >-
-  Plans the next uncompleted epic from the active phase's PRD; on a phase's
-  first epic, creates the phase branch and flips the phase Active.
+  Plans the next uncompleted epic from the active phase's PRD. On a phase's
+  first epic, run kickoff-phase first.
 disable-model-invocation: true
 ---
 
 # Plan Next Epic
 
-Plan Mode only. Do not edit planning or repo files (exceptions for first-epic setup: git branch checkout/create, and the `Active` status flip + stub removal below).
+Plan Mode only.
 
 ## Read first
 
@@ -17,61 +17,13 @@ Plan Mode only. Do not edit planning or repo files (exceptions for first-epic se
 
 If these don't exist, ask the user where the product roadmap / phase scope lives before planning.
 
-## Branch setup (first epic only)
+## Kickoff gate (first epic only)
 
-Run **before** generating the plan when this is the **first epic** in the active phase.
+If no PRD is `` `Active` ``, **halt**: tell the user to run `/kickoff-phase` in a normal (non-Plan-Mode) agent window, then re-run this skill.
 
-**Detect first epic:** no `### Epic` heading in the active PRD carries a `` `Complete` `` tag yet. If any prior epic is complete, skip this section — the phase branch should already exist from Epic 1.
+**Detect first epic:** no `### Epic` heading in the active PRD carries a `` `Complete` `` tag yet. If any prior epic is complete, skip this section.
 
-**Derive the expected branch** per [ship-phase reference](../ship-phase/reference.md) § Branch naming.
-
-Check the current branch:
-
-```bash
-git branch --show-current
-```
-
-| Current branch | Action |
-| -------------- | ------ |
-| Matches `phase-{N}/{slug}` | Proceed to plan |
-| `main` | Create or checkout the phase branch (see below) |
-| Anything else | **Halt.** Report the expected branch name; ask the user to switch, stash, or commit first |
-
-**On `main` for the first epic:**
-
-Check whether the branch already exists:
-
-```bash
-git show-ref --verify --quiet refs/heads/phase-{N}/{slug}
-```
-
-- **Doesn't exist:** `git checkout -b phase-{N}/{slug}`
-- **Exists:** before checking out, compare it against `main`:
-
-  ```bash
-  git log main..phase-{N}/{slug} --oneline
-  ```
-
-  - **No commits ahead:** the branch is fresh (created but never built on). Safe to check out: `git checkout phase-{N}/{slug}`.
-  - **Commits ahead:** **Halt.** Report the branch name and commit count, and ask the user whether to (a) delete and recreate it fresh, (b) check out and continue from that work, or (c) something else. Do not check out automatically.
-
-**After checkout or creation, always verify:**
-
-```bash
-git branch --show-current
-```
-
-Confirm the output matches `phase-{N}/{slug}` exactly before proceeding. If it doesn't, halt and report — do not proceed onto `main` or any other branch by assumption.
-
-**Flip status to Active (first epic only)** ([DOC_RULES.md](../../../docs/DOC_RULES.md) rule 2). After branch verification, update the active PRD's `**Status:**` line and its ROADMAP row (Status table + any "Active phase" line) from `` `Ready` `` to `` `Active` ``. Confirm both files read `` `Active` `` before proceeding to plan generation.
-
-**Remove the phase stub (first epic only).** In the same ROADMAP pass, delete this phase's stub from the **Upcoming phases** section — the entire `### Phase {N} — …` block, through the line before the next `###` heading (or the section's end). Remove only this phase's block; leave every other phase's stub intact.
-
-**Commit the status flip (first epic only).** Immediately after the Active flip and stub removal, commit those planning-doc edits as a `docs:` commit (request `git_write`). Stage only the PRD and ROADMAP edits from this step. The skill never leaves its own edits uncommitted.
-
-Request `git_write` for any checkout/create/delete/commit above. Report which branch was created, checked out, or recreated. **Do not push** — publishing the branch is separate (build work or `ship-phase`).
-
-**Branch setup must complete before plan generation.** If you cannot execute the checkout/create yourself (e.g. `git_write` is unavailable or denied), **halt** and ask the user to switch branches before continuing. Never defer branch setup into the generated plan.
+**Verify kickoff completed:** derive the expected branch per [ship-phase reference](../ship-phase/reference.md) § Branch naming, then confirm `git branch --show-current` matches `phase-{N}/{slug}`. If it doesn't, **halt**: tell the user to run `/kickoff-phase` first. Never perform branch or status setup yourself, and never defer it into the generated plan.
 
 ## Plan the next epic
 

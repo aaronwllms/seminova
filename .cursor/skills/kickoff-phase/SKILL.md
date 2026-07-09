@@ -1,0 +1,89 @@
+---
+name: kickoff-phase
+description: >-
+  Starts the next phase: creates the phase branch, flips the phase to
+  Active, and commits the planning-doc updates. Run before plan-next-epic.
+disable-model-invocation: true
+---
+
+# Kickoff Phase
+
+Normal agent mode — this skill writes files and runs git. Do not run in Plan Mode.
+
+## Read first
+
+1. **[AGENTS.md](../../../AGENTS.md)** — repo truth, hard constraints
+2. **[ROADMAP.md](../../../ROADMAP.md)** — phase statuses; the target phase's PRD in [docs/prds/](../../../docs/prds/)
+
+If these don't exist, ask the user where the product roadmap / phase scope lives.
+
+## Identify the target phase
+
+The target is the phase whose PRD carries `` `Ready` `` status.
+
+- A phase is already `` `Active` ``: **halt** — report it; kickoff has already run.
+- No PRD is `` `Ready` ``: **halt** and ask the user which phase to kick off.
+
+## Branch setup
+
+**Derive the expected branch** per [ship-phase reference](../ship-phase/reference.md) § Branch naming.
+
+Check the current branch:
+
+```bash
+git branch --show-current
+```
+
+| Current branch | Action |
+| -------------- | ------ |
+| Matches `phase-{N}/{slug}` | Skip to status flip |
+| `main` | Create or checkout the phase branch (see below) |
+| Anything else | **Halt.** Report the expected branch name; ask the user to switch, stash, or commit first |
+
+**On `main`:**
+
+Check whether the branch already exists:
+
+```bash
+git show-ref --verify --quiet refs/heads/phase-{N}/{slug}
+```
+
+- **Doesn't exist:** `git checkout -b phase-{N}/{slug}`
+- **Exists:** before checking out, compare it against `main`:
+
+  ```bash
+  git log main..phase-{N}/{slug} --oneline
+  ```
+
+  - **No commits ahead:** the branch is fresh (created but never built on). Safe to check out: `git checkout phase-{N}/{slug}`.
+  - **Commits ahead:** **Halt.** Report the branch name and commit count, and ask the user whether to (a) delete and recreate it fresh, (b) check out and continue from that work, or (c) something else. Do not check out automatically.
+
+**After checkout or creation, always verify:**
+
+```bash
+git branch --show-current
+```
+
+Confirm the output matches `phase-{N}/{slug}` exactly before proceeding. If it doesn't, halt and report — do not proceed on `main` or any other branch by assumption.
+
+Request `git_write` for any checkout/create/delete above. Report which branch was created, checked out, or recreated.
+
+## Flip status to Active
+
+([DOC_RULES.md](../../../docs/DOC_RULES.md) rule 2.) Update the target PRD's `**Status:**` line and its ROADMAP row (Status table + any "Active phase" line) from `` `Ready` `` to `` `Active` ``. Confirm both files read `` `Active` `` before proceeding.
+
+## Remove the phase stub
+
+In the same ROADMAP pass, delete this phase's stub from the **Upcoming phases** section — the entire `### Phase {N} — …` block, through the line before the next `###` heading (or the section's end). Remove only this phase's block; leave every other phase's stub intact.
+
+## Commit
+
+Commit the planning-doc edits as a `docs:` commit (request `git_write`). Stage only the PRD and ROADMAP edits from this skill. The skill never leaves its own edits uncommitted.
+
+**Do not push** — publishing the branch is separate (build work or `ship-phase`).
+
+## Handoff
+
+End the run by telling the user, substituting actual values:
+
+*"Phase {N} is Active on `phase-{N}/{slug}`. Next: open a new agent window in **Plan Mode** and run `/plan-next-epic`."*
