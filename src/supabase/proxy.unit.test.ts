@@ -4,11 +4,15 @@
 import { join } from 'node:path'
 import { NextRequest } from 'next/server'
 import { ADMIN_ROLE } from '@/constants/admin-role'
-import {
-  discoverAppRoutes,
-  isPublicAppRoute,
-} from '@/utils/discover-app-routes'
+import { discoverAppRoutes } from '@/utils/discover-app-routes'
 import { updateSession } from './proxy'
+
+const PUBLIC_EXACT = ['/', '/terms', '/privacy'] as const
+const PUBLIC_PREFIXES = ['/auth'] as const
+
+const isDiscoveredPublicRoute = (pathname: string) =>
+  (PUBLIC_EXACT as readonly string[]).includes(pathname) ||
+  PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix))
 
 const mockGetClaims = vi.fn()
 const mockSignOut = vi.fn()
@@ -70,6 +74,30 @@ describe('updateSession', () => {
 
   it('should allow unauthenticated access to auth routes', async () => {
     const response = await updateSession(createRequest('/auth/login'))
+
+    expect(response.status).toBe(200)
+  })
+
+  it('should allow unauthenticated access to terms routes', async () => {
+    const response = await updateSession(createRequest('/terms'))
+
+    expect(response.status).toBe(200)
+  })
+
+  it('should allow unauthenticated access to privacy routes', async () => {
+    const response = await updateSession(createRequest('/privacy'))
+
+    expect(response.status).toBe(200)
+  })
+
+  it('should allow unauthenticated access to terms routes with a trailing slash', async () => {
+    const response = await updateSession(createRequest('/terms/'))
+
+    expect(response.status).toBe(200)
+  })
+
+  it('should allow unauthenticated access to privacy routes with a trailing slash', async () => {
+    const response = await updateSession(createRequest('/privacy/'))
 
     expect(response.status).toBe(200)
   })
@@ -176,9 +204,9 @@ describe('updateSession', () => {
 describe('auth boundary (discovered routes)', () => {
   const appDir = join(process.cwd(), 'src/app')
   const discoveredRoutes = discoverAppRoutes(appDir)
-  const publicRoutes = discoveredRoutes.filter(isPublicAppRoute)
+  const publicRoutes = discoveredRoutes.filter(isDiscoveredPublicRoute)
   const protectedRoutes = discoveredRoutes.filter(
-    (route) => !isPublicAppRoute(route),
+    (route) => !isDiscoveredPublicRoute(route),
   )
 
   beforeEach(() => {
@@ -196,6 +224,8 @@ describe('auth boundary (discovered routes)', () => {
     expect(discoveredRoutes).toContain('/admin')
     expect(discoveredRoutes).toContain('/auth/login')
     expect(discoveredRoutes).toContain('/auth/confirm')
+    expect(discoveredRoutes).toContain('/terms')
+    expect(discoveredRoutes).toContain('/privacy')
   })
 
   it.each(publicRoutes)(

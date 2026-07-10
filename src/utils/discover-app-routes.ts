@@ -49,6 +49,3 @@ export const discoverAppRoutes = (appDir: string): string[] => {
 /** Indexable marketing routes under the (marketing) route group. */
 export const discoverMarketingRoutes = (appDir: string): string[] =>
   discoverAppRoutes(join(appDir, '(marketing)'))
-
-export const isPublicAppRoute = (pathname: string): boolean =>
-  pathname === '/' || pathname.startsWith('/auth/')

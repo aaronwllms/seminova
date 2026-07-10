@@ -51,9 +51,9 @@ A design value referred to by _role_, not by raw value — `primary`, `muted-for
 
 The split that makes Seminova re-skinnable. _Structure_ — token names, component primitives, the `@theme inline` bridge, the agent workflow — is fixed and inherited by every spinoff. _Theme_ — color/font/radius/shadow values — is replaced per product. Guidance in [`.cursor/rules/ui-styling.mdc`](.cursor/rules/ui-styling.mdc). See [DESIGN.md › Structure vs theme](DESIGN.md#structure-vs-theme).
 
-### Auth boundary (`/` + `/auth/**`)
+### Auth boundary (`/` + `/auth/**` + `/terms` + `/privacy`)
 
-The only public routes are the landing page (`/`) and the auth screens (`/auth/**`). Everything else requires an authenticated session. The boundary is enforced in [`proxy.ts`](proxy.ts) (→ [`src/supabase/proxy.ts`](src/supabase/proxy.ts)), which refreshes the session and redirects unauthenticated users to `/auth/login`. Adding a public route outside these two is a hard-constraint change. Hard constraint (enforced: `check:auth-boundary`). See [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints).
+The only public routes are the landing page (`/`), the auth screens (`/auth/**`), and the legal placeholders (`/terms`, `/privacy`). Everything else requires an authenticated session. The boundary is enforced in [`proxy.ts`](proxy.ts) (→ [`src/supabase/proxy.ts`](src/supabase/proxy.ts)), which refreshes the session and redirects unauthenticated users to `/auth/login`. Adding a public route outside these is a hard-constraint change. Hard constraint (enforced: `check:auth-boundary`). See [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints).
 
 The proxy reads session state via `getClaims()`, not `getUser()`. `getClaims()` reads the JWT locally with no network round-trip; `getUser()` hits the Supabase Auth server. The proxy comment warns explicitly against swapping them — doing so can cause users to be randomly logged out.
 

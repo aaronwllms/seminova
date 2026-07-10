@@ -31,7 +31,10 @@ describe('SiteFooter', () => {
     )
 
     for (const item of siteConfig.legal) {
-      expect(screen.getByText(item.label)).toBeInTheDocument()
+      expect(screen.getByRole('link', { name: item.label })).toHaveAttribute(
+        'href',
+        item.href,
+      )
     }
 
     const githubLinks = screen.getAllByRole('link', { name: 'GitHub' })

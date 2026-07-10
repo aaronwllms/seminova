@@ -1,4 +1,5 @@
 import { Github, type LucideIcon } from 'lucide-react'
+import Link from 'next/link'
 import { Suspense } from 'react'
 
 import { SeminovaLogo } from '@/components/seminova-logo'
@@ -72,7 +73,13 @@ export const SiteFooter = ({
           ) : null}
           <div className="flex gap-4">
             {siteConfig.legal.map((item) => (
-              <span key={item.label}>{item.label}</span>
+              <Link
+                key={item.label}
+                href={item.href}
+                className="text-muted-foreground hover:text-foreground focus-visible:ring-ring rounded-md transition-colors focus-visible:ring-2 focus-visible:outline-none"
+              >
+                {item.label}
+              </Link>
             ))}
           </div>
         </div>

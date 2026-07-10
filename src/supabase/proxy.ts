@@ -1,6 +1,11 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import { APP_HOME, LOGIN_PATH } from '@/constants/app-paths'
+import {
+  APP_HOME,
+  LOGIN_PATH,
+  PRIVACY_PATH,
+  TERMS_PATH,
+} from '@/constants/app-paths'
 import { getPublicSupabaseEnv, hasPublicSupabaseEnv } from '@/utils/env'
 import { isAdmin } from '@/utils/admin'
 import { parseAuthenticatedClaims } from '@/supabase/require-auth'
@@ -13,9 +18,17 @@ export async function updateSession(request: NextRequest) {
     request,
   })
 
+  const rawPathname = request.nextUrl.pathname
+  const pathname =
+    rawPathname.length > 1 && rawPathname.endsWith('/')
+      ? rawPathname.slice(0, -1)
+      : rawPathname
+
   const isPublicRoute =
-    request.nextUrl.pathname === '/' ||
-    request.nextUrl.pathname.startsWith('/auth')
+    pathname === '/' ||
+    pathname.startsWith('/auth') ||
+    pathname === TERMS_PATH ||
+    pathname === PRIVACY_PATH
 
   if (!hasPublicSupabaseEnv) {
     if (process.env.NODE_ENV === 'production') {
@@ -84,8 +97,9 @@ export async function updateSession(request: NextRequest) {
     await clearLocalSession()
   }
 
-  const { pathname } = request.nextUrl
-  const isAdminPath = pathname === '/admin' || pathname.startsWith('/admin/')
+  const { pathname: adminPathname } = request.nextUrl
+  const isAdminPath =
+    adminPathname === '/admin' || adminPathname.startsWith('/admin/')
 
   if (isAdminPath && sessionClaims && !isAdmin(sessionClaims)) {
     const url = request.nextUrl.clone()
