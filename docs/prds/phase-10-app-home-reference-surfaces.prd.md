@@ -55,7 +55,7 @@ Give the authenticated surface a real home, convert profile settings to a modal,
 - **2.2 Favicon from the site logo.** Replace the framework-default icon with one generated at build time from site config's logo mark on the primary-filled square, reusing the dynamic image pattern established for social previews. Remove the default icon file so the generated one takes precedence.
   *Success: the browser tab shows the product's own mark; changing the logo in site config changes the favicon, the header, and the social preview together, with no separate icon asset to maintain.*
 
-### Epic 3: Public legal pages
+### Epic 3: Public legal pages `Complete`
 
 - **3.1 Extend the auth boundary to legal routes.** Admit the Terms and Privacy routes to the public allowlist alongside the landing page and the auth screens, updating the boundary's enforcement check and the hard-constraint statement in the same pass, per the change protocol.
   *Success: a signed-out visitor reaches both legal routes without being redirected to login; the auth-boundary check passes and reflects the new allowlist; the hard-constraint statement matches enforcement.*
