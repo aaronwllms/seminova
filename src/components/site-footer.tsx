@@ -27,13 +27,15 @@ export const SiteFooter = ({
     <SiteContainer className="py-6">
       <div
         className={cn(
-          'flex flex-col gap-6 md:flex-row md:items-center',
-          showNav ? 'md:justify-between' : 'md:justify-between',
+          'flex flex-col gap-6 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center',
         )}
       >
-        <SeminovaLogo href={logoHref} className="text-foreground" />
-        {showNav ? <SiteNavLinks /> : null}
-        <div className="flex gap-3">
+        <SeminovaLogo
+          href={logoHref}
+          className="text-foreground min-w-0 justify-self-start"
+        />
+        {showNav ? <SiteNavLinks className="justify-self-center" /> : null}
+        <div className="flex gap-3 justify-self-end">
           {siteConfig.social.map((social) => {
             const Icon = socialIcons[social.icon]
 

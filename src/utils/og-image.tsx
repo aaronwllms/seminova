@@ -10,10 +10,11 @@ export const OG_IMAGE_SIZE = { width: 1200, height: 630 } as const
 export const OG_CONTENT_TYPE = 'image/png'
 
 // Mirror :root light-theme tokens in globals.css — update on re-skin.
-const OG_COLORS = {
+export const OG_COLORS = {
   background: '#f8fafc',
   foreground: '#1e293b',
   primary: '#6366f1',
+  primaryForeground: '#ffffff',
   mutedForeground: '#6b7280',
 } as const
 

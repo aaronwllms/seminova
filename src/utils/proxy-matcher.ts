@@ -6,4 +6,4 @@
  * `proxy.ts` (enforced by proxy-matcher.unit.test.ts).
  */
 export const PROXY_MATCHER_PATTERN =
-  '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$|opengraph-image$|.*\\/opengraph-image$|twitter-image$|.*\\/twitter-image$).*)'
+  '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$|opengraph-image$|.*\\/opengraph-image$|twitter-image$|.*\\/twitter-image$|icon$|.*\\/icon$).*)'

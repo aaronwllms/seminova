@@ -33,10 +33,13 @@ describe('PROXY_MATCHER_PATTERN', () => {
     expect(matcher.test('/opengraph-image')).toBe(false)
     expect(matcher.test('/auth/login/opengraph-image')).toBe(false)
     expect(matcher.test('/twitter-image')).toBe(false)
+    expect(matcher.test('/icon')).toBe(false)
+    expect(matcher.test('/auth/login/icon')).toBe(false)
   })
 
   it('should still run the auth proxy for gated paths', () => {
     expect(matcher.test('/opengraph-image-evil')).toBe(true)
+    expect(matcher.test('/icon-evil')).toBe(true)
     expect(matcher.test('/profile')).toBe(true)
     expect(matcher.test('/')).toBe(true)
   })
