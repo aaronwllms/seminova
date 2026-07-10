@@ -83,3 +83,33 @@ _Defer until: opportunistic_
 _Defer until: unscoped — revisit when prioritizing rule-enforcement hardening_
 
 </details>
+
+<details>
+<summary>JWT expiration recurring failure (needs permanent fix)</summary>
+
+**Problem:** `JWT has expired` recurs in production/dev — thrown from `validateExp` in `@supabase/auth-js`, surfaced via `requireAuthClaims` (`src/supabase/require-auth.ts`) during `AppShell` render (`src/app/(app)/_components/app-shell.tsx` → `get-current-user-profile.ts`). This has been "fixed" more than once already without sticking, so the real cause is still unknown.
+
+Latest occurrence (Next.js 16.2.9, Turbopack):
+```
+Console Error
+JWT has expired
+    at validateExp (node_modules/.pnpm/@supabase+auth-js@2.105.4/node_modules/@supabase/auth-js/src/lib/helpers.ts:348:11)
+    at SupabaseAuthClient.getClaims (node_modules/.pnpm/@supabase+auth-js@2.105.4/node_modules/@supabase/auth-js/src/GoTrueClient.ts:5909:20)
+    at requireAuthClaims (src/supabase/require-auth.ts:89:49)
+    at <anonymous> (src/app/(app)/_lib/get-current-user-profile.ts:22:20)
+    at AppShell (src/app/(app)/_components/app-shell.tsx:15:19)
+    at AppLayout (src/app/(app)/layout.tsx:18:7)
+
+Code frame:
+  346 |   const timeNow = Math.floor(Date.now() / 1000)
+  347 |   if (exp <= timeNow) {
+> 348 |     throw new Error('JWT has expired')
+      |           ^
+  349 |   }
+  350 |
+```
+
+**Solution:** Not yet scoped. Before proposing a fix, research the history of prior attempts on this (git log / commit messages / past PRDs touching auth or session handling) to understand what's already been tried and why it didn't hold, then diagnose root cause (token refresh timing, clock skew, missing refresh-on-expiry logic, stale client cache, etc.) before treating it as fixed again.
+_Defer until: unscoped — needs root-cause investigation_
+
+</details>
