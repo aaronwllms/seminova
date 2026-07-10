@@ -1,7 +1,7 @@
 # PRD — Phase 10: App Home, Reference Surfaces & Chrome Polish
 
 **Status:** `Active`
-**Last updated:** 2026-07-09
+**Last updated:** 2026-07-10
 
 ---
 
@@ -48,7 +48,7 @@ Give the authenticated surface a real home, convert profile settings to a modal,
 - **1.3 Inline password change.** Fold password change into the profile modal as an inline section rather than a dialog within a dialog, retaining its explicit-submit save model and its own success and error feedback.
   *Success: a user changes their password without leaving the profile modal, with submit-triggered persistence and errors surfaced inline.*
 
-### Epic 2: Site chrome & identity
+### Epic 2: Site chrome & identity `Complete`
 
 - **2.1 True-center the site nav.** Both the header and the footer center their nav within the space left over between the flanking elements, so unequal left and right widths push the nav off the page's true center — visibly so in the footer, where a single social icon is far narrower than the logo. Re-lay both as a three-column arrangement whose outer tracks are always equal, pinning the nav to true center regardless of what flanks it. Mobile nav behavior is unchanged.
   *Success: header and footer navs are centered to the viewport, not to the gap; the offset does not reappear when the flanking content changes width; mobile navigation behaves as before.*

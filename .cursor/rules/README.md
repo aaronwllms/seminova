@@ -59,7 +59,7 @@ Roadmap and active build scope: [ROADMAP.md](../../ROADMAP.md) and [docs/prds/](
 | `react-tanstack-query.mdc` | Auto attached | `hooks/**`, `components/**`, provider | TanStack Query v5 keys, hooks, mutations |
 | `rule-authoring-pointer.mdc` | Auto attached | `.cursor/rules/**` | Stub → read rule-authoring skill before rule edits |
 | `security.mdc` | Auto attached | `src/**`, `proxy.ts`, migrations | Auth, validation, RLS, OWASP patterns |
-| `seo.mdc` | Auto attached | `src/app/**`, SEO utils, `site.ts` | Metadata wire-up, crawler surface, social previews |
+| `seo.mdc` | Auto attached | `src/app/**`, SEO utils, `site.ts` | Metadata wire-up, crawler surface, favicon, social previews |
 | `supabase-sql.mdc` | Auto attached | `migrations/**` | Project SQL style, RLS, functions (deltas only) |
 | `supabase.mdc` | Auto attached | `src/**`, `supabase/**`, `proxy.ts` | `@supabase/ssr` clients, auth proxy |
 | `testing.mdc` | Auto attached | `*.test.*`, `src/test/**` | Vitest + RTL + MSW v2; 80% coverage gates |
@@ -91,11 +91,13 @@ Per-rule detail (topics and cross-references):
 
 ### `seo.mdc`
 
-**Applies to:** `src/app/**`, `src/config/site.ts`, SEO utilities (`site-url`, `robots-policy`, `sitemap-routes`, `structured-data`, `og-image`, `discover-app-routes`, `proxy-matcher`)
+**Applies to:** `src/app/**`, `src/config/site.ts`, SEO utilities (`site-url`, `robots-policy`, `sitemap-routes`, `structured-data`, `og-image`, `brand-mark-image`, `discover-app-routes`, `proxy-matcher`)
 
 - Metadata wire-up (`getSiteMetadata`, per-page `metadata` / `generateMetadata`)
 - Crawler surface (`robots.ts`, `sitemap.ts`, JSON-LD)
-- Dynamic social previews (`opengraph-image.tsx` convention)
+- Dynamic favicon (`icon.tsx` + `brand-mark-image.tsx`; `/icon` proxy carve-out)
+- Dynamic social previews (`opengraph-image.tsx` convention; shared `OG_COLORS` with favicon)
+- Satori constraints for `ImageResponse` assets (OG + favicon)
 - Cross-reference: `ui-accessibility.mdc` owns semantic HTML; `nextjs.mdc` owns App Router mechanics
 
 ### `react-tanstack-query.mdc`
