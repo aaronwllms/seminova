@@ -26,7 +26,7 @@ The user may override by naming one explicitly, e.g. `/mark-epic-complete for Ep
 
 ## Preconditions (halt if any fail)
 
-1. **Clean tree** — `git status --porcelain` is empty. If dirty, halt and ask the user to commit outstanding work first.
+1. **Clean tree** — `git status --porcelain --untracked-files=no` is empty. If dirty, halt and ask the user to commit outstanding work first. (Untracked files, e.g. the active plan file, are not a halt.)
 2. **Epic resolves** — at least one `### Epic N: Name` heading in the active phase's PRD lacks a `` `Complete` `` tag; take the first. If every epic is already tagged, halt — the phase is done, and `/ship-phase` is the next step. On the override path, the named heading must exist.
 3. **Status consistent** — neither the PRD's status nor its ROADMAP row reads `` `Draft` ``, `` `Planning` ``, or `` `Ready` ``. If either does, halt and report the inconsistency — do not change tags. Phase promotion (Ready→Active) is owned by `plan-next-epic` (see [DOC_RULES.md](../../../docs/DOC_RULES.md) rule 2).
 
