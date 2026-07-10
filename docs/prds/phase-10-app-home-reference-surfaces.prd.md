@@ -69,7 +69,7 @@ Give the authenticated surface a real home, convert profile settings to a modal,
 - **3.2 Legal placeholder and footer links.** Render both routes from one shared placeholder that tells a spinoff to generate its policies or engage counsel, and turn the footer's inert legal labels into real links by giving site config's legal entries destinations.
   *Success: clicking Terms or Privacy in the footer from a signed-out session lands on the placeholder; both routes render the same content; nothing in the footer is a dead label.*
 
-### Epic 4: Form primitives
+### Epic 4: Form primitives `Complete`
 
 > This epic is a refactor: it changes no product surface a user sees, save for one bug fix. Its stories name deliverables rather than user behavior, deliberately — the inheritance the reference page demonstrates does not exist until they land.
 
