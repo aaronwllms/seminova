@@ -7,6 +7,9 @@ globs:
   - 'src/**/*password-dialog*'
   - 'src/**/*password-section*'
   - 'src/**/*avatar-field*'
+  - 'src/hooks/use-blur-save-field.ts'
+  - 'src/components/blur-save-text-field.tsx'
+  - 'src/components/field-save-indicator.tsx'
 alwaysApply: false
 ---
 
@@ -68,7 +71,6 @@ const form = useForm<MyFormValues>({
 
 const { createTextBlurHandler, persistField, saveStates } = useBlurSaveField({
   form,
-  defaultValues,
   inFlightKeys: ['title', 'body'] as const,
   initialLastSaved: { title: null, body: null },
   persist: updateMyFormAction, // raw server action — envelope in, envelope out
