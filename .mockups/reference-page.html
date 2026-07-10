@@ -1,0 +1,162 @@
+<h2 class="sr-only">Revised static mockup of Seminova's public pattern reference page: hero, anchor nav, and four demo sections covering save models, InlineError and ErrorPanel, all five toast variants, and the canonical data table.</h2>
+
+<style>
+  @keyframes ref-spin { to { transform: rotate(360deg); } }
+  .ref-spin { animation: ref-spin 1s linear infinite; display: inline-flex; }
+</style>
+
+<div style="padding: 1rem 0;">
+
+  <div style="text-align: center; padding: 2rem 0 1.5rem;">
+    <div style="display: inline-block; font-size: 12px; color: var(--text-secondary); background: var(--surface-1); padding: 4px 12px; border-radius: var(--radius); margin-bottom: 12px;">Pattern reference</div>
+    <h1 style="margin: 0 0 8px;">What you inherit</h1>
+    <p style="margin: 0 auto; max-width: 460px; font-size: 15px; color: var(--text-secondary); line-height: 1.7;">Every component below is the one your spinoff imports. Nothing here is a reimplementation.</p>
+  </div>
+
+  <div style="display: flex; justify-content: center; gap: 8px; padding-bottom: 2rem; border-bottom: 0.5px solid var(--border); flex-wrap: wrap;">
+    <span style="font-size: 13px; color: var(--text-accent); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 6px 12px;">Forms and save models</span>
+    <span style="font-size: 13px; color: var(--text-accent); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 6px 12px;">InlineError and ErrorPanel</span>
+    <span style="font-size: 13px; color: var(--text-accent); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 6px 12px;">Toast</span>
+    <span style="font-size: 13px; color: var(--text-accent); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 6px 12px;">Data table</span>
+  </div>
+
+  <section style="padding: 2.5rem 0;">
+    <h2 style="margin: 0 0 4px;">Forms and save models</h2>
+    <p style="margin: 0 0 1.25rem; font-size: 14px; color: var(--text-secondary);">Live: blur-save, persisting through a mock function.</p>
+
+    <div style="background: var(--surface-2); border: 0.5px solid var(--border); border-radius: 12px; padding: 1.25rem;">
+      <div style="margin-bottom: 1rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+          <label style="font-size: 13px; font-weight: 500;">Display name</label>
+          <span style="font-size: 12px; color: var(--text-success); display: inline-flex; align-items: center; gap: 4px;"><i class="ti ti-check" style="font-size: 14px;" aria-hidden="true"></i>Saved</span>
+        </div>
+        <input type="text" value="Maya Rodriguez" style="width: 100%;" />
+      </div>
+      <div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+          <label style="font-size: 13px; font-weight: 500;">Bio</label>
+          <span style="font-size: 12px; color: var(--text-muted);">Saving...</span>
+        </div>
+        <textarea rows="2" style="width: 100%; resize: none;">VP of Engineering, ex-Alderman Freight.</textarea>
+      </div>
+    </div>
+
+    <p style="font-size: 15px; color: var(--text-primary); line-height: 1.7; margin: 1.25rem 0 0;">The save model is a choice made per field, not per form. Blur-save fits a field that's valid on its own, like a name or a bio. Explicit submit fits fields that only mean something together, like a password change. Upload-on-complete fits files, where the upload finishing is itself the save. All three are documented, but only blur-save ships as a ready-to-use component here — the other two are best understood in place, on the profile page.</p>
+  </section>
+
+  <section style="padding: 2.5rem 0; border-top: 0.5px solid var(--border);">
+    <h2 style="margin: 0 0 4px;">InlineError and ErrorPanel</h2>
+    <p style="margin: 0 0 1.25rem; font-size: 14px; color: var(--text-secondary);">Live: two components, for operational and fault errors.</p>
+
+    <div style="margin-bottom: 12px;">
+      <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">InlineError — operational</div>
+      <p style="margin: 0; font-size: 14px; color: var(--text-danger); display: flex; align-items: center; gap: 6px;">
+        <i class="ti ti-alert-circle" style="font-size: 15px;" aria-hidden="true"></i>
+        That username's already taken. Try another.
+      </p>
+    </div>
+
+    <div>
+      <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">ErrorPanel — fault</div>
+      <div style="border: 0.5px solid var(--border-danger); background: var(--bg-danger); border-radius: var(--radius); padding: 12px; display: flex; align-items: center; justify-content: space-between; gap: 14px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <i class="ti ti-alert-triangle" style="font-size: 18px; color: var(--text-danger); flex-shrink: 0;" aria-hidden="true"></i>
+          <span style="font-size: 14px; color: var(--text-danger);">Could not save your profile. Please try again.</span>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 2px; flex-shrink: 0;">
+          <button style="font-size: 12px; padding: 4px 8px; background: transparent; border: none;"><i class="ti ti-copy" style="font-size: 15px;" aria-hidden="true"></i></button>
+          <span style="font-size: 11px; color: var(--text-muted);">&nbsp;</span>
+        </div>
+      </div>
+    </div>
+
+    <p style="font-size: 15px; color: var(--text-primary); line-height: 1.7; margin: 1.25rem 0 0;">Every error carries a kind: operational or fault. Operational errors are things the user caused and can fix themselves — InlineError shows those next to the field, no border. Faults are on the app's side — ErrorPanel shows those with a copy button; clicking it copies the message and an error code to the clipboard for a support request, though the code itself isn't shown on screen.</p>
+  </section>
+
+  <section style="padding: 2.5rem 0; border-top: 0.5px solid var(--border);">
+    <h2 style="margin: 0 0 4px;">Toast</h2>
+    <p style="margin: 0 0 1.25rem; font-size: 14px; color: var(--text-secondary);">Static: all five variants, each at the moment it appears.</p>
+
+    <div style="display: flex; flex-direction: column; gap: 10px; max-width: 340px;">
+      <div style="display: flex; align-items: center; gap: 10px; background: var(--surface-2); border: 0.5px solid var(--border); border-radius: 12px; padding: 10px 14px; box-shadow: var(--shadow-md);">
+        <i class="ti ti-circle-check" style="font-size: 16px; color: var(--text-success); flex-shrink: 0;" aria-hidden="true"></i>
+        <span style="font-size: 14px;">Changes saved</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px; background: var(--surface-2); border: 0.5px solid var(--border); border-radius: 12px; padding: 10px 14px; box-shadow: var(--shadow-md);">
+        <i class="ti ti-info-circle" style="font-size: 16px; color: var(--text-accent); flex-shrink: 0;" aria-hidden="true"></i>
+        <span style="font-size: 14px;">Password expires in 3 days</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px; background: var(--surface-2); border: 0.5px solid var(--border); border-radius: 12px; padding: 10px 14px; box-shadow: var(--shadow-md);">
+        <i class="ti ti-alert-triangle" style="font-size: 16px; color: var(--text-warning); flex-shrink: 0;" aria-hidden="true"></i>
+        <span style="font-size: 14px;">You're near your storage limit</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px; background: var(--surface-2); border: 0.5px solid var(--border); border-radius: 12px; padding: 10px 14px; box-shadow: var(--shadow-md);">
+        <i class="ti ti-alert-octagon" style="font-size: 16px; color: var(--text-danger); flex-shrink: 0;" aria-hidden="true"></i>
+        <span style="font-size: 14px;">Couldn't save your changes</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px; background: var(--surface-2); border: 0.5px solid var(--border); border-radius: 12px; padding: 10px 14px; box-shadow: var(--shadow-md);">
+        <i class="ti ti-loader-2 ref-spin" style="font-size: 16px; color: var(--text-secondary); flex-shrink: 0;" aria-hidden="true"></i>
+        <span style="font-size: 14px;">Working on it...</span>
+      </div>
+    </div>
+
+    <p style="font-size: 15px; color: var(--text-primary); line-height: 1.7; margin: 1.25rem 0 0;">Five variants: success, info, warning, error, and loading. Today only success is actually called anywhere in the app — the other four are configured and ready, but nothing triggers them yet. Toasts confirm or narrate something in progress and then get out of the way on their own.</p>
+  </section>
+
+  <section style="padding: 2.5rem 0; border-top: 0.5px solid var(--border);">
+    <h2 style="margin: 0 0 4px;">Data table</h2>
+    <p style="margin: 0 0 1.25rem; font-size: 14px; color: var(--text-secondary);">Live: search, sort, and pagination over a sample dataset.</p>
+
+    <div style="background: var(--surface-2); border: 0.5px solid var(--border); border-radius: 12px; overflow: hidden;">
+      <div style="padding: 12px; border-bottom: 0.5px solid var(--border);">
+        <input type="text" placeholder="Search shipments" style="width: 100%;" />
+      </div>
+      <table style="width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13px;">
+        <thead>
+          <tr style="border-bottom: 0.5px solid var(--border);">
+            <th style="text-align: left; padding: 10px 12px; font-weight: 500; color: var(--text-secondary); width: 30%;">Consignee <i class="ti ti-chevron-down" style="font-size: 13px; vertical-align: -1px;" aria-hidden="true"></i></th>
+            <th style="text-align: left; padding: 10px 12px; font-weight: 500; color: var(--text-muted); width: 22%;">Route</th>
+            <th style="text-align: left; padding: 10px 12px; font-weight: 500; color: var(--text-muted); width: 22%;">Status</th>
+            <th style="text-align: right; padding: 10px 12px; font-weight: 500; color: var(--text-muted); width: 26%;">Departs</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 0.5px solid var(--border);">
+            <td style="padding: 10px 12px;">Alderman Freight</td>
+            <td style="padding: 10px 12px; color: var(--text-secondary);">LIS → RTM</td>
+            <td style="padding: 10px 12px;"><span style="background: var(--bg-success); color: var(--text-success); font-size: 12px; padding: 2px 8px; border-radius: var(--radius);">Cleared</span></td>
+            <td style="padding: 10px 12px; text-align: right; color: var(--text-secondary);">14 Mar</td>
+          </tr>
+          <tr style="border-bottom: 0.5px solid var(--border);">
+            <td style="padding: 10px 12px;">Bosun &amp; Kell</td>
+            <td style="padding: 10px 12px; color: var(--text-secondary);">SIN → LAX</td>
+            <td style="padding: 10px 12px;"><span style="background: var(--bg-warning); color: var(--text-warning); font-size: 12px; padding: 2px 8px; border-radius: var(--radius);">Held</span></td>
+            <td style="padding: 10px 12px; text-align: right; color: var(--text-secondary);">16 Mar</td>
+          </tr>
+          <tr style="border-bottom: 0.5px solid var(--border);">
+            <td style="padding: 10px 12px;">Cortabel Logistics</td>
+            <td style="padding: 10px 12px; color: var(--text-secondary);">VLC → NYC</td>
+            <td style="padding: 10px 12px;"><span style="background: var(--bg-accent); color: var(--text-accent); font-size: 12px; padding: 2px 8px; border-radius: var(--radius);">In transit</span></td>
+            <td style="padding: 10px 12px; text-align: right; color: var(--text-secondary);">18 Mar</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 12px;">Drayford &amp; Co</td>
+            <td style="padding: 10px 12px; color: var(--text-secondary);">HAM → BOS</td>
+            <td style="padding: 10px 12px;"><span style="background: var(--bg-success); color: var(--text-success); font-size: 12px; padding: 2px 8px; border-radius: var(--radius);">Cleared</span></td>
+            <td style="padding: 10px 12px; text-align: right; color: var(--text-secondary);">19 Mar</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-top: 0.5px solid var(--border);">
+        <span style="font-size: 12px; color: var(--text-muted);">1–10 of 48</span>
+        <div style="display: flex; gap: 6px;">
+          <button style="font-size: 12px; padding: 4px 10px;">Previous</button>
+          <button style="font-size: 12px; padding: 4px 10px;">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <p style="font-size: 15px; color: var(--text-primary); line-height: 1.7; margin: 1.25rem 0 0;">The rows are a sample dataset, not real records — read it as the shape your own list view could take. While a page loads, rows show as loading placeholders instead of this content.</p>
+  </section>
+
+</div>

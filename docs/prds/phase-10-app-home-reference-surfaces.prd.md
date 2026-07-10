@@ -86,7 +86,7 @@ Give the authenticated surface a real home, convert profile settings to a modal,
 
 ### Epic 5: Pattern reference page
 
-- **5.1 Reference page shell.** Stand up the page as a public route reached from the landing surface, admitting it to the auth boundary's allowlist per the change protocol. The app home gains a link to it. The page imports the real, already-canonized components; it reimplements nothing. Mockup: `.mockups/reference-page.html` (to be created before planning).
+- **5.1 Reference page shell.** Stand up the page as a public route reached from the landing surface, admitting it to the auth boundary's allowlist per the change protocol. The app home gains a link to it. The page imports the real, already-canonized components; it reimplements nothing. Mockup: `.mockups/reference-page.html`.
 - **5.2 Forms and save models.** Demonstrate the blur-save primitive live, persisting through a mock function, with the field-level save indicator its model calls for. Cover explicit submit and upload-on-complete in prose, explaining why the choice is per-field rather than per-form and pointing at their reference implementations.
 - **5.3 Feedback and error states.** Demonstrate the operational-versus-fault split through the shared error component — an operational error inline, a fault in the reportable panel with its copy control — alongside transient toast feedback.
 - **5.4 Canonical data table.** Demonstrate the canonical table on a checked-in fixture: single-column search, pagination, and sorting, over a data source whose artificial delay surfaces skeleton loading through the columns' own metadata.
