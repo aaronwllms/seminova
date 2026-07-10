@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { ADMIN_HOME } from '@/constants/admin-paths'
 import { useSignOut } from '@/hooks/use-sign-out'
+import { cn } from '@/utils/tailwind'
 import { getProfileInitials } from '@/utils/user-initials'
 
 type AppNavUserProps = {
@@ -33,6 +34,7 @@ export const AppNavUser = ({
   const handleSignOut = useSignOut()
   const { openProfile } = useProfileDialog()
   const initials = getProfileInitials({ displayName, email })
+  const accountLabel = displayName ?? email
 
   return (
     <DropdownMenu>
@@ -41,13 +43,19 @@ export const AppNavUser = ({
           type="button"
           variant="ghost"
           size="icon"
-          className="rounded-full"
+          className={cn(
+            'max-w-full min-w-0 shrink rounded-full',
+            'md:h-8 md:w-auto md:max-w-full md:justify-start md:px-2',
+          )}
           aria-label="Account menu"
         >
-          <Avatar className="h-8 w-8">
+          <Avatar className="h-8 w-8 shrink-0">
             {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
+          <span className="hidden min-w-0 truncate md:inline">
+            {accountLabel}
+          </span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" sideOffset={4}>

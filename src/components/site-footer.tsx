@@ -27,6 +27,7 @@ export const SiteFooter = ({
     <SiteContainer className="py-6">
       <div
         className={cn(
+          // debt: grid track string coupled with site-header.tsx — change both together
           'flex flex-col gap-6 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center',
         )}
       >
@@ -35,7 +36,7 @@ export const SiteFooter = ({
           className="text-foreground min-w-0 justify-self-start"
         />
         {showNav ? <SiteNavLinks className="justify-self-center" /> : null}
-        <div className="flex gap-3 justify-self-end">
+        <div className="flex gap-3 justify-self-end md:col-start-3">
           {siteConfig.social.map((social) => {
             const Icon = socialIcons[social.icon]
 

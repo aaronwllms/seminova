@@ -9,6 +9,7 @@ globs:
   - 'src/utils/sitemap-routes.ts'
   - 'src/utils/structured-data.ts'
   - 'src/utils/og-image.tsx'
+  - 'src/utils/brand-mark-image.tsx'
   - 'src/utils/discover-app-routes.ts'
   - 'src/utils/proxy-matcher.ts'
 alwaysApply: false
@@ -58,7 +59,24 @@ Defense-in-depth on top of the auth proxy — a route accidentally made public c
 
 - Shared template: [`src/utils/og-image.tsx`](../../src/utils/og-image.tsx) (`createOgImageResponse`).
 - Per-route segment files: `opengraph-image.tsx` (e.g. root + [`src/app/auth/login/opengraph-image.tsx`](../../src/app/auth/login/opengraph-image.tsx)). New public routes add their own segment file; title/description come from page metadata + site config.
-- OG/twitter image paths bypass auth via [`src/utils/proxy-matcher.ts`](../../src/utils/proxy-matcher.ts) — keep in sync with [`proxy.ts`](../../proxy.ts).
+- OG/twitter image paths bypass auth via [`src/utils/proxy-matcher.ts`](../../src/utils/proxy-matcher.ts) — keep in sync with [`proxy.ts`](../../proxy.ts). Include `/icon` and nested `*/icon` alongside `/opengraph-image`, `/twitter-image`, and their nested variants.
+
+## Favicon
+
+- Shared util: [`src/utils/brand-mark-image.tsx`](../../src/utils/brand-mark-image.tsx) (`createBrandMarkImageResponse`) — primary-filled rounded square + `siteConfig.Logo`.
+- Segment file: [`src/app/icon.tsx`](../../src/app/icon.tsx) — re-exports size/contentType and calls the util. No static `favicon.ico`; the dynamic route wins.
+- `/icon` and nested `*/icon` bypass auth via [`src/utils/proxy-matcher.ts`](../../src/utils/proxy-matcher.ts) — keep in sync with [`proxy.ts`](../../proxy.ts).
+
+## Satori constraints (OG + favicon)
+
+`ImageResponse` / Satori silently renders blank glyphs on violation — no error. Applies to [`src/utils/og-image.tsx`](../../src/utils/og-image.tsx) and [`src/utils/brand-mark-image.tsx`](../../src/utils/brand-mark-image.tsx):
+
+- **Inline styles only** — no Tailwind classes in the JSX tree.
+- **Explicit stroke color** on Lucide icons — never `currentColor`.
+- **Explicit `width` / `height` props** on icons — never CSS sizing.
+- **`display: 'flex'`** on container divs that wrap children.
+
+`siteConfig.Logo` is typed `LucideIcon` for this reason — see comment on the field in [`src/config/site.ts`](../../src/config/site.ts). Unit tests assert non-blank PNG output (magic bytes + byte-length threshold); `instanceof ImageResponse` alone is insufficient.
 
 ## Content standards (guidance)
 

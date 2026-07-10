@@ -22,6 +22,9 @@ export interface SiteLegalStub {
 export interface SiteConfig {
   name: string
   description: string
+  // LucideIcon is a Satori compatibility constraint, not a stylistic default:
+  // ImageResponse renders Logo for the favicon and OG image; widening this type
+  // silently produces blank glyphs. See seo.mdc § Satori constraints.
   Logo: LucideIcon
   links: {
     github: string
