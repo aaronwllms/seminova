@@ -1,6 +1,6 @@
 'use client'
 
-import type { Control } from 'react-hook-form'
+import type { Control, FieldValues, Path } from 'react-hook-form'
 
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -11,16 +11,16 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import type { FieldSaveState } from '@/types/field-save-state'
 
-import type { ProfileFormInputValues } from '@/app/(app)/_lib/profile/profile-form-schema'
-import type { FieldSaveState } from '@/app/(app)/_lib/profile/field-save-state'
 import { FieldSaveIndicator } from './field-save-indicator'
 
-type TextFieldName = 'displayName' | 'bio'
-
-type ProfileTextFieldProps = {
-  control: Control<ProfileFormInputValues>
-  name: TextFieldName
+type BlurSaveTextFieldProps<
+  TFieldValues extends FieldValues,
+  TFieldName extends Path<TFieldValues>,
+> = {
+  control: Control<TFieldValues>
+  name: TFieldName
   label: string
   placeholder: string
   controlType: 'input' | 'textarea'
@@ -29,7 +29,10 @@ type ProfileTextFieldProps = {
   onBlurSave: () => void | Promise<void>
 }
 
-export const ProfileTextField = ({
+export const BlurSaveTextField = <
+  TFieldValues extends FieldValues,
+  TFieldName extends Path<TFieldValues>,
+>({
   control,
   name,
   label,
@@ -38,7 +41,7 @@ export const ProfileTextField = ({
   saveState,
   onSavedComplete,
   onBlurSave,
-}: ProfileTextFieldProps) => {
+}: BlurSaveTextFieldProps<TFieldValues, TFieldName>) => {
   return (
     <FormField
       control={control}
@@ -59,7 +62,7 @@ export const ProfileTextField = ({
                 rows={4}
                 {...field}
                 value={field.value ?? ''}
-                onBlur={(event) => {
+                onBlur={() => {
                   field.onBlur()
                   void onBlurSave()
                 }}
@@ -69,7 +72,7 @@ export const ProfileTextField = ({
                 placeholder={placeholder}
                 {...field}
                 value={field.value ?? ''}
-                onBlur={(event) => {
+                onBlur={() => {
                   field.onBlur()
                   void onBlurSave()
                 }}

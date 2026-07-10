@@ -6,7 +6,7 @@ import { AvatarUploadError } from '@/utils/avatar-storage'
 
 import type { ProfileFormInputValues } from './profile-form-schema'
 import { useProfileAvatarUpload } from './use-profile-avatar-upload'
-import type { ProfileFieldKey } from './use-blur-save-field'
+import type { ProfileFieldKey } from './profile-form-schema'
 
 const mockUploadUserAvatar = vi.fn()
 const mockWithAvatarCacheBust = vi.fn((url: string) => `${url}?v=1`)

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-import { ErrorPanel } from '@/components/error-panel'
+import { AppErrorSurface } from '@/components/app-error-surface'
 import { InlineError } from '@/components/inline-error'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -118,11 +118,7 @@ export const ProfilePasswordSection = ({
         />
       </div>
       {validationError ? <InlineError message={validationError} /> : null}
-      {formError?.kind === 'fault' ? (
-        <ErrorPanel message={formError.message} code={formError.code} />
-      ) : formError ? (
-        <InlineError message={formError.message} />
-      ) : null}
+      <AppErrorSurface error={formError} />
       <Button type="submit" disabled={isLoading}>
         {isLoading ? 'Updating…' : 'Update password'}
       </Button>

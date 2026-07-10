@@ -3,7 +3,8 @@
 import { Check } from 'lucide-react'
 import { useEffect } from 'react'
 
-import type { FieldSaveState } from '@/app/(app)/_lib/profile/field-save-state'
+import type { FieldSaveState } from '@/types/field-save-state'
+
 type FieldSaveIndicatorProps = {
   state: FieldSaveState
   onSavedComplete?: () => void

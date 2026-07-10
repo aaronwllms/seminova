@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+export type ProfileFieldKey = 'displayName' | 'bio' | 'avatar'
+
 export const profileFormSchema = z.object({
   displayName: z
     .string()

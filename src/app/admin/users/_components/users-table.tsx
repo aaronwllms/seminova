@@ -4,8 +4,7 @@ import {
   useDataTableShell,
   DataTableShell,
 } from '@/components/data-table-shell'
-import { ErrorPanel } from '@/components/error-panel'
-import { InlineError } from '@/components/inline-error'
+import { AppErrorSurface } from '@/components/app-error-surface'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -152,15 +151,9 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
         ) : null}
       </div>
 
-      {listError?.kind === 'fault' ? (
-        <ErrorPanel message={listError.message} code={listError.code} />
-      ) : listError ? (
-        <InlineError message={listError.message} />
-      ) : null}
+      {listError ? <AppErrorSurface error={listError} /> : null}
 
-      {mutationAppError ? (
-        <InlineError message={mutationAppError.message} />
-      ) : null}
+      <AppErrorSurface error={mutationAppError} />
 
       <div aria-busy={isFetching}>
         <DataTableShell

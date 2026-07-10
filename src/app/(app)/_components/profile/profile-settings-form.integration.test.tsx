@@ -1,11 +1,13 @@
 import { fireEvent, render, screen, waitFor } from '@/test/test-utils'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ProfileSettingsForm } from './profile-settings-form'
 
 const mockUpdateProfileAction = vi.fn()
 const mockRefresh = vi.fn()
+const mockUploadUserAvatar = vi.fn()
+const mockWithAvatarCacheBust = vi.fn((url: string) => `${url}?v=1`)
 
 vi.mock('@/app/(app)/_lib/profile/actions', () => ({
   updateProfileAction: (...args: unknown[]) => mockUpdateProfileAction(...args),
@@ -15,10 +17,44 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ refresh: mockRefresh }),
 }))
 
+vi.mock('@/utils/avatar-storage', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/utils/avatar-storage')>()
+  return {
+    ...actual,
+    uploadUserAvatar: (...args: unknown[]) => mockUploadUserAvatar(...args),
+    withAvatarCacheBust: (url: string) => mockWithAvatarCacheBust(url),
+  }
+})
+
+const PUBLIC_URL =
+  'https://example.supabase.co/storage/v1/object/public/avatars/user-1/avatar.webp'
+
+const createObjectURL = vi.fn((file: File) => `blob:${file.name}`)
+const revokeObjectURL = vi.fn()
+
+const defaultFormProps = {
+  userId: 'user-1',
+  email: 'test@example.com',
+  defaultValues: {
+    displayName: 'Alex',
+    bio: 'Builder',
+    avatarUrl: null as string | null,
+  },
+}
+
 describe('ProfileSettingsForm', () => {
   beforeEach(() => {
+    createObjectURL.mockClear()
+    revokeObjectURL.mockClear()
+    vi.stubGlobal('URL', {
+      createObjectURL,
+      revokeObjectURL,
+    })
     mockUpdateProfileAction.mockReset()
     mockRefresh.mockReset()
+    mockUploadUserAvatar.mockReset()
+    mockWithAvatarCacheBust.mockClear()
+    mockUploadUserAvatar.mockResolvedValue({ publicUrl: PUBLIC_URL })
     mockUpdateProfileAction.mockResolvedValue({
       success: true,
       data: {
@@ -233,5 +269,121 @@ describe('ProfileSettingsForm', () => {
     expect(
       await screen.findByRole('button', { name: /copy error details/i }),
     ).toBeInTheDocument()
+  })
+
+  it('should blur-save display name while avatar persist is in flight', async () => {
+    let resolveAvatarPersist: (value: unknown) => void = () => {}
+    mockUpdateProfileAction.mockImplementation(
+      (payload: { avatarUrl?: string }) => {
+        if ('avatarUrl' in payload) {
+          return new Promise((resolve) => {
+            resolveAvatarPersist = resolve
+          })
+        }
+
+        return Promise.resolve({
+          success: true,
+          data: {
+            displayName: 'Jordan',
+            bio: 'Builder',
+            avatarUrl: `${PUBLIC_URL}?v=1`,
+          },
+        })
+      },
+    )
+
+    const user = userEvent.setup()
+    render(<ProfileSettingsForm {...defaultFormProps} />)
+
+    const file = new File(['avatar'], 'avatar.png', { type: 'image/png' })
+    const fileInput = document.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement
+
+    await user.upload(fileInput, file)
+
+    await waitFor(() => {
+      expect(mockUploadUserAvatar).toHaveBeenCalled()
+      expect(mockUpdateProfileAction).toHaveBeenCalledWith({
+        avatarUrl: `${PUBLIC_URL}?v=1`,
+      })
+    })
+
+    await user.clear(screen.getByLabelText(/display name/i))
+    await user.type(screen.getByLabelText(/display name/i), 'Jordan')
+    await user.tab()
+
+    await waitFor(() => {
+      expect(mockUpdateProfileAction).toHaveBeenCalledWith({
+        displayName: 'Jordan',
+      })
+    })
+
+    resolveAvatarPersist({
+      success: true,
+      data: {
+        displayName: 'Jordan',
+        bio: 'Builder',
+        avatarUrl: `${PUBLIC_URL}?v=1`,
+      },
+    })
+  })
+
+  it('should upload avatar while display name persist is in flight', async () => {
+    let resolveDisplayNamePersist: (value: unknown) => void = () => {}
+    mockUpdateProfileAction.mockImplementation(
+      (payload: { displayName?: string }) => {
+        if ('displayName' in payload) {
+          return new Promise((resolve) => {
+            resolveDisplayNamePersist = resolve
+          })
+        }
+
+        return Promise.resolve({
+          success: true,
+          data: {
+            displayName: 'Jordan',
+            bio: 'Builder',
+            avatarUrl: `${PUBLIC_URL}?v=1`,
+          },
+        })
+      },
+    )
+
+    const user = userEvent.setup()
+    render(<ProfileSettingsForm {...defaultFormProps} />)
+
+    await user.clear(screen.getByLabelText(/display name/i))
+    await user.type(screen.getByLabelText(/display name/i), 'Jordan')
+    fireEvent.blur(screen.getByLabelText(/display name/i))
+
+    await waitFor(() => {
+      expect(mockUpdateProfileAction).toHaveBeenCalledWith({
+        displayName: 'Jordan',
+      })
+    })
+
+    const file = new File(['avatar'], 'avatar.png', { type: 'image/png' })
+    const fileInput = document.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement
+
+    await user.upload(fileInput, file)
+
+    await waitFor(() => {
+      expect(mockUploadUserAvatar).toHaveBeenCalledWith({
+        userId: 'user-1',
+        file,
+      })
+    })
+
+    resolveDisplayNamePersist({
+      success: true,
+      data: {
+        displayName: 'Jordan',
+        bio: 'Builder',
+        avatarUrl: null,
+      },
+    })
   })
 })

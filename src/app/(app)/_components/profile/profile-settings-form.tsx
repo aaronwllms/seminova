@@ -4,26 +4,34 @@ import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, useWatch } from 'react-hook-form'
 
+import { AppErrorSurface } from '@/components/app-error-surface'
+import { BlurSaveTextField } from '@/components/blur-save-text-field'
 import { Form } from '@/components/ui/form'
-import { InlineError } from '@/components/inline-error'
-import { ErrorPanel } from '@/components/error-panel'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useBlurSaveField } from '@/hooks/use-blur-save-field'
 
+import { updateProfileAction } from '@/app/(app)/_lib/profile/actions'
 import {
   profileFormInputSchema,
+  type ProfileFieldKey,
   type ProfileFormInputValues,
   type ProfileFormValues,
+  type ProfilePartialValues,
 } from '@/app/(app)/_lib/profile/profile-form-schema'
-import { useBlurSaveField } from '@/app/(app)/_lib/profile/use-blur-save-field'
 import { useProfileAvatarUpload } from '@/app/(app)/_lib/profile/use-profile-avatar-upload'
 import { ProfileAvatarField } from './profile-avatar-field'
-import { ProfileTextField } from './profile-text-field'
 
 type ProfileSettingsFormProps = {
   userId: string
   email: string
   defaultValues: ProfileFormValues
+}
+
+type ProfileLastSaved = {
+  displayName: string | null
+  bio: string | null
+  avatarUrl: string | null
 }
 
 export const ProfileSettingsForm = ({
@@ -51,7 +59,23 @@ export const ProfileSettingsForm = ({
     lastSavedRef,
     inFlightRef,
     createTextBlurHandler,
-  } = useBlurSaveField({ defaultValues, form })
+  } = useBlurSaveField<
+    ProfileFormInputValues,
+    'displayName' | 'bio',
+    ProfileFieldKey,
+    ProfileLastSaved,
+    ProfilePartialValues
+  >({
+    form,
+    inFlightKeys: ['displayName', 'bio', 'avatar'] as const,
+    initialLastSaved: {
+      displayName: defaultValues.displayName?.trim() || null,
+      bio: defaultValues.bio?.trim() || null,
+      avatarUrl: defaultValues.avatarUrl,
+    },
+    persist: updateProfileAction,
+    faultFallbackMessage: 'Could not save your profile. Please try again.',
+  })
 
   const { handleAvatarUpload } = useProfileAvatarUpload({
     userId,
@@ -75,11 +99,23 @@ export const ProfileSettingsForm = ({
   const handleDisplayNameBlur = createTextBlurHandler('displayName', {
     refresh: true,
     toPayload: (trimmed) => ({ displayName: trimmed }),
+    lastSaved: {
+      get: (snapshot) => snapshot.displayName,
+      set: (snapshot, value) => {
+        snapshot.displayName = value
+      },
+    },
   })
 
   const handleBioBlur = createTextBlurHandler('bio', {
     refresh: false,
     toPayload: (trimmed) => ({ bio: trimmed }),
+    lastSaved: {
+      get: (snapshot) => snapshot.bio,
+      set: (snapshot, value) => {
+        snapshot.bio = value
+      },
+    },
   })
 
   return (
@@ -97,7 +133,7 @@ export const ProfileSettingsForm = ({
         />
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <ProfileTextField
+          <BlurSaveTextField
             control={form.control}
             name="displayName"
             label="Display name"
@@ -120,7 +156,7 @@ export const ProfileSettingsForm = ({
           </div>
         </div>
 
-        <ProfileTextField
+        <BlurSaveTextField
           control={form.control}
           name="bio"
           label="Bio"
@@ -131,11 +167,7 @@ export const ProfileSettingsForm = ({
           onBlurSave={handleBioBlur}
         />
 
-        {formError?.kind === 'fault' ? (
-          <ErrorPanel message={formError.message} code={formError.code} />
-        ) : formError ? (
-          <InlineError message={formError.message} />
-        ) : null}
+        <AppErrorSurface error={formError} />
       </div>
     </Form>
   )

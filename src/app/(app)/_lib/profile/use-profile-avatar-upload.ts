@@ -12,7 +12,7 @@ import {
 import type { AppError } from '@/types/app-error'
 
 import type { ProfileFormInputValues } from './profile-form-schema'
-import type { ProfileFieldKey } from './use-blur-save-field'
+import type { ProfileFieldKey } from './profile-form-schema'
 
 type PersistField = (args: {
   field: ProfileFieldKey

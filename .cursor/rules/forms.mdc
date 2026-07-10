@@ -14,16 +14,17 @@ alwaysApply: false
 
 ## Canonical stack
 
-Profile settings modal (`src/app/(app)/_lib/profile/` + `src/app/(app)/_components/profile/`) is the reference implementation.
+Blur-save primitives live in shared locations; profile settings modal is the first consumer.
 
 | Layer | Tool |
 | ----- | ---- |
 | Client forms | `react-hook-form` + `@hookform/resolvers/zod` |
 | UI | shadcn `Form`, `FormField`, `Input`, `Textarea` from `@/components/ui/form` |
-| Validation | Shared zod schema in route `_lib/` (e.g. `profile-form-schema.ts`) |
+| Blur-save | [`useBlurSaveField`](../../src/hooks/use-blur-save-field.ts) + [`BlurSaveTextField`](../../src/components/blur-save-text-field.tsx) — caller supplies `persist`, `inFlightKeys`, and `initialLastSaved` |
+| Validation | Shared zod schema per surface in route `_lib/` (e.g. [`profile-form-schema.ts`](../../src/app/(app)/_lib/profile/profile-form-schema.ts)) |
 | Server boundary | Same schema via `safeParse` in Server Actions — never return raw `ZodError` |
 | Success feedback | Per save model below — toast (explicit submit) or inline indicator (blur-save) |
-| Errors | `InlineError` (operational) / `ErrorPanel` (fault) per `error-handling.mdc` |
+| Errors | `AppErrorSurface` for typed envelopes; raw `InlineError` for string-only client validation — see `error-handling.mdc` |
 
 ## Save model
 
@@ -60,12 +61,30 @@ including the `useState` auth forms** — it is independent of the form library.
 ## Client pattern
 
 ```typescript
-const form = useForm<ProfileFormValues>({
-  resolver: zodResolver(profileFormSchema),
+const form = useForm<MyFormValues>({
+  resolver: zodResolver(myFormSchema),
   defaultValues,
 })
 
-// Submit via useTransition or local isLoading; call Server Action; branch on envelope
+const { createTextBlurHandler, persistField, saveStates } = useBlurSaveField({
+  form,
+  defaultValues,
+  inFlightKeys: ['title', 'body'] as const,
+  initialLastSaved: { title: null, body: null },
+  persist: updateMyFormAction, // raw server action — envelope in, envelope out
+})
+
+// Blur handler per field — caller supplies last-saved accessors on the snapshot type
+const handleTitleBlur = createTextBlurHandler('title', {
+  refresh: true,
+  toPayload: (trimmed) => ({ title: trimmed }),
+  lastSaved: {
+    get: (snapshot) => snapshot.title,
+    set: (snapshot, value) => {
+      snapshot.title = value
+    },
+  },
+})
 ```
 
 Auth forms (`login-form`, `sign-up-form`, etc.) remain `useState` until intentionally migrated — new settings/profile-style forms use this stack.
@@ -78,7 +97,7 @@ Auth forms (`login-form`, `sign-up-form`, etc.) remain `useState` until intentio
 4. `revalidatePath` for affected routes
 5. Return `{ success: true, data }` or `{ success: false, error: { message, code, kind } }`
 
-See [`src/app/(app)/_lib/profile/actions.ts`](../../src/app/(app)/_lib/profile/actions.ts) and [`src/app/admin/users/actions.ts`](../../src/app/admin/users/actions.ts).
+See [`src/app/(app)/_lib/profile/actions.ts`](../../src/app/(app)/_lib/profile/actions.ts) and [`src/app/admin/users/actions.ts`](../../src/app/admin/users/actions.ts). For blur-save, the caller passes the raw action as `persist` to `useBlurSaveField` — the hook owns in-flight orchestration; the action owns validation and mutation.
 
 ## Cross-references
 

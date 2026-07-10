@@ -219,7 +219,7 @@ describe('UsersTable', () => {
     })
   })
 
-  it('should show mutation faults inline without replacing table rows', async () => {
+  it('should show mutation faults in a reportable panel without replacing table rows', async () => {
     const user = userEvent.setup({ delay: null })
 
     listUsersActionMock.mockResolvedValue({
@@ -269,8 +269,8 @@ describe('UsersTable', () => {
       ),
     ).toBeInTheDocument()
     expect(
-      screen.queryByRole('button', { name: /copy error details/i }),
-    ).not.toBeInTheDocument()
+      screen.getByRole('button', { name: /copy error details/i }),
+    ).toBeInTheDocument()
     expect(screen.getByText('bob@example.com')).toBeInTheDocument()
   })
 })

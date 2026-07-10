@@ -130,7 +130,7 @@ User-safe, actionable, empathetic copy — 1–2 sentences max. Never leak inter
 
 ## Error UI Patterns
 
-Carry severity as data via `kind` on the error envelope ([`src/types/app-error.ts`](../../src/types/app-error.ts)). Branch on `kind` to pick the display component — do not gate copy affordance on whether `code` is present.
+Carry severity as data via `kind` on the error envelope ([`src/types/app-error.ts`](../../src/types/app-error.ts)). Use [`AppErrorSurface`](../../src/components/app-error-surface.tsx) for typed `AppError` values — it branches on `kind` to pick the display component. Do not gate copy affordance on whether `code` is present.
 
 **Operational** (`kind: 'operational'`) — [`src/components/inline-error.tsx`](../../src/components/inline-error.tsx):
 - Plain inline message, `AlertCircle` icon, `role="alert"`, `text-destructive`
@@ -142,13 +142,13 @@ Carry severity as data via `kind` on the error envelope ([`src/types/app-error.t
 - Copy payload: message + `Code: {code}` when code present
 - Use for: `INTERNAL_ERROR`, non-auth throws, network failures
 
+**Typed server-action errors** — use `AppErrorSurface`:
+
 ```typescript
-{error?.kind === 'fault' ? (
-  <ErrorPanel message={error.message} code={error.code} />
-) : error ? (
-  <InlineError message={error.message} />
-) : null}
+<AppErrorSurface error={formError} />
 ```
+
+**String-only client validation** — use raw `InlineError` with a plain string message (no `AppError` envelope). Examples: file input validation, zod field messages via `FormMessage`.
 
 Visual reference (appearance only — implementation uses semantic tokens): [`.mockups/error-states.html`](../../.mockups/error-states.html)
 
