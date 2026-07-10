@@ -7,7 +7,7 @@ import { ADMIN_ROLE } from '@/constants/admin-role'
 import { discoverAppRoutes } from '@/utils/discover-app-routes'
 import { updateSession } from './proxy'
 
-const PUBLIC_EXACT = ['/', '/terms', '/privacy'] as const
+const PUBLIC_EXACT = ['/', '/terms', '/privacy', '/reference'] as const
 const PUBLIC_PREFIXES = ['/auth'] as const
 
 const isDiscoveredPublicRoute = (pathname: string) =>

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Sparkles, type LucideIcon } from 'lucide-react'
 
-import { PRIVACY_PATH, TERMS_PATH } from '@/constants/app-paths'
+import { PRIVACY_PATH, REFERENCE_PATH, TERMS_PATH } from '@/constants/app-paths'
 
 const GITHUB_URL = 'https://github.com/aaronwllms/seminova'
 
@@ -48,6 +48,7 @@ export const siteConfig: SiteConfig = {
   nav: [
     { label: 'Home', href: '/' },
     { label: 'Features', href: '#features' },
+    { label: 'Reference', href: REFERENCE_PATH },
     { label: 'GitHub', href: GITHUB_URL, external: true },
   ],
   social: [{ label: 'GitHub', href: GITHUB_URL, icon: 'github' }],

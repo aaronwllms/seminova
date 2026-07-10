@@ -4,6 +4,7 @@ import {
   APP_HOME,
   LOGIN_PATH,
   PRIVACY_PATH,
+  REFERENCE_PATH,
   TERMS_PATH,
 } from '@/constants/app-paths'
 import { getPublicSupabaseEnv, hasPublicSupabaseEnv } from '@/utils/env'
@@ -28,7 +29,8 @@ export async function updateSession(request: NextRequest) {
     pathname === '/' ||
     pathname.startsWith('/auth') ||
     pathname === TERMS_PATH ||
-    pathname === PRIVACY_PATH
+    pathname === PRIVACY_PATH ||
+    pathname === REFERENCE_PATH
 
   if (!hasPublicSupabaseEnv) {
     if (process.env.NODE_ENV === 'production') {

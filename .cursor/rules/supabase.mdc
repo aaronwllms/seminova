@@ -88,7 +88,7 @@ const supabase = await createClient()
 // Root proxy.ts delegates to src/supabase/proxy.ts
 import { updateSession } from '@/supabase/proxy'
 
-// Public routes: /, /auth/**, /terms, and /privacy; others redirect to /auth/login when unauthenticated
+// Public routes: /, /auth/**, /terms, /privacy, and /reference; others redirect to /auth/login when unauthenticated
 ```
 
 **Reference:** `proxy.ts`, `src/supabase/proxy.ts`, `src/supabase/client.ts`, `src/supabase/server.ts`
