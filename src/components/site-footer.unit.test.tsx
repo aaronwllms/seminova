@@ -23,7 +23,7 @@ const renderFooter = (props: React.ComponentProps<typeof SiteFooter>) =>
   )
 
 describe('SiteFooter', () => {
-  it('should render copyright, legal stubs, and GitHub social link', async () => {
+  it('should render copyright, legal links, and GitHub social link', async () => {
     renderFooter({ logoHref: '/' })
 
     expect(await screen.findByText(/all rights reserved/i)).toHaveTextContent(

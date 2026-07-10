@@ -1,4 +1,4 @@
-type LegalPlaceholderProps = {
+interface LegalPlaceholderProps {
   title: string
 }
 
