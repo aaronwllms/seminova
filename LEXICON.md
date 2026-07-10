@@ -6,7 +6,7 @@
 
 **Discipline:** Entries are short — a sentence or two of meaning, plus a pointer to the canonical home (a rule, `DESIGN.md`, [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints), an ADR) where the authoritative detail and any values live. Do not duplicate token values, rule wording, or schema here; point to the source of truth instead.
 
-**Last updated:** 2026-07-09
+**Last updated:** 2026-07-10
 
 ---
 
@@ -16,7 +16,7 @@
   - [Primitive-first](#primitive-first)
   - [Semantic token](#semantic-token)
   - [Structure vs theme](#structure-vs-theme)
-  - [Auth boundary](#auth-boundary--auth)
+  - [Auth boundary](#auth-boundary)
   - [Admin gate](#admin-gate)
   - [Defense in depth (admin)](#defense-in-depth-admin)
   - [Supabase clients](#supabase-clients-browser--server--service)
@@ -51,13 +51,13 @@ A design value referred to by _role_, not by raw value — `primary`, `muted-for
 
 The split that makes Seminova re-skinnable. _Structure_ — token names, component primitives, the `@theme inline` bridge, the agent workflow — is fixed and inherited by every spinoff. _Theme_ — color/font/radius/shadow values — is replaced per product. Guidance in [`.cursor/rules/ui-styling.mdc`](.cursor/rules/ui-styling.mdc). See [DESIGN.md › Structure vs theme](DESIGN.md#structure-vs-theme).
 
-### Auth boundary (`/` + `/auth/**` + `/terms` + `/privacy`)
+### Auth boundary
 
-The only public routes are the landing page (`/`), the auth screens (`/auth/**`), and the legal placeholders (`/terms`, `/privacy`). Everything else requires an authenticated session. The boundary is enforced in [`proxy.ts`](proxy.ts) (→ [`src/supabase/proxy.ts`](src/supabase/proxy.ts)), which refreshes the session and redirects unauthenticated users to `/auth/login`. Adding a public route outside these is a hard-constraint change. Hard constraint (enforced: `check:auth-boundary`). See [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints).
+The line between public and authenticated routes. A small allowlist of paths is public — the landing page, the auth screens, and the legal pages — and everything else requires an authenticated session. The allowlist values are constants in [`src/constants/app-paths.ts`](src/constants/app-paths.ts); the boundary is enforced in [`proxy.ts`](proxy.ts) (→ [`src/supabase/proxy.ts`](src/supabase/proxy.ts)), which refreshes the session and redirects unauthenticated users to the login path. Adding a public route is a hard-constraint change, not a routing detail. Hard constraint (enforced: `check:auth-boundary`). See [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints).
 
 The proxy reads session state via `getClaims()`, not `getUser()`. `getClaims()` reads the JWT locally with no network round-trip; `getUser()` hits the Supabase Auth server. The proxy comment warns explicitly against swapping them — doing so can cause users to be randomly logged out.
 
-The proxy skips all enforcement when `hasPublicSupabaseEnv` is false (Supabase env vars not yet configured) — a dev-setup affordance. Remove or disable this bypass once the project is configured.
+When the Supabase env vars are absent (`hasPublicSupabaseEnv` is false), the proxy **fails closed in production** — it serves a 503 rather than any route — and skips enforcement only outside production, as a dev-setup affordance. The affordance is gated on `NODE_ENV`; there is no bypass to remove before deploying.
 
 ### Admin gate
 
@@ -79,12 +79,12 @@ Three distinct Supabase clients, each with a different trust level — picking t
 
 ### Operational vs fault error
 
-Seminova classifies errors by `kind` on [`AppError`](src/types/app-error.ts):
+Seminova classifies every error by `kind` on [`AppError`](src/types/app-error.ts):
 
-- **Operational** — an expected, user-actionable failure (bad credentials, validation). Surfaced inline with [`InlineError`](src/components/inline-error.tsx).
-- **Fault** — an unexpected/system failure the user can't fix. Surfaced with [`ErrorPanel`](src/components/error-panel.tsx) (copy-to-clipboard for reporting).
+- **Operational** — an expected, user-actionable failure (bad credentials, validation, forbidden, rate-limited).
+- **Fault** — an unexpected system failure the user cannot fix (thrown exception, network failure, internal error).
 
-The distinction drives which component renders and how much detail is shown. Consumption detail in [`.cursor/rules/error-handling.mdc`](.cursor/rules/error-handling.mdc).
+`kind` is set at the producer or catcher — the only place with enough context to classify honestly — and travels as data on the **response envelope**. UI branches on `kind` to choose its error surface and how much detail to show; it never infers severity from `code`, from message text, or from where the error was caught. Consumption detail in [`.cursor/rules/error-handling.mdc`](.cursor/rules/error-handling.mdc).
 
 ### Deep module vs god file
 
@@ -111,7 +111,7 @@ A `'use server'` function — the default path for authenticated reads and mutat
 
 ### Response envelope
 
-The standard return shape for server actions: `{ success: true, data }` or `{ success: false, error: { message, code, kind } }`. The `kind` field links to the operational/fault classification. Callers discriminate on `success` before using `data`. Never return raw thrown errors or untyped objects from an action. See [`src/app/(app)/_lib/profile/actions.ts`](src/app/(app)/_lib/profile/actions.ts) as the reference implementation.
+The standard return shape for server actions: `{ success: true, data }` or `{ success: false, error: { message, code, kind } }`. The `kind` field carries the operational/fault classification. Callers discriminate on `success` before using `data`. Never return raw thrown errors or untyped objects from an action. The shape, the error-code taxonomy, and the equivalent envelope for API routes are canonical in [`.cursor/rules/error-handling.mdc`](.cursor/rules/error-handling.mdc).
 
 ### Site config
 
@@ -119,13 +119,13 @@ The re-skin entry point for product identity. [`src/config/site.ts`](src/config/
 
 ### Save model
 
-The rule for when a form field persists. Seminova uses three modes, and the choice is intentional per field:
+The rule for when a form field persists. The mode is a property of the _field_, not of the form — a single form can mix all three, and the choice is intentional per field:
 
 - **Blur-save** — persists when the field loses focus (e.g. display name).
 - **Explicit submit** — for coupled or high-stakes fields (e.g. password change).
 - **Upload-on-complete** — persists immediately when an upload finishes (e.g. avatar).
 
-Each mode carries different success feedback. Reference implementation: [`profile-settings-form.tsx`](src/app/(app)/_components/profile/profile-settings-form.tsx). Consumption detail in [`.cursor/rules/forms.mdc`](.cursor/rules/forms.mdc).
+Each mode carries its own success feedback (see _Feedback routing_). Consumption detail in [`.cursor/rules/forms.mdc`](.cursor/rules/forms.mdc).
 
 ### Feedback routing
 
@@ -139,7 +139,7 @@ Consumption detail in [`.cursor/rules/notifications.mdc`](.cursor/rules/notifica
 
 ### Post-auth redirect
 
-After sign-in, users are routed by role: admins → `/admin`, everyone else → `APP_HOME` (`/home`). The logic lives in [`getPostAuthRedirectPath()`](src/utils/admin.ts) and is wired through [`/auth/confirm`](src/app/auth/confirm/route.ts) and the login flow. When adding new roles or surfaces, this is the function to extend — not the auth flow itself.
+After sign-in, the destination is role-derived: admins → `ADMIN_HOME`, everyone else → `APP_HOME`. That path is a _fallback_ — a `next` parameter carried through the flow wins over it, provided it passes `isSafeRedirect()`. The role logic lives in [`getPostAuthRedirectPath()`](src/utils/admin.ts); the `next` override is applied in [`/auth/confirm`](src/app/auth/confirm/route.ts). Path values live in [`src/constants/app-paths.ts`](src/constants/app-paths.ts) and [`src/constants/admin-paths.ts`](src/constants/admin-paths.ts). When adding new roles or surfaces, extend those constants and this function — not the auth flow itself.
 
 ### Owned storage path
 
