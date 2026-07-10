@@ -36,7 +36,8 @@ is in flight, the file lives in `docs/prds/`.
   exists to kill. As-built truth lives in [AGENTS.md](../../AGENTS.md); history lives in the
   frozen archive.
 - Epics and stories are added by `phase-planning` when the PRD goes `Ready` —
-  that skill owns their shape (vertical slice + success condition + epic sizing).
+  that skill owns their shape (vertical-slice stories carrying a deliverable,
+  epic-level success criteria, and epic sizing).
 
 ## Planning models
 

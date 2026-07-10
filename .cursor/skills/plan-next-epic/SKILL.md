@@ -49,7 +49,7 @@ Before writing the plan, assess whether this epic has clearly independent tracks
 
 ## Decompose stories into plan steps
 
-Stories define **what ships** and **how it's verified**, not build order. The epic lands as a single commit, so the plan must not construct interim states with no consumer outside the executing agent — temporary wiring built for a later story to replace, or test expectations that hold only between stories.
+Stories define **what ships**, not build order. The epic's success criteria define **how it's verified** — never story-by-story gates. The epic lands as a single commit, so the plan must not construct interim states with no consumer outside the executing agent — temporary wiring built for a later story to replace, or test expectations that hold only between stories.
 
 Where stories touch the same file or component, build the end state directly and verify it once. Verification checkpoints (running tests after a risky change before layering more on top) are not interim states.
 
