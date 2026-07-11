@@ -1,7 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
-import type { AnimationEvent } from 'react'
+import { useEffect, useRef } from 'react'
 
 import {
   Accordion,
@@ -18,6 +17,25 @@ import { ProfileSettingsForm } from './profile-settings-form'
 import { ProfileThemeSegment } from './profile-theme-segment'
 
 const PASSWORD_ACCORDION_VALUE = 'password'
+const ACCORDION_ANIMATION_MS = 200
+
+const easeOutCubic = (progress: number) => 1 - Math.pow(1 - progress, 3)
+
+const findScrollContainer = (element: HTMLElement): HTMLElement | null => {
+  let parent = element.parentElement
+
+  while (parent) {
+    const { overflowY } = getComputedStyle(parent)
+
+    if (overflowY === 'auto' || overflowY === 'scroll') {
+      return parent
+    }
+
+    parent = parent.parentElement
+  }
+
+  return null
+}
 
 type ProfileModalContentProps = {
   userId: string
@@ -31,27 +49,63 @@ export const ProfileModalContent = ({
   defaultValues,
 }: ProfileModalContentProps) => {
   const passwordSectionRef = useRef<HTMLDivElement>(null)
-  const pendingPasswordScrollRef = useRef(false)
+  const scrollTweenFrameRef = useRef<number | null>(null)
+
+  const cancelScrollTween = () => {
+    if (scrollTweenFrameRef.current !== null) {
+      cancelAnimationFrame(scrollTweenFrameRef.current)
+      scrollTweenFrameRef.current = null
+    }
+  }
+
+  const scrollPasswordSectionToTop = () => {
+    const section = passwordSectionRef.current
+    if (!section) return
+
+    const scrollContainer = findScrollContainer(section)
+    if (!scrollContainer) return
+
+    const startScrollTop = scrollContainer.scrollTop
+    const containerTop = scrollContainer.getBoundingClientRect().top
+    const sectionTop = section.getBoundingClientRect().top
+    const targetScrollTop = startScrollTop + (sectionTop - containerTop)
+
+    cancelScrollTween()
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      scrollContainer.scrollTop = targetScrollTop
+      return
+    }
+
+    const startTime = performance.now()
+
+    const tick = (now: number) => {
+      const elapsed = now - startTime
+      const progress = Math.min(elapsed / ACCORDION_ANIMATION_MS, 1)
+      const easedProgress = easeOutCubic(progress)
+
+      scrollContainer.scrollTop =
+        startScrollTop + (targetScrollTop - startScrollTop) * easedProgress
+
+      if (progress < 1) {
+        scrollTweenFrameRef.current = requestAnimationFrame(tick)
+      } else {
+        scrollTweenFrameRef.current = null
+      }
+    }
+
+    scrollTweenFrameRef.current = requestAnimationFrame(tick)
+  }
 
   const handleAccordionValueChange = (value: string) => {
-    pendingPasswordScrollRef.current = value === PASSWORD_ACCORDION_VALUE
+    cancelScrollTween()
+
+    if (value === PASSWORD_ACCORDION_VALUE) {
+      scrollPasswordSectionToTop()
+    }
   }
 
-  const handlePasswordContentAnimationEnd = (
-    event: AnimationEvent<HTMLDivElement>,
-  ) => {
-    if (event.animationName !== 'accordion-down') return
-    if (!pendingPasswordScrollRef.current) return
-
-    pendingPasswordScrollRef.current = false
-
-    const behavior = window.matchMedia('(prefers-reduced-motion: reduce)')
-      .matches
-      ? 'auto'
-      : 'smooth'
-
-    passwordSectionRef.current?.scrollIntoView({ block: 'start', behavior })
-  }
+  useEffect(() => cancelScrollTween, [])
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -88,10 +142,7 @@ export const ProfileModalContent = ({
             <AccordionTrigger className="hover:bg-muted px-2 hover:no-underline">
               Change Password
             </AccordionTrigger>
-            <AccordionContent
-              className="pt-4"
-              onAnimationEnd={handlePasswordContentAnimationEnd}
-            >
+            <AccordionContent className="pt-4">
               <ProfilePasswordSection email={email} />
             </AccordionContent>
           </AccordionItem>
