@@ -77,7 +77,7 @@ export const ProfileSettingsForm = ({
     faultFallbackMessage: 'Could not save your profile. Please try again.',
   })
 
-  const { handleAvatarUpload } = useProfileAvatarUpload({
+  const { handleAvatarUpload, handleAvatarRemove } = useProfileAvatarUpload({
     userId,
     form,
     persistField,
@@ -128,6 +128,7 @@ export const ProfileSettingsForm = ({
           saveState={saveStates.avatar}
           onSavedComplete={() => setFieldSaveState('avatar', 'idle')}
           onUpload={handleAvatarUpload}
+          onRemove={handleAvatarRemove}
           fileError={fileError}
           onFileError={setFileError}
         />
@@ -145,12 +146,11 @@ export const ProfileSettingsForm = ({
           />
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="profile-username">Username</Label>
+            <Label htmlFor="profile-email">Email</Label>
             <Input
-              id="profile-username"
+              id="profile-email"
               value={email}
               readOnly
-              disabled
               autoComplete="username"
             />
           </div>
@@ -161,6 +161,7 @@ export const ProfileSettingsForm = ({
           name="bio"
           label="Bio"
           placeholder="A short bio"
+          description="Brief description for your profile. Max 160 characters."
           controlType="textarea"
           saveState={saveStates.bio}
           onSavedComplete={() => setFieldSaveState('bio', 'idle')}

@@ -24,6 +24,7 @@ export const ProfileThemeSegment = () => {
   return (
     <ToggleGroup
       type="single"
+      variant="outline"
       value={theme}
       onValueChange={(value) => {
         if (value) {

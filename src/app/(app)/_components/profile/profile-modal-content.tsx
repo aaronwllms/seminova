@@ -1,5 +1,11 @@
 'use client'
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
 import { Separator } from '@/components/ui/separator'
 
 import type { ProfileFormValues } from '@/app/(app)/_lib/profile/profile-form-schema'
@@ -31,18 +37,6 @@ export const ProfileModalContent = ({
 
       <section className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
-          <h2 className="text-sm font-medium">Password</h2>
-          <p className="text-muted-foreground text-sm">
-            Change your account password.
-          </p>
-        </div>
-        <ProfilePasswordSection email={email} />
-      </section>
-
-      <Separator className="bg-border/40" />
-
-      <section className="flex flex-col gap-3">
-        <div className="flex flex-col gap-1">
           <h2 className="text-sm font-medium">Appearance</h2>
           <p className="text-muted-foreground text-sm">
             Choose light, dark, or system theme for the app.
@@ -50,6 +44,19 @@ export const ProfileModalContent = ({
         </div>
         <ProfileThemeSegment />
       </section>
+
+      <Separator className="bg-border/40" />
+
+      <Accordion type="single" collapsible>
+        <AccordionItem value="password" className="border-none">
+          <AccordionTrigger className="py-0 hover:no-underline">
+            Change Password
+          </AccordionTrigger>
+          <AccordionContent>
+            <ProfilePasswordSection email={email} />
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   )
 }

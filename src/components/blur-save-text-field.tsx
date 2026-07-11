@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import {
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -23,6 +24,7 @@ type BlurSaveTextFieldProps<
   name: TFieldName
   label: string
   placeholder: string
+  description?: string
   controlType: 'input' | 'textarea'
   saveState: FieldSaveState
   onSavedComplete: () => void
@@ -37,6 +39,7 @@ export const BlurSaveTextField = <
   name,
   label,
   placeholder,
+  description,
   controlType,
   saveState,
   onSavedComplete,
@@ -79,6 +82,9 @@ export const BlurSaveTextField = <
               />
             )}
           </FormControl>
+          {description ? (
+            <FormDescription>{description}</FormDescription>
+          ) : null}
           <FormMessage />
         </FormItem>
       )}

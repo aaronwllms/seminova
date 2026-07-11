@@ -38,6 +38,17 @@ describe('parseProfilePartialInput', () => {
     })
   })
 
+  it('should reject bio longer than 160 characters', () => {
+    const result = parseProfilePartialInput({
+      bio: 'a'.repeat(161),
+    })
+
+    expect(result).toMatchObject({
+      success: false,
+      message: expect.stringContaining('160'),
+    })
+  })
+
   it('should accept a versioned avatar URL with query params', () => {
     const result = parseProfilePartialInput({
       avatarUrl:

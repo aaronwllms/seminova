@@ -21,6 +21,7 @@ type ProfileAvatarFieldProps = {
   saveState: FieldSaveState
   onSavedComplete: () => void
   onUpload: (file: File) => Promise<void>
+  onRemove: () => Promise<void>
   fileError: string | null
   onFileError: (message: string | null) => void
 }
@@ -32,6 +33,7 @@ export const ProfileAvatarField = ({
   saveState,
   onSavedComplete,
   onUpload,
+  onRemove,
   fileError,
   onFileError,
 }: ProfileAvatarFieldProps) => {
@@ -41,6 +43,7 @@ export const ProfileAvatarField = ({
   const initials = getProfileInitials({ displayName, email })
   const imageSrc = previewUrl ?? avatarUrl
   const avatarAlt = getProfileAvatarAltText(displayName)
+  const hasAvatar = Boolean(imageSrc)
 
   const clearPreview = () => {
     if (previewUrlRef.current) {
@@ -92,6 +95,12 @@ export const ProfileAvatarField = ({
     }
   }
 
+  const handleRemove = async () => {
+    clearPreview()
+    onFileError(null)
+    await onRemove()
+  }
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
@@ -106,15 +115,28 @@ export const ProfileAvatarField = ({
           {imageSrc ? <AvatarImage src={imageSrc} alt={avatarAlt} /> : null}
           <AvatarFallback className="text-lg">{initials}</AvatarFallback>
         </Avatar>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => inputRef.current?.click()}
-          disabled={saveState === 'saving'}
-        >
-          Change photo
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => inputRef.current?.click()}
+            disabled={saveState === 'saving'}
+          >
+            Change
+          </Button>
+          {hasAvatar ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => void handleRemove()}
+              disabled={saveState === 'saving'}
+            >
+              Remove
+            </Button>
+          ) : null}
+        </div>
         <input
           ref={inputRef}
           type="file"
@@ -123,6 +145,9 @@ export const ProfileAvatarField = ({
           onChange={handleChange}
         />
       </div>
+      <p className="text-muted-foreground text-sm">
+        JPG, PNG or WebP. Max 2MB.
+      </p>
       {fileError ? <InlineError message={fileError} /> : null}
     </div>
   )
