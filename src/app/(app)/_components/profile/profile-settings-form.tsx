@@ -152,6 +152,7 @@ export const ProfileSettingsForm = ({
               value={email}
               readOnly
               autoComplete="username"
+              className="text-muted-foreground cursor-default"
             />
           </div>
         </div>

@@ -49,10 +49,10 @@ export const ProfileModalContent = ({
 
       <Accordion type="single" collapsible>
         <AccordionItem value="password" className="border-none">
-          <AccordionTrigger className="py-0 hover:no-underline">
+          <AccordionTrigger className="hover:bg-muted px-2 hover:no-underline">
             Change Password
           </AccordionTrigger>
-          <AccordionContent>
+          <AccordionContent className="pt-4">
             <ProfilePasswordSection email={email} />
           </AccordionContent>
         </AccordionItem>
