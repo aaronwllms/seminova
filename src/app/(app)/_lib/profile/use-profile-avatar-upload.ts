@@ -6,6 +6,8 @@ import type { UseFormReturn } from 'react-hook-form'
 
 import {
   AvatarUploadError,
+  AvatarUploadErrorCode,
+  AVATAR_SESSION_AUTH_REQUIRED_MESSAGE,
   uploadUserAvatar,
   withAvatarCacheBust,
 } from '@/utils/avatar-storage'
@@ -15,8 +17,6 @@ import type { AppError } from '@/types/app-error'
 import { probeSessionAction } from './probe-session-action'
 import type { ProfileFormInputValues } from './profile-form-schema'
 import type { ProfileFieldKey } from './profile-form-schema'
-
-const SIGNED_IN_REQUIRED_MESSAGE = 'You must be signed in to upload an image.'
 
 type PersistField = (args: {
   field: ProfileFieldKey
@@ -41,7 +41,7 @@ type UseProfileAvatarUploadOptions = {
 
 const isSessionAuthUploadError = (error: unknown): boolean =>
   error instanceof AvatarUploadError &&
-  error.message === SIGNED_IN_REQUIRED_MESSAGE
+  error.code === AvatarUploadErrorCode.SESSION_AUTH_REQUIRED
 
 export const useProfileAvatarUpload = ({
   userId,
@@ -109,7 +109,7 @@ export const useProfileAvatarUpload = ({
             }
           }
 
-          setFileError(SIGNED_IN_REQUIRED_MESSAGE)
+          setFileError(AVATAR_SESSION_AUTH_REQUIRED_MESSAGE)
           return
         }
 

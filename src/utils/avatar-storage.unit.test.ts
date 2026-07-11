@@ -7,6 +7,7 @@ import {
 
 import * as avatarStorage from './avatar-storage'
 import {
+  AvatarUploadErrorCode,
   getAvatarPublicUrl,
   resizeAvatarToWebp,
   validateAvatarFile,
@@ -203,6 +204,7 @@ describe('uploadUserAvatar', () => {
       }),
     ).rejects.toMatchObject({
       message: 'You must be signed in to upload an image.',
+      code: AvatarUploadErrorCode.SESSION_AUTH_REQUIRED,
     })
 
     expect(mockUpload).not.toHaveBeenCalled()

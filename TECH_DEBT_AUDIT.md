@@ -1,7 +1,7 @@
 # Tech Debt Audit — Seminova
 
 Last full audit: 2026-07-04
-Last synced: 2026-07-05 (sync pass — verified open findings F011, F022, F053; resolved F054)
+Last synced: 2026-07-11 (sync pass — proxy sole-auth review fixes; test count refresh)
 Scope: Full repository pass — application code (`src/`, `scripts/`, `supabase/migrations/`), config, and agent docs cross-check. Prior audit (2026-06-23) was removed from the repo in commit `85301c2`; this pass re-establishes the artifact and re-verifies every prior finding in code.
 
 ## Executive summary
@@ -9,7 +9,7 @@ Scope: Full repository pass — application code (`src/`, `scripts/`, `supabase/
 - **Wide-interface god files remain churn magnets** — `users-table.tsx` (231) and `dropdown-menu.tsx` (257) still carry width; profile form and admin actions decomposed in Phase 8 Epic 5; sidebar primitive decomposed in Phase 8 Epic 4. The old ≤150-line locked rule is gone (ADR-0001) but the width problem is real where it remains.
 - **Session hardening landed since last audit** — `getDisplayAuthClaims()` + `read-auth-cookie.ts` fix refresh-token races and document the display-read vs `getUser` mutation split ([ADR-0005](docs/adr/ADR-0005-proxy-as-sole-session-authority.md)); route-group `error.tsx` boundaries now cover `(app)/`, `admin/`, and `auth/`. Proxy `/login` dead branch is gone.
 - **One declared `// debt:` marker** — CSP report-only default in `security-headers.ts`; enforcing requires nonce strategy before `CSP_ENFORCE=true`.
-- **Quality gates pass** — `pnpm audit` clean; `type-check`, `lint`, `test:ci` green (258 tests).
+- **Quality gates pass** — `pnpm audit` clean; `type-check`, `lint`, `test:ci` green (323 tests).
 - **Three open findings remain** — F011 (marketing wrapper, intentional boundary), F022 (dual form stacks, intentional per `forms.mdc`), F053 (CSP report-only declared debt).
 
 ## Architectural mental model
@@ -144,7 +144,7 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 | `pnpm audit`               | No known vulnerabilities                                                                                                                                                              |
 | `pnpm type-check`          | Pass                                                                                                                                                                                  |
 | `pnpm lint`                | Pass                                                                                                                                                                                  |
-| `pnpm test:ci`             | 258 tests pass; ~90.82% statements / 84.48% branches (thresholds met)                                                                                                             |
+| `pnpm test:ci`             | 323 tests pass; coverage thresholds met                                                                                                                                               |
 | `npx knip`                 | No unused profile type consumers (F024 resolved) |
 | `npx madge --circular src` | Not run (optional; repo ~13k LOC — below subagent threshold)                                                                                                                          |
 

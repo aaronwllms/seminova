@@ -47,7 +47,14 @@ describe('updateSession without env vars', () => {
     vi.stubEnv('NODE_ENV', 'development')
     const { updateSession } = await import('./proxy')
 
-    for (const pathname of ['/', '/auth/login', '/terms', '/privacy']) {
+    for (const pathname of [
+      '/',
+      '/auth/login',
+      '/terms',
+      '/privacy',
+      '/reference',
+      '/workflow',
+    ]) {
       const response = await updateSession(createRequest(pathname))
 
       expect(response.status).toBe(200)

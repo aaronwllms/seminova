@@ -17,35 +17,7 @@ import {
   DisplayAuthInvariantError,
   getDisplayAuthClaims,
   hasServerAuthSession,
-  isSessionAuthFailure,
 } from './require-auth'
-
-describe('isSessionAuthFailure', () => {
-  it('should return true for Supabase auth errors', () => {
-    const error = new AuthApiError(
-      'Invalid Refresh Token: Already Used',
-      400,
-      'refresh_token_already_used',
-    )
-
-    expect(isSessionAuthFailure(error)).toBe(true)
-  })
-
-  it('should return false for non-auth errors', () => {
-    expect(isSessionAuthFailure(new Error('network'))).toBe(false)
-  })
-
-  it('should return true for auth errors identified by message', () => {
-    const error = new AuthApiError('jwt expired', 401, undefined)
-    Object.defineProperty(error, 'code', { value: undefined })
-
-    expect(isSessionAuthFailure(error)).toBe(true)
-  })
-
-  it('should return true when getClaims throws a plain JWT expired error', () => {
-    expect(isSessionAuthFailure(new Error('JWT has expired'))).toBe(true)
-  })
-})
 
 describe('getDisplayAuthClaims', () => {
   beforeEach(() => {

@@ -2,11 +2,15 @@ import { act, renderHook, waitFor } from '@testing-library/react'
 import { useForm } from 'react-hook-form'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { AvatarUploadError } from '@/utils/avatar-storage'
-
-import type { ProfileFormInputValues } from './profile-form-schema'
+import {
+  AvatarUploadError,
+  AvatarUploadErrorCode,
+} from '@/utils/avatar-storage'
 import { useProfileAvatarUpload } from './use-profile-avatar-upload'
-import type { ProfileFieldKey } from './profile-form-schema'
+import type {
+  ProfileFieldKey,
+  ProfileFormInputValues,
+} from './profile-form-schema'
 
 const mockUploadUserAvatar = vi.fn()
 const mockWithAvatarCacheBust = vi.fn((url: string) => `${url}?v=1`)
@@ -157,12 +161,24 @@ describe('useProfileAvatarUpload', () => {
     const persistField = vi.fn().mockResolvedValue(undefined)
     const setFileError = vi.fn()
     const file = new File(['avatar'], 'avatar.png', { type: 'image/png' })
+    const callOrder: string[] = []
 
+    mockRefresh.mockImplementation(() => {
+      callOrder.push('refresh')
+    })
+    mockProbeSessionAction.mockImplementation(async () => {
+      callOrder.push('probe')
+      return { success: true }
+    })
     mockUploadUserAvatar
-      .mockRejectedValueOnce(
-        new AvatarUploadError('You must be signed in to upload an image.'),
-      )
-      .mockResolvedValueOnce({ publicUrl: PUBLIC_URL })
+      .mockImplementationOnce(async () => {
+        callOrder.push('upload-attempt-1')
+        throw AvatarUploadError.sessionAuthRequired()
+      })
+      .mockImplementationOnce(async () => {
+        callOrder.push('upload-attempt-2')
+        return { publicUrl: PUBLIC_URL }
+      })
 
     const { result } = renderHook(() =>
       useTestAvatarUpload({ persistField, setFileError }),
@@ -172,6 +188,12 @@ describe('useProfileAvatarUpload', () => {
       await result.current.handleAvatarUpload(file)
     })
 
+    expect(callOrder).toEqual([
+      'upload-attempt-1',
+      'refresh',
+      'probe',
+      'upload-attempt-2',
+    ])
     expect(mockRefresh).toHaveBeenCalledOnce()
     expect(mockProbeSessionAction).toHaveBeenCalledOnce()
     expect(mockUploadUserAvatar).toHaveBeenCalledTimes(2)
@@ -186,7 +208,7 @@ describe('useProfileAvatarUpload', () => {
     const file = new File(['avatar'], 'avatar.png', { type: 'image/png' })
 
     mockUploadUserAvatar.mockRejectedValue(
-      new AvatarUploadError('You must be signed in to upload an image.'),
+      AvatarUploadError.sessionAuthRequired(),
     )
     mockProbeSessionAction.mockResolvedValue({ success: false })
 

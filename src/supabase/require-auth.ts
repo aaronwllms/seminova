@@ -1,5 +1,3 @@
-import { isAuthError, type SupabaseClient } from '@supabase/supabase-js'
-
 import { parseJwtClaims, type JwtClaims } from '@/utils/admin'
 
 import { readAccessTokenFromCookies } from './read-auth-cookie'
@@ -25,36 +23,6 @@ export const parseAuthenticatedClaims = (
   }
 
   return { ...claims, sub }
-}
-
-const isSessionFailureMessage = (message: string): boolean => {
-  const normalized = message.toLowerCase()
-  return (
-    normalized.includes('refresh token') ||
-    normalized.includes('session') ||
-    normalized.includes('jwt') ||
-    normalized.includes('missing exp claim')
-  )
-}
-
-/**
- * Returns true when a Supabase auth error indicates the session is no longer
- * valid (expired, revoked, or refresh-token rotation conflict).
- */
-export const isSessionAuthFailure = (error: unknown): boolean => {
-  if (isAuthError(error)) {
-    if (typeof error.code === 'string') {
-      return true
-    }
-
-    return isSessionFailureMessage(error.message)
-  }
-
-  if (error instanceof Error) {
-    return isSessionFailureMessage(error.message)
-  }
-
-  return false
 }
 
 /**

@@ -44,11 +44,18 @@ vi.mock('@supabase/ssr', () => ({
   })),
 }))
 
+const AUTH_COOKIE_NAME = 'sb-example-auth-token'
+
+const encodeSessionCookie = (session: {
+  access_token: string
+  refresh_token?: string
+}) => `base64-${Buffer.from(JSON.stringify(session)).toString('base64url')}`
+
 const createRequest = (pathname: string, cookieValue?: string) => {
   const request = new NextRequest(new URL(`http://localhost:3000${pathname}`))
 
   if (cookieValue) {
-    request.cookies.set('sb-example-auth-token', cookieValue)
+    request.cookies.set(AUTH_COOKIE_NAME, cookieValue)
   }
 
   return request
@@ -69,22 +76,20 @@ describe('auth session flow (proxy refresh + display reads)', () => {
     vi.resetModules()
   })
 
-  it('should return 200 for protected route when proxy refreshes an expired access token', async () => {
-    const expiredSession = JSON.stringify({
-      access_token: 'expired-access-token',
+  it('should refresh on proxy then return display claims from post-refresh cookies without redirect', async () => {
+    const expiredAccessToken = 'expired-access-token'
+    const freshAccessToken = 'fresh-access-token'
+    const expiredSessionCookie = encodeSessionCookie({
+      access_token: expiredAccessToken,
+      refresh_token: 'valid-refresh-token',
+    })
+    const refreshedSessionCookie = encodeSessionCookie({
+      access_token: freshAccessToken,
       refresh_token: 'valid-refresh-token',
     })
 
     mockProxyGetClaims.mockImplementation(async () => {
-      cookieJar.set(
-        'sb-example-auth-token',
-        `base64-${Buffer.from(
-          JSON.stringify({
-            access_token: 'fresh-access-token',
-            refresh_token: 'valid-refresh-token',
-          }),
-        ).toString('base64url')}`,
-      )
+      cookieJar.set(AUTH_COOKIE_NAME, refreshedSessionCookie)
 
       return {
         data: { claims: { sub: 'user-1', email: 'alex@example.com' } },
@@ -92,48 +97,34 @@ describe('auth session flow (proxy refresh + display reads)', () => {
       }
     })
 
-    const { updateSession } = await import('./proxy')
-    const response = await updateSession(
-      createRequest(
-        '/home',
-        `base64-${Buffer.from(expiredSession).toString('base64url')}`,
-      ),
-    )
-
-    expect(response.status).toBe(200)
-    expect(mockSignOut).not.toHaveBeenCalled()
-  })
-
-  it('should return display claims for expired-but-signed token after proxy refresh', async () => {
-    const expiredToken = 'expired-access-token'
-    cookieJar.set(
-      'sb-example-auth-token',
-      `base64-${Buffer.from(
-        JSON.stringify({ access_token: expiredToken }),
-      ).toString('base64url')}`,
-    )
-
     mockDisplayGetClaims.mockResolvedValue({
       data: {
         claims: {
           sub: 'user-1',
           email: 'alex@example.com',
-          exp: 1,
           app_metadata: {},
         },
       },
       error: null,
     })
 
-    const { getDisplayAuthClaims } = await import('./require-auth')
+    const { updateSession } = await import('./proxy')
+    const response = await updateSession(
+      createRequest('/home', expiredSessionCookie),
+    )
 
+    expect(response.status).toBe(200)
+    expect(mockSignOut).not.toHaveBeenCalled()
+    expect(cookieJar.get(AUTH_COOKIE_NAME)).toBe(refreshedSessionCookie)
+
+    const { getDisplayAuthClaims } = await import('./require-auth')
     await expect(getDisplayAuthClaims()).resolves.toEqual({
       sub: 'user-1',
       email: 'alex@example.com',
       app_metadata: {},
     })
 
-    expect(mockDisplayGetClaims).toHaveBeenCalledWith(expiredToken, {
+    expect(mockDisplayGetClaims).toHaveBeenCalledWith(freshAccessToken, {
       allowExpired: true,
     })
   })
@@ -148,12 +139,10 @@ describe('auth session flow (proxy refresh + display reads)', () => {
     const response = await updateSession(
       createRequest(
         '/home',
-        `base64-${Buffer.from(
-          JSON.stringify({
-            access_token: 'expired-access-token',
-            refresh_token: 'dead-refresh-token',
-          }),
-        ).toString('base64url')}`,
+        encodeSessionCookie({
+          access_token: 'expired-access-token',
+          refresh_token: 'dead-refresh-token',
+        }),
       ),
     )
 
@@ -166,10 +155,8 @@ describe('auth session flow (proxy refresh + display reads)', () => {
 
   it('should throw when display read sees a signature-invalid token', async () => {
     cookieJar.set(
-      'sb-example-auth-token',
-      `base64-${Buffer.from(
-        JSON.stringify({ access_token: 'invalid-signature-token' }),
-      ).toString('base64url')}`,
+      AUTH_COOKIE_NAME,
+      encodeSessionCookie({ access_token: 'invalid-signature-token' }),
     )
 
     mockDisplayGetClaims.mockResolvedValue({
@@ -182,6 +169,10 @@ describe('auth session flow (proxy refresh + display reads)', () => {
 
     await expect(getDisplayAuthClaims()).rejects.toBeInstanceOf(
       DisplayAuthInvariantError,
+    )
+    expect(mockDisplayGetClaims).toHaveBeenCalledWith(
+      'invalid-signature-token',
+      { allowExpired: true },
     )
   })
 })

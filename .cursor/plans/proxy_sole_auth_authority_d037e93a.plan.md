@@ -332,7 +332,7 @@ This test encodes the production bug fix and prevents ADR-0003’s old “RSC re
 
 ## Manual testing checklist (post-implementation)
 
-- [ ] **`pnpm build`** — `/home` and `/admin/users` show as **dynamic** in build output (PPR merge gate, §5).
+- [x] **`pnpm build`** — `/home` and `/admin/users` show as **◐ Partial Prerender** in build output (not static ○; PPR merge gate, §5).
 - Idle on `/home` past access-token expiry → hard refresh or navigate → stays on `/home`, no console `JWT has expired`, shell renders.
 - Sign out → visit `/admin/users` → lands on `/auth/login?next=...` → sign in → returns to `/admin/users` (if admin) or role fallback.
 - Dev clone without `.env` Supabase vars: `/` loads; `/home` returns 503 (not open shell).
