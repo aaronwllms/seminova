@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockGetDisplayAuthClaims = vi.fn()
+const mockGetCurrentUserProfile = vi.fn()
 const mockRedirect = vi.fn()
 
 vi.mock('next/navigation', () => ({
@@ -15,6 +16,11 @@ vi.mock('@/supabase/require-auth', () => ({
     mockGetDisplayAuthClaims(...args),
 }))
 
+vi.mock('@/app/(app)/_lib/get-current-user-profile', () => ({
+  getCurrentUserProfile: (...args: unknown[]) =>
+    mockGetCurrentUserProfile(...args),
+}))
+
 vi.mock('next/headers', () => ({
   cookies: vi.fn(() =>
     Promise.resolve({
@@ -26,12 +32,21 @@ vi.mock('next/headers', () => ({
 vi.mock('./admin-shell', () => ({
   AdminShell: ({
     children,
-    userEmail,
+    email,
+    displayName,
+    avatarUrl,
   }: {
     children: React.ReactNode
-    userEmail: string
+    email: string
+    displayName: string | null
+    avatarUrl: string | null
   }) => (
-    <div data-testid="admin-shell" data-user-email={userEmail}>
+    <div
+      data-testid="admin-shell"
+      data-email={email}
+      data-display-name={displayName ?? ''}
+      data-avatar-url={avatarUrl ?? ''}
+    >
       {children}
     </div>
   ),
@@ -46,6 +61,7 @@ import { AdminAuthGate } from './admin-auth-gate'
 describe('AdminAuthGate', () => {
   beforeEach(() => {
     mockGetDisplayAuthClaims.mockReset()
+    mockGetCurrentUserProfile.mockReset()
     mockRedirect.mockReset()
   })
 
@@ -61,20 +77,33 @@ describe('AdminAuthGate', () => {
     ).rejects.toThrow('NEXT_REDIRECT')
 
     expect(mockRedirect).toHaveBeenCalledWith(APP_HOME)
+    expect(mockGetCurrentUserProfile).not.toHaveBeenCalled()
   })
 
-  it('should render admin shell for admin users', async () => {
+  it('should render admin shell with profile identity for admin users', async () => {
     mockGetDisplayAuthClaims.mockResolvedValue({
       sub: 'admin-1',
       email: 'admin@example.com',
       app_metadata: { role: ADMIN_ROLE },
     })
+    mockGetCurrentUserProfile.mockResolvedValue({
+      userId: 'admin-1',
+      email: 'admin@example.com',
+      displayName: 'Admin User',
+      avatarUrl: 'https://example.com/avatar.webp',
+      bio: null,
+      isAdmin: true,
+      profileLoadFailed: false,
+    })
 
     render(await AdminAuthGate({ children: <p>Admin content</p> }))
 
-    expect(screen.getByTestId('admin-shell')).toHaveAttribute(
-      'data-user-email',
-      'admin@example.com',
+    const shell = screen.getByTestId('admin-shell')
+    expect(shell).toHaveAttribute('data-email', 'admin@example.com')
+    expect(shell).toHaveAttribute('data-display-name', 'Admin User')
+    expect(shell).toHaveAttribute(
+      'data-avatar-url',
+      'https://example.com/avatar.webp',
     )
     expect(screen.getByText('Admin content')).toBeInTheDocument()
   })
@@ -84,11 +113,20 @@ describe('AdminAuthGate', () => {
       sub: 'admin-1',
       app_metadata: { role: ADMIN_ROLE },
     })
+    mockGetCurrentUserProfile.mockResolvedValue({
+      userId: 'admin-1',
+      email: '',
+      displayName: null,
+      avatarUrl: null,
+      bio: null,
+      isAdmin: true,
+      profileLoadFailed: false,
+    })
 
     render(await AdminAuthGate({ children: <p>Admin content</p> }))
 
     expect(screen.getByTestId('admin-shell')).toHaveAttribute(
-      'data-user-email',
+      'data-email',
       'Signed-in user',
     )
   })

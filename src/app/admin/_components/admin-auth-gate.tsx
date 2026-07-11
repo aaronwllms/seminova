@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
+import { getCurrentUserProfile } from '@/app/(app)/_lib/get-current-user-profile'
 import { AdminShell } from '@/app/admin/_components/admin-shell'
 import { APP_HOME } from '@/constants/app-paths'
 import { parseSidebarOpenCookie } from '@/components/ui/sidebar/cookie'
@@ -19,8 +20,8 @@ export const AdminAuthGate = async ({ children }: AdminAuthGateProps) => {
     redirect(APP_HOME)
   }
 
-  const userEmail =
-    typeof claims.email === 'string' ? claims.email : 'Signed-in user'
+  const profile = await getCurrentUserProfile()
+  const email = profile.email || 'Signed-in user'
 
   const cookieStore = await cookies()
   const defaultSidebarOpen = parseSidebarOpenCookie(
@@ -28,7 +29,12 @@ export const AdminAuthGate = async ({ children }: AdminAuthGateProps) => {
   )
 
   return (
-    <AdminShell userEmail={userEmail} defaultSidebarOpen={defaultSidebarOpen}>
+    <AdminShell
+      email={email}
+      displayName={profile.displayName}
+      avatarUrl={profile.avatarUrl}
+      defaultSidebarOpen={defaultSidebarOpen}
+    >
       {children}
     </AdminShell>
   )

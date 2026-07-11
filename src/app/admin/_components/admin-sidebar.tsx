@@ -26,9 +26,15 @@ const NAV_ITEMS = [{ title: 'Users', href: ADMIN_USERS, icon: Users }] as const
 
 type AdminSidebarProps = {
   email: string
+  displayName: string | null
+  avatarUrl: string | null
 }
 
-export const AdminSidebar = ({ email }: AdminSidebarProps) => {
+export const AdminSidebar = ({
+  email,
+  displayName,
+  avatarUrl,
+}: AdminSidebarProps) => {
   const pathname = usePathname()
 
   return (
@@ -69,7 +75,11 @@ export const AdminSidebar = ({ email }: AdminSidebarProps) => {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <AdminNavUser email={email} />
+        <AdminNavUser
+          email={email}
+          displayName={displayName}
+          avatarUrl={avatarUrl}
+        />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

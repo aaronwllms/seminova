@@ -45,11 +45,42 @@ describe('AdminNavUser', () => {
     mockPush.mockReset()
   })
 
+  it('should show display name when present', () => {
+    render(
+      <AdminNavUser
+        displayName="Admin User"
+        avatarUrl={null}
+        email="admin@example.com"
+      />,
+    )
+
+    expect(screen.getAllByText('Admin User').length).toBeGreaterThan(0)
+    expect(screen.queryByText('admin@example.com')).not.toBeInTheDocument()
+  })
+
+  it('should fall back to email when display name is missing', () => {
+    render(
+      <AdminNavUser
+        displayName={null}
+        avatarUrl={null}
+        email="admin@example.com"
+      />,
+    )
+
+    expect(screen.getAllByText('admin@example.com').length).toBeGreaterThan(0)
+  })
+
   it('should open menu with open app link and sign out', async () => {
     mockSignOut.mockResolvedValue({ error: null })
     const user = userEvent.setup()
 
-    render(<AdminNavUser email="admin@example.com" />)
+    render(
+      <AdminNavUser
+        displayName="Admin User"
+        avatarUrl={null}
+        email="admin@example.com"
+      />,
+    )
 
     await user.click(screen.getByRole('button'))
 

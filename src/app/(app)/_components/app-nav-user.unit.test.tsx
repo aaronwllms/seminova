@@ -62,6 +62,24 @@ describe('AppNavUser', () => {
     })
   })
 
+  it('should not show account label text beside the avatar trigger', async () => {
+    const user = userEvent.setup()
+
+    render(
+      <AppNavUser
+        displayName="Alice Smith"
+        avatarUrl={null}
+        email="alice@example.com"
+        isAdmin={false}
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: /account menu/i }))
+
+    expect(screen.queryByText('Alice Smith')).not.toBeInTheDocument()
+    expect(screen.queryByText('alice@example.com')).not.toBeInTheDocument()
+  })
+
   it('should show admin console link for admins', async () => {
     const user = userEvent.setup()
 

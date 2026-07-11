@@ -54,8 +54,21 @@ vi.mock('@/components/seminova-logo', () => ({
 }))
 
 vi.mock('./admin-nav-user', () => ({
-  AdminNavUser: ({ email }: { email: string }) => (
-    <div data-testid="admin-nav-user">{email}</div>
+  AdminNavUser: ({
+    email,
+    displayName,
+    avatarUrl,
+  }: {
+    email: string
+    displayName: string | null
+    avatarUrl: string | null
+  }) => (
+    <div
+      data-testid="admin-nav-user"
+      data-email={email}
+      data-display-name={displayName ?? ''}
+      data-avatar-url={avatarUrl ?? ''}
+    />
   ),
 }))
 
@@ -68,15 +81,25 @@ describe('AdminSidebar', () => {
   it('should render logo, Users nav link, and footer user menu', () => {
     mockPathname.mockReturnValue(ADMIN_USERS)
 
-    render(<AdminSidebar email="admin@example.com" />)
+    render(
+      <AdminSidebar
+        email="admin@example.com"
+        displayName="Admin User"
+        avatarUrl="https://example.com/avatar.webp"
+      />,
+    )
 
+    const navUser = screen.getByTestId('admin-nav-user')
+    expect(navUser).toHaveAttribute('data-email', 'admin@example.com')
+    expect(navUser).toHaveAttribute('data-display-name', 'Admin User')
+    expect(navUser).toHaveAttribute(
+      'data-avatar-url',
+      'https://example.com/avatar.webp',
+    )
     expect(screen.getByText('Seminova')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /users/i })).toHaveAttribute(
       'href',
       ADMIN_USERS,
-    )
-    expect(screen.getByTestId('admin-nav-user')).toHaveTextContent(
-      'admin@example.com',
     )
   })
 })

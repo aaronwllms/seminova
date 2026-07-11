@@ -11,8 +11,21 @@ vi.mock('@/components/ui/sidebar', () => ({
 }))
 
 vi.mock('./admin-sidebar', () => ({
-  AdminSidebar: ({ email }: { email: string }) => (
-    <nav data-testid="admin-sidebar">{email}</nav>
+  AdminSidebar: ({
+    email,
+    displayName,
+    avatarUrl,
+  }: {
+    email: string
+    displayName: string | null
+    avatarUrl: string | null
+  }) => (
+    <nav
+      data-testid="admin-sidebar"
+      data-email={email}
+      data-display-name={displayName ?? ''}
+      data-avatar-url={avatarUrl ?? ''}
+    />
   ),
 }))
 
@@ -27,13 +40,21 @@ import { AdminShell } from './admin-shell'
 describe('AdminShell', () => {
   it('should render sidebar, breadcrumb trigger, and children', () => {
     render(
-      <AdminShell userEmail="admin@example.com">
+      <AdminShell
+        email="admin@example.com"
+        displayName="Admin User"
+        avatarUrl="https://example.com/avatar.webp"
+      >
         <p>Dashboard content</p>
       </AdminShell>,
     )
 
-    expect(screen.getByTestId('admin-sidebar')).toHaveTextContent(
-      'admin@example.com',
+    const sidebar = screen.getByTestId('admin-sidebar')
+    expect(sidebar).toHaveAttribute('data-email', 'admin@example.com')
+    expect(sidebar).toHaveAttribute('data-display-name', 'Admin User')
+    expect(sidebar).toHaveAttribute(
+      'data-avatar-url',
+      'https://example.com/avatar.webp',
     )
     expect(
       screen.getByRole('button', { name: /toggle sidebar/i }),
