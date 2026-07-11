@@ -8,7 +8,7 @@ globs:
   - 'src/**/*password-dialog*'
   - 'src/**/*table*.tsx'
   - 'src/**/*avatar-field*'
-  - 'src/**/field-save-indicator.tsx'
+  - 'src/components/field-save-indicator.tsx'
 alwaysApply: false
 ---
 

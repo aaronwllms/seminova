@@ -14,22 +14,26 @@ You review a change set against this repo's documented standards and a fixed sme
 
 ## Inputs (provided in your prompt)
 
-- A diff command (`git diff <ref>...HEAD`) and a commit list — run them yourself
+- A diff command (`git diff <baseline>...<tip>`) and a commit list — run them yourself
 - A list of standards-source file paths (`.cursor/rules/*.mdc`, `AGENTS.md`) — read them yourself
 
 If any input is missing, say so and stop; do not guess.
+
+Read [`../skills/code-review/grading.md`](../skills/code-review/grading.md) before writing your report. It defines the severity ladder and the verdict function — grade every finding with it.
 
 ## What to report
 
 Per file/hunk where relevant:
 
 1. **Documented-standard violations** — every place the diff violates a documented standard. Cite the standard: source file + the specific rule.
-2. **Baseline smells** — any smell from the baseline below. Name it and quote the offending hunk.
+2. **Baseline smells** — any smell from the baseline below. Name it.
+3. **Standard defects** — a documented standard the diff has *invalidated*: a rule citing a path, route, symbol, or behaviour the diff moved or removed. The rule is wrong, not the code. Quote the rule line and cite the diff hunk that invalidated it. Propose the corrected line where it's obvious. Not every rule the diff touches is a defect — `grading.md` § Defects draws the boundary between a defect and a violation.
 
 Binding rules:
 
 - **The repo overrides.** A documented repo standard always wins; where it endorses something the baseline would flag, suppress the smell.
-- **Smells are judgement calls.** Label them as such ("possible Feature Envy") — never as hard violations. Documented-standard breaches can be hard violations.
+- **Smells are judgement calls.** Label them as such ("possible Feature Envy"). They cap at **debt** per `grading.md`.
+- **Standard defects are ungraded.** `grading.md` § Defects defines them, tells you how to tell a defect from a violation, and prescribes their disposition.
 - **Skip anything tooling enforces** (lint, type-check, CI gates).
 
 ## Smell baseline
@@ -53,4 +57,12 @@ Each smell reads *what it is* → *how to fix*; match against the diff:
 
 ## Output
 
-A single report, **under 400 words**. Hard violations first, judgement calls second. Cite `startLine:endLine:filepath` for every finding. If a category has nothing, say "Nothing material" — no filler, no praise.
+A single report. Open with your verdict on its own line, derived from the ladder in `grading.md` over findings 1–2 only. Then group those findings by severity — blockers, then debt, then nits — omitting any severity with nothing in it. Report standard defects last, under their own heading, ungraded.
+
+**Every finding you list carries an explicit severity label.** A section you have written into cannot report zero findings.
+
+**Report every finding you have.** Length is set by the findings, not by a budget — never drop, merge, or downgrade a finding to keep the report short. Spend words on findings and nothing else: no summary, no restatement of the diff, no list of what passed, no praise.
+
+**State what each finding breaks before you label it** — one concrete clause naming what a user, a build, or a later change hits because of it. This informs the reader, not the grade: severity comes from the questions in `grading.md`, and a consequence you cannot verify never lowers it.
+
+For every finding, cite `startLine:endLine:filepath` **and quote the lines the finding rests on**. A finding you cannot quote is a finding you have not verified — drop it. If there are no findings at all, say "Nothing material."

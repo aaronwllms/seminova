@@ -1,6 +1,13 @@
 import type { Metadata } from 'next'
 import { Sparkles, type LucideIcon } from 'lucide-react'
 
+import {
+  PRIVACY_PATH,
+  REFERENCE_PATH,
+  TERMS_PATH,
+  WORKFLOW_PATH,
+} from '@/constants/app-paths'
+
 const GITHUB_URL = 'https://github.com/aaronwllms/seminova'
 
 export interface SiteNavLink {
@@ -15,20 +22,24 @@ export interface SiteSocialLink {
   icon: 'github'
 }
 
-export interface SiteLegalStub {
+export interface SiteLegalLink {
   label: string
+  href: string
 }
 
 export interface SiteConfig {
   name: string
   description: string
+  // LucideIcon is a Satori compatibility constraint, not a stylistic default:
+  // ImageResponse renders Logo for the favicon and OG image; widening this type
+  // silently produces blank glyphs. See seo.mdc § Satori constraints.
   Logo: LucideIcon
   links: {
     github: string
   }
   nav: SiteNavLink[]
   social: SiteSocialLink[]
-  legal: SiteLegalStub[]
+  legal: SiteLegalLink[]
 }
 
 export const siteConfig: SiteConfig = {
@@ -42,10 +53,15 @@ export const siteConfig: SiteConfig = {
   nav: [
     { label: 'Home', href: '/' },
     { label: 'Features', href: '#features' },
+    { label: 'Reference', href: REFERENCE_PATH },
+    { label: 'Workflow', href: WORKFLOW_PATH },
     { label: 'GitHub', href: GITHUB_URL, external: true },
   ],
   social: [{ label: 'GitHub', href: GITHUB_URL, icon: 'github' }],
-  legal: [{ label: 'Terms' }, { label: 'Privacy' }],
+  legal: [
+    { label: 'Terms', href: TERMS_PATH },
+    { label: 'Privacy', href: PRIVACY_PATH },
+  ],
 }
 
 export const getSiteMetadata = (metadataBase: URL): Metadata => ({

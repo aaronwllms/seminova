@@ -2,7 +2,7 @@
 
 The planning horizon: anticipated phases as thin stubs, plus living status. Shipped phase detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md); build-time workflow and authoritative schema in [AGENTS.md](AGENTS.md). Phase status vocabulary and PRD lifecycle in [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
-**Last updated:** 2026-07-08
+**Last updated:** 2026-07-11
 
 ---
 
@@ -19,29 +19,10 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 | 7 | Security Audit Remediation | `Shipped` | — |
 | 8 | Tech Debt Audit Remediation | `Shipped` | [Phase 8 PRD](docs/prds/archive/phase-8-tech-debt-remediation.prd.md) |
 | 9 | SEO & GEO | `Shipped` | [Phase 9 PRD](docs/prds/archive/phase-9-seo-geo.prd.md) |
-| 10 | App Home, Reference Surfaces & Chrome Polish | `Ready` | [Phase 10 PRD](docs/prds/phase-10-app-home-reference-surfaces.prd.md) |
+| 10 | App Home, Form Primitives & Reference Surfaces | `Shipped` | [Phase 10 PRD](docs/prds/archive/phase-10-app-home-reference-surfaces.prd.md) |
 
 > [!NOTE]
 > Phases 1–7 pre-date the per-phase PRD system, so their PRD column is empty; their shipped detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md). From Phase 8 on, shipped rows link the archived PRD per [docs/DOC_RULES.md](docs/DOC_RULES.md).
-
----
-
-## Upcoming phases
-
-### Phase 10 — App Home, Reference Surfaces & Chrome Polish `Ready`
-
-A dedicated page that demonstrates the canonized component patterns established across prior phases: data table, error states (operational `InlineError` + fault `ErrorPanel`), skeleton loading, toast, and the form/settings pattern (from Phase 6). The page imports and showcases the real, already-established components — it does not reimplement them.
-
-It is explicitly deletable scaffolding: deleting it loses zero canonical pattern, since every pattern it demonstrates is established in real code elsewhere (admin users table, profile page, etc.). Sequenced after Phase 6 so it can show the form/profile pattern alongside everything from Phase 5, rather than shipping thin now and needing a follow-up addition later.
-
-Also folds in the **PM/agent workflow explainer page** (moved here from open questions): a click-through page off the landing surface explaining Seminova's two differentiators:
-
-- The agent-ready conventions (`AGENTS.md` + `.cursor/rules/` + `.cursor/skills/`)
-- The PM/agent collaboration model (the Claude Desktop planning setup, MCP, and paired skills)
-
-A one-line landing card for each doesn't convey how either works. The explainer co-ships here.
-
-Scope broadened at planning to include a real authenticated home (unblocking profile settings as a modal), site chrome fixes, and public legal placeholder pages. The PRD owns the full scope.
 
 ---
 
@@ -54,7 +35,7 @@ Nothing here is blocking current work unless noted.
 
 **Problem:** The "put a new spin on the design for this project" capability should not regenerate structure, only theme values.
 **Solution:** Implement as a separate, theme-only skill distinct from the structure-establishing design-system skill.
-_Defer until: Phase 10_
+_Defer until: unscoped — skill ships independently_
 
 </details>
 
@@ -100,5 +81,35 @@ _Defer until: opportunistic_
 **Problem:** `ui-accessibility.mdc` ships as guidance only — no `check:*` script. Several of its standards are genuinely deterministic and lintable: exactly one `<h1>` per page, images carry non-empty `alt`, headings nest in order without skipping levels. Nothing enforces them today, so an agent can violate them silently. Surfaced during Phase 9 planning, where SEO deliberately declined to add an SEO-only lint for these (they're a11y's domain, not SEO's).
 **Solution:** Not yet scoped. Add a `check:a11y` (lint-based) covering the deterministic subset, leaving subjective a11y (contrast intent, screen-reader UX) as guidance. Enforcement decision belongs with the a11y rule, not SEO.
 _Defer until: unscoped — revisit when prioritizing rule-enforcement hardening_
+
+</details>
+
+<details>
+<summary>JWT expiration recurring failure (needs permanent fix)</summary>
+
+**Problem:** `JWT has expired` recurs in production/dev — thrown from `validateExp` in `@supabase/auth-js`, surfaced via `requireAuthClaims` (`src/supabase/require-auth.ts`) during `AppShell` render (`src/app/(app)/_components/app-shell.tsx` → `get-current-user-profile.ts`). This has been "fixed" more than once already without sticking, so the real cause is still unknown.
+
+Latest occurrence (Next.js 16.2.9, Turbopack):
+```
+Console Error
+JWT has expired
+    at validateExp (node_modules/.pnpm/@supabase+auth-js@2.105.4/node_modules/@supabase/auth-js/src/lib/helpers.ts:348:11)
+    at SupabaseAuthClient.getClaims (node_modules/.pnpm/@supabase+auth-js@2.105.4/node_modules/@supabase/auth-js/src/GoTrueClient.ts:5909:20)
+    at requireAuthClaims (src/supabase/require-auth.ts:89:49)
+    at <anonymous> (src/app/(app)/_lib/get-current-user-profile.ts:22:20)
+    at AppShell (src/app/(app)/_components/app-shell.tsx:15:19)
+    at AppLayout (src/app/(app)/layout.tsx:18:7)
+
+Code frame:
+  346 |   const timeNow = Math.floor(Date.now() / 1000)
+  347 |   if (exp <= timeNow) {
+> 348 |     throw new Error('JWT has expired')
+      |           ^
+  349 |   }
+  350 |
+```
+
+**Solution:** Not yet scoped. Before proposing a fix, research the history of prior attempts on this (git log / commit messages / past PRDs touching auth or session handling) to understand what's already been tried and why it didn't hold, then diagnose root cause (token refresh timing, clock skew, missing refresh-on-expiry logic, stale client cache, etc.) before treating it as fixed again.
+_Defer until: unscoped — needs root-cause investigation_
 
 </details>

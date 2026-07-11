@@ -35,6 +35,12 @@ vi.mock('@/components/site-footer', () => ({
   ),
 }))
 
+vi.mock('./profile/profile-dialog-provider', () => ({
+  ProfileDialogProvider: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
+}))
+
 vi.mock('./app-nav-user', () => ({
   AppNavUser: ({ email }: { email: string }) => (
     <div data-testid="app-nav-user">{email}</div>

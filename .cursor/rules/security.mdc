@@ -84,7 +84,7 @@ SUPABASE_SECRET_KEY=sb_secret_xxx            # NEVER expose to client
 
 ### Auth Proxy (route protection)
 
-Session refresh and auth gating live in `proxy.ts` → `src/supabase/proxy.ts` (`updateSession`). Public routes are `/` and `/auth/**` only; unauthenticated users are redirected to `/auth/login`.
+Session refresh and auth gating live in `proxy.ts` → `src/supabase/proxy.ts` (`updateSession`). Public routes are `/`, `/auth/**`, `/terms`, `/privacy`, `/reference`, and `/workflow`; unauthenticated users are redirected to `/auth/login`.
 
 **Reference:** `src/supabase/proxy.ts`, `proxy.ts`
 

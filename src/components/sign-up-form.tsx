@@ -2,8 +2,7 @@
 
 import { cn } from '@/utils/tailwind'
 import { createClient } from '@/supabase/client'
-import { ErrorPanel } from '@/components/error-panel'
-import { InlineError } from '@/components/inline-error'
+import { AppErrorSurface } from '@/components/app-error-surface'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -18,6 +17,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
+import { APP_HOME } from '@/constants/app-paths'
 import { extractAuthFormError } from '@/utils/extract-auth-form-error'
 import type { AppError } from '@/types/app-error'
 
@@ -52,7 +52,7 @@ export function SignUpForm({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/profile`,
+          emailRedirectTo: `${window.location.origin}${APP_HOME}`,
         },
       })
       if (error) throw error
@@ -112,11 +112,7 @@ export function SignUpForm({
                   onChange={(e) => setRepeatPassword(e.target.value)}
                 />
               </div>
-              {formError?.kind === 'fault' ? (
-                <ErrorPanel message={formError.message} code={formError.code} />
-              ) : formError ? (
-                <InlineError message={formError.message} />
-              ) : null}
+              <AppErrorSurface error={formError} />
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Creating an account...' : 'Sign up'}
               </Button>

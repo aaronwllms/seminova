@@ -2,8 +2,7 @@
 
 import { cn } from '@/utils/tailwind'
 import { createClient } from '@/supabase/client'
-import { ErrorPanel } from '@/components/error-panel'
-import { InlineError } from '@/components/inline-error'
+import { AppErrorSurface } from '@/components/app-error-surface'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -88,14 +87,7 @@ export function ForgotPasswordForm({
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
-                {formError?.kind === 'fault' ? (
-                  <ErrorPanel
-                    message={formError.message}
-                    code={formError.code}
-                  />
-                ) : formError ? (
-                  <InlineError message={formError.message} />
-                ) : null}
+                <AppErrorSurface error={formError} />
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? 'Sending...' : 'Send reset email'}
                 </Button>

@@ -15,7 +15,8 @@ describe('discoverAppRoutes', () => {
 
     expect(routes.length).toBeGreaterThan(0)
     expect(routes).toContain('/')
-    expect(routes).toContain('/profile')
+    expect(routes).toContain('/home')
+    expect(routes).not.toContain('/profile')
     expect(routes).toContain('/admin')
     expect(routes).toContain('/auth/login')
   })
@@ -37,7 +38,7 @@ describe('discoverMarketingRoutes', () => {
         (route) =>
           route.startsWith('/auth') ||
           route.startsWith('/admin') ||
-          route === '/profile',
+          route === '/home',
       ),
     ).toBe(false)
   })

@@ -4,11 +4,21 @@
 import { join } from 'node:path'
 import { NextRequest } from 'next/server'
 import { ADMIN_ROLE } from '@/constants/admin-role'
-import {
-  discoverAppRoutes,
-  isPublicAppRoute,
-} from '@/utils/discover-app-routes'
+import { discoverAppRoutes } from '@/utils/discover-app-routes'
 import { updateSession } from './proxy'
+
+const PUBLIC_EXACT = [
+  '/',
+  '/terms',
+  '/privacy',
+  '/reference',
+  '/workflow',
+] as const
+const PUBLIC_PREFIXES = ['/auth'] as const
+
+const isDiscoveredPublicRoute = (pathname: string) =>
+  (PUBLIC_EXACT as readonly string[]).includes(pathname) ||
+  PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix))
 
 const mockGetClaims = vi.fn()
 const mockSignOut = vi.fn()
@@ -42,7 +52,7 @@ describe('updateSession', () => {
   })
 
   it('should redirect unauthenticated users from protected routes', async () => {
-    const response = await updateSession(createRequest('/profile'))
+    const response = await updateSession(createRequest('/home'))
 
     expect(response.status).toBe(307)
     expect(response.headers.get('location')).toContain('/auth/login')
@@ -55,7 +65,7 @@ describe('updateSession', () => {
       error: { message: 'Invalid Refresh Token: Already Used' },
     })
 
-    const response = await updateSession(createRequest('/profile'))
+    const response = await updateSession(createRequest('/home'))
 
     expect(response.status).toBe(307)
     expect(response.headers.get('location')).toContain('/auth/login')
@@ -70,6 +80,30 @@ describe('updateSession', () => {
 
   it('should allow unauthenticated access to auth routes', async () => {
     const response = await updateSession(createRequest('/auth/login'))
+
+    expect(response.status).toBe(200)
+  })
+
+  it('should allow unauthenticated access to terms routes', async () => {
+    const response = await updateSession(createRequest('/terms'))
+
+    expect(response.status).toBe(200)
+  })
+
+  it('should allow unauthenticated access to privacy routes', async () => {
+    const response = await updateSession(createRequest('/privacy'))
+
+    expect(response.status).toBe(200)
+  })
+
+  it('should allow unauthenticated access to terms routes with a trailing slash', async () => {
+    const response = await updateSession(createRequest('/terms/'))
+
+    expect(response.status).toBe(200)
+  })
+
+  it('should allow unauthenticated access to privacy routes with a trailing slash', async () => {
+    const response = await updateSession(createRequest('/privacy/'))
 
     expect(response.status).toBe(200)
   })
@@ -91,12 +125,12 @@ describe('updateSession', () => {
       data: { claims: { sub: 'user-1' } },
     })
 
-    const response = await updateSession(createRequest('/profile'))
+    const response = await updateSession(createRequest('/home'))
 
     expect(response.status).toBe(200)
   })
 
-  it('should redirect non-admin authenticated users from /admin to /profile', async () => {
+  it('should redirect non-admin authenticated users from /admin to /home', async () => {
     mockGetClaims.mockResolvedValue({
       data: { claims: { sub: 'user-1', app_metadata: {} } },
     })
@@ -104,10 +138,10 @@ describe('updateSession', () => {
     const response = await updateSession(createRequest('/admin'))
 
     expect(response.status).toBe(307)
-    expect(response.headers.get('location')).toContain('/profile')
+    expect(response.headers.get('location')).toContain('/home')
   })
 
-  it('should redirect non-admin authenticated users from /admin/users to /profile', async () => {
+  it('should redirect non-admin authenticated users from /admin/users to /home', async () => {
     mockGetClaims.mockResolvedValue({
       data: { claims: { sub: 'user-1', app_metadata: {} } },
     })
@@ -115,7 +149,7 @@ describe('updateSession', () => {
     const response = await updateSession(createRequest('/admin/users'))
 
     expect(response.status).toBe(307)
-    expect(response.headers.get('location')).toContain('/profile')
+    expect(response.headers.get('location')).toContain('/home')
   })
 
   it('should allow admin users on /admin/users', async () => {
@@ -143,7 +177,7 @@ describe('updateSession', () => {
       error: null,
     })
 
-    const response = await updateSession(createRequest('/profile'))
+    const response = await updateSession(createRequest('/home'))
 
     expect(response.status).toBe(307)
     expect(response.headers.get('location')).toContain('/auth/login')
@@ -156,7 +190,7 @@ describe('updateSession', () => {
       error: null,
     })
 
-    const response = await updateSession(createRequest('/profile'))
+    const response = await updateSession(createRequest('/home'))
 
     expect(response.status).toBe(307)
     expect(response.headers.get('location')).toContain('/auth/login')
@@ -176,9 +210,9 @@ describe('updateSession', () => {
 describe('auth boundary (discovered routes)', () => {
   const appDir = join(process.cwd(), 'src/app')
   const discoveredRoutes = discoverAppRoutes(appDir)
-  const publicRoutes = discoveredRoutes.filter(isPublicAppRoute)
+  const publicRoutes = discoveredRoutes.filter(isDiscoveredPublicRoute)
   const protectedRoutes = discoveredRoutes.filter(
-    (route) => !isPublicAppRoute(route),
+    (route) => !isDiscoveredPublicRoute(route),
   )
 
   beforeEach(() => {
@@ -191,10 +225,13 @@ describe('auth boundary (discovered routes)', () => {
   it('should discover app routes from src/app', () => {
     expect(discoveredRoutes.length).toBeGreaterThan(0)
     expect(discoveredRoutes).toContain('/')
-    expect(discoveredRoutes).toContain('/profile')
+    expect(discoveredRoutes).toContain('/home')
+    expect(discoveredRoutes).not.toContain('/profile')
     expect(discoveredRoutes).toContain('/admin')
     expect(discoveredRoutes).toContain('/auth/login')
     expect(discoveredRoutes).toContain('/auth/confirm')
+    expect(discoveredRoutes).toContain('/terms')
+    expect(discoveredRoutes).toContain('/privacy')
   })
 
   it.each(publicRoutes)(

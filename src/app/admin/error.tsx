@@ -5,7 +5,7 @@ import { useEffect } from 'react'
 
 import { ErrorPanel } from '@/components/error-panel'
 import { Button } from '@/components/ui/button'
-import { PROFILE_PATH } from '@/constants/app-paths'
+import { APP_HOME } from '@/constants/app-paths'
 
 type AdminErrorProps = {
   error: Error & { digest?: string }
@@ -21,7 +21,7 @@ export default function AdminError({ error, reset }: AdminErrorProps) {
     <div className="flex w-full flex-col gap-4 p-6">
       <h1 className="text-2xl font-bold">Something went wrong</h1>
       <ErrorPanel
-        message="The admin console could not be loaded. Try again or return to your profile."
+        message="The admin console could not be loaded. Try again or return to the app."
         code={error.digest}
       />
       <div className="flex flex-wrap gap-2">
@@ -29,7 +29,7 @@ export default function AdminError({ error, reset }: AdminErrorProps) {
           Try again
         </Button>
         <Button type="button" variant="outline" asChild>
-          <Link href={PROFILE_PATH}>Back to profile</Link>
+          <Link href={APP_HOME}>Back to app</Link>
         </Button>
       </div>
     </div>

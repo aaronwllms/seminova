@@ -31,7 +31,7 @@ describe('updateSession without env vars', () => {
     vi.stubEnv('NODE_ENV', 'development')
     const { updateSession } = await import('./proxy')
 
-    const response = await updateSession(createRequest('/profile'))
+    const response = await updateSession(createRequest('/home'))
 
     expect(response.status).toBe(200)
     expect(mockGetClaims).not.toHaveBeenCalled()
@@ -41,7 +41,7 @@ describe('updateSession without env vars', () => {
     vi.stubEnv('NODE_ENV', 'production')
     const { updateSession } = await import('./proxy')
 
-    for (const pathname of ['/profile', '/', '/auth/login']) {
+    for (const pathname of ['/home', '/', '/auth/login']) {
       const response = await updateSession(createRequest(pathname))
 
       expect(response.status).toBe(503)

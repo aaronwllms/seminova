@@ -44,7 +44,7 @@ For critical errors at the route level, use Next.js `error.tsx` with `InlineErro
 
 - Call a Server Action from `mutationFn`; branch on `{ success, data }` / `{ success: false, error }` envelope
 - `onSuccess`: `queryClient.invalidateQueries({ queryKey: […] })` for affected keys
-- Reference: [`src/app/(app)/profile/actions.ts`](../../src/app/(app)/profile/actions.ts), [`src/app/admin/users/actions.ts`](../../src/app/admin/users/actions.ts)
+- Reference: [`src/app/(app)/_lib/profile/actions.ts`](../../src/app/(app)/_lib/profile/actions.ts), [`src/app/admin/users/actions.ts`](../../src/app/admin/users/actions.ts)
 
 ## Configuration
 - QueryClient is already configured in `src/providers/ReactQueryProvider.tsx`

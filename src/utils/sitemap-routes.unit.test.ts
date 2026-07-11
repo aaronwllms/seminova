@@ -17,7 +17,13 @@ describe('buildSitemapEntries', () => {
 
     const entries = buildEntries()
 
-    expect(entries).toEqual([{ url: 'https://example.com/' }])
+    expect(entries).toEqual([
+      { url: 'https://example.com/' },
+      { url: 'https://example.com/privacy' },
+      { url: 'https://example.com/reference' },
+      { url: 'https://example.com/terms' },
+      { url: 'https://example.com/workflow' },
+    ])
     expect(
       entries.some(
         (entry) =>

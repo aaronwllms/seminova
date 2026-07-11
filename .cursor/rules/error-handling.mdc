@@ -115,7 +115,7 @@ Use Next.js `error.tsx` for route-level error boundaries. For component-level er
 
 ### Auth form errors (fallback-first)
 
-Auth forms (`login-form`, `sign-up-form`, `forgot-password-form`, `update-password-form`, `profile-password-dialog`) sanitize Supabase `AuthError` via [`extractAuthFormError`](../../src/utils/extract-auth-form-error.ts):
+Auth forms (`login-form`, `sign-up-form`, `forgot-password-form`, `update-password-form`, `profile-password-section`) sanitize Supabase `AuthError` via [`extractAuthFormError`](../../src/utils/extract-auth-form-error.ts):
 
 - **Fallback-first:** unmapped Supabase `AuthError` codes → generic operational copy + `SUPABASE_AUTH_ERROR`; never show Supabase's raw `message` to users
 - **Enumerated overrides** live in `AUTH_ERROR_OVERRIDES` inside that file — do not duplicate the table here
@@ -130,7 +130,7 @@ User-safe, actionable, empathetic copy — 1–2 sentences max. Never leak inter
 
 ## Error UI Patterns
 
-Carry severity as data via `kind` on the error envelope ([`src/types/app-error.ts`](../../src/types/app-error.ts)). Branch on `kind` to pick the display component — do not gate copy affordance on whether `code` is present.
+Carry severity as data via `kind` on the error envelope ([`src/types/app-error.ts`](../../src/types/app-error.ts)). Use [`AppErrorSurface`](../../src/components/app-error-surface.tsx) for typed `AppError` values — it branches on `kind` to pick the display component. Do not gate copy affordance on whether `code` is present.
 
 **Operational** (`kind: 'operational'`) — [`src/components/inline-error.tsx`](../../src/components/inline-error.tsx):
 - Plain inline message, `AlertCircle` icon, `role="alert"`, `text-destructive`
@@ -142,13 +142,13 @@ Carry severity as data via `kind` on the error envelope ([`src/types/app-error.t
 - Copy payload: message + `Code: {code}` when code present
 - Use for: `INTERNAL_ERROR`, non-auth throws, network failures
 
+**Typed server-action errors** — use `AppErrorSurface`:
+
 ```typescript
-{error?.kind === 'fault' ? (
-  <ErrorPanel message={error.message} code={error.code} />
-) : error ? (
-  <InlineError message={error.message} />
-) : null}
+<AppErrorSurface error={formError} />
 ```
+
+**String-only client validation** — use raw `InlineError` with a plain string message (no `AppError` envelope). Examples: file input validation, zod field messages via `FormMessage`.
 
 Visual reference (appearance only — implementation uses semantic tokens): [`.mockups/error-states.html`](../../.mockups/error-states.html)
 
@@ -177,7 +177,7 @@ Test user-visible error UI for operational failures and envelope `kind`/`code` a
 
 - [`src/components/login-form.integration.test.tsx`](../../src/components/login-form.integration.test.tsx) — operational auth failure renders inline message, no `ErrorPanel` copy affordance
 - [`src/utils/extract-auth-form-error.unit.test.ts`](../../src/utils/extract-auth-form-error.unit.test.ts) — operational vs fault mapping
-- [`src/app/(app)/profile/actions.unit.test.ts`](../../src/app/(app)/profile/actions.unit.test.ts) — Server Action envelope assertions (`success: false`, `kind`, `code`)
+- [`src/app/(app)/_lib/profile/actions.unit.test.ts`](../../src/app/(app)/_lib/profile/actions.unit.test.ts) — Server Action envelope assertions (`success: false`, `kind`, `code`)
 
 ## Quick Checklist
 

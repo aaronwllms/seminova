@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronsUpDown, LogOut, User } from 'lucide-react'
+import { ChevronsUpDown, LayoutDashboard, LogOut } from 'lucide-react'
 import Link from 'next/link'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -18,7 +18,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
-import { PROFILE_PATH } from '@/constants/app-paths'
+import { APP_HOME } from '@/constants/app-paths'
 import { useSignOut } from '@/hooks/use-sign-out'
 
 import { getEmailInitials } from './admin-user-utils'
@@ -74,9 +74,9 @@ export const AdminNavUser = ({ email }: AdminNavUserProps) => {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link href={PROFILE_PATH}>
-                <User />
-                Profile
+              <Link href={APP_HOME}>
+                <LayoutDashboard />
+                Open app
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleSignOut}>

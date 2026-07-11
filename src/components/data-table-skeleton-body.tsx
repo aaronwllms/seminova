@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { TableCell, TableRow } from '@/components/ui/table'
 import { cn } from '@/utils/tailwind'
 
-/** Skeleton rows shown while loading — intentionally fewer than page size (50). */
+/** Skeleton rows shown while loading — intentionally fewer than page size (15). */
 export const DEFAULT_LOADING_ROW_COUNT = 8
 
 const DEFAULT_SKELETON_CLASS = 'h-4 w-full max-w-[8rem]'

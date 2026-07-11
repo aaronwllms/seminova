@@ -10,10 +10,11 @@ export const OG_IMAGE_SIZE = { width: 1200, height: 630 } as const
 export const OG_CONTENT_TYPE = 'image/png'
 
 // Mirror :root light-theme tokens in globals.css — update on re-skin.
-const OG_COLORS = {
+export const OG_COLORS = {
   background: '#f8fafc',
   foreground: '#1e293b',
   primary: '#6366f1',
+  primaryForeground: '#ffffff',
   mutedForeground: '#6b7280',
 } as const
 
@@ -51,6 +52,7 @@ export async function createOgImageResponse({
   description,
 }: CreateOgImageResponseInput): Promise<ImageResponse> {
   const fontData = await loadInterSemiBold()
+  const Logo = siteConfig.Logo
 
   return new ImageResponse(
     <div
@@ -75,12 +77,22 @@ export async function createOgImageResponse({
       >
         <div
           style={{
-            width: '12px',
-            height: '12px',
-            borderRadius: '9999px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '32px',
+            height: '32px',
+            borderRadius: '8px',
             backgroundColor: OG_COLORS.primary,
           }}
-        />
+        >
+          <Logo
+            width={18}
+            height={18}
+            stroke={OG_COLORS.primaryForeground}
+            strokeWidth={2}
+          />
+        </div>
         <span
           style={{
             fontSize: '28px',

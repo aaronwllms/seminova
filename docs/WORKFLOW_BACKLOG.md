@@ -6,7 +6,7 @@
 
 **How to use it.** Each entry is a deferred decision with its reason for deferral and the signal that should bring it back. Pull an item out when its trigger fires; delete it when it's resolved (record the resolution as an [ADR](adr/README.md) if it qualifies).
 
-**Last updated:** 2026-07-08 (pre-release-review value audit backlog item)
+**Last updated:** 2026-07-10 (`check:auth-boundary` pre-push gap added)
 
 ---
 
@@ -26,6 +26,12 @@
   - [Workflow skill next-step breadcrumb audit](#workflow-skill-next-step-breadcrumb-audit)
   - [Pre-release review value audit](#pre-release-review-value-audit)
   - [Rename LEXICON.md to CONTEXT.md; separate glossary from as-built pointers](#rename-lexiconmd-to-contextmd-separate-glossary-from-as-built-pointers)
+  - [Rules & skills: stage-stable guidance vs. direct code references](#rules--skills-stage-stable-guidance-vs-direct-code-references)
+  - [Skill naming convention alignment (Cursor + Claude)](#skill-naming-convention-alignment-cursor--claude)
+  - [code-review: per-rule fan-out to fix recall variance](#code-review-per-rule-fan-out-to-fix-recall-variance)
+  - [Move mechanically-checkable rules to lint (starting with import-direction boundaries)](#move-mechanically-checkable-rules-to-lint-starting-with-import-direction-boundaries)
+  - [`check:auth-boundary` runs only incidentally under `test:ci`](#checkauth-boundary-runs-only-incidentally-under-testci)
+  - [~~Deterministic scripts in agent skills~~](#deterministic-scripts-in-agent-skills) *(resolved)*
 
 ---
 
@@ -157,3 +163,88 @@
 **Why deferred:** The rename touches every reference to `LEXICON.md` — the `DOC_RULES.md` document-roles table, `AGENTS.md`, the `lexicon-update` skill (name and content), likely `phase-planning` and `project-kickoff`, and possibly `WORKFLOW_GUIDE.md`. Needs a full inventory pass, not a mid-session edit. The content split (glossary vs. pointers) is a design decision on its own — where do the pointers go instead? A section in `AGENTS.md`? Dropped entirely as redundant? — worth settling deliberately rather than deciding in passing.
 
 **Revisit when:** A dedicated workflow-improvement session, ideally before the next phase that touches LEXICON entries, so the split is in place before more entries accumulate the same mixed shape.
+
+### Rules & skills: stage-stable guidance vs. direct code references
+
+**What:** Audit every `.cursor/rules/*.mdc` file and every `.cursor/skills/**/SKILL.md` (plus related templates like `rule-authoring/TEMPLATE.md` and rules with "Reference Implementations" sections) for **direct references to repo-specific code** — file paths, function/component names tied to a single implementation, line-number citations, and "see `src/...`" pointers — and inventory which guidance **allows or actively encourages** that pattern today. The target posture: rules and skills should remain **true at any repo stage** (empty template, mid-build, shipped product) by stating **principles and illustrative examples** rather than anchoring to whatever file happens to exist right now. Code *examples* (short, fictional or generic snippets that demonstrate shape) are fine; **live code pointers** that go stale when files move, rename, or delete are not.
+
+**Questions to answer:**
+
+1. **Inventory** — Which rules and skills cite `src/...` paths, specific components, or "reference implementation" bullets? Rank by frequency and how central the pointer is to the rule's directive (decorative vs. the rule is unusable without the path).
+2. **Encouragement sources** — Where does the system tell authors to do this? Primary suspect: [`rule-authoring`](../.cursor/skills/rule-authoring/SKILL.md) explicitly lists "file paths to reference implementations" under **Keep** and says "Point at a real file over writing a code block." Also check `audit-rules` currency checks, `data-tables.mdc` / `forms.mdc` Reference Implementations sections, AGENTS.md prose links, and any rule README guidance.
+3. **Replacement pattern** — For each category of pointer (error envelopes, forms, data tables, auth, storage, tests), what should replace it? Options to evaluate: generic example blocks, role-based descriptions ("the canonical server-action envelope"), pointers to **stable abstractions** (a directory convention, a filename pattern) vs. a specific file, or deferring as-built detail entirely to AGENTS.md (repo truth) while rules stay pattern-only.
+4. **Boundary** — What still legitimately needs a path? Candidates: glob attach patterns, migration directory, check-script names, `.cursor/` self-references. Separate "where to look in *this* repo today" (AGENTS.md, audit artifacts) from "how to behave in any repo using this template" (rules/skills).
+5. **Follow-on** — Update `rule-authoring` standard, `audit-rules` criteria, and affected rules/skills; optionally add a lightweight lint or `audit-rules` finding category for new direct `src/` citations in rules.
+
+**Deliverable:** A research brief in `docs/research/` (`RESEARCH-NNNN-rules-skills-code-reference-audit.md`) with: (1) inventory table (file → reference type → stability risk), (2) list of guidance that encourages direct references, (3) recommended replacement pattern per category, (4) phased migration plan (rule-authoring first, then highest-churn rules). Follow-on work updates standards and rules — the audit itself is read-only.
+
+**Relationship to other items:** Complements [Rename LEXICON.md to CONTEXT.md](#rename-lexiconmd-to-contextmd-separate-glossary-from-as-built-pointers) (glossary vs. as-built pointers) and [Documentation surface area & context-bloat audit](#documentation-surface-area--context-bloat-audit) (overlap and duplication) — but this item is specifically about **reference stability across repo lifecycle**, not doc size alone.
+
+**Why deferred:** The current `rule-authoring` standard deliberately favors project-specific pointers ("stays DRY and current with the codebase"), and many rules were written under that contract — including during template phases where paths were the fastest way to onboard agents. Reversing it touches most of `.cursor/rules/`, the rule-authoring skill, and several audit skills; needs a deliberate inventory and a new authoring contract before mass edits, or we risk swapping stale paths for vague rules.
+
+**Revisit when:** A dedicated workflow-improvement session (half-day), before forking the template to a new product (so spinoffs inherit stage-stable rules), after a build where agents followed a rule to a moved/deleted file, or when doing the LEXICON → CONTEXT split (same "as-built vs. timeless" design thread).
+
+### Skill naming convention alignment (Cursor + Claude)
+
+**What:** Audit skill **names** (invoke strings and directory / `.skill` filenames) across **both environments** — Cursor-side (`.cursor/skills/`) and Claude-side (`docs/claude-skills/`, installed per [WORKFLOW_SETUP.md](WORKFLOW_SETUP.md)) — and decide on a **consistent naming convention** before any mass renames. Today the catalog mixes several patterns without an explicit rule:
+
+| Pattern | Examples | Notes |
+| ------- | -------- | ----- |
+| `audit-{thing}` | `audit-rules`, `audit-tests`, `audit-tech-debt`, `audit-security`, `audit-seo` | Largest audit family — action (`audit`) first |
+| `{thing}-audit` | `lexicon-audit` | Same job shape as above, opposite word order |
+| `{verb}-{noun}` (action first) | `ship-phase`, `plan-next-epic`, `mark-epic-complete`, `initialize-project`, `sync-repo-docs`, `archive-cursor-plans`, `archive-research`, `kickoff-phase`, `create-migration`, `create-mockup` | Workflow / lifecycle verbs lead |
+| `{noun}-{verb}` or `{thing}-{action}` | `code-review`, `pre-release-review`, `design-critique`, `rule-authoring`, `github-docs-authoring`, `skill-authoring`, `instructions-authoring` | Subject or artifact leads |
+| `{thing}-{verb}` (Claude lexicon) | `lexicon-update`, `project-kickoff`, `phase-planning`, `plan-review` | Overlaps conceptually with Cursor names but different order (`kickoff-phase` vs `project-kickoff`) |
+| Bare noun | `research` | No verb prefix |
+| Specialty short form | `ux-copy` | Domain-specific, not verb-led |
+
+**Questions to answer:**
+
+1. **Primary axis** — Should names be **verb-first** (`audit-rules`, `ship-phase`) or **noun-first** (`rules-audit`, `phase-ship`)? Or different rules per family (audits vs. workflow steps vs. authoring helpers)?
+2. **Audit family** — Standardize on `audit-{thing}` (rename `lexicon-audit` → `audit-lexicon`) or `{thing}-audit` (rename five `audit-*` skills)? Consider discoverability when typing `/audit` in Cursor vs. grouping lexicon work with `lexicon-update` on Claude.
+3. **Cross-environment pairs** — Where Claude and Cursor skills are handoff partners, should names **echo** each other (`kickoff-phase` ↔ `project-kickoff`, `plan-next-epic` ↔ `plan-review`, `lexicon-audit` ↔ `lexicon-update`)? If yes, which side is canonical for word order?
+4. **Authoring / meta skills** — Keep `{thing}-authoring` (`rule-authoring`, `skill-authoring`) or move to `author-{thing}` / `create-{thing}` to match `create-migration` / `create-mockup`?
+5. **Rename cost** — Inventory every reference: skill `name:` frontmatter, `SKILL.md` cross-links, [AGENTS.md](../AGENTS.md) catalog, [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md), [WORKFLOW_SETUP.md](WORKFLOW_SETUP.md), plans, backlog items, and PM muscle memory. Separate **must-rename** (true inconsistency) from **grandfather** (rename cost > payoff).
+6. **Authoring contract** — If a convention is chosen, where does it live? Candidates: `skill-authoring` skill, a short section in WORKFLOW_GUIDE or DOC_RULES, or a checklist in `docs/claude-skills/README.md` (if added).
+
+**Deliverable:** A short research brief in `docs/research/` (`RESEARCH-NNNN-skill-naming-convention-audit.md`) with: (1) full inventory table (Cursor + Claude, required vs. optional, workflow vs. situational), (2) pattern taxonomy and outliers, (3) recommended convention per family with rationale, (4) rename map (old → new) or explicit grandfather list, (5) follow-on work estimate (docs-only vs. directory renames + Claude re-upload). Record as an [ADR](adr/README.md) only if the convention becomes a hard template contract for spinoffs.
+
+**Relationship to other items:** Complements [Workflow skill next-step breadcrumb audit](#workflow-skill-next-step-breadcrumb-audit) (skill *content* at close-out) and [Integrate quality skills into the documented workflow](#integrate-quality-skills-into-the-documented-workflow) (skill *placement* in the loop) — this item is specifically about **invoke-name consistency and discoverability**, not what skills do or when to run them.
+
+**Why deferred:** Names grew organically as skills landed; nothing is broken today. Renaming is high-touch (Cursor paths, Claude account-wide reinstall, every doc reference) and should follow a deliberate convention choice, not ad hoc fixes when one name feels wrong.
+
+**Revisit when:** A dedicated workflow-improvement session (half-day), before forking the template (so spinoffs inherit clean names), when adding a new skill and the "what should we call it?" question takes more than a minute, or alongside the [LEXICON → CONTEXT rename](#rename-lexiconmd-to-contextmd-separate-glossary-from-as-built-pointers) pass if `lexicon-audit` / `lexicon-update` are in scope anyway.
+
+### code-review: per-rule fan-out to fix recall variance
+
+**What:** `standards-reviewer` currently holds every in-scope `.cursor/rules/*.mdc` file plus a 12-item smell baseline in one context and sweeps the whole diff against all of it. Six back-to-back `code-review` runs on the identical frozen range (`de518bd...68c196b`, one commit, no code changes between runs) produced largely disjoint finding sets — two runs with the fullest reports still shared only 2 of 8 graded findings (Jaccard ≈ 0.25), and a real data-clump finding (`ProfileDialogProfile`) that one run caught was silently absent from every other run. Recall degrades with search-space size; the fix is to shrink the space per subagent rather than keep tuning prose. Proposed shape: one subagent per glob-matched rule file (via each `.mdc`'s frontmatter `globs:`), each reading only the rule and the files its globs match — not the whole diff — plus one unscoped subagent for the smell baseline (smells are whole-diff observations, not tied to a rule) and always-apply rules (`typescript.mdc`, `project-standards.mdc`, `code-minimalism.mdc`, `general-conventions.mdc`, `AGENTS.md` § Hard constraints), which see the full diff by necessity. Two known costs to design around: (1) splitting rules from smells breaks today's "the repo overrides" suppression (a rule-holding agent can suppress a smell the baseline would flag; a smell-only agent can't) — suppression would need to move to the aggregation step in `SKILL.md`; (2) more parallel subagents means more tokens per review, permanently, for checks that don't need judgment — see the lint item below, which shrinks the search space instead of parallelizing it.
+
+**Why deferred:** This is an architecture change to `code-review`'s subagent dispatch (`SKILL.md` step 3–4 and both `.cursor/agents/*.md` files), not a prose edit. Four rounds of prose-only fixes already landed — cap removal, mandatory quoting, the epic-plan input, and a severity classifier replacing the judgment-based ladder (`grading.md`) — and each measurably improved something (recall, fabrication, blocker detection). Fan-out is the next lever once prose is exhausted, and it should be scoped and measured, not built reactively mid-epic.
+
+**Revisit when:** Prose-tuning `code-review`'s agent files stops producing measurable gains between runs (diminishing returns), before relying on `code-review` as a hard gate for a higher-stakes epic, or when token cost is not a binding constraint and the recall gap is.
+
+### Move mechanically-checkable rules to lint (starting with import-direction boundaries)
+
+**What:** Some `code-review` findings are pure pattern-matching with no judgment involved — e.g. `use-blur-save-field.ts` (under `_lib/`) importing a type from `_components/profile/field-save-indicator.tsx`, inverting the repo's `_lib` → `_components` dependency direction. This is exactly what ESLint's built-in `no-restricted-imports` rule is for: a few lines of `eslint.config.*` forbidding `_lib/**` from importing `_components/**` (or the inverse, whichever direction is canonical) turns a probabilistic, sometimes-missed review finding into a deterministic, always-caught lint failure at save/commit time — before code review ever runs. `testing.mdc`'s render-only-test restriction may be a second candidate (detectable via a custom lint rule or a coverage-exclude check) but needs a closer look at feasibility. Every rule moved to lint permanently shrinks `code-review`'s search space on every future run, independent of whichever prose or fan-out state the skill is in.
+
+**Why deferred:** Surfaced as a side finding during the `code-review` reliability deep-dive (2026-07-09), not yet scoped as its own task — needs an inventory pass across `.cursor/rules/*.mdc` for which rules are genuinely mechanical vs. which need judgment, then the actual eslint config change and a check that it doesn't fight existing lint setup.
+
+**Revisit when:** Doing the `code-review` fan-out item above (natural place to also ask "should this rule even be in the reviewer's scope, or should it be lint instead"), or the next time a `code-review` run misses an import-direction or similarly mechanical violation that a prior run caught.
+
+### `check:auth-boundary` runs only incidentally under `test:ci`
+
+**What:** `check:auth-boundary` is a named `package.json` script (`vitest run src/supabase/proxy.unit.test.ts`) that enforces one of the template's hard constraints — which routes are reachable without a session. It is **not** a step in `pnpm pre-push`. It passes today only because `test:ci` happens to run the whole Vitest suite, that test file included. Nothing pins that relationship: narrow `test:ci`'s scope, move the test file, or add a coverage-driven exclude, and the auth-boundary gate silently stops running while `pre-push` stays green. Surfaced during Phase 10 planning (Epic 5 widens the allowlist a second time) and recorded in that PRD's out-of-scope list, which is deleted when the phase ships — hence this entry.
+
+**Why deferred:** The fix is likely one line in `pre-push`, but it isn't obviously *only* that. Adding a named step raises the same question the other `check:*` scripts answer implicitly — is `pre-push` the union of every check, or a fast subset with the rest at CI? That contract is worth stating once for all `check:*` scripts rather than patching one in. Phase 10 is mid-build and this is not blocking it.
+
+**Revisit when:** A dedicated workflow-improvement session, before forking the template (a spinoff inherits an unenforced hard-constraint gate), the next time a `check:*` script is added and its `pre-push` placement is unclear, or immediately if `test:ci`'s scope is ever narrowed.
+
+### ~~Deterministic scripts in agent skills~~
+
+**Resolved 2026-07-09** — [RESEARCH-0003](research/RESEARCH-0003-skills-deterministic-scripts.md).
+
+**What:** Whether skills with heavy procedural logic should incorporate executable `scripts/` (per Cursor's skill convention) for more deterministic runs — which skills, what scripts, and where they live vs. existing `scripts/checks/` CI gates.
+
+**Verdict (summary):** Hybrid, not blanket scripting. **Do now:** `initialize-project` and `archive-cursor-plans` (mechanical cores). **Do next:** shared audit/sync orient evidence scripts; keep judgment-primary skills (`code-review`, `lexicon-audit`, planning skills) prose-only. Invariants stay in `scripts/checks/` per ADR-0002.
+
+**Follow-on (not this research pass):** implement Tier A scripts, update skill-authoring contract, optional `scripts/workflow/` shared orient layer.

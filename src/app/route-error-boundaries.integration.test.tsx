@@ -2,7 +2,7 @@ import { render, screen } from '@/test/test-utils'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
-import { LOGIN_PATH, PROFILE_PATH } from '@/constants/app-paths'
+import { APP_HOME, LOGIN_PATH } from '@/constants/app-paths'
 
 import AppError from './(app)/error'
 import AdminError from './admin/error'
@@ -20,8 +20,8 @@ const boundaryCases = [
     segment: 'admin',
     ErrorBoundary: AdminError,
     panelMessage: 'The admin console could not be loaded',
-    escapeLinkName: /back to profile/i,
-    escapeHref: PROFILE_PATH,
+    escapeLinkName: /back to app/i,
+    escapeHref: APP_HOME,
   },
   {
     segment: 'auth',

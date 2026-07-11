@@ -1,4 +1,5 @@
 import { Github, type LucideIcon } from 'lucide-react'
+import Link from 'next/link'
 import { Suspense } from 'react'
 
 import { SeminovaLogo } from '@/components/seminova-logo'
@@ -27,13 +28,16 @@ export const SiteFooter = ({
     <SiteContainer className="py-6">
       <div
         className={cn(
-          'flex flex-col gap-6 md:flex-row md:items-center',
-          showNav ? 'md:justify-between' : 'md:justify-between',
+          // debt: grid track string coupled with site-header.tsx — change both together
+          'flex flex-col gap-6 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center',
         )}
       >
-        <SeminovaLogo href={logoHref} className="text-foreground" />
-        {showNav ? <SiteNavLinks /> : null}
-        <div className="flex gap-3">
+        <SeminovaLogo
+          href={logoHref}
+          className="text-foreground min-w-0 justify-self-start"
+        />
+        {showNav ? <SiteNavLinks className="justify-self-center" /> : null}
+        <div className="flex gap-3 justify-self-end md:col-start-3">
           {siteConfig.social.map((social) => {
             const Icon = socialIcons[social.icon]
 
@@ -69,7 +73,13 @@ export const SiteFooter = ({
           ) : null}
           <div className="flex gap-4">
             {siteConfig.legal.map((item) => (
-              <span key={item.label}>{item.label}</span>
+              <Link
+                key={item.label}
+                href={item.href}
+                className="text-muted-foreground hover:text-foreground focus-visible:ring-ring rounded-md transition-colors focus-visible:ring-2 focus-visible:outline-none"
+              >
+                {item.label}
+              </Link>
             ))}
           </div>
         </div>
