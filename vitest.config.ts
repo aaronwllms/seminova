@@ -21,6 +21,8 @@ export default defineConfig({
         'src/app/globals.css',
         'src/app/**/page.tsx',
         'src/app/**/layout.tsx',
+        'src/app/**/opengraph-image.tsx',
+        'src/app/(marketing)/workflow/_components/**',
         'src/providers/**',
         'src/supabase/client.ts',
         'src/supabase/server.ts',

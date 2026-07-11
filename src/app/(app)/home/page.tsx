@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
-import { REFERENCE_PATH } from '@/constants/app-paths'
+import { REFERENCE_PATH, WORKFLOW_PATH } from '@/constants/app-paths'
 
 export const metadata: Metadata = {
   title: 'Home',
@@ -23,7 +23,15 @@ export default function AppHomePage() {
         >
           pattern reference
         </Link>{' '}
-        to see the components and interaction patterns your spinoff inherits.
+        to see the components and interaction patterns your spinoff inherits, or
+        read the{' '}
+        <Link
+          href={WORKFLOW_PATH}
+          className="text-foreground font-medium underline-offset-4 hover:underline"
+        >
+          workflow explainer
+        </Link>{' '}
+        for how planning and implementation split across two environments.
       </p>
     </div>
   )

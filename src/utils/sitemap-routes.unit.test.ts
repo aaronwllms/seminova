@@ -22,6 +22,7 @@ describe('buildSitemapEntries', () => {
       { url: 'https://example.com/privacy' },
       { url: 'https://example.com/reference' },
       { url: 'https://example.com/terms' },
+      { url: 'https://example.com/workflow' },
     ])
     expect(
       entries.some(
