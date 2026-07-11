@@ -27,13 +27,32 @@ describe('updateSession without env vars', () => {
     vi.resetModules()
   })
 
-  it('should skip auth check in development when Supabase env vars are not configured', async () => {
+  it('should return 503 for protected routes in development when Supabase env vars are not configured', async () => {
     vi.stubEnv('NODE_ENV', 'development')
     const { updateSession } = await import('./proxy')
 
-    const response = await updateSession(createRequest('/home'))
+    for (const pathname of ['/home', '/admin', '/admin/users']) {
+      const response = await updateSession(createRequest(pathname))
 
-    expect(response.status).toBe(200)
+      expect(response.status).toBe(503)
+      expect(await response.text()).toContain(
+        'Supabase environment variables are not configured',
+      )
+    }
+
+    expect(mockGetClaims).not.toHaveBeenCalled()
+  })
+
+  it('should allow public routes in development when Supabase env vars are not configured', async () => {
+    vi.stubEnv('NODE_ENV', 'development')
+    const { updateSession } = await import('./proxy')
+
+    for (const pathname of ['/', '/auth/login', '/terms', '/privacy']) {
+      const response = await updateSession(createRequest(pathname))
+
+      expect(response.status).toBe(200)
+    }
+
     expect(mockGetClaims).not.toHaveBeenCalled()
   })
 

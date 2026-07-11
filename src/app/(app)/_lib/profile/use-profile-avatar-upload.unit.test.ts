@@ -10,6 +10,16 @@ import type { ProfileFieldKey } from './profile-form-schema'
 
 const mockUploadUserAvatar = vi.fn()
 const mockWithAvatarCacheBust = vi.fn((url: string) => `${url}?v=1`)
+const mockProbeSessionAction = vi.fn()
+const mockRefresh = vi.fn()
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ refresh: mockRefresh }),
+}))
+
+vi.mock('./probe-session-action', () => ({
+  probeSessionAction: () => mockProbeSessionAction(),
+}))
 
 vi.mock('@/utils/avatar-storage', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/utils/avatar-storage')>()
@@ -86,7 +96,10 @@ describe('useProfileAvatarUpload', () => {
   beforeEach(() => {
     mockUploadUserAvatar.mockReset()
     mockWithAvatarCacheBust.mockClear()
+    mockProbeSessionAction.mockReset()
+    mockRefresh.mockReset()
     mockUploadUserAvatar.mockResolvedValue({ publicUrl: PUBLIC_URL })
+    mockProbeSessionAction.mockResolvedValue({ success: true })
   })
 
   it('should upload, persist, and update form state on success', async () => {
@@ -138,6 +151,57 @@ describe('useProfileAvatarUpload', () => {
 
     expect(mockUploadUserAvatar).not.toHaveBeenCalled()
     expect(persistField).not.toHaveBeenCalled()
+  })
+
+  it('should probe session and retry upload after auth failure', async () => {
+    const persistField = vi.fn().mockResolvedValue(undefined)
+    const setFileError = vi.fn()
+    const file = new File(['avatar'], 'avatar.png', { type: 'image/png' })
+
+    mockUploadUserAvatar
+      .mockRejectedValueOnce(
+        new AvatarUploadError('You must be signed in to upload an image.'),
+      )
+      .mockResolvedValueOnce({ publicUrl: PUBLIC_URL })
+
+    const { result } = renderHook(() =>
+      useTestAvatarUpload({ persistField, setFileError }),
+    )
+
+    await act(async () => {
+      await result.current.handleAvatarUpload(file)
+    })
+
+    expect(mockRefresh).toHaveBeenCalledOnce()
+    expect(mockProbeSessionAction).toHaveBeenCalledOnce()
+    expect(mockUploadUserAvatar).toHaveBeenCalledTimes(2)
+    expect(persistField).toHaveBeenCalledOnce()
+    expect(setFileError).not.toHaveBeenCalledWith(
+      'You must be signed in to upload an image.',
+    )
+  })
+
+  it('should surface sign-in message when probe fails', async () => {
+    const setFileError = vi.fn()
+    const file = new File(['avatar'], 'avatar.png', { type: 'image/png' })
+
+    mockUploadUserAvatar.mockRejectedValue(
+      new AvatarUploadError('You must be signed in to upload an image.'),
+    )
+    mockProbeSessionAction.mockResolvedValue({ success: false })
+
+    const { result } = renderHook(() => useTestAvatarUpload({ setFileError }))
+
+    await act(async () => {
+      await result.current.handleAvatarUpload(file)
+    })
+
+    expect(mockRefresh).toHaveBeenCalledOnce()
+    expect(mockProbeSessionAction).toHaveBeenCalledOnce()
+    expect(mockUploadUserAvatar).toHaveBeenCalledTimes(1)
+    expect(setFileError).toHaveBeenCalledWith(
+      'You must be signed in to upload an image.',
+    )
   })
 
   it('should surface AvatarUploadError on the file control', async () => {

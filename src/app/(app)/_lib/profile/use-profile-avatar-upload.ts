@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import type { UseFormReturn } from 'react-hook-form'
 
 import {
@@ -11,8 +12,11 @@ import {
 
 import type { AppError } from '@/types/app-error'
 
+import { probeSessionAction } from './probe-session-action'
 import type { ProfileFormInputValues } from './profile-form-schema'
 import type { ProfileFieldKey } from './profile-form-schema'
+
+const SIGNED_IN_REQUIRED_MESSAGE = 'You must be signed in to upload an image.'
 
 type PersistField = (args: {
   field: ProfileFieldKey
@@ -35,6 +39,10 @@ type UseProfileAvatarUploadOptions = {
   }>
 }
 
+const isSessionAuthUploadError = (error: unknown): boolean =>
+  error instanceof AvatarUploadError &&
+  error.message === SIGNED_IN_REQUIRED_MESSAGE
+
 export const useProfileAvatarUpload = ({
   userId,
   form,
@@ -44,6 +52,25 @@ export const useProfileAvatarUpload = ({
   setFormError,
   lastSavedRef,
 }: UseProfileAvatarUploadOptions) => {
+  const router = useRouter()
+
+  const persistUploadedAvatar = useCallback(
+    async (publicUrl: string) => {
+      const avatarUrl = withAvatarCacheBust(publicUrl)
+
+      await persistField({
+        field: 'avatar',
+        payload: { avatarUrl },
+        refresh: true,
+        onSuccess: () => {
+          lastSavedRef.current.avatarUrl = avatarUrl
+          form.setValue('avatarUrl', avatarUrl)
+        },
+      })
+    },
+    [form, lastSavedRef, persistField],
+  )
+
   const handleAvatarUpload = useCallback(
     async (file: File) => {
       if (inFlightRef.current.avatar) {
@@ -52,20 +79,40 @@ export const useProfileAvatarUpload = ({
 
       setFileError(null)
 
-      try {
-        const { publicUrl } = await uploadUserAvatar({ userId, file })
-        const avatarUrl = withAvatarCacheBust(publicUrl)
+      const attemptUpload = async () => uploadUserAvatar({ userId, file })
 
-        await persistField({
-          field: 'avatar',
-          payload: { avatarUrl },
-          refresh: true,
-          onSuccess: () => {
-            lastSavedRef.current.avatarUrl = avatarUrl
-            form.setValue('avatarUrl', avatarUrl)
-          },
-        })
+      try {
+        const { publicUrl } = await attemptUpload()
+        await persistUploadedAvatar(publicUrl)
       } catch (caught) {
+        if (isSessionAuthUploadError(caught)) {
+          router.refresh()
+          const probe = await probeSessionAction()
+
+          if (probe.success) {
+            try {
+              const { publicUrl } = await attemptUpload()
+              await persistUploadedAvatar(publicUrl)
+              return
+            } catch (retryCaught) {
+              if (retryCaught instanceof AvatarUploadError) {
+                setFileError(retryCaught.message)
+                return
+              }
+
+              setFormError({
+                message: 'Could not save your profile. Please try again.',
+                kind: 'fault',
+                code: 'INTERNAL_ERROR',
+              })
+              return
+            }
+          }
+
+          setFileError(SIGNED_IN_REQUIRED_MESSAGE)
+          return
+        }
+
         if (caught instanceof AvatarUploadError) {
           setFileError(caught.message)
           return
@@ -79,10 +126,9 @@ export const useProfileAvatarUpload = ({
       }
     },
     [
-      form,
       inFlightRef,
-      lastSavedRef,
-      persistField,
+      persistUploadedAvatar,
+      router,
       setFileError,
       setFormError,
       userId,

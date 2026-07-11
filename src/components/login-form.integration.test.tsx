@@ -44,6 +44,43 @@ describe('LoginForm', () => {
     )
   })
 
+  it('should sign in and navigate to safe next when provided', async () => {
+    mockSignInWithPassword.mockResolvedValue({
+      error: null,
+      data: { user: { app_metadata: {} } },
+    })
+    const user = userEvent.setup({ delay: null })
+
+    render(<LoginForm next="/admin/users" />)
+
+    await user.type(screen.getByLabelText(/email/i), 'test@example.com')
+    await user.type(screen.getByLabelText(/^password$/i), 'password123')
+    await user.click(screen.getByRole('button', { name: /^login$/i }))
+
+    await waitFor(() => {
+      expect(mockRefresh).toHaveBeenCalledOnce()
+      expect(mockPush).toHaveBeenCalledWith('/admin/users')
+    })
+  })
+
+  it('should fall back to role-based redirect when next is unsafe', async () => {
+    mockSignInWithPassword.mockResolvedValue({
+      error: null,
+      data: { user: { app_metadata: {} } },
+    })
+    const user = userEvent.setup({ delay: null })
+
+    render(<LoginForm next="https://evil.example/phish" />)
+
+    await user.type(screen.getByLabelText(/email/i), 'test@example.com')
+    await user.type(screen.getByLabelText(/^password$/i), 'password123')
+    await user.click(screen.getByRole('button', { name: /^login$/i }))
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/home')
+    })
+  })
+
   it('should sign in and redirect non-admins to /home', async () => {
     mockSignInWithPassword.mockResolvedValue({
       error: null,

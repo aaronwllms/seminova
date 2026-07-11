@@ -7,16 +7,16 @@ Scope: Full repository pass — application code (`src/`, `scripts/`, `supabase/
 ## Executive summary
 
 - **Wide-interface god files remain churn magnets** — `users-table.tsx` (231) and `dropdown-menu.tsx` (257) still carry width; profile form and admin actions decomposed in Phase 8 Epic 5; sidebar primitive decomposed in Phase 8 Epic 4. The old ≤150-line locked rule is gone (ADR-0001) but the width problem is real where it remains.
-- **Session hardening landed since last audit** — `require-auth.ts` + `read-auth-cookie.ts` fix refresh-token races and document the `getClaims` vs `getUser` split; route-group `error.tsx` boundaries now cover `(app)/`, `admin/`, and `auth/`. Proxy `/login` dead branch is gone.
+- **Session hardening landed since last audit** — `getDisplayAuthClaims()` + `read-auth-cookie.ts` fix refresh-token races and document the display-read vs `getUser` mutation split ([ADR-0005](docs/adr/ADR-0005-proxy-as-sole-session-authority.md)); route-group `error.tsx` boundaries now cover `(app)/`, `admin/`, and `auth/`. Proxy `/login` dead branch is gone.
 - **One declared `// debt:` marker** — CSP report-only default in `security-headers.ts`; enforcing requires nonce strategy before `CSP_ENFORCE=true`.
 - **Quality gates pass** — `pnpm audit` clean; `type-check`, `lint`, `test:ci` green (258 tests).
 - **Three open findings remain** — F011 (marketing wrapper, intentional boundary), F022 (dual form stacks, intentional per `forms.mdc`), F053 (CSP report-only declared debt).
 
 ## Architectural mental model
 
-Seminova is a **Next.js 16 App Router template** organized into route groups: public `(marketing)/` at `/`, `auth/` at `/auth/**`, authenticated `(app)/` at `/profile`, and `admin/` at `/admin/**`. Session refresh and the auth boundary run in `proxy.ts` → `src/supabase/proxy.ts`; admin role gating is defense-in-depth in the proxy (redirect non-admins) and `AdminAuthGate` (layout gate via `requireAuthClaims`). Data access splits three ways: browser client (`@/supabase/client` + RLS), server session client (`@/supabase/server`), and secret-key service client (`@/supabase/service`) for admin user listing and role mutations.
+Seminova is a **Next.js 16 App Router template** organized into route groups: public `(marketing)/` at `/`, `auth/` at `/auth/**`, authenticated `(app)/` at `/home`, and `admin/` at `/admin/**`. Session refresh and the auth boundary run in `proxy.ts` → `src/supabase/proxy.ts`; admin role gating is defense-in-depth in the proxy (redirect non-admins) and `AdminAuthGate` (layout gate via `getDisplayAuthClaims`). Data access splits three ways: browser client (`@/supabase/client` + RLS), server session client (`@/supabase/server`), and secret-key service client (`@/supabase/service`) for admin user listing and role mutations.
 
-Since the June audit, auth read paths were tightened: layouts and profile reads use `requireAuthClaims` (cookie JWT, no refresh in layout) while mutations still call `getUser()` at trust boundaries. UI is shadcn-owned primitives + shared chrome (`site-*`) + route-scoped `_components`. Config-driven identity lives in `src/config/site.ts` and `landing-content.ts`.
+Since the June audit, auth read paths were tightened: layouts and profile reads use `getDisplayAuthClaims` (cookie JWT via `allowExpired`, no refresh in layout) while mutations still call `getUser()` at trust boundaries. UI is shadcn-owned primitives + shared chrome (`site-*`) + route-scoped `_components`. Config-driven identity lives in `src/config/site.ts` and `landing-content.ts`.
 
 **Hot paths:** `proxy.ts`, `require-auth.ts`, auth forms, `getCurrentUserProfile`, profile blur-save, admin users table + server actions, avatar upload pipeline.
 
@@ -134,7 +134,7 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 - 2026-07-05 — F044: Misleading comment on dead `auth-button.tsx` resolved by deletion (F004).
 - 2026-07-05 — F046: Unused MSW browser worker entry (`browser.ts`, `index.ts`) deleted.
 - 2026-07-05 — F056: Checkbox Radix split pattern mooted by deleting unused primitive (F012).
-- 2026-07-04 — F036: `getCurrentUserProfile` no longer returns empty profile on missing auth — now calls `requireAuthClaims` which redirects.
+- 2026-07-04 — F036: `getCurrentUserProfile` no longer returns empty profile on missing auth — now calls `getDisplayAuthClaims` which throws on invariant violation (proxy owns gating).
 - 2026-07-04 — F040: Stale `/login` proxy path check removed; public routes are `/` and `/auth/**` only.
 
 ## Tooling notes

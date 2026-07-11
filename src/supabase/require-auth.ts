@@ -1,14 +1,18 @@
-import { redirect } from 'next/navigation'
-
 import { isAuthError, type SupabaseClient } from '@supabase/supabase-js'
 
-import { LOGIN_PATH } from '@/constants/app-paths'
 import { parseJwtClaims, type JwtClaims } from '@/utils/admin'
 
 import { readAccessTokenFromCookies } from './read-auth-cookie'
 import { createClient } from './server'
 
 export type AuthenticatedClaims = JwtClaims & { sub: string }
+
+export class DisplayAuthInvariantError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'DisplayAuthInvariantError'
+  }
+}
 
 export const parseAuthenticatedClaims = (
   raw: unknown,
@@ -53,65 +57,61 @@ export const isSessionAuthFailure = (error: unknown): boolean => {
   return false
 }
 
-const clearSessionAndRedirect = async (
-  _supabase: SupabaseClient,
-  error?: unknown,
-): Promise<never> => {
-  if (error) {
-    console.error('[require-auth] Session invalid', error)
-  } else {
-    console.error('[require-auth] No authenticated session')
-  }
-
-  // Cookie clearing runs in the proxy on the login page — signOut from a Server
-  // Component cannot set cookies, and a global-scope signOut can hit the Auth
-  // API with a dead refresh token and leave stale cookies behind.
-  redirect(LOGIN_PATH)
-}
-
 /**
- * Server-side auth gate for layouts and read paths. Reads the access token from
- * cookies (no refresh) and validates it with `getClaims(jwt)` so only the
- * proxy can rotate refresh tokens.
+ * Display-only auth claims for protected-route server reads. Reads the access
+ * token from cookies (no refresh) and validates via
+ * `getClaims(accessToken, { allowExpired: true })` — signature verified,
+ * exp tolerated. The proxy is the sole session gate; missing or invalid tokens
+ * here are invariant violations and throw (route error boundary), not redirects.
  *
  * Use `getUser()` only at mutation trust boundaries (server actions) where the
  * Auth server must validate the access token.
  */
-export const requireAuthClaims = async (
-  supabase: SupabaseClient,
-): Promise<AuthenticatedClaims> => {
-  try {
-    const accessToken = await readAccessTokenFromCookies()
-    if (!accessToken) {
-      return clearSessionAndRedirect(supabase)
-    }
+export const getDisplayAuthClaims = async (): Promise<AuthenticatedClaims> => {
+  const accessToken = await readAccessTokenFromCookies()
+  if (!accessToken) {
+    console.error('[require-auth] Missing access token on protected route')
+    throw new DisplayAuthInvariantError('No authenticated session')
+  }
 
-    const { data, error } = await supabase.auth.getClaims(accessToken)
+  const supabase = await createClient()
+
+  try {
+    const { data, error } = await supabase.auth.getClaims(accessToken, {
+      allowExpired: true,
+    })
 
     if (error) {
-      return clearSessionAndRedirect(supabase, error)
+      console.error(
+        '[require-auth] Invalid access token on protected route',
+        error,
+      )
+      throw new DisplayAuthInvariantError('Session claims invalid')
     }
 
     const claims = parseAuthenticatedClaims(data?.claims)
     if (!claims) {
-      return clearSessionAndRedirect(supabase)
+      console.error('[require-auth] Malformed claims on protected route')
+      throw new DisplayAuthInvariantError('Session claims malformed')
     }
 
     return claims
   } catch (error) {
-    if (isSessionAuthFailure(error)) {
-      return clearSessionAndRedirect(supabase, error)
+    if (error instanceof DisplayAuthInvariantError) {
+      throw error
     }
 
-    throw error
+    console.error('[require-auth] Failed to read display claims', error)
+    throw new DisplayAuthInvariantError('Session claims invalid')
   }
 }
 
 /**
  * Lightweight session probe for public surfaces (e.g. marketing header).
- * Validates the cookie-read access token via `getClaims(jwt)` — same path as
- * `requireAuthClaims`, but returns false instead of redirecting. Does not
- * refresh tokens; refresh is proxy-only (see ADR-0003).
+ * Validates the cookie-read access token via
+ * `getClaims(accessToken, { allowExpired: true })` — same path as
+ * `getDisplayAuthClaims`, but returns false instead of throwing. Does not
+ * refresh tokens; refresh is proxy-only (see ADR-0005).
  */
 export const hasServerAuthSession = async (): Promise<boolean> => {
   const accessToken = await readAccessTokenFromCookies()
@@ -121,8 +121,15 @@ export const hasServerAuthSession = async (): Promise<boolean> => {
 
   try {
     const supabase = await createClient()
-    const { error } = await supabase.auth.getClaims(accessToken)
-    return error === null
+    const { data, error } = await supabase.auth.getClaims(accessToken, {
+      allowExpired: true,
+    })
+
+    if (error) {
+      return false
+    }
+
+    return parseAuthenticatedClaims(data?.claims) !== null
   } catch {
     return false
   }

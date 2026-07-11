@@ -51,12 +51,26 @@ describe('updateSession', () => {
     mockGetClaims.mockResolvedValue({ data: { claims: null }, error: null })
   })
 
-  it('should redirect unauthenticated users from protected routes', async () => {
+  it('should redirect unauthenticated users from protected routes with next', async () => {
     const response = await updateSession(createRequest('/home'))
 
     expect(response.status).toBe(307)
-    expect(response.headers.get('location')).toContain('/auth/login')
+    const location = response.headers.get('location')
+    expect(location).toContain('/auth/login')
+    expect(location).toContain('next=%2Fhome')
     expect(mockSignOut).toHaveBeenCalledWith({ scope: 'local' })
+  })
+
+  it('should preserve search params in next on redirect', async () => {
+    const response = await updateSession(
+      createRequest('/admin/users?email=foo'),
+    )
+
+    expect(response.status).toBe(307)
+    const location = response.headers.get('location')
+    expect(location).toContain('next=')
+    expect(location).toContain('%2Fadmin%2Fusers')
+    expect(location).toContain('email%3Dfoo')
   })
 
   it('should redirect and sign out when getClaims returns an auth error', async () => {

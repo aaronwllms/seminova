@@ -2,17 +2,8 @@ import { AuthApiError } from '@supabase/supabase-js'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockGetClaims = vi.fn()
-const mockSignOut = vi.fn()
-const mockRedirect = vi.fn()
 const mockReadAccessTokenFromCookies = vi.fn()
 const mockCreateClient = vi.fn()
-
-vi.mock('next/navigation', () => ({
-  redirect: (...args: unknown[]) => {
-    mockRedirect(...args)
-    throw new Error('NEXT_REDIRECT')
-  },
-}))
 
 vi.mock('./read-auth-cookie', () => ({
   readAccessTokenFromCookies: () => mockReadAccessTokenFromCookies(),
@@ -23,9 +14,10 @@ vi.mock('./server', () => ({
 }))
 
 import {
-  isSessionAuthFailure,
-  requireAuthClaims,
+  DisplayAuthInvariantError,
+  getDisplayAuthClaims,
   hasServerAuthSession,
+  isSessionAuthFailure,
 } from './require-auth'
 
 describe('isSessionAuthFailure', () => {
@@ -55,57 +47,27 @@ describe('isSessionAuthFailure', () => {
   })
 })
 
-describe('requireAuthClaims', () => {
+describe('getDisplayAuthClaims', () => {
   beforeEach(() => {
     mockGetClaims.mockReset()
-    mockSignOut.mockReset()
-    mockRedirect.mockReset()
     mockReadAccessTokenFromCookies.mockReset()
-    mockSignOut.mockResolvedValue({ error: null })
+    mockCreateClient.mockReset()
+    mockCreateClient.mockResolvedValue({
+      auth: { getClaims: mockGetClaims },
+    })
   })
 
-  it('should redirect and sign out when the access token cookie is missing', async () => {
+  it('should throw when the access token cookie is missing', async () => {
     mockReadAccessTokenFromCookies.mockResolvedValue(null)
 
-    const supabase = {
-      auth: { getClaims: mockGetClaims, signOut: mockSignOut },
-    }
-
-    await expect(requireAuthClaims(supabase as never)).rejects.toThrow(
-      'NEXT_REDIRECT',
+    await expect(getDisplayAuthClaims()).rejects.toBeInstanceOf(
+      DisplayAuthInvariantError,
     )
 
     expect(mockGetClaims).not.toHaveBeenCalled()
-    expect(mockSignOut).not.toHaveBeenCalled()
-    expect(mockRedirect).toHaveBeenCalledWith('/auth/login')
   })
 
-  it('should redirect and sign out on auth errors', async () => {
-    const authError = new AuthApiError(
-      'Invalid Refresh Token: Already Used',
-      400,
-      'refresh_token_already_used',
-    )
-    mockReadAccessTokenFromCookies.mockResolvedValue('access-token')
-    mockGetClaims.mockResolvedValue({
-      data: { claims: null },
-      error: authError,
-    })
-
-    const supabase = {
-      auth: { getClaims: mockGetClaims, signOut: mockSignOut },
-    }
-
-    await expect(requireAuthClaims(supabase as never)).rejects.toThrow(
-      'NEXT_REDIRECT',
-    )
-
-    expect(mockGetClaims).toHaveBeenCalledWith('access-token')
-    expect(mockSignOut).not.toHaveBeenCalled()
-    expect(mockRedirect).toHaveBeenCalledWith('/auth/login')
-  })
-
-  it('should return claims when the session is valid', async () => {
+  it('should call getClaims with allowExpired true', async () => {
     mockReadAccessTokenFromCookies.mockResolvedValue('access-token')
     mockGetClaims.mockResolvedValue({
       data: {
@@ -118,49 +80,70 @@ describe('requireAuthClaims', () => {
       error: null,
     })
 
-    const supabase = {
-      auth: { getClaims: mockGetClaims, signOut: mockSignOut },
-    }
-
-    await expect(requireAuthClaims(supabase as never)).resolves.toEqual({
+    await expect(getDisplayAuthClaims()).resolves.toEqual({
       sub: 'user-1',
       email: 'alex@example.com',
       app_metadata: {},
     })
 
-    expect(mockGetClaims).toHaveBeenCalledWith('access-token')
+    expect(mockGetClaims).toHaveBeenCalledWith('access-token', {
+      allowExpired: true,
+    })
   })
 
-  it('should redirect when getClaims throws an auth error', async () => {
-    const authError = new AuthApiError('jwt expired', 401, 'session_expired')
-    mockReadAccessTokenFromCookies.mockResolvedValue('access-token')
-    mockGetClaims.mockRejectedValue(authError)
+  it('should return claims for an expired-but-signed token', async () => {
+    mockReadAccessTokenFromCookies.mockResolvedValue('expired-access-token')
+    mockGetClaims.mockResolvedValue({
+      data: {
+        claims: {
+          sub: 'user-1',
+          email: 'alex@example.com',
+          exp: 1,
+          app_metadata: {},
+        },
+      },
+      error: null,
+    })
 
-    const supabase = {
-      auth: { getClaims: mockGetClaims, signOut: mockSignOut },
-    }
-
-    await expect(requireAuthClaims(supabase as never)).rejects.toThrow(
-      'NEXT_REDIRECT',
-    )
-
-    expect(mockSignOut).not.toHaveBeenCalled()
+    await expect(getDisplayAuthClaims()).resolves.toEqual({
+      sub: 'user-1',
+      email: 'alex@example.com',
+      app_metadata: {},
+    })
   })
 
-  it('should redirect when getClaims throws a plain JWT expired error', async () => {
-    mockReadAccessTokenFromCookies.mockResolvedValue('access-token')
-    mockGetClaims.mockRejectedValue(new Error('JWT has expired'))
+  it('should throw when getClaims returns a signature-invalid error', async () => {
+    const authError = new AuthApiError('invalid JWT', 401, 'invalid_jwt')
+    mockReadAccessTokenFromCookies.mockResolvedValue('bad-token')
+    mockGetClaims.mockResolvedValue({
+      data: { claims: null },
+      error: authError,
+    })
 
-    const supabase = {
-      auth: { getClaims: mockGetClaims, signOut: mockSignOut },
-    }
-
-    await expect(requireAuthClaims(supabase as never)).rejects.toThrow(
-      'NEXT_REDIRECT',
+    await expect(getDisplayAuthClaims()).rejects.toBeInstanceOf(
+      DisplayAuthInvariantError,
     )
+  })
 
-    expect(mockSignOut).not.toHaveBeenCalled()
-    expect(mockRedirect).toHaveBeenCalledWith('/auth/login')
+  it('should throw when claims are malformed', async () => {
+    mockReadAccessTokenFromCookies.mockResolvedValue('access-token')
+    mockGetClaims.mockResolvedValue({
+      data: { claims: { email: 'alex@example.com' } },
+      error: null,
+    })
+
+    await expect(getDisplayAuthClaims()).rejects.toBeInstanceOf(
+      DisplayAuthInvariantError,
+    )
+  })
+
+  it('should throw when getClaims throws unexpectedly', async () => {
+    mockReadAccessTokenFromCookies.mockResolvedValue('access-token')
+    mockGetClaims.mockRejectedValue(new Error('network down'))
+
+    await expect(getDisplayAuthClaims()).rejects.toBeInstanceOf(
+      DisplayAuthInvariantError,
+    )
   })
 })
 
@@ -183,7 +166,9 @@ describe('hasServerAuthSession', () => {
 
     await expect(hasServerAuthSession()).resolves.toBe(true)
 
-    expect(mockGetClaims).toHaveBeenCalledWith('access-token')
+    expect(mockGetClaims).toHaveBeenCalledWith('access-token', {
+      allowExpired: true,
+    })
   })
 
   it('should return false when the access token cookie is missing', async () => {
@@ -194,9 +179,22 @@ describe('hasServerAuthSession', () => {
     expect(mockGetClaims).not.toHaveBeenCalled()
   })
 
-  it('should return false when getClaims throws for an expired token', async () => {
-    mockReadAccessTokenFromCookies.mockResolvedValue('access-token')
-    mockGetClaims.mockRejectedValue(new Error('JWT has expired'))
+  it('should return true for an expired-but-signed token with sub', async () => {
+    mockReadAccessTokenFromCookies.mockResolvedValue('expired-access-token')
+    mockGetClaims.mockResolvedValue({
+      data: { claims: { sub: 'user-1', exp: 1 } },
+      error: null,
+    })
+
+    await expect(hasServerAuthSession()).resolves.toBe(true)
+  })
+
+  it('should return false when getClaims returns an auth error', async () => {
+    mockReadAccessTokenFromCookies.mockResolvedValue('bad-token')
+    mockGetClaims.mockResolvedValue({
+      data: { claims: null },
+      error: new AuthApiError('invalid JWT', 401, 'invalid_jwt'),
+    })
 
     await expect(hasServerAuthSession()).resolves.toBe(false)
   })

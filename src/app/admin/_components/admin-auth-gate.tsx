@@ -5,8 +5,7 @@ import { AdminShell } from '@/app/admin/_components/admin-shell'
 import { APP_HOME } from '@/constants/app-paths'
 import { parseSidebarOpenCookie } from '@/components/ui/sidebar/cookie'
 import { SIDEBAR_COOKIE_NAME } from '@/components/ui/sidebar/constants'
-import { createClient } from '@/supabase/server'
-import { requireAuthClaims } from '@/supabase/require-auth'
+import { getDisplayAuthClaims } from '@/supabase/require-auth'
 import { isAdmin } from '@/utils/admin'
 
 type AdminAuthGateProps = {
@@ -14,8 +13,7 @@ type AdminAuthGateProps = {
 }
 
 export const AdminAuthGate = async ({ children }: AdminAuthGateProps) => {
-  const supabase = await createClient()
-  const claims = await requireAuthClaims(supabase)
+  const claims = await getDisplayAuthClaims()
 
   if (!isAdmin(claims)) {
     redirect(APP_HOME)
