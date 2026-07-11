@@ -35,7 +35,7 @@ Clear the Phase 10 correction list, extend the token system with the missing sta
 
 ## Epics & stories
 
-### Epic 1: Profile modal corrections
+### Epic 1: Profile modal corrections `Complete`
 
 - **1.1 Read-only email field.** Repurpose the former username field as a read-only email display — present but non-editable, since email change isn't a capability today.
 - **1.2 Collapsible password section.** Collapse the password fields behind a "Change Password" accordion whose control shows its open/closed state; the section slides open inline below it.
