@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const mockRequireAuthClaims = vi.fn()
-const mockCreateClient = vi.fn()
+const mockGetDisplayAuthClaims = vi.fn()
 const mockRedirect = vi.fn()
 
 vi.mock('next/navigation', () => ({
@@ -11,12 +10,9 @@ vi.mock('next/navigation', () => ({
   },
 }))
 
-vi.mock('@/supabase/server', () => ({
-  createClient: () => mockCreateClient(),
-}))
-
 vi.mock('@/supabase/require-auth', () => ({
-  requireAuthClaims: (...args: unknown[]) => mockRequireAuthClaims(...args),
+  getDisplayAuthClaims: (...args: unknown[]) =>
+    mockGetDisplayAuthClaims(...args),
 }))
 
 vi.mock('next/headers', () => ({
@@ -49,22 +45,12 @@ import { AdminAuthGate } from './admin-auth-gate'
 
 describe('AdminAuthGate', () => {
   beforeEach(() => {
-    mockRequireAuthClaims.mockReset()
-    mockCreateClient.mockReset()
+    mockGetDisplayAuthClaims.mockReset()
     mockRedirect.mockReset()
-    mockCreateClient.mockResolvedValue({})
-  })
-
-  it('should propagate redirect when unauthenticated', async () => {
-    mockRequireAuthClaims.mockRejectedValue(new Error('NEXT_REDIRECT'))
-
-    await expect(
-      AdminAuthGate({ children: <p>Admin content</p> }),
-    ).rejects.toThrow('NEXT_REDIRECT')
   })
 
   it('should redirect non-admin users to app home', async () => {
-    mockRequireAuthClaims.mockResolvedValue({
+    mockGetDisplayAuthClaims.mockResolvedValue({
       sub: 'user-1',
       email: 'user@example.com',
       app_metadata: {},
@@ -78,7 +64,7 @@ describe('AdminAuthGate', () => {
   })
 
   it('should render admin shell for admin users', async () => {
-    mockRequireAuthClaims.mockResolvedValue({
+    mockGetDisplayAuthClaims.mockResolvedValue({
       sub: 'admin-1',
       email: 'admin@example.com',
       app_metadata: { role: ADMIN_ROLE },
@@ -94,7 +80,7 @@ describe('AdminAuthGate', () => {
   })
 
   it('should fall back to a generic label when email is missing', async () => {
-    mockRequireAuthClaims.mockResolvedValue({
+    mockGetDisplayAuthClaims.mockResolvedValue({
       sub: 'admin-1',
       app_metadata: { role: ADMIN_ROLE },
     })

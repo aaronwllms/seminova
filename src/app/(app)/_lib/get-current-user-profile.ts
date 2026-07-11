@@ -1,7 +1,7 @@
 import { cache } from 'react'
 
 import { createClient } from '@/supabase/server'
-import { requireAuthClaims } from '@/supabase/require-auth'
+import { getDisplayAuthClaims } from '@/supabase/require-auth'
 import { isAdmin } from '@/utils/admin'
 import {
   profileFieldsToView,
@@ -18,8 +18,8 @@ export type CurrentUserProfile = ProfileFieldsView & {
 
 export const getCurrentUserProfile = cache(
   async (): Promise<CurrentUserProfile> => {
+    const claims = await getDisplayAuthClaims()
     const supabase = await createClient()
-    const claims = await requireAuthClaims(supabase)
 
     const email = typeof claims.email === 'string' ? claims.email : ''
     const isAdminUser = isAdmin(claims)

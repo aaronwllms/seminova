@@ -17,10 +17,30 @@ export type AvatarFileValidation =
   | { valid: true }
   | { valid: false; message: string }
 
+export const AvatarUploadErrorCode = {
+  SESSION_AUTH_REQUIRED: 'SESSION_AUTH_REQUIRED',
+} as const
+
+export type AvatarUploadErrorCode =
+  (typeof AvatarUploadErrorCode)[keyof typeof AvatarUploadErrorCode]
+
+export const AVATAR_SESSION_AUTH_REQUIRED_MESSAGE =
+  'You must be signed in to upload an image.' as const
+
 export class AvatarUploadError extends Error {
-  constructor(message: string) {
+  readonly code?: AvatarUploadErrorCode
+
+  constructor(message: string, code?: AvatarUploadErrorCode) {
     super(message)
     this.name = 'AvatarUploadError'
+    this.code = code
+  }
+
+  static sessionAuthRequired(): AvatarUploadError {
+    return new AvatarUploadError(
+      AVATAR_SESSION_AUTH_REQUIRED_MESSAGE,
+      AvatarUploadErrorCode.SESSION_AUTH_REQUIRED,
+    )
   }
 }
 
@@ -137,7 +157,7 @@ export const uploadUserAvatar = async ({
     } = await supabase.auth.getUser()
 
     if (authError || !user) {
-      throw new AvatarUploadError('You must be signed in to upload an image.')
+      throw AvatarUploadError.sessionAuthRequired()
     }
 
     if (user.id !== userId) {

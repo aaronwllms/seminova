@@ -19,12 +19,14 @@ import { useState } from 'react'
 
 import { getPostAuthRedirectPath } from '@/utils/admin'
 import { extractAuthFormError } from '@/utils/extract-auth-form-error'
+import { isSafeRedirect } from '@/utils/is-safe-redirect'
 import type { AppError } from '@/types/app-error'
 
-export function LoginForm({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<'div'>) {
+type LoginFormProps = React.ComponentPropsWithoutRef<'div'> & {
+  next?: string | null
+}
+
+export function LoginForm({ next, className, ...props }: LoginFormProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [formError, setFormError] = useState<AppError | null>(null)
@@ -47,7 +49,11 @@ export function LoginForm({
       })
       if (error) throw error
       router.refresh()
-      router.push(getPostAuthRedirectPath(data.user?.app_metadata))
+      const destination =
+        next && isSafeRedirect(next, window.location.origin)
+          ? next
+          : getPostAuthRedirectPath(data.user?.app_metadata)
+      router.push(destination)
     } catch (caught: unknown) {
       setFormError(extractAuthFormError(caught))
     } finally {

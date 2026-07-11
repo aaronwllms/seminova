@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 
-import { createClient } from '@/supabase/server'
-import { requireAuthClaims } from '@/supabase/require-auth'
+import { getDisplayAuthClaims } from '@/supabase/require-auth'
 
 import { UsersTable } from './_components/users-table'
 
@@ -10,8 +9,7 @@ export const metadata: Metadata = {
 }
 
 export default async function UsersPage() {
-  const supabase = await createClient()
-  const claims = await requireAuthClaims(supabase)
+  const claims = await getDisplayAuthClaims()
   const currentAdminUserId = claims.sub
 
   return (

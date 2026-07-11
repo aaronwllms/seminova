@@ -8,10 +8,14 @@ import { getPublicSupabaseEnv } from '@/utils/env'
  * global variable. Always create a new client within each function when using
  * it.
  *
- * Auth reads: use `requireAuthClaims()` / `hasServerAuthSession()` in layouts
- * and server components (see `require-auth.ts`) so session refresh stays
+ * Display reads: use `getDisplayAuthClaims()` / `hasServerAuthSession()` in
+ * layouts and server components (see `require-auth.ts`) — signature-verified,
+ * exp-tolerated, never refresh. Session refresh and route gating stay
  * proxy-owned. Use `getUser()` only at mutation trust boundaries (server
  * actions) where the Auth server must validate the access token.
+ *
+ * The `setAll` catch below intentionally swallows cookie writes from Server
+ * Components — RSC reads must not write cookies; refresh stays proxy-only.
  */
 export async function createClient() {
   const cookieStore = await cookies()

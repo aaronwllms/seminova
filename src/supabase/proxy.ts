@@ -2,7 +2,6 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import {
   APP_HOME,
-  LOGIN_PATH,
   PRIVACY_PATH,
   REFERENCE_PATH,
   TERMS_PATH,
@@ -10,6 +9,7 @@ import {
 } from '@/constants/app-paths'
 import { getPublicSupabaseEnv, hasPublicSupabaseEnv } from '@/utils/env'
 import { isAdmin } from '@/utils/admin'
+import { buildLoginRedirectUrl } from '@/utils/build-login-redirect-url'
 import { parseAuthenticatedClaims } from '@/supabase/require-auth'
 
 const MISSING_SUPABASE_ENV_MESSAGE =
@@ -36,6 +36,10 @@ export async function updateSession(request: NextRequest) {
 
   if (!hasPublicSupabaseEnv) {
     if (process.env.NODE_ENV === 'production') {
+      return new NextResponse(MISSING_SUPABASE_ENV_MESSAGE, { status: 503 })
+    }
+
+    if (!isPublicRoute) {
       return new NextResponse(MISSING_SUPABASE_ENV_MESSAGE, { status: 503 })
     }
 
@@ -85,9 +89,9 @@ export async function updateSession(request: NextRequest) {
 
     await clearLocalSession()
 
-    const url = request.nextUrl.clone()
-    url.pathname = LOGIN_PATH
-    const redirectResponse = NextResponse.redirect(url)
+    const intendedPath = `${pathname}${request.nextUrl.search}`
+    const loginUrl = buildLoginRedirectUrl(intendedPath, request.url)
+    const redirectResponse = NextResponse.redirect(loginUrl)
 
     for (const { name, value } of supabaseResponse.cookies.getAll()) {
       redirectResponse.cookies.set(name, value)

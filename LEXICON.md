@@ -139,7 +139,7 @@ Consumption detail in [`.cursor/rules/notifications.mdc`](.cursor/rules/notifica
 
 ### Post-auth redirect
 
-After sign-in, the destination is role-derived: admins → `ADMIN_HOME`, everyone else → `APP_HOME`. That path is a _fallback_ — a `next` parameter carried through the flow wins over it, provided it passes `isSafeRedirect()`. The role logic lives in [`getPostAuthRedirectPath()`](src/utils/admin.ts); the `next` override is applied in [`/auth/confirm`](src/app/auth/confirm/route.ts). Path values live in [`src/constants/app-paths.ts`](src/constants/app-paths.ts) and [`src/constants/admin-paths.ts`](src/constants/admin-paths.ts). When adding new roles or surfaces, extend those constants and this function — not the auth flow itself.
+After sign-in, the destination is role-derived: admins → `ADMIN_HOME`, everyone else → `APP_HOME`. That path is a _fallback_ — a `next` parameter carried through the flow wins over it, provided it passes `isSafeRedirect()`. The role logic lives in [`getPostAuthRedirectPath()`](src/utils/admin.ts); the `next` override is applied in [`/auth/confirm`](src/app/auth/confirm/route.ts) and the [`LoginForm`](src/components/login-form.tsx) (proxy sets `next` on unauthenticated redirects). Path values live in [`src/constants/app-paths.ts`](src/constants/app-paths.ts) and [`src/constants/admin-paths.ts`](src/constants/admin-paths.ts). When adding new roles or surfaces, extend those constants and this function — not the auth flow itself.
 
 ### Owned storage path
 

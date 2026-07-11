@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const mockRequireAuthClaims = vi.fn()
+const mockGetDisplayAuthClaims = vi.fn()
 const mockFrom = vi.fn()
 const mockSelect = vi.fn()
 const mockEq = vi.fn()
@@ -12,15 +12,23 @@ vi.mock('@/supabase/server', () => ({
   })),
 }))
 
-vi.mock('@/supabase/require-auth', () => ({
-  requireAuthClaims: (...args: unknown[]) => mockRequireAuthClaims(...args),
-}))
+vi.mock('@/supabase/require-auth', async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import('@/supabase/require-auth')>()
+  return {
+    ...actual,
+    getDisplayAuthClaims: (...args: unknown[]) =>
+      mockGetDisplayAuthClaims(...args),
+  }
+})
+
+import { DisplayAuthInvariantError } from '@/supabase/require-auth'
 
 import { getCurrentUserProfile } from './get-current-user-profile'
 
 describe('getCurrentUserProfile', () => {
   beforeEach(() => {
-    mockRequireAuthClaims.mockReset()
+    mockGetDisplayAuthClaims.mockReset()
     mockFrom.mockReset()
     mockSelect.mockReset()
     mockEq.mockReset()
@@ -31,14 +39,18 @@ describe('getCurrentUserProfile', () => {
     mockEq.mockReturnValue({ single: mockSingle })
   })
 
-  it('should redirect when there is no authenticated session', async () => {
-    mockRequireAuthClaims.mockRejectedValue(new Error('NEXT_REDIRECT'))
+  it('should throw when display claims are unavailable', async () => {
+    mockGetDisplayAuthClaims.mockRejectedValue(
+      new DisplayAuthInvariantError('No authenticated session'),
+    )
 
-    await expect(getCurrentUserProfile()).rejects.toThrow('NEXT_REDIRECT')
+    await expect(getCurrentUserProfile()).rejects.toBeInstanceOf(
+      DisplayAuthInvariantError,
+    )
   })
 
   it('should return profile fields for an authenticated user', async () => {
-    mockRequireAuthClaims.mockResolvedValue({
+    mockGetDisplayAuthClaims.mockResolvedValue({
       sub: 'user-1',
       email: 'alex@example.com',
       app_metadata: {},
@@ -64,7 +76,7 @@ describe('getCurrentUserProfile', () => {
   })
 
   it('should set profileLoadFailed when the profile read errors', async () => {
-    mockRequireAuthClaims.mockResolvedValue({
+    mockGetDisplayAuthClaims.mockResolvedValue({
       sub: 'user-1',
       email: 'alex@example.com',
       app_metadata: {},
