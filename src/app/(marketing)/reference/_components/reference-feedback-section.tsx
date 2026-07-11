@@ -24,6 +24,9 @@ const FAULT_DEMO_ERROR: AppError = {
   code: 'DEMO_FAULT',
 }
 
+// debt: icon-per-variant mapping is hand-mirrored from src/components/ui/sonner.tsx;
+// a sonner icon change won't propagate here and will silently desync this gallery
+// from production toasts.
 const TOAST_VARIANTS = [
   {
     variant: 'success' as const,

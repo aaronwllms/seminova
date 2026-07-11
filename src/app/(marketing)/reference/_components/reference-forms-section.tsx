@@ -113,9 +113,9 @@ export const ReferenceFormsSection = () => {
         submit fits fields that only mean something together, like a password
         change — see the profile password section in the app shell.
         Upload-on-complete fits files, where the upload finishing is itself the
-        save — see avatar upload in profile settings. All three are documented,
-        but only blur-save ships as a ready-to-use component here — the other
-        two are best understood in place, on the profile page.
+        save — see avatar upload in profile settings. All three are documented
+        in `forms.mdc`, but only blur-save ships as a ready-to-use component
+        here — the other two are best understood in place, on the profile page.
       </p>
     </section>
   )

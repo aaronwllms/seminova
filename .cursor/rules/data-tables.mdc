@@ -25,6 +25,8 @@ Every data table paginates server-side. Never load an unbounded result set.
 - Page size: fixed at 15 rows. No user-facing page-size selector.
 - Layout: table grows naturally; the page scrolls. No fixed-height internal scroll region on the table body.
 
+**Exception — fixture demos.** A demo table over a static, bounded fixture (e.g. the `/reference` page) may paginate client-side in memory, since there is no server to page against. This is the only sanctioned deviation from server-side pagination; production tables backed by a real data source always paginate server-side. Fixture demos still follow the search, page-size (15), and loading conventions above.
+
 ## Loading Pattern
 
 While a fetch is in flight and the table body is empty, show skeleton rows — not placeholder text in `emptyMessage`.
@@ -40,4 +42,5 @@ While a fetch is in flight and the table body is empty, show skeleton rows — n
 
 ## Reference Implementations
 - [`src/components/data-table-shell.tsx`](src/components/data-table-shell.tsx) — `DataTableShell`, `useDataTableShell`, `DataTableColumnHeader`
-- `src/app/admin/users/_components/users-table.tsx` — Users table, search on `email`, skeleton loading via `DataTableShell`
+- `src/app/admin/users/_components/users-table.tsx` — Users table, search on `email`, skeleton loading via `DataTableShell`. Production reference.
+- `src/app/(marketing)/reference/_components/reference-table-section.tsx` — Fixture demo table; client-side pagination over a bounded fixture (sanctioned exception per Pagination Pattern), otherwise conforms.
