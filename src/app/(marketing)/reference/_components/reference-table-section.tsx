@@ -2,6 +2,7 @@
 
 import {
   getCoreRowModel,
+  getSortedRowModel,
   type SortingState,
   useReactTable,
 } from '@tanstack/react-table'
@@ -26,7 +27,6 @@ export const ReferenceTableSection = () => {
   const { rows, hasNextPage, isLoading, isFetching } = useReferenceShipments({
     page,
     search: debouncedSearch,
-    sorting,
   })
 
   useEffect(() => {
@@ -38,10 +38,6 @@ export const ReferenceTableSection = () => {
     return () => window.clearTimeout(timer)
   }, [searchInput])
 
-  useEffect(() => {
-    setPage(1)
-  }, [sorting])
-
   const table = useReactTable({
     data: rows,
     columns: referenceShipmentsColumns,
@@ -49,7 +45,7 @@ export const ReferenceTableSection = () => {
     state: { sorting },
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    manualSorting: true,
+    getSortedRowModel: getSortedRowModel(),
   })
 
   return (
@@ -70,7 +66,6 @@ export const ReferenceTableSection = () => {
             placeholder="Search shipments"
             value={searchInput}
             onChange={(event) => setSearchInput(event.target.value)}
-            disabled={isFetching}
           />
         </div>
 

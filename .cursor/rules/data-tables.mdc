@@ -22,7 +22,7 @@ Each data table gets a single search input, scoped to one explicitly-designated 
 Every data table paginates server-side. Never load an unbounded result set.
 
 - Controls: Next/Previous only — no numbered page strip. Avoids requiring a total-row-count query, and generalizes to data sources (e.g. Supabase admin API) that don't cheaply expose totals.
-- Page size: fixed at 50 rows. No user-facing page-size selector.
+- Page size: fixed at 15 rows. No user-facing page-size selector.
 - Layout: table grows naturally; the page scrolls. No fixed-height internal scroll region on the table body.
 
 ## Loading Pattern
@@ -32,7 +32,7 @@ While a fetch is in flight and the table body is empty, show skeleton rows — n
 - Use `DataTableShell` `isLoading` when loading and `table.getRowModel().rows.length === 0`.
 - Skeleton rows render via `DataTableSkeletonBody` using the `Skeleton` primitive (`src/components/ui/skeleton.tsx`).
 - Per-column sizing via `columnDef.meta.skeletonClassName` (see users columns for reference).
-- Default skeleton row count: 8 — intentionally fewer than page size (50). Enough to signal loading without flooding the viewport or implying a specific result count.
+- Default skeleton row count: 8 — intentionally fewer than page size (15). Enough to signal loading without flooding the viewport or implying a specific result count.
 - When stale rows are already on screen (pagination/search refetch), keep showing stale data; disable controls via `isPending` — do not flash skeleton over existing rows.
 - `emptyMessage` is for the zero-results state only.
 

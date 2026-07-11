@@ -2,7 +2,7 @@ import type { User } from '@supabase/supabase-js'
 
 import { isAdminFromAppMetadata } from '@/utils/admin'
 
-export const USERS_PAGE_SIZE = 50
+export const USERS_PAGE_SIZE = 15
 
 export const USERS_SEARCH_MIN_LENGTH = 3
 

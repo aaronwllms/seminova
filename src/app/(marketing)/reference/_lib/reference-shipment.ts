@@ -11,5 +11,3 @@ export type ReferenceShipment = {
   status: ShipmentStatus
   departs: string
 }
-
-export const REFERENCE_SHIPMENTS_PAGE_SIZE = 50

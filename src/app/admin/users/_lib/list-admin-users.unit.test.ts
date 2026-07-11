@@ -53,7 +53,7 @@ describe('listAdminUsersPage', () => {
   })
 
   it('should clear hasNextPage on a short final page', async () => {
-    const users = Array.from({ length: 49 }, (_, index) =>
+    const users = Array.from({ length: USERS_PAGE_SIZE - 1 }, (_, index) =>
       createUser(`user-${index}`),
     )
     const client = createClientMock(users)
@@ -80,7 +80,7 @@ describe('listAdminUsersPage', () => {
     })
 
     expect(fetchMock).toHaveBeenCalledWith(
-      'https://example.supabase.co/auth/v1/admin/users?page=1&per_page=50&filter=match%40example.com',
+      `https://example.supabase.co/auth/v1/admin/users?page=1&per_page=${USERS_PAGE_SIZE}&filter=match%40example.com`,
       expect.objectContaining({
         headers: expect.objectContaining({
           Authorization: 'Bearer secret-key',
