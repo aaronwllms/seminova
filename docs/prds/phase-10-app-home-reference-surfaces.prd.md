@@ -1,7 +1,7 @@
 # PRD — Phase 10: App Home, Form Primitives & Reference Surfaces
 
 **Status:** `Active`
-**Last updated:** 2026-07-10
+**Last updated:** 2026-07-11
 
 ---
 
@@ -99,7 +99,7 @@ Give the authenticated surface a real home, convert profile settings to a modal,
 - *The page defines no new component; deleting it leaves every check green.*
 - *`pnpm pre-push` is green.*
 
-### Epic 6: Workflow explainer page
+### Epic 6: Workflow explainer page `Complete`
 
 - **6.1 The PM/agent workflow explainer.** A public, concept-only page reached from the landing surface, covering the template's two differentiators: its agent-ready conventions, and the PM/agent collaboration model — the two-environment split, the document set each side owns, and the plan → review → build loop. It carries no file paths, commands, or setup steps; it links out to the full workflow guide for those.
 
