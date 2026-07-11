@@ -1,14 +1,11 @@
 'use client'
 
 import {
-  getCoreRowModel,
-  getSortedRowModel,
-  type SortingState,
-  useReactTable,
-} from '@tanstack/react-table'
+  DataTableShell,
+  useDataTableShell,
+} from '@/components/data-table-shell'
 import { useEffect, useState } from 'react'
 
-import { DataTableShell } from '@/components/data-table-shell'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -22,7 +19,6 @@ export const ReferenceTableSection = () => {
   const [page, setPage] = useState(1)
   const [searchInput, setSearchInput] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
-  const [sorting, setSorting] = useState<SortingState>([])
 
   const { rows, hasNextPage, isLoading, isFetching } = useReferenceShipments({
     page,
@@ -38,14 +34,10 @@ export const ReferenceTableSection = () => {
     return () => window.clearTimeout(timer)
   }, [searchInput])
 
-  const table = useReactTable({
+  const { table } = useDataTableShell({
     data: rows,
     columns: referenceShipmentsColumns,
     getRowId: (row) => row.id,
-    state: { sorting },
-    onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
   })
 
   return (
