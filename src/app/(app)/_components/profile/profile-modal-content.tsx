@@ -1,5 +1,8 @@
 'use client'
 
+import { useRef } from 'react'
+import type { AnimationEvent } from 'react'
+
 import {
   Accordion,
   AccordionContent,
@@ -14,6 +17,8 @@ import { ProfilePasswordSection } from './profile-password-section'
 import { ProfileSettingsForm } from './profile-settings-form'
 import { ProfileThemeSegment } from './profile-theme-segment'
 
+const PASSWORD_ACCORDION_VALUE = 'password'
+
 type ProfileModalContentProps = {
   userId: string
   email: string
@@ -25,6 +30,29 @@ export const ProfileModalContent = ({
   email,
   defaultValues,
 }: ProfileModalContentProps) => {
+  const passwordSectionRef = useRef<HTMLDivElement>(null)
+  const pendingPasswordScrollRef = useRef(false)
+
+  const handleAccordionValueChange = (value: string) => {
+    pendingPasswordScrollRef.current = value === PASSWORD_ACCORDION_VALUE
+  }
+
+  const handlePasswordContentAnimationEnd = (
+    event: AnimationEvent<HTMLDivElement>,
+  ) => {
+    if (event.animationName !== 'accordion-down') return
+    if (!pendingPasswordScrollRef.current) return
+
+    pendingPasswordScrollRef.current = false
+
+    const behavior = window.matchMedia('(prefers-reduced-motion: reduce)')
+      .matches
+      ? 'auto'
+      : 'smooth'
+
+    passwordSectionRef.current?.scrollIntoView({ block: 'start', behavior })
+  }
+
   return (
     <div className="flex w-full flex-col gap-6">
       <ProfileSettingsForm
@@ -47,15 +75,27 @@ export const ProfileModalContent = ({
 
       <Separator className="bg-border/40" />
 
-      <Accordion type="single" collapsible>
-        <AccordionItem value="password" className="border-none">
-          <AccordionTrigger className="hover:bg-muted px-2 hover:no-underline">
-            Change Password
-          </AccordionTrigger>
-          <AccordionContent className="pt-4">
-            <ProfilePasswordSection email={email} />
-          </AccordionContent>
-        </AccordionItem>
+      <Accordion
+        type="single"
+        collapsible
+        onValueChange={handleAccordionValueChange}
+      >
+        <div ref={passwordSectionRef}>
+          <AccordionItem
+            value={PASSWORD_ACCORDION_VALUE}
+            className="border-none"
+          >
+            <AccordionTrigger className="hover:bg-muted px-2 hover:no-underline">
+              Change Password
+            </AccordionTrigger>
+            <AccordionContent
+              className="pt-4"
+              onAnimationEnd={handlePasswordContentAnimationEnd}
+            >
+              <ProfilePasswordSection email={email} />
+            </AccordionContent>
+          </AccordionItem>
+        </div>
       </Accordion>
     </div>
   )
