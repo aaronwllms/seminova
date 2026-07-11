@@ -21,8 +21,8 @@ export default defineConfig({
         'src/app/globals.css',
         'src/app/**/page.tsx',
         'src/app/**/layout.tsx',
-        'src/app/**/opengraph-image.tsx',
-        'src/app/(marketing)/workflow/_components/**',
+        'src/app/**/opengraph-image.tsx', // debt: thin OG segment files; cover via og-image util tests if threshold pressure returns
+        'src/app/(marketing)/workflow/_components/**', // debt: static marketing sections; TypeScript + visual review cover copy
         'src/providers/**',
         'src/supabase/client.ts',
         'src/supabase/server.ts',

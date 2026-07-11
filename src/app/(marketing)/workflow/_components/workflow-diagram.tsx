@@ -14,9 +14,9 @@ export const WorkflowDiagram = () => (
     <img
       alt={WORKFLOW_DIAGRAM_ALT}
       className="w-full rounded-lg border"
-      height={480}
+      height={320}
       src="/images/workflow-light.svg"
-      width={960}
+      width={860}
     />
   </picture>
 )
