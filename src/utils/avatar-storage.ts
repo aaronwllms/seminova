@@ -13,6 +13,8 @@ import { withAvatarCacheBust } from '@/utils/avatar-cache-bust'
 
 export { withAvatarCacheBust }
 
+export const AVATAR_FIELD_HELPER_TEXT = `JPG, PNG or WebP. Max ${AVATAR_MAX_BYTES / 1_048_576}MB.`
+
 export type AvatarFileValidation =
   | { valid: true }
   | { valid: false; message: string }

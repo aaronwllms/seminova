@@ -145,7 +145,7 @@ Metadata defaults (site name, title template, description) live in [`src/config/
 
 ### Design system & theming
 
-tweakcn **Clean Slate** default theme in `src/app/globals.css`; semantic tokens via `@theme inline` + `next-themes` class-based light/dark. **Inter** + **JetBrains Mono** via `next/font` (Merriweather CSS serif fallback). UI primitives in `src/components/ui/` (alert-dialog, avatar, badge, breadcrumb, button, card, dialog, dropdown-menu, form, input, label, separator, sheet, sidebar, skeleton, sonner, table, textarea, toggle, toggle-group, tooltip) — sidebar implementation split under [`src/components/ui/sidebar/`](src/components/ui/sidebar/) and re-exported from [`sidebar.tsx`](src/components/ui/sidebar.tsx). See [DESIGN.md](DESIGN.md) for architecture and re-skin workflow.
+tweakcn **Clean Slate** default theme in `src/app/globals.css`; semantic tokens via `@theme inline` + `next-themes` class-based light/dark. **Inter** + **JetBrains Mono** via `next/font` (Merriweather CSS serif fallback). UI primitives in `src/components/ui/` (accordion, alert-dialog, avatar, badge, breadcrumb, button, card, dialog, dropdown-menu, form, input, label, separator, sheet, sidebar, skeleton, sonner, table, textarea, toggle, toggle-group, tooltip) — sidebar implementation split under [`src/components/ui/sidebar/`](src/components/ui/sidebar/) and re-exported from [`sidebar.tsx`](src/components/ui/sidebar.tsx). See [DESIGN.md](DESIGN.md) for architecture and re-skin workflow.
 
 ### Error handling & feedback
 

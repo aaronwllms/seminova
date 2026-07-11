@@ -5,7 +5,10 @@ import { useEffect, useRef, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { InlineError } from '@/components/inline-error'
-import { validateAvatarFile } from '@/utils/avatar-storage'
+import {
+  AVATAR_FIELD_HELPER_TEXT,
+  validateAvatarFile,
+} from '@/utils/avatar-storage'
 import { getProfileInitials } from '@/utils/user-initials'
 
 import type { FieldSaveState } from '@/types/field-save-state'
@@ -146,7 +149,7 @@ export const ProfileAvatarField = ({
         />
       </div>
       <p className="text-muted-foreground text-sm">
-        JPG, PNG or WebP. Max 2MB.
+        {AVATAR_FIELD_HELPER_TEXT}
       </p>
       {fileError ? <InlineError message={fileError} /> : null}
     </div>

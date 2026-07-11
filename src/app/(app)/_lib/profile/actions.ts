@@ -131,12 +131,19 @@ export const updateProfileAction = async (
   }
 
   if (parsed.data.avatarUrl === null) {
-    const { error: deleteError } = await supabase.storage
-      .from(AVATAR_BUCKET)
-      .remove([buildAvatarStoragePath(user.id)])
+    try {
+      const { error: deleteError } = await supabase.storage
+        .from(AVATAR_BUCKET)
+        .remove([buildAvatarStoragePath(user.id)])
 
-    if (deleteError) {
-      console.warn('[profile-update] Avatar storage delete failed', deleteError)
+      if (deleteError) {
+        console.warn(
+          '[profile-update] Avatar storage delete failed',
+          deleteError,
+        )
+      }
+    } catch (error) {
+      console.warn('[profile-update] Avatar storage delete failed', error)
     }
   }
 

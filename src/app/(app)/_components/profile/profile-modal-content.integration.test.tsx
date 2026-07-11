@@ -1,26 +1,50 @@
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { render, screen } from '@/test/test-utils'
 
 import { ProfileModalContent } from './profile-modal-content'
 
-vi.mock('./profile-settings-form', () => ({
-  ProfileSettingsForm: () => <div data-testid="profile-settings-form" />,
+const mockUpdateProfileAction = vi.fn()
+const mockRefresh = vi.fn()
+const mockUpdateUser = vi.fn()
+const mockSetTheme = vi.fn()
+
+vi.mock('@/app/(app)/_lib/profile/actions', () => ({
+  updateProfileAction: (...args: unknown[]) => mockUpdateProfileAction(...args),
 }))
 
-vi.mock('./profile-password-section', () => ({
-  ProfilePasswordSection: () => (
-    <div data-testid="profile-password-section">
-      <label htmlFor="current-password">Current password</label>
-      <input id="current-password" />
-    </div>
-  ),
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ refresh: mockRefresh }),
 }))
 
-vi.mock('./profile-theme-segment', () => ({
-  ProfileThemeSegment: () => <div data-testid="profile-theme-segment" />,
+vi.mock('@/supabase/client', () => ({
+  createClient: () => ({
+    auth: {
+      updateUser: mockUpdateUser,
+    },
+  }),
 }))
+
+vi.mock('@/utils/app-toast', () => ({
+  showSuccessToast: vi.fn(),
+}))
+
+vi.mock('next-themes', () => ({
+  useTheme: () => ({
+    theme: 'system',
+    setTheme: mockSetTheme,
+  }),
+}))
+
+vi.mock('@/utils/avatar-storage', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/utils/avatar-storage')>()
+  return {
+    ...actual,
+    uploadUserAvatar: vi.fn(),
+    withAvatarCacheBust: (url: string) => `${url}?v=1`,
+  }
+})
 
 const defaultProps = {
   userId: 'user-1',
@@ -33,6 +57,21 @@ const defaultProps = {
 }
 
 describe('ProfileModalContent', () => {
+  beforeEach(() => {
+    mockUpdateProfileAction.mockReset()
+    mockRefresh.mockReset()
+    mockUpdateUser.mockReset()
+    mockSetTheme.mockReset()
+    mockUpdateProfileAction.mockResolvedValue({
+      success: true,
+      data: {
+        displayName: 'Alex',
+        bio: 'Builder',
+        avatarUrl: null,
+      },
+    })
+  })
+
   it('should render Appearance before Password', () => {
     render(<ProfileModalContent {...defaultProps} />)
 

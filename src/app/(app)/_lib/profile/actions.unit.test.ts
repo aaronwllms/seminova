@@ -276,6 +276,24 @@ describe('updateProfileAction', () => {
     expect(result).toMatchObject({ success: true })
   })
 
+  it('should return success when avatar storage delete throws after row update', async () => {
+    mockSingle.mockResolvedValue({
+      data: {
+        display_name: 'Alex',
+        avatar_url: null,
+        bio: null,
+      },
+      error: null,
+    })
+    mockRemove.mockRejectedValue(new Error('storage delete threw'))
+
+    const result = await updateProfileAction({ avatarUrl: null })
+
+    expect(mockUpdate).toHaveBeenCalledWith({ avatar_url: null })
+    expect(mockRemove).toHaveBeenCalledWith([buildAvatarStoragePath(USER_ID)])
+    expect(result).toMatchObject({ success: true })
+  })
+
   it('should return fault error when profile update fails', async () => {
     mockSingle.mockResolvedValue({
       data: null,
