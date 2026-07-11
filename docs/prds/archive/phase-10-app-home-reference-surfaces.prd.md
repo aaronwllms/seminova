@@ -1,6 +1,6 @@
 # PRD — Phase 10: App Home, Form Primitives & Reference Surfaces
 
-**Status:** `Active`
+**Status:** `Shipped`
 **Last updated:** 2026-07-11
 
 ---

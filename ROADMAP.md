@@ -2,7 +2,7 @@
 
 The planning horizon: anticipated phases as thin stubs, plus living status. Shipped phase detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md); build-time workflow and authoritative schema in [AGENTS.md](AGENTS.md). Phase status vocabulary and PRD lifecycle in [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
-**Last updated:** 2026-07-09
+**Last updated:** 2026-07-11
 
 ---
 
@@ -19,7 +19,7 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 | 7 | Security Audit Remediation | `Shipped` | — |
 | 8 | Tech Debt Audit Remediation | `Shipped` | [Phase 8 PRD](docs/prds/archive/phase-8-tech-debt-remediation.prd.md) |
 | 9 | SEO & GEO | `Shipped` | [Phase 9 PRD](docs/prds/archive/phase-9-seo-geo.prd.md) |
-| 10 | App Home, Form Primitives & Reference Surfaces | `Active` | [Phase 10 PRD](docs/prds/phase-10-app-home-reference-surfaces.prd.md) |
+| 10 | App Home, Form Primitives & Reference Surfaces | `Shipped` | [Phase 10 PRD](docs/prds/archive/phase-10-app-home-reference-surfaces.prd.md) |
 
 > [!NOTE]
 > Phases 1–7 pre-date the per-phase PRD system, so their PRD column is empty; their shipped detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md). From Phase 8 on, shipped rows link the archived PRD per [docs/DOC_RULES.md](docs/DOC_RULES.md).
@@ -35,7 +35,7 @@ Nothing here is blocking current work unless noted.
 
 **Problem:** The "put a new spin on the design for this project" capability should not regenerate structure, only theme values.
 **Solution:** Implement as a separate, theme-only skill distinct from the structure-establishing design-system skill.
-_Defer until: Phase 10_
+_Defer until: unscoped — skill ships independently_
 
 </details>
 
