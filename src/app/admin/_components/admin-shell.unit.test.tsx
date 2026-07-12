@@ -29,6 +29,12 @@ vi.mock('./admin-sidebar', () => ({
   ),
 }))
 
+vi.mock('@/app/(app)/_components/profile/profile-dialog-provider', () => ({
+  ProfileDialogProvider: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
+}))
+
 vi.mock('./admin-breadcrumb', () => ({
   AdminBreadcrumb: () => <nav aria-label="Breadcrumb">Admin breadcrumb</nav>,
 }))
@@ -41,9 +47,12 @@ describe('AdminShell', () => {
   it('should render sidebar, breadcrumb trigger, and children', () => {
     render(
       <AdminShell
+        userId="admin-1"
         email="admin@example.com"
         displayName="Admin User"
+        bio="Admin bio"
         avatarUrl="https://example.com/avatar.webp"
+        profileLoadFailed={false}
       >
         <p>Dashboard content</p>
       </AdminShell>,

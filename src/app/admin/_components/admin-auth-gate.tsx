@@ -30,9 +30,12 @@ export const AdminAuthGate = async ({ children }: AdminAuthGateProps) => {
 
   return (
     <AdminShell
+      userId={profile.userId}
       email={email}
       displayName={profile.displayName}
+      bio={profile.bio}
       avatarUrl={profile.avatarUrl}
+      profileLoadFailed={profile.profileLoadFailed}
       defaultSidebarOpen={defaultSidebarOpen}
     >
       {children}

@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronsUpDown, LayoutDashboard, LogOut } from 'lucide-react'
+import { ChevronsUpDown, LayoutDashboard, LogOut, User } from 'lucide-react'
 import Link from 'next/link'
 
 import { UserAvatar } from '@/components/user-avatar'
@@ -18,6 +18,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
+import { useProfileDialog } from '@/app/(app)/_components/profile/profile-dialog-provider'
 import { APP_HOME } from '@/constants/app-paths'
 import { useSignOut } from '@/hooks/use-sign-out'
 
@@ -34,6 +35,7 @@ export const AdminNavUser = ({
 }: AdminNavUserProps) => {
   const { isMobile } = useSidebar()
   const handleSignOut = useSignOut()
+  const { openProfile } = useProfileDialog()
   const accountLabel = displayName ?? email
 
   return (
@@ -79,6 +81,10 @@ export const AdminNavUser = ({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={openProfile}>
+              <User />
+              Profile
+            </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href={APP_HOME}>
                 <LayoutDashboard />

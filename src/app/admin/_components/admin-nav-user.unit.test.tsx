@@ -3,6 +3,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockSignOut = vi.fn()
 const mockPush = vi.fn()
+const mockOpenProfile = vi.fn()
+
+vi.mock('@/app/(app)/_components/profile/profile-dialog-provider', () => ({
+  useProfileDialog: () => ({ openProfile: mockOpenProfile }),
+}))
 
 vi.mock('@/supabase/client', () => ({
   createClient: () => ({
@@ -43,6 +48,7 @@ describe('AdminNavUser', () => {
   beforeEach(() => {
     mockSignOut.mockReset()
     mockPush.mockReset()
+    mockOpenProfile.mockReset()
   })
 
   it('should show display name when present', () => {
@@ -89,8 +95,8 @@ describe('AdminNavUser', () => {
       APP_HOME,
     )
     expect(
-      screen.queryByRole('menuitem', { name: /profile/i }),
-    ).not.toBeInTheDocument()
+      screen.getByRole('menuitem', { name: /profile/i }),
+    ).toBeInTheDocument()
 
     await user.click(screen.getByRole('menuitem', { name: /sign out/i }))
 
@@ -98,5 +104,22 @@ describe('AdminNavUser', () => {
       expect(mockSignOut).toHaveBeenCalled()
       expect(mockPush).toHaveBeenCalledWith('/auth/login')
     })
+  })
+
+  it('should open profile settings when profile is selected', async () => {
+    const user = userEvent.setup()
+
+    render(
+      <AdminNavUser
+        displayName="Admin User"
+        avatarUrl={null}
+        email="admin@example.com"
+      />,
+    )
+
+    await user.click(screen.getByRole('button'))
+    await user.click(screen.getByRole('menuitem', { name: /profile/i }))
+
+    expect(mockOpenProfile).toHaveBeenCalledOnce()
   })
 })

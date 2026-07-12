@@ -32,20 +32,29 @@ vi.mock('next/headers', () => ({
 vi.mock('./admin-shell', () => ({
   AdminShell: ({
     children,
+    userId,
     email,
     displayName,
+    bio,
     avatarUrl,
+    profileLoadFailed,
   }: {
     children: React.ReactNode
+    userId: string
     email: string
     displayName: string | null
+    bio: string | null
     avatarUrl: string | null
+    profileLoadFailed: boolean
   }) => (
     <div
       data-testid="admin-shell"
+      data-user-id={userId}
       data-email={email}
       data-display-name={displayName ?? ''}
+      data-bio={bio ?? ''}
       data-avatar-url={avatarUrl ?? ''}
+      data-profile-load-failed={String(profileLoadFailed)}
     >
       {children}
     </div>
@@ -99,12 +108,15 @@ describe('AdminAuthGate', () => {
     render(await AdminAuthGate({ children: <p>Admin content</p> }))
 
     const shell = screen.getByTestId('admin-shell')
+    expect(shell).toHaveAttribute('data-user-id', 'admin-1')
     expect(shell).toHaveAttribute('data-email', 'admin@example.com')
     expect(shell).toHaveAttribute('data-display-name', 'Admin User')
+    expect(shell).toHaveAttribute('data-bio', '')
     expect(shell).toHaveAttribute(
       'data-avatar-url',
       'https://example.com/avatar.webp',
     )
+    expect(shell).toHaveAttribute('data-profile-load-failed', 'false')
     expect(screen.getByText('Admin content')).toBeInTheDocument()
   })
 
