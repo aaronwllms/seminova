@@ -1,3 +1,4 @@
+import nextEnv from '@next/env'
 import { pathToFileURL } from 'node:url'
 
 const PLACEHOLDER_VALUES = new Set([
@@ -34,6 +35,8 @@ export const checkSupabaseEnv = (env = process.env) => {
 const isMain = import.meta.url === pathToFileURL(process.argv[1]).href
 
 if (isMain) {
+  const { loadEnvConfig } = nextEnv
+  loadEnvConfig(process.cwd(), false, { info: () => {}, error: console.error })
   const result = checkSupabaseEnv()
 
   if (!result.ok) {
