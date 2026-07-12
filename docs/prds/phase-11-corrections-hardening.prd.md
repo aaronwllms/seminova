@@ -1,7 +1,7 @@
 # PRD — Phase 11: Corrections & Hardening
 
 **Status:** `Active`
-**Last updated:** 2026-07-11
+**Last updated:** 2026-07-12
 
 ---
 
@@ -63,7 +63,7 @@ Clear the Phase 10 correction list, extend the token system with the missing sta
 - One shared avatar component renders in both surfaces; neither hand-writes avatar markup; dropdown contents stay per-surface.
 - `pnpm pre-push` is green.
 
-### Epic 3: Feedback system & reference page
+### Epic 3: Feedback system & reference page `Complete`
 
 - **3.1 Destructive toast icon + shared icon config.** Swap the destructive toast icon (octagon → the circular icon inline errors use) and extract the toast-icon mapping into one exported config the reference page's feedback demo consumes, removing its duplicate mapping and debt comment.
 - **3.2 Success/warning tokens.** Add semantic success and warning color tokens — the system has none today — shaped like the existing destructive pair across every theme layer, then point the success and warning toast icons at them (green / orange). Info is unchanged.
