@@ -16,6 +16,7 @@ export const AppErrorSurface = ({ error, className }: AppErrorSurfaceProps) => {
   if (error.kind === 'fault') {
     return (
       <ErrorPanel
+        title="Something went wrong"
         message={error.message}
         code={error.code}
         className={className}
