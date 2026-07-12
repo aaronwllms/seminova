@@ -52,7 +52,7 @@ Clear the Phase 10 correction list, extend the token system with the missing sta
 - Bio rejects input over 160 characters.
 - `pnpm pre-push` is green.
 
-### Epic 2: User avatar & identity display
+### Epic 2: User avatar & identity display `Complete`
 
 - **2.1 Header avatar-only.** Revert the app header to avatar-only, removing the full name shown beside it.
 - **2.2 Admin sidebar identity + shared avatar component.** Fix the admin sidebar user button to show full name when present (email only as fallback), correct first-plus-last initials, and the real avatar image when one exists — matching the app header, which already does this. The cause is a data gap: the admin side only reads email off the JWT and never loads the cached profile carrying name and avatar; close that. Extract the avatar image-with-initials-fallback into one shared presentational component used by both the header and the admin sidebar; each surface keeps its own dropdown contents.
