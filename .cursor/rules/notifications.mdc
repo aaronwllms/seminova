@@ -5,6 +5,7 @@ globs:
   - 'src/**/*form*'
   - 'src/**/actions.ts'
   - 'src/utils/app-toast.ts'
+  - 'src/utils/toast-icon-config.tsx'
   - 'src/**/*password-dialog*'
   - 'src/**/*table*.tsx'
   - 'src/**/*avatar-field*'

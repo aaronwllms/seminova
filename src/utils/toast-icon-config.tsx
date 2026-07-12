@@ -57,23 +57,13 @@ export const TOAST_ICON_VARIANTS: readonly ToastIconVariantConfig[] = [
   },
 ] as const
 
-const SONNER_VARIANT_KEYS = {
-  success: 'success',
-  info: 'info',
-  warning: 'warning',
-  error: 'error',
-  loading: 'loading',
-} as const satisfies Record<ToastIconVariant, ToastIconVariant>
-
 export const createSonnerToastIcons = (): Record<
   'success' | 'info' | 'warning' | 'error' | 'loading',
   ReactNode
 > => {
   return TOAST_ICON_VARIANTS.reduce(
     (icons, { variant, icon: Icon, iconClassName }) => {
-      icons[SONNER_VARIANT_KEYS[variant]] = (
-        <Icon className={cn('size-4', iconClassName)} />
-      )
+      icons[variant] = <Icon className={cn('size-4', iconClassName)} />
       return icons
     },
     {} as Record<

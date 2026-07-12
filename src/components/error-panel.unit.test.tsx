@@ -34,7 +34,7 @@ describe('ErrorPanel', () => {
       screen.getByText('Something went wrong loading users.'),
     ).toBeInTheDocument()
     expect(screen.getByText('INTERNAL_ERROR')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /copy/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^copy$/i })).toBeInTheDocument()
   })
 
   it('should show Copied feedback after clicking copy', async () => {
