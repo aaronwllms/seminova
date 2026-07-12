@@ -138,7 +138,8 @@ Carry severity as data via `kind` on the error envelope ([`src/types/app-error.t
 - Use for: Supabase `AuthError` (via [`extractAuthFormError`](../../src/utils/extract-auth-form-error.ts)), client validation, `FORBIDDEN`, `VALIDATION_ERROR`
 
 **Fault** (`kind: 'fault'`) — [`src/components/error-panel.tsx`](../../src/components/error-panel.tsx):
-- Bordered destructive-tinted panel, `AlertTriangle` icon, copy-to-clipboard button
+- Neutral bordered panel; `AlertTriangle` icon and message in `text-destructive`
+- Error code shown in a neutral chip when present; labeled Copy button
 - Copy payload: message + `Code: {code}` when code present
 - Use for: `INTERNAL_ERROR`, non-auth throws, network failures
 

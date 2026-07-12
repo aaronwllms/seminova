@@ -22,7 +22,7 @@ describe('buildErrorCopyText', () => {
 })
 
 describe('ErrorPanel', () => {
-  it('should render message and copy button', () => {
+  it('should render message, visible code chip, and labeled copy button', () => {
     render(
       <ErrorPanel
         message="Something went wrong loading users."
@@ -33,9 +33,8 @@ describe('ErrorPanel', () => {
     expect(
       screen.getByText('Something went wrong loading users.'),
     ).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: /copy error details/i }),
-    ).toBeInTheDocument()
+    expect(screen.getByText('INTERNAL_ERROR')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /copy/i })).toBeInTheDocument()
   })
 
   it('should show Copied feedback after clicking copy', async () => {
@@ -48,9 +47,7 @@ describe('ErrorPanel', () => {
       />,
     )
 
-    await user.click(
-      screen.getByRole('button', { name: /copy error details/i }),
-    )
+    await user.click(screen.getByRole('button', { name: /copy/i }))
 
     await waitFor(() => {
       expect(screen.getByText('Copied')).toBeInTheDocument()

@@ -46,7 +46,7 @@ describe('route error boundaries', () => {
       ).toBeInTheDocument()
       expect(screen.getByRole('alert')).toHaveTextContent(panelMessage)
       expect(
-        screen.getByRole('button', { name: /copy error details/i }),
+        screen.getByRole('button', { name: /^copy$/i }),
       ).toBeInTheDocument()
 
       await user.click(screen.getByRole('button', { name: /try again/i }))

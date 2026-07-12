@@ -267,7 +267,7 @@ describe('ProfileSettingsForm', () => {
     await user.tab()
 
     expect(
-      await screen.findByRole('button', { name: /copy error details/i }),
+      await screen.findByRole('button', { name: /^copy$/i }),
     ).toBeInTheDocument()
   })
 

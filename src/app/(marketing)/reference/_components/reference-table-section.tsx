@@ -42,59 +42,63 @@ export const ReferenceTableSection = () => {
 
   return (
     <section id="table" className="border-t py-10">
-      <h2 className="text-2xl font-semibold tracking-tight">Data table</h2>
-      <p className="text-muted-foreground mt-1 text-sm">
-        Live: search, sort, and pagination over a sample dataset.
-      </p>
+      <div className="mx-auto max-w-3xl px-4 sm:px-0">
+        <h2 className="text-2xl font-semibold tracking-tight">Data table</h2>
+        <p className="text-muted-foreground mt-1 text-sm">
+          Live: search, sort, and pagination over a sample dataset.
+        </p>
+      </div>
 
-      <div className="bg-card mt-5 overflow-hidden rounded-xl border">
-        <div className="border-b p-3">
-          <Label htmlFor="reference-shipments-search" className="sr-only">
-            Search shipments
-          </Label>
-          <Input
-            id="reference-shipments-search"
-            type="search"
-            placeholder="Search shipments"
-            value={searchInput}
-            onChange={(event) => setSearchInput(event.target.value)}
-          />
-        </div>
+      <div className="mx-auto mt-5 max-w-6xl px-4 sm:px-0">
+        <div className="bg-card overflow-hidden rounded-xl border">
+          <div className="border-b p-3">
+            <Label htmlFor="reference-shipments-search" className="sr-only">
+              Search shipments
+            </Label>
+            <Input
+              id="reference-shipments-search"
+              type="search"
+              placeholder="Search shipments"
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+            />
+          </div>
 
-        <div aria-busy={isFetching}>
-          <DataTableShell
-            table={table}
-            columns={referenceShipmentsColumns}
-            isLoading={isLoading && rows.length === 0}
-            loadingLabel="Loading shipments…"
-            emptyMessage="No shipments found."
-            className="rounded-none border-0"
-          />
-        </div>
+          <div aria-busy={isFetching}>
+            <DataTableShell
+              table={table}
+              columns={referenceShipmentsColumns}
+              isLoading={isLoading && rows.length === 0}
+              loadingLabel="Loading shipments…"
+              emptyMessage="No shipments found."
+              className="rounded-none border-0"
+            />
+          </div>
 
-        <div className="flex items-center justify-end gap-2 border-t p-3">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={page <= 1 || isFetching}
-            onClick={() => setPage((current) => Math.max(1, current - 1))}
-          >
-            Previous
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={!hasNextPage || isFetching}
-            onClick={() => setPage((current) => current + 1)}
-          >
-            Next
-          </Button>
+          <div className="flex items-center justify-end gap-2 border-t p-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={page <= 1 || isFetching}
+              onClick={() => setPage((current) => Math.max(1, current - 1))}
+            >
+              Previous
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={!hasNextPage || isFetching}
+              onClick={() => setPage((current) => current + 1)}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       </div>
 
-      <p className="mt-5 max-w-prose text-[15px] leading-relaxed">
+      <p className="mx-auto mt-5 max-w-prose px-4 text-[15px] leading-relaxed sm:px-0">
         The rows are a sample dataset, not real records — read it as the shape
         your own list view could take. While a page loads, rows show as loading
         placeholders instead of this content.

@@ -3,6 +3,7 @@
 import { AlertTriangle, Copy } from 'lucide-react'
 import { useState } from 'react'
 
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/utils/tailwind'
 
@@ -45,27 +46,34 @@ export const ErrorPanel = ({ message, code, className }: ErrorPanelProps) => {
     <div
       role="alert"
       className={cn(
-        'border-destructive/30 bg-destructive/5 flex items-center justify-between gap-3.5 rounded-md border p-3',
+        'bg-card flex flex-col gap-3 rounded-md border p-3 sm:flex-row sm:items-start sm:justify-between',
         className,
       )}
     >
-      <div className="flex items-center gap-2.5">
+      <div className="flex min-w-0 items-start gap-2.5">
         <AlertTriangle
-          className="text-destructive size-[18px] shrink-0"
+          className="text-destructive mt-0.5 size-[18px] shrink-0"
           aria-hidden
         />
         <p className="text-destructive text-sm">{message}</p>
       </div>
-      <div className="flex shrink-0 flex-col items-center gap-1">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Copy error details"
-          onClick={() => void handleCopy()}
-        >
-          <Copy className="size-4" />
-        </Button>
+      <div className="flex shrink-0 flex-col items-end gap-2 sm:items-center">
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          {code ? (
+            <Badge variant="secondary" className="font-mono text-xs">
+              {code}
+            </Badge>
+          ) : null}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => void handleCopy()}
+          >
+            <Copy className="size-4" aria-hidden />
+            Copy
+          </Button>
+        </div>
         <span aria-live="polite" className="text-muted-foreground text-xs">
           {didCopy ? 'Copied' : ''}
         </span>

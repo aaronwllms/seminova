@@ -16,7 +16,7 @@ describe('InlineError', () => {
     render(<InlineError message="Passwords do not match" />)
 
     expect(
-      screen.queryByRole('button', { name: /copy error details/i }),
+      screen.queryByRole('button', { name: /^copy$/i }),
     ).not.toBeInTheDocument()
   })
 })

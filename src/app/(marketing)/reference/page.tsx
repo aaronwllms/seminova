@@ -32,8 +32,8 @@ export default function ReferencePage() {
   return (
     <main id="main-content" className="bg-background py-12">
       <LandingContainer>
-        <div className="mx-auto max-w-3xl">
-          <div className="px-4 text-center sm:px-0">
+        <div className="mx-auto max-w-3xl px-4 sm:px-0">
+          <div className="text-center">
             <Badge variant="secondary" className="mb-3">
               Pattern reference
             </Badge>
@@ -62,15 +62,16 @@ export default function ReferencePage() {
               </Link>
             ))}
           </nav>
-
-          <div className="px-4 sm:px-0">
-            <ReferenceFormsSection />
-            <ReferenceFeedbackSection />
-            <Suspense fallback={<ReferenceTableSectionFallback />}>
-              <ReferenceTableSection />
-            </Suspense>
-          </div>
         </div>
+
+        <div className="mx-auto max-w-3xl px-4 sm:px-0">
+          <ReferenceFormsSection />
+          <ReferenceFeedbackSection />
+        </div>
+
+        <Suspense fallback={<ReferenceTableSectionFallback />}>
+          <ReferenceTableSection />
+        </Suspense>
       </LandingContainer>
     </main>
   )

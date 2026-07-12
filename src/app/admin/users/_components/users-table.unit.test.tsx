@@ -123,9 +123,7 @@ describe('UsersTable', () => {
         ),
       ).toBeInTheDocument()
     })
-    expect(
-      screen.getByRole('button', { name: /copy error details/i }),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^copy$/i })).toBeInTheDocument()
   })
 
   it('should show skeleton rows while loading with an empty table body', () => {
@@ -268,9 +266,7 @@ describe('UsersTable', () => {
         'Something went wrong updating the user. Please try again.',
       ),
     ).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: /copy error details/i }),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^copy$/i })).toBeInTheDocument()
     expect(screen.getByText('bob@example.com')).toBeInTheDocument()
   })
 })

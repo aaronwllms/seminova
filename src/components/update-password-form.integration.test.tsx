@@ -103,9 +103,7 @@ describe('UpdatePasswordForm', () => {
         /something went wrong on our end\. please try again, or contact support if it continues\./i,
       ),
     ).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: /copy error details/i }),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^copy$/i })).toBeInTheDocument()
     expect(mockPush).not.toHaveBeenCalled()
   })
 })
