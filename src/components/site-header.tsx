@@ -29,7 +29,7 @@ export const SiteHeader = ({
           <div className="hidden md:block" />
         )}
         {rightSlot ? (
-          <div className="hidden max-w-full min-w-0 justify-self-end overflow-hidden md:col-start-3 md:block">
+          <div className="hidden max-w-full min-w-0 justify-self-end md:col-start-3 md:block">
             {rightSlot}
           </div>
         ) : null}
