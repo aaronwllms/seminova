@@ -80,7 +80,9 @@ Clear the Phase 10 correction list, extend the token system with the missing sta
 
 This epic owns every reference-page edit in the phase, so nothing else touches that page.
 
-### Epic 4: Public GitHub page
+### Epic 4: Public GitHub page `Complete`
+
+*Note: shipped, then reverted. The live GitHub REST fetches caused heavy, intermittent dev-server AbortError noise (six parallel long-running calls per render), unresolved after multiple fix attempts. Reverted via git reset to pre-epic baseline; the header's GitHub link now points to the external repo instead.*
 
 - **4.1 The GitHub page.** Add a new public page, reached from the header's existing GitHub link, presenting live repo data top-to-bottom: stat tiles (stars, forks, open issues, contributors), a contributor avatars row, recent commits and merged PRs side by side, a latest release summary, a language breakdown bar, and "Built with" stack badges — with a "View on GitHub" button linking out to the actual repo. Data is pulled live from GitHub's public REST API (no token, the repo is public) through a server-side stats module using fetch caching (`revalidate`) to stay under the unauthenticated rate limit; repo owner/name lives in one constant or env var, not scattered literals. The header's GitHub link repoints from the external repo URL to this internal page. Mockup (built as a standalone page despite its filename): `.mockups/reference_page_full_github_section_mockup.html`.
 - **4.2 Auth-boundary allowlist.** Admit the new page to the auth-boundary public allowlist — a hard-constraint change routed through the AGENTS.md change protocol, the same one Phase 10 used for its two boundary widenings.
