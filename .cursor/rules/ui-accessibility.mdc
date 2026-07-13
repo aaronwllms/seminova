@@ -9,6 +9,18 @@ globs:
 
 **WCAG 2.1 AA** — semantic HTML first, ARIA only when needed; visible `focus-visible` states using token rings (`ring-ring`, `ring-offset-background`).
 
+## Enforced (deterministic)
+
+Mechanically enforced via `check:a11y` — see AGENTS.md § Hard constraints:
+
+- **One `<h1>` per route** — each `page.tsx` / `error.tsx` surface and its import closure must contain exactly one semantic h1.
+- **Non-empty `alt` on meaningful images** — decorative images may use empty `alt` when marked with `role="presentation"` or `aria-hidden`.
+- **No skipped heading levels** — document-order headings must not jump more than one level (e.g. h1 → h3).
+
+## Guidance (manual / subjective)
+
+The checklist and principles below are not mechanically enforced — contrast intent, screen-reader UX, and keyboard flows stay manual review.
+
 ## shadcn/ui + Radix
 shadcn/ui components have **built-in accessibility** via Radix UI (ARIA, keyboard navigation, focus management, screen reader support). When customizing shadcn components, preserve Radix accessibility props — do not override ARIA roles or strip keyboard handlers.
 

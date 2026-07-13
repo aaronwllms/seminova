@@ -83,6 +83,7 @@ All skills are read-only or scoped-write as documented in their own `SKILL.md` �
 | `pnpm test:ci` | Vitest run once with coverage gates (agents, CI, pre-push) |
 | `pnpm pre-push` | Full CI mirror locally (type-check → hard-constraint checks → lint → format-check → test:ci) |
 | `pnpm check:seo-base-url` | SEO base-URL centralization (hard constraint) |
+| `pnpm check:a11y` | Deterministic a11y (hard constraint) |
 | `pnpm test:ui` | Vitest UI |
 | `pnpm analyze` | Bundle analyzer |
 | `pnpm promote-admin <email>` | Grant admin via secret key (`app_metadata.role`) |
@@ -108,6 +109,7 @@ Non-negotiable constraints, each with deterministic enforcement:
 - **Auth boundary** — public routes are `/`, `/auth/**`, `/terms`, `/privacy`, `/reference`, and `/workflow`; all others require a session; enforced in `proxy.ts` → `src/supabase/proxy.ts`. **Enforced:** `check:auth-boundary` (discovered-route proxy tests).
 - **Admin gate** — `app_metadata.role === 'admin'` on `auth.users` is the canonical admin check, set via in-app promote/demote on `/admin/users` or secret-key CLI. Never a `profiles` column. **Enforced:** `check:admin-gate` (source contract test + migration scanner).
 - **SEO base URL centralization** — never hardcode `http://localhost:3000`, read `NEXT_PUBLIC_SITE_URL` outside the resolver, or construct `new URL()` with a literal origin; resolve absolute URLs via `getSiteUrl()` or `metadataBase`. **Enforced:** `check:seo-base-url`.
+- **Deterministic a11y** — every route has exactly one `<h1>`; meaningful images have non-empty `alt`; heading levels do not skip. Subjective a11y (contrast, screen-reader UX) stays guidance. **Enforced:** `check:a11y`.
 
 **Planning / judgment principle (not mechanically enforced):** **Ecosystem alignment over aesthetic divergence** — Don't canonize a non-standard convention for tidiness or taste alone. Diverge from an ecosystem default (shadcn, Next.js, Supabase) only when our way has a real, articulable benefit — clarity, safety, consistency — that outweighs the cost of fighting it: tooling that assumes the standard, AI agents trained on it, and copy-paste examples that won't match. When it's a wash, follow the standard. A template multiplies both the benefit and the cost across every spinoff.
 
@@ -121,7 +123,7 @@ Grouped by feature area. History of which phase/epic shipped what lives in git a
 
 ### Foundation & tooling
 
-Starter tutorial/demo scaffolding removed; pnpm-only; Vitest 3 / Vite 6 / Next 16.2.x. `.cursor/rules/` stack-accurate and project-agnostic. Pre-push hook mirrors CI (`pnpm pre-push`: type-check → hard-constraint checks → lint → format-check → `test:ci`); 80% Vitest coverage thresholds; `.prettierignore` / lint-staged audit (agent-authored docs remain Prettier-ignored). Planning layer is `ROADMAP.md` + per-phase PRDs in `docs/prds/`; doc roles in `docs/DOC_RULES.md`; hard constraints in this file (enforced via `check:*` scripts); architectural vocabulary in `LEXICON.md`; ADR process in `docs/adr/`.
+Starter tutorial/demo scaffolding removed; pnpm-only; Vitest 3 / Vite 6 / Next 16.2.x. `.cursor/rules/` stack-accurate and project-agnostic. Pre-push hook mirrors CI (`pnpm pre-push`: type-check → hard-constraint checks including `check:a11y` → lint → format-check → `test:ci`); 80% Vitest coverage thresholds; `.prettierignore` / lint-staged audit (agent-authored docs remain Prettier-ignored). Planning layer is `ROADMAP.md` + per-phase PRDs in `docs/prds/`; doc roles in `docs/DOC_RULES.md`; hard constraints in this file (enforced via `check:*` scripts); architectural vocabulary in `LEXICON.md`; ADR process in `docs/adr/`.
 
 ### Auth & session
 

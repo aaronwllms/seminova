@@ -23,7 +23,9 @@ export const UserAvatar = ({
 
   return (
     <Avatar className={cn('h-8 w-8 shrink-0 rounded-full', className)}>
-      {avatarUrl ? <AvatarImage src={avatarUrl} alt={imageAlt} /> : null}
+      {avatarUrl ? (
+        <AvatarImage src={avatarUrl} alt={imageAlt} role="presentation" />
+      ) : null}
       <AvatarFallback className={fallbackClassName}>{initials}</AvatarFallback>
     </Avatar>
   )

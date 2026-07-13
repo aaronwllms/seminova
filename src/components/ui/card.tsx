@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { Slot } from 'radix-ui'
 
 import { cn } from '@/utils/tailwind'
 
@@ -31,14 +32,17 @@ CardHeader.displayName = 'CardHeader'
 
 const CardTitle = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn('leading-none font-semibold tracking-tight', className)}
-    {...props}
-  />
-))
+  React.HTMLAttributes<HTMLDivElement> & { asChild?: boolean }
+>(({ className, asChild = false, ...props }, ref) => {
+  const Comp = asChild ? Slot.Root : 'div'
+  return (
+    <Comp
+      ref={ref}
+      className={cn('leading-none font-semibold tracking-tight', className)}
+      {...props}
+    />
+  )
+})
 CardTitle.displayName = 'CardTitle'
 
 const CardDescription = React.forwardRef<

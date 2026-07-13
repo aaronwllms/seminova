@@ -30,7 +30,9 @@ export default function Page({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-2xl">Sorry, something went wrong.</CardTitle>
+        <CardTitle asChild>
+          <h1 className="text-2xl">Sorry, something went wrong.</h1>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <Suspense>
