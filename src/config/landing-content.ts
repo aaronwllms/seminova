@@ -54,7 +54,7 @@ export const landingContent = {
       {
         title: 'Admin shell out of the box',
         description:
-          'A working admin sidebar, Supabase auth flows, and role-gated access are already wired — start building your product, not your login screen.',
+          'A real admin console — sidebar, users table, and in-app promote/demote — with role-gated access already wired.',
         icon: LayoutDashboard,
       },
       {

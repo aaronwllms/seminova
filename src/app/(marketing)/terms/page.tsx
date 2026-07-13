@@ -18,7 +18,7 @@ export default function TermsPage() {
   return (
     <main id="main-content" className="bg-background py-12">
       <LandingContainer>
-        <LegalPlaceholder title="Terms of Service" />
+        <LegalPlaceholder coversBothPolicies title="Terms of Service" />
       </LandingContainer>
     </main>
   )
