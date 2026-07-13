@@ -9,7 +9,7 @@
 
 Phase 10 shipped the app home, form primitives, and the public reference and workflow pages. Closing it surfaced a list of corrections that sit *on top of* that shipped state — UI defects, stale copy, missing affordances, and a few decisions deferred rather than made. They span the profile modal, the app header and admin sidebar, the feedback system, the reference and workflow pages, and site chrome. None is large on its own; left unbatched they collide, because several touch the same files (the toast icon config, the reference page, the site header).
 
-Two structural gaps sit alongside the corrections. The design system has no semantic `success`/`warning` color tokens, so status UI falls back to `primary` (blue) and `muted` (gray) for states that mean something else. And `ui-accessibility.mdc` ships as guidance with no enforcement, so its deterministic standards — one `<h1>` per page, non-empty `alt`, ordered headings — can be violated silently.
+Two structural gaps sit alongside the corrections. The design system has no semantic `success`/`warning` color tokens, so status UI falls back to `primary` (blue) and `muted` (gray) for states that mean something else. And `ui-accessibility.mdc` ships as guidance with no enforcement, so its deterministic standards — one `<h1>` per route, non-empty `alt`, ordered headings — can be violated silently.
 
 Separately, the loose end that began as "make the reference page the authenticated landing" resolved into a distinct public surface: a GitHub page presenting live repo stats, reached from the header's existing GitHub link. Folding that content into the reference page would muddy it, so it earns its own route.
 
@@ -22,7 +22,7 @@ Clear the Phase 10 correction list, extend the token system with the missing sta
 - **The GitHub content is its own public page, not reference-page content.** Built as a standalone surface (its mockup already is), reached from the header's GitHub link, with a "View on GitHub" outbound to the repo. This keeps the reference page focused on component patterns rather than mixing in project-stats content.
 - **Epic grouping is by surface affinity, not item order.** Single-commit epics mean items touching the same files must land together: every reference-page edit in one epic, both header-avatar changes in one, and the coupled toast-icon / token / error-panel work in one.
 - **`success`/`warning` become real tokens, shaped like `destructive`.** Not a new pattern — the missing slots filled in the existing token structure across every theme layer. Values are chosen to read as siblings to `destructive` and are worth eyeballing in-app rather than locking from numbers alone.
-- **The a11y check covers only the deterministic subset.** One `<h1>` per page, non-empty `alt`, no skipped heading levels — enforced. Subjective a11y (contrast intent, screen-reader UX) stays guidance.
+- **The a11y check covers only the deterministic subset.** One `<h1>` per route, non-empty `alt`, no skipped heading levels — enforced. Subjective a11y (contrast intent, screen-reader UX) stays guidance.
 
 ## Out of scope
 
@@ -109,7 +109,7 @@ This epic owns every reference-page edit in the phase, so nothing else touches t
 
 ### Epic 6: Deterministic a11y check
 
-- **6.1 check:a11y.** Add a `check:a11y` covering the lintable subset — exactly one `<h1>` per page, non-empty `alt`, no skipped heading levels — promoting those `ui-accessibility.mdc` standards from guidance to enforced, while subjective a11y stays guidance. A new `check:*` pairs one-to-one with a hard-constraint entry, so this routes through the AGENTS.md change protocol as a deliberate hard-constraint addition.
+- **6.1 check:a11y.** Add a `check:a11y` covering the lintable subset — exactly one `<h1>` per route, non-empty `alt`, no skipped heading levels — promoting those `ui-accessibility.mdc` standards from guidance to enforced, while subjective a11y stays guidance. A new `check:*` pairs one-to-one with a hard-constraint entry, so this routes through the AGENTS.md change protocol as a deliberate hard-constraint addition.
 
 *Success:*
 - `check:a11y` flags multiple/zero `<h1>`, empty/missing `alt`, and skipped heading levels, and passes clean on the codebase (fixing anything it flags).

@@ -13,9 +13,9 @@ globs:
 
 Mechanically enforced via `check:a11y` — see AGENTS.md § Hard constraints:
 
-- **One `<h1>` per route** — each `page.tsx` / `error.tsx` surface and its import closure must contain exactly one semantic h1.
-- **Non-empty `alt` on meaningful images** — decorative images may use empty `alt` when marked with `role="presentation"` or `aria-hidden`.
-- **No skipped heading levels** — document-order headings must not jump more than one level (e.g. h1 → h3).
+- **One `<h1>` per route** — each `page.tsx` / `error.tsx` surface, its segment `layout.tsx` chain, and import closure must contain exactly one semantic h1.
+- **Non-empty `alt` on meaningful images** — same scan scope as h1; decorative images may use empty `alt` when marked with `role="presentation"` or `aria-hidden`. Dynamic `alt={expr}` is call-site responsibility (static-analysis ceiling — see `scripts/checks/a11y.mjs` `// debt:` markers).
+- **No skipped heading levels** — in the route entry JSX tree and its import closure, document-order headings must not jump more than one level (e.g. h1 → h3). Segment `layout.tsx` headings are excluded (static-analysis ceiling — see checker `// debt:` markers).
 
 ## Guidance (manual / subjective)
 

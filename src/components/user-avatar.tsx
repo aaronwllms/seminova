@@ -8,7 +8,6 @@ type UserAvatarProps = {
   avatarUrl: string | null
   className?: string
   fallbackClassName?: string
-  imageAlt?: string
 }
 
 export const UserAvatar = ({
@@ -17,14 +16,13 @@ export const UserAvatar = ({
   avatarUrl,
   className,
   fallbackClassName,
-  imageAlt = '',
 }: UserAvatarProps) => {
   const initials = getProfileInitials({ displayName, email })
 
   return (
     <Avatar className={cn('h-8 w-8 shrink-0 rounded-full', className)}>
       {avatarUrl ? (
-        <AvatarImage src={avatarUrl} alt={imageAlt} role="presentation" />
+        <AvatarImage src={avatarUrl} alt="" role="presentation" />
       ) : null}
       <AvatarFallback className={fallbackClassName}>{initials}</AvatarFallback>
     </Avatar>

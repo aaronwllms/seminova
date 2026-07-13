@@ -1,3 +1,6 @@
+// debt: regex import closure — misses barrel re-exports, dynamic import(), multiline
+// imports, and non-@/ non-relative specifiers; extend resolveImport/parseImportMap
+// if a route starts importing through those shapes.
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { dirname, join, relative, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -244,6 +247,8 @@ const scanImageAlts = (content, filePath, violations, route) => {
       continue
     }
 
+    // debt: dynamic alt={expr} treated as satisfied — runtime empty strings not visible
+    // to static analysis; add prop-flow tracing if this pattern spreads beyond decorative images.
     if (NON_LITERAL_ALT_REGEX.test(attrs) && !EMPTY_ALT_REGEX.test(attrs)) {
       continue
     }
@@ -296,6 +301,9 @@ const analyzeRoute = (entryFile) => {
     violations.unshift(`${route}: expected 1 h1, found ${h1Count} (${detail})`)
   }
 
+  // debt: heading-order walk is entry-file + import closure only — segment layout.tsx
+  // headings (before {children}) are excluded; extend with layout-chain DOM-order walk
+  // if a layout starts rendering headings.
   const headings = extractHeadingOrder(entryFile)
 
   for (let index = 1; index < headings.length; index += 1) {
