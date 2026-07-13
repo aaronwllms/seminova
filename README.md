@@ -179,6 +179,7 @@ After that, the repo is a real project, not a template copy — and the phase-by
 | `pnpm test:ci` | Vitest run once with coverage gates (CI / agents) |
 | `pnpm pre-push` | Full local CI mirror (type-check → hard-constraint checks → lint → format-check → test:ci) |
 | `pnpm check:seo-base-url` | SEO base-URL centralization (hard constraint) |
+| `pnpm check:a11y` | Deterministic a11y (hard constraint) |
 | `pnpm test:ui` | Vitest UI |
 | `pnpm analyze` | Bundle analyzer |
 | `pnpm promote-admin <email>` | Grant admin role via CLI (requires secret key; bootstrap / automation) |
@@ -229,7 +230,7 @@ See [AGENTS.md](AGENTS.md) and [`.cursor/rules/do-migrations-agent.mdc`](.cursor
 
 **Pre-push** (Husky): `pnpm pre-push` — type-check → hard-constraint checks → lint → format-check → `test:ci` (with 80% coverage thresholds). Mirrors CI exactly.
 
-**CI** (pull requests to `main`): same order as pre-push (`check:pnpm-only`, `check:no-shadcn-pkg`, `check:semantic-tokens`, `check:seo-base-url` before lint). See [.github/workflows/pull-request.yaml](.github/workflows/pull-request.yaml).
+**CI** (pull requests to `main`): same order as pre-push (`check:pnpm-only`, `check:no-shadcn-pkg`, `check:semantic-tokens`, `check:seo-base-url`, `check:a11y` before lint). See [.github/workflows/pull-request.yaml](.github/workflows/pull-request.yaml).
 
 Before opening a PR, run locally:
 

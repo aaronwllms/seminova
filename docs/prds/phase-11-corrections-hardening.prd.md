@@ -107,7 +107,7 @@ This epic owns every reference-page edit in the phase, so nothing else touches t
 - Content-heavy sections render wide; prose stays narrow.
 - `pnpm pre-push` is green.
 
-### Epic 6: Deterministic a11y check
+### Epic 6: Deterministic a11y check `Complete`
 
 - **6.1 check:a11y.** Add a `check:a11y` covering the lintable subset — exactly one `<h1>` per route, non-empty `alt`, no skipped heading levels — promoting those `ui-accessibility.mdc` standards from guidance to enforced, while subjective a11y stays guidance. A new `check:*` pairs one-to-one with a hard-constraint entry, so this routes through the AGENTS.md change protocol as a deliberate hard-constraint addition.
 
