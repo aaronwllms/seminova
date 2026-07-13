@@ -11,27 +11,8 @@ vi.mock('@/components/ui/sidebar', () => ({
 }))
 
 vi.mock('./admin-sidebar', () => ({
-  AdminSidebar: ({
-    email,
-    displayName,
-    avatarUrl,
-  }: {
-    email: string
-    displayName: string | null
-    avatarUrl: string | null
-  }) => (
-    <nav
-      data-testid="admin-sidebar"
-      data-email={email}
-      data-display-name={displayName ?? ''}
-      data-avatar-url={avatarUrl ?? ''}
-    />
-  ),
-}))
-
-vi.mock('@/app/(app)/_components/profile/profile-dialog-provider', () => ({
-  ProfileDialogProvider: ({ children }: { children: React.ReactNode }) => (
-    <>{children}</>
+  AdminSidebar: ({ navUserSlot }: { navUserSlot: React.ReactNode }) => (
+    <nav data-testid="admin-sidebar">{navUserSlot}</nav>
   ),
 }))
 
@@ -44,27 +25,17 @@ import { render, screen } from '@/test/test-utils'
 import { AdminShell } from './admin-shell'
 
 describe('AdminShell', () => {
-  it('should render sidebar, breadcrumb trigger, and children', () => {
+  it('should render sidebar, breadcrumb trigger, and children without a shell-level profile provider', () => {
     render(
       <AdminShell
-        userId="admin-1"
-        email="admin@example.com"
-        displayName="Admin User"
-        bio="Admin bio"
-        avatarUrl="https://example.com/avatar.webp"
-        profileLoadFailed={false}
+        navUserSlot={<div data-testid="nav-user-slot">Nav user slot</div>}
       >
         <p>Dashboard content</p>
       </AdminShell>,
     )
 
-    const sidebar = screen.getByTestId('admin-sidebar')
-    expect(sidebar).toHaveAttribute('data-email', 'admin@example.com')
-    expect(sidebar).toHaveAttribute('data-display-name', 'Admin User')
-    expect(sidebar).toHaveAttribute(
-      'data-avatar-url',
-      'https://example.com/avatar.webp',
-    )
+    expect(screen.getByTestId('admin-sidebar')).toBeInTheDocument()
+    expect(screen.getByTestId('nav-user-slot')).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: /toggle sidebar/i }),
     ).toBeInTheDocument()

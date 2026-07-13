@@ -20,21 +20,13 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar'
 
-import { AdminNavUser } from './admin-nav-user'
-
 const NAV_ITEMS = [{ title: 'Users', href: ADMIN_USERS, icon: Users }] as const
 
 type AdminSidebarProps = {
-  email: string
-  displayName: string | null
-  avatarUrl: string | null
+  navUserSlot: React.ReactNode
 }
 
-export const AdminSidebar = ({
-  email,
-  displayName,
-  avatarUrl,
-}: AdminSidebarProps) => {
+export const AdminSidebar = ({ navUserSlot }: AdminSidebarProps) => {
   const pathname = usePathname()
 
   return (
@@ -74,13 +66,7 @@ export const AdminSidebar = ({
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
-        <AdminNavUser
-          email={email}
-          displayName={displayName}
-          avatarUrl={avatarUrl}
-        />
-      </SidebarFooter>
+      <SidebarFooter>{navUserSlot}</SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )
