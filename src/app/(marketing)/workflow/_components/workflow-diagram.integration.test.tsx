@@ -10,6 +10,9 @@ const DEFAULT_DETAIL = /hover or focus a step to see what happens there/i
 const ringRectCount = (step: HTMLElement) =>
   step.querySelectorAll('rect').length
 
+const stepsWithRing = () =>
+  screen.getAllByRole('button').filter((step) => ringRectCount(step) === 2)
+
 describe('WorkflowDiagram', () => {
   it('should reveal step detail on keyboard focus and keep it when tabbing between steps', async () => {
     const user = userEvent.setup()
@@ -157,6 +160,31 @@ describe('WorkflowDiagram', () => {
     expect(secondStep).toHaveStyle({ opacity: 0.75 })
   })
 
+  it('should move the ring to the focused step after click then Tab', async () => {
+    const user = userEvent.setup()
+    const firstNode = WORKFLOW_LOOP_NODES[0]
+    const secondNode = WORKFLOW_LOOP_NODES[1]
+
+    render(<WorkflowDiagram ariaLabelledBy="plan-review-build" />)
+
+    const firstStep = screen.getByRole('button', {
+      name: new RegExp(firstNode.label, 'i'),
+    })
+    const secondStep = screen.getByRole('button', {
+      name: new RegExp(secondNode.label, 'i'),
+    })
+
+    await user.click(firstStep)
+    expect(ringRectCount(firstStep)).toBe(2)
+    expect(stepsWithRing()).toHaveLength(1)
+
+    await user.tab()
+    expect(secondStep).toHaveFocus()
+    expect(ringRectCount(firstStep)).toBe(1)
+    expect(ringRectCount(secondStep)).toBe(2)
+    expect(stepsWithRing()).toHaveLength(1)
+  })
+
   it('should show a ring and persist detail after click and unhover', async () => {
     const user = userEvent.setup()
     const buildNode = WORKFLOW_LOOP_NODES.find((node) => node.id === 'build')
@@ -216,7 +244,8 @@ describe('WorkflowDiagram', () => {
     await user.tab()
     expect(secondStep).toHaveFocus()
     expect(detail).toHaveTextContent(secondNode.detail)
-    expect(ringRectCount(firstStep)).toBe(2)
+    expect(ringRectCount(firstStep)).toBe(1)
+    expect(ringRectCount(secondStep)).toBe(2)
 
     for (let index = 2; index < WORKFLOW_LOOP_NODES.length; index += 1) {
       await user.tab()

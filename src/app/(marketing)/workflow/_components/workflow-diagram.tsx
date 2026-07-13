@@ -48,6 +48,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
   )
 
   const activeNodeId = hoveredNodeId ?? focusedNodeId ?? selectedNodeId
+  const ringNodeId = focusedNodeId ?? selectedNodeId
 
   const detail =
     WORKFLOW_LOOP_NODES.find((node) => node.id === activeNodeId)?.detail ??
@@ -241,8 +242,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
           const centerX = geometry.x + geometry.width / 2
           const isSpotlightDimmed =
             activeNodeId != null && activeNodeId !== node.id
-          const showRing =
-            focusedNodeId === node.id || selectedNodeId === node.id
+          const showRing = ringNodeId === node.id
           const environmentName = ENVIRONMENT_LABEL[node.environment]
           const ariaLabel = node.skill
             ? `${node.label}, ${node.skill}, ${environmentName}`
