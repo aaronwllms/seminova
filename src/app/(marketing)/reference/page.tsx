@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Suspense } from 'react'
 
 import { REFERENCE_PATH } from '@/constants/app-paths'
 import { Badge } from '@/components/ui/badge'
@@ -10,7 +9,6 @@ import { LandingContainer } from '../_components/landing-container'
 import { ReferenceFeedbackSection } from './_components/reference-feedback-section'
 import { ReferenceFormsSection } from './_components/reference-forms-section'
 import { ReferenceTableSection } from './_components/reference-table-section'
-import { ReferenceTableSectionFallback } from './_components/reference-table-section-fallback'
 
 const ANCHOR_LINKS = [
   { href: '#forms', label: 'Forms and save models' },
@@ -69,9 +67,7 @@ export default function ReferencePage() {
           <ReferenceFeedbackSection />
         </div>
 
-        <Suspense fallback={<ReferenceTableSectionFallback />}>
-          <ReferenceTableSection />
-        </Suspense>
+        <ReferenceTableSection />
       </LandingContainer>
     </main>
   )
