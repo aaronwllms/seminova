@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
-const mockGetCurrentUserProfile = vi.fn()
-
-vi.mock('../_lib/get-current-user-profile', () => ({
-  getCurrentUserProfile: () => mockGetCurrentUserProfile(),
+vi.mock('./app-header-account-nav-slot', () => ({
+  AppHeaderAccountNavSlot: () => (
+    <div data-testid="app-header-account-nav-slot" />
+  ),
 }))
 
 vi.mock('@/components/site-header', () => ({
@@ -35,39 +35,16 @@ vi.mock('@/components/site-footer', () => ({
   ),
 }))
 
-vi.mock('./profile/profile-dialog-provider', () => ({
-  ProfileDialogProvider: ({ children }: { children: React.ReactNode }) => (
-    <>{children}</>
-  ),
-}))
-
-vi.mock('./app-nav-user', () => ({
-  AppNavUser: ({ email }: { email: string }) => (
-    <div data-testid="app-nav-user">{email}</div>
-  ),
-}))
-
 import { render, screen } from '@/test/test-utils'
 
 import { AppShell } from './app-shell'
 
 describe('AppShell', () => {
-  it('should render header, main content, and footer with profile data', async () => {
-    mockGetCurrentUserProfile.mockResolvedValue({
-      userId: 'user-1',
-      displayName: 'Alex',
-      avatarUrl: null,
-      bio: null,
-      email: 'alex@example.com',
-      isAdmin: false,
-      profileLoadFailed: false,
-    })
-
-    render(await AppShell({ children: <p>Profile content</p> }))
+  it('should render header, main content, and footer without a shell-level profile provider', () => {
+    render(<AppShell>{<p>Profile content</p>}</AppShell>)
 
     expect(screen.getByTestId('site-header')).toBeInTheDocument()
-    expect(screen.getAllByTestId('app-nav-user')).toHaveLength(2)
-    expect(screen.getAllByText('alex@example.com')).toHaveLength(2)
+    expect(screen.getAllByTestId('app-header-account-nav-slot')).toHaveLength(2)
     expect(screen.getByRole('main')).toHaveTextContent('Profile content')
     expect(screen.getByTestId('site-footer')).toBeInTheDocument()
     expect(
