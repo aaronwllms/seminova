@@ -57,8 +57,8 @@ export const ReferenceFormsSection = () => {
   })
 
   return (
-    <section id="forms" className="py-10">
-      <h2 className="text-2xl font-semibold tracking-tight">
+    <section className="py-10">
+      <h2 id="forms" className="text-2xl font-semibold tracking-tight">
         Forms and save models
       </h2>
       <p className="text-muted-foreground mt-1 text-sm">

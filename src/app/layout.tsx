@@ -33,7 +33,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${jetbrainsMono.variable}`}
+      className={`${inter.variable} ${jetbrainsMono.variable} scroll-pt-20`}
     >
       <body className="font-sans antialiased">
         <NextTopLoader showSpinner={false} height={2} color="var(--primary)" />

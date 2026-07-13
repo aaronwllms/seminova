@@ -24,9 +24,11 @@ const SKELETON_COLUMNS: Array<ColumnDef<ReferenceShipment, unknown>> = [
 const TABLE_HEADERS = ['Consignee', 'Route', 'Status', 'Departs'] as const
 
 export const ReferenceTableSectionFallback = () => (
-  <section id="table" className="border-t py-10">
+  <section className="border-t py-10">
     <div className="mx-auto max-w-3xl px-4 sm:px-0">
-      <h2 className="text-2xl font-semibold tracking-tight">Data table</h2>
+      <h2 id="table" className="text-2xl font-semibold tracking-tight">
+        Data table
+      </h2>
       <p className="text-muted-foreground mt-1 text-sm">
         Live: search, sort, and pagination over a sample dataset.
       </p>

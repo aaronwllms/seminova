@@ -37,8 +37,8 @@ const StaticToastCard = ({
 export const ReferenceFeedbackSection = () => {
   return (
     <>
-      <section id="feedback" className="border-t py-10">
-        <h2 className="text-2xl font-semibold tracking-tight">
+      <section className="border-t py-10">
+        <h2 id="feedback" className="text-2xl font-semibold tracking-tight">
           InlineError and ErrorPanel
         </h2>
         <p className="text-muted-foreground mt-1 text-sm">
@@ -70,8 +70,10 @@ export const ReferenceFeedbackSection = () => {
         </p>
       </section>
 
-      <section id="toast" className="border-t py-10">
-        <h2 className="text-2xl font-semibold tracking-tight">Toast</h2>
+      <section className="border-t py-10">
+        <h2 id="toast" className="text-2xl font-semibold tracking-tight">
+          Toast
+        </h2>
         <p className="text-muted-foreground mt-1 text-sm">
           Static: all five variants, each at the moment it appears.
         </p>
