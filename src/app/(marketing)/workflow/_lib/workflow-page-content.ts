@@ -61,6 +61,16 @@ export const WORKFLOW_DOCUMENTS = [
   },
 ] as const
 
+export type WorkflowLoopNodeLayout = 'three-line' | 'two-line'
+
+export interface WorkflowLoopNodeGeometry {
+  x: number
+  y: number
+  width: number
+  height: number
+  layout: WorkflowLoopNodeLayout
+}
+
 export const WORKFLOW_LOOP_NODES = [
   {
     id: 'project-kickoff',
@@ -69,6 +79,7 @@ export const WORKFLOW_LOOP_NODES = [
     environment: 'claude',
     detail:
       'One-time setup when a spinoff is cloned from the template. Claude, project-kickoff.',
+    geometry: { x: 260, y: 40, width: 150, height: 68, layout: 'three-line' },
   },
   {
     id: 'initialize-project',
@@ -77,6 +88,7 @@ export const WORKFLOW_LOOP_NODES = [
     environment: 'cursor',
     detail:
       'Cursor scaffolds the spinoff repo from the template. Cursor, initialize-project.',
+    geometry: { x: 436, y: 40, width: 170, height: 68, layout: 'three-line' },
   },
   {
     id: 'phase-planning',
@@ -85,6 +97,7 @@ export const WORKFLOW_LOOP_NODES = [
     environment: 'claude',
     detail:
       'Requirements and success criteria lock in before any epic starts. Claude, phase-planning.',
+    geometry: { x: 60, y: 186, width: 130, height: 68, layout: 'three-line' },
   },
   {
     id: 'plan-next-epic',
@@ -93,6 +106,7 @@ export const WORKFLOW_LOOP_NODES = [
     environment: 'cursor',
     detail:
       'Cursor drafts an implementation plan for the next epic. Cursor, plan-next-epic.',
+    geometry: { x: 232, y: 186, width: 130, height: 68, layout: 'three-line' },
   },
   {
     id: 'plan-review',
@@ -101,6 +115,7 @@ export const WORKFLOW_LOOP_NODES = [
     environment: 'claude',
     detail:
       'Claude checks the plan against repo truth and hard constraints before any code lands. Claude, plan-review.',
+    geometry: { x: 388, y: 186, width: 130, height: 68, layout: 'three-line' },
   },
   {
     id: 'build',
@@ -108,6 +123,7 @@ export const WORKFLOW_LOOP_NODES = [
     skill: null,
     environment: 'cursor',
     detail: 'Cursor implements the approved plan and runs code review.',
+    geometry: { x: 544, y: 186, width: 90, height: 68, layout: 'two-line' },
   },
   {
     id: 'ship-phase',
@@ -116,6 +132,7 @@ export const WORKFLOW_LOOP_NODES = [
     environment: 'cursor',
     detail:
       "Once every epic ships, the phase closes and the next planning pass starts from what's actually in the repo. Cursor, ship-phase.",
+    geometry: { x: 676, y: 186, width: 130, height: 68, layout: 'three-line' },
   },
 ] as const satisfies ReadonlyArray<{
   id: string
@@ -123,7 +140,10 @@ export const WORKFLOW_LOOP_NODES = [
   skill: string | null
   environment: WorkflowEnvironment
   detail: string
+  geometry: WorkflowLoopNodeGeometry
 }>
+
+export type WorkflowLoopNodeId = (typeof WORKFLOW_LOOP_NODES)[number]['id']
 
 export const WORKFLOW_CI_CONSTRAINTS = [
   {

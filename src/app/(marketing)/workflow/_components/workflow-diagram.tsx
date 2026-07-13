@@ -1,73 +1,23 @@
 'use client'
 
-import { useState } from 'react'
+import {
+  useRef,
+  useState,
+  type FocusEvent,
+  type KeyboardEvent,
+  type MouseEvent,
+} from 'react'
 
 import {
   WORKFLOW_LOOP_NODES,
   type WorkflowEnvironment,
+  type WorkflowLoopNodeId,
 } from '../_lib/workflow-page-content'
 
-const DEFAULT_DETAIL = 'Hover a step to see what happens there.'
+const DEFAULT_DETAIL = 'Hover or focus a step to see what happens there.'
 
-type WorkflowDiagramProps = {
+interface WorkflowDiagramProps {
   ariaLabelledBy: string
-}
-
-type NodeGeometry = {
-  x: number
-  y: number
-  width: number
-  height: number
-  layout: 'three-line' | 'two-line'
-}
-
-const NODE_GEOMETRY: Record<
-  (typeof WORKFLOW_LOOP_NODES)[number]['id'],
-  NodeGeometry
-> = {
-  'project-kickoff': {
-    x: 260,
-    y: 40,
-    width: 150,
-    height: 68,
-    layout: 'three-line',
-  },
-  'initialize-project': {
-    x: 436,
-    y: 40,
-    width: 170,
-    height: 68,
-    layout: 'three-line',
-  },
-  'phase-planning': {
-    x: 60,
-    y: 186,
-    width: 130,
-    height: 68,
-    layout: 'three-line',
-  },
-  'plan-next-epic': {
-    x: 232,
-    y: 186,
-    width: 130,
-    height: 68,
-    layout: 'three-line',
-  },
-  'plan-review': {
-    x: 388,
-    y: 186,
-    width: 130,
-    height: 68,
-    layout: 'three-line',
-  },
-  build: { x: 544, y: 186, width: 90, height: 68, layout: 'two-line' },
-  'ship-phase': {
-    x: 676,
-    y: 186,
-    width: 130,
-    height: 68,
-    layout: 'three-line',
-  },
 }
 
 const ENVIRONMENT_LABEL: Record<WorkflowEnvironment, string> = {
@@ -88,21 +38,55 @@ const nodeTokens = (environment: WorkflowEnvironment) =>
         text: 'var(--success-foreground)',
       }
 
+const isWithinDiagram = (
+  container: Element | null,
+  target: EventTarget | null,
+) => target instanceof Node && container?.contains(target)
+
 export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
-  const [activeNodeId, setActiveNodeId] = useState<string | null>(null)
+  const svgRef = useRef<SVGSVGElement>(null)
+  const [activeNodeId, setActiveNodeId] = useState<WorkflowLoopNodeId | null>(
+    null,
+  )
+  const [focusedNodeId, setFocusedNodeId] = useState<WorkflowLoopNodeId | null>(
+    null,
+  )
 
   const detail =
     WORKFLOW_LOOP_NODES.find((node) => node.id === activeNodeId)?.detail ??
     DEFAULT_DETAIL
 
-  const clearActive = () => setActiveNodeId(null)
+  const activateNode = (nodeId: WorkflowLoopNodeId) => {
+    setActiveNodeId(nodeId)
+  }
+
+  const handleNodeMouseLeave =
+    (nodeId: WorkflowLoopNodeId) => (event: MouseEvent<SVGGElement>) => {
+      if (isWithinDiagram(svgRef.current, event.relatedTarget)) return
+      setActiveNodeId((current) => (current === nodeId ? null : current))
+    }
+
+  const handleNodeBlur =
+    (nodeId: WorkflowLoopNodeId) => (event: FocusEvent<SVGGElement>) => {
+      if (isWithinDiagram(svgRef.current, event.relatedTarget)) return
+      setFocusedNodeId((current) => (current === nodeId ? null : current))
+      setActiveNodeId((current) => (current === nodeId ? null : current))
+    }
+
+  const handleNodeKeyDown =
+    (nodeId: WorkflowLoopNodeId) => (event: KeyboardEvent<SVGGElement>) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return
+      event.preventDefault()
+      activateNode(nodeId)
+    }
 
   return (
     <div>
       <svg
+        ref={svgRef}
         width="100%"
         viewBox="0 0 860 320"
-        role="img"
+        role="group"
         aria-labelledby={ariaLabelledBy}
         aria-describedby="workflow-diagram-detail"
         className="rounded-lg border"
@@ -256,10 +240,11 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
         />
 
         {WORKFLOW_LOOP_NODES.map((node) => {
-          const geometry = NODE_GEOMETRY[node.id]
+          const { geometry } = node
           const tokens = nodeTokens(node.environment)
           const centerX = geometry.x + geometry.width / 2
           const isActive = activeNodeId === node.id
+          const isFocused = focusedNodeId === node.id
           const environmentName = ENVIRONMENT_LABEL[node.environment]
           const ariaLabel = node.skill
             ? `${node.label}, ${node.skill}, ${environmentName}`
@@ -275,11 +260,28 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
                 cursor: 'default',
                 opacity: isActive ? 0.75 : 1,
               }}
-              onMouseEnter={() => setActiveNodeId(node.id)}
-              onMouseLeave={clearActive}
-              onFocus={() => setActiveNodeId(node.id)}
-              onBlur={clearActive}
+              onMouseEnter={() => activateNode(node.id)}
+              onMouseLeave={handleNodeMouseLeave(node.id)}
+              onFocus={() => {
+                setFocusedNodeId(node.id)
+                activateNode(node.id)
+              }}
+              onBlur={handleNodeBlur(node.id)}
+              onKeyDown={handleNodeKeyDown(node.id)}
             >
+              {isFocused ? (
+                <rect
+                  x={geometry.x - 3}
+                  y={geometry.y - 3}
+                  width={geometry.width + 6}
+                  height={geometry.height + 6}
+                  rx="10"
+                  fill="none"
+                  stroke="var(--ring)"
+                  strokeWidth="2"
+                  pointerEvents="none"
+                />
+              ) : null}
               <rect
                 x={geometry.x}
                 y={geometry.y}
