@@ -1,7 +1,7 @@
 # PRD — Phase 11: Corrections & Hardening
 
 **Status:** `Active`
-**Last updated:** 2026-07-12
+**Last updated:** 2026-07-13
 
 ---
 
@@ -94,7 +94,7 @@ This epic owns every reference-page edit in the phase, so nothing else touches t
 - A signed-out visitor reaches the page; the auth-boundary check passes and reflects the widened allowlist; the hard-constraint statement matches enforcement.
 - `pnpm pre-push` is green.
 
-### Epic 5: Workflow page rethink
+### Epic 5: Workflow page rethink `Complete`
 
 - **5.1 Page restructure.** Restructure the page to the order: two environments → loop → documents → agent-ready conventions → go-deeper CTA. The two-environment split becomes side-by-side Claude/Cursor cards with short "owns" lists instead of prose. The documents section keeps its table but fixes accuracy — real file names/paths, correct writer/reader fields (e.g. the roadmap is written by Claude Desktop, read by both environments where accurate). Conventions collapse from marketing prose to a short list of CI-enforced constraints (auth boundary, admin gate, semantic tokens, SEO base URL). The CTA is unchanged.
 - **5.2 Interactive loop diagram.** Replace the static loop SVG with an interactive recreation — same nested phase/epic containers, connector routing, and visible dashed "revise" return arrow — adding hover-to-reveal that highlights a step and shows its skill name and owning environment below. It must handle light/dark itself, since the current asset is hardcoded hex across separate light/dark files. Mockup: `.mockups/workflow_loop_exact_recreation_interactive.html`.
