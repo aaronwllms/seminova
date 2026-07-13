@@ -3,6 +3,9 @@ import { siteConfig } from '@/config/site'
 export const WORKFLOW_GUIDE_URL =
   `${siteConfig.links.github}/blob/main/docs/WORKFLOW_GUIDE.md` as const
 
+export const WORKFLOW_SETUP_URL =
+  `${siteConfig.links.github}/blob/main/docs/WORKFLOW_SETUP.md` as const
+
 export type WorkflowEnvironment = 'claude' | 'cursor'
 
 export const WORKFLOW_ENVIRONMENTS = [

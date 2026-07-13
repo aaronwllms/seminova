@@ -1,7 +1,6 @@
 'use client'
 
 import {
-  useRef,
   useState,
   type FocusEvent,
   type KeyboardEvent,
@@ -38,60 +37,57 @@ const nodeTokens = (environment: WorkflowEnvironment) =>
         text: 'var(--success-foreground)',
       }
 
-const isWithinDiagram = (
-  container: Element | null,
-  target: EventTarget | null,
-) => target instanceof Node && container?.contains(target)
-
 export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
-  const svgRef = useRef<SVGSVGElement>(null)
-  const [activeNodeId, setActiveNodeId] = useState<WorkflowLoopNodeId | null>(
+  const [hoveredNodeId, setHoveredNodeId] = useState<WorkflowLoopNodeId | null>(
     null,
   )
+  const [selectedNodeId, setSelectedNodeId] =
+    useState<WorkflowLoopNodeId | null>(null)
   const [focusedNodeId, setFocusedNodeId] = useState<WorkflowLoopNodeId | null>(
     null,
   )
+
+  const activeNodeId = hoveredNodeId ?? focusedNodeId ?? selectedNodeId
 
   const detail =
     WORKFLOW_LOOP_NODES.find((node) => node.id === activeNodeId)?.detail ??
     DEFAULT_DETAIL
 
-  const activateNode = (nodeId: WorkflowLoopNodeId) => {
-    setActiveNodeId(nodeId)
+  const handleDiagramBlur = (event: FocusEvent<HTMLDivElement>) => {
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+      setFocusedNodeId(null)
+      setSelectedNodeId(null)
+    }
   }
-
-  const handleNodeMouseLeave =
-    (nodeId: WorkflowLoopNodeId) => (event: MouseEvent<SVGGElement>) => {
-      if (isWithinDiagram(svgRef.current, event.relatedTarget)) return
-      setActiveNodeId((current) => (current === nodeId ? null : current))
-    }
-
-  const handleNodeBlur =
-    (nodeId: WorkflowLoopNodeId) => (event: FocusEvent<SVGGElement>) => {
-      if (isWithinDiagram(svgRef.current, event.relatedTarget)) return
-      setFocusedNodeId((current) => (current === nodeId ? null : current))
-      setActiveNodeId((current) => (current === nodeId ? null : current))
-    }
 
   const handleNodeKeyDown =
     (nodeId: WorkflowLoopNodeId) => (event: KeyboardEvent<SVGGElement>) => {
       if (event.key !== 'Enter' && event.key !== ' ') return
       event.preventDefault()
-      activateNode(nodeId)
+      setSelectedNodeId(nodeId)
     }
 
+  const handleDiagramMouseOver = (event: MouseEvent<SVGSVGElement>) => {
+    const nodeEl = (event.target as Element).closest('[data-node-id]')
+    if (nodeEl) {
+      setHoveredNodeId(
+        nodeEl.getAttribute('data-node-id') as WorkflowLoopNodeId,
+      )
+    }
+  }
+
   return (
-    <div>
+    <div onBlur={handleDiagramBlur}>
       <svg
-        ref={svgRef}
         width="100%"
         viewBox="0 0 860 320"
         role="group"
         aria-labelledby={ariaLabelledBy}
         aria-describedby="workflow-diagram-detail"
         className="rounded-lg border"
+        onMouseOver={handleDiagramMouseOver}
+        onMouseLeave={() => setHoveredNodeId(null)}
       >
-        <title>Seminova workflow</title>
         <desc>
           Project kickoff and initialize project feed into a phase loop
           containing plan phase and a nested epic loop of plan epic, review
@@ -243,8 +239,10 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
           const { geometry } = node
           const tokens = nodeTokens(node.environment)
           const centerX = geometry.x + geometry.width / 2
-          const isActive = activeNodeId === node.id
-          const isFocused = focusedNodeId === node.id
+          const isSpotlightDimmed =
+            activeNodeId != null && activeNodeId !== node.id
+          const showRing =
+            focusedNodeId === node.id || selectedNodeId === node.id
           const environmentName = ENVIRONMENT_LABEL[node.environment]
           const ariaLabel = node.skill
             ? `${node.label}, ${node.skill}, ${environmentName}`
@@ -253,23 +251,19 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
           return (
             <g
               key={node.id}
+              data-node-id={node.id}
               role="button"
               tabIndex={0}
               aria-label={ariaLabel}
               style={{
                 cursor: 'default',
-                opacity: isActive ? 0.75 : 1,
+                opacity: isSpotlightDimmed ? 0.75 : 1,
               }}
-              onMouseEnter={() => activateNode(node.id)}
-              onMouseLeave={handleNodeMouseLeave(node.id)}
-              onFocus={() => {
-                setFocusedNodeId(node.id)
-                activateNode(node.id)
-              }}
-              onBlur={handleNodeBlur(node.id)}
+              onClick={() => setSelectedNodeId(node.id)}
+              onFocus={() => setFocusedNodeId(node.id)}
               onKeyDown={handleNodeKeyDown(node.id)}
             >
-              {isFocused ? (
+              {showRing ? (
                 <rect
                   x={geometry.x - 3}
                   y={geometry.y - 3}

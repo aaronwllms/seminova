@@ -1,7 +1,7 @@
 import { WorkflowDiagram } from './workflow-diagram'
 
 export const WorkflowPlanReviewSection = () => (
-  <section aria-labelledby="plan-review-build" className="border-t pt-10">
+  <section aria-labelledby="plan-review-build" className="border-t py-10">
     <div className="mx-auto max-w-3xl px-4 sm:px-0">
       <h2
         className="text-2xl font-semibold tracking-tight"
@@ -12,8 +12,8 @@ export const WorkflowPlanReviewSection = () => (
       <div className="text-muted-foreground mt-4 max-w-prose space-y-4 text-[15px] leading-relaxed">
         <p>
           Work moves in nested loops — a phase loop containing an epic loop of
-          plan, adversarial review, and build. Hover or focus a step below to
-          see which skill and environment own it.
+          plan, adversarial review, and build. Hover a step below to preview
+          which skill and environment own it; click or focus to select.
         </p>
         <p>
           Adversarial review before build is the guardrail — implementation

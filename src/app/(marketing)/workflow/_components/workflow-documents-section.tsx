@@ -10,7 +10,7 @@ import {
 import { WORKFLOW_DOCUMENTS } from '../_lib/workflow-page-content'
 
 export const WorkflowDocumentsSection = () => (
-  <section aria-labelledby="the-documents" className="border-t pt-10">
+  <section aria-labelledby="the-documents" className="border-t py-10">
     <div className="mx-auto max-w-3xl px-4 sm:px-0">
       <h2 className="text-2xl font-semibold tracking-tight" id="the-documents">
         The documents
