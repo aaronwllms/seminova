@@ -116,7 +116,7 @@ This epic owns every reference-page edit in the phase, so nothing else touches t
 - `ui-accessibility.mdc` reflects the enforced-vs-guidance split; the check runs in the same gate as the other `check:*` scripts; the change protocol is followed.
 - `pnpm pre-push` is green.
 
-### Epic 7: Isolated chrome & copy
+### Epic 7: Isolated chrome & copy `Complete`
 
 - **7.1 Legal generator callouts.** Add visible legal-generator callouts to `/privacy` and `/terms` linking [the App Privacy Policy Generator](https://app-privacy-policy-generator.firebaseapp.com/) with a not-legal-advice disclaimer (the terms callout notes it generates both policies).
 - **7.2 Features nav anchor.** Fix the Features nav anchor so it resolves to `/#features` from any non-home page rather than appending `#features` to the current URL.
