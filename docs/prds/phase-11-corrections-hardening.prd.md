@@ -1,7 +1,7 @@
 # PRD — Phase 11: Corrections & Hardening
 
 **Status:** `Active`
-**Last updated:** 2026-07-13
+**Last updated:** 2026-07-14
 
 ---
 
@@ -128,12 +128,76 @@ This epic owns every reference-page edit in the phase, so nothing else touches t
 - Card #4 copy reflects the actually-shipped set.
 - `pnpm pre-push` is green.
 
+### Epic 8: Contrast enforcement & a11y check naming `Planned`
+
+- **8.1 Rename `check:a11y` → `check:a11y-structure`.** Rename the script and every reference to it: `package.json` script entry, the `pnpm pre-push` chain, AGENTS.md's Hard constraints bullet and Setup/quality commands table, and `ui-accessibility.mdc`'s "Enforced (deterministic)" heading. Pure rename — no behavior change to what it checks (one `<h1>` per route, non-empty `alt`, no skipped heading levels).
+- **8.2 `check:a11y-contrast` script.** New script scanning the semantic token pairs defined in `globals.css` (`:root` and `.dark` layers) — `primary`/`primary-foreground`, `secondary`/`secondary-foreground`, `accent`/`accent-foreground`, `destructive`/`destructive-foreground`, `success`/`success-foreground`, `warning`/`warning-foreground`, `background`/`foreground`, `card`/`card-foreground`, `muted`/`muted-foreground`, and any other defined foreground/background pair. Computes the WCAG contrast ratio for each pair from its OKLCH values and fails if a text-role pair is below 4.5:1 or a UI-component/graphical-role pair is below 3:1. Pure computation over CSS custom property values — no rendering, no browser.
+- **8.3 Update the rule and AGENTS.md for both checks.** In `ui-accessibility.mdc`, move "Color contrast" out of "Guidance (manual/subjective)" into "Enforced (deterministic)," stating the real ratios and naming the token pairs as the checked surface; screen-reader UX and keyboard flows stay guidance. Add `check:a11y-contrast` to AGENTS.md's Hard constraints list (its own bullet, alongside the renamed `check:a11y-structure`) and commands table, wired into `pnpm pre-push` next to `check:a11y-structure`. Both changes route through the AGENTS.md change protocol together, in the same commit.
+- **8.4 Fix any violations the check surfaces.** Run `check:a11y-contrast` against current token values (including Phase 11 Epic 3's `success`/`warning` pair); adjust any failing OKLCH values before landing.
+
+*Success:*
+- `check:a11y-structure` runs the old `check:a11y` logic under its new name; no reference to the old name remains anywhere in the repo.
+- `check:a11y-contrast` flags any defined token pair below its threshold ratio and passes clean on the codebase.
+- `ui-accessibility.mdc` shows contrast for token pairs under "Enforced," with real ratios; screen-reader UX and keyboard flows remain under "Guidance."
+- AGENTS.md's Hard constraints list and commands table reflect both check names; both run in `pnpm pre-push`.
+- `pnpm pre-push` is green.
+
+**Out of scope:** rendered/usage-level contrast checking (axe-core/Lighthouse CI, catching token *misuse* rather than bad token *definitions*) — logged as a deferred ROADMAP open question, not built here.
+
+### Epic 9: Home page proof CTA `Planned`
+
+- **9.1 Copy in `landing-content.ts`.** Add a `proofCta` entry: heading "Explore the template", subhead "Live components to browse, and the process that builds them.", two links — "Pattern reference" → `/reference`, "How planning works" → `/workflow`.
+- **9.2 `LandingProofCta` component.** New simple two-link row (not a card grid) rendered between `LandingFeatures` and `LandingTechStack` in `(marketing)/page.tsx`. Heading + subhead, then the two links as plain CTAs — visually distinct from the feature card grid above it.
+
+*Success:*
+- The section renders after the feature grid and before the tech-stack marquee.
+- Heading, subhead, and both links render from `landing-content.ts`, not hardcoded in the component.
+- Both links resolve to `/reference` and `/workflow`.
+- Visually reads as a CTA row, not a third feature grid.
+- `pnpm pre-push` is green.
+
+### Epic 10: Real sort & page-size selector for data tables `Planned`
+
+- **10.1 `admin_list_users` Postgres function, replacing the Admin API.** New migration adding a `SECURITY DEFINER` function in `public` (e.g. `admin_list_users(p_sort_column, p_sort_direction, p_page, p_per_page, p_search)`) that reads `auth.users` with elevated privilege and returns `id`, `email`, `email_confirmed_at`, `created_at`, `last_sign_in_at`, `app_metadata`, `banned_until` — no broader `auth` schema exposure, no `profiles` join. The function performs its own admin check internally using the same `app_metadata.role === 'admin'` check as everywhere else — never trusts only the calling Server Action's gate. Sort column is resolved through an explicit `CASE`/allowlist inside the function (Email, Created, Last sign-in, Verified via `email_confirmed_at`, Role via `app_metadata->>'role'`) — never string-interpolated, closing the SQL-injection surface. `list-admin-users.ts` calls it via `supabase.rpc('admin_list_users', {...})`, replacing the current two-branch Admin-API/filter logic with one path. `isAdmin` mapping stays sourced from the same `app_metadata` field. Plan-review confirms the function's admin check and sort allowlist before this lands — new security surface, not a routine migration.
+- **10.2 All five columns sortable.** Set `enableSorting: true` on Email, Created, Last sign-in, Verified, and Role in `users-columns.tsx`, now that sort is real and server-driven for all of them.
+- **10.3 Page-size selector.** Add a page-size `<Select>` (10 / 15 / 25 / 50) next to Previous/Next on `/admin/users`. `USERS_PAGE_SIZE` becomes the default rather than a fixed constant; `perPage` becomes request state passed through the RPC call.
+- **10.4 Shared pagination-controls extraction.** Extract Previous/Next + the page-size selector into one shared component (parallel to Epic 2's `UserAvatar` and Epic 3's toast-icon-config extractions) — currently hand-duplicated between `users-table.tsx` and `reference-table-demo.tsx`. Both surfaces consume the same component.
+- **10.5 Reference demo parity.** Update `use-reference-shipments.ts` to sort the full fixture set (across all its sortable columns) before paginating, and accept the same page-size control, so the reference demo matches the corrected production behavior rather than the pattern we just fixed away.
+
+*Success:*
+- `admin_list_users` exists as a migration-shipped function; the `auth` schema is never exposed via PostgREST; the function enforces its own admin check.
+- Sorting on any of the five columns reorders the full user set, not just the visible page; paging afterward preserves sort order.
+- A page-size selector exists on `/admin/users`, changes take effect immediately.
+- One shared pagination-controls component is used by both `/admin/users` and the reference page's data-table demo.
+- The reference demo sorts and pages its full fixture set correctly across all sortable columns.
+- No new display columns added in this epic — `AdminUserRow` gains `banned_until` in the query only, in preparation for Epic 11.
+- `pnpm pre-push` is green.
+
+### Epic 11: Ban functionality `Planned`
+
+- **11.1 Ban/unban Server Action.** New action wrapping `supabase.auth.admin.updateUserById(id, { ban_duration })`, alongside the existing promote/demote logic in `admin-role-mutations.ts` (shares the same Admin-API/service-role pattern — this stays on the Admin API, unlike Epic 10's listing query, since ban is the GoTrue-sanctioned mutation path; GoTrue enforces `banned_until` at sign-in time natively). Accepts a fixed duration set, not free text: `1h`, `24h`, `168h` (7d), `720h` (30d), and `876000h` (~100 years, functionally permanent — GoTrue's `ban_duration` has no native permanent value). `"none"` unbans immediately.
+- **11.2 `Ban` column.** Add `banned_until` to `admin_list_users`' returned fields (already queried as of Epic 10.1); derive a single `banStatus` on `AdminUserRow` — `null` when not banned, `{ permanent: true }` when the ban duration crosses a permanence threshold (e.g. `banned_until` more than ~10 years out), or `{ until: date }` for a finite ban. One "Ban" column, following the same empty/badge convention as Role and Verified: empty cell when not banned, a badge reading "Banned" for permanent bans, a badge reading "Banned until {date}" for finite bans — date formatted with the same `dateFormatter` (medium date style) already used for Created and Last sign-in.
+- **11.3 Ban/unban UI.** Row action in the existing actions dropdown (next to Promote/Demote) — "Ban user" opens a dialog offering the duration set from 11.1. Any banned row (permanent or time-based) shows "Unban" in place of "Ban user," mirroring the existing `PromoteDemoteDialog` confirmation pattern.
+- **11.4 Self-ban guard.** An admin cannot ban themselves — same `currentAdminUserId` guard already used to block self-demote.
+- **11.5 Banned-column sortability.** `banStatus`/`banned_until` becomes sortable through the same `admin_list_users` allowlist from Epic 10 — this epic extends that function's sort allowlist rather than adding a second one.
+
+*Success:*
+- Admins can ban a user for a fixed duration or permanently, and unban at any time.
+- A permanently-banned row shows "Banned," not a literal 100-year date; a time-based ban shows "Banned until {date}."
+- Self-ban is blocked the same way self-demote is.
+- Ban status is sortable via the same real-sort mechanism Epic 10 builds.
+- `pnpm pre-push` is green.
+
+**Dependency:** Epic 11 builds on `admin_list_users` from Epic 10 (extends its column set and sort allowlist) — sequence Epic 10 before Epic 11.
+
 ---
 
 ## Notes
 
 - **No ADR candidates in this phase.** Nothing here clears the hard-to-reverse bar. (The JWT resolution's ADR-0005 predates this phase and is out of scope.)
 - **Only LEXICON touch is Epic 4's auth-boundary allowlist widening,** which rides the change protocol; no new domain terms are introduced.
-- **Hard-constraint changes route deliberately:** Epic 4 widens the auth boundary and Epic 6 adds a new `check:*` — both through the AGENTS.md change protocol, not incidentally.
+- **Hard-constraint changes route deliberately:** Epic 4 widens the auth boundary, Epic 6 adds a new `check:*`, and Epic 8 renames `check:a11y` while adding `check:a11y-contrast` — all through the AGENTS.md change protocol, not incidentally.
 - **Sequencing:** Epic 7's card-#4 copy (7.3) is written last, since it must describe the final shipped state. No other hard ordering between epics.
+- **Epic 9 is net-new home page scope, not a correction** — added deliberately rather than deferred to a future phase, since Phase 11 was already touching marketing copy this session. No hard-constraint or file-coupling implications for the rest of the phase.
+- **Epics 10 and 11 are net-new admin-console scope, not corrections** — added deliberately during the same planning session. Epic 10 replaces the Admin-API-based user listing with a `SECURITY DEFINER` Postgres function for real server-side sort/pagination (a genuine new security surface — plan-review must confirm the function's internal admin check and sort-column allowlist before it lands). Epic 11 depends on Epic 10 and must sequence after it.
 - **Plan-review flag — header file sharing.** Epic 4's header GitHub-link repoint and Epic 2's header avatar revert may touch the same header file. If they do, they merge or sequence — a plan-review-time check, not resolvable at planning.
