@@ -190,6 +190,41 @@ This epic owns every reference-page edit in the phase, so nothing else touches t
 
 **Dependency:** Epic 11 builds on `admin_list_users` from Epic 10 (extends its column set and sort allowlist) — sequence Epic 10 before Epic 11.
 
+### Epic 12: Email confirmation setup fix & stray-code hardening `Planned`
+
+- **12.1 README — Supabase Auth setup step.** Add a new step at the top of "Initial setup," before signup, documenting two required Supabase dashboard changes:
+
+  1. **Email templates** — Authentication → Email Templates. Update the link in each to route through `/auth/confirm` instead of Supabase's default hosted verify endpoint:
+     - **Confirm signup:**
+       ```
+       {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}
+       ```
+     - **Reset Password:**
+       ```
+       {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next={{ .RedirectTo }}
+       ```
+  2. **Redirect URLs** — Authentication → URL Configuration → Redirect URLs. Add:
+     ```
+     http://localhost:3000/**
+     ```
+     (plus the production URL once deployed, e.g. `https://yourapp.com/**`)
+
+  Include the exact error string (`Missing access token on protected route`) in the README step so it's findable by search if someone hits this before reading setup docs.
+
+- **12.2 Proxy — detect stray auth `code` on protected routes.** In `proxy.ts`'s existing no-session branch, distinguish an ordinary logged-out visit (silent redirect to `/auth/login`, unchanged) from an unauthenticated request carrying a `code` search param (a failed or bypassed auth exchange — the signature of exactly this misconfiguration). The latter case logs an explicit `console.error` naming the likely cause (email template not routed through `/auth/confirm`) and redirects to `/auth/error?source=stray_code` instead of `/auth/login`, so the failure is visible rather than silently absorbed into a normal-looking login screen.
+
+- **12.3 `/auth/error` copy for `stray_code`.** Add a `stray_code` entry to `auth-error-messages.ts`, distinct from the existing `confirm`/`invalid_link` messages, explaining in user-facing terms that the confirmation link didn't complete and pointing at the likely dashboard misconfiguration.
+
+- **12.4 Auth-boundary test coverage.** `proxy.unit.test.ts` (the `check:auth-boundary` hard constraint) gains a case covering the stray-code branch — required since `proxy.ts` is hard-constraint-covered, not optional test hygiene.
+
+*Success:*
+- README documents both dashboard changes — the exact template strings and the redirect-URL entry — in the critical setup path, before the signup step.
+- An unauthenticated request with a `code` param logs a specific diagnostic and lands on `/auth/error?source=stray_code`, not a plain login redirect.
+- Ordinary logged-out visits are unaffected — no new console noise for the common case.
+- `/auth/error` shows a distinct, actionable message for `stray_code`.
+- `check:auth-boundary` passes with the new case covered.
+- `pnpm pre-push` is green.
+
 ---
 
 ## Notes
