@@ -22,6 +22,11 @@ export interface LandingTechLogo {
   height: number
 }
 
+export interface LandingProofCtaLink {
+  label: string
+  href: string
+}
+
 export const landingContent = {
   hero: {
     title: 'Start curated, not from scratch',
@@ -70,6 +75,14 @@ export const landingContent = {
         icon: Users,
       },
     ] satisfies LandingFeature[],
+  },
+  proofCta: {
+    heading: 'Explore the template',
+    subhead: 'Live components to browse, and the process that builds them.',
+    links: [
+      { label: 'Pattern reference', href: '/reference' },
+      { label: 'How planning works', href: '/workflow' },
+    ] satisfies LandingProofCtaLink[],
   },
   techStack: {
     label: 'Built with',
