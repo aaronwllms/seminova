@@ -123,6 +123,9 @@ export const oklchToLinearRgb = ({ l, c, h }) => {
 export const relativeLuminance = ({ r, g, b }) =>
   0.2126 * r + 0.7152 * g + 0.0722 * b
 
+// debt: OKLCH alpha — parsed but not composited against the base background
+// before contrast; composite against the relevant background token once a
+// semantic pair actually uses alpha.
 /** @param {string} oklchValue */
 export const contrastRatioFromOklch = (baseOklch, foregroundOklch) => {
   const baseLum = relativeLuminance(oklchToLinearRgb(parseOklch(baseOklch)))
@@ -187,6 +190,9 @@ export const checkA11yContrast = (cssPath = GLOBALS_CSS) => {
         continue
       }
 
+      // debt: var() indirection — no custom-property resolver; all current
+      // tokens are literal OKLCH so this fails clearly; add a CSS custom-property
+      // resolver if a token ever uses var() indirection.
       if (
         /\bvar\s*\(/i.test(baseValue) ||
         /\bvar\s*\(/i.test(foregroundValue)
