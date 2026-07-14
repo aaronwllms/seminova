@@ -12,7 +12,7 @@ export const LandingProofCta = () => {
   return (
     <section
       aria-labelledby="proof-cta-heading"
-      className="border-border border-t py-10 md:py-12"
+      className="bg-muted py-12 md:py-14"
     >
       <LandingContainer className="text-center">
         <div className="mx-auto flex max-w-3xl flex-col items-center gap-4">
