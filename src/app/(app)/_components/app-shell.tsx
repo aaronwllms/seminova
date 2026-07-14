@@ -1,7 +1,6 @@
 import { SiteContainer } from '@/components/site-container'
 import { SiteFooter } from '@/components/site-footer'
 import { SiteHeader } from '@/components/site-header'
-import { APP_HOME } from '@/constants/app-paths'
 
 import { AppHeaderAccountNavSlot } from './app-header-account-nav-slot'
 
@@ -12,7 +11,6 @@ type AppShellProps = {
 export const AppShell = ({ children }: AppShellProps) => (
   <>
     <SiteHeader
-      logoHref={APP_HOME}
       showNav={false}
       rightSlot={<AppHeaderAccountNavSlot />}
       mobileNav={<AppHeaderAccountNavSlot />}
@@ -20,10 +18,6 @@ export const AppShell = ({ children }: AppShellProps) => (
     <main id="main-content" className="flex-1 py-8">
       <SiteContainer>{children}</SiteContainer>
     </main>
-    <SiteFooter
-      logoHref={APP_HOME}
-      showNav={false}
-      publicSiteLink={{ href: '/', label: 'Back to website' }}
-    />
+    <SiteFooter showNav={false} />
   </>
 )

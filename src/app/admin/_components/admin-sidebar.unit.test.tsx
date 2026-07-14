@@ -50,7 +50,7 @@ vi.mock('@/components/ui/sidebar', () => ({
 }))
 
 vi.mock('@/components/seminova-logo', () => ({
-  SeminovaLogo: () => <span>Seminova</span>,
+  SeminovaLogo: ({ href }: { href: string }) => <a href={href}>Seminova</a>,
 }))
 
 import { ADMIN_USERS } from '@/constants/admin-paths'
@@ -71,7 +71,10 @@ describe('AdminSidebar', () => {
     expect(screen.getByTestId('sidebar-footer')).toContainElement(
       screen.getByTestId('nav-user-slot'),
     )
-    expect(screen.getByText('Seminova')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /seminova/i })).toHaveAttribute(
+      'href',
+      '/',
+    )
     expect(screen.getByRole('link', { name: /users/i })).toHaveAttribute(
       'href',
       ADMIN_USERS,

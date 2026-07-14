@@ -22,17 +22,7 @@ vi.mock('@/components/site-header', () => ({
 }))
 
 vi.mock('@/components/site-footer', () => ({
-  SiteFooter: ({
-    publicSiteLink,
-  }: {
-    publicSiteLink?: { href: string; label: string }
-  }) => (
-    <footer data-testid="site-footer">
-      {publicSiteLink ? (
-        <a href={publicSiteLink.href}>{publicSiteLink.label}</a>
-      ) : null}
-    </footer>
-  ),
+  SiteFooter: () => <footer data-testid="site-footer" />,
 }))
 
 import { render, screen } from '@/test/test-utils'
@@ -48,7 +38,7 @@ describe('AppShell', () => {
     expect(screen.getByRole('main')).toHaveTextContent('Profile content')
     expect(screen.getByTestId('site-footer')).toBeInTheDocument()
     expect(
-      screen.getByRole('link', { name: /back to website/i }),
-    ).toHaveAttribute('href', '/')
+      screen.queryByRole('link', { name: /back to website/i }),
+    ).not.toBeInTheDocument()
   })
 })

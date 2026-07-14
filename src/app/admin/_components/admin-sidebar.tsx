@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 import { SeminovaLogo } from '@/components/seminova-logo'
-import { ADMIN_HOME, ADMIN_USERS } from '@/constants/admin-paths'
+import { ADMIN_USERS } from '@/constants/admin-paths'
 import {
   Sidebar,
   SidebarContent,
@@ -35,10 +35,7 @@ export const AdminSidebar = ({ navUserSlot }: AdminSidebarProps) => {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <SeminovaLogo
-                href={ADMIN_HOME}
-                className="hover:bg-transparent"
-              />
+              <SeminovaLogo href="/" className="hover:bg-transparent" />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
