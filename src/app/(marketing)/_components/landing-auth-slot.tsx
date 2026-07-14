@@ -1,8 +1,5 @@
-import Link from 'next/link'
-
+import { AppHeaderAccountNav } from '@/app/(app)/_components/app-header-account-nav'
 import { LandingAuthButtons } from '@/app/(marketing)/_components/landing-auth-buttons'
-import { Button } from '@/components/ui/button'
-import { APP_HOME } from '@/constants/app-paths'
 import { hasServerAuthSession } from '@/supabase/require-auth'
 import { cn } from '@/utils/tailwind'
 
@@ -19,14 +16,9 @@ export const LandingAuthSlot = async ({
 
   if (isAuthenticated) {
     return (
-      <Button
-        asChild
-        size="sm"
-        variant="default"
-        className={cn(layout === 'stack' && 'w-full', className)}
-      >
-        <Link href={APP_HOME}>Open app</Link>
-      </Button>
+      <div className={cn(layout === 'stack' && 'w-full', className)}>
+        <AppHeaderAccountNav showOpenApp />
+      </div>
     )
   }
 

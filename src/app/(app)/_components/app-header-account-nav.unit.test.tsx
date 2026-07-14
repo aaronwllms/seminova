@@ -44,11 +44,13 @@ vi.mock('./app-nav-user', () => ({
     avatarUrl,
     email,
     isAdmin,
+    showOpenApp,
   }: {
     displayName: string | null
     avatarUrl: string | null
     email: string
     isAdmin: boolean
+    showOpenApp?: boolean
   }) => (
     <div
       data-testid="app-nav-user"
@@ -56,6 +58,7 @@ vi.mock('./app-nav-user', () => ({
       data-avatar-url={avatarUrl ?? ''}
       data-email={email}
       data-is-admin={String(isAdmin)}
+      data-show-open-app={String(showOpenApp ?? false)}
     />
   ),
 }))
@@ -97,5 +100,25 @@ describe('AppHeaderAccountNav', () => {
     )
     expect(navUser).toHaveAttribute('data-email', 'alex@example.com')
     expect(navUser).toHaveAttribute('data-is-admin', 'true')
+    expect(navUser).toHaveAttribute('data-show-open-app', 'false')
+  })
+
+  it('should pass showOpenApp through to AppNavUser', async () => {
+    mockGetCurrentUserProfile.mockResolvedValue({
+      userId: 'user-1',
+      displayName: 'Alex',
+      avatarUrl: null,
+      bio: null,
+      email: 'alex@example.com',
+      isAdmin: false,
+      profileLoadFailed: false,
+    })
+
+    render(await AppHeaderAccountNav({ showOpenApp: true }))
+
+    expect(screen.getByTestId('app-nav-user')).toHaveAttribute(
+      'data-show-open-app',
+      'true',
+    )
   })
 })

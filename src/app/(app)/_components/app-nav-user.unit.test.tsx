@@ -21,6 +21,7 @@ vi.mock('@/app/(app)/_components/profile/profile-dialog-provider', () => ({
   useProfileDialog: () => ({ openProfile: mockOpenProfile }),
 }))
 
+import { APP_HOME } from '@/constants/app-paths'
 import { ADMIN_HOME } from '@/constants/admin-paths'
 import { render, screen, waitFor } from '@/test/test-utils'
 
@@ -97,5 +98,45 @@ describe('AppNavUser', () => {
     expect(
       screen.getByRole('menuitem', { name: /admin console/i }),
     ).toHaveAttribute('href', ADMIN_HOME)
+  })
+
+  it('should show Open app link when showOpenApp is true', async () => {
+    const user = userEvent.setup()
+
+    render(
+      <AppNavUser
+        displayName="Alex"
+        avatarUrl={null}
+        email="alex@example.com"
+        isAdmin={false}
+        showOpenApp
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: /account menu/i }))
+
+    expect(screen.getByRole('menuitem', { name: /open app/i })).toHaveAttribute(
+      'href',
+      APP_HOME,
+    )
+  })
+
+  it('should not show Open app link when showOpenApp is omitted', async () => {
+    const user = userEvent.setup()
+
+    render(
+      <AppNavUser
+        displayName="Alex"
+        avatarUrl={null}
+        email="alex@example.com"
+        isAdmin={false}
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: /account menu/i }))
+
+    expect(
+      screen.queryByRole('menuitem', { name: /open app/i }),
+    ).not.toBeInTheDocument()
   })
 })

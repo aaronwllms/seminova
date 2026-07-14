@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { APP_HOME } from '@/constants/app-paths'
 import { ADMIN_HOME } from '@/constants/admin-paths'
 import { useSignOut } from '@/hooks/use-sign-out'
 
@@ -21,6 +22,7 @@ type AppNavUserProps = {
   avatarUrl: string | null
   email: string
   isAdmin: boolean
+  showOpenApp?: boolean
 }
 
 export const AppNavUser = ({
@@ -28,6 +30,7 @@ export const AppNavUser = ({
   avatarUrl,
   email,
   isAdmin,
+  showOpenApp = false,
 }: AppNavUserProps) => {
   const handleSignOut = useSignOut()
   const { openProfile } = useProfileDialog()
@@ -54,6 +57,14 @@ export const AppNavUser = ({
           <User />
           Profile
         </DropdownMenuItem>
+        {showOpenApp ? (
+          <DropdownMenuItem asChild>
+            <Link href={APP_HOME}>
+              <LayoutDashboard />
+              Open app
+            </Link>
+          </DropdownMenuItem>
+        ) : null}
         {isAdmin ? (
           <DropdownMenuItem asChild>
             <Link href={ADMIN_HOME}>

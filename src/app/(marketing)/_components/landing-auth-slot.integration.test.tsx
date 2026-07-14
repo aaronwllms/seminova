@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockHasServerAuthSession = vi.fn()
 
@@ -10,6 +10,16 @@ vi.mock('@/utils/env', () => ({
   hasPublicSupabaseEnv: true,
 }))
 
+vi.mock('@/app/(app)/_components/app-header-account-nav', () => ({
+  AppHeaderAccountNav: ({ showOpenApp }: { showOpenApp?: boolean }) => (
+    <button
+      type="button"
+      aria-label="Account menu"
+      data-show-open-app={String(showOpenApp ?? false)}
+    />
+  ),
+}))
+
 import { render, screen } from '@/test/test-utils'
 
 import { LandingAuthSlot } from './landing-auth-slot'
@@ -19,15 +29,17 @@ describe('LandingAuthSlot', () => {
     mockHasServerAuthSession.mockReset()
   })
 
-  it('should render Open app when the visitor is authenticated', async () => {
+  it('should render account menu when the visitor is authenticated', async () => {
     mockHasServerAuthSession.mockResolvedValue(true)
 
     render(await LandingAuthSlot({}))
 
-    expect(screen.getByRole('link', { name: /open app/i })).toHaveAttribute(
-      'href',
-      '/home',
-    )
+    const accountMenu = screen.getByRole('button', { name: /account menu/i })
+    expect(accountMenu).toBeInTheDocument()
+    expect(accountMenu).toHaveAttribute('data-show-open-app', 'true')
+    expect(
+      screen.queryByRole('link', { name: /open app/i }),
+    ).not.toBeInTheDocument()
   })
 
   it('should render auth CTAs when the visitor is anonymous', async () => {
