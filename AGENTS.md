@@ -167,7 +167,7 @@ Vitest + React Testing Library (`src/test/`); Supabase/auth boundaries use `vi.m
 
 ## Data model (summary)
 
-**Custom migrations:** 3 — [`20260622120000_create_profiles.sql`](supabase/migrations/20260622120000_create_profiles.sql), [`20260623120000_create_avatars_bucket.sql`](supabase/migrations/20260623120000_create_avatars_bucket.sql), [`20260623130000_add_avatars_select_policy.sql`](supabase/migrations/20260623130000_add_avatars_select_policy.sql)
+**Custom migrations:** 2 — [`20260622120000_create_profiles.sql`](supabase/migrations/20260622120000_create_profiles.sql), [`20260623120000_create_avatars_bucket.sql`](supabase/migrations/20260623120000_create_avatars_bucket.sql)
 
 | Entity | Table / bucket | Notes |
 | ------ | -------------- | ----- |
