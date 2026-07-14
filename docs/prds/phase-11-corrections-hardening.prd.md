@@ -144,7 +144,7 @@ This epic owns every reference-page edit in the phase, so nothing else touches t
 
 **Out of scope:** rendered/usage-level contrast checking (axe-core/Lighthouse CI, catching token *misuse* rather than bad token *definitions*) — logged as a deferred ROADMAP open question, not built here.
 
-### Epic 9: Home page proof CTA `Planned`
+### Epic 9: Home page proof CTA `Complete`
 
 - **9.1 Copy in `landing-content.ts`.** Add a `proofCta` entry: heading "Explore the template", subhead "Live components to browse, and the process that builds them.", two links — "Pattern reference" → `/reference`, "How planning works" → `/workflow`.
 - **9.2 `LandingProofCta` component.** New simple two-link row (not a card grid) rendered between `LandingFeatures` and `LandingTechStack` in `(marketing)/page.tsx`. Heading + subhead, then the two links as plain CTAs — visually distinct from the feature card grid above it.
