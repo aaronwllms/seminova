@@ -128,7 +128,7 @@ This epic owns every reference-page edit in the phase, so nothing else touches t
 - Card #4 copy reflects the actually-shipped set.
 - `pnpm pre-push` is green.
 
-### Epic 8: Contrast enforcement & a11y check naming `Planned`
+### Epic 8: Contrast enforcement & a11y check naming `Complete`
 
 - **8.1 Rename `check:a11y` → `check:a11y-structure`.** Rename the script and every reference to it: `package.json` script entry, the `pnpm pre-push` chain, AGENTS.md's Hard constraints bullet and Setup/quality commands table, and `ui-accessibility.mdc`'s "Enforced (deterministic)" heading. Pure rename — no behavior change to what it checks (one `<h1>` per route, non-empty `alt`, no skipped heading levels).
 - **8.2 `check:a11y-contrast` script.** New script scanning the semantic token pairs defined in `globals.css` (`:root` and `.dark` layers) — `primary`/`primary-foreground`, `secondary`/`secondary-foreground`, `accent`/`accent-foreground`, `destructive`/`destructive-foreground`, `success`/`success-foreground`, `warning`/`warning-foreground`, `background`/`foreground`, `card`/`card-foreground`, `muted`/`muted-foreground`, and any other defined foreground/background pair. Computes the WCAG contrast ratio for each pair from its OKLCH values and fails if a text-role pair is below 4.5:1 or a UI-component/graphical-role pair is below 3:1. Pure computation over CSS custom property values — no rendering, no browser.
