@@ -3,11 +3,11 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-import { checkA11y } from './a11y.mjs'
+import { checkA11yStructure } from './a11y-structure.mjs'
 
-describe('checkA11y', () => {
+describe('checkA11yStructure', () => {
   it('should pass on shipped app routes', () => {
-    const result = checkA11y()
+    const result = checkA11yStructure()
     expect(result.ok).toBe(true)
     expect(result.violations).toEqual([])
   })
@@ -23,7 +23,7 @@ describe('checkA11y', () => {
         `export default function Page() { return <main><p>No title</p></main> }\n`,
       )
 
-      const result = checkA11y(join(tempDir, 'src/app'))
+      const result = checkA11yStructure(join(tempDir, 'src/app'))
       expect(result.ok).toBe(false)
       expect(result.violations[0]).toContain('/missing-h1')
       expect(result.violations[0]).toContain('expected 1 h1, found 0')
@@ -48,7 +48,7 @@ describe('checkA11y', () => {
         `import { Section } from './_components/section'\nexport default function Page() { return <Section /> }\n`,
       )
 
-      const result = checkA11y(join(tempDir, 'src/app'))
+      const result = checkA11yStructure(join(tempDir, 'src/app'))
       expect(result.ok).toBe(true)
       expect(result.violations).toEqual([])
     } finally {
@@ -72,7 +72,7 @@ describe('checkA11y', () => {
         `import { Hero } from './_components/hero'\nexport default function Page() { return <main><h1>Home</h1><Hero /></main> }\n`,
       )
 
-      const result = checkA11y(join(tempDir, 'src/app'))
+      const result = checkA11yStructure(join(tempDir, 'src/app'))
       expect(result.ok).toBe(false)
       expect(result.violations.some((v) => v.includes('empty alt'))).toBe(true)
     } finally {
@@ -91,7 +91,7 @@ describe('checkA11y', () => {
         `export default function Page() { return <main><h1>Title</h1><h3>Sub</h3></main> }\n`,
       )
 
-      const result = checkA11y(join(tempDir, 'src/app'))
+      const result = checkA11yStructure(join(tempDir, 'src/app'))
       expect(result.ok).toBe(false)
       expect(
         result.violations.some((v) => v.includes('heading level skips')),

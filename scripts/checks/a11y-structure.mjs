@@ -24,7 +24,7 @@ const DECORATIVE_REGEX =
   /(?:role\s*=\s*["']presentation["']|aria-hidden(?:\s*=\s*["'][^"']*["'])?)/
 
 const fail = (message) => {
-  console.error(`[check:a11y] ${message}`)
+  console.error(`[check:a11y-structure] ${message}`)
   process.exit(1)
 }
 
@@ -321,7 +321,7 @@ const analyzeRoute = (entryFile) => {
   return violations
 }
 
-export const checkA11y = (appRoot = APP_ROOT) => {
+export const checkA11yStructure = (appRoot = APP_ROOT) => {
   const violations = []
   const entries = collectRouteEntries(appRoot)
 
@@ -336,7 +336,7 @@ const isMain =
   process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href
 
 if (isMain) {
-  const result = checkA11y()
+  const result = checkA11yStructure()
 
   if (!result.ok) {
     for (const violation of result.violations) {
@@ -345,6 +345,6 @@ if (isMain) {
   }
 
   console.log(
-    '[check:a11y] OK — one h1 per route, valid image alt text, no skipped heading levels.',
+    '[check:a11y-structure] OK — one h1 per route, valid image alt text, no skipped heading levels.',
   )
 }

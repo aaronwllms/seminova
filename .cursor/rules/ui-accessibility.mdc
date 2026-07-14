@@ -11,15 +11,25 @@ globs:
 
 ## Enforced (deterministic)
 
-Mechanically enforced via `check:a11y` — see AGENTS.md § Hard constraints:
+Mechanically enforced via `check:a11y-structure` and `check:a11y-contrast` — see AGENTS.md § Hard constraints:
+
+### Structure (`check:a11y-structure`)
 
 - **One `<h1>` per route** — each `page.tsx` / `error.tsx` surface, its segment `layout.tsx` chain, and import closure must contain exactly one semantic h1.
-- **Non-empty `alt` on meaningful images** — same scan scope as h1; decorative images may use empty `alt` when marked with `role="presentation"` or `aria-hidden`. Dynamic `alt={expr}` is call-site responsibility (static-analysis ceiling — see `scripts/checks/a11y.mjs` `// debt:` markers).
+- **Non-empty `alt` on meaningful images** — same scan scope as h1; decorative images may use empty `alt` when marked with `role="presentation"` or `aria-hidden`. Dynamic `alt={expr}` is call-site responsibility (static-analysis ceiling — see `scripts/checks/a11y-structure.mjs` `// debt:` markers).
 - **No skipped heading levels** — in the route entry JSX tree and its import closure, document-order headings must not jump more than one level (e.g. h1 → h3). Segment `layout.tsx` headings are excluded (static-analysis ceiling — see checker `// debt:` markers).
+
+### Color contrast (`check:a11y-contrast`)
+
+Semantic token foreground pairs in `src/app/globals.css` (`:root` and `.dark`) must meet **WCAG AA 4.5:1** for text-on-surface:
+
+`background`/`foreground`, `card`/`card-foreground`, `popover`/`popover-foreground`, `primary`/`primary-foreground`, `secondary`/`secondary-foreground`, `muted`/`muted-foreground`, `accent`/`accent-foreground`, `destructive`/`destructive-foreground`, `success`/`success-foreground`, `warning`/`warning-foreground`, `sidebar`/`sidebar-foreground`, `sidebar-primary`/`sidebar-primary-foreground`, `sidebar-accent`/`sidebar-accent-foreground`.
+
+Chart, border, ring, and input tokens are out of scope (no foreground partner).
 
 ## Guidance (manual / subjective)
 
-The checklist and principles below are not mechanically enforced — contrast intent, screen-reader UX, and keyboard flows stay manual review.
+The checklist and principles below are not mechanically enforced — screen-reader UX and keyboard flows stay manual review.
 
 ## shadcn/ui + Radix
 shadcn/ui components have **built-in accessibility** via Radix UI (ARIA, keyboard navigation, focus management, screen reader support). When customizing shadcn components, preserve Radix accessibility props — do not override ARIA roles or strip keyboard handlers.
@@ -29,7 +39,6 @@ shadcn/ui components have **built-in accessibility** via Radix UI (ARIA, keyboar
 - **ARIA** — add only when semantic HTML is insufficient (icon-only buttons, complex widgets)
 - **Keyboard** — all interactive elements operable without a mouse; prefer native elements over `div` + `role="button"`
 - **Focus** — visible `focus-visible` rings using semantic tokens; never remove focus indicators
-- **Color contrast** — maintain WCAG AA minimums; test with [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)
 - **Forms** — associate labels, describe errors accessibly (`role="alert"`), use `aria-invalid` where appropriate
 - **Modals** — use shadcn Dialog (focus trap, Escape to close, focus restore built-in)
 
@@ -39,7 +48,6 @@ shadcn/ui components have **built-in accessibility** via Radix UI (ARIA, keyboar
 - [ ] Can be navigated with keyboard only (no mouse)
 - [ ] Has visible focus indicators on all interactive elements
 - [ ] Includes descriptive labels and aria-labels where needed
-- [ ] Maintains color contrast ratios (WCAG AA minimum)
 - [ ] Works with screen readers (test with NVDA, JAWS, VoiceOver)
 - [ ] Provides error feedback accessibly (role="alert")
 - [ ] Forms have proper labels and error states

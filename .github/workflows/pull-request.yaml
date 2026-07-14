@@ -42,8 +42,11 @@ jobs:
       - name: Check SEO base URL
         run: pnpm check:seo-base-url
 
-      - name: Check a11y
-        run: pnpm check:a11y
+      - name: Check a11y structure
+        run: pnpm check:a11y-structure
+
+      - name: Check a11y contrast
+        run: pnpm check:a11y-contrast
 
       - name: Check linting
         run: pnpm lint
