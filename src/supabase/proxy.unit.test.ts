@@ -86,6 +86,17 @@ describe('updateSession', () => {
     expect(mockSignOut).toHaveBeenCalledWith({ scope: 'local' })
   })
 
+  it('should redirect stray auth code on protected routes to auth error', async () => {
+    const response = await updateSession(createRequest('/home?code=abc'))
+
+    expect(response.status).toBe(307)
+    const location = response.headers.get('location')
+    expect(location).toContain('/auth/error')
+    expect(location).toContain('source=stray_code')
+    expect(location).not.toContain('/auth/login')
+    expect(mockSignOut).toHaveBeenCalledWith({ scope: 'local' })
+  })
+
   it('should allow unauthenticated access to public routes', async () => {
     const response = await updateSession(createRequest('/'))
 

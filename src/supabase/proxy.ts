@@ -89,6 +89,25 @@ export async function updateSession(request: NextRequest) {
 
     await clearLocalSession()
 
+    const hasStrayAuthCode = request.nextUrl.searchParams.has('code')
+
+    if (hasStrayAuthCode) {
+      console.error(
+        '[proxy] Stray auth code on protected route — email templates likely not routed through /auth/confirm',
+        { pathname },
+      )
+
+      const errorUrl = new URL('/auth/error', request.url)
+      errorUrl.searchParams.set('source', 'stray_code')
+      const redirectResponse = NextResponse.redirect(errorUrl)
+
+      for (const { name, value } of supabaseResponse.cookies.getAll()) {
+        redirectResponse.cookies.set(name, value)
+      }
+
+      return redirectResponse
+    }
+
     const intendedPath = `${pathname}${request.nextUrl.search}`
     const loginUrl = buildLoginRedirectUrl(intendedPath, request.url)
     const redirectResponse = NextResponse.redirect(loginUrl)

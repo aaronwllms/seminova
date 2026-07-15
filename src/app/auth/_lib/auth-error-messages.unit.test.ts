@@ -14,6 +14,12 @@ describe('getAuthErrorMessage', () => {
     expect(getAuthErrorMessage('invalid_link')).toContain("isn't valid")
   })
 
+  it('should return stray code copy for stray_code source', () => {
+    expect(getAuthErrorMessage('stray_code')).toContain(
+      "didn't finish signing you in",
+    )
+  })
+
   it('should return generic copy for unknown or missing source', () => {
     expect(getAuthErrorMessage(undefined)).toBe(AUTH_ERROR_GENERIC_MESSAGE)
     expect(getAuthErrorMessage('crafted')).toBe(AUTH_ERROR_GENERIC_MESSAGE)

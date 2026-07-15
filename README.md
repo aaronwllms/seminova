@@ -106,13 +106,39 @@ The full workflow — every step, skill, and document explained, plus the detail
 
 After Quick start, grant yourself admin access so you can use the admin shell:
 
-1. Start the dev server and sign up at [http://localhost:3000/auth/sign-up](http://localhost:3000/auth/sign-up).
-2. Add `SUPABASE_SECRET_KEY` to `.env.local` (from [Project Settings → API](https://app.supabase.com/project/_/settings/api) → **API Keys** → **secret key**, `sb_secret_...`):
+1. **Configure Supabase Auth** (required before sign-up) — in the [Supabase Dashboard](https://app.supabase.com) for your linked project:
+
+   - **Email templates** — Authentication → Email Templates. Replace the default verify link in each template so confirmation routes through this app:
+
+     - **Confirm signup:**
+
+       ```
+       {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}
+       ```
+
+     - **Reset Password:**
+
+       ```
+       {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next={{ .RedirectTo }}
+       ```
+
+   - **Redirect URLs** — Authentication → URL Configuration → Redirect URLs. Add:
+
+     ```
+     http://localhost:3000/**
+     ```
+
+     (plus your production URL once deployed, e.g. `https://yourapp.com/**`)
+
+   If these are skipped, email confirmation links may fail silently or log `Missing access token on protected route` in the server console.
+
+2. Start the dev server and sign up at [http://localhost:3000/auth/sign-up](http://localhost:3000/auth/sign-up).
+3. Add `SUPABASE_SECRET_KEY` to `.env.local` (from [Project Settings → API](https://app.supabase.com/project/_/settings/api) → **API Keys** → **secret key**, `sb_secret_...`):
 
 > [!WARNING]
 > **Never commit `SUPABASE_SECRET_KEY` or use a `NEXT_PUBLIC_*` prefix.** Supabase's **secret key** replaces the legacy **service role** key. This repo uses `SUPABASE_SECRET_KEY` — not `SUPABASE_SERVICE_ROLE_KEY`. The legacy JWT under "Legacy API keys" still works during Supabase's migration period, but prefer the secret key from **API Keys**.
 
-3. Grant yourself admin access — either:
+4. Grant yourself admin access — either:
 
     - **CLI (bootstrap):** promote your account:
 
@@ -124,9 +150,9 @@ After Quick start, grant yourself admin access so you can use the admin shell:
 
     - **In-app (once an admin exists):** another admin promotes you from `/admin/users`
 
-4. **Re-login** if you were already signed in — the admin role is embedded in the JWT and won't appear until you start a fresh session.
+5. **Re-login** if you were already signed in — the admin role is embedded in the JWT and won't appear until you start a fresh session.
 
-5. Open the admin area at [http://localhost:3000/admin](http://localhost:3000/admin) (admins land here after login; non-admins land on `/home`). The Users page at `/admin/users` lists signed-up accounts with email search, column sort, configurable page size, and in-app promote/demote and ban/unban for admins.
+6. Open the admin area at [http://localhost:3000/admin](http://localhost:3000/admin) (admins land here after login; non-admins land on `/home`). The Users page at `/admin/users` lists signed-up accounts with email search, column sort, configurable page size, and in-app promote/demote and ban/unban for admins.
 
 Companion CLI commands (bootstrap / automation): `pnpm demote-admin <email>`, `pnpm list-admins` (read-only, no confirmation).
 
