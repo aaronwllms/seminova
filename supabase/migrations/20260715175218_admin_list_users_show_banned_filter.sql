@@ -81,7 +81,7 @@ begin
       v_escaped_search is null
       or u.email ilike '%' || v_escaped_search || '%' escape '\'
     )
-    and (coalesce(p_show_banned, true) or not u.is_currently_banned)
+    and (coalesce(p_show_banned, false) or not u.is_currently_banned)
   order by
     case
       when p_sort_column = 'email' and p_sort_direction = 'asc' then u.email

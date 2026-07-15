@@ -32,7 +32,7 @@ const defaultListParams = {
   sortColumn: 'created_at',
   sortDirection: 'desc',
   perPage: 15,
-  showBanned: true,
+  showBanned: false,
 } as const
 
 describe('UsersTable', () => {
@@ -117,7 +117,7 @@ describe('UsersTable', () => {
     )
   })
 
-  it('should reset page and refetch when Show banned is unchecked', async () => {
+  it('should reset page and refetch when Show banned is checked', async () => {
     const user = userEvent.setup({ delay: null })
 
     renderTable()
@@ -131,7 +131,7 @@ describe('UsersTable', () => {
     await waitFor(() => {
       expect(listUsersActionMock).toHaveBeenLastCalledWith({
         ...defaultListParams,
-        showBanned: false,
+        showBanned: true,
       })
     })
   })

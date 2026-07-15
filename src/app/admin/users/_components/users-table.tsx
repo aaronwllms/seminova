@@ -64,7 +64,7 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [searchInput, setSearchInput] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
-  const [showBanned, setShowBanned] = useState(true)
+  const [showBanned, setShowBanned] = useState(false)
   const [confirmAction, setConfirmAction] = useState<RoleConfirmAction | null>(
     null,
   )

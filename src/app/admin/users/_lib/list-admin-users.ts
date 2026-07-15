@@ -42,7 +42,7 @@ export const listAdminUsersPage = async (
     p_per_page: perPage,
     p_search:
       trimmedFilter.length >= USERS_SEARCH_MIN_LENGTH ? trimmedFilter : '',
-    p_show_banned: params.showBanned ?? true,
+    p_show_banned: params.showBanned ?? false,
   })
 
   if (error) {

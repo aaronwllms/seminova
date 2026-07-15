@@ -26,7 +26,7 @@ export const useAdminUsersList = ({
   sortColumn,
   sortDirection,
   perPage,
-  showBanned = true,
+  showBanned = false,
 }: UseAdminUsersListOptions) => {
   const query = useQuery({
     queryKey: adminUsersQueryKeys.list(

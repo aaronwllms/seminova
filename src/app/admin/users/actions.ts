@@ -121,7 +121,7 @@ export const listUsersAction = async (
     }
   }
 
-  const showBanned = input.showBanned ?? true
+  const showBanned = input.showBanned ?? false
 
   if (input.showBanned !== undefined && typeof input.showBanned !== 'boolean') {
     return {

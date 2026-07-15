@@ -339,7 +339,7 @@ describe('listUsersAction', () => {
       emailFilter: undefined,
       sortColumn: 'created_at',
       sortDirection: 'desc',
-      showBanned: true,
+      showBanned: false,
     })
   })
 
@@ -397,11 +397,11 @@ describe('listUsersAction', () => {
       sortColumn: 'role',
       sortDirection: 'asc',
       emailFilter: 'alice',
-      showBanned: true,
+      showBanned: false,
     })
   })
 
-  it('should forward showBanned false to listAdminUsersPage', async () => {
+  it('should forward showBanned true to listAdminUsersPage', async () => {
     listAdminUsersPageMock.mockResolvedValue({
       rows: [],
       hasNextPage: false,
@@ -409,7 +409,7 @@ describe('listUsersAction', () => {
     })
 
     const { listUsersAction } = await import('./actions')
-    await listUsersAction({ showBanned: false })
+    await listUsersAction({ showBanned: true })
 
     expect(listAdminUsersPageMock).toHaveBeenCalledWith(expect.any(Object), {
       page: 1,
@@ -417,7 +417,7 @@ describe('listUsersAction', () => {
       emailFilter: undefined,
       sortColumn: 'created_at',
       sortDirection: 'desc',
-      showBanned: false,
+      showBanned: true,
     })
   })
 
@@ -457,7 +457,7 @@ describe('listUsersAction', () => {
       emailFilter: undefined,
       sortColumn: 'banned_until',
       sortDirection: 'desc',
-      showBanned: true,
+      showBanned: false,
     })
   })
 
