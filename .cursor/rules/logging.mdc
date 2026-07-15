@@ -15,7 +15,7 @@ No `@/utils/logger` module — use bracket-tagged `console.*` so Vercel Function
 
 ## Tag Convention
 
-Every log line carries a `[kebab-case-source]` tag matching the file or feature it comes from:
+Every log line carries a `[kebab-case-source]` tag matching the file or feature it comes from. Any log line reporting a failure passes the error object as the second argument — including a `console.warn` that reports a failed sub-operation, not just `console.error`.
 
 ```typescript
 console.warn('[promote-admin] user@example.com is now an admin')

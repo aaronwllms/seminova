@@ -211,7 +211,7 @@ After that, the repo is a real project, not a template copy — and the phase-by
 | `pnpm analyze` | Bundle analyzer |
 | `pnpm promote-admin <email>` | Grant admin role via CLI (requires secret key; bootstrap / automation) |
 | `pnpm demote-admin <email>` | Remove admin role via CLI |
-| `pnpm delete-user <email>` | Delete a user via CLI (test-account cleanup; requires secret key and confirmation) |
+| `pnpm delete-user <email>` | Delete a user via CLI (test-account cleanup; requires secret key and confirmation naming the target project) |
 | `pnpm list-admins` | List all admin users (read-only) |
 | `pnpm db:push` | Apply pending SQL migrations to the linked Supabase project (CLI prompts to confirm) |
 | `pnpm db:types` | Regenerate TypeScript types from the linked project schema |

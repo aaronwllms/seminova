@@ -1,9 +1,5 @@
 import type { SupabaseClient, User } from '@supabase/supabase-js'
 
-import {
-  AVATAR_BUCKET,
-  buildAvatarStoragePath,
-} from '@/constants/storage-paths'
 import { ADMIN_ROLE } from '@/constants/admin-role'
 import {
   demoteUserById,
@@ -13,6 +9,10 @@ import {
   type PromoteUserByIdResult,
 } from '@/utils/admin-user-mutations'
 import { isAdminFromAppMetadata } from '@/utils/admin'
+import {
+  removeAvatarStorage,
+  type RemoveAvatarStorageResult,
+} from '@/utils/remove-avatar-storage'
 
 export { ADMIN_ROLE } from '@/constants/admin-role'
 export {
@@ -106,17 +106,9 @@ export const listAdminUsers = async (
     .sort((a, b) => a.localeCompare(b))
 }
 
+export type DeleteUserAvatarStorageResult = RemoveAvatarStorageResult
+
 export const deleteUserAvatarStorage = async (
   client: SupabaseClient,
   userId: string,
-): Promise<{ ok: boolean }> => {
-  try {
-    const { error } = await client.storage
-      .from(AVATAR_BUCKET)
-      .remove([buildAvatarStoragePath(userId)])
-
-    return { ok: !error }
-  } catch {
-    return { ok: false }
-  }
-}
+): Promise<DeleteUserAvatarStorageResult> => removeAvatarStorage(client, userId)

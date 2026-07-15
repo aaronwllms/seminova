@@ -78,13 +78,18 @@ describe('runDeleteUser', () => {
   })
 
   it('should warn and still succeed when avatar storage delete fails', async () => {
+    const storageError = { message: 'storage delete failed' }
+
     mockConfirmAction.mockResolvedValue(true)
     mockFindUserByEmail.mockResolvedValue(createMockUser())
     mockDeleteUserById.mockResolvedValue({
       status: 'deleted',
       email: 'alice@example.com',
     })
-    mockDeleteUserAvatarStorage.mockResolvedValue({ ok: false })
+    mockDeleteUserAvatarStorage.mockResolvedValue({
+      ok: false,
+      error: storageError,
+    })
 
     await runDeleteUser(['alice@example.com'])
 
@@ -92,6 +97,7 @@ describe('runDeleteUser', () => {
     expect(mockDeleteUserAvatarStorage).toHaveBeenCalledWith({}, 'user-1')
     expect(warnSpy).toHaveBeenCalledWith(
       '[delete-user] user deleted but avatar file may remain at user-1/avatar.webp in avatars',
+      storageError,
     )
     expect(warnSpy).toHaveBeenCalledWith(
       '[delete-user] alice@example.com deleted',

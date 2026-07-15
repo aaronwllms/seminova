@@ -140,6 +140,7 @@ export const runDeleteUser = async (args: string[]): Promise<void> => {
   if (!avatarResult.ok) {
     console.warn(
       `[delete-user] user deleted but avatar file may remain at ${buildAvatarStoragePath(user.id)} in ${AVATAR_BUCKET}`,
+      avatarResult.error,
     )
   }
 
