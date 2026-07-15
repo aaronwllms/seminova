@@ -1,62 +1,60 @@
-import type { SupabaseClient, User } from '@supabase/supabase-js'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { USERS_PAGE_SIZE } from './admin-user-row'
+import { DATA_TABLE_DEFAULT_PAGE_SIZE } from '@/constants/data-table'
+
+import { type AdminUserRpcRow } from './admin-user-row'
 import { listAdminUsersPage } from './list-admin-users'
 
-vi.mock('@/utils/env', () => ({
-  getServiceSupabaseEnv: vi.fn(() => ({
-    supabaseUrl: 'https://example.supabase.co',
-    secretKey: 'secret-key',
-  })),
-}))
+const createRpcRow = (id: string): AdminUserRpcRow => ({
+  id,
+  email: `${id}@example.com`,
+  email_confirmed_at: '2024-06-01T12:00:00.000Z',
+  created_at: '2024-06-01T12:00:00.000Z',
+  last_sign_in_at: null,
+  app_metadata: {},
+  banned_until: null,
+})
 
-const createUser = (id: string): User =>
+const createClientMock = (rows: AdminUserRpcRow[]) =>
   ({
-    id,
-    email: `${id}@example.com`,
-    created_at: '2024-06-01T12:00:00.000Z',
-    app_metadata: {},
-  }) as User
-
-const createClientMock = (users: User[]) =>
-  ({
-    auth: {
-      admin: {
-        listUsers: vi.fn().mockResolvedValue({
-          data: { users },
-          error: null,
-        }),
-      },
-    },
+    rpc: vi.fn().mockResolvedValue({
+      data: rows,
+      error: null,
+    }),
   }) as unknown as SupabaseClient
 
 describe('listAdminUsersPage', () => {
   beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn())
+    vi.clearAllMocks()
   })
 
   it('should set hasNextPage when a full page is returned', async () => {
-    const users = Array.from({ length: USERS_PAGE_SIZE }, (_, index) =>
-      createUser(`user-${index}`),
+    const rows = Array.from(
+      { length: DATA_TABLE_DEFAULT_PAGE_SIZE },
+      (_, index) => createRpcRow(`user-${index}`),
     )
-    const client = createClientMock(users)
+    const client = createClientMock(rows)
 
     const result = await listAdminUsersPage(client, { page: 1 })
 
-    expect(result.rows).toHaveLength(USERS_PAGE_SIZE)
+    expect(result.rows).toHaveLength(DATA_TABLE_DEFAULT_PAGE_SIZE)
     expect(result.hasNextPage).toBe(true)
-    expect(client.auth.admin.listUsers).toHaveBeenCalledWith({
-      page: 1,
-      perPage: USERS_PAGE_SIZE,
+    expect(client.rpc).toHaveBeenCalledWith('admin_list_users', {
+      p_sort_column: 'created_at',
+      p_sort_direction: 'desc',
+      p_page: 1,
+      p_per_page: DATA_TABLE_DEFAULT_PAGE_SIZE,
+      p_search: '',
     })
   })
 
   it('should clear hasNextPage on a short final page', async () => {
-    const users = Array.from({ length: USERS_PAGE_SIZE - 1 }, (_, index) =>
-      createUser(`user-${index}`),
+    const rows = Array.from(
+      { length: DATA_TABLE_DEFAULT_PAGE_SIZE - 1 },
+      (_, index) => createRpcRow(`user-${index}`),
     )
-    const client = createClientMock(users)
+    const client = createClientMock(rows)
 
     const result = await listAdminUsersPage(client, { page: 2 })
 
@@ -64,29 +62,39 @@ describe('listAdminUsersPage', () => {
     expect(result.page).toBe(2)
   })
 
-  it('should call admin users API with filter when search is long enough', async () => {
-    const fetchMock = vi.mocked(fetch)
-    fetchMock.mockResolvedValue(
-      new Response(JSON.stringify({ users: [createUser('match')] }), {
-        status: 200,
-      }),
-    )
+  it('should forward search, sort, and page size to the RPC', async () => {
+    const client = createClientMock([createRpcRow('match')])
 
+    await listAdminUsersPage(client, {
+      page: 3,
+      perPage: 25,
+      emailFilter: 'match@example.com',
+      sortColumn: 'email',
+      sortDirection: 'asc',
+    })
+
+    expect(client.rpc).toHaveBeenCalledWith('admin_list_users', {
+      p_sort_column: 'email',
+      p_sort_direction: 'asc',
+      p_page: 3,
+      p_per_page: 25,
+      p_search: 'match@example.com',
+    })
+  })
+
+  it('should omit short search filters from the RPC call', async () => {
     const client = createClientMock([])
 
     await listAdminUsersPage(client, {
       page: 1,
-      emailFilter: 'match@example.com',
+      emailFilter: 'ab',
     })
 
-    expect(fetchMock).toHaveBeenCalledWith(
-      `https://example.supabase.co/auth/v1/admin/users?page=1&per_page=${USERS_PAGE_SIZE}&filter=match%40example.com`,
+    expect(client.rpc).toHaveBeenCalledWith(
+      'admin_list_users',
       expect.objectContaining({
-        headers: expect.objectContaining({
-          Authorization: 'Bearer secret-key',
-        }),
+        p_search: '',
       }),
     )
-    expect(client.auth.admin.listUsers).not.toHaveBeenCalled()
   })
 })

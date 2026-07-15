@@ -6,6 +6,7 @@ import {
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
+  type OnChangeFn,
   type SortingState,
   useReactTable,
 } from '@tanstack/react-table'
@@ -40,29 +41,47 @@ type UseDataTableShellOptions<TData> = {
   columns: Array<ColumnDef<TData, unknown>>
   getRowId?: (row: TData) => string
   initialSorting?: SortingState
+  manualSorting?: boolean
+  sorting?: SortingState
+  onSortingChange?: OnChangeFn<SortingState>
 }
 
 export const useDataTableShell = <TData,>(
   options: UseDataTableShellOptions<TData>,
 ) => {
-  const { data, columns, getRowId, initialSorting = [] } = options
+  const {
+    data,
+    columns,
+    getRowId,
+    initialSorting = [],
+    manualSorting = false,
+    sorting: controlledSorting,
+    onSortingChange: controlledOnSortingChange,
+  } = options
 
-  const [sorting, setSorting] = React.useState<SortingState>(initialSorting)
+  const [uncontrolledSorting, setUncontrolledSorting] =
+    React.useState<SortingState>(initialSorting)
+  const isControlled = controlledSorting !== undefined
+  const sorting = isControlled ? controlledSorting : uncontrolledSorting
+  const onSortingChange = isControlled
+    ? controlledOnSortingChange!
+    : setUncontrolledSorting
 
   const table = useReactTable({
     data,
     columns,
     getRowId,
     state: { sorting },
-    onSortingChange: setSorting,
+    onSortingChange,
+    manualSorting,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+    ...(manualSorting ? {} : { getSortedRowModel: getSortedRowModel() }),
   })
 
   return {
     table,
     sorting,
-    setSorting,
+    setSorting: onSortingChange,
   }
 }
 

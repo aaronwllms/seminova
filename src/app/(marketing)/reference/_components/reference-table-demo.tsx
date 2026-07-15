@@ -1,14 +1,20 @@
 'use client'
 
+import type { SortingState } from '@tanstack/react-table'
+import { useCallback, useEffect, useState } from 'react'
+
 import {
   DataTableShell,
   useDataTableShell,
 } from '@/components/data-table-shell'
-import { useEffect, useState } from 'react'
-
-import { Button } from '@/components/ui/button'
+import { DataTablePaginationControls } from '@/components/data-table-pagination-controls'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+
+import {
+  DATA_TABLE_DEFAULT_PAGE_SIZE,
+  DATA_TABLE_PAGE_SIZE_OPTIONS,
+} from '@/constants/data-table'
 
 import { useReferenceShipments } from '../_lib/use-reference-shipments'
 import { referenceShipmentsColumns } from './reference-shipments-columns'
@@ -17,12 +23,16 @@ const SEARCH_DEBOUNCE_MS = 300
 
 export const ReferenceTableDemo = () => {
   const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(DATA_TABLE_DEFAULT_PAGE_SIZE)
+  const [sorting, setSorting] = useState<SortingState>([])
   const [searchInput, setSearchInput] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
 
   const { rows, hasNextPage, isLoading, isFetching } = useReferenceShipments({
     page,
     search: debouncedSearch,
+    perPage,
+    sorting,
   })
 
   useEffect(() => {
@@ -34,10 +44,26 @@ export const ReferenceTableDemo = () => {
     return () => window.clearTimeout(timer)
   }, [searchInput])
 
+  const handleSortingChange = useCallback((next: SortingState) => {
+    setSorting(next)
+    setPage(1)
+  }, [])
+
+  const handlePageSizeChange = useCallback((nextPageSize: number) => {
+    setPerPage(nextPageSize)
+    setPage(1)
+  }, [])
+
   const { table } = useDataTableShell({
     data: rows,
     columns: referenceShipmentsColumns,
     getRowId: (row) => row.id,
+    manualSorting: true,
+    sorting,
+    onSortingChange: (updater) => {
+      const next = typeof updater === 'function' ? updater(sorting) : updater
+      handleSortingChange(next)
+    },
   })
 
   return (
@@ -67,26 +93,17 @@ export const ReferenceTableDemo = () => {
           />
         </div>
 
-        <div className="flex items-center justify-end gap-2 border-t p-3">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={page <= 1 || isFetching}
-            onClick={() => setPage((current) => Math.max(1, current - 1))}
-          >
-            Previous
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={!hasNextPage || isFetching}
-            onClick={() => setPage((current) => current + 1)}
-          >
-            Next
-          </Button>
-        </div>
+        <DataTablePaginationControls
+          className="border-t p-3"
+          page={page}
+          hasNextPage={hasNextPage}
+          isPending={isFetching}
+          onPrevious={() => setPage((current) => Math.max(1, current - 1))}
+          onNext={() => setPage((current) => current + 1)}
+          pageSize={perPage}
+          pageSizeOptions={DATA_TABLE_PAGE_SIZE_OPTIONS}
+          onPageSizeChange={handlePageSizeChange}
+        />
       </div>
     </div>
   )

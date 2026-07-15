@@ -311,6 +311,7 @@ describe('listUsersAction', () => {
           createdAtLabel: 'Jun 1, 2024',
           lastSignInAtLabel: 'Jun 2, 2024',
           isAdmin: false,
+          bannedUntil: null,
         },
       ],
       hasNextPage: false,
@@ -322,11 +323,72 @@ describe('listUsersAction', () => {
     const result = await listUsersAction()
 
     expect(result).toEqual({ success: true, data: pageData })
-    expect(createServiceClientMock).toHaveBeenCalled()
-    expect(listAdminUsersPageMock).toHaveBeenCalledWith(
-      {},
-      { page: 1, emailFilter: undefined },
-    )
+    expect(createClientMock).toHaveBeenCalled()
+    expect(createServiceClientMock).not.toHaveBeenCalled()
+    expect(listAdminUsersPageMock).toHaveBeenCalledWith(expect.any(Object), {
+      page: 1,
+      perPage: 15,
+      emailFilter: undefined,
+      sortColumn: 'created_at',
+      sortDirection: 'desc',
+    })
+  })
+
+  it('should return VALIDATION_ERROR for invalid page size', async () => {
+    const { listUsersAction } = await import('./actions')
+    const result = await listUsersAction({ perPage: 20 as 15 })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Page size must be 10, 15, 25, or 50',
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
+    })
+    expect(listAdminUsersPageMock).not.toHaveBeenCalled()
+  })
+
+  it('should return VALIDATION_ERROR for invalid sort column', async () => {
+    const { listUsersAction } = await import('./actions')
+    const result = await listUsersAction({
+      sortColumn: 'display_name' as 'email',
+    })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Invalid sort column',
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
+    })
+    expect(listAdminUsersPageMock).not.toHaveBeenCalled()
+  })
+
+  it('should forward sort and page size params', async () => {
+    listAdminUsersPageMock.mockResolvedValue({
+      rows: [],
+      hasNextPage: false,
+      page: 2,
+    })
+
+    const { listUsersAction } = await import('./actions')
+    await listUsersAction({
+      page: 2,
+      perPage: 50,
+      sortColumn: 'role',
+      sortDirection: 'asc',
+      emailFilter: 'alice',
+    })
+
+    expect(listAdminUsersPageMock).toHaveBeenCalledWith(expect.any(Object), {
+      page: 2,
+      perPage: 50,
+      sortColumn: 'role',
+      sortDirection: 'asc',
+      emailFilter: 'alice',
+    })
   })
 
   it('should return INTERNAL_ERROR when listAdminUsersPage throws', async () => {

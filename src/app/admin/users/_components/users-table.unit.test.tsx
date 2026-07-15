@@ -22,6 +22,14 @@ vi.mock('@/utils/app-toast', () => ({
 
 const CURRENT_ADMIN_ID = 'admin-user-id'
 
+const defaultListParams = {
+  page: 1,
+  emailFilter: undefined,
+  sortColumn: 'created_at',
+  sortDirection: 'desc',
+  perPage: 15,
+} as const
+
 describe('UsersTable', () => {
   beforeEach(() => {
     listUsersActionMock.mockReset()
@@ -67,10 +75,7 @@ describe('UsersTable', () => {
       expect(screen.getByText('admin@example.com')).toBeInTheDocument()
     })
 
-    expect(listUsersActionMock).toHaveBeenCalledWith({
-      page: 1,
-      emailFilter: undefined,
-    })
+    expect(listUsersActionMock).toHaveBeenCalledWith(defaultListParams)
   })
 
   it('should disable Next when hasNextPage is false', async () => {
@@ -96,7 +101,7 @@ describe('UsersTable', () => {
     await waitFor(
       () => {
         expect(listUsersActionMock).toHaveBeenLastCalledWith({
-          page: 1,
+          ...defaultListParams,
           emailFilter: 'abc',
         })
       },

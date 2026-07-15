@@ -65,7 +65,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      admin_list_users: {
+        Args: {
+          p_page: number
+          p_per_page: number
+          p_search: string
+          p_sort_column: string
+          p_sort_direction: string
+        }
+        Returns: {
+          app_metadata: Json
+          banned_until: string
+          created_at: string
+          email: string
+          email_confirmed_at: string
+          id: string
+          last_sign_in_at: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

@@ -54,7 +54,7 @@ export const createUsersColumns = ({
         <Badge variant="outline">Unverified</Badge>
       )
     },
-    enableSorting: false,
+    enableSorting: true,
   },
   {
     accessorKey: 'createdAtLabel',
@@ -62,7 +62,7 @@ export const createUsersColumns = ({
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Created" />
     ),
-    enableSorting: false,
+    enableSorting: true,
   },
   {
     accessorKey: 'lastSignInAtLabel',
@@ -70,7 +70,7 @@ export const createUsersColumns = ({
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Last sign-in" />
     ),
-    enableSorting: false,
+    enableSorting: true,
   },
   {
     accessorKey: 'isAdmin',
@@ -83,7 +83,7 @@ export const createUsersColumns = ({
 
       return isAdmin ? <Badge>Admin</Badge> : null
     },
-    enableSorting: false,
+    enableSorting: true,
   },
   {
     id: 'actions',

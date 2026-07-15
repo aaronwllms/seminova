@@ -1,7 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table'
 
+import { DataTablePaginationControls } from '@/components/data-table-pagination-controls'
 import { DataTableSkeletonBody } from '@/components/data-table-skeleton-body'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -11,6 +11,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+
+import {
+  DATA_TABLE_DEFAULT_PAGE_SIZE,
+  DATA_TABLE_PAGE_SIZE_OPTIONS,
+} from '@/constants/data-table'
 
 import type { ReferenceShipment } from '../_lib/reference-shipment'
 
@@ -66,14 +71,17 @@ export const ReferenceTableDemoFallback = () => (
         </Table>
       </div>
 
-      <div className="flex items-center justify-end gap-2 border-t p-3">
-        <Button type="button" variant="outline" size="sm" disabled>
-          Previous
-        </Button>
-        <Button type="button" variant="outline" size="sm" disabled>
-          Next
-        </Button>
-      </div>
+      <DataTablePaginationControls
+        className="border-t p-3"
+        page={1}
+        hasNextPage={false}
+        isPending
+        onPrevious={() => undefined}
+        onNext={() => undefined}
+        pageSize={DATA_TABLE_DEFAULT_PAGE_SIZE}
+        pageSizeOptions={DATA_TABLE_PAGE_SIZE_OPTIONS}
+        onPageSizeChange={() => undefined}
+      />
     </div>
   </div>
 )
