@@ -38,7 +38,7 @@ While a fetch is in flight and the table body is empty, show skeleton rows — n
 
 - Use `DataTableShell` `isLoading` when loading and `table.getRowModel().rows.length === 0`.
 - Skeleton rows render via `DataTableSkeletonBody` using the `Skeleton` primitive (`src/components/ui/skeleton.tsx`).
-- Per-column sizing via `columnDef.meta.skeletonClassName` (see users columns for reference).
+- Per-column skeleton shape via `columnDef.meta.skeletonClassName` (see users columns for reference) — shape only; width and alignment come from `cellClassName` (see [Column sizing](#column-sizing)).
 - Default skeleton row count: 8 — intentionally fewer than page size (15). Enough to signal loading without flooding the viewport or implying a specific result count.
 - When stale rows are already on screen (pagination/search refetch), keep showing stale data; disable controls via `isPending` — do not flash skeleton over existing rows.
 - `emptyMessage` is for the zero-results state only.
