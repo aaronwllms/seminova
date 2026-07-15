@@ -95,7 +95,10 @@ export const createUsersColumns = ({
   },
   {
     accessorKey: 'banStatus',
-    meta: { skeletonClassName: 'h-5 w-28 rounded-md' },
+    meta: {
+      cellClassName: 'w-0 whitespace-nowrap',
+      skeletonClassName: 'h-5 w-28 rounded-md',
+    },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Ban" />
     ),
@@ -121,8 +124,8 @@ export const createUsersColumns = ({
   {
     id: 'actions',
     meta: {
-      cellClassName: 'w-0 whitespace-nowrap',
-      skeletonClassName: 'h-8 w-8 rounded-md',
+      cellClassName: 'min-w-20 whitespace-nowrap text-center',
+      skeletonClassName: 'inline-block h-8 w-8 rounded-md',
     },
     header: () => <span className="sr-only">Actions</span>,
     cell: ({ row }) => {
