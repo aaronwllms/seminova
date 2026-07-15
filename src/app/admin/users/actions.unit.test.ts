@@ -7,6 +7,8 @@ const createClientMock = vi.fn()
 const createServiceClientMock = vi.fn()
 const promoteUserByIdMock = vi.fn()
 const demoteUserByIdMock = vi.fn()
+const banUserByIdMock = vi.fn()
+const unbanUserByIdMock = vi.fn()
 const listAdminUsersPageMock = vi.fn()
 
 vi.mock('@/supabase/server', () => ({
@@ -20,6 +22,8 @@ vi.mock('@/supabase/service', () => ({
 vi.mock('@/utils/admin-role-mutations', () => ({
   promoteUserById: (...args: unknown[]) => promoteUserByIdMock(...args),
   demoteUserById: (...args: unknown[]) => demoteUserByIdMock(...args),
+  banUserById: (...args: unknown[]) => banUserByIdMock(...args),
+  unbanUserById: (...args: unknown[]) => unbanUserByIdMock(...args),
 }))
 
 vi.mock('./_lib/list-admin-users', () => ({
@@ -39,6 +43,8 @@ describe('promoteUserAction', () => {
     createServiceClientMock.mockReset()
     promoteUserByIdMock.mockReset()
     demoteUserByIdMock.mockReset()
+    banUserByIdMock.mockReset()
+    unbanUserByIdMock.mockReset()
 
     createClientMock.mockResolvedValue({
       auth: { getUser: getUserMock },
@@ -149,6 +155,8 @@ describe('demoteUserAction', () => {
     createServiceClientMock.mockReset()
     promoteUserByIdMock.mockReset()
     demoteUserByIdMock.mockReset()
+    banUserByIdMock.mockReset()
+    unbanUserByIdMock.mockReset()
 
     createClientMock.mockResolvedValue({
       auth: { getUser: getUserMock },
@@ -311,7 +319,7 @@ describe('listUsersAction', () => {
           createdAtLabel: 'Jun 1, 2024',
           lastSignInAtLabel: 'Jun 2, 2024',
           isAdmin: false,
-          bannedUntil: null,
+          banStatus: null,
         },
       ],
       hasNextPage: false,
@@ -391,6 +399,28 @@ describe('listUsersAction', () => {
     })
   })
 
+  it('should forward banned_until sort column', async () => {
+    listAdminUsersPageMock.mockResolvedValue({
+      rows: [],
+      hasNextPage: false,
+      page: 1,
+    })
+
+    const { listUsersAction } = await import('./actions')
+    await listUsersAction({
+      sortColumn: 'banned_until',
+      sortDirection: 'desc',
+    })
+
+    expect(listAdminUsersPageMock).toHaveBeenCalledWith(expect.any(Object), {
+      page: 1,
+      perPage: 15,
+      emailFilter: undefined,
+      sortColumn: 'banned_until',
+      sortDirection: 'desc',
+    })
+  })
+
   it('should return INTERNAL_ERROR when listAdminUsersPage throws', async () => {
     listAdminUsersPageMock.mockRejectedValue(new Error('db down'))
 
@@ -403,6 +433,175 @@ describe('listUsersAction', () => {
         message: 'Something went wrong loading users. Please try again.',
         code: 'INTERNAL_ERROR',
         kind: 'fault',
+      },
+    })
+  })
+})
+
+describe('banUserAction', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    getUserMock.mockReset()
+    createClientMock.mockReset()
+    createServiceClientMock.mockReset()
+    promoteUserByIdMock.mockReset()
+    demoteUserByIdMock.mockReset()
+    banUserByIdMock.mockReset()
+    unbanUserByIdMock.mockReset()
+
+    createClientMock.mockResolvedValue({
+      auth: { getUser: getUserMock },
+    })
+    createServiceClientMock.mockReturnValue({})
+    getUserMock.mockResolvedValue({
+      data: { user: adminUser },
+      error: null,
+    })
+  })
+
+  it('should block self-ban with VALIDATION_ERROR', async () => {
+    const { banUserAction } = await import('./actions')
+    const result = await banUserAction({
+      userId: 'admin-user-id',
+      banDuration: '24h',
+    })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'You cannot ban your own account',
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
+    })
+    expect(banUserByIdMock).not.toHaveBeenCalled()
+  })
+
+  it('should return VALIDATION_ERROR for invalid ban duration', async () => {
+    const { banUserAction } = await import('./actions')
+    const result = await banUserAction({
+      userId: 'other-user',
+      banDuration: 'forever',
+    })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Invalid ban duration',
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
+    })
+    expect(banUserByIdMock).not.toHaveBeenCalled()
+  })
+
+  it('should return success envelope for banned user', async () => {
+    banUserByIdMock.mockResolvedValue({
+      status: 'banned',
+      email: 'bob@example.com',
+    })
+
+    const { banUserAction } = await import('./actions')
+    const result = await banUserAction({
+      userId: 'other-user',
+      banDuration: '168h',
+    })
+
+    expect(result).toEqual({
+      success: true,
+      data: { status: 'banned', email: 'bob@example.com' },
+    })
+  })
+
+  it('should return NOT_FOUND when the user does not exist', async () => {
+    banUserByIdMock.mockResolvedValue({ status: 'not_found' })
+
+    const { banUserAction } = await import('./actions')
+    const result = await banUserAction({
+      userId: 'missing-user',
+      banDuration: '24h',
+    })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'User not found',
+        code: 'NOT_FOUND',
+        kind: 'operational',
+      },
+    })
+  })
+
+  it('should return INTERNAL_ERROR when the service client fails', async () => {
+    createServiceClientMock.mockImplementation(() => {
+      throw new Error('service unavailable')
+    })
+
+    const { banUserAction } = await import('./actions')
+    const result = await banUserAction({
+      userId: 'other-user',
+      banDuration: '24h',
+    })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Something went wrong banning this user. Please try again.',
+        code: 'INTERNAL_ERROR',
+        kind: 'fault',
+      },
+    })
+  })
+})
+
+describe('unbanUserAction', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    getUserMock.mockReset()
+    createClientMock.mockReset()
+    createServiceClientMock.mockReset()
+    promoteUserByIdMock.mockReset()
+    demoteUserByIdMock.mockReset()
+    banUserByIdMock.mockReset()
+    unbanUserByIdMock.mockReset()
+
+    createClientMock.mockResolvedValue({
+      auth: { getUser: getUserMock },
+    })
+    createServiceClientMock.mockReturnValue({})
+    getUserMock.mockResolvedValue({
+      data: { user: adminUser },
+      error: null,
+    })
+  })
+
+  it('should return success envelope for unbanned user', async () => {
+    unbanUserByIdMock.mockResolvedValue({
+      status: 'unbanned',
+      email: 'bob@example.com',
+    })
+
+    const { unbanUserAction } = await import('./actions')
+    const result = await unbanUserAction({ userId: 'other-user' })
+
+    expect(result).toEqual({
+      success: true,
+      data: { status: 'unbanned', email: 'bob@example.com' },
+    })
+  })
+
+  it('should return NOT_FOUND when the user does not exist', async () => {
+    unbanUserByIdMock.mockResolvedValue({ status: 'not_found' })
+
+    const { unbanUserAction } = await import('./actions')
+    const result = await unbanUserAction({ userId: 'missing-user' })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'User not found',
+        code: 'NOT_FOUND',
+        kind: 'operational',
       },
     })
   })

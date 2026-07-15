@@ -4,11 +4,14 @@ import { describe, expect, it, vi } from 'vitest'
 import { ADMIN_ROLE } from '@/constants/admin-role'
 
 import {
+  banUserById,
   demoteUserById,
+  getBanMutationToastMessage,
   getRoleMutationToastMessage,
   mergeDemoteMetadata,
   mergePromoteMetadata,
   promoteUserById,
+  unbanUserById,
 } from './admin-role-mutations'
 
 const createMockUser = (overrides: Partial<User> = {}): User =>
@@ -118,6 +121,75 @@ describe('promoteUserById', () => {
     })
     expect(client.auth.admin.updateUserById).toHaveBeenCalledWith('user-1', {
       app_metadata: { org: 'acme', role: ADMIN_ROLE },
+    })
+  })
+})
+
+describe('getBanMutationToastMessage', () => {
+  it('should return end-state copy for each ban mutation status', () => {
+    expect(getBanMutationToastMessage('banned')).toBe('User banned')
+    expect(getBanMutationToastMessage('unbanned')).toBe('User unbanned')
+    expect(getBanMutationToastMessage('not_banned')).toBe('User is not banned')
+  })
+})
+
+describe('banUserById', () => {
+  it('should return not_found when user does not exist', async () => {
+    const client = createMockClient(null)
+
+    const result = await banUserById(client, 'missing-id', '24h')
+
+    expect(result).toEqual({ status: 'not_found' })
+  })
+
+  it('should ban user with the requested ban_duration', async () => {
+    const client = createMockClient(createMockUser())
+
+    const result = await banUserById(client, 'user-1', '168h')
+
+    expect(result).toEqual({
+      status: 'banned',
+      email: 'alice@example.com',
+    })
+    expect(client.auth.admin.updateUserById).toHaveBeenCalledWith('user-1', {
+      ban_duration: '168h',
+    })
+  })
+})
+
+describe('unbanUserById', () => {
+  it('should return not_found when user does not exist', async () => {
+    const client = createMockClient(null)
+
+    const result = await unbanUserById(client, 'missing-id')
+
+    expect(result).toEqual({ status: 'not_found' })
+  })
+
+  it('should return not_banned without calling updateUserById when already unbanned', async () => {
+    const client = createMockClient(createMockUser({ banned_until: undefined }))
+
+    const result = await unbanUserById(client, 'user-1')
+
+    expect(result).toEqual({
+      status: 'not_banned',
+      email: 'alice@example.com',
+    })
+    expect(client.auth.admin.updateUserById).not.toHaveBeenCalled()
+  })
+
+  it('should unban user with ban_duration none', async () => {
+    const futureBan = new Date(Date.now() + 60_000).toISOString()
+    const client = createMockClient(createMockUser({ banned_until: futureBan }))
+
+    const result = await unbanUserById(client, 'user-1')
+
+    expect(result).toEqual({
+      status: 'unbanned',
+      email: 'alice@example.com',
+    })
+    expect(client.auth.admin.updateUserById).toHaveBeenCalledWith('user-1', {
+      ban_duration: 'none',
     })
   })
 })

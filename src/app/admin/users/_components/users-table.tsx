@@ -11,6 +11,7 @@ import {
 import { DataTablePaginationControls } from '@/components/data-table-pagination-controls'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import type { AdminBanDuration } from '@/constants/admin-ban'
 import type { AppError } from '@/types/app-error'
 
 import {
@@ -25,12 +26,15 @@ import {
   type UsersSortColumn,
   type UsersSortDirection,
 } from '../_lib/admin-user-row'
+import { useAdminUserBanMutation } from '../_lib/use-admin-user-ban-mutation'
 import { useAdminUserRoleMutation } from '../_lib/use-admin-user-role-mutation'
 import { useAdminUsersList } from '../_lib/use-admin-users-list'
+import { BanUserDialog, type BanConfirmAction } from './ban-user-dialog'
 import {
   PromoteDemoteDialog,
   type RoleConfirmAction,
 } from './promote-demote-dialog'
+import { UnbanUserDialog, type UnbanConfirmAction } from './unban-user-dialog'
 import { createUsersColumns } from './users-columns'
 
 const SEARCH_DEBOUNCE_MS = 300
@@ -41,6 +45,7 @@ const COLUMN_ID_TO_SORT_KEY: Record<string, UsersSortColumn> = {
   createdAtLabel: 'created_at',
   lastSignInAtLabel: 'last_sign_in_at',
   isAdmin: 'role',
+  banStatus: 'banned_until',
 }
 
 const DEFAULT_SORTING: SortingState = [{ id: 'createdAtLabel', desc: true }]
@@ -60,6 +65,10 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
   const [confirmAction, setConfirmAction] = useState<RoleConfirmAction | null>(
     null,
   )
+  const [banConfirmAction, setBanConfirmAction] =
+    useState<BanConfirmAction | null>(null)
+  const [unbanConfirmAction, setUnbanConfirmAction] =
+    useState<UnbanConfirmAction | null>(null)
 
   const activeSort = sorting[0]
   const sortColumn: UsersSortColumn = activeSort
@@ -83,12 +92,21 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
 
   const {
     mutate: mutateRole,
-    isPending: isMutationPending,
-    error: mutationError,
-    variables: mutationVariables,
-    reset: resetMutation,
+    isPending: isRoleMutationPending,
+    error: roleMutationError,
+    variables: roleMutationVariables,
+    reset: resetRoleMutation,
   } = useAdminUserRoleMutation()
 
+  const {
+    mutate: mutateBan,
+    isPending: isBanMutationPending,
+    error: banMutationError,
+    variables: banMutationVariables,
+    reset: resetBanMutation,
+  } = useAdminUserBanMutation()
+
+  const mutationError = roleMutationError ?? banMutationError
   const mutationAppError = mutationError
     ? (mutationError as unknown as AppError)
     : null
@@ -112,25 +130,54 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
     setPage(1)
   }, [])
 
+  const resetMutations = useCallback(() => {
+    resetRoleMutation()
+    resetBanMutation()
+  }, [resetBanMutation, resetRoleMutation])
+
   const handlePromote = useCallback(
     (row: AdminUserRow) => {
-      resetMutation()
+      resetMutations()
+      setBanConfirmAction(null)
+      setUnbanConfirmAction(null)
       setConfirmAction({ type: 'promote', userId: row.id, email: row.email })
     },
-    [resetMutation],
+    [resetMutations],
   )
 
   const handleDemote = useCallback(
     (row: AdminUserRow) => {
-      resetMutation()
+      resetMutations()
+      setBanConfirmAction(null)
+      setUnbanConfirmAction(null)
       setConfirmAction({ type: 'demote', userId: row.id, email: row.email })
     },
-    [resetMutation],
+    [resetMutations],
   )
 
-  const pendingUserId = isMutationPending
-    ? (mutationVariables?.userId ?? null)
-    : null
+  const handleBan = useCallback(
+    (row: AdminUserRow) => {
+      resetMutations()
+      setConfirmAction(null)
+      setUnbanConfirmAction(null)
+      setBanConfirmAction({ userId: row.id, email: row.email })
+    },
+    [resetMutations],
+  )
+
+  const handleUnban = useCallback(
+    (row: AdminUserRow) => {
+      resetMutations()
+      setConfirmAction(null)
+      setBanConfirmAction(null)
+      setUnbanConfirmAction({ userId: row.id, email: row.email })
+    },
+    [resetMutations],
+  )
+
+  const pendingUserId =
+    (isRoleMutationPending ? (roleMutationVariables?.userId ?? null) : null) ??
+    (isBanMutationPending ? (banMutationVariables?.userId ?? null) : null)
 
   const columns = useMemo(
     () =>
@@ -139,8 +186,17 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
         pendingUserId,
         onPromote: handlePromote,
         onDemote: handleDemote,
+        onBan: handleBan,
+        onUnban: handleUnban,
       }),
-    [currentAdminUserId, handleDemote, handlePromote, pendingUserId],
+    [
+      currentAdminUserId,
+      handleBan,
+      handleDemote,
+      handlePromote,
+      handleUnban,
+      pendingUserId,
+    ],
   )
 
   const { table } = useDataTableShell({
@@ -155,7 +211,7 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
     },
   })
 
-  const handleConfirmMutation = () => {
+  const handleConfirmRoleMutation = () => {
     if (!confirmAction) {
       return
     }
@@ -167,6 +223,40 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
       {
         onSettled: () => {
           setConfirmAction(null)
+        },
+      },
+    )
+  }
+
+  const handleConfirmBan = (banDuration: AdminBanDuration) => {
+    if (!banConfirmAction) {
+      return
+    }
+
+    mutateBan(
+      {
+        type: 'ban',
+        userId: banConfirmAction.userId,
+        banDuration,
+      },
+      {
+        onSettled: () => {
+          setBanConfirmAction(null)
+        },
+      },
+    )
+  }
+
+  const handleConfirmUnban = () => {
+    if (!unbanConfirmAction) {
+      return
+    }
+
+    mutateBan(
+      { type: 'unban', userId: unbanConfirmAction.userId },
+      {
+        onSettled: () => {
+          setUnbanConfirmAction(null)
         },
       },
     )
@@ -233,7 +323,29 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
             setConfirmAction(null)
           }
         }}
-        onConfirm={handleConfirmMutation}
+        onConfirm={handleConfirmRoleMutation}
+      />
+
+      <BanUserDialog
+        confirmAction={banConfirmAction}
+        isPending={pendingUserId !== null}
+        onOpenChange={(open) => {
+          if (!open && pendingUserId === null) {
+            setBanConfirmAction(null)
+          }
+        }}
+        onConfirm={handleConfirmBan}
+      />
+
+      <UnbanUserDialog
+        confirmAction={unbanConfirmAction}
+        isPending={pendingUserId !== null}
+        onOpenChange={(open) => {
+          if (!open && pendingUserId === null) {
+            setUnbanConfirmAction(null)
+          }
+        }}
+        onConfirm={handleConfirmUnban}
       />
     </div>
   )

@@ -5,7 +5,10 @@ import { createServiceClient } from '@/supabase/service'
 import type {
   DemoteUserByIdResult,
   PromoteUserByIdResult,
+  BanUserByIdResult,
+  UnbanUserByIdResult,
 } from '@/utils/admin-role-mutations'
+import { isAdminBanDuration } from '@/constants/admin-ban'
 
 import { assertAdminCaller } from './_lib/assert-admin-caller'
 import {
@@ -24,6 +27,10 @@ import {
   runDemoteUserMutation,
   runPromoteUserMutation,
 } from './_lib/run-role-mutation'
+import {
+  runBanUserMutation,
+  runUnbanUserMutation,
+} from './_lib/run-ban-mutation'
 import { listAdminUsersPage } from './_lib/list-admin-users'
 import type { AdminUserRow } from './_lib/admin-user-row'
 import type { UsersActionError } from './_lib/assert-admin-caller'
@@ -162,3 +169,40 @@ export const promoteUserAction = async (
 export const demoteUserAction = async (
   input: RoleMutationActionInput,
 ): Promise<DemoteUserActionResult> => runDemoteUserMutation(input.userId)
+
+type BanMutationActionSuccess = {
+  success: true
+  data: {
+    status: BanUserByIdResult['status'] | UnbanUserByIdResult['status']
+    email: string
+  }
+}
+
+export type BanUserActionResult = BanMutationActionSuccess | UsersActionError
+export type UnbanUserActionResult = BanMutationActionSuccess | UsersActionError
+
+export interface BanUserActionInput {
+  userId: string
+  banDuration: string
+}
+
+export const banUserAction = async (
+  input: BanUserActionInput,
+): Promise<BanUserActionResult> => {
+  if (!isAdminBanDuration(input.banDuration)) {
+    return {
+      success: false,
+      error: {
+        message: 'Invalid ban duration',
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
+    }
+  }
+
+  return runBanUserMutation(input.userId, input.banDuration)
+}
+
+export const unbanUserAction = async (
+  input: RoleMutationActionInput,
+): Promise<UnbanUserActionResult> => runUnbanUserMutation(input.userId)

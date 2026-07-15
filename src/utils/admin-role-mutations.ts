@@ -1,5 +1,9 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 
+import {
+  ADMIN_UNBAN_DURATION,
+  type AdminBanDuration,
+} from '@/constants/admin-ban'
 import { ADMIN_ROLE } from '@/constants/admin-role'
 import { isAdminFromAppMetadata, type AppMetadata } from '@/utils/admin'
 
@@ -19,6 +23,17 @@ export type RoleMutationSuccessStatus =
   | 'demoted'
   | 'not_admin'
 
+export type BanUserByIdResult =
+  | { status: 'banned'; email: string }
+  | { status: 'not_found' }
+
+export type UnbanUserByIdResult =
+  | { status: 'unbanned'; email: string }
+  | { status: 'not_banned'; email: string }
+  | { status: 'not_found' }
+
+export type BanMutationSuccessStatus = 'banned' | 'unbanned' | 'not_banned'
+
 export const mergePromoteMetadata = (
   existing: AppMetadata | undefined,
 ): AppMetadata => ({
@@ -30,6 +45,19 @@ export const mergePromoteMetadata = (
 export const mergeDemoteMetadata = (
   _existing: AppMetadata | undefined,
 ): AppMetadata => ({ role: null })
+
+export const getBanMutationToastMessage = (
+  status: BanMutationSuccessStatus,
+): string => {
+  switch (status) {
+    case 'banned':
+      return 'User banned'
+    case 'unbanned':
+      return 'User unbanned'
+    case 'not_banned':
+      return 'User is not banned'
+  }
+}
 
 export const getRoleMutationToastMessage = (
   status: RoleMutationSuccessStatus,
@@ -112,4 +140,79 @@ export const demoteUserById = async (
   }
 
   return { status: 'demoted', email: user.email! }
+}
+
+const isUserCurrentlyBanned = (bannedUntil: string | undefined): boolean => {
+  if (!bannedUntil) {
+    return false
+  }
+
+  const until = new Date(bannedUntil)
+
+  return !Number.isNaN(until.getTime()) && until.getTime() > Date.now()
+}
+
+export const banUserById = async (
+  client: SupabaseClient,
+  userId: string,
+  banDuration: AdminBanDuration,
+): Promise<BanUserByIdResult> => {
+  const { data, error } = await client.auth.admin.getUserById(userId)
+
+  if (error) {
+    throw error
+  }
+
+  const user = data.user
+
+  if (!user) {
+    return { status: 'not_found' }
+  }
+
+  const { error: updateError } = await client.auth.admin.updateUserById(
+    user.id,
+    {
+      ban_duration: banDuration,
+    },
+  )
+
+  if (updateError) {
+    throw updateError
+  }
+
+  return { status: 'banned', email: user.email! }
+}
+
+export const unbanUserById = async (
+  client: SupabaseClient,
+  userId: string,
+): Promise<UnbanUserByIdResult> => {
+  const { data, error } = await client.auth.admin.getUserById(userId)
+
+  if (error) {
+    throw error
+  }
+
+  const user = data.user
+
+  if (!user) {
+    return { status: 'not_found' }
+  }
+
+  if (!isUserCurrentlyBanned(user.banned_until)) {
+    return { status: 'not_banned', email: user.email! }
+  }
+
+  const { error: updateError } = await client.auth.admin.updateUserById(
+    user.id,
+    {
+      ban_duration: ADMIN_UNBAN_DURATION,
+    },
+  )
+
+  if (updateError) {
+    throw updateError
+  }
+
+  return { status: 'unbanned', email: user.email! }
 }

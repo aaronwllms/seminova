@@ -13,13 +13,19 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-import { SEARCHABLE_COLUMN, type AdminUserRow } from '../_lib/admin-user-row'
+import {
+  formatBanUntilLabel,
+  SEARCHABLE_COLUMN,
+  type AdminUserRow,
+} from '../_lib/admin-user-row'
 
 export interface CreateUsersColumnsOptions {
   currentAdminUserId: string
   pendingUserId: string | null
   onPromote: (row: AdminUserRow) => void
   onDemote: (row: AdminUserRow) => void
+  onBan: (row: AdminUserRow) => void
+  onUnban: (row: AdminUserRow) => void
 }
 
 export const createUsersColumns = ({
@@ -27,6 +33,8 @@ export const createUsersColumns = ({
   pendingUserId,
   onPromote,
   onDemote,
+  onBan,
+  onUnban,
 }: CreateUsersColumnsOptions): ColumnDef<AdminUserRow, unknown>[] => [
   {
     accessorKey: SEARCHABLE_COLUMN,
@@ -86,6 +94,31 @@ export const createUsersColumns = ({
     enableSorting: true,
   },
   {
+    accessorKey: 'banStatus',
+    meta: { skeletonClassName: 'h-5 w-28 rounded-md' },
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Ban" />
+    ),
+    cell: ({ row }) => {
+      const banStatus = row.original.banStatus
+
+      if (banStatus === null) {
+        return null
+      }
+
+      if ('permanent' in banStatus) {
+        return <Badge variant="destructive">Banned</Badge>
+      }
+
+      return (
+        <Badge variant="destructive">
+          Banned until {formatBanUntilLabel(banStatus.until)}
+        </Badge>
+      )
+    },
+    enableSorting: true,
+  },
+  {
     id: 'actions',
     meta: { skeletonClassName: 'h-8 w-8 rounded-md' },
     header: () => <span className="sr-only">Actions</span>,
@@ -94,8 +127,11 @@ export const createUsersColumns = ({
       const isRowPending = pendingUserId === user.id
       const canPromote = !user.isAdmin
       const canDemote = user.isAdmin && user.id !== currentAdminUserId
+      const isBanned = user.banStatus !== null
+      const canBan = !isBanned && user.id !== currentAdminUserId
+      const canUnban = isBanned
 
-      if (!canPromote && !canDemote) {
+      if (!canPromote && !canDemote && !canBan && !canUnban) {
         return null
       }
 
@@ -128,6 +164,23 @@ export const createUsersColumns = ({
                 onSelect={() => onDemote(user)}
               >
                 Demote from admin
+              </DropdownMenuItem>
+            ) : null}
+            {canBan ? (
+              <DropdownMenuItem
+                disabled={isRowPending}
+                variant="destructive"
+                onSelect={() => onBan(user)}
+              >
+                Ban user
+              </DropdownMenuItem>
+            ) : null}
+            {canUnban ? (
+              <DropdownMenuItem
+                disabled={isRowPending}
+                onSelect={() => onUnban(user)}
+              >
+                Unban
               </DropdownMenuItem>
             ) : null}
           </DropdownMenuContent>
