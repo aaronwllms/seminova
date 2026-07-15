@@ -225,7 +225,7 @@ This epic owns every reference-page edit in the phase, so nothing else touches t
 - `check:auth-boundary` passes with the new case covered.
 - `pnpm pre-push` is green.
 
-### Epic 13: Data-table column sizing & pattern refresh
+### Epic 13: Data-table column sizing & pattern refresh `Complete`
 
 - **13.1 Per-column cell styling.** The shared data-table shell accepts a per-column style hint through column meta, applied to both the header and body cells of that column — a sibling to the existing `skeletonClassName` hint, not a new mechanism.
 - **13.2 Actions column shrinks to fit.** The users table's actions column claims only the width its ⋯ button needs, closing the trailing gap between it and the Ban column. Both columns are in scope for diagnosis — the Ban column's widest content is a full `Banned until {date}` badge, so it may be the real source of the gap; fix wherever it actually lives.
