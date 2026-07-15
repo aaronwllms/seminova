@@ -1,6 +1,6 @@
 # PRD — Phase 11: Corrections & Hardening
 
-**Status:** `Active`
+**Status:** `Shipped`
 **Last updated:** 2026-07-15
 
 ---
