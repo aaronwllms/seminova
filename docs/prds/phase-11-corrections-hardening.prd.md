@@ -1,7 +1,7 @@
 # PRD — Phase 11: Corrections & Hardening
 
 **Status:** `Active`
-**Last updated:** 2026-07-14
+**Last updated:** 2026-07-15
 
 ---
 
@@ -173,7 +173,7 @@ This epic owns every reference-page edit in the phase, so nothing else touches t
 - No new display columns added in this epic — `AdminUserRow` gains `banned_until` in the query only, in preparation for Epic 11.
 - `pnpm pre-push` is green.
 
-### Epic 11: Ban functionality `Planned`
+### Epic 11: Ban functionality `Complete`
 
 - **11.1 Ban/unban Server Action.** New action wrapping `supabase.auth.admin.updateUserById(id, { ban_duration })`, alongside the existing promote/demote logic in `admin-role-mutations.ts` (shares the same Admin-API/service-role pattern — this stays on the Admin API, unlike Epic 10's listing query, since ban is the GoTrue-sanctioned mutation path; GoTrue enforces `banned_until` at sign-in time natively). Accepts a fixed duration set, not free text: `1h`, `24h`, `168h` (7d), `720h` (30d), and `876000h` (~100 years, functionally permanent — GoTrue's `ban_duration` has no native permanent value). `"none"` unbans immediately.
 - **11.2 `Ban` column.** Add `banned_until` to `admin_list_users`' returned fields (already queried as of Epic 10.1); derive a single `banStatus` on `AdminUserRow` — `null` when not banned, `{ permanent: true }` when the ban duration crosses a permanence threshold (e.g. `banned_until` more than ~10 years out), or `{ until: date }` for a finite ban. One "Ban" column, following the same empty/badge convention as Role and Verified: empty cell when not banned, a badge reading "Banned" for permanent bans, a badge reading "Banned until {date}" for finite bans — date formatted with the same `dateFormatter` (medium date style) already used for Created and Last sign-in.

@@ -2,7 +2,7 @@
 
 **Purpose:** What exists in this repo today — hard-constraint governance, implemented features, routes, data model, and where to look. For planning and roadmap, see [ROADMAP.md](ROADMAP.md) and the per-phase PRDs in [docs/prds/](docs/prds/). For human setup, see [README.md](README.md). For how to write code, see [.cursor/rules/](.cursor/rules/) (not duplicated here).
 
-**Last updated:** 2026-07-14
+**Last updated:** 2026-07-15
 
 Document roles and the doc-maintenance procedure are authoritative in [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
@@ -153,7 +153,7 @@ tweakcn **Clean Slate** default theme in `src/app/globals.css`; semantic tokens 
 
 ### Error handling & feedback
 
-Errors are classified by `kind: 'operational' | 'fault'` on [`AppError`](src/types/app-error.ts). [`AppErrorSurface`](src/components/app-error-surface.tsx) branches typed errors to [`InlineError`](src/components/inline-error.tsx) (operational) or [`ErrorPanel`](src/components/error-panel.tsx) (fault — destructive icon/message, neutral code chip when present, labeled Copy) — auth forms, profile, password section, and admin role mutations use it rather than hand-written ternaries. Server actions return a typed response envelope (`{success, data}` / `{success: false, error}`). Route-level fault boundaries at [`src/app/admin/error.tsx`](src/app/admin/error.tsx) and [`src/app/auth/error.tsx`](src/app/auth/error.tsx) render `ErrorPanel` with retry and escape links. Toasts (sonner via shadcn [`Toaster`](src/components/ui/sonner.tsx) with icons from [`toast-icon-config`](src/utils/toast-icon-config.tsx), [`showSuccessToast`](src/utils/app-toast.ts)) are for success confirmations only — errors always render inline or in a panel, never as a toast (see [`.cursor/rules/error-handling.mdc`](.cursor/rules/error-handling.mdc)).
+Errors are classified by `kind: 'operational' | 'fault'` on [`AppError`](src/types/app-error.ts). [`AppErrorSurface`](src/components/app-error-surface.tsx) branches typed errors to [`InlineError`](src/components/inline-error.tsx) (operational) or [`ErrorPanel`](src/components/error-panel.tsx) (fault — destructive icon/message, neutral code chip when present, labeled Copy) — auth forms, profile, password section, and admin user mutations use it rather than hand-written ternaries. Server actions return a typed response envelope (`{success, data}` / `{success: false, error}`). Route-level fault boundaries at [`src/app/admin/error.tsx`](src/app/admin/error.tsx) and [`src/app/auth/error.tsx`](src/app/auth/error.tsx) render `ErrorPanel` with retry and escape links. Toasts (sonner via shadcn [`Toaster`](src/components/ui/sonner.tsx) with icons from [`toast-icon-config`](src/utils/toast-icon-config.tsx), [`showSuccessToast`](src/utils/app-toast.ts)) are for success confirmations only — errors always render inline or in a panel, never as a toast (see [`.cursor/rules/error-handling.mdc`](.cursor/rules/error-handling.mdc)).
 
 ### Security
 
@@ -161,7 +161,7 @@ Security headers via [`src/utils/security-headers.ts`](src/utils/security-header
 
 ### Data & storage
 
-Three custom migrations — filenames and per-table detail in [Data model](#data-model-summary) below. `avatars` storage bucket is public-read with owner-scoped write RLS. Types generated to [`src/types/database.types.ts`](src/types/database.types.ts) via `pnpm db:types`; domain aliases in [`src/types/profile.ts`](src/types/profile.ts).
+Four custom migrations — filenames and per-table detail in [Data model](#data-model-summary) below. `avatars` storage bucket is public-read with owner-scoped write RLS. Types generated to [`src/types/database.types.ts`](src/types/database.types.ts) via `pnpm db:types`; domain aliases in [`src/types/profile.ts`](src/types/profile.ts).
 
 ### Testing & data fetching
 
