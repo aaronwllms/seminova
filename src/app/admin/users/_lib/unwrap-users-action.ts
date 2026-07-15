@@ -1,20 +1,11 @@
-import type {
-  DemoteUserActionResult,
-  ListUsersActionResult,
-  PromoteUserActionResult,
-  BanUserActionResult,
-  UnbanUserActionResult,
-} from '../actions'
+import type { ListUsersActionResult } from '../actions'
 import type { AppError } from '@/types/app-error'
 
 type ListUsersData = Extract<ListUsersActionResult, { success: true }>['data']
 
-type RoleMutationData = Extract<
-  PromoteUserActionResult,
-  { success: true }
->['data']
-
-type BanMutationData = Extract<BanUserActionResult, { success: true }>['data']
+type MutationActionResult<TData> =
+  | { success: true; data: TData }
+  | { success: false; error: AppError }
 
 const throwActionError = (error: AppError): never => {
   throw error
@@ -30,19 +21,9 @@ export const unwrapListUsersResult = (
   return result.data
 }
 
-export const unwrapRoleMutationResult = (
-  result: PromoteUserActionResult | DemoteUserActionResult,
-): RoleMutationData => {
-  if (!result.success) {
-    return throwActionError(result.error)
-  }
-
-  return result.data
-}
-
-export const unwrapBanMutationResult = (
-  result: BanUserActionResult | UnbanUserActionResult,
-): BanMutationData => {
+export const unwrapMutationResult = <TData>(
+  result: MutationActionResult<TData>,
+): TData => {
   if (!result.success) {
     return throwActionError(result.error)
   }

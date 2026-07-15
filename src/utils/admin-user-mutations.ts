@@ -6,6 +6,7 @@ import {
 } from '@/constants/admin-ban'
 import { ADMIN_ROLE } from '@/constants/admin-role'
 import { isAdminFromAppMetadata, type AppMetadata } from '@/utils/admin'
+import { isUserCurrentlyBanned } from '@/utils/is-user-currently-banned'
 
 export type PromoteUserByIdResult =
   | { status: 'promoted'; email: string }
@@ -140,16 +141,6 @@ export const demoteUserById = async (
   }
 
   return { status: 'demoted', email: user.email! }
-}
-
-const isUserCurrentlyBanned = (bannedUntil: string | undefined): boolean => {
-  if (!bannedUntil) {
-    return false
-  }
-
-  const until = new Date(bannedUntil)
-
-  return !Number.isNaN(until.getTime()) && until.getTime() > Date.now()
 }
 
 export const banUserById = async (

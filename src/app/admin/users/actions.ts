@@ -7,7 +7,7 @@ import type {
   PromoteUserByIdResult,
   BanUserByIdResult,
   UnbanUserByIdResult,
-} from '@/utils/admin-role-mutations'
+} from '@/utils/admin-user-mutations'
 import { isAdminBanDuration } from '@/constants/admin-ban'
 
 import { assertAdminCaller } from './_lib/assert-admin-caller'

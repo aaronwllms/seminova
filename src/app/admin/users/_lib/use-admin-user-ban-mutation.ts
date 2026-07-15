@@ -6,12 +6,12 @@ import type { AdminBanDuration } from '@/constants/admin-ban'
 import {
   getBanMutationToastMessage,
   type BanMutationSuccessStatus,
-} from '@/utils/admin-role-mutations'
+} from '@/utils/admin-user-mutations'
 import { showSuccessToast } from '@/utils/app-toast'
 
 import { banUserAction, unbanUserAction } from '../actions'
 import { adminUsersQueryKeys } from './admin-users-query-keys'
-import { unwrapBanMutationResult } from './unwrap-users-action'
+import { unwrapMutationResult } from './unwrap-users-action'
 
 export type BanMutationInput = {
   type: 'ban'
@@ -39,7 +39,7 @@ export const useAdminUserBanMutation = () => {
             })
           : await unbanUserAction({ userId: input.userId })
 
-      return unwrapBanMutationResult(result)
+      return unwrapMutationResult(result)
     },
     onSuccess: (data) => {
       showSuccessToast(

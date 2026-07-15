@@ -19,7 +19,7 @@ vi.mock('@/supabase/service', () => ({
   createServiceClient: () => createServiceClientMock(),
 }))
 
-vi.mock('@/utils/admin-role-mutations', () => ({
+vi.mock('@/utils/admin-user-mutations', () => ({
   promoteUserById: (...args: unknown[]) => promoteUserByIdMock(...args),
   demoteUserById: (...args: unknown[]) => demoteUserByIdMock(...args),
   banUserById: (...args: unknown[]) => banUserByIdMock(...args),

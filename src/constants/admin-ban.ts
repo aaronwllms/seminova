@@ -10,8 +10,6 @@ export type AdminBanDuration = (typeof ADMIN_BAN_DURATIONS)[number]
 
 export const ADMIN_UNBAN_DURATION = 'none' as const
 
-export type BanDuration = AdminBanDuration | typeof ADMIN_UNBAN_DURATION
-
 /** ~10 years — bans beyond this are displayed as permanent. */
 export const BAN_PERMANENCE_THRESHOLD_MS = 10 * 365.25 * 24 * 60 * 60 * 1000
 

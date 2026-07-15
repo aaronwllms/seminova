@@ -12,7 +12,7 @@ import {
   mergePromoteMetadata,
   promoteUserById,
   unbanUserById,
-} from './admin-role-mutations'
+} from './admin-user-mutations'
 
 const createMockUser = (overrides: Partial<User> = {}): User =>
   ({

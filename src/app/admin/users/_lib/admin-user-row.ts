@@ -1,5 +1,6 @@
 import { BAN_PERMANENCE_THRESHOLD_MS } from '@/constants/admin-ban'
 import { isAdminFromAppMetadata } from '@/utils/admin'
+import { isUserCurrentlyBanned } from '@/utils/is-user-currently-banned'
 
 export const USERS_SORT_COLUMNS = [
   'email',
@@ -68,15 +69,11 @@ export const deriveBanStatus = (
   bannedUntil: string | null,
   now: Date = new Date(),
 ): BanStatus => {
-  if (!bannedUntil) {
+  if (!isUserCurrentlyBanned(bannedUntil, now)) {
     return null
   }
 
-  const until = new Date(bannedUntil)
-
-  if (Number.isNaN(until.getTime()) || until.getTime() <= now.getTime()) {
-    return null
-  }
+  const until = new Date(bannedUntil!)
 
   if (until.getTime() - now.getTime() > BAN_PERMANENCE_THRESHOLD_MS) {
     return { permanent: true }

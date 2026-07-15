@@ -25,13 +25,10 @@ import {
   type AdminBanDuration,
 } from '@/constants/admin-ban'
 
-export type BanConfirmAction = {
-  userId: string
-  email: string
-}
+import type { UserMutationConfirmAction } from './user-mutation-confirm-action'
 
 interface BanUserDialogProps {
-  confirmAction: BanConfirmAction | null
+  confirmAction: UserMutationConfirmAction | null
   isPending: boolean
   onOpenChange: (open: boolean) => void
   onConfirm: (banDuration: AdminBanDuration) => void

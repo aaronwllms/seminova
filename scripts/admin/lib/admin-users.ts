@@ -6,7 +6,7 @@ import {
   promoteUserById,
   type DemoteUserByIdResult,
   type PromoteUserByIdResult,
-} from '@/utils/admin-role-mutations'
+} from '@/utils/admin-user-mutations'
 import { isAdminFromAppMetadata } from '@/utils/admin'
 
 export { ADMIN_ROLE } from '@/constants/admin-role'
@@ -15,7 +15,7 @@ export {
   mergeDemoteMetadata,
   mergePromoteMetadata,
   promoteUserById,
-} from '@/utils/admin-role-mutations'
+} from '@/utils/admin-user-mutations'
 
 const USERS_PAGE_SIZE = 1000
 

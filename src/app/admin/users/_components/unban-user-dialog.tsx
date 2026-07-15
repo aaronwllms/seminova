@@ -13,13 +13,10 @@ import {
 import { Button } from '@/components/ui/button'
 import { cn } from '@/utils/tailwind'
 
-export type UnbanConfirmAction = {
-  userId: string
-  email: string
-}
+import type { UserMutationConfirmAction } from './user-mutation-confirm-action'
 
 interface UnbanUserDialogProps {
-  confirmAction: UnbanConfirmAction | null
+  confirmAction: UserMutationConfirmAction | null
   isPending: boolean
   onOpenChange: (open: boolean) => void
   onConfirm: () => void

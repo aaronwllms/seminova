@@ -29,12 +29,13 @@ import {
 import { useAdminUserBanMutation } from '../_lib/use-admin-user-ban-mutation'
 import { useAdminUserRoleMutation } from '../_lib/use-admin-user-role-mutation'
 import { useAdminUsersList } from '../_lib/use-admin-users-list'
-import { BanUserDialog, type BanConfirmAction } from './ban-user-dialog'
+import { BanUserDialog } from './ban-user-dialog'
 import {
   PromoteDemoteDialog,
   type RoleConfirmAction,
 } from './promote-demote-dialog'
-import { UnbanUserDialog, type UnbanConfirmAction } from './unban-user-dialog'
+import type { UserMutationConfirmAction } from './user-mutation-confirm-action'
+import { UnbanUserDialog } from './unban-user-dialog'
 import { createUsersColumns } from './users-columns'
 
 const SEARCH_DEBOUNCE_MS = 300
@@ -66,9 +67,9 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
     null,
   )
   const [banConfirmAction, setBanConfirmAction] =
-    useState<BanConfirmAction | null>(null)
+    useState<UserMutationConfirmAction | null>(null)
   const [unbanConfirmAction, setUnbanConfirmAction] =
-    useState<UnbanConfirmAction | null>(null)
+    useState<UserMutationConfirmAction | null>(null)
 
   const activeSort = sorting[0]
   const sortColumn: UsersSortColumn = activeSort
