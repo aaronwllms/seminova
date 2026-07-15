@@ -339,6 +339,7 @@ describe('listUsersAction', () => {
       emailFilter: undefined,
       sortColumn: 'created_at',
       sortDirection: 'desc',
+      showBanned: true,
     })
   })
 
@@ -396,7 +397,45 @@ describe('listUsersAction', () => {
       sortColumn: 'role',
       sortDirection: 'asc',
       emailFilter: 'alice',
+      showBanned: true,
     })
+  })
+
+  it('should forward showBanned false to listAdminUsersPage', async () => {
+    listAdminUsersPageMock.mockResolvedValue({
+      rows: [],
+      hasNextPage: false,
+      page: 1,
+    })
+
+    const { listUsersAction } = await import('./actions')
+    await listUsersAction({ showBanned: false })
+
+    expect(listAdminUsersPageMock).toHaveBeenCalledWith(expect.any(Object), {
+      page: 1,
+      perPage: 15,
+      emailFilter: undefined,
+      sortColumn: 'created_at',
+      sortDirection: 'desc',
+      showBanned: false,
+    })
+  })
+
+  it('should return VALIDATION_ERROR for non-boolean showBanned', async () => {
+    const { listUsersAction } = await import('./actions')
+    const result = await listUsersAction({
+      showBanned: 'yes' as unknown as boolean,
+    })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Show banned must be a boolean',
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
+    })
+    expect(listAdminUsersPageMock).not.toHaveBeenCalled()
   })
 
   it('should forward banned_until sort column', async () => {
@@ -418,6 +457,7 @@ describe('listUsersAction', () => {
       emailFilter: undefined,
       sortColumn: 'banned_until',
       sortDirection: 'desc',
+      showBanned: true,
     })
   })
 

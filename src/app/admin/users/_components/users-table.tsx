@@ -9,6 +9,7 @@ import {
   DataTableShell,
 } from '@/components/data-table-shell'
 import { DataTablePaginationControls } from '@/components/data-table-pagination-controls'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import type { AdminBanDuration } from '@/constants/admin-ban'
@@ -63,6 +64,7 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [searchInput, setSearchInput] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
+  const [showBanned, setShowBanned] = useState(true)
   const [confirmAction, setConfirmAction] = useState<RoleConfirmAction | null>(
     null,
   )
@@ -89,6 +91,7 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
     sortColumn,
     sortDirection,
     perPage,
+    showBanned,
   })
 
   const {
@@ -128,6 +131,11 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
 
   const handlePageSizeChange = useCallback((nextPageSize: number) => {
     setPerPage(nextPageSize as DataTablePageSize)
+    setPage(1)
+  }, [])
+
+  const handleShowBannedChange = useCallback((checked: boolean) => {
+    setShowBanned(checked)
     setPage(1)
   }, [])
 
@@ -269,26 +277,39 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="users-email-search">Search by email</Label>
-        <Input
-          id="users-email-search"
-          type="search"
-          placeholder="Search by email…"
-          value={searchInput}
-          onChange={(event) => setSearchInput(event.target.value)}
-          aria-describedby={
-            showSearchHint ? 'users-email-search-hint' : undefined
-          }
-        />
-        {showSearchHint ? (
-          <p
-            id="users-email-search-hint"
-            className="text-muted-foreground text-sm"
-          >
-            Enter at least {USERS_SEARCH_MIN_LENGTH} characters to search email.
-          </p>
-        ) : null}
+      <div className="flex flex-wrap items-end gap-4">
+        <div className="flex min-w-[12rem] flex-1 flex-col gap-2">
+          <Label htmlFor="users-email-search">Search by email</Label>
+          <Input
+            id="users-email-search"
+            type="search"
+            placeholder="Search by email…"
+            value={searchInput}
+            onChange={(event) => setSearchInput(event.target.value)}
+            aria-describedby={
+              showSearchHint ? 'users-email-search-hint' : undefined
+            }
+          />
+          {showSearchHint ? (
+            <p
+              id="users-email-search-hint"
+              className="text-muted-foreground text-sm"
+            >
+              Enter at least {USERS_SEARCH_MIN_LENGTH} characters to search
+              email.
+            </p>
+          ) : null}
+        </div>
+        <div className="flex items-center gap-2 pb-2">
+          <Checkbox
+            id="users-show-banned"
+            checked={showBanned}
+            onCheckedChange={(checked) =>
+              handleShowBannedChange(checked === true)
+            }
+          />
+          <Label htmlFor="users-show-banned">Show banned</Label>
+        </div>
       </div>
 
       {listError ? <AppErrorSurface error={listError} /> : null}

@@ -8,10 +8,11 @@ export const adminUsersQueryKeys = {
     sortColumn: UsersSortColumn,
     sortDirection: UsersSortDirection,
     perPage: number,
+    showBanned: boolean,
   ) =>
     [
       'admin-users',
       'list',
-      { page, emailFilter, sortColumn, sortDirection, perPage },
+      { page, emailFilter, sortColumn, sortDirection, perPage, showBanned },
     ] as const,
 }

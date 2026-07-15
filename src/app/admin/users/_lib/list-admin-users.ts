@@ -16,6 +16,7 @@ export interface ListAdminUsersPageParams {
   emailFilter?: string
   sortColumn?: UsersSortColumn
   sortDirection?: UsersSortDirection
+  showBanned?: boolean
 }
 
 export interface ListAdminUsersPageResult {
@@ -41,6 +42,7 @@ export const listAdminUsersPage = async (
     p_per_page: perPage,
     p_search:
       trimmedFilter.length >= USERS_SEARCH_MIN_LENGTH ? trimmedFilter : '',
+    p_show_banned: params.showBanned ?? true,
   })
 
   if (error) {

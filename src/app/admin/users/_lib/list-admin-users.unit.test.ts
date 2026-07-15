@@ -46,6 +46,7 @@ describe('listAdminUsersPage', () => {
       p_page: 1,
       p_per_page: DATA_TABLE_DEFAULT_PAGE_SIZE,
       p_search: '',
+      p_show_banned: true,
     })
   })
 
@@ -79,7 +80,24 @@ describe('listAdminUsersPage', () => {
       p_page: 3,
       p_per_page: 25,
       p_search: 'match@example.com',
+      p_show_banned: true,
     })
+  })
+
+  it('should forward showBanned false to the RPC', async () => {
+    const client = createClientMock([])
+
+    await listAdminUsersPage(client, {
+      page: 1,
+      showBanned: false,
+    })
+
+    expect(client.rpc).toHaveBeenCalledWith(
+      'admin_list_users',
+      expect.objectContaining({
+        p_show_banned: false,
+      }),
+    )
   })
 
   it('should omit short search filters from the RPC call', async () => {

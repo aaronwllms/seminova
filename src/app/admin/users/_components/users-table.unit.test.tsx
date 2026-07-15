@@ -32,6 +32,7 @@ const defaultListParams = {
   sortColumn: 'created_at',
   sortDirection: 'desc',
   perPage: 15,
+  showBanned: true,
 } as const
 
 describe('UsersTable', () => {
@@ -114,6 +115,25 @@ describe('UsersTable', () => {
       },
       { timeout: 1000 },
     )
+  })
+
+  it('should reset page and refetch when Show banned is unchecked', async () => {
+    const user = userEvent.setup({ delay: null })
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(listUsersActionMock).toHaveBeenCalledWith(defaultListParams)
+    })
+
+    await user.click(screen.getByRole('checkbox', { name: /show banned/i }))
+
+    await waitFor(() => {
+      expect(listUsersActionMock).toHaveBeenLastCalledWith({
+        ...defaultListParams,
+        showBanned: false,
+      })
+    })
   })
 
   it('should show an error with copy affordance when listUsersAction fails', async () => {

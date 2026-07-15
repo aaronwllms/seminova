@@ -57,6 +57,7 @@ export interface ListUsersActionInput {
   sortColumn?: UsersSortColumn
   sortDirection?: UsersSortDirection
   perPage?: DataTablePageSize
+  showBanned?: boolean
 }
 
 export const listUsersAction = async (
@@ -120,6 +121,19 @@ export const listUsersAction = async (
     }
   }
 
+  const showBanned = input.showBanned ?? true
+
+  if (input.showBanned !== undefined && typeof input.showBanned !== 'boolean') {
+    return {
+      success: false,
+      error: {
+        message: 'Show banned must be a boolean',
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
+    }
+  }
+
   try {
     const client = await createClient()
     const result = await listAdminUsersPage(client, {
@@ -128,6 +142,7 @@ export const listUsersAction = async (
       emailFilter: input.emailFilter?.trim(),
       sortColumn,
       sortDirection,
+      showBanned,
     })
 
     return {

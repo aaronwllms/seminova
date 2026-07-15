@@ -70,6 +70,7 @@ export type Database = {
           p_page: number
           p_per_page: number
           p_search: string
+          p_show_banned: boolean
           p_sort_column: string
           p_sort_direction: string
         }
