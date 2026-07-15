@@ -20,6 +20,7 @@
 
 # agent-authored docs — whole-file syncs; Prettier would reformat on every edit
 /.cursor
+/.mockups
 docs/
 AGENTS.md
 ROADMAP.md

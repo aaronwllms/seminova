@@ -123,6 +123,24 @@ describe('LoginForm', () => {
     })
   })
 
+  it('should show suspension copy when sign in is blocked for a banned user', async () => {
+    mockSignInWithPassword.mockResolvedValue({
+      error: new AuthApiError('User is banned', 403, 'user_banned'),
+    })
+    const user = userEvent.setup({ delay: null })
+
+    render(<LoginForm />)
+
+    await user.type(screen.getByLabelText(/email/i), 'banned@example.com')
+    await user.type(screen.getByLabelText(/^password$/i), 'password123')
+    await user.click(screen.getByRole('button', { name: /^login$/i }))
+
+    expect(
+      await screen.findByText(/your account has been suspended/i),
+    ).toBeInTheDocument()
+    expect(mockPush).not.toHaveBeenCalled()
+  })
+
   it('should show an error when sign in fails', async () => {
     mockSignInWithPassword.mockResolvedValue({
       error: new AuthApiError(

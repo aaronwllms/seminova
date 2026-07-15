@@ -48,6 +48,12 @@ const AUTH_ERROR_OVERRIDES: Record<string, AppError> = {
     code: 'VALIDATION_ERROR',
     kind: 'operational',
   },
+  user_banned: {
+    message:
+      'Your account has been suspended. Contact support if you believe this is a mistake.',
+    code: 'SUPABASE_AUTH_ERROR',
+    kind: 'operational',
+  },
   unexpected_failure: {
     message:
       'Something went wrong on our end. Please try again, or contact support if it continues.',

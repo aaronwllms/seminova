@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mockup — Admin logs page</title>
+    <style>
+      :root {
+        --text-primary: #2c2c2a;
+        --text-secondary: #5f5e5a;
+        --text-muted: #888780;
+        --border: rgba(0, 0, 0, 0.12);
+        --border-strong: rgba(0, 0, 0, 0.22);
+        --surface-page: #faf9f5;
+        --surface-1: #f4f3ee;
+        --surface-2: #ffffff;
+        --bg-danger: #fcebeb;
+        --text-danger: #a32d2d;
+        --border-danger: #f09595;
+        --bg-warning: #faeeda;
+        --text-warning: #854f0b;
+        --border-warning: #ef9f27;
+        --bg-accent: #e6f1fb;
+        --text-accent: #185fa5;
+        --fill-accent: #378add;
+        --radius: 8px;
+        --font-sans:
+          ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+        --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 2.5rem 1.5rem;
+        background: var(--surface-page);
+        font-family: var(--font-sans);
+        color: var(--text-primary);
+        line-height: 1.7;
+      }
+      .page {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+      .title {
+        font-size: 22px;
+        font-weight: 500;
+        margin: 0;
+      }
+      .subtitle {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin: 4px 0 0;
+      }
+      .search-wrap {
+        position: relative;
+        margin: 1.25rem 0 12px;
+      }
+      .search-icon {
+        position: absolute;
+        left: 11px;
+        top: 8px;
+        font-size: 15px;
+        color: var(--text-muted);
+      }
+      input[type='text'] {
+        width: 100%;
+        height: 36px;
+        padding: 0 12px 0 32px;
+        font-family: inherit;
+        font-size: 14px;
+        color: var(--text-primary);
+        background: var(--surface-2);
+        border: 0.5px solid var(--border);
+        border-radius: var(--radius);
+      }
+      .filters {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 12px;
+        padding: 5px 10px;
+        border-radius: var(--radius);
+        border: 0.5px solid var(--border);
+        color: var(--text-secondary);
+      }
+      .chip-error {
+        background: var(--bg-danger);
+        color: var(--text-danger);
+        border-color: var(--border-danger);
+      }
+      .chip-warn {
+        background: var(--bg-warning);
+        color: var(--text-warning);
+        border-color: var(--border-warning);
+      }
+      .divider-v {
+        width: 1px;
+        height: 20px;
+        background: var(--border);
+        margin: 0 2px;
+      }
+      .mark-all {
+        margin-left: auto;
+        border-color: var(--border-strong);
+      }
+      .table {
+        border: 0.5px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        background: var(--surface-2);
+      }
+      .thead {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 14px;
+        border-bottom: 0.5px solid var(--border);
+        background: var(--surface-1);
+        font-size: 12px;
+        color: var(--text-secondary);
+      }
+      .row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 11px 14px;
+        border-bottom: 0.5px solid var(--border);
+        font-size: 13px;
+      }
+      .row:last-child,
+      .row-expanded .row {
+        border-bottom: 0;
+      }
+      .row-expanded {
+        border-bottom: 0.5px solid var(--border);
+        background: var(--surface-1);
+      }
+      .col-flag {
+        width: 16px;
+        padding-top: 4px;
+        flex: none;
+      }
+      .col-time {
+        width: 132px;
+        flex: none;
+        color: var(--text-secondary);
+        font-family: var(--font-mono);
+        font-size: 12px;
+      }
+      .col-level {
+        width: 60px;
+        flex: none;
+      }
+      .col-tag {
+        width: 130px;
+        flex: none;
+        color: var(--text-secondary);
+        font-family: var(--font-mono);
+        font-size: 12px;
+      }
+      .col-msg {
+        flex: 1;
+        min-width: 0;
+      }
+      .truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .unread-dot {
+        display: block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--fill-accent);
+      }
+      .badge {
+        font-size: 11px;
+        padding: 2px 7px;
+        border-radius: var(--radius);
+      }
+      .badge-error {
+        background: var(--bg-danger);
+        color: var(--text-danger);
+      }
+      .badge-warn {
+        background: var(--bg-warning);
+        color: var(--text-warning);
+      }
+      .badge-info {
+        background: var(--bg-accent);
+        color: var(--text-accent);
+      }
+      .badge-debug {
+        background: var(--surface-1);
+        color: var(--text-secondary);
+        border: 0.5px solid var(--border);
+      }
+      .chevron {
+        color: var(--text-muted);
+        font-size: 11px;
+        flex: none;
+        padding-top: 1px;
+      }
+      .copy {
+        font-size: 14px;
+        color: var(--text-muted);
+        flex: none;
+        padding-top: 1px;
+      }
+      .context {
+        padding: 0 14px 14px 46px;
+      }
+      .context-label {
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin: 0 0 6px;
+      }
+      pre {
+        margin: 0;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        background: var(--surface-2);
+        border: 0.5px solid var(--border);
+        border-radius: var(--radius);
+        padding: 10px;
+        white-space: pre-wrap;
+        line-height: 1.5;
+      }
+      .load-more {
+        display: flex;
+        justify-content: center;
+        margin-top: 14px;
+      }
+      .btn {
+        font-size: 13px;
+        padding: 7px 14px;
+        border-radius: var(--radius);
+        border: 0.5px solid var(--border-strong);
+        color: var(--text-secondary);
+        background: transparent;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <p class="title">Logs</p>
+      <p class="subtitle">Runtime application logs. 12 unread.</p>
+
+      <div class="search-wrap">
+        <span class="search-icon">&#9906;</span>
+        <input type="text" placeholder="Search message, context, or tag" />
+      </div>
+
+      <div class="filters">
+        <span class="chip chip-error">&#10003; Error</span>
+        <span class="chip chip-warn">&#10003; Warn</span>
+        <span class="chip">Info</span>
+        <span class="chip">Debug</span>
+        <span class="divider-v"></span>
+        <span class="chip">All tags &#9662;</span>
+        <span class="chip">Unread only &#9662;</span>
+        <span class="chip mark-all">&#10003;&#10003; Mark all as read</span>
+      </div>
+
+      <div class="table">
+        <div class="thead">
+          <span class="col-flag"></span>
+          <span class="col-time" style="color: var(--text-primary)"
+            >Timestamp &#8595;</span
+          >
+          <span class="col-level">Level</span>
+          <span class="col-tag">Tag</span>
+          <span class="col-msg">Message</span>
+        </div>
+
+        <div class="row">
+          <span class="col-flag"><span class="unread-dot"></span></span>
+          <span class="col-time">14:22:07.412</span>
+          <span class="col-level"
+            ><span class="badge badge-error">error</span></span
+          >
+          <span class="col-tag">avatar-upload</span>
+          <span class="col-msg truncate" style="font-weight: 500"
+            >Storage delete failed, profile row updated anyway</span
+          >
+          <span class="chevron">&#9656;</span>
+          <span class="copy">&#10697;</span>
+        </div>
+
+        <div class="row-expanded">
+          <div class="row">
+            <span class="col-flag"><span class="unread-dot"></span></span>
+            <span class="col-time">14:19:55.008</span>
+            <span class="col-level"
+              ><span class="badge badge-warn">warn</span></span
+            >
+            <span class="col-tag">require-auth</span>
+            <span class="col-msg" style="font-weight: 500"
+              >Claims read with allowExpired on protected route</span
+            >
+            <span class="chevron">&#9662;</span>
+            <span class="copy">&#10697;</span>
+          </div>
+          <div class="context">
+            <p class="context-label">Context</p>
+            <pre>
+{
+  "route": "/app/profile",
+  "userId": "8f3c&#8230;a91e",
+  "expiredBy": 42
+}</pre
+            >
+          </div>
+        </div>
+
+        <div class="row">
+          <span class="col-flag"></span>
+          <span class="col-time">14:18:30.771</span>
+          <span class="col-level"
+            ><span class="badge badge-info">info</span></span
+          >
+          <span class="col-tag">app-settings</span>
+          <span class="col-msg truncate" style="color: var(--text-secondary)"
+            >Settings cache invalidated after save of min_log_level</span
+          >
+          <span class="chevron">&#9656;</span>
+          <span class="copy">&#10697;</span>
+        </div>
+
+        <div class="row">
+          <span class="col-flag"></span>
+          <span class="col-time">14:18:29.640</span>
+          <span class="col-level"
+            ><span class="badge badge-debug">debug</span></span
+          >
+          <span class="col-tag">proxy-session</span>
+          <span class="col-msg truncate" style="color: var(--text-secondary)"
+            >Access token refreshed, cookie rewritten on response</span
+          >
+          <span class="chevron">&#9656;</span>
+          <span class="copy">&#10697;</span>
+        </div>
+      </div>
+
+      <div class="load-more">
+        <span class="btn">Load more</span>
+      </div>
+    </div>
+  </body>
+</html>

@@ -69,6 +69,19 @@ describe('extractAuthFormError', () => {
     )
   })
 
+  it('should map user_banned to suspension copy without logging', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const error = new AuthApiError('User is banned', 403, 'user_banned')
+
+    expect(extractAuthFormError(error)).toEqual({
+      message:
+        'Your account has been suspended. Contact support if you believe this is a mistake.',
+      code: 'SUPABASE_AUTH_ERROR',
+      kind: 'operational',
+    })
+    expect(consoleError).not.toHaveBeenCalled()
+  })
+
   it('should fold email_not_confirmed into invalid credentials copy', () => {
     const error = new AuthApiError(
       'Email not confirmed',
