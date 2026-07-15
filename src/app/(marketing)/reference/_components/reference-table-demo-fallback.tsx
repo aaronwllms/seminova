@@ -1,3 +1,5 @@
+'use client'
+
 import type { ColumnDef } from '@tanstack/react-table'
 
 import { DataTablePaginationControls } from '@/components/data-table-pagination-controls'
