@@ -21,7 +21,7 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 | 9 | SEO & GEO | `Shipped` | [Phase 9 PRD](docs/prds/archive/phase-9-seo-geo.prd.md) |
 | 10 | App Home, Form Primitives & Reference Surfaces | `Shipped` | [Phase 10 PRD](docs/prds/archive/phase-10-app-home-reference-surfaces.prd.md) |
 | 11 | Corrections & Hardening | `Shipped` | [Phase 11 PRD](docs/prds/archive/phase-11-corrections-hardening.prd.md) |
-| 12 | Observability & App Settings | `Ready` | [Phase 12 PRD](docs/prds/phase-12-observability-app-settings.prd.md) |
+| 12 | Observability & App Settings | `Active` | [Phase 12 PRD](docs/prds/phase-12-observability-app-settings.prd.md) |
 
 > [!NOTE]
 > Phases 1–7 pre-date the per-phase PRD system, so their PRD column is empty; their shipped detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md). From Phase 8 on, shipped rows link the archived PRD per [docs/DOC_RULES.md](docs/DOC_RULES.md).
@@ -32,11 +32,6 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 
 Thin stubs for anticipated phases — intent and shape only; decomposition into epics happens at phase-planning time. This section is kept even when empty, so the next phase always has a home.
 
-### Phase 12 — Observability & App Settings
-
-Two related capabilities the template lacks today. **App settings:** a generic, admin-editable key/value settings store (persisted to a table, cached to avoid per-read DB hits) plus a settings admin page to browse and edit values — the first reusable config-toggle infrastructure future products inherit. **Log persistence & viewer:** persist the existing `console.*` taxonomy (`logging.mdc`) to a table via a thin custom wrapper, route every existing call site through it, and add a filterable, level-colored logs admin page. The debug on/off control is the settings store's first consumer — so settings infrastructure lands before the debug gate. Storage-approach fork now resolved: persist-to-table (not Vercel-stream relay), custom wrapper (not Pino/Winston — their transport model fits long-running processes, not Vercel's short-lived functions).
-
----
 
 ## Open questions / deferred decisions
 
