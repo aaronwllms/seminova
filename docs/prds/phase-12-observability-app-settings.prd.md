@@ -1,7 +1,7 @@
 # PRD — Phase 12: Observability & App Settings
 
-**Status:** `Draft`
-**Last updated:** 2026-07-14
+**Status:** `Ready`
+**Last updated:** 2026-07-15
 
 ---
 
@@ -9,11 +9,11 @@
 
 Two related gaps. First: logs have a canonical taxonomy (`logging.mdc` — debug/info/warn/error, `[kebab-case-tag]` convention) but only ever surface in Vercel's log viewer — there's no in-app way to browse, filter, or triage them, and no persistence beyond whatever Vercel retains. Second: the template has no admin-editable configuration store at all. Any runtime toggle (starting with "is debug logging on") requires an env var and a redeploy to change — which doesn't fit a template meant to give every spun-off product a way to flip settings live.
 
-This PRD was fully grilled in a planning chat before decomposition into epics/stories. What follows is the settled-decisions ledger from that session, in the order they were made, with rationale kept — not a summary. Epic/story decomposition happens next, via `/phase-planning`, using this ledger as its input.
+This PRD was fully grilled in a planning chat before decomposition into epics/stories. The settled-decisions ledger below carries that session's decisions in the order they were made, with rationale kept — not a summary. It is the input the epics and stories were decomposed from, and remains the record of *why* each was scoped as it is.
 
 ## Goal
 
-Ship a generic, admin-editable settings store (settings table + registry + admin page), and a log-persistence system (logs table + wrapper + admin page) whose first real consumer is the settings-driven debug toggle — proving the settings infrastructure works by using it for something real, not a demo.
+Ship a generic, admin-editable settings store (settings table + registry + admin page), and a log-persistence system (logs table + wrapper + admin page) whose first real consumer is the settings-driven minimum log level — proving the settings infrastructure works by using it for something real, not a demo.
 
 ## Out of scope
 
@@ -24,62 +24,129 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 
 ---
 
-## Settled decisions (grilled, pre-decomposition)
+## Epics & stories
 
-1. **Two distinct capabilities, likely two epics minimum:** generic app-settings store, and log persistence + viewer. Not folded into Phase 11 — this is new capability, not correction/hardening.
-2. **Two new admin pages:** one for settings, one for logs.
-3. **Logs persist to a table**, not a relay of Vercel's log stream. Rationale: a stream-relay would depend on Vercel's log API/auth from inside the app, breaking portability the moment a spinoff deploys elsewhere. A table is Supabase-first, matching how everything else here works.
-4. **Custom thin wrapper, not Pino/Winston.** Both libraries are built around a transport model (persistent worker thread/stream) that assumes a long-running process. Vercel functions are short-lived; an async transport can be torn down before it flushes, silently dropping log rows. Neither has a maintained Postgres/Supabase transport anyway. The wrapper is ~20-30 lines: do what `console.*` already does, plus a gated insert.
-5. **Every existing `console.*` call site in scope gets routed through the wrapper** (see decision 26 for final scope), with a grep-based CI guardrail added afterward to prevent new raw `console.*` calls from creeping back in outside the wrapper itself.
-6. **Generic key/value settings store.** Not boolean-only — value type varies per setting (the debug toggle is boolean, log retention window is a number, a future maintenance message would be a string). Stored as `key` (text) + `value` (jsonb), so new settings of any shape don't require a schema change. Logging's debug toggle is the first consumer, not the only one the design assumes.
-7. **Dependency ordering:** settings infrastructure must land before the debug gate that reads from it. Settings-store epic(s) sequence ahead of the log-persistence debug-gate work.
-8. **Retention: time-based auto-purge via `pg_cron`**, window stored as a settings value (dogfoods the settings store). `pg_cron` is enabled and the purge job is scheduled via a migration — plain SQL (`create extension if not exists pg_cron`, `cron.schedule(...)`), tracked in source control like any other migration. **No plan-tier gate** — verified directly against Supabase's own docs and user's own free-tier project; an earlier claim that pg_cron requires a Pro plan was wrong (traced to a low-quality third-party blog, not Supabase's docs) and has been retracted. No README caveat needed beyond noting the migration enables the extension as part of setup.
-9. **Settings reads go through Next.js's tagged server data cache** (`revalidateTag`), one coarse `app-settings` tag over the whole settings set, invalidated by the settings-save mutation calling `revalidateTag('app-settings')`. Chosen over a plain time-based `revalidate` TTL because `revalidateTag`'s underlying cache is shared across serverless instances (unlike a hand-rolled in-memory cache, which is per-instance and can't be busted globally on write) — so an admin's save propagates near-instantly everywhere, not just to whichever instance handled the save request. Coarse (one tag for the whole settings set) rather than per-setting tags, because the settings table is small — reading the whole set on any single change costs almost nothing, and per-setting tags would add tag-management complexity to avoid a cost that rounds to zero. A future setting holding something large/expensive to compute could get its own finer tag later without unwinding this design.
-   **→ ADR candidate, likely ADR-0006** (confirm actual next number against `docs/adr/` at write time). Qualifies on all three bars: hard to reverse (foundation every settings read and future toggle builds on), surprising without context (why cached this way, why one tag), real trade-off (coarse over-invalidation accepted for simplicity; tag-based chosen over TTL for cross-instance freshness).
-10. **Error/context detail folds into one generic `context` jsonb column**, not a dedicated `error_detail` column. An `Error` or Supabase/Postgrest error is one shape of context, not a fundamentally different thing from arbitrary structured extras (`{ postId, userId }`) a call site might want to attach.
-11. **Copy-row button on the logs page** reuses the existing `error-panel.tsx` copy pattern (copies `message` + formatted `context`) — no new column needed, purely a UI affordance for pasting into an AI chat or elsewhere for research.
-12. **Read/unread tracking is global**, not per-admin: a single nullable `read_at` timestamp column on the log row. Rationale: this is a template and the number of admins per spinoff is unknown; global read state is the simpler default (same shape as a shared Slack channel vs. per-user read receipts), and most small teams don't need per-person read state on an internal tool. "Mark all as read" is a bulk update where `read_at is null`.
-13. **Wrapper is fire-and-forget at the call site** (`void`, not `async` — no `await` added anywhere, no ripple making sync functions async). Internally, the wrapper does `console[level](...)` synchronously (unchanged from today) and defers the Supabase insert via Next.js's `after()` (from `next/server`, Next.js 15.1+). Verified: `after()` is built on Vercel's `waitUntil` primitive and works in both the Node.js and Edge runtimes — extends the function's lifetime just long enough for the deferred promise to settle, without blocking the response or requiring the caller to await anything. This avoids the same silent-drop risk that ruled out Pino/Winston's transport model (decision 4), without touching call-site control flow.
-14. **`tag` is a required, explicit wrapper argument** — not parsed via regex from a bracketed message string. The sweep splits each call site's existing `[bracket-prefix]` out of the message into its own `tag` argument. Chosen over regex-parsing the bracket at insert time because a required argument makes a missing/malformed tag a compile-time TypeScript error at the call site, not a silent null/garbage value discovered later on the admin page — worth the extra per-site sweep editing given tag is a primary filter dimension on the logs page.
-15. **Logs page filter bar:** level (multi-select colored chips matching row colors), tag (searchable dropdown, populated from distinct tags in the table), read status (All / Unread only), plus a "mark all as read" button scoped to the current filter view.
-16. **Logs page row:** timestamp, level badge, tag, message (single line, truncated, expand-on-click to reveal full message + context), copy button (decision 11), unread visual indicator (bold/dot, same pattern as unread email).
-17. **Cursor-based pagination on `created_at`**, newest-first by default. Chosen over offset pagination because the table is actively written to; offset pagination gets slow and inconsistent under concurrent inserts.
-18. **Read marking is explicit only** — per-row click or the bulk "mark all as read" button. No auto-mark on scroll-into-view or on page load; auto-marking on view was explicitly rejected because it defeats the point of read/unread as a triage tool (everything would read as "read" the moment the page loads, whether actually looked at or not).
-19. **Free-text search bar** on the logs page, searching `message` (and `context` cast to text) via `ILIKE '%term%'` — not Postgres full-text search (`tsvector`/`ts_rank`). `ILIKE` is right-sized given expected volume, especially with the retention purge (decision 8) actively keeping the table small; revisit only if the table ever grows large enough for `ILIKE` scans to become slow.
-20. **No general column sorting** on the logs table. Filters (level/tag/read status) handle narrowing, which is the better fit for a triage tool than reordering a mixed list. Also a technical constraint: cursor pagination (decision 17) requires one stable sort key; supporting arbitrary sort columns would require rebuilding pagination around composite cursors for a need the filters already cover.
-21. **Exception: a newest/oldest direction toggle on the Timestamp column header** (chevron/arrow, click to flip) — not a new sort dimension, just flipping direction on the one sort key that already exists. Cursor pagination handles a direction flip trivially (same key, opposite comparison).
-22. **Settings are a fixed set — admin edits values only, no ad-hoc key creation from the UI.** A setting an admin invents from a generic "add setting" form is inert unless code somewhere actually reads that exact key; a free-form add-key UI also has no way to validate value shape (e.g. someone typing a string into what code expects as boolean). Store being flexible in *value type* (decision 6) doesn't imply it should be flexible in *what keys exist* — those are different axes.
-23. **Settings are declared in a central registry** (e.g. `settings-registry.ts`): key, human-readable label, description, value type, default value. Single source of truth, same pattern as `AGENTS.md`'s canonical schema and `LEXICON.md`'s vocabulary. The settings admin page renders whatever's in the registry — a new setting is a registry entry, not a settings-page code change.
-24. **Registry (code) and settings table (database) are companions, not alternatives.** Registry defines what's possible and supplies defaults; table holds actually-set live values per spinoff project. Settings page reads both (registry for metadata/shape, table for current value, falling back to the registry default if no row exists yet) and writes only to the table — saving never touches the registry.
-25. **Settings page layout:** grouped list of setting blocks (label bold, description in muted text below, typed input control — toggle/number/text — aligned right), grouped by feature area once there's enough settings to warrant section headings (e.g. "Logging"). Not a table — settings have variable-length descriptions and heterogeneous controls, which don't fit uniform table columns the way logs' fixed-shape rows do. Per-row Save (not one page-wide save button), toast confirmation per save reusing the existing toast pattern (colored via the real `success` token from Phase 11 Epic 3).
-26. **Sweep scope, finalized against real numbers** (console-call-site audit run 2026-07-14 — see appendix): `src/`'s 23 call sites via the main async-deferred wrapper (decision 13), plus `scripts/admin/`'s call sites — `promote-admin`, `demote-admin`, `list-admins`, and their shared `scripts/admin/lib/cli.ts` — via a second wrapper variant (decision 27). `scripts/checks/*.mjs` (CI hard-constraint scripts) stay out of scope and stay on plain `console.*` — these are CI/dev-facing output, not application runtime logs, and persisting them would muddy a page meant for "what's happening in my running app."
-27. **Two wrapper variants**, not one stretched to fit both contexts: the request-context wrapper (decision 13, `after()`-deferred) for `src/`, used inside Next.js request handlers; and a simpler CLI variant for `scripts/admin/` that directly `await`s its Supabase insert — safe there because CLI scripts run to completion and exit, with no serverless teardown race to guard against, so `after()` isn't needed and doesn't apply (no Next.js request context to extend the life of).
-28. **Non-conforming tags in `src/` need manual handling in the sweep, not mechanical find-replace:** `map-users-action-fault.ts:8` (first arg is a variable `logTag`, not a bracket-prefixed string literal) and `run-role-mutation.ts:92` (tag is interpolated mid-message, not a clean leading prefix). Both need the sweep to look at what the variable/interpolation actually holds and split it into a proper explicit `tag` argument.
-29. **No retention exemption for admin-CLI audit events** (promote/demote/list-admins) — same purge schedule as all other logs (decision 8). Considered exempting privilege-change events from the purge as audit records, but decided uniform retention is fine.
+### Epic 1: App settings store
+
+- **1.1 The settings registry.** Settings are declared in code — key, label, description, value type, default — as the single source of truth for what settings exist. The store holds values only; a key absent from the registry isn't a setting, and admins never invent keys. Seeded with the two this phase needs: minimum log level and log retention window.
+- **1.2 Persisted values with registry defaults.** A setting's value persists per spun-off project and reads back with the registry default standing in when nothing has been set yet. Value shape varies per setting (level is a string enum, retention a number), so the store holds heterogeneous values without a schema change per setting. Admin-only.
+- **1.3 Cached reads, invalidated on save.** Reads go through the tagged server data cache under one coarse tag covering the whole settings set; saving invalidates that tag so an admin's change propagates across serverless instances at once rather than waiting out a TTL. Design and trade-offs settled in [ADR-0006](../adr/ADR-0006-settings-reads-cached-under-one-coarse-tag.md).
+
+*Success:*
+- Reading an unset setting returns its registry default; reading a set one returns the stored value.
+- A saved value takes effect on the next read everywhere, with no redeploy and no staleness window.
+- Settings of different value types coexist without a schema change.
+- A key absent from the registry can't be written.
+- Non-admins can neither read nor write settings.
+- `pnpm pre-push` is green.
+
+### Epic 2: Settings admin page
+
+- **2.1 The settings page.** A new admin page renders each registry setting as a block — label, description, and an input control typed to the setting — grouped under feature-area headings, with per-row save and a toast confirmation reusing the existing pattern. The page renders whatever's in the registry, so a new setting is a registry entry rather than a page change. Mockup: `.mockups/admin_settings_page.html`.
+
+*Success:*
+- Every registry setting renders with a control matching its declared type, showing the live value or the default.
+- Saving one setting saves only that setting and confirms with a toast.
+- Adding a registry entry surfaces a new control with no page-code change.
+- The page is admin-gated.
+- `pnpm pre-push` is green.
+
+### Epic 3: Log persistence
+
+- **3.1 Logs persist.** Application logs are written to a table so they can be browsed in-app and outlive Vercel's retention. A row carries level, tag, message, and arbitrary structured context — an error is one shape of context, not a column of its own. Admin-only read.
+- **3.2 The wrapper.** Call sites log through a thin wrapper that does what `console.*` does today plus a persisted write. Tag is a required explicit argument, so a missing tag is a compile-time error rather than a null discovered later on the admin page. Fire-and-forget: no call site awaits it and no sync function becomes async. Inside a request the write defers so it survives serverless teardown without blocking the response — the same silent-drop risk that ruled out Pino/Winston's transport model.
+- **3.3 CLI wrapper variant.** Admin CLI scripts log through a variant that awaits its write directly — there's no request whose life needs extending, and the process runs to completion before exiting.
+- **3.4 The level threshold.** The minimum log level setting gates logging: below it, a call neither prints nor persists. This is the settings store's first real consumer. The CLI variant has no request cache to read through, so it resolves the threshold directly at startup.
+
+*Success:*
+- A below-threshold call produces neither console output nor a row; an at-or-above call produces both.
+- Changing the minimum level from the settings page changes behavior on the next request, with no redeploy.
+- No call site awaits the wrapper, and no function became async to accommodate it.
+- A log written during a request survives the response completing.
+- CLI-script logs persist.
+- `pnpm pre-push` is green.
+
+### Epic 4: Console sweep
+
+- **4.1 Application logs move onto the wrapper.** Every application log in `src/` routes through the request wrapper, with each site's existing bracket-prefixed tag split out into the explicit tag argument. Two sites don't follow the convention — one passes a tag variable, one interpolates the tag mid-message — and need the sweep to read what they actually hold rather than a mechanical find-replace.
+- **4.2 Admin CLI logs move onto the CLI variant.** The promote, demote, and list-admins scripts and their shared CLI library route through the CLI variant. The CI hard-constraint check scripts stay on plain `console.*` deliberately — they're CI output, not application runtime behavior, and persisting them would muddy a page meant for what's happening in a running app.
+
+*Success:*
+- Every swept site logs through a wrapper with an explicit tag; nothing in the swept surface prints via raw `console.*`.
+- The two non-conforming sites carry real, correct tags.
+- The CI check scripts are untouched and still on plain `console.*`.
+- `pnpm pre-push` is green.
+
+### Epic 5: Raw console guardrail
+
+- **5.1 The guardrail.** A check rejects raw `console.*` outside the wrapper across the swept surfaces, so new ones can't creep back in; the CI check scripts stay exempt. A new `check:*` pairs one-to-one with a hard-constraint entry, so this routes through the AGENTS.md change protocol as a deliberate addition. It sequences after the sweep — its passing state is only meaningful once every existing call site has moved.
+
+*Success:*
+- The guardrail fails on a planted raw `console.*` in a swept surface and passes clean on the codebase.
+- CI check scripts are exempt and still pass.
+- The change protocol is followed and the hard-constraint statement matches enforcement.
+- `pnpm pre-push` is green.
+
+### Epic 6: Log retention purge
+
+- **6.1 Logs purge on a schedule.** Logs older than the retention window are deleted by the database on a schedule, with the window read from settings so an admin changes it without a migration or a redeploy — the settings store's second real consumer. Scheduling is established by migration and tracked in source control like any other schema change, and setup docs note that it enables a database extension. Admin CLI privilege-change events get no exemption; retention is uniform.
+
+*Success:*
+- The scheduled job exists after migrations run.
+- Rows older than the window are gone after a run; newer rows survive.
+- Changing the retention setting changes what the next run deletes, with no migration or redeploy.
+- Setup docs note the extension.
+- `pnpm pre-push` is green.
+
+### Epic 7: Logs page — browse
+
+- **7.1 Browse logs.** A new admin page lists logs newest-first — timestamp, level badge, tag, and a truncated single-line message — with a row expanding on click to reveal the full message and its context. Paging is cursor-based on the timestamp rather than offset, because the table is written to concurrently and offset paging drifts and slows under inserts. Mockup: `.mockups/admin_logs_page.html`.
+- **7.2 Copy a row.** A row copies its message and formatted context to the clipboard, reusing the error panel's existing copy pattern, for pasting into an AI chat or elsewhere.
+- **7.3 Sort direction.** The timestamp header flips between newest- and oldest-first. It's the only sort control on the page — no other column sorts, since paging depends on a single stable key and the filters cover what sorting would.
+
+*Success:*
+- Rows show timestamp, level, tag, and truncated message; expanding one reveals the full message and context.
+- Paging stays consistent while rows are being inserted.
+- Flipping direction re-pages correctly from the top.
+- Copy places the message and formatted context on the clipboard.
+- No column but timestamp offers any sort affordance.
+- The page is admin-gated.
+- `pnpm pre-push` is green.
+
+### Epic 8: Logs page — triage
+
+- **8.1 Filters.** The page filters by level (multi-select chips colored to match the row badges), by tag (a searchable dropdown populated from the tags actually present), and by read status (all or unread only).
+- **8.2 Search.** A free-text bar matches against message, context, and tag by substring — right-sized given the purge keeps the table small, revisited only if volume ever makes it slow. Tag is included so a cluster of one tag is findable by search, which is what a tag sort would otherwise have been for.
+- **8.3 Read state.** Read/unread is global rather than per-admin, since a template can't know how many admins a spinoff has and shared read state is the simpler default. It's marked explicitly only — by row, or by a "mark all as read" scoped to the current filter view. Nothing auto-marks on page load or scroll, which would defeat read/unread as a triage tool.
+
+*Success:*
+- Filters compose with each other, with search, and with paging.
+- Unread rows are visually distinct from read ones.
+- "Mark all as read" affects only rows in the active filter view.
+- Nothing becomes read without an explicit action.
+- Search matches against message, context, and tag.
+- `pnpm pre-push` is green.
+
+### Epic 9: Debug logs at the three seams
+
+- **9.1 The session seam.** Session and proxy decisions emit debug logs — token refreshed versus reused, claims read while expired — so the boundary [ADR-0005](../adr/ADR-0005-proxy-as-sole-session-authority.md) settled can be watched live rather than inferred from a stack trace.
+- **9.2 The settings seam.** Settings reads and invalidations emit debug logs — cache hit or miss, invalidation firing on save — so a stale-settings report is diagnosable instead of guessed at.
+- **9.3 The avatar storage seam.** Avatar upload and delete emit debug logs covering the success path, including the case where a storage delete fails without blocking the profile update.
+
+*Success:*
+- With the threshold at debug, a single pass through sign-in, a settings save, and an avatar upload produces a legible trace on the logs page.
+- With the threshold at info, none of them appear.
+- No seam's control flow or behavior changes as a result of its logging.
+- `pnpm pre-push` is green.
 
 ---
 
-## Appendix: console call-site audit (2026-07-14)
+## Notes
 
-Scope: `src/`, `scripts/`. Excluded: `node_modules`, `.next`, build output, test/mock files. No matches in `proxy.ts`, `next.config.ts`, or `eslint-rules/`.
-
-| Method | `src/` | `scripts/` | Total |
-|---|---|---|---|
-| `console.debug` | 0 | 0 | 0 |
-| `console.info` | 0 | 0 | 0 |
-| `console.warn` | 3 | 4 | 7 |
-| `console.error` | 20 | 11 | 31 |
-| `console.log` | 0 | 13 | 13 |
-| **All methods** | **23** | **28** | **51** |
-
-- Zero `console.debug`/`console.info` usage anywhere — the taxonomy's debug/info levels are currently unused in practice.
-- `console.log` exists only in `scripts/` (CLI + CI check scripts); none in `src/`.
-- No call site (of the 51) passes more than two arguments — confirms the wrapper's `(tag, message, context?)` signature covers every real case with no redesign needed.
-- Non-conforming-tag call sites (5 total, repo-wide): `map-users-action-fault.ts:8`, `run-role-mutation.ts:92` (both in `src/`, in sweep scope — see decision 28), plus three in `scripts/` (`cli.ts:104`, `prompt.ts:9`, `vitest-file.mjs:7`) which fall outside the Phase 12 sweep scope (decision 26) except where they live in `scripts/admin/lib/cli.ts`, which *is* in scope as part of the promote/demote/list-admins sweep.
-- Highest concentration: `scripts/admin/lib/cli.ts` (13 sites, in scope), `src/supabase/require-auth.ts` (4, in scope), `src/utils/avatar-storage.ts` (3, in scope).
-
----
-
-## Next step
-
-Run `/phase-planning` against this PRD to decompose the settled decisions above into epics and stories, following the same vertical-slice / single-source-of-truth conventions used in Phase 11.
+- **ADR-0006 written during this planning session** — [ADR-0006](../adr/ADR-0006-settings-reads-cached-under-one-coarse-tag.md) settles decision 9's caching design and covers Epic 1.3. It was the phase's only ADR candidate; nothing else here clears all three bars.
+- **Four decisions were made at decomposition** and are recorded as ledger entries 30–33, amending decisions 6 and 19. Epic 9 is net-new scope arising from decision 33.
+- **Dependencies:** Epic 1 before Epics 3.4 and 6 (both read settings). Epic 3 before Epics 4, 6, and 9 (all need a wrapper). Epic 4 before Epic 5 — the guardrail's clean-pass criterion is meaningless until the sweep has landed. Epic 7 before Epic 8 (same page). Epic 9 last: its logs need the wrapper, the settings store, and the threshold all present.
+- **Epics 7 and 8 deliberately split one page across two epics.** The logs page's decisions (15–21) are more than one context window holds. The intermediate state — a logs page with no filters — is real but harmless, since nothing ships to users mid-phase.
+- **Only hard-constraint change is Epic 5's guardrail,** routed through the AGENTS.md change protocol. Nothing in this phase touches the auth boundary or the admin gate.
+- **No new LEXICON terms.** Settings registry, wrapper, and tag are implementation vocabulary, not domain terms meaningful to a domain expert.
+- **Open at plan time — Epic 3.4's CLI threshold read.** The CLI variant runs outside Next.js, so it has no request context and no tagged cache to read the threshold through. A direct read at process start is the intended approach (short-lived process, cache bypass is harmless), but the ledger doesn't cover it; plan review should confirm rather than let it be invented.
