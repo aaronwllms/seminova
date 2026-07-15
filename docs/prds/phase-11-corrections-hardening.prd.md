@@ -254,7 +254,7 @@ This epic owns every reference-page edit in the phase, so nothing else touches t
 - The box is checked on load; toggling it resets to page 1 and refetches rather than serving a stale cached page.
 - `pnpm pre-push` is green.
 
-### Epic 15: CLI user delete
+### Epic 15: CLI user delete `Complete`
 
 - **15.1 Delete mutation.** A delete lands beside the existing promote / demote / ban / unban mutations, following their shape — resolve the user, act, return a typed status including a not-found case.
 - **15.2 `pnpm delete-user <email>`.** A script alongside `promote-admin` / `demote-admin` / `list-admins`, using the same confirmation prompt — which echoes the target Supabase project URL before asking, the guardrail that actually matters here. Deleting the auth user removes the profile row by cascade; the avatar file does **not** cascade, so the script deletes it too. Order is auth user first, then the avatar, with a storage failure logged but not failing the command — an orphan file an admin can sweep beats destroying a surviving user's avatar if the auth delete errors. Deleting a user *who has an avatar* must work: `storage.objects` carries an `owner` reference to `auth.users` whose current on-delete behavior we haven't confirmed, and if it's restrictive the delete throws and the order flips. Verify the constraint against the database before settling it. No self-delete guard — a service-key script has no calling admin — and no last-admin guard, matching `demote-admin`.
