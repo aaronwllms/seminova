@@ -36,6 +36,9 @@ Seminova ships with a two-environment planning system: **Claude** owns planning,
   <img alt="Seminova workflow: project kickoff and initialize project feed into a phase loop (plan phase, then a nested epic loop of plan epic, review plan, build, then ship phase)" src="images/workflow-light.svg">
 </picture>
 
+> [!NOTE]
+> **This diagram renders on GitHub; Cursor's built-in preview shows a broken image icon.** That's expected — Cursor doesn't currently render images in markdown preview. See [docs/WORKFLOW_GUIDE.md](docs/WORKFLOW_GUIDE.md#the-full-workflow) for the annotated version, or [docs/WORKFLOW_BACKLOG.md](docs/WORKFLOW_BACKLOG.md) for the plan to revisit this once Mermaid's swimlane support matures.
+
 The full workflow — every step, skill, and document explained, plus the detailed diagram — lives in [docs/WORKFLOW_GUIDE.md](docs/WORKFLOW_GUIDE.md). One-time setup (connecting Claude Desktop, installing the skills) is in [docs/WORKFLOW_SETUP.md](docs/WORKFLOW_SETUP.md).
 
 ---
@@ -72,7 +75,7 @@ The full workflow — every step, skill, and document explained, plus the detail
    | -------- | ----------- |
    | `NEXT_PUBLIC_SUPABASE_URL` | Project URL — **required for `pnpm build`** (production deploy blocker) |
    | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable (anon) key — **required for `pnpm build`** |
-   | `SUPABASE_SECRET_KEY` | Secret key (server/CLI only — see Initial setup) |
+   | `SUPABASE_SECRET_KEY` | Secret key (server/CLI only — see [Initial setup](#initial-setup)) |
    | `NEXT_PUBLIC_SITE_URL` | Optional — canonical site URL for Open Graph and metadata (include `https://`); falls back to `VERCEL_URL` on Vercel, then `http://localhost:3000` locally |
    | `CSP_ENFORCE` | Optional — set to `true` for enforcing CSP instead of report-only (see [AGENTS.md](AGENTS.md); requires nonce strategy before production use) |
    | `VERCEL_URL` | Optional — auto-set on Vercel deploys; used as metadata base when `NEXT_PUBLIC_SITE_URL` is unset (do not set locally) |
@@ -80,7 +83,7 @@ The full workflow — every step, skill, and document explained, plus the detail
 > [!WARNING]
 > **Development-only auth bypass:** if `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are not set, the auth proxy skips session checks in development so you can explore the UI before wiring Supabase. **Production deploys without those variables return 503** — configure env vars before shipping.
 
-4. Link your local repo to your Supabase project and apply the schema that ships with the template (this is what creates the `profiles` table Initial setup below depends on):
+4. Link your local repo to your Supabase project and apply the schema that ships with the template (this is what creates the `profiles` table [Initial setup](#initial-setup) below depends on):
 
    ```bash
    pnpm exec supabase link
@@ -108,29 +111,34 @@ After Quick start, grant yourself admin access so you can use the admin shell:
 
 1. **Configure Supabase Auth** (required before sign-up) — in the [Supabase Dashboard](https://app.supabase.com) for your linked project:
 
+   <details>
+   <summary>Email templates and redirect URLs</summary>
+
    - **Email templates** — Authentication → Email Templates. Replace the default verify link in each template so confirmation routes through this app:
 
      - **Confirm signup:**
 
-       ```
+       ```text
        {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}
        ```
 
      - **Reset Password:**
 
-       ```
+       ```text
        {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next={{ .RedirectTo }}
        ```
 
    - **Redirect URLs** — Authentication → URL Configuration → Redirect URLs. Add:
 
-     ```
+     ```text
      http://localhost:3000/**
      ```
 
      (plus your production URL once deployed, e.g. `https://yourapp.com/**`)
 
    If these are skipped, email confirmation links may fail silently or log `Missing access token on protected route` in the server console.
+
+   </details>
 
 2. Start the dev server and sign up at [http://localhost:3000/auth/sign-up](http://localhost:3000/auth/sign-up).
 3. Add `SUPABASE_SECRET_KEY` to `.env.local` (from [Project Settings → API](https://app.supabase.com/project/_/settings/api) → **API Keys** → **secret key**, `sb_secret_...`):
@@ -169,7 +177,12 @@ Companion CLI commands (bootstrap / automation): `pnpm demote-admin <email>`, `p
 
 After that, the repo is a real project, not a template copy — and the phase-by-phase build loop in [docs/WORKFLOW_GUIDE.md](docs/WORKFLOW_GUIDE.md) takes over.
 
-**Re-skinning:** colors, type, and radius are per-product by design. [DESIGN.md](DESIGN.md) documents the token architecture and re-skin workflow. Landing page hero, features, proof CTA, and tech-stack copy live in [`src/config/landing-content.ts`](src/config/landing-content.ts); app name, logo, and nav/social links in [`src/config/site.ts`](src/config/site.ts). Social preview images are generated dynamically via [`src/utils/og-image.tsx`](src/utils/og-image.tsx) and per-route `opengraph-image.tsx` files — update the template colors (mirroring `globals.css` light tokens) and font at [`src/assets/fonts/Inter-SemiBold.ttf`](src/assets/fonts/Inter-SemiBold.ttf); copy [`src/app/auth/login/opengraph-image.tsx`](src/app/auth/login/opengraph-image.tsx) for new routes.
+**Re-skinning:** colors, type, and radius are per-product by design. [DESIGN.md](DESIGN.md) documents the token architecture and re-skin workflow.
+
+- Landing page hero, features, proof CTA, and tech-stack copy — [`src/config/landing-content.ts`](src/config/landing-content.ts)
+- App name, logo, and nav/social links — [`src/config/site.ts`](src/config/site.ts)
+- Social preview images — generated dynamically via [`src/utils/og-image.tsx`](src/utils/og-image.tsx) and per-route `opengraph-image.tsx` files; update template colors (mirroring `globals.css` light tokens) and font at [`src/assets/fonts/Inter-SemiBold.ttf`](src/assets/fonts/Inter-SemiBold.ttf)
+- New routes with OG images — copy [`src/app/auth/login/opengraph-image.tsx`](src/app/auth/login/opengraph-image.tsx)
 
 ---
 
