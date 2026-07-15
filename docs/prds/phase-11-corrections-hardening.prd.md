@@ -190,7 +190,7 @@ This epic owns every reference-page edit in the phase, so nothing else touches t
 
 **Dependency:** Epic 11 builds on `admin_list_users` from Epic 10 (extends its column set and sort allowlist) — sequence Epic 10 before Epic 11.
 
-### Epic 12: Email confirmation setup fix & stray-code hardening `Planned`
+### Epic 12: Email confirmation setup fix & stray-code hardening `Complete`
 
 - **12.1 README — Supabase Auth setup step.** Add a new step at the top of "Initial setup," before signup, documenting two required Supabase dashboard changes:
 
