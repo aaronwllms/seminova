@@ -151,7 +151,7 @@ Public avatar URLs are versioned with a `?v=` query param so browsers fetch the 
 
 ### Canonical data table
 
-The reference pattern for admin tables: `DataTableShell` with single-column search, server-side Next/Previous pagination (page size 15), and skeleton loading via column meta. See [`src/components/data-table-shell.tsx`](src/components/data-table-shell.tsx) and the users table as the production reference; the [`/reference`](src/app/(marketing)/reference/_components/reference-table-section.tsx) fixture demo is the sanctioned client-side pagination exception. New admin list views should follow this pattern before reaching for a custom table.
+The reference pattern for admin tables: `DataTableShell` with single-column search, server-side Next/Previous pagination with a selectable page size (10 / 15 / 25 / 50; default 15) via shared `DataTablePaginationControls`, and skeleton loading via column meta. Per-column width and alignment use `columnDef.meta.cellClassName` on header and body cells; loading skeletons use `columnDef.meta.skeletonClassName`. See [`src/components/data-table-shell.tsx`](src/components/data-table-shell.tsx) and the users table as the production reference; the [`/reference`](src/app/(marketing)/reference/_components/reference-table-section.tsx) fixture demo is the sanctioned client-side pagination exception. New admin list views should follow this pattern before reaching for a custom table.
 
 ---
 

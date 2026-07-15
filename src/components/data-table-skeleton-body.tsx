@@ -22,7 +22,10 @@ export const DataTableSkeletonBody = <TData,>({
     {Array.from({ length: rowCount }, (_, rowIndex) => (
       <TableRow key={`skeleton-row-${rowIndex}`}>
         {columns.map((column, columnIndex) => (
-          <TableCell key={`skeleton-cell-${columnIndex}`} className="px-3">
+          <TableCell
+            key={`skeleton-cell-${columnIndex}`}
+            className={cn('px-3', column.meta?.cellClassName)}
+          >
             <Skeleton
               aria-hidden
               className={cn(

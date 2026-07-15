@@ -31,10 +31,15 @@ import { cn } from '@/utils/tailwind'
 declare module '@tanstack/react-table' {
   interface ColumnMeta<TData, TValue> {
     searchable?: boolean
+    /** Tailwind classes applied to header and body cells (e.g. "text-right", "w-0 whitespace-nowrap") */
+    cellClassName?: string
     /** Tailwind classes for the Skeleton in each cell when loading (e.g. "h-5 w-16 rounded-full") */
     skeletonClassName?: string
   }
 }
+
+const getColumnCellClassName = (meta: { cellClassName?: string } | undefined) =>
+  cn('px-3', meta?.cellClassName)
 
 type UseDataTableShellOptions<TData> = {
   data: Array<TData>
@@ -154,7 +159,12 @@ export const DataTableShell = <TData,>({
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className="px-3">
+                <TableHead
+                  key={header.id}
+                  className={getColumnCellClassName(
+                    header.column.columnDef.meta,
+                  )}
+                >
                   {header.isPlaceholder
                     ? null
                     : flexRender(
@@ -176,7 +186,12 @@ export const DataTableShell = <TData,>({
             table.getRowModel().rows.map((row) => (
               <TableRow key={row.id}>
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="px-3">
+                  <TableCell
+                    key={cell.id}
+                    className={getColumnCellClassName(
+                      cell.column.columnDef.meta,
+                    )}
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}

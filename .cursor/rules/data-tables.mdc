@@ -45,6 +45,10 @@ While a fetch is in flight and the table body is empty, show skeleton rows — n
 
 **Why:** placeholder text in a single merged cell reads as an empty state, not a loading state; skeleton rows preserve column structure and match the design-system loading convention.
 
+## Column sizing
+
+Per-column width and alignment via `columnDef.meta.cellClassName` — applied to both header and body cells by `DataTableShell` and `DataTableSkeletonBody`. Examples: `text-right` for right-aligned columns, `w-0 whitespace-nowrap` for icon/action columns that should shrink to content. Pair with `skeletonClassName` for loading-state shape (e.g. `inline-block` when alignment depends on the cell, not `ml-auto` on the skeleton).
+
 ## Reference Implementations
 - [`src/components/data-table-shell.tsx`](src/components/data-table-shell.tsx) — `DataTableShell`, `useDataTableShell`, `DataTableColumnHeader`
 - [`src/constants/data-table.ts`](../../src/constants/data-table.ts) — shared page-size options and default

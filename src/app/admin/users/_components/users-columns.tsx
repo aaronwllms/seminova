@@ -120,7 +120,10 @@ export const createUsersColumns = ({
   },
   {
     id: 'actions',
-    meta: { skeletonClassName: 'h-8 w-8 rounded-md' },
+    meta: {
+      cellClassName: 'w-0 whitespace-nowrap',
+      skeletonClassName: 'h-8 w-8 rounded-md',
+    },
     header: () => <span className="sr-only">Actions</span>,
     cell: ({ row }) => {
       const user = row.original

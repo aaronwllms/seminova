@@ -1,6 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table'
 
 import { DataTablePaginationControls } from '@/components/data-table-pagination-controls'
+import { cn } from '@/utils/tailwind'
 import { DataTableSkeletonBody } from '@/components/data-table-skeleton-body'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -23,7 +24,13 @@ const SKELETON_COLUMNS: Array<ColumnDef<ReferenceShipment, unknown>> = [
   { id: 'consignee', meta: { skeletonClassName: 'h-4 w-40 max-w-full' } },
   { id: 'route', meta: { skeletonClassName: 'h-4 w-24' } },
   { id: 'status', meta: { skeletonClassName: 'h-5 w-20 rounded-full' } },
-  { id: 'departs', meta: { skeletonClassName: 'h-4 w-16 ml-auto' } },
+  {
+    id: 'departs',
+    meta: {
+      cellClassName: 'text-right',
+      skeletonClassName: 'inline-block h-4 w-16',
+    },
+  },
 ]
 
 const TABLE_HEADERS = ['Consignee', 'Route', 'Status', 'Departs'] as const
@@ -49,17 +56,13 @@ export const ReferenceTableDemoFallback = () => (
         <Table>
           <TableHeader>
             <TableRow>
-              {TABLE_HEADERS.map((title, index) => (
+              {SKELETON_COLUMNS.map((column, index) => (
                 <TableHead
-                  key={title}
-                  className={
-                    index === TABLE_HEADERS.length - 1
-                      ? 'px-3 text-right'
-                      : 'px-3'
-                  }
+                  key={TABLE_HEADERS[index]}
+                  className={cn('px-3', column.meta?.cellClassName)}
                 >
                   <span className="text-foreground flex h-8 items-center text-sm font-medium">
-                    {title}
+                    {TABLE_HEADERS[index]}
                   </span>
                 </TableHead>
               ))}
