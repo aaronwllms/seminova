@@ -225,6 +225,49 @@ This epic owns every reference-page edit in the phase, so nothing else touches t
 - `check:auth-boundary` passes with the new case covered.
 - `pnpm pre-push` is green.
 
+### Epic 13: Data-table column sizing & pattern refresh
+
+- **13.1 Per-column cell styling.** The shared data-table shell accepts a per-column style hint through column meta, applied to both the header and body cells of that column — a sibling to the existing `skeletonClassName` hint, not a new mechanism.
+- **13.2 Actions column shrinks to fit.** The users table's actions column claims only the width its ⋯ button needs, closing the trailing gap between it and the Ban column. Both columns are in scope for diagnosis — the Ban column's widest content is a full `Banned until {date}` badge, so it may be the real source of the gap; fix wherever it actually lives.
+- **13.3 Reference demo alignment.** The reference table demo's right-aligned `departs` column uses the new hint instead of hand-rolled wrappers — it currently rolls alignment three ways (a `flex justify-end` header wrapper, a `text-right` cell wrapper, and `ml-auto` in its skeleton class). Same rendered result, no wrapper divs.
+- **13.4 LEXICON `Canonical data table` refresh.** The entry describes the pattern as it now stands — it still claims a fixed page size of 15, which Epic 10 replaced with a selectable size and shared pagination controls, and it doesn't mention per-column sizing. No new term; an existing entry corrected.
+
+*Success:*
+- One meta hint controls both width and alignment per column; it reaches header and body cells alike.
+- The users table's actions column sits flush against the ⋯ button with no dead space beside it, whether or not a banned row is on screen.
+- The reference demo's `departs` column renders right-aligned identically to today, with no alignment wrapper divs and no `ml-auto` skeleton workaround.
+- The LEXICON entry names selectable page size, shared pagination controls, and per-column sizing; nothing in it contradicts the code.
+- `pnpm pre-push` is green.
+
+### Epic 14: Show/hide banned users
+
+- **14.1 Checkbox primitive.** The UI kit gains a vendored Checkbox — the kit has none today, and primitive-first rules out a native input.
+- **14.2 Banned filter in `admin_list_users`.** The listing function accepts a show-banned flag and excludes currently-banned users when it's off, filtering server-side so pagination stays honest. Two constraints: the new parameter changes the function's signature, so the migration must drop the existing function and recreate it — `create or replace` with a different parameter list creates a *second overload* rather than replacing, which leaves PostgREST unable to disambiguate the RPC and the old signature holding its own grants. And the function must express "currently banned" **once** and have both the filter and the existing sort read from it; the sort already restates the rule inline, and a second restatement in the same query is drift for nothing.
+- **14.3 Filter plumbing.** The flag travels from the table through the Server Action to the RPC, validated at the action boundary like the other list parameters, and participates in the query cache key.
+- **14.4 The control.** A "Show banned" checkbox sits beside the search input on `/admin/users`, **checked by default** — an admin console shows its full set unless asked otherwise, and Ban is already a visible column. Unchecking hides currently-banned users and returns to page 1.
+
+*Success:*
+- A Checkbox primitive exists in the UI kit and is the control used here.
+- Exactly one `admin_list_users` exists after the migration — no second overload, and execute grants match the pre-existing ones.
+- The function derives "currently banned" in one place, consumed by both the filter and the sort.
+- With the box unchecked, banned users are absent from *every* page, not just the visible one; paging and sorting continue to behave.
+- The box is checked on load; toggling it resets to page 1 and refetches rather than serving a stale cached page.
+- `pnpm pre-push` is green.
+
+### Epic 15: CLI user delete
+
+- **15.1 Delete mutation.** A delete lands beside the existing promote / demote / ban / unban mutations, following their shape — resolve the user, act, return a typed status including a not-found case.
+- **15.2 `pnpm delete-user <email>`.** A script alongside `promote-admin` / `demote-admin` / `list-admins`, using the same confirmation prompt — which echoes the target Supabase project URL before asking, the guardrail that actually matters here. Deleting the auth user removes the profile row by cascade; the avatar file does **not** cascade, so the script deletes it too. Order is auth user first, then the avatar, with a storage failure logged but not failing the command — an orphan file an admin can sweep beats destroying a surviving user's avatar if the auth delete errors. Deleting a user *who has an avatar* must work: `storage.objects` carries an `owner` reference to `auth.users` whose current on-delete behavior we haven't confirmed, and if it's restrictive the delete throws and the order flips. Verify the constraint against the database before settling it. No self-delete guard — a service-key script has no calling admin — and no last-admin guard, matching `demote-admin`.
+
+*Success:*
+- `pnpm delete-user <email>` deletes the user after a confirmation that names the target project; declining leaves the account untouched.
+- An unknown email exits with a clear not-found message rather than a stack trace.
+- Deleting a user who has an avatar succeeds, and the avatar file is gone from the bucket afterward.
+- A storage-delete failure still reports the user deleted, and says what was left behind.
+- The profile row is gone.
+- No delete surface appears in `/admin/users`.
+- `pnpm pre-push` is green.
+
 ---
 
 ## Notes
@@ -236,3 +279,7 @@ This epic owns every reference-page edit in the phase, so nothing else touches t
 - **Epic 9 is net-new home page scope, not a correction** — added deliberately rather than deferred to a future phase, since Phase 11 was already touching marketing copy this session. No hard-constraint or file-coupling implications for the rest of the phase.
 - **Epics 10 and 11 are net-new admin-console scope, not corrections** — added deliberately during the same planning session. Epic 10 replaces the Admin-API-based user listing with a `SECURITY DEFINER` Postgres function for real server-side sort/pagination (a genuine new security surface — plan-review must confirm the function's internal admin check and sort-column allowlist before it lands). Epic 11 depends on Epic 10 and must sequence after it.
 - **Plan-review flag — header file sharing.** Epic 4's header GitHub-link repoint and Epic 2's header avatar revert may touch the same header file. If they do, they merge or sequence — a plan-review-time check, not resolvable at planning.
+- **Scope decision — user delete is CLI-only, deliberately.** The template's riskiest action shouldn't ship as a dropdown item every spinoff inherits by default. The need it serves is test-account cleanup, which is a dev concern; the secret-key script is the sanctioned break-glass path. Considered for an ADR and rejected — surprising and a real trade-off, but not hard to reverse, since adding a UI delete later is cheap.
+- **Epics 13–15 make no hard-constraint changes.** Nothing in them touches the auth boundary, the admin gate, or a `check:*` script.
+- **No dependencies between Epics 13, 14, and 15** — any build order.
+- **No mockups for Epics 13–15** — no new surface worth seeing; Epic 14's checkbox sits in an existing toolbar.
