@@ -109,55 +109,42 @@ The full workflow — every step, skill, and document explained, plus the detail
 
 After Quick start, grant yourself admin access so you can use the admin shell:
 
-1. **Configure Supabase Auth** (required before sign-up) — in the [Supabase Dashboard](https://app.supabase.com) for your linked project:
+### Email templates and redirect URLs
 
-   <details>
-   <summary>Email templates and redirect URLs</summary>
+In the [Supabase Dashboard](https://app.supabase.com) for your linked project:
 
-   - **Email templates** — Authentication → Email Templates. Replace the default verify link in each template so confirmation routes through this app:
+- **Email templates** — Authentication → Email Templates. Replace the default verify link in each template so confirmation routes through this app:
+  - **Confirm signup:** `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}`
+  - **Reset Password:** `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next={{ .RedirectTo }}`
+- **Redirect URLs** — Authentication → URL Configuration → Redirect URLs. Add the patterns below (trailing glob matches any path under that origin):
 
-     - **Confirm signup:**
+```text
+http://localhost:3000/**
+https://yourapp.com/**
+```
 
-       ```text
-       {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}
-       ```
+Replace `yourapp.com` with your deployed domain when you ship.
 
-     - **Reset Password:**
+If these are skipped, email confirmation links may fail silently or log `Missing access token on protected route` in the server console.
 
-       ```text
-       {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next={{ .RedirectTo }}
-       ```
+### Grant admin access
 
-   - **Redirect URLs** — Authentication → URL Configuration → Redirect URLs. Add:
+- **CLI (bootstrap):** promote your account with the command below. The CLI prints the target Supabase project URL and asks for confirmation before acting. `SUPABASE_SECRET_KEY` is required for CLI commands only.
 
-     ```text
-     http://localhost:3000/**
-     ```
+```bash
+pnpm promote-admin your@email.com
+```
 
-     (plus your production URL once deployed, e.g. `https://yourapp.com/**`)
+- **In-app (once an admin exists):** another admin promotes you from `/admin/users`
 
-   If these are skipped, email confirmation links may fail silently or log `Missing access token on protected route` in the server console.
-
-   </details>
-
+1. **Configure Supabase Auth** (required before sign-up) — complete [Email templates and redirect URLs](#email-templates-and-redirect-urls) in the Supabase Dashboard.
 2. Start the dev server and sign up at [http://localhost:3000/auth/sign-up](http://localhost:3000/auth/sign-up).
 3. Add `SUPABASE_SECRET_KEY` to `.env.local` (from [Project Settings → API](https://app.supabase.com/project/_/settings/api) → **API Keys** → **secret key**, `sb_secret_...`):
 
 > [!WARNING]
 > **Never commit `SUPABASE_SECRET_KEY` or use a `NEXT_PUBLIC_*` prefix.** Supabase's **secret key** replaces the legacy **service role** key. This repo uses `SUPABASE_SECRET_KEY` — not `SUPABASE_SERVICE_ROLE_KEY`. The legacy JWT under "Legacy API keys" still works during Supabase's migration period, but prefer the secret key from **API Keys**.
 
-4. Grant yourself admin access — either:
-
-    - **CLI (bootstrap):** promote your account:
-
-      ```bash
-      pnpm promote-admin your@email.com
-      ```
-
-    The CLI prints the target Supabase project URL and asks for confirmation before acting. `SUPABASE_SECRET_KEY` is required for CLI commands only.
-
-    - **In-app (once an admin exists):** another admin promotes you from `/admin/users`
-
+4. Grant yourself admin access using one of the options in [Grant admin access](#grant-admin-access) above.
 5. **Re-login** if you were already signed in — the admin role is embedded in the JWT and won't appear until you start a fresh session.
 
 6. Open the admin area at [http://localhost:3000/admin](http://localhost:3000/admin) (admins land here after login; non-admins land on `/home`). The Users page at `/admin/users` lists signed-up accounts with email search, column sort, configurable page size, and in-app promote/demote and ban/unban for admins.
