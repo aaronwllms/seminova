@@ -5,6 +5,8 @@
 -- Affected: public.admin_list_users (function)
 -- Security: admin gate via auth.jwt() app_metadata.role (raises on denial);
 --   static ORDER BY allowlist (email, email_confirmed_at, created_at, last_sign_in_at, role);
+--   auth.users stores app metadata in raw_app_meta_data (JWT/API expose it as app_metadata);
+--   auth.users.email is varchar(255) — cast to text to match RETURNS TABLE;
 --   all auth.users column refs use u. alias — RETURNS TABLE output params share a namespace
 --   with query column refs, so unqualified names raise "column reference is ambiguous";
 --   REVOKE EXECUTE FROM PUBLIC; GRANT EXECUTE TO authenticated only
@@ -59,11 +61,11 @@ begin
   return query
   select
     u.id,
-    u.email,
+    u.email::text,
     u.email_confirmed_at,
     u.created_at,
     u.last_sign_in_at,
-    u.app_metadata,
+    u.raw_app_meta_data,
     u.banned_until
   from auth.users u
   where
@@ -100,11 +102,11 @@ begin
     end desc nulls last,
     case
       when p_sort_column = 'role' and p_sort_direction = 'asc'
-      then u.app_metadata ->> 'role'
+      then u.raw_app_meta_data ->> 'role'
     end asc nulls last,
     case
       when p_sort_column = 'role' and p_sort_direction = 'desc'
-      then u.app_metadata ->> 'role'
+      then u.raw_app_meta_data ->> 'role'
     end desc nulls last,
     u.created_at desc
   limit v_per_page
