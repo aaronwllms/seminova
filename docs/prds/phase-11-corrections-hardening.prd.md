@@ -156,7 +156,7 @@ This epic owns every reference-page edit in the phase, so nothing else touches t
 - Visually reads as a CTA row, not a third feature grid.
 - `pnpm pre-push` is green.
 
-### Epic 10: Real sort & page-size selector for data tables `Planned`
+### Epic 10: Real sort & page-size selector for data tables `Complete`
 
 - **10.1 `admin_list_users` Postgres function, replacing the Admin API.** New migration adding a `SECURITY DEFINER` function in `public` (e.g. `admin_list_users(p_sort_column, p_sort_direction, p_page, p_per_page, p_search)`) that reads `auth.users` with elevated privilege and returns `id`, `email`, `email_confirmed_at`, `created_at`, `last_sign_in_at`, `app_metadata`, `banned_until` — no broader `auth` schema exposure, no `profiles` join. The function performs its own admin check internally using the same `app_metadata.role === 'admin'` check as everywhere else — never trusts only the calling Server Action's gate. Sort column is resolved through an explicit `CASE`/allowlist inside the function (Email, Created, Last sign-in, Verified via `email_confirmed_at`, Role via `app_metadata->>'role'`) — never string-interpolated, closing the SQL-injection surface. `list-admin-users.ts` calls it via `supabase.rpc('admin_list_users', {...})`, replacing the current two-branch Admin-API/filter logic with one path. `isAdmin` mapping stays sourced from the same `app_metadata` field. Plan-review confirms the function's admin check and sort allowlist before this lands — new security surface, not a routine migration.
 - **10.2 All five columns sortable.** Set `enableSorting: true` on Email, Created, Last sign-in, Verified, and Role in `users-columns.tsx`, now that sort is real and server-driven for all of them.
