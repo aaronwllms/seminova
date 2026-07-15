@@ -267,7 +267,7 @@ describe('ProfileSettingsForm', () => {
     await user.tab()
 
     expect(
-      await screen.findByRole('button', { name: /copy error details/i }),
+      await screen.findByRole('button', { name: /^copy$/i }),
     ).toBeInTheDocument()
   })
 
@@ -384,6 +384,37 @@ describe('ProfileSettingsForm', () => {
         bio: 'Builder',
         avatarUrl: null,
       },
+    })
+  })
+
+  it('should show the session email as a read-only field', () => {
+    render(<ProfileSettingsForm {...defaultFormProps} />)
+
+    const emailInput = screen.getByLabelText(/email/i)
+    expect(emailInput).toHaveValue('test@example.com')
+    expect(emailInput).toHaveAttribute('readonly')
+    expect(emailInput).not.toBeDisabled()
+  })
+
+  it('should remove avatar via server action', async () => {
+    const user = userEvent.setup()
+
+    render(
+      <ProfileSettingsForm
+        {...defaultFormProps}
+        defaultValues={{
+          displayName: 'Alex',
+          bio: 'Builder',
+          avatarUrl: `${PUBLIC_URL}?v=1`,
+        }}
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: /^remove$/i }))
+
+    await waitFor(() => {
+      expect(mockUpdateProfileAction).toHaveBeenCalledWith({ avatarUrl: null })
+      expect(mockRefresh).toHaveBeenCalled()
     })
   })
 })

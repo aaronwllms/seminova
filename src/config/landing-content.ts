@@ -22,6 +22,11 @@ export interface LandingTechLogo {
   height: number
 }
 
+export interface LandingProofCtaLink {
+  label: string
+  href: string
+}
+
 export const landingContent = {
   hero: {
     title: 'Start curated, not from scratch',
@@ -54,7 +59,7 @@ export const landingContent = {
       {
         title: 'Admin shell out of the box',
         description:
-          'A working admin sidebar, Supabase auth flows, and role-gated access are already wired — start building your product, not your login screen.',
+          'A real admin console — sidebar, users table, and in-app promote/demote — with role-gated access already wired.',
         icon: LayoutDashboard,
       },
       {
@@ -70,6 +75,14 @@ export const landingContent = {
         icon: Users,
       },
     ] satisfies LandingFeature[],
+  },
+  proofCta: {
+    heading: 'Explore the template',
+    subhead: 'Live components to browse, and the process that builds them.',
+    links: [
+      { label: 'Pattern reference', href: '/reference' },
+      { label: 'How planning works', href: '/workflow' },
+    ] satisfies LandingProofCtaLink[],
   },
   techStack: {
     label: 'Built with',

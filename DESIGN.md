@@ -83,6 +83,8 @@ Token **names** below. Values: see `globals.css` only.
 | `muted`, `muted-foreground`             | `bg-muted`, `text-muted-foreground`                                 |
 | `accent`, `accent-foreground`           | `bg-accent`, `text-accent-foreground`                               |
 | `destructive`, `destructive-foreground` | `bg-destructive`, `text-destructive`, `text-destructive-foreground` |
+| `success`, `success-foreground`         | `bg-success`, `text-success`, `text-success-foreground`             |
+| `warning`, `warning-foreground`         | `bg-warning`, `text-warning`, `text-warning-foreground`             |
 | `border`                                | `border-border`                                                     |
 | `input`                                 | `border-input`                                                      |
 | `ring`                                  | `ring-ring`                                                         |

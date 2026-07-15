@@ -1,12 +1,37 @@
-import type { User } from '@supabase/supabase-js'
-
+import { BAN_PERMANENCE_THRESHOLD_MS } from '@/constants/admin-ban'
 import { isAdminFromAppMetadata } from '@/utils/admin'
+import { isUserCurrentlyBanned } from '@/utils/is-user-currently-banned'
 
-export const USERS_PAGE_SIZE = 15
+export const USERS_SORT_COLUMNS = [
+  'email',
+  'email_confirmed_at',
+  'created_at',
+  'last_sign_in_at',
+  'role',
+  'banned_until',
+] as const
+
+export type UsersSortColumn = (typeof USERS_SORT_COLUMNS)[number]
+
+export const USERS_SORT_DIRECTIONS = ['asc', 'desc'] as const
+
+export type UsersSortDirection = (typeof USERS_SORT_DIRECTIONS)[number]
 
 export const USERS_SEARCH_MIN_LENGTH = 3
 
 export const SEARCHABLE_COLUMN = 'email' as const
+
+export type BanStatus = null | { permanent: true } | { until: Date }
+
+export interface AdminUserRpcRow {
+  id: string
+  email: string | null
+  email_confirmed_at: string | null
+  created_at: string | null
+  last_sign_in_at: string | null
+  app_metadata: Record<string, unknown> | null
+  banned_until: string | null
+}
 
 export interface AdminUserRow {
   id: string
@@ -15,6 +40,7 @@ export interface AdminUserRow {
   createdAtLabel: string
   lastSignInAtLabel: string
   isAdmin: boolean
+  banStatus: BanStatus
 }
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
@@ -22,7 +48,7 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
   timeStyle: 'short',
 })
 
-const formatDateLabel = (value: string | undefined | null): string => {
+export const formatDateLabel = (value: string | undefined | null): string => {
   if (!value) {
     return '—'
   }
@@ -36,11 +62,32 @@ const formatDateLabel = (value: string | undefined | null): string => {
   return dateFormatter.format(date)
 }
 
-export const mapUserToAdminRow = (user: User): AdminUserRow => ({
-  id: user.id,
-  email: user.email ?? '—',
-  isVerified: Boolean(user.email_confirmed_at),
-  createdAtLabel: formatDateLabel(user.created_at),
-  lastSignInAtLabel: formatDateLabel(user.last_sign_in_at),
-  isAdmin: isAdminFromAppMetadata(user.app_metadata),
+export const formatBanUntilLabel = (date: Date): string =>
+  dateFormatter.format(date)
+
+export const deriveBanStatus = (
+  bannedUntil: string | null,
+  now: Date = new Date(),
+): BanStatus => {
+  if (!isUserCurrentlyBanned(bannedUntil, now)) {
+    return null
+  }
+
+  const until = new Date(bannedUntil!)
+
+  if (until.getTime() - now.getTime() > BAN_PERMANENCE_THRESHOLD_MS) {
+    return { permanent: true }
+  }
+
+  return { until }
+}
+
+export const mapUserToAdminRow = (row: AdminUserRpcRow): AdminUserRow => ({
+  id: row.id,
+  email: row.email ?? '—',
+  isVerified: Boolean(row.email_confirmed_at),
+  createdAtLabel: formatDateLabel(row.created_at),
+  lastSignInAtLabel: formatDateLabel(row.last_sign_in_at),
+  isAdmin: isAdminFromAppMetadata(row.app_metadata ?? {}),
+  banStatus: deriveBanStatus(row.banned_until),
 })

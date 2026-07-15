@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 import { SeminovaLogo } from '@/components/seminova-logo'
-import { ADMIN_HOME, ADMIN_USERS } from '@/constants/admin-paths'
+import { ADMIN_USERS } from '@/constants/admin-paths'
 import {
   Sidebar,
   SidebarContent,
@@ -20,15 +20,13 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar'
 
-import { AdminNavUser } from './admin-nav-user'
-
 const NAV_ITEMS = [{ title: 'Users', href: ADMIN_USERS, icon: Users }] as const
 
 type AdminSidebarProps = {
-  email: string
+  navUserSlot: React.ReactNode
 }
 
-export const AdminSidebar = ({ email }: AdminSidebarProps) => {
+export const AdminSidebar = ({ navUserSlot }: AdminSidebarProps) => {
   const pathname = usePathname()
 
   return (
@@ -37,10 +35,7 @@ export const AdminSidebar = ({ email }: AdminSidebarProps) => {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <SeminovaLogo
-                href={ADMIN_HOME}
-                className="hover:bg-transparent"
-              />
+              <SeminovaLogo href="/" className="hover:bg-transparent" />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -68,9 +63,7 @@ export const AdminSidebar = ({ email }: AdminSidebarProps) => {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
-        <AdminNavUser email={email} />
-      </SidebarFooter>
+      <SidebarFooter>{navUserSlot}</SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )

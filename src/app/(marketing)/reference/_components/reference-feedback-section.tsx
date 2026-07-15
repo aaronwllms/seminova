@@ -1,16 +1,9 @@
 'use client'
 
-import {
-  CircleCheckIcon,
-  InfoIcon,
-  Loader2Icon,
-  OctagonXIcon,
-  TriangleAlertIcon,
-} from 'lucide-react'
-
 import { AppErrorSurface } from '@/components/app-error-surface'
 import type { AppError } from '@/types/app-error'
 import { cn } from '@/utils/tailwind'
+import { TOAST_ICON_VARIANTS } from '@/utils/toast-icon-config'
 
 const OPERATIONAL_DEMO_ERROR: AppError = {
   kind: 'operational',
@@ -24,49 +17,13 @@ const FAULT_DEMO_ERROR: AppError = {
   code: 'DEMO_FAULT',
 }
 
-// debt: icon-per-variant mapping is hand-mirrored from src/components/ui/sonner.tsx;
-// a sonner icon change won't propagate here and will silently desync this gallery
-// from production toasts.
-const TOAST_VARIANTS = [
-  {
-    variant: 'success' as const,
-    message: 'Changes saved',
-    icon: CircleCheckIcon,
-    iconClassName: 'text-primary',
-  },
-  {
-    variant: 'info' as const,
-    message: 'Password expires in 3 days',
-    icon: InfoIcon,
-    iconClassName: 'text-primary',
-  },
-  {
-    variant: 'warning' as const,
-    message: "You're near your storage limit",
-    icon: TriangleAlertIcon,
-    iconClassName: 'text-muted-foreground',
-  },
-  {
-    variant: 'error' as const,
-    message: "Couldn't save your changes",
-    icon: OctagonXIcon,
-    iconClassName: 'text-destructive',
-  },
-  {
-    variant: 'loading' as const,
-    message: 'Working on it...',
-    icon: Loader2Icon,
-    iconClassName: 'text-muted-foreground animate-spin',
-  },
-] as const
-
 const StaticToastCard = ({
   message,
   icon: Icon,
   iconClassName,
 }: {
   message: string
-  icon: typeof CircleCheckIcon
+  icon: (typeof TOAST_ICON_VARIANTS)[number]['icon']
   iconClassName: string
 }) => {
   return (
@@ -80,8 +37,8 @@ const StaticToastCard = ({
 export const ReferenceFeedbackSection = () => {
   return (
     <>
-      <section id="feedback" className="border-t py-10">
-        <h2 className="text-2xl font-semibold tracking-tight">
+      <section className="border-t py-10">
+        <h2 id="feedback" className="text-2xl font-semibold tracking-tight">
           InlineError and ErrorPanel
         </h2>
         <p className="text-muted-foreground mt-1 text-sm">
@@ -107,20 +64,22 @@ export const ReferenceFeedbackSection = () => {
           Every error carries a kind: operational or fault. Operational errors
           are things the user caused and can fix themselves — InlineError shows
           those next to the field, no border. Faults are on the app&apos;s side
-          — ErrorPanel shows those with a copy button; clicking it copies the
-          message and an error code to the clipboard for a support request,
-          though the code itself isn&apos;t shown on screen.
+          — ErrorPanel shows those with the error code in a neutral chip and a
+          labeled Copy control that copies the message and code for a support
+          request.
         </p>
       </section>
 
-      <section id="toast" className="border-t py-10">
-        <h2 className="text-2xl font-semibold tracking-tight">Toast</h2>
+      <section className="border-t py-10">
+        <h2 id="toast" className="text-2xl font-semibold tracking-tight">
+          Toast
+        </h2>
         <p className="text-muted-foreground mt-1 text-sm">
           Static: all five variants, each at the moment it appears.
         </p>
 
         <div className="mt-5 flex max-w-sm flex-col gap-2.5">
-          {TOAST_VARIANTS.map((toast) => (
+          {TOAST_ICON_VARIANTS.map((toast) => (
             <StaticToastCard
               key={toast.variant}
               message={toast.message}

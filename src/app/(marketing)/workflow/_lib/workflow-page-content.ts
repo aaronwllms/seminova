@@ -3,40 +3,170 @@ import { siteConfig } from '@/config/site'
 export const WORKFLOW_GUIDE_URL =
   `${siteConfig.links.github}/blob/main/docs/WORKFLOW_GUIDE.md` as const
 
+export const WORKFLOW_SETUP_URL =
+  `${siteConfig.links.github}/blob/main/docs/WORKFLOW_SETUP.md` as const
+
+export type WorkflowEnvironment = 'claude' | 'cursor'
+
+export const WORKFLOW_ENVIRONMENTS = [
+  {
+    name: 'Claude Desktop',
+    owns: [
+      'Planning, alignment, and adversarial review',
+      'Project kickoff and phase planning',
+      'PRDs, roadmap, and shared vocabulary updates',
+      'Implementation plan review before any code lands',
+    ],
+  },
+  {
+    name: 'Cursor',
+    owns: [
+      'Initializing spinoffs from the template',
+      'Epic implementation plans',
+      'Building and shipping code',
+      'Repo truth sync after behavior changes',
+    ],
+  },
+] as const
+
 export const WORKFLOW_DOCUMENTS = [
   {
-    name: 'Phase roadmap',
-    writtenBy: 'Planning environment',
-    readBy: 'Both environments',
+    name: 'ROADMAP.md',
+    writtenBy: 'Claude Desktop',
+    readBy: 'Both',
     purpose:
-      'A thin horizon of phases — status and where to find each phase’s requirements.',
+      'Thin phase stubs — the planning horizon with status and PRD links.',
   },
   {
-    name: 'Phase requirements',
-    writtenBy: 'Planning environment',
-    readBy: 'Implementation environment',
-    purpose:
-      'Forward intent for one phase: epics, stories, and success criteria to build from.',
+    name: 'docs/prds/',
+    writtenBy: 'Claude Desktop',
+    readBy: 'Cursor',
+    purpose: 'Per-phase forward intent — epics, stories, and success criteria.',
   },
   {
-    name: 'Repo truth',
-    writtenBy: 'Implementation environment',
-    readBy: 'Both environments',
+    name: 'AGENTS.md',
+    writtenBy: 'Cursor',
+    readBy: 'Both',
     purpose:
-      'What is actually shipped today — routes, schema, constraints, and where things live.',
+      'Repo truth — implemented features, routes, schema, and hard constraints.',
   },
   {
-    name: 'Shared vocabulary',
-    writtenBy: 'Both environments',
-    readBy: 'Both environments',
-    purpose:
-      'Architectural terms every spinoff inherits; domain terms are added on top.',
+    name: 'LEXICON.md',
+    writtenBy: 'Both',
+    readBy: 'Both',
+    purpose: 'Shared architectural vocabulary inherited by every spinoff.',
   },
   {
-    name: 'Doc maintenance rules',
-    writtenBy: 'Planning environment',
-    readBy: 'Both environments',
-    purpose:
-      'Authoritative roles for each document and the write discipline that keeps them aligned.',
+    name: 'docs/DOC_RULES.md',
+    writtenBy: 'Claude Desktop',
+    readBy: 'Both',
+    purpose: 'Authoritative document roles and write discipline.',
+  },
+] as const
+
+export type WorkflowLoopNodeLayout = 'three-line' | 'two-line'
+
+export interface WorkflowLoopNodeGeometry {
+  x: number
+  y: number
+  width: number
+  height: number
+  layout: WorkflowLoopNodeLayout
+}
+
+export const WORKFLOW_LOOP_NODES = [
+  {
+    id: 'project-kickoff',
+    label: 'Project kickoff',
+    skill: 'project-kickoff',
+    environment: 'claude',
+    detail:
+      'One-time setup when a spinoff is cloned from the template. Claude, project-kickoff.',
+    geometry: { x: 260, y: 40, width: 150, height: 68, layout: 'three-line' },
+  },
+  {
+    id: 'initialize-project',
+    label: 'Initialize project',
+    skill: 'initialize-project',
+    environment: 'cursor',
+    detail:
+      'Cursor scaffolds the spinoff repo from the template. Cursor, initialize-project.',
+    geometry: { x: 436, y: 40, width: 170, height: 68, layout: 'three-line' },
+  },
+  {
+    id: 'phase-planning',
+    label: 'Plan phase',
+    skill: 'phase-planning',
+    environment: 'claude',
+    detail:
+      'Requirements and success criteria lock in before any epic starts. Claude, phase-planning.',
+    geometry: { x: 60, y: 186, width: 130, height: 68, layout: 'three-line' },
+  },
+  {
+    id: 'plan-next-epic',
+    label: 'Plan epic',
+    skill: 'plan-next-epic',
+    environment: 'cursor',
+    detail:
+      'Cursor drafts an implementation plan for the next epic. Cursor, plan-next-epic.',
+    geometry: { x: 232, y: 186, width: 130, height: 68, layout: 'three-line' },
+  },
+  {
+    id: 'plan-review',
+    label: 'Review plan',
+    skill: 'plan-review',
+    environment: 'claude',
+    detail:
+      'Claude checks the plan against repo truth and hard constraints before any code lands. Claude, plan-review.',
+    geometry: { x: 388, y: 186, width: 130, height: 68, layout: 'three-line' },
+  },
+  {
+    id: 'build',
+    label: 'Build',
+    skill: null,
+    environment: 'cursor',
+    detail: 'Cursor implements the approved plan and runs code review.',
+    geometry: { x: 544, y: 186, width: 90, height: 68, layout: 'two-line' },
+  },
+  {
+    id: 'ship-phase',
+    label: 'Ship phase',
+    skill: 'ship-phase',
+    environment: 'cursor',
+    detail:
+      "Once every epic ships, the phase closes and the next planning pass starts from what's actually in the repo. Cursor, ship-phase.",
+    geometry: { x: 676, y: 186, width: 130, height: 68, layout: 'three-line' },
+  },
+] as const satisfies ReadonlyArray<{
+  id: string
+  label: string
+  skill: string | null
+  environment: WorkflowEnvironment
+  detail: string
+  geometry: WorkflowLoopNodeGeometry
+}>
+
+export type WorkflowLoopNodeId = (typeof WORKFLOW_LOOP_NODES)[number]['id']
+
+export const WORKFLOW_CI_CONSTRAINTS = [
+  {
+    name: 'Auth boundary',
+    description:
+      'Public routes are explicitly allowlisted; all others require a session — enforced by check:auth-boundary.',
+  },
+  {
+    name: 'Admin gate',
+    description:
+      'Admin role lives on auth.users app_metadata only — enforced by check:admin-gate.',
+  },
+  {
+    name: 'Semantic tokens',
+    description:
+      'Themeable UI color must use semantic tokens, not raw hex or color scales — enforced by check:semantic-tokens.',
+  },
+  {
+    name: 'SEO base URL',
+    description:
+      'Absolute site URLs resolve only through getSiteUrl() — enforced by check:seo-base-url.',
   },
 ] as const

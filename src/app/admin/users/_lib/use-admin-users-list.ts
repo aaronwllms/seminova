@@ -4,23 +4,48 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
 import type { AppError } from '@/types/app-error'
 
+import { type DataTablePageSize } from '@/constants/data-table'
+
 import { listUsersAction } from '../actions'
 import { adminUsersQueryKeys } from './admin-users-query-keys'
+import type { UsersSortColumn, UsersSortDirection } from './admin-user-row'
 import { unwrapListUsersResult } from './unwrap-users-action'
 
 type UseAdminUsersListOptions = {
   page: number
   emailFilter?: string
+  sortColumn: UsersSortColumn
+  sortDirection: UsersSortDirection
+  perPage: DataTablePageSize
+  showBanned?: boolean
 }
 
 export const useAdminUsersList = ({
   page,
   emailFilter,
+  sortColumn,
+  sortDirection,
+  perPage,
+  showBanned = false,
 }: UseAdminUsersListOptions) => {
   const query = useQuery({
-    queryKey: adminUsersQueryKeys.list(page, emailFilter),
+    queryKey: adminUsersQueryKeys.list(
+      page,
+      emailFilter,
+      sortColumn,
+      sortDirection,
+      perPage,
+      showBanned,
+    ),
     queryFn: async () => {
-      const result = await listUsersAction({ page, emailFilter })
+      const result = await listUsersAction({
+        page,
+        emailFilter,
+        sortColumn,
+        sortDirection,
+        perPage,
+        showBanned,
+      })
       return unwrapListUsersResult(result)
     },
     placeholderData: keepPreviousData,

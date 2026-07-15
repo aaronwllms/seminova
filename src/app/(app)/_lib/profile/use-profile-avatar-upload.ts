@@ -20,7 +20,7 @@ import type { ProfileFieldKey } from './profile-form-schema'
 
 type PersistField = (args: {
   field: ProfileFieldKey
-  payload: { avatarUrl: string }
+  payload: { avatarUrl: string | null }
   refresh: boolean
   onSuccess?: () => void
 }) => Promise<void>
@@ -135,5 +135,23 @@ export const useProfileAvatarUpload = ({
     ],
   )
 
-  return { handleAvatarUpload }
+  const handleAvatarRemove = useCallback(async () => {
+    if (inFlightRef.current.avatar) {
+      return
+    }
+
+    setFileError(null)
+
+    await persistField({
+      field: 'avatar',
+      payload: { avatarUrl: null },
+      refresh: true,
+      onSuccess: () => {
+        lastSavedRef.current.avatarUrl = null
+        form.setValue('avatarUrl', '')
+      },
+    })
+  }, [form, inFlightRef, lastSavedRef, persistField, setFileError])
+
+  return { handleAvatarUpload, handleAvatarRemove }
 }

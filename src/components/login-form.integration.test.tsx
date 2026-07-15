@@ -143,7 +143,7 @@ describe('LoginForm', () => {
       await screen.findByText(/invalid email or password/i),
     ).toBeInTheDocument()
     expect(
-      screen.queryByRole('button', { name: /copy error details/i }),
+      screen.queryByRole('button', { name: /^copy$/i }),
     ).not.toBeInTheDocument()
     expect(mockPush).not.toHaveBeenCalled()
   })

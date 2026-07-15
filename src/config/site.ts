@@ -52,7 +52,7 @@ export const siteConfig: SiteConfig = {
   },
   nav: [
     { label: 'Home', href: '/' },
-    { label: 'Features', href: '#features' },
+    { label: 'Features', href: '/#features' },
     { label: 'Reference', href: REFERENCE_PATH },
     { label: 'Workflow', href: WORKFLOW_PATH },
     { label: 'GitHub', href: GITHUB_URL, external: true },

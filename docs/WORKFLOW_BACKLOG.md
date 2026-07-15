@@ -6,7 +6,7 @@
 
 **How to use it.** Each entry is a deferred decision with its reason for deferral and the signal that should bring it back. Pull an item out when its trigger fires; delete it when it's resolved (record the resolution as an [ADR](adr/README.md) if it qualifies).
 
-**Last updated:** 2026-07-10 (`check:auth-boundary` pre-push gap added)
+**Last updated:** 2026-07-12 (`absorb-skill-feedback` item added)
 
 ---
 
@@ -31,6 +31,7 @@
   - [code-review: per-rule fan-out to fix recall variance](#code-review-per-rule-fan-out-to-fix-recall-variance)
   - [Move mechanically-checkable rules to lint (starting with import-direction boundaries)](#move-mechanically-checkable-rules-to-lint-starting-with-import-direction-boundaries)
   - [`check:auth-boundary` runs only incidentally under `test:ci`](#checkauth-boundary-runs-only-incidentally-under-testci)
+  - [Build the `absorb-skill-feedback` skill](#build-the-absorb-skill-feedback-skill)
   - [~~Deterministic scripts in agent skills~~](#deterministic-scripts-in-agent-skills) *(resolved)*
 
 ---
@@ -238,6 +239,16 @@
 **Why deferred:** The fix is likely one line in `pre-push`, but it isn't obviously *only* that. Adding a named step raises the same question the other `check:*` scripts answer implicitly — is `pre-push` the union of every check, or a fast subset with the rest at CI? That contract is worth stating once for all `check:*` scripts rather than patching one in. Phase 10 is mid-build and this is not blocking it.
 
 **Revisit when:** A dedicated workflow-improvement session, before forking the template (a spinoff inherits an unenforced hard-constraint gate), the next time a `check:*` script is added and its `pre-push` placement is unclear, or immediately if `test:ci`'s scope is ever narrowed.
+
+### Build the `absorb-skill-feedback` skill
+
+**What:** The read side of the skill-feedback loop. `collect-skill-feedback` writes per-run findings to `docs/skill-feedback/<skill>.md`; `absorb-skill-feedback` would read an accumulated log, weight the **gap**-tagged entries over **slip**s, surface recurring deficiencies, and propose concrete revisions to the target skill's `SKILL.md` — essentially `skill-authoring` run with a feedback log as its input. Output is a proposed change for the PM to approve, not an automatic edit.
+
+**Why deferred:** Speculative at n=0 — no log exists yet. The right shape of the absorb step depends on what real accumulated feedback looks like: how many entries before a pattern is trustworthy, the gap/slip ratio, whether recurring findings cluster by class (mis-grade vs. false-citation) or by rule. Designing the mining logic before there's anything to mine would guess at all of it — build it against a real `code-review.md` log, not an imagined one.
+
+**Revisit when:** `docs/skill-feedback/code-review.md` has accumulated several audit runs' worth of entries — enough that recurring gaps are visible — or the first time you want to revise `code-review` off its feedback history rather than off a single run.
+
+**Relationship to other items:** Completes the loop started by `collect-skill-feedback` and `code-review-review`; a specialization of `skill-authoring` (log-driven revision rather than interview-driven authoring).
 
 ### ~~Deterministic scripts in agent skills~~
 

@@ -15,6 +15,19 @@ import { parseAuthenticatedClaims } from '@/supabase/require-auth'
 const MISSING_SUPABASE_ENV_MESSAGE =
   'Supabase environment variables are not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY before deploying to production.'
 
+function redirectWithAuthCookies(
+  url: string | URL,
+  supabaseResponse: NextResponse,
+) {
+  const redirectResponse = NextResponse.redirect(url)
+
+  for (const { name, value } of supabaseResponse.cookies.getAll()) {
+    redirectResponse.cookies.set(name, value)
+  }
+
+  return redirectResponse
+}
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -89,15 +102,22 @@ export async function updateSession(request: NextRequest) {
 
     await clearLocalSession()
 
-    const intendedPath = `${pathname}${request.nextUrl.search}`
-    const loginUrl = buildLoginRedirectUrl(intendedPath, request.url)
-    const redirectResponse = NextResponse.redirect(loginUrl)
+    const hasStrayAuthCode = request.nextUrl.searchParams.has('code')
 
-    for (const { name, value } of supabaseResponse.cookies.getAll()) {
-      redirectResponse.cookies.set(name, value)
+    if (hasStrayAuthCode) {
+      console.error(
+        '[proxy] Stray auth code on protected route — email templates likely not routed through /auth/confirm',
+        { pathname },
+      )
+
+      const errorUrl = new URL('/auth/error', request.url)
+      errorUrl.searchParams.set('source', 'stray_code')
+      return redirectWithAuthCookies(errorUrl, supabaseResponse)
     }
 
-    return redirectResponse
+    const intendedPath = `${pathname}${request.nextUrl.search}`
+    const loginUrl = buildLoginRedirectUrl(intendedPath, request.url)
+    return redirectWithAuthCookies(loginUrl, supabaseResponse)
   }
 
   if (isPublicRoute && error) {

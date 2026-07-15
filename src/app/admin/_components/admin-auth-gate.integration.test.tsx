@@ -15,6 +15,10 @@ vi.mock('@/supabase/require-auth', () => ({
     mockGetDisplayAuthClaims(...args),
 }))
 
+vi.mock('@/app/(app)/_lib/get-current-user-profile', () => ({
+  getCurrentUserProfile: vi.fn(),
+}))
+
 vi.mock('next/headers', () => ({
   cookies: vi.fn(() =>
     Promise.resolve({
@@ -23,20 +27,28 @@ vi.mock('next/headers', () => ({
   ),
 }))
 
+vi.mock('./admin-sidebar-nav-user-slot', () => ({
+  AdminSidebarNavUserSlot: () => (
+    <div data-testid="admin-sidebar-nav-user-slot" />
+  ),
+}))
+
 vi.mock('./admin-shell', () => ({
   AdminShell: ({
     children,
-    userEmail,
+    navUserSlot,
   }: {
     children: React.ReactNode
-    userEmail: string
+    navUserSlot: React.ReactNode
   }) => (
-    <div data-testid="admin-shell" data-user-email={userEmail}>
+    <div data-testid="admin-shell">
+      <div data-testid="admin-nav-user-slot">{navUserSlot}</div>
       {children}
     </div>
   ),
 }))
 
+import { getCurrentUserProfile } from '@/app/(app)/_lib/get-current-user-profile'
 import { ADMIN_ROLE } from '@/constants/admin-role'
 import { APP_HOME } from '@/constants/app-paths'
 import { render, screen } from '@/test/test-utils'
@@ -47,6 +59,7 @@ describe('AdminAuthGate', () => {
   beforeEach(() => {
     mockGetDisplayAuthClaims.mockReset()
     mockRedirect.mockReset()
+    vi.mocked(getCurrentUserProfile).mockReset()
   })
 
   it('should redirect non-admin users to app home', async () => {
@@ -61,9 +74,10 @@ describe('AdminAuthGate', () => {
     ).rejects.toThrow('NEXT_REDIRECT')
 
     expect(mockRedirect).toHaveBeenCalledWith(APP_HOME)
+    expect(getCurrentUserProfile).not.toHaveBeenCalled()
   })
 
-  it('should render admin shell for admin users', async () => {
+  it('should render admin shell with nav user slot for admin users', async () => {
     mockGetDisplayAuthClaims.mockResolvedValue({
       sub: 'admin-1',
       email: 'admin@example.com',
@@ -72,24 +86,11 @@ describe('AdminAuthGate', () => {
 
     render(await AdminAuthGate({ children: <p>Admin content</p> }))
 
-    expect(screen.getByTestId('admin-shell')).toHaveAttribute(
-      'data-user-email',
-      'admin@example.com',
-    )
+    expect(screen.getByTestId('admin-shell')).toBeInTheDocument()
+    expect(
+      screen.getByTestId('admin-sidebar-nav-user-slot'),
+    ).toBeInTheDocument()
     expect(screen.getByText('Admin content')).toBeInTheDocument()
-  })
-
-  it('should fall back to a generic label when email is missing', async () => {
-    mockGetDisplayAuthClaims.mockResolvedValue({
-      sub: 'admin-1',
-      app_metadata: { role: ADMIN_ROLE },
-    })
-
-    render(await AdminAuthGate({ children: <p>Admin content</p> }))
-
-    expect(screen.getByTestId('admin-shell')).toHaveAttribute(
-      'data-user-email',
-      'Signed-in user',
-    )
+    expect(getCurrentUserProfile).not.toHaveBeenCalled()
   })
 })

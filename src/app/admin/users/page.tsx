@@ -17,8 +17,8 @@ export default async function UsersPage() {
       <div className="flex flex-col gap-2">
         <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
         <p className="text-muted-foreground text-sm">
-          Signed-up accounts from Supabase Auth. Admins can promote or demote
-          roles from the table.
+          Signed-up accounts from Supabase Auth. Admins can promote, demote,
+          ban, or unban users from the table.
         </p>
       </div>
       <UsersTable currentAdminUserId={currentAdminUserId} />

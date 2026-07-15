@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Suspense } from 'react'
 
 import { REFERENCE_PATH } from '@/constants/app-paths'
 import { Badge } from '@/components/ui/badge'
@@ -10,7 +9,6 @@ import { LandingContainer } from '../_components/landing-container'
 import { ReferenceFeedbackSection } from './_components/reference-feedback-section'
 import { ReferenceFormsSection } from './_components/reference-forms-section'
 import { ReferenceTableSection } from './_components/reference-table-section'
-import { ReferenceTableSectionFallback } from './_components/reference-table-section-fallback'
 
 const ANCHOR_LINKS = [
   { href: '#forms', label: 'Forms and save models' },
@@ -32,8 +30,8 @@ export default function ReferencePage() {
   return (
     <main id="main-content" className="bg-background py-12">
       <LandingContainer>
-        <div className="mx-auto max-w-3xl">
-          <div className="px-4 text-center sm:px-0">
+        <div className="mx-auto max-w-3xl px-4 sm:px-0">
+          <div className="text-center">
             <Badge variant="secondary" className="mb-3">
               Pattern reference
             </Badge>
@@ -62,15 +60,14 @@ export default function ReferencePage() {
               </Link>
             ))}
           </nav>
-
-          <div className="px-4 sm:px-0">
-            <ReferenceFormsSection />
-            <ReferenceFeedbackSection />
-            <Suspense fallback={<ReferenceTableSectionFallback />}>
-              <ReferenceTableSection />
-            </Suspense>
-          </div>
         </div>
+
+        <div className="mx-auto max-w-3xl px-4 sm:px-0">
+          <ReferenceFormsSection />
+          <ReferenceFeedbackSection />
+        </div>
+
+        <ReferenceTableSection />
       </LandingContainer>
     </main>
   )

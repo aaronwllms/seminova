@@ -34,11 +34,14 @@
     "check:auth-boundary": "vitest run src/supabase/proxy.unit.test.ts",
     "check:admin-gate": "node scripts/checks/no-profiles-role.mjs && vitest run src/utils/admin.unit.test.ts",
     "check:seo-base-url": "node scripts/checks/seo-base-url.mjs",
-    "pre-push": "pnpm type-check && pnpm check:pnpm-only && pnpm check:no-shadcn-pkg && pnpm check:semantic-tokens && pnpm check:seo-base-url && pnpm lint && pnpm format-check && pnpm test:ci",
+    "check:a11y-structure": "node scripts/checks/a11y-structure.mjs",
+    "check:a11y-contrast": "node scripts/checks/a11y-contrast.mjs",
+    "pre-push": "pnpm type-check && pnpm check:pnpm-only && pnpm check:no-shadcn-pkg && pnpm check:semantic-tokens && pnpm check:admin-gate && pnpm check:seo-base-url && pnpm check:a11y-structure && pnpm check:a11y-contrast && pnpm lint && pnpm format-check && pnpm test:ci",
     "test:ui": "vitest --ui",
     "analyze": "ANALYZE=true pnpm build",
     "promote-admin": "node --env-file=.env.local --import tsx scripts/admin/promote-admin.ts",
     "demote-admin": "node --env-file=.env.local --import tsx scripts/admin/demote-admin.ts",
+    "delete-user": "node --env-file=.env.local --import tsx scripts/admin/delete-user.ts",
     "list-admins": "node --env-file=.env.local --import tsx scripts/admin/list-admins.ts",
     "db:push": "supabase db push",
     "db:types": "supabase gen types typescript --linked > src/types/database.types.ts"
@@ -68,6 +71,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
+    "@next/env": "^16.2.10",
     "@tailwindcss/postcss": "^4.3.0",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",

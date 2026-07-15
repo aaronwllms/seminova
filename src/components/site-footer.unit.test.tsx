@@ -56,17 +56,4 @@ describe('SiteFooter', () => {
       ).not.toBeInTheDocument()
     }
   })
-
-  it('should render an optional public site link', async () => {
-    renderFooter({
-      publicSiteLink: { href: '/', label: 'Back to website' },
-      showNav: false,
-    })
-
-    expect(await screen.findByText(/all rights reserved/i)).toBeInTheDocument()
-
-    expect(
-      screen.getByRole('link', { name: /back to website/i }),
-    ).toHaveAttribute('href', '/')
-  })
 })

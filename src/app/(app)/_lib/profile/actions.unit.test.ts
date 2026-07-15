@@ -8,6 +8,7 @@ const mockEq = vi.fn()
 const mockSelect = vi.fn()
 const mockSingle = vi.fn()
 const mockGetPublicUrl = vi.fn()
+const mockRemove = vi.fn()
 
 const USER_ID = 'user-1'
 const CANONICAL_PUBLIC_URL = `https://example.supabase.co/storage/v1/object/public/avatars/${buildAvatarStoragePath(USER_ID)}`
@@ -20,6 +21,7 @@ vi.mock('@/supabase/server', () => ({
     storage: {
       from: vi.fn(() => ({
         getPublicUrl: mockGetPublicUrl,
+        remove: mockRemove,
       })),
     },
     from: vi.fn(() => ({
@@ -43,6 +45,9 @@ describe('updateProfileAction', () => {
     mockSelect.mockReset()
     mockSingle.mockReset()
     mockGetPublicUrl.mockReset()
+    mockRemove.mockReset()
+
+    mockRemove.mockResolvedValue({ data: [], error: null })
 
     mockGetPublicUrl.mockReturnValue({
       data: { publicUrl: CANONICAL_PUBLIC_URL },
@@ -221,6 +226,17 @@ describe('updateProfileAction', () => {
   })
 
   it('should clear avatar_url when client sends null', async () => {
+    const callOrder: string[] = []
+
+    mockUpdate.mockImplementation(() => {
+      callOrder.push('update')
+      return { eq: mockEq }
+    })
+    mockRemove.mockImplementation(async () => {
+      callOrder.push('remove')
+      return { data: [], error: null }
+    })
+
     mockSingle.mockResolvedValue({
       data: {
         display_name: 'Alex',
@@ -230,10 +246,52 @@ describe('updateProfileAction', () => {
       error: null,
     })
 
-    await updateProfileAction({ avatarUrl: null })
+    const result = await updateProfileAction({ avatarUrl: null })
 
     expect(mockGetPublicUrl).not.toHaveBeenCalled()
     expect(mockUpdate).toHaveBeenCalledWith({ avatar_url: null })
+    expect(mockRemove).toHaveBeenCalledWith([buildAvatarStoragePath(USER_ID)])
+    expect(callOrder).toEqual(['update', 'remove'])
+    expect(result).toMatchObject({ success: true })
+  })
+
+  it('should return success when avatar storage delete fails after row update', async () => {
+    mockSingle.mockResolvedValue({
+      data: {
+        display_name: 'Alex',
+        avatar_url: null,
+        bio: null,
+      },
+      error: null,
+    })
+    mockRemove.mockResolvedValue({
+      data: null,
+      error: { message: 'storage delete failed' },
+    })
+
+    const result = await updateProfileAction({ avatarUrl: null })
+
+    expect(mockUpdate).toHaveBeenCalledWith({ avatar_url: null })
+    expect(mockRemove).toHaveBeenCalled()
+    expect(result).toMatchObject({ success: true })
+  })
+
+  it('should return success when avatar storage delete throws after row update', async () => {
+    mockSingle.mockResolvedValue({
+      data: {
+        display_name: 'Alex',
+        avatar_url: null,
+        bio: null,
+      },
+      error: null,
+    })
+    mockRemove.mockRejectedValue(new Error('storage delete threw'))
+
+    const result = await updateProfileAction({ avatarUrl: null })
+
+    expect(mockUpdate).toHaveBeenCalledWith({ avatar_url: null })
+    expect(mockRemove).toHaveBeenCalledWith([buildAvatarStoragePath(USER_ID)])
+    expect(result).toMatchObject({ success: true })
   })
 
   it('should return fault error when profile update fails', async () => {

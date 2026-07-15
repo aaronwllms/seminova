@@ -14,12 +14,11 @@ import {
 } from '@/components/ui/sheet'
 import { cn } from '@/utils/tailwind'
 
-import { LandingAuthButtons } from './landing-auth-buttons'
 import { LandingNavLinks } from './landing-nav-links'
 
 type LandingMobileNavProps = {
   className?: string
-  authSlot: React.ReactNode
+  authSlot?: React.ReactNode
 }
 
 export const LandingMobileNav = ({
@@ -61,7 +60,7 @@ export const LandingMobileNav = ({
           linkClassName="flex min-h-11 w-full items-center py-2"
           onNavigate={handleNavigate}
         />
-        {authSlot}
+        {authSlot ?? null}
       </SheetContent>
     </Sheet>
   )

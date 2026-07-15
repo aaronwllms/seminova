@@ -1,27 +1,24 @@
 import { Suspense } from 'react'
 
+import { AppNavUserSkeleton } from '@/app/(app)/_components/app-nav-user-skeleton'
 import { SiteHeader } from '@/components/site-header'
 
-import { LandingAuthButtons } from './landing-auth-buttons'
 import { LandingAuthSlot } from './landing-auth-slot'
-import { LandingMobileNav } from './landing-mobile-nav'
+import { LandingMobileHeaderChrome } from './landing-mobile-header-chrome'
+import { LandingMobileHeaderChromeFallback } from './landing-mobile-header-chrome-fallback'
 
 const desktopAuthSlot = (
-  <Suspense fallback={<LandingAuthButtons />}>
+  <Suspense fallback={<AppNavUserSkeleton />}>
     <LandingAuthSlot />
   </Suspense>
 )
 
-const mobileAuthSlot = (
-  <Suspense fallback={<LandingAuthButtons layout="stack" />}>
-    <LandingAuthSlot layout="stack" />
+const mobileNav = (
+  <Suspense fallback={<LandingMobileHeaderChromeFallback />}>
+    <LandingMobileHeaderChrome />
   </Suspense>
 )
 
 export const LandingHeader = () => (
-  <SiteHeader
-    logoHref="/"
-    rightSlot={desktopAuthSlot}
-    mobileNav={<LandingMobileNav authSlot={mobileAuthSlot} />}
-  />
+  <SiteHeader logoHref="/" rightSlot={desktopAuthSlot} mobileNav={mobileNav} />
 )

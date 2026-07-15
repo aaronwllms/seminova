@@ -66,16 +66,15 @@ export const referenceShipmentsColumns: ColumnDef<
   },
   {
     accessorKey: 'departs',
-    meta: { skeletonClassName: 'h-4 w-16 ml-auto' },
+    meta: {
+      cellClassName: 'text-right',
+      skeletonClassName: 'inline-block h-4 w-16',
+    },
     header: ({ column }) => (
-      <div className="flex justify-end">
-        <DataTableColumnHeader column={column} title="Departs" />
-      </div>
+      <DataTableColumnHeader column={column} title="Departs" />
     ),
     cell: ({ row }) => (
-      <div className="text-muted-foreground text-right">
-        {row.getValue('departs')}
-      </div>
+      <span className="text-muted-foreground">{row.getValue('departs')}</span>
     ),
     enableSorting: true,
   },

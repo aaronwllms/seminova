@@ -17,12 +17,10 @@ import { referenceDemoPersist } from '../_lib/reference-demo-persist'
 
 const DEFAULT_VALUES: ReferenceDemoFormInputValues = {
   displayName: 'Maya Rodriguez',
-  bio: 'VP of Engineering, ex-Alderman Freight.',
 }
 
 type ReferenceLastSaved = {
   displayName: string | null
-  bio: string | null
 }
 
 export const ReferenceFormsSection = () => {
@@ -33,16 +31,15 @@ export const ReferenceFormsSection = () => {
 
   const { saveStates, formError, createTextBlurHandler } = useBlurSaveField<
     ReferenceDemoFormInputValues,
-    'displayName' | 'bio',
-    'displayName' | 'bio',
+    'displayName',
+    'displayName',
     ReferenceLastSaved,
     ReferenceDemoPartialValues
   >({
     form,
-    inFlightKeys: ['displayName', 'bio'] as const,
+    inFlightKeys: ['displayName'] as const,
     initialLastSaved: {
       displayName: DEFAULT_VALUES.displayName.trim() || null,
-      bio: DEFAULT_VALUES.bio.trim() || null,
     },
     persist: referenceDemoPersist,
     faultFallbackMessage: 'Could not save. Please try again.',
@@ -59,20 +56,9 @@ export const ReferenceFormsSection = () => {
     },
   })
 
-  const handleBioBlur = createTextBlurHandler('bio', {
-    refresh: false,
-    toPayload: (trimmed) => ({ bio: trimmed }),
-    lastSaved: {
-      get: (snapshot) => snapshot.bio,
-      set: (snapshot, value) => {
-        snapshot.bio = value
-      },
-    },
-  })
-
   return (
-    <section id="forms" className="py-10">
-      <h2 className="text-2xl font-semibold tracking-tight">
+    <section className="py-10">
+      <h2 id="forms" className="text-2xl font-semibold tracking-tight">
         Forms and save models
       </h2>
       <p className="text-muted-foreground mt-1 text-sm">
@@ -82,28 +68,16 @@ export const ReferenceFormsSection = () => {
       <Form {...form}>
         <div className="bg-card mt-5 rounded-xl border p-5">
           <AppErrorSurface error={formError} className="mb-4" />
-          <div className="flex flex-col gap-4">
-            <BlurSaveTextField
-              control={form.control}
-              name="displayName"
-              label="Display name"
-              placeholder="Your display name"
-              controlType="input"
-              saveState={saveStates.displayName}
-              onSavedComplete={() => undefined}
-              onBlurSave={handleDisplayNameBlur}
-            />
-            <BlurSaveTextField
-              control={form.control}
-              name="bio"
-              label="Bio"
-              placeholder="A short bio"
-              controlType="textarea"
-              saveState={saveStates.bio}
-              onSavedComplete={() => undefined}
-              onBlurSave={handleBioBlur}
-            />
-          </div>
+          <BlurSaveTextField
+            control={form.control}
+            name="displayName"
+            label="Display name"
+            placeholder="Your display name"
+            controlType="input"
+            saveState={saveStates.displayName}
+            onSavedComplete={() => undefined}
+            onBlurSave={handleDisplayNameBlur}
+          />
         </div>
       </Form>
 

@@ -12,7 +12,7 @@ globs:
 
 ## Migration Safety Protocol
 
-**Shipped schema:** 2 custom migrations — `public.profiles` (1:1 with `auth.users`), `storage.avatars` bucket with owner-scoped RLS. See `AGENTS.md` data model section for full detail. Additional migrations live in `supabase/migrations/`; humans apply them via Supabase CLI; agents write SQL files only.
+**Shipped schema:** 4 custom migrations — [`20260622120000_create_profiles.sql`](../../supabase/migrations/20260622120000_create_profiles.sql) (`public.profiles`, 1:1 with `auth.users`), [`20260623120000_create_avatars_bucket.sql`](../../supabase/migrations/20260623120000_create_avatars_bucket.sql) (`storage.avatars` bucket with owner-scoped RLS), [`20260715003530_admin_list_users.sql`](../../supabase/migrations/20260715003530_admin_list_users.sql) (`public.admin_list_users` RPC), [`20260715004901_admin_list_users_banned_sort.sql`](../../supabase/migrations/20260715004901_admin_list_users_banned_sort.sql) (`admin_list_users` banned-column sort). See `AGENTS.md` data model section for full detail. Additional migrations live in `supabase/migrations/`; humans apply them via Supabase CLI; agents write SQL files only.
 
 **Agents** — see `do-migrations-agent.mdc`, `supabase-sql.mdc`, and `.cursor/skills/create-migration/SKILL.md`:
 

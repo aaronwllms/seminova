@@ -8,12 +8,16 @@ import { UsersTable } from './users-table'
 const listUsersActionMock = vi.fn()
 const promoteUserActionMock = vi.fn()
 const demoteUserActionMock = vi.fn()
+const banUserActionMock = vi.fn()
+const unbanUserActionMock = vi.fn()
 const showSuccessToastMock = vi.fn()
 
 vi.mock('../actions', () => ({
   listUsersAction: (...args: unknown[]) => listUsersActionMock(...args),
   promoteUserAction: (...args: unknown[]) => promoteUserActionMock(...args),
   demoteUserAction: (...args: unknown[]) => demoteUserActionMock(...args),
+  banUserAction: (...args: unknown[]) => banUserActionMock(...args),
+  unbanUserAction: (...args: unknown[]) => unbanUserActionMock(...args),
 }))
 
 vi.mock('@/utils/app-toast', () => ({
@@ -22,11 +26,22 @@ vi.mock('@/utils/app-toast', () => ({
 
 const CURRENT_ADMIN_ID = 'admin-user-id'
 
+const defaultListParams = {
+  page: 1,
+  emailFilter: undefined,
+  sortColumn: 'created_at',
+  sortDirection: 'desc',
+  perPage: 15,
+  showBanned: false,
+} as const
+
 describe('UsersTable', () => {
   beforeEach(() => {
     listUsersActionMock.mockReset()
     promoteUserActionMock.mockReset()
     demoteUserActionMock.mockReset()
+    banUserActionMock.mockReset()
+    unbanUserActionMock.mockReset()
     showSuccessToastMock.mockReset()
 
     listUsersActionMock.mockResolvedValue({
@@ -40,6 +55,7 @@ describe('UsersTable', () => {
             createdAtLabel: 'Jun 1, 2024',
             lastSignInAtLabel: 'Jun 2, 2024',
             isAdmin: true,
+            banStatus: null,
           },
         ],
         hasNextPage: false,
@@ -67,10 +83,7 @@ describe('UsersTable', () => {
       expect(screen.getByText('admin@example.com')).toBeInTheDocument()
     })
 
-    expect(listUsersActionMock).toHaveBeenCalledWith({
-      page: 1,
-      emailFilter: undefined,
-    })
+    expect(listUsersActionMock).toHaveBeenCalledWith(defaultListParams)
   })
 
   it('should disable Next when hasNextPage is false', async () => {
@@ -96,12 +109,31 @@ describe('UsersTable', () => {
     await waitFor(
       () => {
         expect(listUsersActionMock).toHaveBeenLastCalledWith({
-          page: 1,
+          ...defaultListParams,
           emailFilter: 'abc',
         })
       },
       { timeout: 1000 },
     )
+  })
+
+  it('should reset page and refetch when Show banned is checked', async () => {
+    const user = userEvent.setup({ delay: null })
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(listUsersActionMock).toHaveBeenCalledWith(defaultListParams)
+    })
+
+    await user.click(screen.getByRole('checkbox', { name: /show banned/i }))
+
+    await waitFor(() => {
+      expect(listUsersActionMock).toHaveBeenLastCalledWith({
+        ...defaultListParams,
+        showBanned: true,
+      })
+    })
   })
 
   it('should show an error with copy affordance when listUsersAction fails', async () => {
@@ -123,9 +155,7 @@ describe('UsersTable', () => {
         ),
       ).toBeInTheDocument()
     })
-    expect(
-      screen.getByRole('button', { name: /copy error details/i }),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^copy$/i })).toBeInTheDocument()
   })
 
   it('should show skeleton rows while loading with an empty table body', () => {
@@ -139,7 +169,7 @@ describe('UsersTable', () => {
     expect(screen.getByText('Loading users…')).toHaveClass('sr-only')
   })
 
-  it('should not show demote for the current admin row', async () => {
+  it('should not show actions for the current admin row', async () => {
     listUsersActionMock.mockResolvedValue({
       success: true,
       data: {
@@ -151,6 +181,7 @@ describe('UsersTable', () => {
             createdAtLabel: 'Jun 1, 2024',
             lastSignInAtLabel: 'Jun 2, 2024',
             isAdmin: true,
+            banStatus: null,
           },
         ],
         hasNextPage: false,
@@ -183,6 +214,7 @@ describe('UsersTable', () => {
             createdAtLabel: 'Jun 1, 2024',
             lastSignInAtLabel: 'Jun 2, 2024',
             isAdmin: false,
+            banStatus: null,
           },
         ],
         hasNextPage: false,
@@ -219,6 +251,102 @@ describe('UsersTable', () => {
     })
   })
 
+  it('should ban a user after confirmation and show success toast', async () => {
+    const user = userEvent.setup({ delay: null })
+
+    listUsersActionMock.mockResolvedValue({
+      success: true,
+      data: {
+        rows: [
+          {
+            id: 'user-2',
+            email: 'bob@example.com',
+            isVerified: true,
+            createdAtLabel: 'Jun 1, 2024',
+            lastSignInAtLabel: 'Jun 2, 2024',
+            isAdmin: false,
+            banStatus: null,
+          },
+        ],
+        hasNextPage: false,
+        page: 1,
+      },
+    })
+
+    banUserActionMock.mockResolvedValue({
+      success: true,
+      data: { status: 'banned', email: 'bob@example.com' },
+    })
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(screen.getByText('bob@example.com')).toBeInTheDocument()
+    })
+
+    await user.click(
+      screen.getByRole('button', { name: /actions for bob@example.com/i }),
+    )
+    await user.click(screen.getByRole('menuitem', { name: /ban user/i }))
+    await user.click(screen.getByRole('button', { name: /^ban user$/i }))
+
+    await waitFor(() => {
+      expect(banUserActionMock).toHaveBeenCalledWith({
+        userId: 'user-2',
+        banDuration: '24h',
+      })
+    })
+
+    expect(showSuccessToastMock).toHaveBeenCalledWith('User banned')
+  })
+
+  it('should unban a banned user after confirmation', async () => {
+    const user = userEvent.setup({ delay: null })
+    const until = new Date('2026-01-01T00:00:00.000Z')
+
+    listUsersActionMock.mockResolvedValue({
+      success: true,
+      data: {
+        rows: [
+          {
+            id: 'user-2',
+            email: 'bob@example.com',
+            isVerified: true,
+            createdAtLabel: 'Jun 1, 2024',
+            lastSignInAtLabel: 'Jun 2, 2024',
+            isAdmin: false,
+            banStatus: { until },
+          },
+        ],
+        hasNextPage: false,
+        page: 1,
+      },
+    })
+
+    unbanUserActionMock.mockResolvedValue({
+      success: true,
+      data: { status: 'unbanned', email: 'bob@example.com' },
+    })
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(screen.getByText('bob@example.com')).toBeInTheDocument()
+    })
+
+    await user.click(
+      screen.getByRole('button', { name: /actions for bob@example.com/i }),
+    )
+    await user.click(screen.getByRole('menuitem', { name: /^unban$/i }))
+    await user.click(screen.getByRole('button', { name: /^unban$/i }))
+
+    await waitFor(() => {
+      expect(unbanUserActionMock).toHaveBeenCalledWith({ userId: 'user-2' })
+    })
+
+    expect(showSuccessToastMock).toHaveBeenCalledWith('User unbanned')
+  })
+
   it('should show mutation faults in a reportable panel without replacing table rows', async () => {
     const user = userEvent.setup({ delay: null })
 
@@ -233,6 +361,7 @@ describe('UsersTable', () => {
             createdAtLabel: 'Jun 1, 2024',
             lastSignInAtLabel: 'Jun 2, 2024',
             isAdmin: false,
+            banStatus: null,
           },
         ],
         hasNextPage: false,
@@ -268,9 +397,7 @@ describe('UsersTable', () => {
         'Something went wrong updating the user. Please try again.',
       ),
     ).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: /copy error details/i }),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^copy$/i })).toBeInTheDocument()
     expect(screen.getByText('bob@example.com')).toBeInTheDocument()
   })
 })

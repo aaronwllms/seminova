@@ -5,6 +5,7 @@ import { getSiteUrl } from '@/utils/site-url'
 
 import { LandingFeatures } from './_components/landing-features'
 import { LandingHero } from './_components/landing-hero'
+import { LandingProofCta } from './_components/landing-proof-cta'
 import { LandingTechStack } from './_components/landing-tech-stack'
 
 export const metadata: Metadata = {
@@ -25,6 +26,7 @@ export default function Home() {
       <main id="main-content" className="bg-background">
         <LandingHero />
         <LandingFeatures />
+        <LandingProofCta />
         <LandingTechStack />
       </main>
     </>

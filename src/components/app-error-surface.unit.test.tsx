@@ -19,7 +19,7 @@ describe('AppErrorSurface', () => {
       'Invalid login credentials',
     )
     expect(
-      screen.queryByRole('button', { name: /copy error details/i }),
+      screen.queryByRole('button', { name: /^copy$/i }),
     ).not.toBeInTheDocument()
   })
 
@@ -35,9 +35,7 @@ describe('AppErrorSurface', () => {
     )
 
     expect(screen.getByRole('alert')).toHaveTextContent('Something went wrong.')
-    expect(
-      screen.getByRole('button', { name: /copy error details/i }),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^copy$/i })).toBeInTheDocument()
   })
 
   it('should render nothing when error is null or undefined', () => {

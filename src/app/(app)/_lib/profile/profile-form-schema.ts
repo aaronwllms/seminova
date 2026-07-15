@@ -11,7 +11,7 @@ export const profileFormSchema = z.object({
   bio: z
     .string()
     .trim()
-    .max(500, 'Bio must be 500 characters or fewer.')
+    .max(160, 'Bio must be 160 characters or fewer.')
     .nullable(),
   avatarUrl: z.string().url('Avatar URL must be a valid URL.').nullable(),
 })
@@ -30,7 +30,7 @@ export const profileFormInputSchema = z.object({
   displayName: z
     .string()
     .max(80, 'Display name must be 80 characters or fewer.'),
-  bio: z.string().max(500, 'Bio must be 500 characters or fewer.'),
+  bio: z.string().max(160, 'Bio must be 160 characters or fewer.'),
   avatarUrl: z.union([
     z.string().url('Avatar URL must be a valid URL.'),
     z.literal(''),

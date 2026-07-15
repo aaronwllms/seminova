@@ -11,8 +11,8 @@ vi.mock('@/components/ui/sidebar', () => ({
 }))
 
 vi.mock('./admin-sidebar', () => ({
-  AdminSidebar: ({ email }: { email: string }) => (
-    <nav data-testid="admin-sidebar">{email}</nav>
+  AdminSidebar: ({ navUserSlot }: { navUserSlot: React.ReactNode }) => (
+    <nav data-testid="admin-sidebar">{navUserSlot}</nav>
   ),
 }))
 
@@ -25,16 +25,17 @@ import { render, screen } from '@/test/test-utils'
 import { AdminShell } from './admin-shell'
 
 describe('AdminShell', () => {
-  it('should render sidebar, breadcrumb trigger, and children', () => {
+  it('should render sidebar, breadcrumb trigger, and children without a shell-level profile provider', () => {
     render(
-      <AdminShell userEmail="admin@example.com">
+      <AdminShell
+        navUserSlot={<div data-testid="nav-user-slot">Nav user slot</div>}
+      >
         <p>Dashboard content</p>
       </AdminShell>,
     )
 
-    expect(screen.getByTestId('admin-sidebar')).toHaveTextContent(
-      'admin@example.com',
-    )
+    expect(screen.getByTestId('admin-sidebar')).toBeInTheDocument()
+    expect(screen.getByTestId('nav-user-slot')).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: /toggle sidebar/i }),
     ).toBeInTheDocument()

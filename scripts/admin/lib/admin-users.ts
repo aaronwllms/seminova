@@ -3,19 +3,25 @@ import type { SupabaseClient, User } from '@supabase/supabase-js'
 import { ADMIN_ROLE } from '@/constants/admin-role'
 import {
   demoteUserById,
+  deleteUserById,
   promoteUserById,
   type DemoteUserByIdResult,
   type PromoteUserByIdResult,
-} from '@/utils/admin-role-mutations'
+} from '@/utils/admin-user-mutations'
 import { isAdminFromAppMetadata } from '@/utils/admin'
+import {
+  removeAvatarStorage,
+  type RemoveAvatarStorageResult,
+} from '@/utils/remove-avatar-storage'
 
 export { ADMIN_ROLE } from '@/constants/admin-role'
 export {
+  deleteUserById,
   demoteUserById,
   mergeDemoteMetadata,
   mergePromoteMetadata,
   promoteUserById,
-} from '@/utils/admin-role-mutations'
+} from '@/utils/admin-user-mutations'
 
 const USERS_PAGE_SIZE = 1000
 
@@ -99,3 +105,10 @@ export const listAdminUsers = async (
     .map((user) => user.email!)
     .sort((a, b) => a.localeCompare(b))
 }
+
+export type DeleteUserAvatarStorageResult = RemoveAvatarStorageResult
+
+export const deleteUserAvatarStorage = async (
+  client: SupabaseClient,
+  userId: string,
+): Promise<DeleteUserAvatarStorageResult> => removeAvatarStorage(client, userId)

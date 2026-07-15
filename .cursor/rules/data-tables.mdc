@@ -21,11 +21,16 @@ Each data table gets a single search input, scoped to one explicitly-designated 
 
 Every data table paginates server-side. Never load an unbounded result set.
 
-- Controls: Next/Previous only — no numbered page strip. Avoids requiring a total-row-count query, and generalizes to data sources (e.g. Supabase admin API) that don't cheaply expose totals.
-- Page size: fixed at 15 rows. No user-facing page-size selector.
+- Controls: Next/Previous only — no numbered page strip. Avoids requiring a total-row-count query, and generalizes to data sources that don't cheaply expose totals.
+- Page size: configurable via shared `DataTablePaginationControls` — options from [`src/constants/data-table.ts`](../../src/constants/data-table.ts) (`DATA_TABLE_PAGE_SIZE_OPTIONS`: 10 / 15 / 25 / 50; default `DATA_TABLE_DEFAULT_PAGE_SIZE`: 15).
 - Layout: table grows naturally; the page scrolls. No fixed-height internal scroll region on the table body.
 
-**Exception — fixture demos.** A demo table over a static, bounded fixture (e.g. the `/reference` page) may paginate client-side in memory, since there is no server to page against. This is the only sanctioned deviation from server-side pagination; production tables backed by a real data source always paginate server-side. Fixture demos still follow the search, page-size (15), and loading conventions above.
+**Exception — fixture demos.** A demo table over a static, bounded fixture (e.g. the `/reference` page) may paginate client-side in memory, since there is no server to page against. This is the only sanctioned deviation from server-side pagination; production tables backed by a real data source always paginate server-side. Fixture demos still follow the search, page-size, and loading conventions above.
+
+## Sorting Pattern
+
+- **Production tables:** server-driven sort via `manualSorting` on `useDataTableShell` — sort params flow to the data layer (RPC, API, etc.); `getSortedRowModel()` does not re-sort the current page client-side.
+- **Fixture demos:** may sort client-side over the full filtered fixture before slicing the page — same `manualSorting` shell API, sort logic lives in the demo hook (not `getSortedRowModel()`).
 
 ## Loading Pattern
 
@@ -33,14 +38,20 @@ While a fetch is in flight and the table body is empty, show skeleton rows — n
 
 - Use `DataTableShell` `isLoading` when loading and `table.getRowModel().rows.length === 0`.
 - Skeleton rows render via `DataTableSkeletonBody` using the `Skeleton` primitive (`src/components/ui/skeleton.tsx`).
-- Per-column sizing via `columnDef.meta.skeletonClassName` (see users columns for reference).
+- Per-column skeleton shape via `columnDef.meta.skeletonClassName` (see users columns for reference) — shape only; width and alignment come from `cellClassName` (see [Column sizing](#column-sizing)).
 - Default skeleton row count: 8 — intentionally fewer than page size (15). Enough to signal loading without flooding the viewport or implying a specific result count.
 - When stale rows are already on screen (pagination/search refetch), keep showing stale data; disable controls via `isPending` — do not flash skeleton over existing rows.
 - `emptyMessage` is for the zero-results state only.
 
 **Why:** placeholder text in a single merged cell reads as an empty state, not a loading state; skeleton rows preserve column structure and match the design-system loading convention.
 
+## Column sizing
+
+Per-column width and alignment via `columnDef.meta.cellClassName` — applied to both header and body cells by `DataTableShell` and `DataTableSkeletonBody`. Examples: `text-right` for right-aligned columns, `w-0 whitespace-nowrap` for icon/action columns that should shrink to content. Pair with `skeletonClassName` for loading-state shape (e.g. `inline-block` when alignment depends on the cell, not `ml-auto` on the skeleton).
+
 ## Reference Implementations
 - [`src/components/data-table-shell.tsx`](src/components/data-table-shell.tsx) — `DataTableShell`, `useDataTableShell`, `DataTableColumnHeader`
-- `src/app/admin/users/_components/users-table.tsx` — Users table, search on `email`, skeleton loading via `DataTableShell`. Production reference.
-- `src/app/(marketing)/reference/_components/reference-table-section.tsx` — Fixture demo table; client-side pagination over a bounded fixture (sanctioned exception per Pagination Pattern), otherwise conforms.
+- [`src/constants/data-table.ts`](../../src/constants/data-table.ts) — shared page-size options and default
+- [`src/components/data-table-pagination-controls.tsx`](src/components/data-table-pagination-controls.tsx) — shared page-size selector + Previous/Next controls
+- `src/app/admin/users/_components/users-table.tsx` — Users table, search on `email`, server sort via `admin_list_users` RPC, skeleton loading via `DataTableShell`. Production reference.
+- `src/app/(marketing)/reference/_components/reference-table-section.tsx` — Fixture demo table; client-side sort + pagination over a bounded fixture (sanctioned exception per Pagination Pattern), otherwise conforms.

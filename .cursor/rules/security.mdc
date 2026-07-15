@@ -84,7 +84,7 @@ SUPABASE_SECRET_KEY=sb_secret_xxx            # NEVER expose to client
 
 ### Auth Proxy (route protection)
 
-Session refresh and auth gating live in `proxy.ts` → `src/supabase/proxy.ts` (`updateSession`). Public routes are `/`, `/auth/**`, `/terms`, `/privacy`, `/reference`, and `/workflow`; unauthenticated users are redirected to `/auth/login` with safe `next` preservation. Protected-route server reads use `getDisplayAuthClaims()` (`allowExpired: true`, signature verified) — see [ADR-0005](docs/adr/ADR-0005-proxy-as-sole-session-authority.md).
+Session refresh and auth gating live in `proxy.ts` → `src/supabase/proxy.ts` (`updateSession`). Public routes are `/`, `/auth/**`, `/terms`, `/privacy`, `/reference`, and `/workflow`; unauthenticated users on protected routes are redirected to `/auth/login` with safe `next` preservation, except when a stray auth `code` search param is present — that case logs a diagnostic and redirects to `/auth/error?source=stray_code` instead. Protected-route server reads use `getDisplayAuthClaims()` (`allowExpired: true`, signature verified) — see [ADR-0005](docs/adr/ADR-0005-proxy-as-sole-session-authority.md).
 
 **Reference:** `src/supabase/proxy.ts`, `proxy.ts`
 

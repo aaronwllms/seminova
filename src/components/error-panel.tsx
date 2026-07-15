@@ -1,6 +1,6 @@
 'use client'
 
-import { AlertTriangle, Copy } from 'lucide-react'
+import { AlertTriangle, Check, Copy } from 'lucide-react'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -12,6 +12,7 @@ interface BuildErrorCopyTextParams {
 }
 
 interface ErrorPanelProps {
+  title?: string
   message: string
   code?: string
   className?: string
@@ -28,7 +29,12 @@ export const buildErrorCopyText = ({
   return message
 }
 
-export const ErrorPanel = ({ message, code, className }: ErrorPanelProps) => {
+export const ErrorPanel = ({
+  title,
+  message,
+  code,
+  className,
+}: ErrorPanelProps) => {
   const [didCopy, setDidCopy] = useState(false)
 
   const handleCopy = async () => {
@@ -41,35 +47,69 @@ export const ErrorPanel = ({ message, code, className }: ErrorPanelProps) => {
     }
   }
 
+  const contentIndent = title ? 'pl-[30px]' : undefined
+
   return (
     <div
       role="alert"
-      className={cn(
-        'border-destructive/30 bg-destructive/5 flex items-center justify-between gap-3.5 rounded-md border p-3',
-        className,
-      )}
+      className={cn('bg-card flex flex-col rounded-md border p-4', className)}
     >
-      <div className="flex items-center gap-2.5">
-        <AlertTriangle
-          className="text-destructive size-[18px] shrink-0"
-          aria-hidden
-        />
-        <p className="text-destructive text-sm">{message}</p>
-      </div>
-      <div className="flex shrink-0 flex-col items-center gap-1">
+      {title ? (
+        <>
+          <div className="mb-1.5 flex items-center gap-2.5">
+            <AlertTriangle
+              className="text-destructive size-5 shrink-0"
+              aria-hidden
+            />
+            <p className="text-sm font-medium">{title}</p>
+          </div>
+          <p
+            className={cn('text-muted-foreground mb-3 text-sm', contentIndent)}
+          >
+            {message}
+          </p>
+        </>
+      ) : (
+        <div className="mb-3 flex items-start gap-2.5">
+          <AlertTriangle
+            className="text-destructive mt-0.5 size-5 shrink-0"
+            aria-hidden
+          />
+          <p className="text-muted-foreground text-sm">{message}</p>
+        </div>
+      )}
+
+      <div className="bg-muted ml-[30px] flex items-center justify-between gap-2 rounded-md px-2.5 py-2">
+        {code ? (
+          <span className="text-muted-foreground font-mono text-sm">
+            {code}
+          </span>
+        ) : (
+          <span className="sr-only">Error details</span>
+        )}
         <Button
           type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Copy error details"
+          variant="outline"
+          size="xs"
+          className="min-w-16 shrink-0"
           onClick={() => void handleCopy()}
         >
-          <Copy className="size-4" />
+          {didCopy ? (
+            <>
+              <Check className="text-success size-3.5" aria-hidden />
+              Copied
+            </>
+          ) : (
+            <>
+              <Copy className="size-3.5" aria-hidden />
+              Copy
+            </>
+          )}
         </Button>
-        <span aria-live="polite" className="text-muted-foreground text-xs">
-          {didCopy ? 'Copied' : ''}
-        </span>
       </div>
+      <span role="status" aria-live="polite" className="sr-only">
+        {didCopy ? 'Copied to clipboard' : ''}
+      </span>
     </div>
   )
 }

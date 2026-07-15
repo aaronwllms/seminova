@@ -14,7 +14,7 @@ vi.mock('@/components/ui/sidebar', () => ({
     <div>{children}</div>
   ),
   SidebarFooter: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
+    <div data-testid="sidebar-footer">{children}</div>
   ),
   SidebarGroup: ({ children }: { children: React.ReactNode }) => (
     <div>{children}</div>
@@ -50,13 +50,7 @@ vi.mock('@/components/ui/sidebar', () => ({
 }))
 
 vi.mock('@/components/seminova-logo', () => ({
-  SeminovaLogo: () => <span>Seminova</span>,
-}))
-
-vi.mock('./admin-nav-user', () => ({
-  AdminNavUser: ({ email }: { email: string }) => (
-    <div data-testid="admin-nav-user">{email}</div>
-  ),
+  SeminovaLogo: ({ href }: { href: string }) => <a href={href}>Seminova</a>,
 }))
 
 import { ADMIN_USERS } from '@/constants/admin-paths'
@@ -65,18 +59,25 @@ import { render, screen } from '@/test/test-utils'
 import { AdminSidebar } from './admin-sidebar'
 
 describe('AdminSidebar', () => {
-  it('should render logo, Users nav link, and footer user menu', () => {
+  it('should render logo, Users nav link, and footer nav user slot', () => {
     mockPathname.mockReturnValue(ADMIN_USERS)
 
-    render(<AdminSidebar email="admin@example.com" />)
+    render(
+      <AdminSidebar
+        navUserSlot={<div data-testid="nav-user-slot">Nav user slot</div>}
+      />,
+    )
 
-    expect(screen.getByText('Seminova')).toBeInTheDocument()
+    expect(screen.getByTestId('sidebar-footer')).toContainElement(
+      screen.getByTestId('nav-user-slot'),
+    )
+    expect(screen.getByRole('link', { name: /seminova/i })).toHaveAttribute(
+      'href',
+      '/',
+    )
     expect(screen.getByRole('link', { name: /users/i })).toHaveAttribute(
       'href',
       ADMIN_USERS,
-    )
-    expect(screen.getByTestId('admin-nav-user')).toHaveTextContent(
-      'admin@example.com',
     )
   })
 })

@@ -23,26 +23,26 @@ export default function WorkflowPage() {
   return (
     <main id="main-content" className="bg-background py-12">
       <LandingContainer>
-        <div className="mx-auto max-w-3xl">
-          <div className="px-4 text-center sm:px-0">
-            <Badge variant="secondary" className="mb-3">
-              Workflow
-            </Badge>
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              How planning and building work
-            </h1>
-            <p className="text-muted-foreground mx-auto mt-2 max-w-md text-[15px] leading-relaxed">
-              A concept map of Seminova&apos;s two-environment model — what each
-              side owns, how documents hand off, and the loop that turns
-              requirements into shipped code.
-            </p>
-          </div>
+        <div className="mx-auto max-w-3xl px-4 text-center sm:px-0">
+          <Badge variant="secondary" className="mb-3">
+            Workflow
+          </Badge>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            How planning and building work
+          </h1>
+          <p className="text-muted-foreground mx-auto mt-2 max-w-md text-[15px] leading-relaxed">
+            A concept map of Seminova&apos;s two-environment model — what each
+            side owns, how documents hand off, and the loop that turns
+            requirements into shipped code.
+          </p>
+        </div>
 
-          <div className="mt-10 px-4 sm:px-0">
-            <WorkflowTwoEnvironmentsSection />
-            <WorkflowDocumentsSection />
-            <WorkflowPlanReviewSection />
-            <WorkflowConventionsSection />
+        <div className="mt-10 space-y-0">
+          <WorkflowTwoEnvironmentsSection />
+          <WorkflowPlanReviewSection />
+          <WorkflowDocumentsSection />
+          <WorkflowConventionsSection />
+          <div className="mx-auto max-w-3xl px-4 sm:px-0">
             <WorkflowGuideCta />
           </div>
         </div>

@@ -1,18 +1,22 @@
-import type { SupabaseClient, User } from '@supabase/supabase-js'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
-import { getServiceSupabaseEnv } from '@/utils/env'
+import { DATA_TABLE_DEFAULT_PAGE_SIZE } from '@/constants/data-table'
 
 import {
   mapUserToAdminRow,
-  USERS_PAGE_SIZE,
   USERS_SEARCH_MIN_LENGTH,
   type AdminUserRow,
+  type UsersSortColumn,
+  type UsersSortDirection,
 } from './admin-user-row'
 
 export interface ListAdminUsersPageParams {
   page: number
   perPage?: number
   emailFilter?: string
+  sortColumn?: UsersSortColumn
+  sortDirection?: UsersSortDirection
+  showBanned?: boolean
 }
 
 export interface ListAdminUsersPageResult {
@@ -21,83 +25,35 @@ export interface ListAdminUsersPageResult {
   page: number
 }
 
-type ListUsersResponse = {
-  users: User[]
-}
-
-const listUsersViaApi = async ({
-  page,
-  perPage,
-  emailFilter,
-}: {
-  page: number
-  perPage: number
-  emailFilter?: string
-}): Promise<User[]> => {
-  const { supabaseUrl, secretKey } = getServiceSupabaseEnv()
-  const query = new URLSearchParams({
-    page: String(page),
-    per_page: String(perPage),
-  })
-
-  if (emailFilter) {
-    query.set('filter', emailFilter)
-  }
-
-  const response = await fetch(
-    `${supabaseUrl}/auth/v1/admin/users?${query.toString()}`,
-    {
-      headers: {
-        Authorization: `Bearer ${secretKey}`,
-        apikey: secretKey,
-      },
-      cache: 'no-store',
-    },
-  )
-
-  if (!response.ok) {
-    const message = await response.text()
-    throw new Error(
-      `[users-list] Admin listUsers failed (${response.status}): ${message}`,
-    )
-  }
-
-  const data = (await response.json()) as ListUsersResponse
-  return data.users ?? []
-}
-
 export const listAdminUsersPage = async (
   client: SupabaseClient,
   params: ListAdminUsersPageParams,
 ): Promise<ListAdminUsersPageResult> => {
   const page = Math.max(1, params.page)
-  const perPage = params.perPage ?? USERS_PAGE_SIZE
+  const perPage = params.perPage ?? DATA_TABLE_DEFAULT_PAGE_SIZE
   const trimmedFilter = params.emailFilter?.trim() ?? ''
+  const sortColumn = params.sortColumn ?? 'created_at'
+  const sortDirection = params.sortDirection ?? 'desc'
 
-  let users: User[]
+  const { data, error } = await client.rpc('admin_list_users', {
+    p_sort_column: sortColumn,
+    p_sort_direction: sortDirection,
+    p_page: page,
+    p_per_page: perPage,
+    p_search:
+      trimmedFilter.length >= USERS_SEARCH_MIN_LENGTH ? trimmedFilter : '',
+    p_show_banned: params.showBanned ?? false,
+  })
 
-  if (trimmedFilter.length >= USERS_SEARCH_MIN_LENGTH) {
-    users = await listUsersViaApi({
-      page,
-      perPage,
-      emailFilter: trimmedFilter,
-    })
-  } else {
-    const { data, error } = await client.auth.admin.listUsers({
-      page,
-      perPage,
-    })
-
-    if (error) {
-      throw error
-    }
-
-    users = data.users
+  if (error) {
+    throw error
   }
 
+  const rows = (data ?? []).map(mapUserToAdminRow)
+
   return {
-    rows: users.map(mapUserToAdminRow),
-    hasNextPage: users.length === perPage,
+    rows,
+    hasNextPage: rows.length === perPage,
     page,
   }
 }

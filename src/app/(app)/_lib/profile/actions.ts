@@ -20,6 +20,7 @@ import {
   isOwnedAvatarStorageUrl,
   withAvatarCacheBust,
 } from '@/utils/avatar-cache-bust'
+import { removeAvatarStorage } from '@/utils/remove-avatar-storage'
 
 import { parseProfilePartialInput } from './profile-form-schema'
 
@@ -127,6 +128,17 @@ export const updateProfileAction = async (
         code: 'INTERNAL_ERROR',
         kind: 'fault',
       },
+    }
+  }
+
+  if (parsed.data.avatarUrl === null) {
+    const avatarDeleteResult = await removeAvatarStorage(supabase, user.id)
+
+    if (!avatarDeleteResult.ok) {
+      console.warn(
+        '[profile-update] Avatar storage delete failed',
+        avatarDeleteResult.error,
+      )
     }
   }
 

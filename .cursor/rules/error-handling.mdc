@@ -138,8 +138,9 @@ Carry severity as data via `kind` on the error envelope ([`src/types/app-error.t
 - Use for: Supabase `AuthError` (via [`extractAuthFormError`](../../src/utils/extract-auth-form-error.ts)), client validation, `FORBIDDEN`, `VALIDATION_ERROR`
 
 **Fault** (`kind: 'fault'`) — [`src/components/error-panel.tsx`](../../src/components/error-panel.tsx):
-- Bordered destructive-tinted panel, `AlertTriangle` icon, copy-to-clipboard button
-- Copy payload: message + `Code: {code}` when code present
+- Neutral bordered panel (`bg-card`, `border-border`); `AlertTriangle` icon in `text-destructive` only — no filled danger background
+- Title (when provided) in `text-foreground`; description message in `text-muted-foreground`
+- Error code shown in a neutral `bg-muted` chip row when present; labeled Copy button copies message + `Code: {code}` when code present
 - Use for: `INTERNAL_ERROR`, non-auth throws, network failures
 
 **Typed server-action errors** — use `AppErrorSurface`:
@@ -150,7 +151,7 @@ Carry severity as data via `kind` on the error envelope ([`src/types/app-error.t
 
 **String-only client validation** — use raw `InlineError` with a plain string message (no `AppError` envelope). Examples: file input validation, zod field messages via `FormMessage`.
 
-Visual reference (appearance only — implementation uses semantic tokens): [`.mockups/error-states.html`](../../.mockups/error-states.html)
+Visual reference (appearance only — implementation uses semantic tokens): [`.mockups/error_panel_b1_final_mockup.html`](../../.mockups/error_panel_b1_final_mockup.html)
 
 For route-level failures, add `error.tsx` in the relevant `src/app/` segment.
 
