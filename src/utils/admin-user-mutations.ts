@@ -35,6 +35,10 @@ export type UnbanUserByIdResult =
 
 export type BanMutationSuccessStatus = 'banned' | 'unbanned' | 'not_banned'
 
+export type DeleteUserByIdResult =
+  | { status: 'deleted'; email: string }
+  | { status: 'not_found' }
+
 export const mergePromoteMetadata = (
   existing: AppMetadata | undefined,
 ): AppMetadata => ({
@@ -206,4 +210,29 @@ export const unbanUserById = async (
   }
 
   return { status: 'unbanned', email: user.email! }
+}
+
+export const deleteUserById = async (
+  client: SupabaseClient,
+  userId: string,
+): Promise<DeleteUserByIdResult> => {
+  const { data, error } = await client.auth.admin.getUserById(userId)
+
+  if (error) {
+    throw error
+  }
+
+  const user = data.user
+
+  if (!user) {
+    return { status: 'not_found' }
+  }
+
+  const { error: deleteError } = await client.auth.admin.deleteUser(userId)
+
+  if (deleteError) {
+    throw deleteError
+  }
+
+  return { status: 'deleted', email: user.email! }
 }

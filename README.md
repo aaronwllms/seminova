@@ -149,7 +149,7 @@ pnpm promote-admin your@email.com
 
 6. Open the admin area at [http://localhost:3000/admin](http://localhost:3000/admin) (admins land here after login; non-admins land on `/home`). The Users page at `/admin/users` lists signed-up accounts with email search, column sort, configurable page size, and in-app promote/demote and ban/unban for admins.
 
-Companion CLI commands (bootstrap / automation): `pnpm demote-admin <email>`, `pnpm list-admins` (read-only, no confirmation).
+Companion CLI commands (bootstrap / automation): `pnpm demote-admin <email>`, `pnpm delete-user <email>` (test-account cleanup; requires secret key and confirmation naming the target project), `pnpm list-admins` (read-only, no confirmation).
 
 ---
 
@@ -211,6 +211,7 @@ After that, the repo is a real project, not a template copy — and the phase-by
 | `pnpm analyze` | Bundle analyzer |
 | `pnpm promote-admin <email>` | Grant admin role via CLI (requires secret key; bootstrap / automation) |
 | `pnpm demote-admin <email>` | Remove admin role via CLI |
+| `pnpm delete-user <email>` | Delete a user via CLI (test-account cleanup; requires secret key and confirmation) |
 | `pnpm list-admins` | List all admin users (read-only) |
 | `pnpm db:push` | Apply pending SQL migrations to the linked Supabase project (CLI prompts to confirm) |
 | `pnpm db:types` | Regenerate TypeScript types from the linked project schema |

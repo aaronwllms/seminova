@@ -5,6 +5,7 @@ import { ADMIN_ROLE } from '@/constants/admin-role'
 
 import {
   banUserById,
+  deleteUserById,
   demoteUserById,
   getBanMutationToastMessage,
   getRoleMutationToastMessage,
@@ -27,7 +28,11 @@ const createMockUser = (overrides: Partial<User> = {}): User =>
 
 const createMockClient = (
   user: User | null,
-  options?: { getUserError?: Error; updateError?: Error },
+  options?: {
+    getUserError?: Error
+    updateError?: Error
+    deleteError?: Error
+  },
 ): SupabaseClient => {
   return {
     auth: {
@@ -39,6 +44,10 @@ const createMockClient = (
         updateUserById: vi.fn().mockResolvedValue({
           data: {},
           error: options?.updateError ?? null,
+        }),
+        deleteUser: vi.fn().mockResolvedValue({
+          data: {},
+          error: options?.deleteError ?? null,
         }),
       },
     },
@@ -191,6 +200,29 @@ describe('unbanUserById', () => {
     expect(client.auth.admin.updateUserById).toHaveBeenCalledWith('user-1', {
       ban_duration: 'none',
     })
+  })
+})
+
+describe('deleteUserById', () => {
+  it('should return not_found when user does not exist', async () => {
+    const client = createMockClient(null)
+
+    const result = await deleteUserById(client, 'missing-id')
+
+    expect(result).toEqual({ status: 'not_found' })
+    expect(client.auth.admin.deleteUser).not.toHaveBeenCalled()
+  })
+
+  it('should delete user by id', async () => {
+    const client = createMockClient(createMockUser())
+
+    const result = await deleteUserById(client, 'user-1')
+
+    expect(result).toEqual({
+      status: 'deleted',
+      email: 'alice@example.com',
+    })
+    expect(client.auth.admin.deleteUser).toHaveBeenCalledWith('user-1')
   })
 })
 

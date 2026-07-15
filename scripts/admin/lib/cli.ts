@@ -1,4 +1,16 @@
-import { demoteUser, listAdminUsers, promoteUser } from './admin-users'
+import {
+  AVATAR_BUCKET,
+  buildAvatarStoragePath,
+} from '@/constants/storage-paths'
+
+import {
+  deleteUserAvatarStorage,
+  deleteUserById,
+  demoteUser,
+  findUserByEmail,
+  listAdminUsers,
+  promoteUser,
+} from './admin-users'
 import { loadAdminEnv } from './env'
 import { confirmAction } from './prompt'
 import { createServiceClient } from './service-client'
@@ -87,6 +99,51 @@ export const runDemoteAdmin = async (args: string[]): Promise<void> => {
   }
 
   console.warn(`[demote-admin] ${result.email} demoted from admin`)
+}
+
+export const runDeleteUser = async (args: string[]): Promise<void> => {
+  const email = parseEmailArg(args)
+
+  if (!email) {
+    console.error(`[delete-user] ${MISSING_EMAIL_MESSAGE}`)
+    process.exit(1)
+  }
+
+  const env = loadAdminEnv()
+
+  const confirmed = await confirmAction(env.supabaseUrl, 'Delete user', email)
+
+  if (!confirmed) {
+    console.log('[delete-user] Cancelled')
+    return
+  }
+
+  const client = createServiceClient(env)
+  const user = await findUserByEmail(client, email)
+
+  if (!user) {
+    console.error('[delete-user] no user found with that email')
+    process.exit(1)
+  }
+
+  // storage.objects has no owner→auth.users FK (objects_owner_fkey removed on
+  // current Supabase; verified 2026-07-15). Auth user first, then avatar cleanup.
+  const deleteResult = await deleteUserById(client, user.id)
+
+  if (deleteResult.status === 'not_found') {
+    console.error('[delete-user] no user found with that email')
+    process.exit(1)
+  }
+
+  const avatarResult = await deleteUserAvatarStorage(client, user.id)
+
+  if (!avatarResult.ok) {
+    console.warn(
+      `[delete-user] user deleted but avatar file may remain at ${buildAvatarStoragePath(user.id)} in ${AVATAR_BUCKET}`,
+    )
+  }
+
+  console.warn(`[delete-user] ${deleteResult.email} deleted`)
 }
 
 export const runListAdmins = async (): Promise<void> => {
