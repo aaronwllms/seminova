@@ -239,7 +239,7 @@ This epic owns every reference-page edit in the phase, so nothing else touches t
 - The LEXICON entry names selectable page size, shared pagination controls, and per-column sizing; nothing in it contradicts the code.
 - `pnpm pre-push` is green.
 
-### Epic 14: Show/hide banned users
+### Epic 14: Show/hide banned users `Complete`
 
 - **14.1 Checkbox primitive.** The UI kit gains a vendored Checkbox — the kit has none today, and primitive-first rules out a native input.
 - **14.2 Banned filter in `admin_list_users`.** The listing function accepts a show-banned flag and excludes currently-banned users when it's off, filtering server-side so pagination stays honest. Two constraints: the new parameter changes the function's signature, so the migration must drop the existing function and recreate it — `create or replace` with a different parameter list creates a *second overload* rather than replacing, which leaves PostgREST unable to disambiguate the RPC and the old signature holding its own grants. And the function must express "currently banned" **once** and have both the filter and the existing sort read from it; the sort already restates the rule inline, and a second restatement in the same query is drift for nothing.
