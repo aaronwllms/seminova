@@ -1,7 +1,7 @@
 # PRD — Phase 12: Observability & App Settings
 
 **Status:** `Active`
-**Last updated:** 2026-07-15
+**Last updated:** 2026-07-16
 
 ---
 
@@ -26,7 +26,7 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 
 ## Epics & stories
 
-### Epic 1: App settings store
+### Epic 1: App settings store `Complete`
 
 - **1.1 The settings registry.** Settings are declared in code — key, label, description, value type, default — as the single source of truth for what settings exist. The store holds values only; a key absent from the registry isn't a setting, and admins never invent keys. Seeded with the two this phase needs: minimum log level and log retention window.
 - **1.2 Persisted values with registry defaults.** A setting's value persists per spun-off project and reads back with the registry default standing in when nothing has been set yet. Value shape varies per setting (level is a string enum, retention a number), so the store holds heterogeneous values without a schema change per setting. Admin-only.
