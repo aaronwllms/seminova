@@ -1,0 +1,59 @@
+import type {
+  AppSettingKey,
+  AppSettingRegistryEntry,
+  LogLevel,
+} from '@/types/app-settings'
+import { LOG_LEVELS } from '@/types/app-settings'
+
+export const APP_SETTINGS_GROUP_LOGGING = 'Logging' as const
+
+export { LOG_LEVELS }
+
+const LOG_LEVEL_RANK: Record<LogLevel, number> = {
+  debug: 0,
+  info: 1,
+  warn: 2,
+  error: 3,
+}
+
+export const logLevelRank = (level: LogLevel): number => LOG_LEVEL_RANK[level]
+
+export const APP_SETTINGS_REGISTRY = [
+  {
+    key: 'min_log_level',
+    label: 'Minimum log level',
+    description:
+      'Logs below this level are neither printed nor persisted. Lower it to debug when investigating; raise it to quiet a noisy deployment.',
+    valueType: 'log_level',
+    default: 'info',
+    group: APP_SETTINGS_GROUP_LOGGING,
+  },
+  {
+    key: 'log_retention_days',
+    label: 'Log retention window',
+    description:
+      'Days a log row is kept before the scheduled purge deletes it.',
+    valueType: 'positive_int',
+    default: 30,
+    group: APP_SETTINGS_GROUP_LOGGING,
+  },
+] as const satisfies readonly AppSettingRegistryEntry[]
+
+const registryByKey = new Map<AppSettingKey, AppSettingRegistryEntry>(
+  APP_SETTINGS_REGISTRY.map((entry) => [entry.key, entry]),
+)
+
+export const isAppSettingKey = (key: string): key is AppSettingKey =>
+  registryByKey.has(key as AppSettingKey)
+
+export const getRegistryEntry = (
+  key: AppSettingKey,
+): AppSettingRegistryEntry => {
+  const entry = registryByKey.get(key)
+
+  if (!entry) {
+    throw new Error(`Unknown app setting key: ${key}`)
+  }
+
+  return entry
+}
