@@ -18,6 +18,7 @@ const LOG_LEVEL_RANK: Record<LogLevel, number> = {
 
 export const logLevelRank = (level: LogLevel): number => LOG_LEVEL_RANK[level]
 
+// debt: AppSettingKey / AppSettingValueMap in src/types/app-settings.ts and APP_SETTINGS_REGISTRY here are kept in sync by hand. Upgrade path: derive the key union and value map from the registry const so a new entry cannot compile without its types.
 export const APP_SETTINGS_REGISTRY = [
   {
     key: 'min_log_level',

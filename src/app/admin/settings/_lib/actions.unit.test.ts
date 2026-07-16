@@ -124,4 +124,25 @@ describe('saveAppSettingAction', () => {
       'max',
     )
   })
+
+  it('should return INTERNAL_ERROR fault when upsert fails', async () => {
+    upsertMock.mockResolvedValue({
+      error: { code: '23505', message: 'duplicate key value' },
+    })
+
+    const { saveAppSettingAction } = await import('./actions')
+    const result = await saveAppSettingAction({
+      key: 'min_log_level',
+      value: 'warn',
+    })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Could not save setting. Please try again.',
+        code: 'INTERNAL_ERROR',
+        kind: 'fault',
+      },
+    })
+  })
 })

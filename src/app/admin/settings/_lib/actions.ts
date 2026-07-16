@@ -2,7 +2,10 @@
 
 import { revalidateTag } from 'next/cache'
 
-import { isAppSettingKey } from '@/config/app-settings-registry'
+import {
+  assertAdminCaller,
+  type UsersActionError,
+} from '@/app/admin/users/_lib/assert-admin-caller'
 import { APP_SETTINGS_CACHE_TAG } from '@/constants/app-settings'
 import { createClient } from '@/supabase/server'
 import type { AppSettingKey, AppSettingValueMap } from '@/types/app-settings'
@@ -10,11 +13,6 @@ import {
   parseAppSettingValue,
   saveAppSettingInputSchema,
 } from '@/utils/app-settings-schema'
-
-import {
-  assertAdminCaller,
-  type UsersActionError,
-} from '../../users/_lib/assert-admin-caller'
 
 type SaveAppSettingActionSuccess<K extends AppSettingKey = AppSettingKey> = {
   success: true
@@ -31,63 +29,73 @@ export type SaveAppSettingActionResult<
 export const saveAppSettingAction = async (
   input: unknown,
 ): Promise<SaveAppSettingActionResult> => {
-  const callerResult = await assertAdminCaller()
+  try {
+    const callerResult = await assertAdminCaller()
 
-  if (!callerResult.success) {
-    return callerResult
-  }
-
-  const parsedInput = saveAppSettingInputSchema.safeParse(input)
-
-  if (!parsedInput.success) {
-    return {
-      success: false,
-      error: {
-        message: parsedInput.error.issues[0]?.message ?? 'Invalid input',
-        code: 'VALIDATION_ERROR',
-        kind: 'operational',
-      },
+    if (!callerResult.success) {
+      return callerResult
     }
-  }
 
-  const { key, value } = parsedInput.data
+    const parsedInput = saveAppSettingInputSchema.safeParse(input)
 
-  if (!isAppSettingKey(key)) {
-    return {
-      success: false,
-      error: {
-        message: 'Unknown setting',
-        code: 'VALIDATION_ERROR',
-        kind: 'operational',
-      },
+    if (!parsedInput.success) {
+      return {
+        success: false,
+        error: {
+          message: parsedInput.error.issues[0]?.message ?? 'Invalid input',
+          code: 'VALIDATION_ERROR',
+          kind: 'operational',
+        },
+      }
     }
-  }
 
-  const parsedValue = parseAppSettingValue(key, value)
+    const { key, value } = parsedInput.data
 
-  if (!parsedValue.success) {
-    return {
-      success: false,
-      error: {
-        message: parsedValue.message,
-        code: 'VALIDATION_ERROR',
-        kind: 'operational',
-      },
+    const parsedValue = parseAppSettingValue(key, value)
+
+    if (!parsedValue.success) {
+      return {
+        success: false,
+        error: {
+          message: parsedValue.message,
+          code: 'VALIDATION_ERROR',
+          kind: 'operational',
+        },
+      }
     }
-  }
 
-  const supabase = await createClient()
-  const { error } = await supabase.from('app_settings').upsert({
-    key,
-    value: parsedValue.value,
-    updated_at: new Date().toISOString(),
-  })
-
-  if (error) {
-    console.error('[save-app-setting] Upsert failed', {
+    const supabase = await createClient()
+    const { error } = await supabase.from('app_settings').upsert({
       key,
-      supabaseCode: error.code,
+      value: parsedValue.value,
+      updated_at: new Date().toISOString(),
     })
+
+    if (error) {
+      console.error('[save-app-setting] Upsert failed', error)
+
+      return {
+        success: false,
+        error: {
+          message: 'Could not save setting. Please try again.',
+          code: 'INTERNAL_ERROR',
+          kind: 'fault',
+        },
+      }
+    }
+
+    // Next.js 16 typings require a cacheLife profile as the second argument.
+    revalidateTag(APP_SETTINGS_CACHE_TAG, 'max')
+
+    return {
+      success: true,
+      data: {
+        key,
+        value: parsedValue.value,
+      },
+    }
+  } catch (caught) {
+    console.error('[save-app-setting] Unexpected error', caught)
 
     return {
       success: false,
@@ -97,15 +105,5 @@ export const saveAppSettingAction = async (
         kind: 'fault',
       },
     }
-  }
-
-  revalidateTag(APP_SETTINGS_CACHE_TAG, 'max')
-
-  return {
-    success: true,
-    data: {
-      key,
-      value: parsedValue.value,
-    },
   }
 }
