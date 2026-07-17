@@ -7,12 +7,35 @@ import {
 import type { AppSettingKey, AppSettingValueMap } from '@/types/app-settings'
 import { LOG_LEVELS } from '@/types/app-settings'
 
-const logLevelSchema = z.enum(LOG_LEVELS)
+export const logLevelSchema = z.enum(LOG_LEVELS)
 
-const positiveIntSchema = z
+export const positiveIntSchema = z
   .number()
   .int('Must be a whole number')
   .positive('Must be greater than zero')
+
+/** Client form field — string input coerced through the shared positiveIntSchema. */
+export const positiveIntFormValueSchema = z
+  .string()
+  .transform((val) => Number(val))
+  .pipe(positiveIntSchema)
+
+export const appSettingLogLevelFormSchema = z.object({
+  value: logLevelSchema,
+})
+
+export const appSettingPositiveIntFormSchema = z.object({
+  value: z.string().superRefine((val, ctx) => {
+    const parsed = positiveIntFormValueSchema.safeParse(val)
+
+    if (!parsed.success) {
+      ctx.addIssue({
+        code: 'custom',
+        message: parsed.error.issues[0]?.message ?? 'Invalid value',
+      })
+    }
+  }),
+})
 
 export type ParseAppSettingValueResult<K extends AppSettingKey> =
   | { success: true; value: AppSettingValueMap[K] }

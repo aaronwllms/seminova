@@ -12,7 +12,7 @@ type AppSettingsPanelProps = {
   initialSettings: ResolvedAppSettings
 }
 
-const groupRegistryEntries = () => {
+const GROUPED_REGISTRY_ENTRIES = (() => {
   const groups = new Map<string, (typeof APP_SETTINGS_REGISTRY)[number][]>()
 
   for (const entry of APP_SETTINGS_REGISTRY) {
@@ -21,14 +21,14 @@ const groupRegistryEntries = () => {
   }
 
   return groups
-}
+})()
 
 export const AppSettingsPanel = ({
   initialSettings,
 }: AppSettingsPanelProps) => {
   const [savedSettings, setSavedSettings] =
     useState<ResolvedAppSettings>(initialSettings)
-  const groupedEntries = groupRegistryEntries()
+  const groupedEntries = GROUPED_REGISTRY_ENTRIES
 
   const handleSaved = <K extends AppSettingKey>(
     key: K,

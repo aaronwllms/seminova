@@ -1,10 +1,33 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import userEvent from '@testing-library/user-event'
 import { render, screen } from '@/test/test-utils'
 
 import { AppSettingsPanel } from './app-settings-panel'
 
+const saveAppSettingActionMock = vi.fn()
+
+vi.mock('@/app/admin/settings/_lib/actions', () => ({
+  saveAppSettingAction: (...args: unknown[]) =>
+    saveAppSettingActionMock(...args),
+}))
+
+vi.mock('@/utils/app-toast', () => ({
+  showSuccessToast: vi.fn(),
+}))
+
 describe('AppSettingsPanel', () => {
-  it('should render registry settings grouped under Logging with current values', () => {
+  beforeEach(() => {
+    saveAppSettingActionMock.mockReset()
+  })
+
+  it('should group registry entries under their feature-area heading and update saved state after a row save', async () => {
+    const user = userEvent.setup()
+
+    saveAppSettingActionMock.mockResolvedValue({
+      success: true,
+      data: { key: 'log_retention_days', value: 45 },
+    })
+
     render(
       <AppSettingsPanel
         initialSettings={{
@@ -19,11 +42,21 @@ describe('AppSettingsPanel', () => {
     ).toBeInTheDocument()
     expect(screen.getByText('min_log_level')).toBeInTheDocument()
     expect(screen.getByText('log_retention_days')).toBeInTheDocument()
-    expect(
-      screen.getByRole('combobox', { name: 'Minimum log level' }),
-    ).toHaveTextContent('info')
-    expect(
-      screen.getByRole('spinbutton', { name: 'Log retention window' }),
-    ).toHaveValue(30)
+
+    const retentionInput = screen.getByRole('spinbutton', {
+      name: 'Log retention window',
+    })
+    await user.clear(retentionInput)
+    await user.type(retentionInput, '45')
+
+    const saveButtons = screen.getAllByRole('button', { name: 'Save' })
+    await user.click(saveButtons[1]!)
+
+    expect(saveAppSettingActionMock).toHaveBeenCalledWith({
+      key: 'log_retention_days',
+      value: 45,
+    })
+    expect(retentionInput).toHaveValue(45)
+    expect(saveButtons[1]).toBeDisabled()
   })
 })
