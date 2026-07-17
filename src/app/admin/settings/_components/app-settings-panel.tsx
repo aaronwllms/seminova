@@ -38,7 +38,7 @@ export const AppSettingsPanel = ({
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex max-w-2xl flex-col gap-6">
       {[...groupedEntries.entries()].map(([group, entries]) => (
         <section key={group} className="flex flex-col gap-3">
           <h2 className="text-base font-medium">{group}</h2>
