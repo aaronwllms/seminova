@@ -34,4 +34,16 @@ describe('AdminBreadcrumb', () => {
     )
     expect(screen.getByText('Users')).toBeInTheDocument()
   })
+
+  it('should show Home and Settings on the settings route', () => {
+    mockPathname.mockReturnValue('/admin/settings')
+
+    render(<AdminBreadcrumb />)
+
+    expect(screen.getByRole('link', { name: /home/i })).toHaveAttribute(
+      'href',
+      ADMIN_HOME,
+    )
+    expect(screen.getByText('Settings')).toBeInTheDocument()
+  })
 })

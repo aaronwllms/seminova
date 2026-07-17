@@ -53,7 +53,7 @@ vi.mock('@/components/seminova-logo', () => ({
   SeminovaLogo: ({ href }: { href: string }) => <a href={href}>Seminova</a>,
 }))
 
-import { ADMIN_USERS } from '@/constants/admin-paths'
+import { ADMIN_SETTINGS, ADMIN_USERS } from '@/constants/admin-paths'
 import { render, screen } from '@/test/test-utils'
 
 import { AdminSidebar } from './admin-sidebar'
@@ -78,6 +78,10 @@ describe('AdminSidebar', () => {
     expect(screen.getByRole('link', { name: /users/i })).toHaveAttribute(
       'href',
       ADMIN_USERS,
+    )
+    expect(screen.getByRole('link', { name: /settings/i })).toHaveAttribute(
+      'href',
+      ADMIN_SETTINGS,
     )
   })
 })

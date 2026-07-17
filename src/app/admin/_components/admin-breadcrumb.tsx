@@ -16,6 +16,7 @@ import {
 const BREADCRUMB_LABELS: Record<string, string> = {
   admin: 'Admin',
   users: 'Users',
+  settings: 'Settings',
 }
 
 export const AdminBreadcrumb = () => {
