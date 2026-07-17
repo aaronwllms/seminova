@@ -1,7 +1,7 @@
 # PRD — Phase 12: Observability & App Settings
 
 **Status:** `Active`
-**Last updated:** 2026-07-16
+**Last updated:** 2026-07-17
 
 ---
 
@@ -40,7 +40,7 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 - Non-admins can neither read nor write settings.
 - `pnpm pre-push` is green.
 
-### Epic 2: Settings admin page
+### Epic 2: Settings admin page `Complete`
 
 - **2.1 The settings page.** A new admin page renders each registry setting as a block — label, description, and an input control typed to the setting — grouped under feature-area headings, with per-row save and a toast confirmation reusing the existing pattern. The page renders whatever's in the registry, so a new setting is a registry entry rather than a page change. Mockup: `.mockups/admin_settings_page.html`.
 
