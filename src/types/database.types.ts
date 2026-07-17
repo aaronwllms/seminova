@@ -39,6 +39,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_logs: {
+        Row: {
+          context: Json | null
+          created_at: string
+          id: number
+          level: string
+          message: string
+          tag: string
+        }
+        Insert: {
+          context?: Json | null
+          created_at?: string
+          id?: never
+          level: string
+          message: string
+          tag: string
+        }
+        Update: {
+          context?: Json | null
+          created_at?: string
+          id?: never
+          level?: string
+          message?: string
+          tag?: string
+        }
+        Relationships: []
+      }
       app_settings: {
         Row: {
           key: string
