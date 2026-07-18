@@ -9,7 +9,7 @@
 
 Two related gaps. First: logs have a canonical taxonomy (`logging.mdc` — debug/info/warn/error, `[kebab-case-tag]` convention) but only ever surface in Vercel's log viewer — there's no in-app way to browse, filter, or triage them, and no persistence beyond whatever Vercel retains. Second: the template has no admin-editable configuration store at all. Any runtime toggle (starting with "is debug logging on") requires an env var and a redeploy to change — which doesn't fit a template meant to give every spun-off product a way to flip settings live.
 
-This PRD was fully grilled in a planning chat before decomposition into epics/stories. The settled-decisions ledger below carries that session's decisions in the order they were made, with rationale kept — not a summary. It is the input the epics and stories were decomposed from, and remains the record of *why* each was scoped as it is.
+This PRD was fully grilled in a planning chat before decomposition into epics/stories.
 
 ## Goal
 
@@ -77,9 +77,31 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 - The CI check scripts are untouched and still on plain `console.*`.
 - `pnpm pre-push` is green.
 
-### Epic 5: Raw console guardrail
+### Epic 5: Client log relay
 
-- **5.1 The guardrail.** A check rejects raw `console.*` outside the wrapper across the swept surfaces, so new ones can't creep back in; the CI check scripts stay exempt. A new `check:*` pairs one-to-one with a hard-constraint entry, so this routes through the AGENTS.md change protocol as a deliberate addition. It sequences after the sweep — its passing state is only meaningful once every existing call site has moved.
+- **5.1 The client wrapper.** Browser call sites log through a client wrapper that prints to the browser console immediately and posts the same log to a server relay. The set of client call sites is closed and declared in code — a call names a declared key rather than inventing a tag — mirroring how the settings registry fixes the set of settings. The console print is immediate and ungated: a developer's devtools level filter is theirs, not an admin's to set remotely. An `Error` passed as context is flattened to its name, message, and stack before the call, because an `Error` can't survive the serialization boundary intact. Nothing awaits the post; a failed post never surfaces to the user or changes the caller's control flow.
+- **5.2 The relay.** A route handler at a stable, documented path accepts a declared key, level, message, and context, and forwards them to the existing request wrapper — it does not write to the log table itself, so the threshold check and the deferred write stay in one place. It constructs the tag itself from the key under a `client-` namespace, so a browser cannot produce a tag outside that namespace or forge one belonging to a server seam. An unknown key is rejected. Cross-origin posts are rejected. Context is validated as a plain object or absent, and over-cap context is truncated rather than dropped, with the row recording that truncation happened so an admin reading it isn't misled. Where a session is present it reads it server-side and attaches the user id — the only field in a relayed row that isn't a browser claim. Absence of a session is normal and never blocks the write. Design and trade-offs settled in [ADR-0007](../adr/ADR-0007-client-log-relay-unauthenticated.md).
+- **5.3 The browser sweep.** The five browser call sites move onto the wrapper: the three route error boundaries, the avatar storage module, and the auth form error extractor. The error boundaries pass the error digest they already hold, which is the correlation key back to the server-side stack for the same error. The auth form error extractor's callers pass the attempted email — the one case where attribution matters most and a session can't supply it, since the failure *is* the absence of a session.
+- **5.4 The server-only boundary made real.** The request wrapper becomes genuinely unimportable from a client bundle rather than conventionally so. With two near-identically-shaped wrappers now sitting side by side, a shared module importing the wrong one would silently pull the service client toward the browser bundle — the boundary needs to fail the build, not rely on a reader noticing. `logging.mdc` currently claims this enforcement exists; the claim becomes true.
+- **5.5 The exposure documented.** README documents that the relay is an unauthenticated write path into the log table, states plainly that the template ships no rate limit, and tells a deployer how to add one — naming Vercel's WAF concretely as the worked example. A stable path is what makes that possible: every firewall rate-limits by path, and none durably rate-limits a Server Action. `logging.mdc`'s server-only section is corrected to match the code, and its exemption table is regrouped by *why* each surface is exempt rather than listing unlike files flat — wrapper internals (logging through the wrapper recurses), bootstrap path (fires only when the credentials persistence needs are absent), and not-application-logging (CI output, interactive stdout, test spies). Epic 6's guardrail derives its exemptions from this table, and a spinoff adding a surface needs the category, not a precedent to pattern-match against.
+
+*Success:*
+- A browser call site prints to the browser console immediately and produces a row tagged under `client-`, distinguishable from a server log about the same subject.
+- An unknown key produces no row.
+- A cross-origin post to the relay is rejected.
+- A below-threshold client call still prints in the browser console and produces no row.
+- An `Error` passed as context arrives with its name, message, and stack.
+- Over-cap context lands truncated, and the row shows that it was truncated.
+- A relayed row from a signed-in browser carries the user id; one from a signed-out browser carries none and still lands.
+- No raw `console.*` remains in the five browser call sites.
+- Importing the request wrapper from a client module fails the build.
+- README documents the relay's unauthenticated write path and how to rate-limit it.
+- `logging.mdc`'s server-only claim matches the code, and its exemption table is grouped by category with each surface's real reason.
+- `pnpm pre-push` is green.
+
+### Epic 6: Raw console guardrail
+
+- **6.1 The guardrail.** A check rejects raw `console.*` outside the wrapper across the swept surfaces, so new ones can't creep back in; the CI check scripts stay exempt. A new `check:*` pairs one-to-one with a hard-constraint entry, so this routes through the AGENTS.md change protocol as a deliberate addition. It sequences after both sweeps — its passing state is only meaningful once every existing call site, server and browser alike, has moved.
 
 *Success:*
 - The guardrail fails on a planted raw `console.*` in a swept surface and passes clean on the codebase.
@@ -87,9 +109,9 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 - The change protocol is followed and the hard-constraint statement matches enforcement.
 - `pnpm pre-push` is green.
 
-### Epic 6: Log retention purge
+### Epic 7: Log retention purge
 
-- **6.1 Logs purge on a schedule.** Logs older than the retention window are deleted by the database on a schedule, with the window read from settings so an admin changes it without a migration or a redeploy — the settings store's second real consumer. Scheduling is established by migration and tracked in source control like any other schema change, and setup docs note that it enables a database extension. Admin CLI privilege-change events get no exemption; retention is uniform.
+- **7.1 Logs purge on a schedule.** Logs older than the retention window are deleted by the database on a schedule, with the window read from settings so an admin changes it without a migration or a redeploy — the settings store's second real consumer. Scheduling is established by migration and tracked in source control like any other schema change, and setup docs note that it enables a database extension. Admin CLI privilege-change events get no exemption; retention is uniform.
 
 *Success:*
 - The scheduled job exists after migrations run.
@@ -98,11 +120,11 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 - Setup docs note the extension.
 - `pnpm pre-push` is green.
 
-### Epic 7: Logs page — browse
+### Epic 8: Logs page — browse
 
-- **7.1 Browse logs.** A new admin page lists logs newest-first — timestamp, level badge, tag, and a truncated single-line message — with a row expanding on click to reveal the full message and its context. Paging is cursor-based on the timestamp rather than offset, because the table is written to concurrently and offset paging drifts and slows under inserts. Mockup: `.mockups/admin_logs_page.html`.
-- **7.2 Copy a row.** A row copies its message and formatted context to the clipboard, reusing the error panel's existing copy pattern, for pasting into an AI chat or elsewhere.
-- **7.3 Sort direction.** The timestamp header flips between newest- and oldest-first. It's the only sort control on the page — no other column sorts, since paging depends on a single stable key and the filters cover what sorting would.
+- **8.1 Browse logs.** A new admin page lists logs newest-first — timestamp, level badge, tag, and a truncated single-line message — with a row expanding on click to reveal the full message and its context. Paging is cursor-based on the timestamp rather than offset, because the table is written to concurrently and offset paging drifts and slows under inserts. Mockup: `.mockups/admin_logs_page.html`.
+- **8.2 Copy a row.** A row copies its message and formatted context to the clipboard, reusing the error panel's existing copy pattern, for pasting into an AI chat or elsewhere.
+- **8.3 Sort direction.** The timestamp header flips between newest- and oldest-first. It's the only sort control on the page — no other column sorts, since paging depends on a single stable key and the filters cover what sorting would.
 
 *Success:*
 - Rows show timestamp, level, tag, and truncated message; expanding one reveals the full message and context.
@@ -113,11 +135,11 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 - The page is admin-gated.
 - `pnpm pre-push` is green.
 
-### Epic 8: Logs page — triage
+### Epic 9: Logs page — triage
 
-- **8.1 Filters.** The page filters by level (multi-select chips colored to match the row badges), by tag (a searchable dropdown populated from the tags actually present), and by read status (all or unread only).
-- **8.2 Search.** A free-text bar matches against message, context, and tag by substring — right-sized given the purge keeps the table small, revisited only if volume ever makes it slow. Tag is included so a cluster of one tag is findable by search, which is what a tag sort would otherwise have been for.
-- **8.3 Read state.** Read/unread is global rather than per-admin, since a template can't know how many admins a spinoff has and shared read state is the simpler default. It's marked explicitly only — by row, or by a "mark all as read" scoped to the current filter view. Nothing auto-marks on page load or scroll, which would defeat read/unread as a triage tool.
+- **9.1 Filters.** The page filters by level (multi-select chips colored to match the row badges), by tag (a searchable dropdown populated from the tags actually present), and by read status (all or unread only).
+- **9.2 Search.** A free-text bar matches against message, context, and tag by substring — right-sized given the purge keeps the table small, revisited only if volume ever makes it slow. Tag is included so a cluster of one tag is findable by search, which is what a tag sort would otherwise have been for.
+- **9.3 Read state.** Read/unread is global rather than per-admin, since a template can't know how many admins a spinoff has and shared read state is the simpler default. It's marked explicitly only — by row, or by a "mark all as read" scoped to the current filter view. Nothing auto-marks on page load or scroll, which would defeat read/unread as a triage tool.
 
 *Success:*
 - Filters compose with each other, with search, and with paging.
@@ -127,11 +149,11 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 - Search matches against message, context, and tag.
 - `pnpm pre-push` is green.
 
-### Epic 9: Debug logs at the three seams
+### Epic 10: Debug logs at the three seams
 
-- **9.1 The session seam.** Session and proxy decisions emit debug logs — token refreshed versus reused, claims read while expired — so the boundary [ADR-0005](../adr/ADR-0005-proxy-as-sole-session-authority.md) settled can be watched live rather than inferred from a stack trace.
-- **9.2 The settings seam.** Settings reads and invalidations emit debug logs — cache hit or miss, invalidation firing on save — so a stale-settings report is diagnosable instead of guessed at.
-- **9.3 The avatar storage seam.** Avatar upload and delete emit debug logs covering the success path, including the case where a storage delete fails without blocking the profile update.
+- **10.1 The session seam.** Session and proxy decisions emit debug logs — token refreshed versus reused, claims read while expired — so the boundary [ADR-0005](../adr/ADR-0005-proxy-as-sole-session-authority.md) settled can be watched live rather than inferred from a stack trace.
+- **10.2 The settings seam.** Settings reads and invalidations emit debug logs — cache hit or miss, invalidation firing on save — so a stale-settings report is diagnosable instead of guessed at.
+- **10.3 The avatar storage seam.** Avatar upload and delete emit debug logs covering the success path, including the case where a storage delete fails without blocking the profile update.
 
 *Success:*
 - With the threshold at debug, a single pass through sign-in, a settings save, and an avatar upload produces a legible trace on the logs page.
@@ -143,10 +165,14 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 
 ## Notes
 
-- **ADR-0006 written during this planning session** — [ADR-0006](../adr/ADR-0006-settings-reads-cached-under-one-coarse-tag.md) settles decision 9's caching design and covers Epic 1.3. It was the phase's only ADR candidate; nothing else here clears all three bars.
-- **Four decisions were made at decomposition** and are recorded as ledger entries 30–33, amending decisions 6 and 19. Epic 9 is net-new scope arising from decision 33.
-- **Dependencies:** Epic 1 before Epics 3.4 and 6 (both read settings). Epic 3 before Epics 4, 6, and 9 (all need a wrapper). Epic 4 before Epic 5 — the guardrail's clean-pass criterion is meaningless until the sweep has landed. Epic 7 before Epic 8 (same page). Epic 9 last: its logs need the wrapper, the settings store, and the threshold all present.
-- **Epics 7 and 8 deliberately split one page across two epics.** The logs page's decisions (15–21) are more than one context window holds. The intermediate state — a logs page with no filters — is real but harmless, since nothing ships to users mid-phase.
-- **Only hard-constraint change is Epic 5's guardrail,** routed through the AGENTS.md change protocol. Nothing in this phase touches the auth boundary or the admin gate.
-- **No new LEXICON terms.** Settings registry, wrapper, and tag are implementation vocabulary, not domain terms meaningful to a domain expert.
-- **Open at plan time — Epic 3.4's CLI threshold read.** The CLI variant runs outside Next.js, so it has no request context and no tagged cache to read the threshold through. A direct read at process start is the intended approach (short-lived process, cache bypass is harmless), but the ledger doesn't cover it; plan review should confirm rather than let it be invented.
+- **Two ADRs written during this phase's planning** — [ADR-0006](../adr/ADR-0006-settings-reads-cached-under-one-coarse-tag.md) settles the caching design behind Epic 1.3. [ADR-0007](../adr/ADR-0007-client-log-relay-unauthenticated.md) settles Epic 5's relay: why it takes no session, why it's a route handler rather than a Server Action, and why the template ships no rate limit. Nothing else in the phase clears all three bars.
+- **Dependencies:** Epic 1 before Epics 3.4 and 7 (both read settings). Epic 3 before Epics 4, 5, 7, and 10 (all need a wrapper). Epics 4 and 5 before Epic 6 — the guardrail's clean-pass criterion is meaningless until both sweeps have landed, and sequencing it after both means no swept site ever enters its exemption list. Epic 5 before Epic 10 — story 10.3's avatar upload path runs in the browser and needs the relay. Epic 8 before Epic 9 (same page). Epic 10 last: its logs need the wrapper, the settings store, and the threshold all present.
+- **Epics 8 and 9 deliberately split one page across two epics.** The logs page's scope is more than one context window holds. The intermediate state — a logs page with no filters — is real but harmless, since nothing ships to users mid-phase.
+- **Epic 3.4's threshold criterion is server- and CLI-scoped.** "A below-threshold call produces neither console output nor a row" holds for `appLog` and `cliLog`. Epic 5's client mirror deliberately prints regardless of threshold — the browser console has its own per-developer level filter, and gating it on an admin setting would both invert that ownership and reintroduce the staleness window ADR-0006 exists to prevent. Epic 3 is shipped; its criterion isn't rewritten.
+- **Known gap: nothing rate-limits the relay.** A closed key set, a context size cap, threshold gating, and Epic 7's purge all bound what a relayed row *is*; none bounds how many. Accepted at template scope and recorded in ADR-0007, which carries the rationale and the mitigation — so this is not a ROADMAP open question.
+- **`src/utils/env.ts` (`loadServiceEnvForCli`) is permanently and correctly exempt.** Not deferred work — there is nothing to fix. It's a bootstrap-path log: it fires only when `NEXT_PUBLIC_SUPABASE_URL` or `SUPABASE_SECRET_KEY` is missing, which are the same credentials the wrapper's threshold read and persisted write both depend on. Routing it through `cliLog` would replace a clean "add it to `.env.local`, exiting" message with an unhandled throw from `getServiceSupabaseEnv()`, at the exact moment a developer is trying to learn what they forgot — and the row could never persist anyway. Same category as `persist-app-log.ts`'s recursion guard: raw `console.*` is the correct answer, not a compromise. `logging.mdc` currently records the wrong reason for this exemption ("reachable from client bundle"); story 5.5 corrects it.
+- **Epic 10.3's avatar seam is split across environments.** The delete-failure case it names is already server-side in `updateProfileAction`. Avatar *upload* is browser → storage direct — the server never sees it — so its debug logs go through Epic 5's relay.
+- **Only hard-constraint change is Epic 6's guardrail,** routed through the AGENTS.md change protocol. Nothing in this phase touches the auth boundary or the admin gate.
+- **No new LEXICON terms.** Settings registry, wrapper, relay, and tag are implementation vocabulary, not domain terms meaningful to a domain expert.
+- **Open at plan time — Epic 3.4's CLI threshold read.** The CLI variant runs outside Next.js, so it has no request context and no tagged cache to read the threshold through. A direct read at process start is the intended approach (short-lived process, cache bypass is harmless), but it wasn't settled at planning time; plan review should confirm rather than let it be invented.
+- **Open at plan time — Epic 5's context size cap.** The cap and the message length bound are deliberately left unnumbered. Cursor proposes values at plan time; plan review settles them.
