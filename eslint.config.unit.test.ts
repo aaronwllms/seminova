@@ -4,42 +4,62 @@
 import { ESLint, type Linter } from 'eslint'
 import { describe, expect, it } from 'vitest'
 
+import eslintConfig from './eslint.config.mjs'
+
 const BOUNDARY_FIXTURE =
   'src/app/(app)/_lib/profile/client-server-boundary.fixture.ts'
 
-const SERVER_ONLY_IMPORT_RULE = {
-  files: ['**/*.{ts,tsx}'],
-  rules: {
-    'no-restricted-imports': [
-      'error' as const,
-      {
-        paths: [
-          {
-            name: '@/utils/app-logger',
-            message:
-              'appLog is server-only — use clientLog from @/utils/client-logger in client code.',
-          },
-          {
-            name: '@/utils/persist-app-log',
-            message:
-              'persist-app-log is server-only — use clientLog from @/utils/client-logger in client code.',
-          },
-          {
-            name: '@/supabase/service',
-            message:
-              'Service client is server-only — use @/supabase/client or server surfaces.',
-          },
-        ],
-      },
-    ],
-  },
+const isServerOnlyImportBlock = (block: Linter.Config): boolean => {
+  const rule = block.rules?.['no-restricted-imports']
+
+  if (!Array.isArray(rule)) {
+    return false
+  }
+
+  const options = rule[1]
+
+  if (!options || typeof options !== 'object' || !('paths' in options)) {
+    return false
+  }
+
+  const paths = options.paths
+
+  return (
+    Array.isArray(paths) &&
+    paths.some(
+      (path) =>
+        typeof path === 'object' &&
+        path !== null &&
+        'name' in path &&
+        path.name === '@/utils/app-logger',
+    )
+  )
+}
+
+const getServerOnlyImportRule = (): Linter.RuleEntry => {
+  const block = (eslintConfig as Linter.Config[]).find(isServerOnlyImportBlock)
+
+  if (!block?.rules?.['no-restricted-imports']) {
+    throw new Error(
+      'Expected server-only no-restricted-imports block in eslint.config.mjs',
+    )
+  }
+
+  return block.rules['no-restricted-imports']
 }
 
 describe('eslint server-only import boundary', () => {
   it('should report no-restricted-imports on the boundary fixture', async () => {
     const eslint = new ESLint({
-      overrideConfig: [SERVER_ONLY_IMPORT_RULE as unknown as Linter.Config],
       cwd: process.cwd(),
+      overrideConfig: [
+        {
+          files: [BOUNDARY_FIXTURE],
+          rules: {
+            'no-restricted-imports': getServerOnlyImportRule(),
+          },
+        },
+      ],
     })
 
     const results = await eslint.lintFiles([BOUNDARY_FIXTURE])

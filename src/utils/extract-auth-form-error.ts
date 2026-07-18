@@ -63,7 +63,7 @@ const AUTH_ERROR_OVERRIDES: Record<string, AppError> = {
   },
 }
 
-export type ExtractAuthFormErrorOptions = {
+export interface ExtractAuthFormErrorOptions {
   email?: string
 }
 

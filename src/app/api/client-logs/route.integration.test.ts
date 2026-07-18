@@ -58,7 +58,7 @@ describe('POST /api/client-logs', () => {
     )
 
     expect(response.status).toBe(202)
-    expect(await response.json()).toEqual({ success: true })
+    expect(await response.json()).toEqual({ success: true, data: null })
     expect(mockAppLogError).toHaveBeenCalledWith(
       'client-auth-form-error',
       'Supabase auth error',

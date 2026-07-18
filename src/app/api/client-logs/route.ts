@@ -26,69 +26,87 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  let json: unknown
-
   try {
-    json = await request.json()
-  } catch {
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: 'Invalid request body',
-          code: 'VALIDATION_ERROR',
-          kind: 'operational',
+    let json: unknown
+
+    try {
+      json = await request.json()
+    } catch {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: 'Invalid request body',
+            code: 'VALIDATION_ERROR',
+            kind: 'operational',
+          },
         },
-      },
-      { status: 400 },
-    )
-  }
+        { status: 400 },
+      )
+    }
 
-  const parsed = clientLogRelayBodySchema.safeParse(json)
+    const parsed = clientLogRelayBodySchema.safeParse(json)
 
-  if (!parsed.success) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: 'Invalid request body',
-          code: 'VALIDATION_ERROR',
-          kind: 'operational',
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: 'Invalid request body',
+            code: 'VALIDATION_ERROR',
+            kind: 'operational',
+          },
         },
-      },
-      { status: 400 },
-    )
-  }
+        { status: 400 },
+      )
+    }
 
-  const { key, level, message, context } = parsed.data
-  const tag = toClientLogTag(key)
-  const cappedMessage = truncateClientLogMessage(message)
-  const cappedContext = context ? truncateClientLogContext(context) : undefined
-
-  let userId: string | undefined
-
-  try {
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    userId = user?.id
-  } catch {
-    // Session probe is best-effort — absence never blocks the relay.
-  }
-
-  const contextInput =
-    cappedContext || userId
-      ? {
-          ...cappedContext,
-          ...(userId ? { userId } : {}),
-        }
+    const { key, level, message, context } = parsed.data
+    const tag = toClientLogTag(key)
+    const cappedMessage = truncateClientLogMessage(message)
+    const cappedContext = context
+      ? truncateClientLogContext(context)
       : undefined
 
-  const relayContext = normalizeLogContext(contextInput)
+    let userId: string | undefined
 
-  appLog[level](tag, cappedMessage, relayContext)
+    try {
+      const supabase = await createClient()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
-  return NextResponse.json({ success: true }, { status: 202 })
+      userId = user?.id
+    } catch {
+      // Session probe is best-effort — absence never blocks the relay.
+    }
+
+    const contextInput =
+      cappedContext || userId
+        ? {
+            ...cappedContext,
+            ...(userId ? { userId } : {}),
+          }
+        : undefined
+
+    const relayContext = normalizeLogContext(contextInput)
+
+    appLog[level](tag, cappedMessage, relayContext)
+
+    return NextResponse.json({ success: true, data: null }, { status: 202 })
+  } catch (error) {
+    appLog.error('api-client-logs', 'Relay failed', error)
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: 'Something went wrong',
+          code: 'INTERNAL_ERROR',
+          kind: 'fault',
+        },
+      },
+      { status: 500 },
+    )
+  }
 }
