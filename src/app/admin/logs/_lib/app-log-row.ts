@@ -32,9 +32,15 @@ export interface AppLogRow {
   isUnread: boolean
 }
 
-const dateFormatter = new Intl.DateTimeFormat(undefined, {
-  dateStyle: 'medium',
-  timeStyle: 'medium',
+const logDateFormatter = new Intl.DateTimeFormat(undefined, {
+  month: 'short',
+  day: 'numeric',
+})
+
+const logTimeFormatter = new Intl.DateTimeFormat(undefined, {
+  hour: 'numeric',
+  minute: '2-digit',
+  second: '2-digit',
 })
 
 export const formatLogTimestamp = (
@@ -52,7 +58,7 @@ export const formatLogTimestamp = (
 
   const ms = String(date.getMilliseconds()).padStart(3, '0')
 
-  return `${dateFormatter.format(date)}.${ms}`
+  return `${logDateFormatter.format(date)}, ${logTimeFormatter.format(date)}.${ms}`
 }
 
 export const isLogLevel = (value: string): value is LogLevel =>

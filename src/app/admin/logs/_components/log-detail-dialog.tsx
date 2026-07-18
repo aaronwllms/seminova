@@ -30,6 +30,8 @@ const formatContextJson = (context: AppLogRow['context']): string => {
   return JSON.stringify(context, null, 2)
 }
 
+const fieldLabelClassName = 'text-muted-foreground mb-1 text-xs'
+
 export const LogDetailDialog = ({
   log,
   open,
@@ -49,46 +51,61 @@ export const LogDetailDialog = ({
     context: log.context,
   })
 
+  const showMarkUnread = !log.isUnread && onMarkUnread
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader className="border-border space-y-3 border-b pr-8 pb-4">
+      <DialogContent className="max-w-lg gap-0 p-6 sm:max-w-lg">
+        <DialogHeader className="mb-6 space-y-0 text-left">
           <DialogTitle>Log details</DialogTitle>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-muted-foreground font-mono text-sm">
-              {log.timestampLabel}
-            </span>
-            <LogLevelBadge level={log.level} />
-            <span className="text-muted-foreground font-mono text-sm">
-              {log.tag}
-            </span>
-          </div>
         </DialogHeader>
-        <div className="flex flex-col gap-4">
+
+        <div className="mb-5 grid grid-cols-[1.6fr_0.8fr_1fr] gap-4">
+          <div className="min-w-0">
+            <p className={fieldLabelClassName}>Timestamp</p>
+            <p className="text-sm tabular-nums">{log.timestampLabel}</p>
+          </div>
+          <div className="shrink-0">
+            <p className={fieldLabelClassName}>Level</p>
+            <LogLevelBadge level={log.level} />
+          </div>
+          <div className="min-w-0">
+            <p className={fieldLabelClassName}>Tag</p>
+            <p className="truncate font-mono text-sm">{log.tag}</p>
+          </div>
+        </div>
+
+        <div className="border-border mb-4 border-t pt-4">
+          <p className={fieldLabelClassName}>Message</p>
           <p className="text-sm wrap-break-word whitespace-pre-wrap">
             {log.message}
           </p>
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium">Context</p>
-            <pre className="bg-muted max-h-64 overflow-auto rounded-md p-3 font-mono text-xs">
-              {formatContextJson(log.context)}
-            </pre>
-          </div>
         </div>
-        <DialogFooter className="gap-2 sm:justify-between">
-          <div>
-            {!log.isUnread && onMarkUnread ? (
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isMarkUnreadPending}
-                onClick={() => onMarkUnread(log.id)}
-              >
-                Mark unread
-              </Button>
-            ) : null}
-          </div>
-          <LogCopyButton copyText={copyText} ariaLabel="Copy log details" />
+
+        <div className="mb-6">
+          <p className={fieldLabelClassName}>Context</p>
+          <pre className="bg-muted text-muted-foreground max-h-64 overflow-auto rounded-md p-3 font-mono text-xs">
+            {formatContextJson(log.context)}
+          </pre>
+        </div>
+
+        <DialogFooter className="border-border items-center gap-2 border-t pt-4 sm:justify-end">
+          {showMarkUnread ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              disabled={isMarkUnreadPending}
+              onClick={() => onMarkUnread(log.id)}
+            >
+              Mark unread
+            </Button>
+          ) : null}
+          <LogCopyButton
+            copyText={copyText}
+            ariaLabel="Copy log details"
+            size="sm"
+          />
         </DialogFooter>
       </DialogContent>
     </Dialog>

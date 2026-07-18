@@ -2,19 +2,22 @@
 
 import { Check, Copy } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
+import type { VariantProps } from 'class-variance-authority'
 
 interface LogCopyButtonProps {
   copyText: string
   ariaLabel: string
   onCopy?: () => void
+  size?: VariantProps<typeof buttonVariants>['size']
 }
 
 export const LogCopyButton = ({
   copyText,
   ariaLabel,
   onCopy,
+  size = 'xs',
 }: LogCopyButtonProps) => {
   const { didCopy, copy } = useCopyToClipboard(copyText)
 
@@ -29,7 +32,7 @@ export const LogCopyButton = ({
       <Button
         type="button"
         variant="outline"
-        size="xs"
+        size={size}
         className="min-w-16 shrink-0"
         aria-label={didCopy ? 'Copied' : ariaLabel}
         onClick={(event) => void handleCopy(event)}

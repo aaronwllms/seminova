@@ -37,8 +37,8 @@ export const createLogsColumns = ({
   {
     accessorKey: 'timestampLabel',
     meta: {
-      skeletonClassName: 'h-4 w-40 font-mono',
-      cellClassName: 'font-mono text-sm',
+      skeletonClassName: 'h-4 w-36',
+      cellClassName: 'text-sm tabular-nums',
     },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Timestamp" />

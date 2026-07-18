@@ -29,7 +29,7 @@ const sampleRow = {
   message: 'Token refresh failed',
   context: { reason: 'expired_refresh_token' },
   createdAt: '2026-07-18T14:32:07.412Z',
-  timestampLabel: 'Jul 18, 2026, 2:32:07 PM.412',
+  timestampLabel: 'Jul 18, 2:32:07 PM.412',
   readAt: null,
   isUnread: true,
 }
