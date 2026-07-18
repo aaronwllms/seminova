@@ -20,7 +20,26 @@ No separate `@/utils/logger` module. This file owns log-level selection and tagg
 
 The tag is an **explicit first argument** to the wrapper, not a prefix embedded in the message — the wrapper formats `[tag] message` for console output.
 
-**Raw `console.*` remains correct** in `scripts/checks/*.mjs` (CI hard-constraint output, not application runtime logs) and at the persist path's own failure site in [`persist-app-log.ts`](../../src/utils/persist-app-log.ts) (logging through the wrapper would recurse).
+**Raw `console.*` remains correct** in `scripts/checks/*.mjs` (CI hard-constraint output, not application runtime logs), at the persist path's own failure site in [`persist-app-log.ts`](../../src/utils/persist-app-log.ts) (logging through the wrapper would recurse), and in [`app-log-console.ts`](../../src/utils/app-log-console.ts) (wrapper internals).
+
+## Server-only constraint
+
+**`appLog` is server-only** — [`app-logger.ts`](../../src/utils/app-logger.ts) imports `server-only` and `after()` from `next/server`. Do not import it from client components or shared modules reachable by the client bundle. Client-only call sites stay on raw `console.*` until a dedicated client-logging epic.
+
+## Exempt raw `console.*` call sites (Epic 4)
+
+These surfaces intentionally bypass the wrappers this epic:
+
+| Surface | Reason |
+| ------- | ------ |
+| [`persist-app-log.ts`](../../src/utils/persist-app-log.ts) | Recursion guard on persist failure |
+| [`app-log-console.ts`](../../src/utils/app-log-console.ts) | Wrapper internals |
+| Test files spying on `console.*` | Test infrastructure |
+| [`src/app/(app)/error.tsx`](../../src/app/(app)/error.tsx), [`src/app/admin/error.tsx`](../../src/app/admin/error.tsx), [`src/app/auth/error.tsx`](../../src/app/auth/error.tsx) | Client-only route error boundaries |
+| [`src/utils/avatar-storage.ts`](../../src/utils/avatar-storage.ts), [`src/utils/extract-auth-form-error.ts`](../../src/utils/extract-auth-form-error.ts) | Client-reachable modules |
+| [`src/utils/env.ts`](../../src/utils/env.ts) (`loadServiceEnvForCli`) | Sync helper reachable from client bundle via [`client.ts`](../../src/supabase/client.ts) |
+| [`scripts/admin/lib/prompt.ts`](../../scripts/admin/lib/prompt.ts) | Interactive prompt stdout UI, not application logging |
+| `scripts/checks/*.mjs` | CI hard-constraint output |
 
 ## Tag Convention
 

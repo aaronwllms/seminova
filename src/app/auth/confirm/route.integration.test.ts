@@ -7,6 +7,16 @@ import { GET } from './route'
 const mockVerifyOtp = vi.fn()
 const mockGetUser = vi.fn()
 const redirectMock = vi.fn()
+const mockAppLogError = vi.fn()
+
+vi.mock('@/utils/app-logger', () => ({
+  appLog: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: (...args: unknown[]) => mockAppLogError(...args),
+  },
+}))
 
 vi.mock('@/supabase/server', () => ({
   createClient: vi.fn(async () => ({
@@ -29,6 +39,7 @@ describe('GET /auth/confirm', () => {
     mockVerifyOtp.mockReset()
     mockGetUser.mockReset()
     redirectMock.mockReset()
+    mockAppLogError.mockReset()
     mockGetUser.mockResolvedValue({
       data: { user: { app_metadata: {} } },
     })
@@ -90,7 +101,6 @@ describe('GET /auth/confirm', () => {
   })
 
   it('should redirect to error when verification fails', async () => {
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
     mockVerifyOtp.mockResolvedValue({
       error: { message: 'Invalid token', code: 'otp_expired' },
     })
@@ -103,8 +113,9 @@ describe('GET /auth/confirm', () => {
 
     expect(redirectMock).toHaveBeenCalledWith('/auth/error?source=confirm')
     expect(redirectMock.mock.calls[0][0]).not.toContain('Invalid token')
-    expect(consoleError).toHaveBeenCalledWith(
-      '[auth-confirm] OTP verification failed',
+    expect(mockAppLogError).toHaveBeenCalledWith(
+      'auth-confirm',
+      'OTP verification failed',
       { supabaseCode: 'otp_expired' },
     )
   })

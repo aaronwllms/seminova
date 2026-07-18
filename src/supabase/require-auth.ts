@@ -1,4 +1,5 @@
 import { parseJwtClaims, type JwtClaims } from '@/utils/admin'
+import { appLog } from '@/utils/app-logger'
 
 import { readAccessTokenFromCookies } from './read-auth-cookie'
 import { createClient } from './server'
@@ -38,7 +39,7 @@ export const parseAuthenticatedClaims = (
 export const getDisplayAuthClaims = async (): Promise<AuthenticatedClaims> => {
   const accessToken = await readAccessTokenFromCookies()
   if (!accessToken) {
-    console.error('[require-auth] Missing access token on protected route')
+    appLog.error('require-auth', 'Missing access token on protected route')
     throw new DisplayAuthInvariantError('No authenticated session')
   }
 
@@ -50,8 +51,9 @@ export const getDisplayAuthClaims = async (): Promise<AuthenticatedClaims> => {
     })
 
     if (error) {
-      console.error(
-        '[require-auth] Invalid access token on protected route',
+      appLog.error(
+        'require-auth',
+        'Invalid access token on protected route',
         error,
       )
       throw new DisplayAuthInvariantError('Session claims invalid')
@@ -59,7 +61,7 @@ export const getDisplayAuthClaims = async (): Promise<AuthenticatedClaims> => {
 
     const claims = parseAuthenticatedClaims(data?.claims)
     if (!claims) {
-      console.error('[require-auth] Malformed claims on protected route')
+      appLog.error('require-auth', 'Malformed claims on protected route')
       throw new DisplayAuthInvariantError('Session claims malformed')
     }
 
@@ -69,7 +71,7 @@ export const getDisplayAuthClaims = async (): Promise<AuthenticatedClaims> => {
       throw error
     }
 
-    console.error('[require-auth] Failed to read display claims', error)
+    appLog.error('require-auth', 'Failed to read display claims', error)
     throw new DisplayAuthInvariantError('Session claims invalid')
   }
 }

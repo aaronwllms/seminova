@@ -3,6 +3,7 @@ import { cache } from 'react'
 import { createClient } from '@/supabase/server'
 import { getDisplayAuthClaims } from '@/supabase/require-auth'
 import { isAdmin } from '@/utils/admin'
+import { appLog } from '@/utils/app-logger'
 import {
   profileFieldsToView,
   type ProfileFields,
@@ -31,7 +32,7 @@ export const getCurrentUserProfile = cache(
       .single()
 
     if (profileError) {
-      console.error('[app-shell] Failed to load profile', profileError)
+      appLog.error('app-shell', 'Failed to load profile', profileError)
       return {
         userId: claims.sub,
         displayName: null,

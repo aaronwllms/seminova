@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+vi.unmock('@/utils/app-logger')
+
 const afterMock = vi.fn()
 const getAppSettingMock = vi.fn()
 const persistAppLogRowMock = vi.fn()

@@ -1,3 +1,5 @@
+import 'server-only'
+
 import { after } from 'next/server'
 
 import { logLevelRank } from '@/config/app-settings-registry'

@@ -1,12 +1,32 @@
 import type { User } from '@supabase/supabase-js'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const mockFindUserByEmail = vi.fn()
-const mockDeleteUserById = vi.fn()
-const mockDeleteUserAvatarStorage = vi.fn()
-const mockLoadAdminEnv = vi.fn()
-const mockConfirmAction = vi.fn()
-const mockCreateServiceClient = vi.fn()
+const {
+  mockFindUserByEmail,
+  mockDeleteUserById,
+  mockDeleteUserAvatarStorage,
+  mockLoadAdminEnv,
+  mockConfirmAction,
+  mockCreateServiceClient,
+  mockCliLog,
+} = vi.hoisted(() => ({
+  mockFindUserByEmail: vi.fn(),
+  mockDeleteUserById: vi.fn(),
+  mockDeleteUserAvatarStorage: vi.fn(),
+  mockLoadAdminEnv: vi.fn(),
+  mockConfirmAction: vi.fn(),
+  mockCreateServiceClient: vi.fn(),
+  mockCliLog: {
+    debug: vi.fn().mockResolvedValue(undefined),
+    info: vi.fn().mockResolvedValue(undefined),
+    warn: vi.fn().mockResolvedValue(undefined),
+    error: vi.fn().mockResolvedValue(undefined),
+  },
+}))
+
+vi.mock('@/utils/app-logger-cli', () => ({
+  cliLog: mockCliLog,
+}))
 
 vi.mock('./admin-users', () => ({
   deleteUserAvatarStorage: (...args: unknown[]) =>
@@ -39,9 +59,6 @@ describe('runDeleteUser', () => {
   const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => {
     throw new Error('process.exit')
   }) as never)
-  const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-  const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-  const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -61,8 +78,9 @@ describe('runDeleteUser', () => {
     )
 
     expect(exitSpy).toHaveBeenCalledWith(1)
-    expect(errorSpy).toHaveBeenCalledWith(
-      '[delete-user] no user found with that email',
+    expect(mockCliLog.error).toHaveBeenCalledWith(
+      'delete-user',
+      'no user found with that email',
     )
     expect(mockDeleteUserById).not.toHaveBeenCalled()
   })
@@ -72,7 +90,7 @@ describe('runDeleteUser', () => {
 
     await runDeleteUser(['alice@example.com'])
 
-    expect(logSpy).toHaveBeenCalledWith('[delete-user] Cancelled')
+    expect(mockCliLog.info).toHaveBeenCalledWith('delete-user', 'Cancelled')
     expect(mockFindUserByEmail).not.toHaveBeenCalled()
     expect(mockDeleteUserById).not.toHaveBeenCalled()
   })
@@ -95,12 +113,14 @@ describe('runDeleteUser', () => {
 
     expect(mockDeleteUserById).toHaveBeenCalledWith({}, 'user-1')
     expect(mockDeleteUserAvatarStorage).toHaveBeenCalledWith({}, 'user-1')
-    expect(warnSpy).toHaveBeenCalledWith(
-      '[delete-user] user deleted but avatar file may remain at user-1/avatar.webp in avatars',
+    expect(mockCliLog.warn).toHaveBeenCalledWith(
+      'delete-user',
+      'user deleted but avatar file may remain at user-1/avatar.webp in avatars',
       storageError,
     )
-    expect(warnSpy).toHaveBeenCalledWith(
-      '[delete-user] alice@example.com deleted',
+    expect(mockCliLog.warn).toHaveBeenCalledWith(
+      'delete-user',
+      'alice@example.com deleted',
     )
   })
 })

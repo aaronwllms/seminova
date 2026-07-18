@@ -151,7 +151,8 @@ export const listUsersAction = async (
     }
   } catch (caught) {
     return mapUsersActionFault(
-      '[users-list] Failed to list users',
+      'users-list',
+      'Failed to list users',
       'Something went wrong loading users. Please try again.',
       caught,
     )

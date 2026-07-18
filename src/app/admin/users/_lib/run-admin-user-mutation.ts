@@ -1,4 +1,5 @@
 import { createServiceClient } from '@/supabase/service'
+import { appLog } from '@/utils/app-logger'
 
 import { assertAdminCaller, type UsersActionError } from './assert-admin-caller'
 import { mapUsersActionFault } from './map-users-action-fault'
@@ -26,8 +27,8 @@ type RunAdminUserMutationOptions<TResult extends AdminUserMutationResult> = {
     userId: string,
   ) => Promise<TResult>
   logTag: string
+  logMessage: string
   faultMessage: string
-  faultLogMessage: string
   beforeMutation?: (
     callerUserId: string,
     userId: string,
@@ -50,8 +51,8 @@ export const runAdminUserMutation = async <
   userId: rawUserId,
   mutation,
   logTag,
+  logMessage,
   faultMessage,
-  faultLogMessage,
   beforeMutation,
 }: RunAdminUserMutationOptions<TResult>): Promise<
   AdminUserMutationActionResult<TResult['status']>
@@ -96,7 +97,7 @@ export const runAdminUserMutation = async <
       }
     }
 
-    console.warn(`${logTag} ${result.email} — ${result.status}`)
+    appLog.warn(logTag, `${result.email} — ${result.status}`)
 
     return {
       success: true,
@@ -106,6 +107,6 @@ export const runAdminUserMutation = async <
       },
     }
   } catch (caught) {
-    return mapUsersActionFault(faultLogMessage, faultMessage, caught)
+    return mapUsersActionFault(logTag, logMessage, faultMessage, caught)
   }
 }

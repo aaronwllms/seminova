@@ -9,6 +9,7 @@ import {
 } from '@/constants/app-paths'
 import { getPublicSupabaseEnv, hasPublicSupabaseEnv } from '@/utils/env'
 import { isAdmin } from '@/utils/admin'
+import { appLog } from '@/utils/app-logger'
 import { buildLoginRedirectUrl } from '@/utils/build-login-redirect-url'
 import { parseAuthenticatedClaims } from '@/supabase/require-auth'
 
@@ -97,7 +98,7 @@ export async function updateSession(request: NextRequest) {
 
   if (!isPublicRoute && (error || !sessionClaims)) {
     if (error) {
-      console.error('[proxy] Session invalid on protected route', error)
+      appLog.error('proxy', 'Session invalid on protected route', error)
     }
 
     await clearLocalSession()
@@ -105,8 +106,9 @@ export async function updateSession(request: NextRequest) {
     const hasStrayAuthCode = request.nextUrl.searchParams.has('code')
 
     if (hasStrayAuthCode) {
-      console.error(
-        '[proxy] Stray auth code on protected route — email templates likely not routed through /auth/confirm',
+      appLog.error(
+        'proxy',
+        'Stray auth code on protected route — email templates likely not routed through /auth/confirm',
         { pathname },
       )
 
@@ -121,7 +123,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (isPublicRoute && error) {
-    console.error('[proxy] Clearing stale session on public route', error)
+    appLog.error('proxy', 'Clearing stale session on public route', error)
     await clearLocalSession()
   }
 

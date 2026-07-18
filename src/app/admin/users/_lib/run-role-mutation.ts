@@ -26,9 +26,9 @@ export const runPromoteUserMutation = (
   runAdminUserMutation({
     userId,
     mutation: promoteUserById,
-    logTag: '[users-promote]',
+    logTag: 'users-promote',
+    logMessage: 'Failed to mutate user role',
     faultMessage: 'Something went wrong promoting this user. Please try again.',
-    faultLogMessage: '[users-promote] Failed to mutate user role',
   })
 
 export const runDemoteUserMutation = (
@@ -37,9 +37,9 @@ export const runDemoteUserMutation = (
   runAdminUserMutation({
     userId,
     mutation: demoteUserById,
-    logTag: '[users-demote]',
+    logTag: 'users-demote',
+    logMessage: 'Failed to mutate user role',
     faultMessage: 'Something went wrong demoting this user. Please try again.',
-    faultLogMessage: '[users-demote] Failed to mutate user role',
     beforeMutation: (callerUserId, targetUserId) => {
       if (targetUserId === callerUserId) {
         return {

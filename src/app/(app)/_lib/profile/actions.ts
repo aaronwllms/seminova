@@ -8,6 +8,7 @@ import {
 } from '@/constants/storage-paths'
 import { createClient } from '@/supabase/server'
 import type { ErrorKind } from '@/types/app-error'
+import { appLog } from '@/utils/app-logger'
 import {
   profileFieldsToView,
   profilePartialToUpdate,
@@ -119,7 +120,7 @@ export const updateProfileAction = async (
     .single()
 
   if (updateError) {
-    console.error('[profile-update] Failed to update profile', updateError)
+    appLog.error('profile-update', 'Failed to update profile', updateError)
 
     return {
       success: false,
@@ -135,8 +136,9 @@ export const updateProfileAction = async (
     const avatarDeleteResult = await removeAvatarStorage(supabase, user.id)
 
     if (!avatarDeleteResult.ok) {
-      console.warn(
-        '[profile-update] Avatar storage delete failed',
+      appLog.warn(
+        'profile-update',
+        'Avatar storage delete failed',
         avatarDeleteResult.error,
       )
     }

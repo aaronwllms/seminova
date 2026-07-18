@@ -8,6 +8,7 @@ import {
 } from '@/app/admin/users/_lib/assert-admin-caller'
 import { APP_SETTINGS_CACHE_TAG } from '@/constants/app-settings'
 import { createClient } from '@/supabase/server'
+import { appLog } from '@/utils/app-logger'
 import type { AppSettingKey, AppSettingValueMap } from '@/types/app-settings'
 import {
   parseAppSettingValue,
@@ -72,7 +73,7 @@ export const saveAppSettingAction = async (
     })
 
     if (error) {
-      console.error('[save-app-setting] Upsert failed', error)
+      appLog.error('save-app-setting', 'Upsert failed', error)
 
       return {
         success: false,
@@ -95,7 +96,7 @@ export const saveAppSettingAction = async (
       },
     }
   } catch (caught) {
-    console.error('[save-app-setting] Unexpected error', caught)
+    appLog.error('save-app-setting', 'Unexpected error', caught)
 
     return {
       success: false,
