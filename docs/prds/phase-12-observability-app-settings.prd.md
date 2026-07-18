@@ -152,7 +152,7 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 - Search matches against message, context, and tag.
 - `pnpm pre-push` is green.
 
-### Epic 10: Debug logs at the three seams
+### Epic 10: Debug logs at the three seams `Complete`
 
 - **10.1 The session seam.** Session and proxy decisions emit debug logs — token refreshed versus reused, claims read while expired — so the boundary [ADR-0005](../adr/ADR-0005-proxy-as-sole-session-authority.md) settled can be watched live rather than inferred from a stack trace.
 - **10.2 The settings seam.** Settings cache invalidations emit debug logs on save — so a stale-settings report is diagnosable instead of guessed at.
