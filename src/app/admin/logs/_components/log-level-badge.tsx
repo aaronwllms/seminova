@@ -27,10 +27,8 @@ export const LogLevelBadge = ({ level, className }: LogLevelBadgeProps) => {
   if (level === 'warn') {
     return (
       <Badge
-        className={cn(
-          'bg-warning text-warning-foreground border-transparent',
-          className,
-        )}
+        variant="outline"
+        className={cn('border-warning bg-warning/15 text-warning', className)}
       >
         {LEVEL_LABELS[level]}
       </Badge>

@@ -12,7 +12,7 @@ const statTileVariants = cva(
         total: 'bg-card text-muted-foreground border-[0.5px] border-border',
         debug: 'bg-muted/50 text-muted-foreground border-[0.5px] border-border',
         info: 'bg-accent/40 text-accent-foreground border-[0.5px] border-accent',
-        warn: 'bg-warning/15 text-warning-foreground border-[0.5px] border-warning',
+        warn: 'bg-warning/15 text-warning border-[0.5px] border-warning',
         error:
           'bg-destructive/10 text-destructive border-[0.5px] border-destructive',
         unread: 'bg-chart-1/10 text-chart-1 border-[0.5px] border-chart-1',
