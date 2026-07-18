@@ -137,14 +137,17 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 
 ### Epic 9: Logs page — triage
 
-- **9.1 Filters.** The page filters by level (multi-select chips colored to match the row badges), by tag (a searchable dropdown populated from the tags actually present), and by read status (all or unread only).
+- **9.0 Shared stat-tile filter primitive.** A reusable stat-tile component (label, count, color role, resting vs. selected visual state) and a `useToggleFilterSet<T>()` hook (a `Set` of active values, click-to-toggle, a designated "clear all" value) — extracted here since this is the first of two pages that need it. Epic 12 consumes both rather than re-implementing.
+- **9.1 Stat-tile filters.** Six stat tiles built on 9.0's primitive replace the originally-planned multi-select chips — Total, Debug, Info, Warn, Error, Unread — each a global count unaffected by other active filters. Resting state: light tint background and thin (0.5px) border in role color — gray for Total/Debug, blue for Info, amber for Warn, red for Error, purple for Unread. Selected state: bold 2px border, same fill. Debug/Info/Warn/Error/Unread are independently multi-selectable; Total is never itself selected and clicking it clears any active selection among the other five. Tag stays a separate searchable dropdown, populated from tags actually present, composing with tile selections and search. Mockup: `.mockups/admin_logs_page.html`.
 - **9.2 Search.** A free-text bar matches against message, context, and tag by substring — right-sized given the purge keeps the table small, revisited only if volume ever makes it slow. Tag is included so a cluster of one tag is findable by search, which is what a tag sort would otherwise have been for.
-- **9.3 Read state.** Read/unread is global rather than per-admin, since a template can't know how many admins a spinoff has and shared read state is the simpler default. It's marked explicitly only — by row, or by a "mark all as read" scoped to the current filter view. Nothing auto-marks on page load or scroll, which would defeat read/unread as a triage tool.
+- **9.3 Read state.** Read/unread is global rather than per-admin, since a template can't know how many admins a spinoff has and shared read state is the simpler default. It's marked explicitly only — by row, or by an Unread tile toggle plus a "mark all as read" scoped to the current filter view (tiles + tag + search). Nothing auto-marks on page load or scroll, which would defeat read/unread as a triage tool. The per-row unread indicator recolors from blue to purple, matching the Unread tile and removing its prior collision with the blue info-level badge.
 
 *Success:*
-- Filters compose with each other, with search, and with paging.
-- Unread rows are visually distinct from read ones.
-- "Mark all as read" affects only rows in the active filter view.
+- The shared stat-tile component and toggle-filter hook exist as consumable modules, not page-local code.
+- Tile counts reflect global totals, not the filtered view.
+- Level tiles and Unread toggle independently of each other; Total clears all tile selections.
+- Tag search and free-text search compose with tile selections and paging.
+- Unread rows are visually distinct (purple dot, no longer blue); "mark all as read" affects only rows in the active filter view.
 - Nothing becomes read without an explicit action.
 - Search matches against message, context, and tag.
 - `pnpm pre-push` is green.
@@ -174,12 +177,28 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 - Every call site of `buildErrorCopyText` continues to compile and pass existing tests updated for the new shape.
 - `pnpm pre-push` is green.
 
+### Epic 12: Users page — stat tile filters
+
+- **12.1 Stat tiles.** Three tiles above the users table — Total, Unverified, Banned — built on Epic 9.0's shared stat-tile primitive, each a global count unaffected by search or the other tile's state. Unverified and Banned toggle independently via the shared hook (a user can be both, however rare in practice). Total is unfiltered and clears both. Mockup: `.mockups/admin_users_page.html`.
+- **12.2 Verified filter in `admin_list_users`.** The listing function gains an unverified-only filter flag, same treatment as Epic 14's banned flag (Phase 11): a signature change means the migration must drop and recreate the function (create-or-replace with new params creates an overload, not a replacement), and "verified" is derived once, read by both the new filter and the existing Verified column/sort.
+- **12.3 Filter plumbing.** Both tile toggles travel from the table through the Server Action to the RPC, validated at the boundary, participate in the query cache key, and compose with search and paging. Banned + Unverified simultaneously is allowed, not blocked, and can legitimately return zero rows.
+- **12.4 Retire the "Show banned" checkbox.** Remove Epic 14's checkbox (Phase 11) and its checked-by-default behavior — the Banned tile replaces it. Default view is Total: fully unfiltered, consistent with Epic 14's original "shows its full set unless asked otherwise" principle.
+
+*Success:*
+- No duplicate stat-tile or toggle-filter code exists between the logs and users pages — both consume Epic 9.0's primitives.
+- Tiles show global Total/Unverified/Banned counts regardless of search or the other tile's state.
+- Clicking a tile toggles it; Total clears both.
+- Both filters compose with search and paging without breaking existing sort/paging behavior.
+- Unverified + Banned can both be active and legitimately show zero rows.
+- No "Show banned" checkbox remains anywhere in the UI; the default view is unfiltered.
+- `pnpm pre-push` is green.
+
 ---
 
 ## Notes
 
 - **Two ADRs written during this phase's planning** — [ADR-0006](../adr/ADR-0006-settings-reads-cached-under-one-coarse-tag.md) settles the caching design behind Epic 1.3. [ADR-0007](../adr/ADR-0007-client-log-relay-unauthenticated.md) settles Epic 5's relay: why it takes no session, why it's a route handler rather than a Server Action, and why the template ships no rate limit. Nothing else in the phase clears all three bars.
-- **Dependencies:** Epic 1 before Epics 3.4 and 7 (both read settings). Epic 3 before Epics 4, 5, 7, and 10 (all need a wrapper). Epics 4 and 5 before Epic 6 — the guardrail's clean-pass criterion is meaningless until both sweeps have landed, and sequencing it after both means no swept site ever enters its exemption list. Epic 5 before Epic 10 — story 10.3's avatar upload path runs in the browser and needs the relay. Epic 8 before Epic 9 (same page). Epic 8 before Epic 11 — the shared primitive is extracted from `buildLogRowCopyText`, which Epic 8 creates. Epic 10 before Epic 11 (last): Epic 11 isn't observability-themed — it's a copy-format cleanup riding at the end of the phase since it's small and depends on Epic 8's helper existing.
+- **Dependencies:** Epic 1 before Epics 3.4 and 7 (both read settings). Epic 3 before Epics 4, 5, 7, and 10 (all need a wrapper). Epics 4 and 5 before Epic 6 — the guardrail's clean-pass criterion is meaningless until both sweeps have landed, and sequencing it after both means no swept site ever enters its exemption list. Epic 5 before Epic 10 — story 10.3's avatar upload path runs in the browser and needs the relay. Epic 8 before Epic 9 (same page). Epic 8 before Epic 11 — the shared primitive is extracted from `buildLogRowCopyText`, which Epic 8 creates. Epic 10 before Epic 11 (last): Epic 11 isn't observability-themed — it's a copy-format cleanup riding at the end of the phase since it's small and depends on Epic 8's helper existing. Epic 9 before Epic 12 — Epic 12 consumes the shared stat-tile component and toggle-filter hook that Epic 9.0 extracts; Epic 12 also depends on Epic 14 from Phase 11 (extends `admin_list_users`) but has no dependency on anything else in this phase.
 - **Epics 8 and 9 deliberately split one page across two epics.** The logs page's scope is more than one context window holds. The intermediate state — a logs page with no filters — is real but harmless, since nothing ships to users mid-phase.
 - **Epic 3.4's threshold criterion is server- and CLI-scoped.** "A below-threshold call produces neither console output nor a row" holds for `appLog` and `cliLog`. Epic 5's client mirror deliberately prints regardless of threshold — the browser console has its own per-developer level filter, and gating it on an admin setting would both invert that ownership and reintroduce the staleness window ADR-0006 exists to prevent. Epic 3 is shipped; its criterion isn't rewritten.
 - **Known gap: nothing rate-limits the relay.** A closed key set, a context size cap, threshold gating, and Epic 7's purge all bound what a relayed row *is*; none bounds how many. Accepted at template scope and recorded in ADR-0007, which carries the rationale and the mitigation — so this is not a ROADMAP open question.
