@@ -53,6 +53,53 @@ const eslintConfig = defineConfig([
     },
   },
   {
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: [
+      'src/utils/app-logger.ts',
+      'src/utils/persist-app-log.ts',
+      'src/utils/app-logger-cli.ts',
+      'src/supabase/service.ts',
+      'src/utils/app-settings.ts',
+      'src/supabase/require-auth.ts',
+      'src/supabase/proxy.ts',
+      'src/app/auth/confirm/route.ts',
+      'src/app/admin/users/actions.ts',
+      'src/app/admin/users/_lib/run-admin-user-mutation.ts',
+      'src/app/admin/users/_lib/map-users-action-fault.ts',
+      'src/app/(app)/_lib/get-current-user-profile.ts',
+      'src/app/(app)/_lib/profile/actions.ts',
+      'src/app/admin/settings/_lib/actions.ts',
+      'src/app/api/client-logs/route.ts',
+      '**/*.{test,unit.test,integration.test}.{ts,tsx}',
+      'src/**/client-server-boundary.fixture.ts',
+      '**/*.boundary.fixture.ts',
+    ],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@/utils/app-logger',
+              message:
+                'appLog is server-only — use clientLog from @/utils/client-logger in client code.',
+            },
+            {
+              name: '@/utils/persist-app-log',
+              message:
+                'persist-app-log is server-only — use clientLog from @/utils/client-logger in client code.',
+            },
+            {
+              name: '@/supabase/service',
+              message:
+                'Service client is server-only — use @/supabase/client or server surfaces.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: [
       '**/*.test.ts',
       '**/*.test.tsx',

@@ -42,7 +42,7 @@ export function ForgotPasswordForm({
       if (error) throw error
       setSuccess(true)
     } catch (caught: unknown) {
-      setFormError(extractAuthFormError(caught))
+      setFormError(extractAuthFormError(caught, { email }))
     } finally {
       setIsLoading(false)
     }

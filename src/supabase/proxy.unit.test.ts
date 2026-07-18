@@ -4,6 +4,7 @@
 import { join } from 'node:path'
 import { NextRequest } from 'next/server'
 import { ADMIN_ROLE } from '@/constants/admin-role'
+import { CLIENT_LOGS_RELAY_PATH } from '@/constants/app-paths'
 import { discoverAppRoutes } from '@/utils/discover-app-routes'
 import { updateSession } from './proxy'
 
@@ -13,6 +14,7 @@ const PUBLIC_EXACT = [
   '/privacy',
   '/reference',
   '/workflow',
+  CLIENT_LOGS_RELAY_PATH,
 ] as const
 const PUBLIC_PREFIXES = ['/auth'] as const
 
@@ -255,6 +257,7 @@ describe('auth boundary (discovered routes)', () => {
     expect(discoveredRoutes).toContain('/admin')
     expect(discoveredRoutes).toContain('/auth/login')
     expect(discoveredRoutes).toContain('/auth/confirm')
+    expect(discoveredRoutes).toContain(CLIENT_LOGS_RELAY_PATH)
     expect(discoveredRoutes).toContain('/terms')
     expect(discoveredRoutes).toContain('/privacy')
   })

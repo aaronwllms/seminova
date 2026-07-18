@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 import { ErrorPanel } from '@/components/error-panel'
 import { Button } from '@/components/ui/button'
 import { LOGIN_PATH } from '@/constants/app-paths'
+import { clientLog } from '@/utils/client-logger'
 
 type AuthErrorProps = {
   error: Error & { digest?: string }
@@ -14,7 +15,7 @@ type AuthErrorProps = {
 
 export default function AuthError({ error, reset }: AuthErrorProps) {
   useEffect(() => {
-    console.error('[auth-error] Route error', error)
+    clientLog.error('auth-error', 'Route error', error)
   }, [error])
 
   return (

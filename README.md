@@ -232,6 +232,14 @@ See [AGENTS.md](AGENTS.md) and [`.cursor/rules/do-migrations-agent.mdc`](.cursor
 
 ---
 
+## Client log relay exposure
+
+The template ships an **unauthenticated write path** into `app_logs` at `/api/client-logs`. Browser call sites post through [`clientLog`](src/utils/client-logger.ts); the relay validates same-origin requests, a closed key registry, and payload size caps, then forwards to the server logger. There is **no rate limit** in the template — anyone who can reach your deployment can insert rows at any rate.
+
+**Mitigation (recommended for production):** rate-limit the relay path at your edge or WAF. On Vercel, add a [Web Application Firewall](https://vercel.com/docs/security/vercel-waf) rule scoped to `POST /api/client-logs` — for example, a fixed-window request cap per IP. Design rationale: [docs/adr/ADR-0007-client-log-relay-unauthenticated.md](docs/adr/ADR-0007-client-log-relay-unauthenticated.md).
+
+---
+
 ## Documentation
 
 | Document | Audience | Purpose |

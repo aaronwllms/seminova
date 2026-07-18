@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import {
   APP_HOME,
+  CLIENT_LOGS_RELAY_PATH,
   PRIVACY_PATH,
   REFERENCE_PATH,
   TERMS_PATH,
@@ -46,7 +47,8 @@ export async function updateSession(request: NextRequest) {
     pathname === TERMS_PATH ||
     pathname === PRIVACY_PATH ||
     pathname === REFERENCE_PATH ||
-    pathname === WORKFLOW_PATH
+    pathname === WORKFLOW_PATH ||
+    pathname === CLIENT_LOGS_RELAY_PATH
 
   if (!hasPublicSupabaseEnv) {
     if (process.env.NODE_ENV === 'production') {

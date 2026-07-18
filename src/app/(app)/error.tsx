@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 import { ErrorPanel } from '@/components/error-panel'
 import { Button } from '@/components/ui/button'
 import { LOGIN_PATH } from '@/constants/app-paths'
+import { clientLog } from '@/utils/client-logger'
 
 type AppErrorProps = {
   error: Error & { digest?: string }
@@ -14,7 +15,7 @@ type AppErrorProps = {
 
 export default function AppError({ error, reset }: AppErrorProps) {
   useEffect(() => {
-    console.error('[app-error] Route error', error)
+    clientLog.error('app-error', 'Route error', error)
   }, [error])
 
   return (

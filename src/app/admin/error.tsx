@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 import { ErrorPanel } from '@/components/error-panel'
 import { Button } from '@/components/ui/button'
 import { APP_HOME } from '@/constants/app-paths'
+import { clientLog } from '@/utils/client-logger'
 
 type AdminErrorProps = {
   error: Error & { digest?: string }
@@ -14,7 +15,7 @@ type AdminErrorProps = {
 
 export default function AdminError({ error, reset }: AdminErrorProps) {
   useEffect(() => {
-    console.error('[admin-error] Route error', error)
+    clientLog.error('admin-error', 'Route error', error)
   }, [error])
 
   return (
