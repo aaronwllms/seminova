@@ -4,10 +4,20 @@
 import { ESLint, type Linter } from 'eslint'
 import { describe, expect, it } from 'vitest'
 
-import eslintConfig from './eslint.config.mjs'
+import eslintConfig, {
+  NO_RAW_CONSOLE_IGNORES,
+  noRawConsoleRule,
+} from './eslint.config.mjs'
 
 const BOUNDARY_FIXTURE =
   'src/app/(app)/_lib/profile/client-server-boundary.fixture.ts'
+
+const RAW_CONSOLE_BOUNDARY_FIXTURE = 'src/utils/raw-console-boundary.fixture.ts'
+
+const SHIPPED_NO_RAW_CONSOLE_PATHS = [
+  'src/supabase/proxy.ts',
+  'scripts/admin/lib/cli.ts',
+]
 
 const isServerOnlyImportBlock = (block: Linter.Config): boolean => {
   const rule = block.rules?.['no-restricted-imports']
@@ -73,5 +83,50 @@ describe('eslint server-only import boundary', () => {
     expect(restrictedImportMessages[0]?.message).toContain(
       'appLog is server-only',
     )
+  })
+})
+
+describe('eslint no-raw-console guardrail', () => {
+  it('should report no-console on the raw-console boundary fixture', async () => {
+    const eslint = new ESLint({
+      cwd: process.cwd(),
+      overrideConfig: [
+        {
+          files: [RAW_CONSOLE_BOUNDARY_FIXTURE],
+          rules: {
+            'no-console': noRawConsoleRule,
+          },
+        },
+      ],
+    })
+
+    const results = await eslint.lintFiles([RAW_CONSOLE_BOUNDARY_FIXTURE])
+    const noConsoleMessages = results.flatMap((result) =>
+      result.messages.filter((message) => message.ruleId === 'no-console'),
+    )
+
+    expect(noConsoleMessages.length).toBeGreaterThan(0)
+  })
+
+  it('should pass no-console on shipped swept paths', async () => {
+    const eslint = new ESLint({
+      cwd: process.cwd(),
+      overrideConfig: [
+        {
+          files: ['src/**/*.{ts,tsx}', 'scripts/admin/**/*.{ts,tsx}'],
+          ignores: NO_RAW_CONSOLE_IGNORES,
+          rules: {
+            'no-console': noRawConsoleRule,
+          },
+        },
+      ],
+    })
+
+    const results = await eslint.lintFiles(SHIPPED_NO_RAW_CONSOLE_PATHS)
+    const noConsoleMessages = results.flatMap((result) =>
+      result.messages.filter((message) => message.ruleId === 'no-console'),
+    )
+
+    expect(noConsoleMessages).toEqual([])
   })
 })

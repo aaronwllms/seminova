@@ -85,6 +85,7 @@ All skills are read-only or scoped-write as documented in their own `SKILL.md` �
 | `pnpm check:seo-base-url` | SEO base-URL centralization (hard constraint) |
 | `pnpm check:a11y-structure` | Deterministic a11y structure (hard constraint) |
 | `pnpm check:a11y-contrast` | Deterministic a11y token contrast (hard constraint) |
+| `pnpm check:no-raw-console` | Application logging via wrappers (hard constraint) |
 | `pnpm test:ui` | Vitest UI |
 | `pnpm analyze` | Bundle analyzer |
 | `pnpm promote-admin <email>` | Grant admin via secret key (`app_metadata.role`) |
@@ -113,6 +114,7 @@ Non-negotiable constraints, each with deterministic enforcement:
 - **SEO base URL centralization** — never hardcode `http://localhost:3000`, read `NEXT_PUBLIC_SITE_URL` outside the resolver, or construct `new URL()` with a literal origin; resolve absolute URLs via `getSiteUrl()` or `metadataBase`. **Enforced:** `check:seo-base-url`.
 - **Deterministic a11y (structure)** — every route has exactly one `<h1>`; meaningful images have non-empty `alt`; heading levels do not skip. **Enforced:** `check:a11y-structure`.
 - **Deterministic a11y (contrast)** — semantic token foreground pairs in `globals.css` meet WCAG AA 4.5:1 in both `:root` and `.dark`. **Enforced:** `check:a11y-contrast`.
+- **Application logging via wrappers** — application code in `src/` and admin CLI scripts under `scripts/admin/` must log through `appLog`, `cliLog`, or `clientLog`; raw `console.*` is allowed only at the exempt surfaces listed in `logging.mdc`. **Enforced:** `check:no-raw-console` (ESLint `no-console` with category-aligned exemptions).
 
 **Planning / judgment principle (not mechanically enforced):** **Ecosystem alignment over aesthetic divergence** — Don't canonize a non-standard convention for tidiness or taste alone. Diverge from an ecosystem default (shadcn, Next.js, Supabase) only when our way has a real, articulable benefit — clarity, safety, consistency — that outweighs the cost of fighting it: tooling that assumes the standard, AI agents trained on it, and copy-paste examples that won't match. When it's a wash, follow the standard. A template multiplies both the benefit and the cost across every spinoff.
 

@@ -48,6 +48,9 @@ jobs:
       - name: Check a11y contrast
         run: pnpm check:a11y-contrast
 
+      - name: Check no raw console
+        run: pnpm check:no-raw-console
+
       - name: Check linting
         run: pnpm lint
 
