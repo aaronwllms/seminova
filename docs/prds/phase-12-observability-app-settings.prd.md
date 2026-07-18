@@ -51,7 +51,7 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 - The page is admin-gated.
 - `pnpm pre-push` is green.
 
-### Epic 3: Log persistence
+### Epic 3: Log persistence `Complete`
 
 - **3.1 Logs persist.** Application logs are written to a table so they can be browsed in-app and outlive Vercel's retention. A row carries level, tag, message, and arbitrary structured context — an error is one shape of context, not a column of its own. Admin-only read.
 - **3.2 The wrapper.** Call sites log through a thin wrapper that does what `console.*` does today plus a persisted write. Tag is a required explicit argument, so a missing tag is a compile-time error rather than a null discovered later on the admin page. Fire-and-forget: no call site awaits it and no sync function becomes async. Inside a request the write defers so it survives serverless teardown without blocking the response — the same silent-drop risk that ruled out Pino/Winston's transport model.

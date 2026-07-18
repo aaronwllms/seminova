@@ -53,7 +53,7 @@ Roadmap and active build scope: [ROADMAP.md](../../ROADMAP.md) and [docs/prds/](
 | `error-handling.mdc` | Auto attached | `api/**`, `actions.ts`, `error.tsx` | Error taxonomy, envelopes, InlineError / ErrorPanel |
 | `forms.mdc` | Auto attached | form-shaped paths | react-hook-form + zod, save models, autocomplete |
 | `git-workflow.mdc` | Auto + Agent requested | `.husky/**`, `.github/workflows/**` | Conventional commits, hooks, PR format |
-| `logging.mdc` | Auto attached | `src/**`, `scripts/**` | Log levels and bracket tags for Vercel search |
+| `logging.mdc` | Auto attached | `src/**`, `scripts/**` | `appLog`/`cliLog` wrappers, levels, tagging, console mirror + persistence |
 | `nextjs.mdc` | Auto attached | `src/app/**`, `src/components/**` | App Router, RSC patterns, Next 16 conventions |
 | `notifications.mdc` | Auto attached | feedback surfaces | Toast vs inline routing; success taxonomy |
 | `react-tanstack-query.mdc` | Auto attached | `hooks/**`, `components/**`, provider | TanStack Query v5 keys, hooks, mutations |
@@ -187,8 +187,9 @@ Per-rule detail (topics and cross-references):
 
 **Applies to:** `src/**/*.ts`, `src/**/*.tsx`, `scripts/**/*.ts`
 
+- `appLog` (Next.js server) and `cliLog` (CLI scripts) wrappers — console mirror plus persisted writes when above threshold
 - Console log level taxonomy (`error`, `warn`, `log`, `debug`)
-- Bracket tag conventions (e.g. `[auth-login]`) for searchable Vercel logs
+- Explicit tag argument (wrapper formats `[tag] message` for console output)
 - Cross-reference: `error-handling.mdc` owns error taxonomy and response envelopes; `logging.mdc` owns level selection and tagging
 
 ### `error-handling.mdc`
