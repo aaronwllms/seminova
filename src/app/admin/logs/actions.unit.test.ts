@@ -5,6 +5,7 @@ import { ADMIN_ROLE } from '@/constants/admin-role'
 const getUserMock = vi.fn()
 const createClientMock = vi.fn()
 const listAppLogsPageMock = vi.fn()
+const countFilteredUnreadLogsMock = vi.fn()
 
 vi.mock('@/supabase/server', () => ({
   createClient: () => createClientMock(),
@@ -12,6 +13,13 @@ vi.mock('@/supabase/server', () => ({
 
 vi.mock('./_lib/list-app-logs', () => ({
   listAppLogsPage: (...args: unknown[]) => listAppLogsPageMock(...args),
+}))
+
+vi.mock('./_lib/mark-app-logs-read', () => ({
+  countFilteredUnreadLogs: (...args: unknown[]) =>
+    countFilteredUnreadLogsMock(...args),
+  markLogRead: vi.fn(),
+  markAllLogsRead: vi.fn(),
 }))
 
 const adminUser = {
@@ -25,6 +33,7 @@ describe('listLogsAction', () => {
     getUserMock.mockReset()
     createClientMock.mockReset()
     listAppLogsPageMock.mockReset()
+    countFilteredUnreadLogsMock.mockReset()
 
     createClientMock.mockResolvedValue({
       auth: { getUser: getUserMock },
@@ -33,6 +42,7 @@ describe('listLogsAction', () => {
       data: { user: adminUser },
       error: null,
     })
+    countFilteredUnreadLogsMock.mockResolvedValue(0)
   })
 
   it('should return FORBIDDEN when caller is not admin', async () => {
@@ -87,7 +97,7 @@ describe('listLogsAction', () => {
     expect(listAppLogsPageMock).not.toHaveBeenCalled()
   })
 
-  it('should return success envelope with listed logs', async () => {
+  it('should return success envelope with listed logs and filtered unread count', async () => {
     const pageData = {
       rows: [
         {
@@ -98,20 +108,35 @@ describe('listLogsAction', () => {
           context: null,
           createdAt: '2026-07-18T14:32:07.412Z',
           timestampLabel: 'Jul 18, 2026, 2:32:07 PM.412',
+          readAt: null,
+          isUnread: true,
         },
       ],
       hasNextPage: false,
     }
     listAppLogsPageMock.mockResolvedValue(pageData)
+    countFilteredUnreadLogsMock.mockResolvedValue(3)
 
     const { listLogsAction } = await import('./actions')
     const result = await listLogsAction()
 
-    expect(result).toEqual({ success: true, data: pageData })
+    expect(result).toEqual({
+      success: true,
+      data: {
+        ...pageData,
+        filteredUnreadCount: 3,
+      },
+    })
     expect(listAppLogsPageMock).toHaveBeenCalledWith(expect.any(Object), {
       cursor: null,
       sortDirection: 'desc',
       perPage: 15,
+      filters: {
+        levels: [],
+        unreadOnly: false,
+        tag: null,
+        search: null,
+      },
     })
   })
 })

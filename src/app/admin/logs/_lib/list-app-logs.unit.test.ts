@@ -5,6 +5,7 @@ import { DATA_TABLE_DEFAULT_PAGE_SIZE } from '@/constants/data-table'
 
 import { type AppLogDbRow } from './app-log-row'
 import { listAppLogsPage } from './list-app-logs'
+import { EMPTY_LOG_LIST_FILTERS } from './log-list-filters'
 
 const createDbRow = (id: number, createdAt: string): AppLogDbRow => ({
   id,
@@ -13,10 +14,14 @@ const createDbRow = (id: number, createdAt: string): AppLogDbRow => ({
   message: `message-${id}`,
   context: null,
   created_at: createdAt,
+  read_at: null,
 })
 
 type QueryBuilderMocks = {
   select: ReturnType<typeof vi.fn>
+  in: ReturnType<typeof vi.fn>
+  is: ReturnType<typeof vi.fn>
+  eq: ReturnType<typeof vi.fn>
   or: ReturnType<typeof vi.fn>
   orderCreated: ReturnType<typeof vi.fn>
   orderId: ReturnType<typeof vi.fn>
@@ -27,8 +32,19 @@ const createClientMock = (rows: AppLogDbRow[]) => {
   const limit = vi.fn().mockResolvedValue({ data: rows, error: null })
   const orderId = vi.fn().mockReturnValue({ limit })
   const orderCreated = vi.fn().mockReturnValue({ order: orderId })
-  const or = vi.fn().mockReturnValue({ order: orderCreated })
-  const select = vi.fn().mockReturnValue({ or, order: orderCreated })
+  const or = vi.fn()
+  const eq = vi.fn()
+  const is = vi.fn()
+  const inFn = vi.fn()
+
+  const chainable = () => ({ or, order: orderCreated, eq, in: inFn, is })
+
+  or.mockImplementation(chainable)
+  eq.mockImplementation(chainable)
+  is.mockImplementation(chainable)
+  inFn.mockImplementation(chainable)
+
+  const select = vi.fn().mockImplementation(chainable)
 
   const client = {
     from: vi.fn().mockReturnValue({ select }),
@@ -36,6 +52,9 @@ const createClientMock = (rows: AppLogDbRow[]) => {
 
   const mocks: QueryBuilderMocks = {
     select,
+    in: inFn,
+    is,
+    eq,
     or,
     orderCreated,
     orderId,
@@ -58,9 +77,10 @@ describe('listAppLogsPage', () => {
 
     expect(result.rows).toHaveLength(1)
     expect(result.hasNextPage).toBe(false)
+    expect(result.rows[0]?.isUnread).toBe(true)
     expect(client.from).toHaveBeenCalledWith('app_logs')
     expect(mocks.select).toHaveBeenCalledWith(
-      'id, level, tag, message, context, created_at',
+      'id, level, tag, message, context, created_at, read_at',
     )
     expect(mocks.or).not.toHaveBeenCalled()
     expect(mocks.orderCreated).toHaveBeenCalledWith('created_at', {
@@ -68,6 +88,22 @@ describe('listAppLogsPage', () => {
     })
     expect(mocks.orderId).toHaveBeenCalledWith('id', { ascending: false })
     expect(mocks.limit).toHaveBeenCalledWith(DATA_TABLE_DEFAULT_PAGE_SIZE + 1)
+  })
+
+  it('should apply search filters against context_text', async () => {
+    const rows = [createDbRow(1, '2026-07-18T14:30:00.000Z')]
+    const { client, mocks } = createClientMock(rows)
+
+    await listAppLogsPage(client, {
+      filters: {
+        ...EMPTY_LOG_LIST_FILTERS,
+        search: 'session',
+      },
+    })
+
+    expect(mocks.or).toHaveBeenCalledWith(
+      'message.ilike.%session%,tag.ilike.%session%,context_text.ilike.%session%',
+    )
   })
 
   it('should apply desc cursor filter for the next page', async () => {

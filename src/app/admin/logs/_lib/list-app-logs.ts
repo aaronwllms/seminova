@@ -5,17 +5,39 @@ import { DATA_TABLE_DEFAULT_PAGE_SIZE } from '@/constants/data-table'
 import {
   mapAppLogRow,
   type AppLogCursor,
+  type AppLogDbRow,
   type AppLogRow,
   type LogsSortDirection,
 } from './app-log-row'
+import {
+  applyLogListFilters,
+  EMPTY_LOG_LIST_FILTERS,
+  type FilterableAppLogsQuery,
+  type LogListFilters,
+} from './log-list-filters'
 import { isValidCursorCreatedAt } from './is-valid-cursor-created-at'
 
-const APP_LOG_COLUMNS = 'id, level, tag, message, context, created_at'
+const APP_LOG_COLUMNS = 'id, level, tag, message, context, created_at, read_at'
+
+type AppLogsListQuery = FilterableAppLogsQuery & {
+  order: (column: string, options: { ascending: boolean }) => AppLogsListQuery
+  limit: (
+    count: number,
+  ) => Promise<{ data: AppLogDbRow[] | null; error: Error | null }>
+}
+
+const selectAppLogs = (client: SupabaseClient): AppLogsListQuery =>
+  (
+    client.from('app_logs') as unknown as {
+      select: (columns: string) => AppLogsListQuery
+    }
+  ).select(APP_LOG_COLUMNS)
 
 export interface ListAppLogsPageParams {
   cursor?: AppLogCursor | null
   sortDirection?: LogsSortDirection
   perPage?: number
+  filters?: LogListFilters
 }
 
 export interface ListAppLogsPageResult {
@@ -44,15 +66,21 @@ export const listAppLogsPage = async (
   const sortDirection = params.sortDirection ?? 'desc'
   const fetchLimit = perPage + 1
   const ascending = sortDirection === 'asc'
+  const filters = params.filters ?? EMPTY_LOG_LIST_FILTERS
 
-  let query = client.from('app_logs').select(APP_LOG_COLUMNS)
+  let query = applyLogListFilters(
+    selectAppLogs(client),
+    filters,
+  ) as AppLogsListQuery
 
   if (params.cursor) {
     if (!isValidCursorCreatedAt(params.cursor.createdAt)) {
       throw new Error('Invalid cursor createdAt')
     }
 
-    query = query.or(buildCursorFilter(params.cursor, sortDirection))
+    query = query.or(
+      buildCursorFilter(params.cursor, sortDirection),
+    ) as AppLogsListQuery
   }
 
   const { data, error } = await query

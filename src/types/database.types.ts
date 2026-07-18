@@ -42,26 +42,32 @@ export type Database = {
       app_logs: {
         Row: {
           context: Json | null
+          context_text: string
           created_at: string
           id: number
           level: string
           message: string
+          read_at: string | null
           tag: string
         }
         Insert: {
           context?: Json | null
+          context_text?: never
           created_at?: string
           id?: never
           level: string
           message: string
+          read_at?: string | null
           tag: string
         }
         Update: {
           context?: Json | null
+          context_text?: never
           created_at?: string
           id?: never
           level?: string
           message?: string
+          read_at?: string | null
           tag?: string
         }
         Relationships: []

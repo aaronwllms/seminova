@@ -1,5 +1,5 @@
 import type { AppLogContext } from '@/types/app-logs'
-import type { LogLevel } from '@/types/app-settings'
+import { LOG_LEVELS, type LogLevel } from '@/types/app-settings'
 
 export const LOGS_SORT_DIRECTIONS = ['asc', 'desc'] as const
 
@@ -17,6 +17,7 @@ export interface AppLogDbRow {
   message: string
   context: AppLogContext
   created_at: string
+  read_at: string | null
 }
 
 export interface AppLogRow {
@@ -27,6 +28,8 @@ export interface AppLogRow {
   context: AppLogContext
   createdAt: string
   timestampLabel: string
+  readAt: string | null
+  isUnread: boolean
 }
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
@@ -53,7 +56,7 @@ export const formatLogTimestamp = (
 }
 
 const isLogLevel = (value: string): value is LogLevel =>
-  value === 'debug' || value === 'info' || value === 'warn' || value === 'error'
+  (LOG_LEVELS as readonly string[]).includes(value)
 
 export const mapAppLogRow = (row: AppLogDbRow): AppLogRow => ({
   id: row.id,
@@ -63,4 +66,6 @@ export const mapAppLogRow = (row: AppLogDbRow): AppLogRow => ({
   context: row.context,
   createdAt: row.created_at,
   timestampLabel: formatLogTimestamp(row.created_at),
+  readAt: row.read_at,
+  isUnread: row.read_at === null,
 })

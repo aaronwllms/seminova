@@ -3,13 +3,37 @@
 import type { ColumnDef } from '@tanstack/react-table'
 
 import { DataTableColumnHeader } from '@/components/data-table-shell'
+import { cn } from '@/utils/tailwind'
 
 import { buildLogRowCopyText } from '../_lib/build-log-row-copy-text'
 import type { AppLogRow } from '../_lib/app-log-row'
 import { LogCopyButton } from './log-copy-button'
 import { LogLevelBadge } from './log-level-badge'
+import { LogUnreadIndicator } from './log-unread-indicator'
 
-export const createLogsColumns = (): ColumnDef<AppLogRow, unknown>[] => [
+interface CreateLogsColumnsOptions {
+  onMarkRead: (id: number) => void
+}
+
+export const createLogsColumns = ({
+  onMarkRead,
+}: CreateLogsColumnsOptions): ColumnDef<AppLogRow, unknown>[] => [
+  {
+    id: 'unread',
+    meta: {
+      cellClassName: 'w-0 whitespace-nowrap',
+      skeletonClassName: 'inline-block size-4 rounded-full',
+    },
+    header: () => <span className="sr-only">Read state</span>,
+    cell: ({ row }) => (
+      <LogUnreadIndicator
+        isUnread={row.original.isUnread}
+        logId={row.original.id}
+        onMarkRead={() => onMarkRead(row.original.id)}
+      />
+    ),
+    enableSorting: false,
+  },
   {
     accessorKey: 'timestampLabel',
     meta: {
@@ -54,7 +78,14 @@ export const createLogsColumns = (): ColumnDef<AppLogRow, unknown>[] => [
       </span>
     ),
     cell: ({ row }) => (
-      <span className="block max-w-md truncate">{row.original.message}</span>
+      <span
+        className={cn(
+          'block max-w-md truncate',
+          row.original.isUnread ? 'font-medium' : 'text-muted-foreground',
+        )}
+      >
+        {row.original.message}
+      </span>
     ),
     enableSorting: false,
   },
