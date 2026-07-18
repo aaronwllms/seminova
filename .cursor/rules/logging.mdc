@@ -31,7 +31,7 @@ The tag is an **explicit first argument** to the wrapper, not a prefix embedded 
 
 ## Exempt raw `console.*` call sites
 
-Grouped by **why** each surface bypasses the wrappers. **Enforcement:** swept surfaces are guarded by `check:no-raw-console` (ESLint `no-console` with category-aligned exemptions in [`eslint.config.mjs`](../../eslint.config.mjs)); only the surfaces below are exempt.
+Grouped by **why** each surface bypasses the wrappers. **Enforcement:** swept surfaces are guarded by `check:no-raw-console` (ESLint `no-console` with category-aligned exemptions in [`eslint.config.mjs`](../../eslint.config.mjs)); only the surfaces below are exempt. A boundary fixture at [`raw-console-boundary.fixture.ts`](../../src/utils/raw-console-boundary.fixture.ts) is lint-excluded but tested by [`eslint.config.unit.test.ts`](../../eslint.config.unit.test.ts).
 
 ### Wrapper internals (logging through the wrapper would recurse)
 
