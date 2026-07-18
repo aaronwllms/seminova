@@ -1,9 +1,9 @@
 'use client'
 
 import { Check, Copy } from 'lucide-react'
-import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
 
 interface LogCopyButtonProps {
   copyText: string
@@ -11,18 +11,11 @@ interface LogCopyButtonProps {
 }
 
 export const LogCopyButton = ({ copyText, ariaLabel }: LogCopyButtonProps) => {
-  const [didCopy, setDidCopy] = useState(false)
+  const { didCopy, copy } = useCopyToClipboard(copyText)
 
-  const handleCopy = async (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleCopy = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation()
-
-    try {
-      await navigator.clipboard.writeText(copyText)
-      setDidCopy(true)
-      window.setTimeout(() => setDidCopy(false), 2000)
-    } catch {
-      setDidCopy(false)
-    }
+    void copy()
   }
 
   return (

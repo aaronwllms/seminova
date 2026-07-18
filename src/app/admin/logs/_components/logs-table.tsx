@@ -120,6 +120,9 @@ export const LogsTable = () => {
           loadingLabel="Loading logs…"
           emptyMessage="No logs found."
           onRowClick={handleRowClick}
+          getRowAccessibilityLabel={(row) =>
+            `View log: ${row.timestampLabel}, ${row.level}, ${row.tag}, ${row.message}`
+          }
         />
       </div>
 

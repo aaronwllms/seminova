@@ -99,6 +99,28 @@ describe('LogsTable', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
+  it('should show an error with copy affordance when listLogsAction fails', async () => {
+    listLogsActionMock.mockResolvedValue({
+      success: false,
+      error: {
+        message: 'Something went wrong loading logs. Please try again.',
+        code: 'INTERNAL_ERROR',
+        kind: 'fault',
+      },
+    })
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          'Something went wrong loading logs. Please try again.',
+        ),
+      ).toBeInTheDocument()
+    })
+    expect(screen.getByRole('button', { name: /^copy$/i })).toBeInTheDocument()
+  })
+
   it('should reset to page 1 and refetch when timestamp sort toggles', async () => {
     const user = userEvent.setup()
 

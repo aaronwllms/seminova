@@ -25,6 +25,11 @@ Every data table paginates server-side. Never load an unbounded result set.
 - Page size: configurable via shared `DataTablePaginationControls` — options from [`src/constants/data-table.ts`](../../src/constants/data-table.ts) (`DATA_TABLE_PAGE_SIZE_OPTIONS`: 10 / 15 / 25 / 50; default `DATA_TABLE_DEFAULT_PAGE_SIZE`: 15).
 - Layout: table grows naturally; the page scrolls. No fixed-height internal scroll region on the table body.
 
+**Offset vs cursor paging.** Pick the strategy that matches the data source's churn and sort needs:
+
+- **Offset / page-number paging** (`page` + `perPage`) — for low-churn, bounded sources that need flexible multi-column server sort. Drift and deep-page cost don't bite when the table isn't growing under the reader and totals are cheap enough. Production example: [`src/app/admin/users/_components/users-table.tsx`](../../src/app/admin/users/_components/users-table.tsx) via `admin_list_users` RPC.
+- **Cursor paging** (keyed on a stable ordered column, typically with a tie-breaker id) — for high-insert or unbounded sources where offset paging drifts and slows under concurrent writes. Sort is limited to the cursor key (and its tie-breaker); other columns don't sort. Production example: [`src/app/admin/logs/_components/logs-table.tsx`](../../src/app/admin/logs/_components/logs-table.tsx) on `(created_at, id)`.
+
 **Exception — fixture demos.** A demo table over a static, bounded fixture (e.g. the `/reference` page) may paginate client-side in memory, since there is no server to page against. This is the only sanctioned deviation from server-side pagination; production tables backed by a real data source always paginate server-side. Fixture demos still follow the search, page-size, and loading conventions above.
 
 ## Sorting Pattern
@@ -53,5 +58,6 @@ Per-column width and alignment via `columnDef.meta.cellClassName` — applied to
 - [`src/components/data-table-shell.tsx`](src/components/data-table-shell.tsx) — `DataTableShell`, `useDataTableShell`, `DataTableColumnHeader`
 - [`src/constants/data-table.ts`](../../src/constants/data-table.ts) — shared page-size options and default
 - [`src/components/data-table-pagination-controls.tsx`](src/components/data-table-pagination-controls.tsx) — shared page-size selector + Previous/Next controls
-- `src/app/admin/users/_components/users-table.tsx` — Users table, search on `email`, server sort via `admin_list_users` RPC, skeleton loading via `DataTableShell`. Production reference.
+- `src/app/admin/users/_components/users-table.tsx` — Users table, search on `email`, offset paging + server sort via `admin_list_users` RPC, skeleton loading via `DataTableShell`. Production reference for offset paging.
+- `src/app/admin/logs/_components/logs-table.tsx` — Logs table, cursor paging on `(created_at, id)`, timestamp-only server sort, modal row detail via `onRowClick`, skeleton loading via `DataTableShell`. Production reference for cursor paging.
 - `src/app/(marketing)/reference/_components/reference-table-section.tsx` — Fixture demo table; client-side sort + pagination over a bounded fixture (sanctioned exception per Pagination Pattern), otherwise conforms.

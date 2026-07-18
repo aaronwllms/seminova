@@ -15,6 +15,7 @@ import {
   type LogsSortDirection,
 } from './_lib/app-log-row'
 import { listAppLogsPage } from './_lib/list-app-logs'
+import { isValidCursorCreatedAt } from './_lib/is-valid-cursor-created-at'
 import { mapUsersActionFault } from '@/app/admin/users/_lib/map-users-action-fault'
 import type { LogsActionError } from './_lib/assert-admin-caller'
 
@@ -41,7 +42,7 @@ export interface ListLogsActionInput {
 
 const isValidCursor = (cursor: AppLogCursor): boolean =>
   typeof cursor.createdAt === 'string' &&
-  cursor.createdAt.length > 0 &&
+  isValidCursorCreatedAt(cursor.createdAt) &&
   Number.isInteger(cursor.id) &&
   cursor.id > 0
 

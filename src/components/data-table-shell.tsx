@@ -138,6 +138,7 @@ type DataTableShellProps<TData> = {
   loadingRowCount?: number
   loadingLabel?: string
   onRowClick?: (row: TData) => void
+  getRowAccessibilityLabel?: (row: TData) => string
 }
 
 export const DataTableShell = <TData,>({
@@ -149,7 +150,27 @@ export const DataTableShell = <TData,>({
   loadingRowCount = DEFAULT_LOADING_ROW_COUNT,
   loadingLabel = 'Loading…',
   onRowClick,
+  getRowAccessibilityLabel,
 }: DataTableShellProps<TData>) => {
+  const activateRow = onRowClick
+    ? (row: TData) => {
+        onRowClick(row)
+      }
+    : undefined
+
+  const handleRowKeyDown = (
+    event: React.KeyboardEvent<HTMLTableRowElement>,
+    row: TData,
+  ) => {
+    if (!activateRow) {
+      return
+    }
+
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      activateRow(row)
+    }
+  }
   const hasRows = table.getRowModel().rows.length > 0
   const showSkeleton = isLoading && !hasRows
 
@@ -188,22 +209,29 @@ export const DataTableShell = <TData,>({
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
-                className={onRowClick ? 'cursor-pointer' : undefined}
-                tabIndex={onRowClick ? 0 : undefined}
+                className={
+                  activateRow
+                    ? 'focus-visible:ring-ring focus-visible:ring-offset-background cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
+                    : undefined
+                }
+                tabIndex={activateRow ? 0 : undefined}
+                aria-label={
+                  activateRow
+                    ? (getRowAccessibilityLabel?.(row.original) ??
+                      'View row details')
+                    : undefined
+                }
                 onClick={
-                  onRowClick
+                  activateRow
                     ? () => {
-                        onRowClick(row.original)
+                        activateRow(row.original)
                       }
                     : undefined
                 }
                 onKeyDown={
-                  onRowClick
+                  activateRow
                     ? (event) => {
-                        if (event.key === 'Enter') {
-                          event.preventDefault()
-                          onRowClick(row.original)
-                        }
+                        handleRowKeyDown(event, row.original)
                       }
                     : undefined
                 }

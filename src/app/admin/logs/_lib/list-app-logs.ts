@@ -8,6 +8,7 @@ import {
   type AppLogRow,
   type LogsSortDirection,
 } from './app-log-row'
+import { isValidCursorCreatedAt } from './is-valid-cursor-created-at'
 
 const APP_LOG_COLUMNS = 'id, level, tag, message, context, created_at'
 
@@ -47,6 +48,10 @@ export const listAppLogsPage = async (
   let query = client.from('app_logs').select(APP_LOG_COLUMNS)
 
   if (params.cursor) {
+    if (!isValidCursorCreatedAt(params.cursor.createdAt)) {
+      throw new Error('Invalid cursor createdAt')
+    }
+
     query = query.or(buildCursorFilter(params.cursor, sortDirection))
   }
 

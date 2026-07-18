@@ -70,6 +70,23 @@ describe('listLogsAction', () => {
     expect(listAppLogsPageMock).not.toHaveBeenCalled()
   })
 
+  it('should return VALIDATION_ERROR for a malformed cursor timestamp', async () => {
+    const { listLogsAction } = await import('./actions')
+    const result = await listLogsAction({
+      cursor: { createdAt: 'not-a-timestamp', id: 1 },
+    })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Invalid cursor',
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
+    })
+    expect(listAppLogsPageMock).not.toHaveBeenCalled()
+  })
+
   it('should return success envelope with listed logs', async () => {
     const pageData = {
       rows: [

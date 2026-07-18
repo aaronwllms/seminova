@@ -1,9 +1,9 @@
 'use client'
 
 import { AlertTriangle, Check, Copy } from 'lucide-react'
-import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
 import { cn } from '@/utils/tailwind'
 
 interface BuildErrorCopyTextParams {
@@ -35,17 +35,9 @@ export const ErrorPanel = ({
   code,
   className,
 }: ErrorPanelProps) => {
-  const [didCopy, setDidCopy] = useState(false)
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(buildErrorCopyText({ message, code }))
-      setDidCopy(true)
-      window.setTimeout(() => setDidCopy(false), 2000)
-    } catch {
-      setDidCopy(false)
-    }
-  }
+  const { didCopy, copy } = useCopyToClipboard(
+    buildErrorCopyText({ message, code }),
+  )
 
   const contentIndent = title ? 'pl-[30px]' : undefined
 
@@ -92,7 +84,7 @@ export const ErrorPanel = ({
           variant="outline"
           size="xs"
           className="min-w-16 shrink-0"
-          onClick={() => void handleCopy()}
+          onClick={() => void copy()}
         >
           {didCopy ? (
             <>
