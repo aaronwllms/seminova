@@ -8,13 +8,19 @@ import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
 interface LogCopyButtonProps {
   copyText: string
   ariaLabel: string
+  onCopy?: () => void
 }
 
-export const LogCopyButton = ({ copyText, ariaLabel }: LogCopyButtonProps) => {
+export const LogCopyButton = ({
+  copyText,
+  ariaLabel,
+  onCopy,
+}: LogCopyButtonProps) => {
   const { didCopy, copy } = useCopyToClipboard(copyText)
 
   const handleCopy = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation()
+    onCopy?.()
     void copy()
   }
 

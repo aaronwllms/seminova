@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@/test/test-utils'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { LogDetailDialog } from './log-detail-dialog'
 
@@ -16,6 +16,12 @@ const sampleLog = {
   isUnread: true,
 }
 
+const readLog = {
+  ...sampleLog,
+  readAt: '2026-07-18T15:00:00.000Z',
+  isUnread: false,
+}
+
 describe('LogDetailDialog', () => {
   it('should render message and context when open', () => {
     render(
@@ -25,6 +31,39 @@ describe('LogDetailDialog', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument()
     expect(screen.getByText('Cache miss')).toBeInTheDocument()
     expect(screen.getByText(/"key": "log_level"/)).toBeInTheDocument()
+  })
+
+  it('should show Mark unread for a read log and call the handler', async () => {
+    const user = userEvent.setup()
+    const onMarkUnread = vi.fn()
+
+    render(
+      <LogDetailDialog
+        log={readLog}
+        open
+        onOpenChange={() => undefined}
+        onMarkUnread={onMarkUnread}
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: /mark unread/i }))
+
+    expect(onMarkUnread).toHaveBeenCalledWith(7)
+  })
+
+  it('should hide Mark unread for an unread log', () => {
+    render(
+      <LogDetailDialog
+        log={sampleLog}
+        open
+        onOpenChange={() => undefined}
+        onMarkUnread={() => undefined}
+      />,
+    )
+
+    expect(
+      screen.queryByRole('button', { name: /mark unread/i }),
+    ).not.toBeInTheDocument()
   })
 
   it('should swap the copy button to a Copied state after clicking', async () => {

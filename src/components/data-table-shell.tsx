@@ -139,6 +139,7 @@ type DataTableShellProps<TData> = {
   loadingLabel?: string
   onRowClick?: (row: TData) => void
   getRowAccessibilityLabel?: (row: TData) => string
+  getRowClassName?: (row: TData) => string | undefined
 }
 
 export const DataTableShell = <TData,>({
@@ -151,6 +152,7 @@ export const DataTableShell = <TData,>({
   loadingLabel = 'Loading…',
   onRowClick,
   getRowAccessibilityLabel,
+  getRowClassName,
 }: DataTableShellProps<TData>) => {
   const activateRow = onRowClick
     ? (row: TData) => {
@@ -209,11 +211,12 @@ export const DataTableShell = <TData,>({
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
-                className={
+                className={cn(
                   activateRow
                     ? 'focus-visible:ring-ring focus-visible:ring-offset-background cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
-                    : undefined
-                }
+                    : undefined,
+                  getRowClassName?.(row.original),
+                )}
                 tabIndex={activateRow ? 0 : undefined}
                 aria-label={
                   activateRow

@@ -1,5 +1,6 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -17,6 +18,8 @@ interface LogDetailDialogProps {
   log: AppLogRow | null
   open: boolean
   onOpenChange: (open: boolean) => void
+  onMarkUnread?: (id: number) => void
+  isMarkUnreadPending?: boolean
 }
 
 const formatContextJson = (context: AppLogRow['context']): string => {
@@ -31,6 +34,8 @@ export const LogDetailDialog = ({
   log,
   open,
   onOpenChange,
+  onMarkUnread,
+  isMarkUnreadPending = false,
 }: LogDetailDialogProps) => {
   if (!log) {
     return null
@@ -70,7 +75,19 @@ export const LogDetailDialog = ({
             </pre>
           </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className="gap-2 sm:justify-between">
+          <div>
+            {!log.isUnread && onMarkUnread ? (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isMarkUnreadPending}
+                onClick={() => onMarkUnread(log.id)}
+              >
+                Mark unread
+              </Button>
+            ) : null}
+          </div>
           <LogCopyButton copyText={copyText} ariaLabel="Copy log details" />
         </DialogFooter>
       </DialogContent>

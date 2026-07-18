@@ -26,6 +26,7 @@ import {
   countFilteredUnreadLogs,
   markAllLogsRead,
   markLogRead,
+  markLogUnread,
 } from './_lib/mark-app-logs-read'
 import { listAppLogStats, type AppLogStats } from './_lib/list-app-log-stats'
 import { mapUsersActionFault } from '@/app/admin/users/_lib/map-users-action-fault'
@@ -77,6 +78,15 @@ type MarkLogReadActionSuccess = {
 }
 
 export type MarkLogReadActionResult = MarkLogReadActionSuccess | LogsActionError
+
+type MarkLogUnreadActionSuccess = {
+  success: true
+  data: { id: number }
+}
+
+export type MarkLogUnreadActionResult =
+  | MarkLogUnreadActionSuccess
+  | LogsActionError
 
 type MarkAllLogsReadActionSuccess = {
   success: true
@@ -271,6 +281,44 @@ export const markLogReadAction = async (input: {
       'logs-mark-read',
       'Failed to mark log read',
       'Something went wrong marking the log read. Please try again.',
+      caught,
+    )
+  }
+}
+
+export const markLogUnreadAction = async (input: {
+  id: number
+}): Promise<MarkLogUnreadActionResult> => {
+  const authResult = await assertAdminCaller()
+
+  if (!authResult.success) {
+    return authResult
+  }
+
+  if (!isValidLogId(input.id)) {
+    return {
+      success: false,
+      error: {
+        message: 'Invalid log id',
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
+    }
+  }
+
+  try {
+    const client = await createClient()
+    await markLogUnread(client, input.id)
+
+    return {
+      success: true,
+      data: { id: input.id },
+    }
+  } catch (caught) {
+    return mapUsersActionFault(
+      'logs-mark-unread',
+      'Failed to mark log unread',
+      'Something went wrong marking the log unread. Please try again.',
       caught,
     )
   }

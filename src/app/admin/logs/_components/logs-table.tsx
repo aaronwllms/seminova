@@ -17,6 +17,7 @@ import {
 import { useToggleFilterSet } from '@/hooks/use-toggle-filter-set'
 import type { AppError } from '@/types/app-error'
 import type { LogLevel } from '@/types/app-settings'
+import { cn } from '@/utils/tailwind'
 
 import type {
   AppLogCursor,
@@ -29,6 +30,7 @@ import { useAdminLogTags } from '../_lib/use-admin-log-tags'
 import { useAdminLogsList } from '../_lib/use-admin-logs-list'
 import { useMarkAllLogsReadMutation } from '../_lib/use-mark-all-logs-read-mutation'
 import { useMarkLogReadMutation } from '../_lib/use-mark-log-read-mutation'
+import { useMarkLogUnreadMutation } from '../_lib/use-mark-log-unread-mutation'
 import { LogDetailDialog } from './log-detail-dialog'
 import { createLogsColumns } from './logs-columns'
 import { LogsStatTiles } from './logs-stat-tiles'
@@ -107,14 +109,21 @@ export const LogsTable = () => {
   const { mutate: markLogRead, error: markLogReadError } =
     useMarkLogReadMutation()
   const {
+    mutate: markLogUnread,
+    isPending: isMarkUnreadPending,
+    error: markLogUnreadError,
+  } = useMarkLogUnreadMutation()
+  const {
     mutate: markAllLogsRead,
     isPending: isMarkAllPending,
     error: markAllReadError,
   } = useMarkAllLogsReadMutation()
 
   const mutationAppError =
-    (markLogReadError ?? markAllReadError)
-      ? ((markLogReadError ?? markAllReadError) as unknown as AppError)
+    (markLogReadError ?? markLogUnreadError ?? markAllReadError)
+      ? ((markLogReadError ??
+          markLogUnreadError ??
+          markAllReadError) as unknown as AppError)
       : null
 
   const resetCursorStack = useCallback(() => {
@@ -192,10 +201,35 @@ export const LogsTable = () => {
     setCursorStackIndex((current) => current + 1)
   }, [cursorStackIndex, rows])
 
-  const handleRowClick = useCallback((row: AppLogRow) => {
-    setSelectedLog(row)
-    setDetailOpen(true)
-  }, [])
+  const handleRowClick = useCallback(
+    (row: AppLogRow) => {
+      if (row.isUnread) {
+        markLogRead(row.id)
+        setSelectedLog({
+          ...row,
+          isUnread: false,
+          readAt: new Date().toISOString(),
+        })
+      } else {
+        setSelectedLog(row)
+      }
+
+      setDetailOpen(true)
+    },
+    [markLogRead],
+  )
+
+  const handleMarkUnread = useCallback(
+    (id: number) => {
+      markLogUnread(id)
+      setSelectedLog((current) =>
+        current?.id === id
+          ? { ...current, isUnread: true, readAt: null }
+          : current,
+      )
+    },
+    [markLogUnread],
+  )
 
   const handleMarkRead = useCallback(
     (id: number) => {
@@ -266,6 +300,9 @@ export const LogsTable = () => {
           loadingLabel="Loading logs…"
           emptyMessage="No logs found."
           onRowClick={handleRowClick}
+          getRowClassName={(row) =>
+            row.isUnread ? cn('bg-chart-1/10 hover:bg-chart-1/15') : undefined
+          }
           getRowAccessibilityLabel={(row) =>
             `${row.isUnread ? 'Unread log' : 'Read log'}: ${row.timestampLabel}, ${row.level}, ${row.tag}, ${row.message}`
           }
@@ -287,6 +324,8 @@ export const LogsTable = () => {
         log={selectedLog}
         open={detailOpen}
         onOpenChange={setDetailOpen}
+        onMarkUnread={handleMarkUnread}
+        isMarkUnreadPending={isMarkUnreadPending}
       />
     </div>
   )

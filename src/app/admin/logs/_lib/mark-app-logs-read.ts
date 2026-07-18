@@ -26,6 +26,20 @@ export const markLogRead = async (
   }
 }
 
+export const markLogUnread = async (
+  client: SupabaseClient,
+  id: number,
+): Promise<void> => {
+  const { error } = await client
+    .from('app_logs')
+    .update({ read_at: null })
+    .eq('id', id)
+
+  if (error) {
+    throw error
+  }
+}
+
 export const markAllLogsRead = async (
   client: SupabaseClient,
   filters: LogListFilters,

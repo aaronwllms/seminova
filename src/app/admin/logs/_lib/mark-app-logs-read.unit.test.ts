@@ -6,6 +6,7 @@ import {
   countFilteredUnreadLogs,
   markAllLogsRead,
   markLogRead,
+  markLogUnread,
 } from './mark-app-logs-read'
 
 const createFilterableChain = (
@@ -54,6 +55,20 @@ describe('mark-app-logs-read', () => {
 
     expect(client.from).toHaveBeenCalledWith('app_logs')
     expect(update).toHaveBeenCalledWith({ read_at: expect.any(String) })
+    expect(eq).toHaveBeenCalledWith('id', 42)
+  })
+
+  it('should clear read_at for a single log row', async () => {
+    const eq = vi.fn().mockResolvedValue({ error: null })
+    const update = vi.fn().mockReturnValue({ eq })
+    const client = {
+      from: vi.fn().mockReturnValue({ update }),
+    } as unknown as SupabaseClient
+
+    await markLogUnread(client, 42)
+
+    expect(client.from).toHaveBeenCalledWith('app_logs')
+    expect(update).toHaveBeenCalledWith({ read_at: null })
     expect(eq).toHaveBeenCalledWith('id', 42)
   })
 

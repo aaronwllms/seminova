@@ -111,6 +111,11 @@ export const createLogsColumns = ({
             context: row.original.context,
           })}
           ariaLabel={`Copy log row ${row.original.id}`}
+          onCopy={
+            row.original.isUnread
+              ? () => onMarkRead(row.original.id)
+              : undefined
+          }
         />
       </div>
     ),

@@ -9,6 +9,7 @@ const listLogsActionMock = vi.fn()
 const getLogStatsActionMock = vi.fn()
 const listLogTagsActionMock = vi.fn()
 const markLogReadActionMock = vi.fn()
+const markLogUnreadActionMock = vi.fn()
 const markAllLogsReadActionMock = vi.fn()
 
 vi.mock('../actions', () => ({
@@ -16,6 +17,7 @@ vi.mock('../actions', () => ({
   getLogStatsAction: (...args: unknown[]) => getLogStatsActionMock(...args),
   listLogTagsAction: (...args: unknown[]) => listLogTagsActionMock(...args),
   markLogReadAction: (...args: unknown[]) => markLogReadActionMock(...args),
+  markLogUnreadAction: (...args: unknown[]) => markLogUnreadActionMock(...args),
   markAllLogsReadAction: (...args: unknown[]) =>
     markAllLogsReadActionMock(...args),
 }))
@@ -52,6 +54,7 @@ describe('LogsTable', () => {
     getLogStatsActionMock.mockReset()
     listLogTagsActionMock.mockReset()
     markLogReadActionMock.mockReset()
+    markLogUnreadActionMock.mockReset()
     markAllLogsReadActionMock.mockReset()
 
     listLogsActionMock.mockResolvedValue({
@@ -78,6 +81,10 @@ describe('LogsTable', () => {
       data: ['auth-session'],
     })
     markLogReadActionMock.mockResolvedValue({
+      success: true,
+      data: { id: 42 },
+    })
+    markLogUnreadActionMock.mockResolvedValue({
       success: true,
       data: { id: 42 },
     })
@@ -109,7 +116,35 @@ describe('LogsTable', () => {
     expect(listLogsActionMock).toHaveBeenCalledWith(defaultListParams)
   })
 
-  it('should open the detail dialog when a row is clicked without marking read', async () => {
+  it('should open the detail dialog and mark an unread row read when clicked', async () => {
+    const user = userEvent.setup()
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(screen.getByText('Token refresh failed')).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByText('Token refresh failed'))
+
+    expect(await screen.findByRole('dialog')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(markLogReadActionMock).toHaveBeenCalledWith({ id: 42 })
+    })
+  })
+
+  it('should not mark a read row read when clicked', async () => {
+    listLogsActionMock.mockResolvedValue({
+      success: true,
+      data: {
+        rows: [
+          { ...sampleRow, readAt: '2026-07-18T15:00:00.000Z', isUnread: false },
+        ],
+        hasNextPage: false,
+        filteredUnreadCount: 0,
+      },
+    })
+
     const user = userEvent.setup()
 
     renderTable()
@@ -188,7 +223,7 @@ describe('LogsTable', () => {
     })
   })
 
-  it('should copy row JSON without opening the modal', async () => {
+  it('should copy an unread row and mark it read without opening the modal', async () => {
     const user = userEvent.setup()
 
     renderTable()
@@ -205,6 +240,41 @@ describe('LogsTable', () => {
       ).toBeInTheDocument()
     })
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(markLogReadActionMock).toHaveBeenCalledWith({ id: 42 })
+  })
+
+  it('should copy a read row without marking it read again', async () => {
+    listLogsActionMock.mockResolvedValue({
+      success: true,
+      data: {
+        rows: [
+          {
+            ...sampleRow,
+            readAt: '2026-07-18T15:00:00.000Z',
+            isUnread: false,
+          },
+        ],
+        hasNextPage: false,
+        filteredUnreadCount: 0,
+      },
+    })
+
+    const user = userEvent.setup()
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(screen.getByText('Token refresh failed')).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole('button', { name: /copy log row 42/i }))
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /^copied$/i }),
+      ).toBeInTheDocument()
+    })
+    expect(markLogReadActionMock).not.toHaveBeenCalled()
   })
 
   it('should show an error with copy affordance when listLogsAction fails', async () => {

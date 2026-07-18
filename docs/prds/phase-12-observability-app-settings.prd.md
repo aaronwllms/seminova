@@ -140,15 +140,15 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 - **9.0 Shared stat-tile filter primitive.** A reusable stat-tile component (label, count, color role, resting vs. selected visual state) and a `useToggleFilterSet<T>()` hook (a `Set` of active values, click-to-toggle, a designated "clear all" value) — extracted here since this is the first of two pages that need it. Epic 12 consumes both rather than re-implementing.
 - **9.1 Stat-tile filters.** Six stat tiles built on 9.0's primitive replace the originally-planned multi-select chips — Total, Debug, Info, Warn, Error, Unread — each a global count unaffected by other active filters. Resting state: light tint background and thin (0.5px) border in role color — gray for Total/Debug, blue for Info, amber for Warn, red for Error, purple for Unread. Selected state: bold 2px border, same fill. Debug/Info/Warn/Error/Unread are independently multi-selectable; Total is never itself selected and clicking it clears any active selection among the other five. Tag stays a separate searchable dropdown, populated from tags actually present, composing with tile selections and search. Mockup: `.mockups/admin_logs_page.html`.
 - **9.2 Search.** A free-text bar matches against message, context, and tag by substring — right-sized given the purge keeps the table small, revisited only if volume ever makes it slow. Tag is included so a cluster of one tag is findable by search, which is what a tag sort would otherwise have been for.
-- **9.3 Read state.** Read/unread is global rather than per-admin, since a template can't know how many admins a spinoff has and shared read state is the simpler default. It's marked explicitly only — by row, or by an Unread tile toggle plus a "mark all as read" scoped to the current filter view (tiles + tag + search). Nothing auto-marks on page load or scroll, which would defeat read/unread as a triage tool. The per-row unread indicator recolors from blue to purple, matching the Unread tile and removing its prior collision with the blue info-level badge.
+- **9.3 Read state.** Read/unread is global rather than per-admin, since a template can't know how many admins a spinoff has and shared read state is the simpler default. Unread rows use a light purple row tint and a purple dot in the leading column (matching the Unread tile). Opening the detail dialog marks an unread row read; the dot still supports mark-read without opening. Read logs can be set back to unread via a **Mark unread** control in the detail dialog. Bulk **Mark all as read** remains scoped to the current filter view (tiles + tag + search). Nothing auto-marks on page load or scroll.
 
 *Success:*
 - The shared stat-tile component and toggle-filter hook exist as consumable modules, not page-local code.
 - Tile counts reflect global totals, not the filtered view.
 - Level tiles and Unread toggle independently of each other; Total clears all tile selections.
 - Tag search and free-text search compose with tile selections and paging.
-- Unread rows are visually distinct (purple dot, no longer blue); "mark all as read" affects only rows in the active filter view.
-- Nothing becomes read without an explicit action.
+- Unread rows are visually distinct (purple row tint and dot); opening a row marks it read; **Mark unread** in the detail dialog restores unread state; "mark all as read" affects only rows in the active filter view.
+- Nothing auto-marks on page load or scroll.
 - Search matches against message, context, and tag.
 - `pnpm pre-push` is green.
 

@@ -9,6 +9,7 @@ const countFilteredUnreadLogsMock = vi.fn()
 const listAppLogStatsMock = vi.fn()
 const listAppLogTagsMock = vi.fn()
 const markLogReadMock = vi.fn()
+const markLogUnreadMock = vi.fn()
 const markAllLogsReadMock = vi.fn()
 
 vi.mock('@/supabase/server', () => ({
@@ -31,6 +32,7 @@ vi.mock('./_lib/mark-app-logs-read', () => ({
   countFilteredUnreadLogs: (...args: unknown[]) =>
     countFilteredUnreadLogsMock(...args),
   markLogRead: (...args: unknown[]) => markLogReadMock(...args),
+  markLogUnread: (...args: unknown[]) => markLogUnreadMock(...args),
   markAllLogsRead: (...args: unknown[]) => markAllLogsReadMock(...args),
 }))
 
@@ -327,6 +329,71 @@ describe('markLogReadAction', () => {
       data: { id: 42 },
     })
     expect(markLogReadMock).toHaveBeenCalledWith(expect.any(Object), 42)
+  })
+})
+
+describe('markLogUnreadAction', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    getUserMock.mockReset()
+    createClientMock.mockReset()
+    markLogUnreadMock.mockReset()
+
+    createClientMock.mockResolvedValue({
+      auth: { getUser: getUserMock },
+    })
+    getUserMock.mockResolvedValue({
+      data: { user: adminUser },
+      error: null,
+    })
+  })
+
+  it('should return FORBIDDEN when caller is not admin', async () => {
+    getUserMock.mockResolvedValue({
+      data: { user: { id: 'user-1', app_metadata: {} } },
+      error: null,
+    })
+
+    const { markLogUnreadAction } = await import('./actions')
+    const result = await markLogUnreadAction({ id: 1 })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Forbidden',
+        code: 'FORBIDDEN',
+        kind: 'operational',
+      },
+    })
+    expect(markLogUnreadMock).not.toHaveBeenCalled()
+  })
+
+  it('should return VALIDATION_ERROR for an invalid log id', async () => {
+    const { markLogUnreadAction } = await import('./actions')
+    const result = await markLogUnreadAction({ id: 0 })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Invalid log id',
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
+    })
+    expect(markLogUnreadMock).not.toHaveBeenCalled()
+  })
+
+  it('should return success envelope after marking a log unread', async () => {
+    markLogUnreadMock.mockResolvedValue(undefined)
+
+    const { markLogUnreadAction } = await import('./actions')
+    const result = await markLogUnreadAction({ id: 42 })
+
+    expect(result).toEqual({
+      success: true,
+      data: { id: 42 },
+    })
+    expect(markLogUnreadMock).toHaveBeenCalledWith(expect.any(Object), 42)
   })
 })
 
