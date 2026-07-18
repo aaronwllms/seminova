@@ -137,6 +137,7 @@ type DataTableShellProps<TData> = {
   isLoading?: boolean
   loadingRowCount?: number
   loadingLabel?: string
+  onRowClick?: (row: TData) => void
 }
 
 export const DataTableShell = <TData,>({
@@ -147,6 +148,7 @@ export const DataTableShell = <TData,>({
   isLoading = false,
   loadingRowCount = DEFAULT_LOADING_ROW_COUNT,
   loadingLabel = 'Loading…',
+  onRowClick,
 }: DataTableShellProps<TData>) => {
   const hasRows = table.getRowModel().rows.length > 0
   const showSkeleton = isLoading && !hasRows
@@ -184,7 +186,28 @@ export const DataTableShell = <TData,>({
             />
           ) : hasRows ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
+              <TableRow
+                key={row.id}
+                className={onRowClick ? 'cursor-pointer' : undefined}
+                tabIndex={onRowClick ? 0 : undefined}
+                onClick={
+                  onRowClick
+                    ? () => {
+                        onRowClick(row.original)
+                      }
+                    : undefined
+                }
+                onKeyDown={
+                  onRowClick
+                    ? (event) => {
+                        if (event.key === 'Enter') {
+                          event.preventDefault()
+                          onRowClick(row.original)
+                        }
+                      }
+                    : undefined
+                }
+              >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
                     key={cell.id}

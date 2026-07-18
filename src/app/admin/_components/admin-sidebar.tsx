@@ -1,11 +1,15 @@
 'use client'
 
-import { Settings, Users } from 'lucide-react'
+import { ScrollText, Settings, Users } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 import { SeminovaLogo } from '@/components/seminova-logo'
-import { ADMIN_SETTINGS, ADMIN_USERS } from '@/constants/admin-paths'
+import {
+  ADMIN_LOGS,
+  ADMIN_SETTINGS,
+  ADMIN_USERS,
+} from '@/constants/admin-paths'
 import {
   Sidebar,
   SidebarContent,
@@ -22,6 +26,7 @@ import {
 
 const NAV_ITEMS = [
   { title: 'Users', href: ADMIN_USERS, icon: Users },
+  { title: 'Logs', href: ADMIN_LOGS, icon: ScrollText },
   { title: 'Settings', href: ADMIN_SETTINGS, icon: Settings },
 ] as const
 

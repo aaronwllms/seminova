@@ -83,6 +83,7 @@ const eslintConfig = defineConfig([
       'src/supabase/proxy.ts',
       'src/app/auth/confirm/route.ts',
       'src/app/admin/users/actions.ts',
+      'src/app/admin/logs/actions.ts',
       'src/app/admin/users/_lib/run-admin-user-mutation.ts',
       'src/app/admin/users/_lib/map-users-action-fault.ts',
       'src/app/(app)/_lib/get-current-user-profile.ts',
