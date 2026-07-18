@@ -58,7 +58,7 @@ export const LogDetailDialog = ({
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <p className="text-sm font-medium">Message</p>
-            <p className="text-sm break-words whitespace-pre-wrap">
+            <p className="text-sm wrap-break-word whitespace-pre-wrap">
               {log.message}
             </p>
           </div>
