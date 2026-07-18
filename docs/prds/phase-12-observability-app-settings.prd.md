@@ -109,7 +109,7 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 - The change protocol is followed and the hard-constraint statement matches enforcement.
 - `pnpm pre-push` is green.
 
-### Epic 7: Log retention purge
+### Epic 7: Log retention purge `Complete`
 
 - **7.1 Logs purge on a schedule.** Logs older than the retention window are deleted by the database on a schedule, with the window read from settings so an admin changes it without a migration or a redeploy — the settings store's second real consumer. Scheduling is established by migration and tracked in source control like any other schema change, and setup docs note that it enables a database extension. Admin CLI privilege-change events get no exemption; retention is uniform.
 
