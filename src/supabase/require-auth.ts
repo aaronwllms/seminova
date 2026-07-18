@@ -1,7 +1,10 @@
 import { parseJwtClaims, type JwtClaims } from '@/utils/admin'
 import { appLog } from '@/utils/app-logger'
 
-import { readAccessTokenFromCookies } from './read-auth-cookie'
+import {
+  readAccessTokenFromCookies,
+  readJwtExpFromAccessToken,
+} from './read-auth-cookie'
 import { createClient } from './server'
 
 export type AuthenticatedClaims = JwtClaims & { sub: string }
@@ -65,6 +68,19 @@ export const getDisplayAuthClaims = async (): Promise<AuthenticatedClaims> => {
       throw new DisplayAuthInvariantError('Session claims malformed')
     }
 
+    const exp = readJwtExpFromAccessToken(accessToken)
+    const nowSeconds = Math.floor(Date.now() / 1000)
+
+    if (exp !== null && exp < nowSeconds) {
+      appLog.debug(
+        'require-auth',
+        'Display claims read with expired access token',
+        { sub: claims.sub, exp },
+      )
+    } else {
+      appLog.debug('require-auth', 'Display claims read', { sub: claims.sub })
+    }
+
     return claims
   } catch (error) {
     if (error instanceof DisplayAuthInvariantError) {
@@ -99,7 +115,23 @@ export const hasServerAuthSession = async (): Promise<boolean> => {
       return false
     }
 
-    return parseAuthenticatedClaims(data?.claims) !== null
+    const claims = parseAuthenticatedClaims(data?.claims)
+    if (!claims) {
+      return false
+    }
+
+    const exp = readJwtExpFromAccessToken(accessToken)
+    const nowSeconds = Math.floor(Date.now() / 1000)
+
+    if (exp !== null && exp < nowSeconds) {
+      appLog.debug(
+        'require-auth',
+        'Session probe succeeded with expired access token',
+        { sub: claims.sub, exp },
+      )
+    }
+
+    return true
   } catch {
     return false
   }

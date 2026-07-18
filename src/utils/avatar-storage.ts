@@ -189,6 +189,11 @@ export const uploadUserAvatar = async ({
       )
     }
 
+    clientLog.debug('avatar-storage', 'Avatar uploaded', {
+      storagePath,
+      byteSize: webpBlob.size,
+    })
+
     return { publicUrl: getAvatarPublicUrl(storagePath) }
   } catch (error) {
     if (error instanceof AvatarUploadError) {

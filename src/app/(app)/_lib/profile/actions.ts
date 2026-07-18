@@ -135,11 +135,20 @@ export const updateProfileAction = async (
   if (parsed.data.avatarUrl === null) {
     const avatarDeleteResult = await removeAvatarStorage(supabase, user.id)
 
-    if (!avatarDeleteResult.ok) {
+    if (avatarDeleteResult.ok) {
+      appLog.debug('profile-update', 'Avatar storage deleted', {
+        userId: user.id,
+      })
+    } else {
       appLog.warn(
         'profile-update',
         'Avatar storage delete failed',
         avatarDeleteResult.error,
+      )
+      appLog.debug(
+        'profile-update',
+        'Profile updated; avatar storage delete failed without blocking success',
+        { storageDeleteOk: false },
       )
     }
   }

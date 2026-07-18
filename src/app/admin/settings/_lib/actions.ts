@@ -85,6 +85,10 @@ export const saveAppSettingAction = async (
       }
     }
 
+    appLog.debug('app-settings', 'Invalidating settings cache after save', {
+      key,
+    })
+
     // Next.js 16 typings require a cacheLife profile as the second argument.
     revalidateTag(APP_SETTINGS_CACHE_TAG, 'max')
 

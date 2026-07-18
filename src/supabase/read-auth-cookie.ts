@@ -52,6 +52,29 @@ const decodeCookieValue = (value: string): string => {
  * `getSession()` / `getClaims()` (which can trigger a refresh). The proxy is
  * the only layer that should refresh tokens.
  */
+/**
+ * Reads `exp` from the JWT payload segment only — no signature verification
+ * (callers must already have validated via `getClaims`).
+ */
+export const readJwtExpFromAccessToken = (
+  accessToken: string,
+): number | null => {
+  const segments = accessToken.split('.')
+  if (segments.length !== 3) {
+    return null
+  }
+
+  try {
+    const payload = JSON.parse(
+      Buffer.from(segments[1], 'base64url').toString('utf-8'),
+    ) as { exp?: unknown }
+
+    return typeof payload.exp === 'number' ? payload.exp : null
+  } catch {
+    return null
+  }
+}
+
 export const readAccessTokenFromCookies = async (): Promise<string | null> => {
   const cookieStore = await cookies()
   const cookieMap = new Map(

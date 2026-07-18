@@ -28,6 +28,16 @@ const makeFile = (overrides: { size?: number; type?: string } = {}) => {
 const mockUpload = vi.fn()
 const mockGetPublicUrl = vi.fn()
 const mockGetUser = vi.fn()
+const mockClientLogDebug = vi.fn()
+
+vi.mock('@/utils/client-logger', () => ({
+  clientLog: {
+    debug: (...args: unknown[]) => mockClientLogDebug(...args),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  },
+}))
 
 vi.mock('@/supabase/client', () => ({
   createClient: () => ({
@@ -146,6 +156,7 @@ describe('uploadUserAvatar', () => {
     mockUpload.mockReset()
     mockGetPublicUrl.mockReset()
     mockGetUser.mockReset()
+    mockClientLogDebug.mockReset()
     mockGetUser.mockResolvedValue({
       data: { user: { id: TEST_USER_ID } },
       error: null,
@@ -192,6 +203,14 @@ describe('uploadUserAvatar', () => {
       { upsert: true, contentType: 'image/webp' },
     )
     expect(result.publicUrl).toContain('/avatar.webp')
+    expect(mockClientLogDebug).toHaveBeenCalledWith(
+      'avatar-storage',
+      'Avatar uploaded',
+      {
+        storagePath: `${TEST_USER_ID}/avatar.webp`,
+        byteSize: expect.any(Number),
+      },
+    )
   })
 
   it('should reject upload when there is no authenticated session', async () => {

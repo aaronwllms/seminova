@@ -64,6 +64,8 @@ export async function updateSession(request: NextRequest) {
 
   // With Fluid compute, don't put this client in a global environment
   // variable. Always create a new one on each request.
+  let authCookiesUpdated = false
+
   const { supabaseUrl, publishableKey } = getPublicSupabaseEnv()
   const supabase = createServerClient(supabaseUrl, publishableKey, {
     cookies: {
@@ -71,6 +73,7 @@ export async function updateSession(request: NextRequest) {
         return request.cookies.getAll()
       },
       setAll(cookiesToSet) {
+        authCookiesUpdated = true
         cookiesToSet.forEach(({ name, value }) =>
           request.cookies.set(name, value),
         )
@@ -151,6 +154,14 @@ export async function updateSession(request: NextRequest) {
   //    return myNewResponse
   // If this is not done, you may be causing the browser and server to go out
   // of sync and terminate the user's session prematurely!
+
+  if (!isPublicRoute && sessionClaims) {
+    appLog.debug(
+      'proxy',
+      authCookiesUpdated ? 'Session token refreshed' : 'Session token reused',
+      { pathname, refreshed: authCookiesUpdated },
+    )
+  }
 
   return supabaseResponse
 }

@@ -8,6 +8,16 @@ const createClientMock = vi.fn()
 const upsertMock = vi.fn()
 const fromMock = vi.fn()
 const revalidateTagMock = vi.fn()
+const mockAppLogDebug = vi.fn()
+
+vi.mock('@/utils/app-logger', () => ({
+  appLog: {
+    debug: (...args: unknown[]) => mockAppLogDebug(...args),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  },
+}))
 
 vi.mock('@/supabase/server', () => ({
   createClient: () => createClientMock(),
@@ -35,6 +45,7 @@ describe('saveAppSettingAction', () => {
     upsertMock.mockReset()
     fromMock.mockReset()
     revalidateTagMock.mockReset()
+    mockAppLogDebug.mockReset()
 
     fromMock.mockReturnValue({ upsert: upsertMock })
     createClientMock.mockResolvedValue({
@@ -127,6 +138,11 @@ describe('saveAppSettingAction', () => {
     expect(revalidateTagMock).toHaveBeenCalledWith(
       APP_SETTINGS_CACHE_TAG,
       'max',
+    )
+    expect(mockAppLogDebug).toHaveBeenCalledWith(
+      'app-settings',
+      'Invalidating settings cache after save',
+      { key: 'min_log_level' },
     )
   })
 

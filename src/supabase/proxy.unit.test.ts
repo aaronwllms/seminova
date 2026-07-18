@@ -24,6 +24,10 @@ const isDiscoveredPublicRoute = (pathname: string) =>
 
 const mockGetClaims = vi.fn()
 const mockSignOut = vi.fn()
+const mockAppLogDebug = vi.fn()
+let mockSetAll:
+  | ((cookies: Array<{ name: string; value: string }>) => void)
+  | null = null
 
 vi.mock('@/utils/env', () => ({
   hasPublicSupabaseEnv: true,
@@ -33,13 +37,25 @@ vi.mock('@/utils/env', () => ({
   }),
 }))
 
+vi.mock('@/utils/app-logger', () => ({
+  appLog: {
+    debug: (...args: unknown[]) => mockAppLogDebug(...args),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  },
+}))
+
 vi.mock('@supabase/ssr', () => ({
-  createServerClient: vi.fn(() => ({
-    auth: {
-      getClaims: mockGetClaims,
-      signOut: mockSignOut,
-    },
-  })),
+  createServerClient: vi.fn((_url, _key, config) => {
+    mockSetAll = config.cookies.setAll
+    return {
+      auth: {
+        getClaims: mockGetClaims,
+        signOut: mockSignOut,
+      },
+    }
+  }),
 }))
 
 const createRequest = (pathname: string) =>
@@ -49,6 +65,8 @@ describe('updateSession', () => {
   beforeEach(() => {
     mockGetClaims.mockClear()
     mockSignOut.mockClear()
+    mockAppLogDebug.mockClear()
+    mockSetAll = null
     mockSignOut.mockResolvedValue({ error: null })
     mockGetClaims.mockResolvedValue({ data: { claims: null }, error: null })
   })
@@ -155,6 +173,42 @@ describe('updateSession', () => {
     const response = await updateSession(createRequest('/home'))
 
     expect(response.status).toBe(200)
+    expect(mockAppLogDebug).toHaveBeenCalledWith(
+      'proxy',
+      'Session token reused',
+      { pathname: '/home', refreshed: false },
+    )
+  })
+
+  it('should log refreshed true when auth cookies are rewritten', async () => {
+    mockGetClaims.mockImplementation(async () => {
+      mockSetAll?.([{ name: 'sb-test-auth-token', value: 'chunk' }])
+      return { data: { claims: { sub: 'user-1' } } }
+    })
+
+    await updateSession(createRequest('/home'))
+
+    expect(mockAppLogDebug).toHaveBeenCalledWith(
+      'proxy',
+      'Session token refreshed',
+      { pathname: '/home', refreshed: true },
+    )
+  })
+
+  it('should not emit session debug on public routes', async () => {
+    mockGetClaims.mockResolvedValue({
+      data: { claims: { sub: 'user-1' } },
+    })
+
+    await updateSession(createRequest('/'))
+
+    expect(mockAppLogDebug).not.toHaveBeenCalled()
+  })
+
+  it('should not emit session debug when redirecting unauthenticated users', async () => {
+    await updateSession(createRequest('/home'))
+
+    expect(mockAppLogDebug).not.toHaveBeenCalled()
   })
 
   it('should redirect non-admin authenticated users from /admin to /home', async () => {
@@ -245,6 +299,8 @@ describe('auth boundary (discovered routes)', () => {
   beforeEach(() => {
     mockGetClaims.mockClear()
     mockSignOut.mockClear()
+    mockAppLogDebug.mockClear()
+    mockSetAll = null
     mockSignOut.mockResolvedValue({ error: null })
     mockGetClaims.mockResolvedValue({ data: { claims: null }, error: null })
   })

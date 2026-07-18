@@ -4,9 +4,35 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const mockGetClaims = vi.fn()
 const mockReadAccessTokenFromCookies = vi.fn()
 const mockCreateClient = vi.fn()
+const mockAppLogDebug = vi.fn()
+
+vi.mock('@/utils/app-logger', () => ({
+  appLog: {
+    debug: (...args: unknown[]) => mockAppLogDebug(...args),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  },
+}))
 
 vi.mock('./read-auth-cookie', () => ({
   readAccessTokenFromCookies: () => mockReadAccessTokenFromCookies(),
+  readJwtExpFromAccessToken: (accessToken: string) => {
+    const segments = accessToken.split('.')
+    if (segments.length !== 3) {
+      return null
+    }
+
+    try {
+      const payload = JSON.parse(
+        Buffer.from(segments[1], 'base64url').toString('utf-8'),
+      ) as { exp?: unknown }
+
+      return typeof payload.exp === 'number' ? payload.exp : null
+    } catch {
+      return null
+    }
+  },
 }))
 
 vi.mock('./server', () => ({
@@ -19,11 +45,21 @@ import {
   hasServerAuthSession,
 } from './require-auth'
 
+const makeAccessToken = (payload: { sub?: string; exp?: number }) => {
+  const header = Buffer.from(JSON.stringify({ alg: 'HS256' })).toString(
+    'base64url',
+  )
+  const body = Buffer.from(JSON.stringify(payload)).toString('base64url')
+
+  return `${header}.${body}.signature`
+}
+
 describe('getDisplayAuthClaims', () => {
   beforeEach(() => {
     mockGetClaims.mockReset()
     mockReadAccessTokenFromCookies.mockReset()
     mockCreateClient.mockReset()
+    mockAppLogDebug.mockReset()
     mockCreateClient.mockResolvedValue({
       auth: { getClaims: mockGetClaims },
     })
@@ -40,7 +76,11 @@ describe('getDisplayAuthClaims', () => {
   })
 
   it('should call getClaims with allowExpired true', async () => {
-    mockReadAccessTokenFromCookies.mockResolvedValue('access-token')
+    const accessToken = makeAccessToken({
+      sub: 'user-1',
+      exp: Math.floor(Date.now() / 1000) + 3600,
+    })
+    mockReadAccessTokenFromCookies.mockResolvedValue(accessToken)
     mockGetClaims.mockResolvedValue({
       data: {
         claims: {
@@ -58,13 +98,20 @@ describe('getDisplayAuthClaims', () => {
       app_metadata: {},
     })
 
-    expect(mockGetClaims).toHaveBeenCalledWith('access-token', {
+    expect(mockGetClaims).toHaveBeenCalledWith(accessToken, {
       allowExpired: true,
     })
+    expect(mockAppLogDebug).toHaveBeenCalledWith(
+      'require-auth',
+      'Display claims read',
+      { sub: 'user-1' },
+    )
   })
 
   it('should return claims for an expired-but-signed token', async () => {
-    mockReadAccessTokenFromCookies.mockResolvedValue('expired-access-token')
+    mockReadAccessTokenFromCookies.mockResolvedValue(
+      makeAccessToken({ sub: 'user-1', exp: 1 }),
+    )
     mockGetClaims.mockResolvedValue({
       data: {
         claims: {
@@ -82,6 +129,21 @@ describe('getDisplayAuthClaims', () => {
       email: 'alex@example.com',
       app_metadata: {},
     })
+    expect(mockAppLogDebug).toHaveBeenCalledWith(
+      'require-auth',
+      'Display claims read with expired access token',
+      { sub: 'user-1', exp: 1 },
+    )
+  })
+
+  it('should not emit debug when the access token cookie is missing', async () => {
+    mockReadAccessTokenFromCookies.mockResolvedValue(null)
+
+    await expect(getDisplayAuthClaims()).rejects.toBeInstanceOf(
+      DisplayAuthInvariantError,
+    )
+
+    expect(mockAppLogDebug).not.toHaveBeenCalled()
   })
 
   it('should throw when getClaims returns a signature-invalid error', async () => {
@@ -124,13 +186,18 @@ describe('hasServerAuthSession', () => {
     mockReadAccessTokenFromCookies.mockReset()
     mockGetClaims.mockReset()
     mockCreateClient.mockReset()
+    mockAppLogDebug.mockReset()
     mockCreateClient.mockResolvedValue({
       auth: { getClaims: mockGetClaims },
     })
   })
 
   it('should return true when the access token is valid', async () => {
-    mockReadAccessTokenFromCookies.mockResolvedValue('access-token')
+    const accessToken = makeAccessToken({
+      sub: 'user-1',
+      exp: Math.floor(Date.now() / 1000) + 3600,
+    })
+    mockReadAccessTokenFromCookies.mockResolvedValue(accessToken)
     mockGetClaims.mockResolvedValue({
       data: { claims: { sub: 'user-1' } },
       error: null,
@@ -138,9 +205,10 @@ describe('hasServerAuthSession', () => {
 
     await expect(hasServerAuthSession()).resolves.toBe(true)
 
-    expect(mockGetClaims).toHaveBeenCalledWith('access-token', {
+    expect(mockGetClaims).toHaveBeenCalledWith(accessToken, {
       allowExpired: true,
     })
+    expect(mockAppLogDebug).not.toHaveBeenCalled()
   })
 
   it('should return false when the access token cookie is missing', async () => {
@@ -152,22 +220,32 @@ describe('hasServerAuthSession', () => {
   })
 
   it('should return true for an expired-but-signed token with sub', async () => {
-    mockReadAccessTokenFromCookies.mockResolvedValue('expired-access-token')
+    mockReadAccessTokenFromCookies.mockResolvedValue(
+      makeAccessToken({ sub: 'user-1', exp: 1 }),
+    )
     mockGetClaims.mockResolvedValue({
       data: { claims: { sub: 'user-1', exp: 1 } },
       error: null,
     })
 
     await expect(hasServerAuthSession()).resolves.toBe(true)
+    expect(mockAppLogDebug).toHaveBeenCalledWith(
+      'require-auth',
+      'Session probe succeeded with expired access token',
+      { sub: 'user-1', exp: 1 },
+    )
   })
 
   it('should return false when getClaims returns an auth error', async () => {
-    mockReadAccessTokenFromCookies.mockResolvedValue('bad-token')
+    mockReadAccessTokenFromCookies.mockResolvedValue(
+      makeAccessToken({ sub: 'user-1', exp: 1 }),
+    )
     mockGetClaims.mockResolvedValue({
       data: { claims: null },
       error: new AuthApiError('invalid JWT', 401, 'invalid_jwt'),
     })
 
     await expect(hasServerAuthSession()).resolves.toBe(false)
+    expect(mockAppLogDebug).not.toHaveBeenCalled()
   })
 })
