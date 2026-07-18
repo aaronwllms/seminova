@@ -161,12 +161,25 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 - No seam's control flow or behavior changes as a result of its logging.
 - `pnpm pre-push` is green.
 
+### Epic 11: Structured copy standardization
+
+- **11.1 The shared primitive.** A new helper — `buildStructuredCopyText(fields: Record<string, unknown>)` — takes a plain object, omits any key whose value is `null` or `undefined`, and returns the result as pretty-printed JSON (2-space indent). This is the one place the omit-nullish + pretty-print logic lives.
+- **11.2 `buildLogRowCopyText` moves onto the primitive.** Epic 8's log-copy helper keeps its own field shape (`timestamp`, `level`, `tag`, `message`, `context`) but delegates the omit + format step to `buildStructuredCopyText` instead of doing it inline. Behavior and output are unchanged — this is a refactor, not a format change.
+- **11.3 `buildErrorCopyText` moves onto the primitive.** The error panel's clipboard helper delegates to `buildStructuredCopyText` instead of its current inline message + context text construction, carrying `message`, `code`, and `digest` as separate keys (rather than the UI's combined `code · digest` chip format) — `digest` omitted when absent. Unlike 11.2, this does change the output — from text to pretty-printed JSON — since the error helper isn't JSON-shaped today. Every `ErrorPanel` copy across the app (auth errors, admin route errors, form faults) picks up the new format automatically, since they all go through the one helper.
+
+*Success:*
+- `buildStructuredCopyText` omits nullish keys and pretty-prints JSON; both callers produce identical output to before the refactor (11.2) or the intended new shape (11.3).
+- `buildLogRowCopyText`'s existing tests pass unchanged after delegating to the primitive.
+- `buildErrorCopyText` output is valid, pretty-printed JSON with `message`, `code`, and (when present) `digest` as separate keys; existing `ErrorPanel` copy button behavior (Copy → Copied, `aria-live`) is unchanged — only the clipboard payload's shape changes.
+- Every call site of `buildErrorCopyText` continues to compile and pass existing tests updated for the new shape.
+- `pnpm pre-push` is green.
+
 ---
 
 ## Notes
 
 - **Two ADRs written during this phase's planning** — [ADR-0006](../adr/ADR-0006-settings-reads-cached-under-one-coarse-tag.md) settles the caching design behind Epic 1.3. [ADR-0007](../adr/ADR-0007-client-log-relay-unauthenticated.md) settles Epic 5's relay: why it takes no session, why it's a route handler rather than a Server Action, and why the template ships no rate limit. Nothing else in the phase clears all three bars.
-- **Dependencies:** Epic 1 before Epics 3.4 and 7 (both read settings). Epic 3 before Epics 4, 5, 7, and 10 (all need a wrapper). Epics 4 and 5 before Epic 6 — the guardrail's clean-pass criterion is meaningless until both sweeps have landed, and sequencing it after both means no swept site ever enters its exemption list. Epic 5 before Epic 10 — story 10.3's avatar upload path runs in the browser and needs the relay. Epic 8 before Epic 9 (same page). Epic 10 last: its logs need the wrapper, the settings store, and the threshold all present.
+- **Dependencies:** Epic 1 before Epics 3.4 and 7 (both read settings). Epic 3 before Epics 4, 5, 7, and 10 (all need a wrapper). Epics 4 and 5 before Epic 6 — the guardrail's clean-pass criterion is meaningless until both sweeps have landed, and sequencing it after both means no swept site ever enters its exemption list. Epic 5 before Epic 10 — story 10.3's avatar upload path runs in the browser and needs the relay. Epic 8 before Epic 9 (same page). Epic 8 before Epic 11 — the shared primitive is extracted from `buildLogRowCopyText`, which Epic 8 creates. Epic 10 before Epic 11 (last): Epic 11 isn't observability-themed — it's a copy-format cleanup riding at the end of the phase since it's small and depends on Epic 8's helper existing.
 - **Epics 8 and 9 deliberately split one page across two epics.** The logs page's scope is more than one context window holds. The intermediate state — a logs page with no filters — is real but harmless, since nothing ships to users mid-phase.
 - **Epic 3.4's threshold criterion is server- and CLI-scoped.** "A below-threshold call produces neither console output nor a row" holds for `appLog` and `cliLog`. Epic 5's client mirror deliberately prints regardless of threshold — the browser console has its own per-developer level filter, and gating it on an admin setting would both invert that ownership and reintroduce the staleness window ADR-0006 exists to prevent. Epic 3 is shipped; its criterion isn't rewritten.
 - **Known gap: nothing rate-limits the relay.** A closed key set, a context size cap, threshold gating, and Epic 7's purge all bound what a relayed row *is*; none bounds how many. Accepted at template scope and recorded in ADR-0007, which carries the rationale and the mitigation — so this is not a ROADMAP open question.
