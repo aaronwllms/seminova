@@ -2,14 +2,41 @@ import { QueryCache } from '@tanstack/react-query'
 import '@testing-library/jest-dom/vitest'
 import { vi } from 'vitest'
 
-vi.mock('@/utils/app-logger', () => ({
-  appLog: {
-    debug: vi.fn(),
-    info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-  },
-}))
+vi.mock('next/cache', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('next/cache')>()
+
+  return {
+    ...actual,
+    unstable_cache: <T extends (...args: unknown[]) => unknown>(fn: T) => fn,
+  }
+})
+
+vi.mock('@/utils/app-settings', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/utils/app-settings')>()
+  const { APP_SETTINGS_REGISTRY } =
+    await import('@/config/app-settings-registry')
+
+  const registryDefaults = Object.fromEntries(
+    APP_SETTINGS_REGISTRY.map((entry) => [entry.key, entry.default]),
+  )
+
+  return {
+    ...actual,
+    getAppSetting: vi.fn(
+      async (key: keyof typeof registryDefaults) => registryDefaults[key],
+    ),
+  }
+})
+
+vi.mock('@/utils/persist-app-log', async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import('@/utils/persist-app-log')>()
+
+  return {
+    ...actual,
+    persistAppLogRow: vi.fn().mockResolvedValue(undefined),
+  }
+})
 
 vi.mock('next/server', async (importOriginal) => {
   const actual = await importOriginal<typeof import('next/server')>()

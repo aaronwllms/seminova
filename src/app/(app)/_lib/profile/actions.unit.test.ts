@@ -30,9 +30,14 @@ vi.mock('@/supabase/server', () => ({
   })),
 }))
 
-vi.mock('next/cache', () => ({
-  revalidatePath: vi.fn(),
-}))
+vi.mock('next/cache', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('next/cache')>()
+
+  return {
+    ...actual,
+    revalidatePath: vi.fn(),
+  }
+})
 
 import { updateProfileAction } from './actions'
 

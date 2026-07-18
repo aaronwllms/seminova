@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+vi.unmock('@/utils/persist-app-log')
+
 const insertMock = vi.fn()
 const createServiceClientMock = vi.fn()
 

@@ -13,7 +13,7 @@ alwaysApply: false
 
 Application logs route through two wrappers — both mirror to console (bracket-tag format preserved) and persist when above threshold:
 
-- **`appLog`** ([`src/utils/app-logger.ts`](../../src/utils/app-logger.ts)) — Next.js server contexts (Server Components, Server Actions, route handlers). Sync/void; persistence deferred via `after()`.
+- **`appLog`** ([`src/utils/app-logger.ts`](../../src/utils/app-logger.ts)) — server-side application code (e.g. Server Components, Server Actions, route handlers, auth proxy in [`src/supabase/proxy.ts`](../../src/supabase/proxy.ts), session helpers in [`src/supabase/require-auth.ts`](../../src/supabase/require-auth.ts)). Sync/void; persistence deferred via `after()`.
 - **`cliLog`** ([`src/utils/app-logger-cli.ts`](../../src/utils/app-logger-cli.ts)) — CLI scripts under `scripts/`. Async/awaited persistence.
 
 No separate `@/utils/logger` module. This file owns log-level selection and tagging; `error-handling.mdc` owns error taxonomy and response envelopes for actual failures.

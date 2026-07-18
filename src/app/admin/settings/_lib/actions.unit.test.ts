@@ -13,9 +13,14 @@ vi.mock('@/supabase/server', () => ({
   createClient: () => createClientMock(),
 }))
 
-vi.mock('next/cache', () => ({
-  revalidateTag: (...args: unknown[]) => revalidateTagMock(...args),
-}))
+vi.mock('next/cache', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('next/cache')>()
+
+  return {
+    ...actual,
+    revalidateTag: (...args: unknown[]) => revalidateTagMock(...args),
+  }
+})
 
 const adminUser = {
   id: 'admin-user-id',

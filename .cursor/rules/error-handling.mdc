@@ -69,7 +69,7 @@ Include `kind: 'operational' | 'fault'` on every error envelope. Set `kind` at t
 
 ## Logging
 
-Log levels, tags, and when to use each `console.*` method are canonical in [`logging.mdc`](logging.mdc). When logging a failure, pass the `Error` or Supabase error object as a second argument.
+Log levels, tags, and when to use each level are canonical in [`logging.mdc`](logging.mdc). When logging a failure through `appLog` or `cliLog`, pass the tag and message first, then the `Error` or Supabase error object as the third (context) argument.
 
 ## Error Handling Patterns
 
@@ -77,7 +77,7 @@ Log levels, tags, and when to use each `console.*` method are canonical in [`log
 
 **Key principles:**
 - Wrap all async operations in try/catch
-- Log with `[api/resource]` prefix and error object; map to taxonomy `code` in the response envelope
+- Log with `appLog.error('api-resource', '…', error)` using an explicit bare kebab-case tag as the first argument; map to taxonomy `code` in the response envelope
 - Return generic user-friendly messages (never expose stack traces)
 - Use appropriate HTTP status codes
 
@@ -106,7 +106,7 @@ Use Next.js `error.tsx` for route-level error boundaries. For component-level er
 ### Database Errors
 
 - Map Supabase `error.code` to taxonomy (`PGRST116` → `NOT_FOUND`, `42501` → `FORBIDDEN`, etc.)
-- Log: `console.error('[source-tag] …', { postId, supabaseCode: error.code })` — no raw PII
+- Log: `appLog.error('source-tag', '…', { postId, supabaseCode: error.code })` — no raw PII
 - Return user-safe message in the error envelope
 
 **Auth Errors:**
@@ -166,7 +166,7 @@ render the panel at a page/section region rather than reaching for a toast.
 
 ## Production Logging
 
-**Vercel:** `console.log` / `console.error` from server actions and route handlers appear in Vercel Dashboard → Project → Logs. Use consistent `[tags]` for filtering. See `logging.mdc` for level selection.
+**Vercel:** Server actions and route handlers log through `appLog`, which mirrors to console as `[tag] message` (and optional context) when at or above the minimum log level — those mirrored lines appear in Vercel Dashboard → Project → Logs. Filter by the bracketed tag prefix (e.g. `[auth-confirm]`) to narrow by source. See `logging.mdc` for level selection.
 
 **Client:** avoid noisy production logging; rely on error UI.
 
