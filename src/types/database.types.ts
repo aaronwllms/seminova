@@ -129,6 +129,7 @@ export type Database = {
           last_sign_in_at: string
         }[]
       }
+      purge_expired_app_logs: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
