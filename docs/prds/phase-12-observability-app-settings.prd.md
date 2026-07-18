@@ -120,7 +120,7 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 - Setup docs note the extension.
 - `pnpm pre-push` is green.
 
-### Epic 8: Logs page — browse
+### Epic 8: Logs page — browse `Complete`
 
 - **8.1 Browse logs.** A new admin page lists logs newest-first — timestamp, level badge, tag, and a truncated single-line message — with a row expanding on click to reveal the full message and its context. Paging is cursor-based on the timestamp rather than offset, because the table is written to concurrently and offset paging drifts and slows under inserts. Mockup: `.mockups/admin_logs_page.html`.
 - **8.2 Copy a row.** A row copies its message and formatted context to the clipboard, reusing the error panel's existing copy pattern, for pasting into an AI chat or elsewhere.

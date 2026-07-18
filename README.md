@@ -147,7 +147,7 @@ pnpm promote-admin your@email.com
 4. Grant yourself admin access using one of the options in [Grant admin access](#grant-admin-access) above.
 5. **Re-login** if you were already signed in — the admin role is embedded in the JWT and won't appear until you start a fresh session.
 
-6. Open the admin area at [http://localhost:3000/admin](http://localhost:3000/admin) (admins land here after login; non-admins land on `/home`). `/admin/users` lists signed-up accounts with email search, column sort, configurable page size, and in-app promote/demote and ban/unban; `/admin/settings` edits runtime configuration (registry-driven, per-row save).
+6. Open the admin area at [http://localhost:3000/admin](http://localhost:3000/admin) (admins land here after login; non-admins land on `/home`). `/admin/users` lists signed-up accounts with email search, column sort, configurable page size, and in-app promote/demote and ban/unban; `/admin/logs` browses persisted application logs with cursor paging, timestamp sort direction, row detail, and copy-to-clipboard; `/admin/settings` edits runtime configuration (registry-driven, per-row save).
 
 Companion CLI commands (bootstrap / automation): `pnpm demote-admin <email>`, `pnpm delete-user <email>` (test-account cleanup; requires secret key and confirmation naming the target project), `pnpm list-admins` (read-only, no confirmation).
 
