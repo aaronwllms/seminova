@@ -229,6 +229,8 @@ The one-time `pnpm exec supabase link` step is covered in Quick start above. Fro
 2. Apply: `pnpm db:push` (confirm when prompted)
 3. Regenerate types: `pnpm db:types`
 
+One migration enables the **`pg_cron`** extension and schedules a daily purge of `app_logs` rows older than the **Log retention window** on `/admin/settings` — change that value anytime; the next scheduled run (03:00 UTC) picks it up with no redeploy. After the first push, you can confirm the job under Supabase Dashboard → Integrations → Cron (`purge-expired-app-logs`).
+
 See [AGENTS.md](AGENTS.md) and [`.cursor/rules/do-migrations-agent.mdc`](.cursor/rules/do-migrations-agent.mdc) for agent constraints.
 
 ---
