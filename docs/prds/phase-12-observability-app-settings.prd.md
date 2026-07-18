@@ -1,7 +1,7 @@
 # PRD — Phase 12: Observability & App Settings
 
 **Status:** `Active`
-**Last updated:** 2026-07-17
+**Last updated:** 2026-07-18
 
 ---
 
@@ -77,7 +77,7 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 - The CI check scripts are untouched and still on plain `console.*`.
 - `pnpm pre-push` is green.
 
-### Epic 5: Client log relay
+### Epic 5: Client log relay `Complete`
 
 - **5.1 The client wrapper.** Browser call sites log through a client wrapper that prints to the browser console immediately and posts the same log to a server relay. The set of client call sites is closed and declared in code — a call names a declared key rather than inventing a tag — mirroring how the settings registry fixes the set of settings. The console print is immediate and ungated: a developer's devtools level filter is theirs, not an admin's to set remotely. An `Error` passed as context is flattened to its name, message, and stack before the call, because an `Error` can't survive the serialization boundary intact. Nothing awaits the post; a failed post never surfaces to the user or changes the caller's control flow.
 - **5.2 The relay.** A route handler at a stable, documented path accepts a declared key, level, message, and context, and forwards them to the existing request wrapper — it does not write to the log table itself, so the threshold check and the deferred write stay in one place. It constructs the tag itself from the key under a `client-` namespace, so a browser cannot produce a tag outside that namespace or forge one belonging to a server seam. An unknown key is rejected. Cross-origin posts are rejected. Context is validated as a plain object or absent, and over-cap context is truncated rather than dropped, with the row recording that truncation happened so an admin reading it isn't misled. Where a session is present it reads it server-side and attaches the user id — the only field in a relayed row that isn't a browser claim. Absence of a session is normal and never blocks the write. Design and trade-offs settled in [ADR-0007](../adr/ADR-0007-client-log-relay-unauthenticated.md).
