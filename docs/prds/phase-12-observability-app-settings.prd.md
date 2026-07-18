@@ -66,7 +66,7 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 - CLI-script logs persist.
 - `pnpm pre-push` is green.
 
-### Epic 4: Console sweep
+### Epic 4: Console sweep `Complete`
 
 - **4.1 Application logs move onto the wrapper.** Every application log in `src/` routes through the request wrapper, with each site's existing bracket-prefixed tag split out into the explicit tag argument. Two sites don't follow the convention — one passes a tag variable, one interpolates the tag mid-message — and need the sweep to read what they actually hold rather than a mechanical find-replace.
 - **4.2 Admin CLI logs move onto the CLI variant.** The promote, demote, and list-admins scripts and their shared CLI library route through the CLI variant. The CI hard-constraint check scripts stay on plain `console.*` deliberately — they're CI output, not application runtime behavior, and persisting them would muddy a page meant for what's happening in a running app.
