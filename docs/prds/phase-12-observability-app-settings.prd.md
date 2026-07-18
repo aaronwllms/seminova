@@ -135,7 +135,7 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 - The page is admin-gated.
 - `pnpm pre-push` is green.
 
-### Epic 9: Logs page — triage
+### Epic 9: Logs page — triage `Complete`
 
 - **9.0 Shared stat-tile filter primitive.** A reusable stat-tile component (label, count, color role, resting vs. selected visual state) and a `useToggleFilterSet<T>()` hook (a `Set` of active values, click-to-toggle, a designated "clear all" value) — extracted here since this is the first of two pages that need it. Epic 12 consumes both rather than re-implementing.
 - **9.1 Stat-tile filters.** Six stat tiles built on 9.0's primitive replace the originally-planned multi-select chips — Total, Debug, Info, Warn, Error, Unread — each a global count unaffected by other active filters. Resting state: light tint background and thin (0.5px) border in role color — gray for Total/Debug, blue for Info, amber for Warn, red for Error, purple for Unread. Selected state: bold 2px border, same fill. Debug/Info/Warn/Error/Unread are independently multi-selectable; Total is never itself selected and clicking it clears any active selection among the other five. Tag stays a separate searchable dropdown, populated from tags actually present, composing with tile selections and search. Mockup: `.mockups/admin_logs_page.html`.
