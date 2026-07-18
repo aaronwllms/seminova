@@ -53,7 +53,7 @@ export const TOAST_ICON_VARIANTS: readonly ToastIconVariantConfig[] = [
     variant: 'loading',
     message: 'Working on it...',
     icon: Loader2Icon,
-    iconClassName: 'text-muted-foreground animate-spin',
+    iconClassName: 'text-primary animate-spin',
   },
 ] as const
 
