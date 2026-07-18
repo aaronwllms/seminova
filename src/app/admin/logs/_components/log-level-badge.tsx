@@ -37,7 +37,13 @@ export const LogLevelBadge = ({ level, className }: LogLevelBadgeProps) => {
 
   if (level === 'debug') {
     return (
-      <Badge variant="outline" className={className}>
+      <Badge
+        variant="outline"
+        className={cn(
+          'border-border bg-muted/50 text-muted-foreground',
+          className,
+        )}
+      >
         {LEVEL_LABELS[level]}
       </Badge>
     )
