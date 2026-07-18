@@ -37,7 +37,7 @@ export const LogsStatTiles = ({
         label="Total"
         count={counts.total}
         role="total"
-        selected={selectedLevels.length === 0 && !unreadOnly}
+        selected={false}
         onClick={onTotalClick}
       />
       {LOG_LEVELS.map((level) => (

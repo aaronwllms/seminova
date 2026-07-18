@@ -15,6 +15,7 @@ import {
   type DataTablePageSize,
 } from '@/constants/data-table'
 import { useToggleFilterSet } from '@/hooks/use-toggle-filter-set'
+import type { AppError } from '@/types/app-error'
 import type { LogLevel } from '@/types/app-settings'
 
 import type {
@@ -87,8 +88,8 @@ export const LogsTable = () => {
   const cursor = cursorStack[cursorStackIndex] ?? null
   const page = cursorStackIndex + 1
 
-  const { stats } = useAdminLogStats()
-  const { tags } = useAdminLogTags()
+  const { stats, error: statsError } = useAdminLogStats()
+  const { tags, error: tagsError } = useAdminLogTags()
   const {
     rows,
     hasNextPage,
@@ -103,9 +104,18 @@ export const LogsTable = () => {
     filters,
   })
 
-  const { mutate: markLogRead } = useMarkLogReadMutation()
-  const { mutate: markAllLogsRead, isPending: isMarkAllPending } =
-    useMarkAllLogsReadMutation()
+  const { mutate: markLogRead, error: markLogReadError } =
+    useMarkLogReadMutation()
+  const {
+    mutate: markAllLogsRead,
+    isPending: isMarkAllPending,
+    error: markAllReadError,
+  } = useMarkAllLogsReadMutation()
+
+  const mutationAppError =
+    (markLogReadError ?? markAllReadError)
+      ? ((markLogReadError ?? markAllReadError) as unknown as AppError)
+      : null
 
   const resetCursorStack = useCallback(() => {
     setCursorStack([null])
@@ -217,14 +227,20 @@ export const LogsTable = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <LogsStatTiles
-        stats={stats}
-        selectedLevels={selectedLevels}
-        unreadOnly={unreadOnly}
-        onTotalClick={handleTotalClick}
-        onLevelToggle={handleLevelToggle}
-        onUnreadToggle={handleUnreadToggle}
-      />
+      {statsError ? (
+        <AppErrorSurface error={statsError} />
+      ) : (
+        <LogsStatTiles
+          stats={stats}
+          selectedLevels={selectedLevels}
+          unreadOnly={unreadOnly}
+          onTotalClick={handleTotalClick}
+          onLevelToggle={handleLevelToggle}
+          onUnreadToggle={handleUnreadToggle}
+        />
+      )}
+
+      {tagsError ? <AppErrorSurface error={tagsError} /> : null}
 
       <LogsToolbar
         searchInput={searchInput}
@@ -232,12 +248,15 @@ export const LogsTable = () => {
         selectedTag={selectedTag}
         onTagChange={handleTagChange}
         tags={tags}
+        tagsDisabled={tagsError !== null}
         onMarkAllRead={handleMarkAllRead}
         markAllDisabled={filteredUnreadCount === 0}
         isMarkAllPending={isMarkAllPending}
       />
 
       {error ? <AppErrorSurface error={error} /> : null}
+
+      <AppErrorSurface error={mutationAppError} />
 
       <div aria-busy={isFetching}>
         <DataTableShell

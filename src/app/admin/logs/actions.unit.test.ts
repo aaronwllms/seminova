@@ -6,6 +6,10 @@ const getUserMock = vi.fn()
 const createClientMock = vi.fn()
 const listAppLogsPageMock = vi.fn()
 const countFilteredUnreadLogsMock = vi.fn()
+const listAppLogStatsMock = vi.fn()
+const listAppLogTagsMock = vi.fn()
+const markLogReadMock = vi.fn()
+const markAllLogsReadMock = vi.fn()
 
 vi.mock('@/supabase/server', () => ({
   createClient: () => createClientMock(),
@@ -15,11 +19,19 @@ vi.mock('./_lib/list-app-logs', () => ({
   listAppLogsPage: (...args: unknown[]) => listAppLogsPageMock(...args),
 }))
 
+vi.mock('./_lib/list-app-log-stats', () => ({
+  listAppLogStats: (...args: unknown[]) => listAppLogStatsMock(...args),
+}))
+
+vi.mock('./_lib/list-app-log-tags', () => ({
+  listAppLogTags: (...args: unknown[]) => listAppLogTagsMock(...args),
+}))
+
 vi.mock('./_lib/mark-app-logs-read', () => ({
   countFilteredUnreadLogs: (...args: unknown[]) =>
     countFilteredUnreadLogsMock(...args),
-  markLogRead: vi.fn(),
-  markAllLogsRead: vi.fn(),
+  markLogRead: (...args: unknown[]) => markLogReadMock(...args),
+  markAllLogsRead: (...args: unknown[]) => markAllLogsReadMock(...args),
 }))
 
 const adminUser = {
@@ -34,6 +46,10 @@ describe('listLogsAction', () => {
     createClientMock.mockReset()
     listAppLogsPageMock.mockReset()
     countFilteredUnreadLogsMock.mockReset()
+    listAppLogStatsMock.mockReset()
+    listAppLogTagsMock.mockReset()
+    markLogReadMock.mockReset()
+    markAllLogsReadMock.mockReset()
 
     createClientMock.mockResolvedValue({
       auth: { getUser: getUserMock },
@@ -137,6 +153,258 @@ describe('listLogsAction', () => {
         tag: null,
         search: null,
       },
+    })
+  })
+})
+
+describe('getLogStatsAction', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    getUserMock.mockReset()
+    createClientMock.mockReset()
+    listAppLogStatsMock.mockReset()
+
+    createClientMock.mockResolvedValue({
+      auth: { getUser: getUserMock },
+    })
+    getUserMock.mockResolvedValue({
+      data: { user: adminUser },
+      error: null,
+    })
+  })
+
+  it('should return FORBIDDEN when caller is not admin', async () => {
+    getUserMock.mockResolvedValue({
+      data: { user: { id: 'user-1', app_metadata: {} } },
+      error: null,
+    })
+
+    const { getLogStatsAction } = await import('./actions')
+    const result = await getLogStatsAction()
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Forbidden',
+        code: 'FORBIDDEN',
+        kind: 'operational',
+      },
+    })
+    expect(listAppLogStatsMock).not.toHaveBeenCalled()
+  })
+
+  it('should return success envelope with global stats', async () => {
+    const stats = {
+      total: 10,
+      debug: 1,
+      info: 4,
+      warn: 2,
+      error: 3,
+      unread: 5,
+    }
+    listAppLogStatsMock.mockResolvedValue(stats)
+
+    const { getLogStatsAction } = await import('./actions')
+    const result = await getLogStatsAction()
+
+    expect(result).toEqual({
+      success: true,
+      data: stats,
+    })
+    expect(listAppLogStatsMock).toHaveBeenCalledWith(expect.any(Object))
+  })
+})
+
+describe('listLogTagsAction', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    getUserMock.mockReset()
+    createClientMock.mockReset()
+    listAppLogTagsMock.mockReset()
+
+    createClientMock.mockResolvedValue({
+      auth: { getUser: getUserMock },
+    })
+    getUserMock.mockResolvedValue({
+      data: { user: adminUser },
+      error: null,
+    })
+  })
+
+  it('should return FORBIDDEN when caller is not admin', async () => {
+    getUserMock.mockResolvedValue({
+      data: { user: { id: 'user-1', app_metadata: {} } },
+      error: null,
+    })
+
+    const { listLogTagsAction } = await import('./actions')
+    const result = await listLogTagsAction()
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Forbidden',
+        code: 'FORBIDDEN',
+        kind: 'operational',
+      },
+    })
+    expect(listAppLogTagsMock).not.toHaveBeenCalled()
+  })
+
+  it('should return success envelope with distinct tags', async () => {
+    listAppLogTagsMock.mockResolvedValue(['auth-session', 'settings-read'])
+
+    const { listLogTagsAction } = await import('./actions')
+    const result = await listLogTagsAction()
+
+    expect(result).toEqual({
+      success: true,
+      data: ['auth-session', 'settings-read'],
+    })
+    expect(listAppLogTagsMock).toHaveBeenCalledWith(expect.any(Object))
+  })
+})
+
+describe('markLogReadAction', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    getUserMock.mockReset()
+    createClientMock.mockReset()
+    markLogReadMock.mockReset()
+
+    createClientMock.mockResolvedValue({
+      auth: { getUser: getUserMock },
+    })
+    getUserMock.mockResolvedValue({
+      data: { user: adminUser },
+      error: null,
+    })
+  })
+
+  it('should return FORBIDDEN when caller is not admin', async () => {
+    getUserMock.mockResolvedValue({
+      data: { user: { id: 'user-1', app_metadata: {} } },
+      error: null,
+    })
+
+    const { markLogReadAction } = await import('./actions')
+    const result = await markLogReadAction({ id: 1 })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Forbidden',
+        code: 'FORBIDDEN',
+        kind: 'operational',
+      },
+    })
+    expect(markLogReadMock).not.toHaveBeenCalled()
+  })
+
+  it('should return VALIDATION_ERROR for an invalid log id', async () => {
+    const { markLogReadAction } = await import('./actions')
+    const result = await markLogReadAction({ id: 0 })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Invalid log id',
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
+    })
+    expect(markLogReadMock).not.toHaveBeenCalled()
+  })
+
+  it('should return success envelope after marking a log read', async () => {
+    markLogReadMock.mockResolvedValue(undefined)
+
+    const { markLogReadAction } = await import('./actions')
+    const result = await markLogReadAction({ id: 42 })
+
+    expect(result).toEqual({
+      success: true,
+      data: { id: 42 },
+    })
+    expect(markLogReadMock).toHaveBeenCalledWith(expect.any(Object), 42)
+  })
+})
+
+describe('markAllLogsReadAction', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    getUserMock.mockReset()
+    createClientMock.mockReset()
+    markAllLogsReadMock.mockReset()
+
+    createClientMock.mockResolvedValue({
+      auth: { getUser: getUserMock },
+    })
+    getUserMock.mockResolvedValue({
+      data: { user: adminUser },
+      error: null,
+    })
+  })
+
+  it('should return FORBIDDEN when caller is not admin', async () => {
+    getUserMock.mockResolvedValue({
+      data: { user: { id: 'user-1', app_metadata: {} } },
+      error: null,
+    })
+
+    const { markAllLogsReadAction } = await import('./actions')
+    const result = await markAllLogsReadAction()
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Forbidden',
+        code: 'FORBIDDEN',
+        kind: 'operational',
+      },
+    })
+    expect(markAllLogsReadMock).not.toHaveBeenCalled()
+  })
+
+  it('should return VALIDATION_ERROR for invalid filters', async () => {
+    const { markAllLogsReadAction } = await import('./actions')
+    const result = await markAllLogsReadAction({
+      filters: { levels: ['bad'] } as never,
+    })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Invalid level filters',
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
+    })
+    expect(markAllLogsReadMock).not.toHaveBeenCalled()
+  })
+
+  it('should return success envelope with marked count', async () => {
+    markAllLogsReadMock.mockResolvedValue(3)
+
+    const { markAllLogsReadAction } = await import('./actions')
+    const result = await markAllLogsReadAction({
+      filters: {
+        levels: ['error'],
+        unreadOnly: true,
+        tag: null,
+        search: null,
+      },
+    })
+
+    expect(result).toEqual({
+      success: true,
+      data: { markedCount: 3 },
+    })
+    expect(markAllLogsReadMock).toHaveBeenCalledWith(expect.any(Object), {
+      levels: ['error'],
+      unreadOnly: true,
+      tag: null,
+      search: null,
     })
   })
 })

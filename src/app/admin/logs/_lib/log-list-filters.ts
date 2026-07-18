@@ -1,4 +1,6 @@
-import { LOG_LEVELS, type LogLevel } from '@/types/app-settings'
+import type { LogLevel } from '@/types/app-settings'
+
+import { isLogLevel } from './app-log-row'
 
 export const LOG_SEARCH_MAX_LENGTH = 200
 export const LOG_TAG_MAX_LENGTH = 100
@@ -65,9 +67,6 @@ export const applyLogListFilters = (
 
   return result
 }
-
-const isLogLevel = (value: string): value is LogLevel =>
-  (LOG_LEVELS as readonly string[]).includes(value)
 
 export const parseLogListFiltersInput = (
   input: unknown,

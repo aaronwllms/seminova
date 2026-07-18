@@ -55,7 +55,7 @@ export const formatLogTimestamp = (
   return `${dateFormatter.format(date)}.${ms}`
 }
 
-const isLogLevel = (value: string): value is LogLevel =>
+export const isLogLevel = (value: string): value is LogLevel =>
   (LOG_LEVELS as readonly string[]).includes(value)
 
 export const mapAppLogRow = (row: AppLogDbRow): AppLogRow => ({

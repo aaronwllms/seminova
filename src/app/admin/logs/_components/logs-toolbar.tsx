@@ -4,13 +4,8 @@ import { Search } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+
+import { LogsTagCombobox } from './logs-tag-combobox'
 
 interface LogsToolbarProps {
   searchInput: string
@@ -18,6 +13,7 @@ interface LogsToolbarProps {
   selectedTag: string | null
   onTagChange: (tag: string | null) => void
   tags: string[]
+  tagsDisabled?: boolean
   onMarkAllRead: () => void
   markAllDisabled: boolean
   isMarkAllPending: boolean
@@ -29,6 +25,7 @@ export const LogsToolbar = ({
   selectedTag,
   onTagChange,
   tags,
+  tagsDisabled = false,
   onMarkAllRead,
   markAllDisabled,
   isMarkAllPending,
@@ -49,22 +46,12 @@ export const LogsToolbar = ({
       />
     </div>
 
-    <Select
-      value={selectedTag ?? '__all__'}
-      onValueChange={(value) => onTagChange(value === '__all__' ? null : value)}
-    >
-      <SelectTrigger className="w-full sm:w-[180px]" aria-label="Filter by tag">
-        <SelectValue placeholder="All tags" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="__all__">All tags</SelectItem>
-        {tags.map((tag) => (
-          <SelectItem key={tag} value={tag}>
-            {tag}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <LogsTagCombobox
+      tags={tags}
+      selectedTag={selectedTag}
+      onTagChange={onTagChange}
+      disabled={tagsDisabled}
+    />
 
     <Button
       type="button"
