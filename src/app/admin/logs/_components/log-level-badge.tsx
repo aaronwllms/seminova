@@ -44,7 +44,10 @@ export const LogLevelBadge = ({ level, className }: LogLevelBadgeProps) => {
   }
 
   return (
-    <Badge variant="default" className={className}>
+    <Badge
+      variant="outline"
+      className={cn('border-info bg-info/15 text-info', className)}
+    >
       {LEVEL_LABELS[level]}
     </Badge>
   )

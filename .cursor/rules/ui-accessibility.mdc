@@ -23,7 +23,7 @@ Mechanically enforced via `check:a11y-structure` and `check:a11y-contrast` — s
 
 Semantic token foreground pairs in `src/app/globals.css` (`:root` and `.dark`) must meet **WCAG AA 4.5:1** for text-on-surface:
 
-`background`/`foreground`, `card`/`card-foreground`, `popover`/`popover-foreground`, `primary`/`primary-foreground`, `secondary`/`secondary-foreground`, `muted`/`muted-foreground`, `accent`/`accent-foreground`, `destructive`/`destructive-foreground`, `success`/`success-foreground`, `warning`/`warning-foreground`, `sidebar`/`sidebar-foreground`, `sidebar-primary`/`sidebar-primary-foreground`, `sidebar-accent`/`sidebar-accent-foreground`.
+`background`/`foreground`, `card`/`card-foreground`, `popover`/`popover-foreground`, `primary`/`primary-foreground`, `secondary`/`secondary-foreground`, `muted`/`muted-foreground`, `accent`/`accent-foreground`, `destructive`/`destructive-foreground`, `success`/`success-foreground`, `warning`/`warning-foreground`, `info`/`info-foreground`, `sidebar`/`sidebar-foreground`, `sidebar-primary`/`sidebar-primary-foreground`, `sidebar-accent`/`sidebar-accent-foreground`.
 
 Chart, border, ring, and input tokens are out of scope (no foreground partner). Token parsing ceilings (var() indirection, alpha compositing) — see `scripts/checks/a11y-contrast.mjs` `// debt:` markers.
 

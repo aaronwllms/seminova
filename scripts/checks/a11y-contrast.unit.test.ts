@@ -31,6 +31,8 @@ const MINIMAL_THEME_CSS = `
   --success-foreground: oklch(1 0 0);
   --warning: oklch(0.55 0.18 45);
   --warning-foreground: oklch(1 0 0);
+  --info: oklch(0.5 0.1 241);
+  --info-foreground: oklch(1 0 0);
   --sidebar: oklch(0.95 0.01 260);
   --sidebar-foreground: oklch(0.2 0.03 260);
   --sidebar-primary: oklch(0.5 0.2 260);
@@ -59,6 +61,8 @@ const MINIMAL_THEME_CSS = `
   --success-foreground: oklch(0.2 0.04 260);
   --warning: oklch(0.7 0.18 52);
   --warning-foreground: oklch(0.2 0.04 260);
+  --info: oklch(0.68 0.12 241);
+  --info-foreground: oklch(0.2 0.04 260);
   --sidebar: oklch(0.28 0.04 260);
   --sidebar-foreground: oklch(0.93 0.01 260);
   --sidebar-primary: oklch(0.68 0.16 277);

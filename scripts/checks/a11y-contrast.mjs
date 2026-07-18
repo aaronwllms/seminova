@@ -44,6 +44,11 @@ export const TOKEN_PAIRS = [
     minRatio: MIN_TEXT_RATIO,
   },
   {
+    base: 'info',
+    foreground: 'info-foreground',
+    minRatio: MIN_TEXT_RATIO,
+  },
+  {
     base: 'sidebar',
     foreground: 'sidebar-foreground',
     minRatio: MIN_TEXT_RATIO,

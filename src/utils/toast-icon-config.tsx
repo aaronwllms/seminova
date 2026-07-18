@@ -35,7 +35,7 @@ export const TOAST_ICON_VARIANTS: readonly ToastIconVariantConfig[] = [
     variant: 'info',
     message: 'Password expires in 3 days',
     icon: InfoIcon,
-    iconClassName: 'text-primary',
+    iconClassName: 'text-info',
   },
   {
     variant: 'warning',

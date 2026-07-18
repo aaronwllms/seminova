@@ -85,6 +85,7 @@ Token **names** below. Values: see `globals.css` only.
 | `destructive`, `destructive-foreground` | `bg-destructive`, `text-destructive`, `text-destructive-foreground` |
 | `success`, `success-foreground`         | `bg-success`, `text-success`, `text-success-foreground`             |
 | `warning`, `warning-foreground`         | `bg-warning`, `text-warning`, `text-warning-foreground`             |
+| `info`, `info-foreground`               | `bg-info`, `text-info`, `text-info-foreground`                      |
 | `border`                                | `border-border`                                                     |
 | `input`                                 | `border-input`                                                      |
 | `ring`                                  | `ring-ring`                                                         |
@@ -160,6 +161,15 @@ Body uses `font-sans antialiased`. Mono stacks apply to code blocks and `font-mo
 - Copy token values from `globals.css` into component files or this document.
 
 For full hard-constraint wording, see [AGENTS.md › Hard constraints](AGENTS.md#hard-constraints). Consumption detail: [`.cursor/rules/ui-styling.mdc`](.cursor/rules/ui-styling.mdc).
+
+### Status color consumption
+
+Status tokens (`destructive`, `warning`, `success`, `info`) each ship with a `-foreground` partner for solid fills. **`primary`** is brand/actions; **`accent`** is hover/highlight chrome — neither is a log-level or toast status color.
+
+| Pattern                     | When                                                               | Utilities                                                                                |
+| --------------------------- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| Tinted chip / outline badge | Stat tiles, warn/info log badges, status icons on neutral surfaces | `bg-{status}/15`, `text-{status}`, `border-{status}`; selected stat tiles add `border-2` |
+| Solid badge / button        | Strong emphasis (e.g. error log badge via destructive variant)     | `bg-{status}`, `text-{status}-foreground`                                                |
 
 ---
 

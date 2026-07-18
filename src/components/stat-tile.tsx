@@ -11,7 +11,7 @@ const statTileVariants = cva(
       role: {
         total: 'bg-card text-muted-foreground border-[0.5px] border-border',
         debug: 'bg-muted/50 text-muted-foreground border-[0.5px] border-border',
-        info: 'bg-accent/40 text-accent-foreground border-[0.5px] border-accent',
+        info: 'bg-info/15 text-info border-[0.5px] border-info',
         warn: 'bg-warning/15 text-warning border-[0.5px] border-warning',
         error:
           'bg-destructive/10 text-destructive border-[0.5px] border-destructive',
@@ -36,7 +36,7 @@ const statTileVariants = cva(
       {
         role: 'info',
         selected: true,
-        className: 'border-2 border-accent',
+        className: 'border-2 border-info',
       },
       {
         role: 'warn',
