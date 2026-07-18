@@ -3,6 +3,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -46,32 +47,32 @@ export const LogDetailDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="flex flex-wrap items-center gap-2">
-            <span className="font-mono text-sm">{log.timestampLabel}</span>
+        <DialogHeader className="border-border space-y-3 border-b pr-8 pb-4">
+          <DialogTitle>Log details</DialogTitle>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-muted-foreground font-mono text-sm">
+              {log.timestampLabel}
+            </span>
             <LogLevelBadge level={log.level} />
             <span className="text-muted-foreground font-mono text-sm">
               {log.tag}
             </span>
-          </DialogTitle>
+          </div>
         </DialogHeader>
         <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium">Message</p>
-            <p className="text-sm wrap-break-word whitespace-pre-wrap">
-              {log.message}
-            </p>
-          </div>
+          <p className="text-sm wrap-break-word whitespace-pre-wrap">
+            {log.message}
+          </p>
           <div className="flex flex-col gap-2">
             <p className="text-sm font-medium">Context</p>
             <pre className="bg-muted max-h-64 overflow-auto rounded-md p-3 font-mono text-xs">
               {formatContextJson(log.context)}
             </pre>
           </div>
-          <div className="flex justify-end">
-            <LogCopyButton copyText={copyText} ariaLabel="Copy log details" />
-          </div>
         </div>
+        <DialogFooter>
+          <LogCopyButton copyText={copyText} ariaLabel="Copy log details" />
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )
