@@ -3,17 +3,8 @@ import { after } from 'next/server'
 import { logLevelRank } from '@/config/app-settings-registry'
 import type { LogLevel } from '@/types/app-settings'
 import { getAppSetting } from '@/utils/app-settings'
+import { mirrorLogToConsole } from '@/utils/app-log-console'
 import { normalizeLogContext, persistAppLogRow } from '@/utils/persist-app-log'
-
-const CONSOLE_BY_LEVEL: Record<
-  LogLevel,
-  (message?: unknown, ...optionalParams: unknown[]) => void
-> = {
-  debug: console.debug.bind(console),
-  info: console.log.bind(console),
-  warn: console.warn.bind(console),
-  error: console.error.bind(console),
-}
 
 const logAtLevel = (
   level: LogLevel,
@@ -28,14 +19,7 @@ const logAtLevel = (
       return
     }
 
-    const consoleFn = CONSOLE_BY_LEVEL[level]
-    const formattedMessage = `[${tag}] ${message}`
-
-    if (context !== undefined) {
-      consoleFn(formattedMessage, context)
-    } else {
-      consoleFn(formattedMessage)
-    }
+    mirrorLogToConsole(level, tag, message, context)
 
     await persistAppLogRow({
       level,

@@ -11,15 +11,24 @@ alwaysApply: false
 
 ## Core Principle
 
-No `@/utils/logger` module — use bracket-tagged `console.*` so Vercel Functions logs (and terminal output for CLI scripts) stay searchable and scannable. This file owns log-level selection and tagging; `error-handling.mdc` owns error taxonomy and response envelopes for actual failures.
+Application logs route through two wrappers — both mirror to console (bracket-tag format preserved) and persist when above threshold:
+
+- **`appLog`** ([`src/utils/app-logger.ts`](../../src/utils/app-logger.ts)) — Next.js server contexts (Server Components, Server Actions, route handlers). Sync/void; persistence deferred via `after()`.
+- **`cliLog`** ([`src/utils/app-logger-cli.ts`](../../src/utils/app-logger-cli.ts)) — CLI scripts under `scripts/`. Async/awaited persistence.
+
+No separate `@/utils/logger` module. This file owns log-level selection and tagging; `error-handling.mdc` owns error taxonomy and response envelopes for actual failures.
+
+The tag is an **explicit first argument** to the wrapper, not a prefix embedded in the message — the wrapper formats `[tag] message` for console output.
+
+**Raw `console.*` remains correct** in `scripts/checks/*.mjs` (CI hard-constraint output, not application runtime logs) and at the persist path's own failure site in [`persist-app-log.ts`](../../src/utils/persist-app-log.ts) (logging through the wrapper would recurse).
 
 ## Tag Convention
 
-Every log line carries a `[kebab-case-source]` tag matching the file or feature it comes from. Any log line reporting a failure passes the error object as the second argument — including a `console.warn` that reports a failed sub-operation, not just `console.error`.
+Every log line carries a `[kebab-case-source]` tag matching the file or feature it comes from — pass it as the wrapper's first argument. Any log line reporting a failure passes the error object as the context argument — including a `warn` that reports a failed sub-operation, not just `error`.
 
 ```typescript
-console.warn('[promote-admin] user@example.com is now an admin')
-console.error('[api-posts] Unexpected error', error)
+appLog.warn('promote-admin', 'user@example.com is now an admin')
+appLog.error('api-posts', 'Unexpected error', error)
 ```
 
 ## Level Taxonomy

@@ -42,9 +42,13 @@ export const persistAppLogRow = async (input: AppLogInsert): Promise<void> => {
     })
 
     if (error) {
+      // Persist failures cannot route through appLog/cliLog — that would recurse back
+      // into persistAppLogRow. Epic 5's raw-console guardrail must exempt this site.
       console.error('[persist-app-log] Failed to insert log row', error)
     }
   } catch (error) {
+    // Persist failures cannot route through appLog/cliLog — that would recurse back
+    // into persistAppLogRow. Epic 5's raw-console guardrail must exempt this site.
     console.error('[persist-app-log] Failed to insert log row', error)
   }
 }

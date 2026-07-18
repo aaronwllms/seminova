@@ -227,13 +227,7 @@ Directory-level map. File-level detail lives in the [Implemented now](#implement
 
 ## Logging convention
 
-No `@/utils/logger` module. Use bracket-tagged `console.*` so Vercel logs are searchable:
-
-```typescript
-console.error('[auth-login] Sign-in failed', error)
-```
-
-See [.cursor/rules/error-handling.mdc](.cursor/rules/error-handling.mdc). Never log passwords, tokens, or API keys.
+Log level, tagging, and wrapper usage: [.cursor/rules/logging.mdc](.cursor/rules/logging.mdc).
 
 ---
 

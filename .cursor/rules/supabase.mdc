@@ -12,7 +12,7 @@ globs:
 
 ## Migration Safety Protocol
 
-**Shipped schema:** 6 custom migrations — [`20260622120000_create_profiles.sql`](../../supabase/migrations/20260622120000_create_profiles.sql) (`public.profiles`, 1:1 with `auth.users`), [`20260623120000_create_avatars_bucket.sql`](../../supabase/migrations/20260623120000_create_avatars_bucket.sql) (`storage.avatars` bucket with owner-scoped RLS), [`20260715003530_admin_list_users.sql`](../../supabase/migrations/20260715003530_admin_list_users.sql) (`public.admin_list_users` RPC), [`20260715004901_admin_list_users_banned_sort.sql`](../../supabase/migrations/20260715004901_admin_list_users_banned_sort.sql) (`admin_list_users` banned-column sort), [`20260715175218_admin_list_users_show_banned_filter.sql`](../../supabase/migrations/20260715175218_admin_list_users_show_banned_filter.sql) (`admin_list_users` show-banned filter), [`20260716041928_create_app_settings.sql`](../../supabase/migrations/20260716041928_create_app_settings.sql) (`public.app_settings` admin-editable runtime configuration). See `AGENTS.md` data model section for full detail. Additional migrations live in `supabase/migrations/`; humans apply them via Supabase CLI; agents write SQL files only.
+**Shipped schema:** see [AGENTS.md § Data model](../../AGENTS.md#data-model-summary) for the authoritative migration list and per-table detail. Additional migrations live in `supabase/migrations/`; humans apply them via Supabase CLI; agents write SQL files only.
 
 **Agents** — see `do-migrations-agent.mdc`, `supabase-sql.mdc`, and `.cursor/skills/create-migration/SKILL.md`:
 
