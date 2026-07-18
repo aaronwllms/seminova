@@ -42,7 +42,7 @@ export type Database = {
       app_logs: {
         Row: {
           context: Json | null
-          context_text: string
+          context_text: string | null
           created_at: string
           id: number
           level: string
@@ -52,7 +52,7 @@ export type Database = {
         }
         Insert: {
           context?: Json | null
-          context_text?: never
+          context_text?: string | null
           created_at?: string
           id?: never
           level: string
@@ -62,7 +62,7 @@ export type Database = {
         }
         Update: {
           context?: Json | null
-          context_text?: never
+          context_text?: string | null
           created_at?: string
           id?: never
           level?: string
