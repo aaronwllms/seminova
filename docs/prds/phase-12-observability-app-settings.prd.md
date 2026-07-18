@@ -99,7 +99,7 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 - `logging.mdc`'s server-only claim matches the code, and its exemption table is grouped by category with each surface's real reason.
 - `pnpm pre-push` is green.
 
-### Epic 6: Raw console guardrail
+### Epic 6: Raw console guardrail `Complete`
 
 - **6.1 The guardrail.** A check rejects raw `console.*` outside the wrapper across the swept surfaces, so new ones can't creep back in; the CI check scripts stay exempt. A new `check:*` pairs one-to-one with a hard-constraint entry, so this routes through the AGENTS.md change protocol as a deliberate addition. It sequences after both sweeps — its passing state is only meaningful once every existing call site, server and browser alike, has moved.
 
