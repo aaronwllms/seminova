@@ -4,10 +4,7 @@
 import { ESLint, type Linter } from 'eslint'
 import { describe, expect, it } from 'vitest'
 
-import eslintConfig, {
-  NO_RAW_CONSOLE_IGNORES,
-  noRawConsoleRule,
-} from './eslint.config.mjs'
+import eslintConfig, { noRawConsoleRule } from './eslint.config.mjs'
 
 const BOUNDARY_FIXTURE =
   'src/app/(app)/_lib/profile/client-server-boundary.fixture.ts'
@@ -58,6 +55,19 @@ const getServerOnlyImportRule = (): Linter.RuleEntry => {
   return block.rules['no-restricted-imports']
 }
 
+const isNoRawConsoleBlock = (block: Linter.Config): boolean =>
+  block.rules?.['no-console'] === noRawConsoleRule
+
+const getNoRawConsoleBlock = (): Linter.Config => {
+  const block = (eslintConfig as Linter.Config[]).find(isNoRawConsoleBlock)
+
+  if (!block?.rules?.['no-console']) {
+    throw new Error('Expected no-console block in eslint.config.mjs')
+  }
+
+  return block
+}
+
 describe('eslint server-only import boundary', () => {
   it('should report no-restricted-imports on the boundary fixture', async () => {
     const eslint = new ESLint({
@@ -94,7 +104,7 @@ describe('eslint no-raw-console guardrail', () => {
         {
           files: [RAW_CONSOLE_BOUNDARY_FIXTURE],
           rules: {
-            'no-console': noRawConsoleRule,
+            'no-console': getNoRawConsoleBlock().rules!['no-console'],
           },
         },
       ],
@@ -111,15 +121,7 @@ describe('eslint no-raw-console guardrail', () => {
   it('should pass no-console on shipped swept paths', async () => {
     const eslint = new ESLint({
       cwd: process.cwd(),
-      overrideConfig: [
-        {
-          files: ['src/**/*.{ts,tsx}', 'scripts/admin/**/*.{ts,tsx}'],
-          ignores: NO_RAW_CONSOLE_IGNORES,
-          rules: {
-            'no-console': noRawConsoleRule,
-          },
-        },
-      ],
+      overrideConfig: [getNoRawConsoleBlock()],
     })
 
     const results = await eslint.lintFiles(SHIPPED_NO_RAW_CONSOLE_PATHS)

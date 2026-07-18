@@ -8,7 +8,7 @@ import testScopeNamingRule from './eslint-rules/test-scope-naming.mjs'
 const SHADCN_PKG_MESSAGE =
   'Primitive-first UI: own components in src/components/ui — do not install shadcn as an npm package.'
 
-/** Mirrors logging.mdc exempt surfaces — keep in sync with check:no-raw-console. */
+/** Mirrors logging.mdc exempt surfaces — keep in sync with logging.mdc. */
 export const NO_RAW_CONSOLE_IGNORES = [
   '**/*.{test,unit.test,integration.test}.{ts,tsx}',
   'src/utils/persist-app-log.ts',

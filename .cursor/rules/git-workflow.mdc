@@ -86,7 +86,7 @@ test(components): add tests for login-form component
 - `type-check` — TypeScript across the whole project (`tsc --noEmit`)
 
 **pre-push** (before every push) — see [`.husky/pre-push`](../../.husky/pre-push):
-- `pnpm pre-push` → type-check → hard-constraint checks (`check:pnpm-only`, `check:no-shadcn-pkg`, `check:semantic-tokens`, `check:seo-base-url`, `check:a11y-structure`, `check:a11y-contrast`) → lint → format-check → `test:ci` (with coverage thresholds)
+- `pnpm pre-push` → type-check → hard-constraint checks (`check:pnpm-only`, `check:no-shadcn-pkg`, `check:semantic-tokens`, `check:admin-gate`, `check:seo-base-url`, `check:a11y-structure`, `check:a11y-contrast`, `check:no-raw-console`) → lint → format-check → `test:ci` (with coverage thresholds)
 
 Mirrors CI exactly — a passing push should pass CI.
 
@@ -97,7 +97,7 @@ pnpm pre-push
 Equivalent manual run:
 
 ```bash
-pnpm type-check && pnpm check:pnpm-only && pnpm check:no-shadcn-pkg && pnpm check:semantic-tokens && pnpm check:seo-base-url && pnpm check:a11y-structure && pnpm check:a11y-contrast && pnpm lint && pnpm format-check && pnpm test:ci
+pnpm type-check && pnpm check:pnpm-only && pnpm check:no-shadcn-pkg && pnpm check:semantic-tokens && pnpm check:admin-gate && pnpm check:seo-base-url && pnpm check:a11y-structure && pnpm check:a11y-contrast && pnpm check:no-raw-console && pnpm lint && pnpm format-check && pnpm test:ci
 ```
 
 **CI** (pull requests) — [`.github/workflows/pull-request.yaml`](../../.github/workflows/pull-request.yaml): type-check, hard-constraint checks, lint, format-check, `test:ci` (with coverage).
