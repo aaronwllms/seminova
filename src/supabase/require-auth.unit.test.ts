@@ -15,25 +15,14 @@ vi.mock('@/utils/app-logger', () => ({
   },
 }))
 
-vi.mock('./read-auth-cookie', () => ({
-  readAccessTokenFromCookies: () => mockReadAccessTokenFromCookies(),
-  readJwtExpFromAccessToken: (accessToken: string) => {
-    const segments = accessToken.split('.')
-    if (segments.length !== 3) {
-      return null
-    }
+vi.mock('./read-auth-cookie', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('./read-auth-cookie')>()
 
-    try {
-      const payload = JSON.parse(
-        Buffer.from(segments[1], 'base64url').toString('utf-8'),
-      ) as { exp?: unknown }
-
-      return typeof payload.exp === 'number' ? payload.exp : null
-    } catch {
-      return null
-    }
-  },
-}))
+  return {
+    ...actual,
+    readAccessTokenFromCookies: () => mockReadAccessTokenFromCookies(),
+  }
+})
 
 vi.mock('./server', () => ({
   createClient: () => mockCreateClient(),

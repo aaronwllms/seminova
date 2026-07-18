@@ -29,6 +29,18 @@ export const parseAuthenticatedClaims = (
   return { ...claims, sub }
 }
 
+const isAccessTokenExpired = (
+  accessToken: string,
+): { expired: boolean; exp: number | null } => {
+  const exp = readJwtExpFromAccessToken(accessToken)
+  const nowSeconds = Math.floor(Date.now() / 1000)
+
+  return {
+    expired: exp !== null && exp < nowSeconds,
+    exp,
+  }
+}
+
 /**
  * Display-only auth claims for protected-route server reads. Reads the access
  * token from cookies (no refresh) and validates via
@@ -68,10 +80,9 @@ export const getDisplayAuthClaims = async (): Promise<AuthenticatedClaims> => {
       throw new DisplayAuthInvariantError('Session claims malformed')
     }
 
-    const exp = readJwtExpFromAccessToken(accessToken)
-    const nowSeconds = Math.floor(Date.now() / 1000)
+    const { expired, exp } = isAccessTokenExpired(accessToken)
 
-    if (exp !== null && exp < nowSeconds) {
+    if (expired) {
       appLog.debug(
         'require-auth',
         'Display claims read with expired access token',
@@ -120,10 +131,9 @@ export const hasServerAuthSession = async (): Promise<boolean> => {
       return false
     }
 
-    const exp = readJwtExpFromAccessToken(accessToken)
-    const nowSeconds = Math.floor(Date.now() / 1000)
+    const { expired, exp } = isAccessTokenExpired(accessToken)
 
-    if (exp !== null && exp < nowSeconds) {
+    if (expired) {
       appLog.debug(
         'require-auth',
         'Session probe succeeded with expired access token',
