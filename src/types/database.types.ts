@@ -118,10 +118,11 @@ export type Database = {
     Functions: {
       admin_list_users: {
         Args: {
+          p_filter_banned: boolean
+          p_filter_unverified: boolean
           p_page: number
           p_per_page: number
           p_search: string
-          p_show_banned: boolean
           p_sort_column: string
           p_sort_direction: string
         }
@@ -133,6 +134,14 @@ export type Database = {
           email_confirmed_at: string
           id: string
           last_sign_in_at: string
+        }[]
+      }
+      admin_user_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          banned: number
+          total: number
+          unverified: number
         }[]
       }
       purge_expired_app_logs: { Args: never; Returns: undefined }

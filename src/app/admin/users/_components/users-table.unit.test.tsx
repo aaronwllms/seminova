@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { UsersTable } from './users-table'
 
 const listUsersActionMock = vi.fn()
+const getUserStatsActionMock = vi.fn()
 const promoteUserActionMock = vi.fn()
 const demoteUserActionMock = vi.fn()
 const banUserActionMock = vi.fn()
@@ -14,6 +15,7 @@ const showSuccessToastMock = vi.fn()
 
 vi.mock('../actions', () => ({
   listUsersAction: (...args: unknown[]) => listUsersActionMock(...args),
+  getUserStatsAction: (...args: unknown[]) => getUserStatsActionMock(...args),
   promoteUserAction: (...args: unknown[]) => promoteUserActionMock(...args),
   demoteUserAction: (...args: unknown[]) => demoteUserActionMock(...args),
   banUserAction: (...args: unknown[]) => banUserActionMock(...args),
@@ -32,12 +34,14 @@ const defaultListParams = {
   sortColumn: 'created_at',
   sortDirection: 'desc',
   perPage: 15,
-  showBanned: false,
+  filterUnverified: false,
+  filterBanned: false,
 } as const
 
 describe('UsersTable', () => {
   beforeEach(() => {
     listUsersActionMock.mockReset()
+    getUserStatsActionMock.mockReset()
     promoteUserActionMock.mockReset()
     demoteUserActionMock.mockReset()
     banUserActionMock.mockReset()
@@ -61,6 +65,10 @@ describe('UsersTable', () => {
         hasNextPage: false,
         page: 1,
       },
+    })
+    getUserStatsActionMock.mockResolvedValue({
+      success: true,
+      data: { total: 1, unverified: 0, banned: 0 },
     })
   })
 
@@ -117,7 +125,7 @@ describe('UsersTable', () => {
     )
   })
 
-  it('should reset page and refetch when Show banned is checked', async () => {
+  it('should reset page and refetch when Banned tile is toggled', async () => {
     const user = userEvent.setup({ delay: null })
 
     renderTable()
@@ -126,14 +134,26 @@ describe('UsersTable', () => {
       expect(listUsersActionMock).toHaveBeenCalledWith(defaultListParams)
     })
 
-    await user.click(screen.getByRole('checkbox', { name: /show banned/i }))
+    await user.click(screen.getByRole('button', { name: /banned/i }))
 
     await waitFor(() => {
       expect(listUsersActionMock).toHaveBeenLastCalledWith({
         ...defaultListParams,
-        showBanned: true,
+        filterBanned: true,
       })
     })
+  })
+
+  it('should not render the Show banned checkbox', async () => {
+    renderTable()
+
+    await waitFor(() => {
+      expect(screen.getByText('admin@example.com')).toBeInTheDocument()
+    })
+
+    expect(
+      screen.queryByRole('checkbox', { name: /show banned/i }),
+    ).not.toBeInTheDocument()
   })
 
   it('should show an error with copy affordance when listUsersAction fails', async () => {

@@ -17,7 +17,8 @@ type UseAdminUsersListOptions = {
   sortColumn: UsersSortColumn
   sortDirection: UsersSortDirection
   perPage: DataTablePageSize
-  showBanned?: boolean
+  filterUnverified?: boolean
+  filterBanned?: boolean
 }
 
 export const useAdminUsersList = ({
@@ -26,7 +27,8 @@ export const useAdminUsersList = ({
   sortColumn,
   sortDirection,
   perPage,
-  showBanned = false,
+  filterUnverified = false,
+  filterBanned = false,
 }: UseAdminUsersListOptions) => {
   const query = useQuery({
     queryKey: adminUsersQueryKeys.list(
@@ -35,7 +37,8 @@ export const useAdminUsersList = ({
       sortColumn,
       sortDirection,
       perPage,
-      showBanned,
+      filterUnverified,
+      filterBanned,
     ),
     queryFn: async () => {
       const result = await listUsersAction({
@@ -44,7 +47,8 @@ export const useAdminUsersList = ({
         sortColumn,
         sortDirection,
         perPage,
-        showBanned,
+        filterUnverified,
+        filterBanned,
       })
       return unwrapListUsersResult(result)
     },

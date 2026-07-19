@@ -9,10 +9,10 @@ import {
   DataTableShell,
 } from '@/components/data-table-shell'
 import { DataTablePaginationControls } from '@/components/data-table-pagination-controls'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import type { AdminBanDuration } from '@/constants/admin-ban'
+import { useToggleFilterSet } from '@/hooks/use-toggle-filter-set'
 import type { AppError } from '@/types/app-error'
 
 import {
@@ -29,6 +29,7 @@ import {
 } from '../_lib/admin-user-row'
 import { useAdminUserBanMutation } from '../_lib/use-admin-user-ban-mutation'
 import { useAdminUserRoleMutation } from '../_lib/use-admin-user-role-mutation'
+import { useAdminUserStats } from '../_lib/use-admin-user-stats'
 import { useAdminUsersList } from '../_lib/use-admin-users-list'
 import { BanUserDialog } from './ban-user-dialog'
 import {
@@ -37,6 +38,7 @@ import {
 } from './promote-demote-dialog'
 import type { UserMutationConfirmAction } from './user-mutation-confirm-action'
 import { UnbanUserDialog } from './unban-user-dialog'
+import { UsersStatTiles } from './users-stat-tiles'
 import { createUsersColumns } from './users-columns'
 
 const SEARCH_DEBOUNCE_MS = 300
@@ -64,7 +66,13 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [searchInput, setSearchInput] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
-  const [showBanned, setShowBanned] = useState(false)
+  const {
+    toggle: toggleFilter,
+    clearAll: clearFilters,
+    isActive: isFilterActive,
+  } = useToggleFilterSet<'unverified' | 'banned'>()
+  const filterUnverified = isFilterActive('unverified')
+  const filterBanned = isFilterActive('banned')
   const [confirmAction, setConfirmAction] = useState<RoleConfirmAction | null>(
     null,
   )
@@ -79,6 +87,7 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
     : 'created_at'
   const sortDirection: UsersSortDirection = activeSort?.desc ? 'desc' : 'asc'
 
+  const { stats, error: statsError } = useAdminUserStats()
   const {
     rows,
     hasNextPage,
@@ -91,7 +100,8 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
     sortColumn,
     sortDirection,
     perPage,
-    showBanned,
+    filterUnverified,
+    filterBanned,
   })
 
   const {
@@ -134,10 +144,20 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
     setPage(1)
   }, [])
 
-  const handleShowBannedChange = useCallback((checked: boolean) => {
-    setShowBanned(checked)
+  const handleTotalClick = useCallback(() => {
+    clearFilters()
     setPage(1)
-  }, [])
+  }, [clearFilters])
+
+  const handleUnverifiedToggle = useCallback(() => {
+    toggleFilter('unverified')
+    setPage(1)
+  }, [toggleFilter])
+
+  const handleBannedToggle = useCallback(() => {
+    toggleFilter('banned')
+    setPage(1)
+  }, [toggleFilter])
 
   const resetMutations = useCallback(() => {
     resetRoleMutation()
@@ -277,41 +297,38 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-end gap-4">
-        <div className="flex min-w-[12rem] flex-1 flex-col gap-2">
-          <Label htmlFor="users-email-search">Search by email</Label>
-          <Input
-            id="users-email-search"
-            type="search"
-            placeholder="Search by email…"
-            value={searchInput}
-            onChange={(event) => setSearchInput(event.target.value)}
-            aria-describedby={
-              showSearchHint ? 'users-email-search-hint' : undefined
-            }
-          />
-          {showSearchHint ? (
-            <p
-              id="users-email-search-hint"
-              className="text-muted-foreground text-sm"
-            >
-              Enter at least {USERS_SEARCH_MIN_LENGTH} characters to search
-              email.
-            </p>
-          ) : null}
-        </div>
-        <div className="flex items-center gap-2 pb-2">
-          <Checkbox
-            id="users-show-banned"
-            checked={showBanned}
-            onCheckedChange={(checked) =>
-              handleShowBannedChange(checked === true)
-            }
-          />
-          <Label htmlFor="users-show-banned">Show banned</Label>
-        </div>
+      <UsersStatTiles
+        stats={stats}
+        filterUnverified={filterUnverified}
+        filterBanned={filterBanned}
+        onTotalClick={handleTotalClick}
+        onUnverifiedToggle={handleUnverifiedToggle}
+        onBannedToggle={handleBannedToggle}
+      />
+
+      <div className="flex min-w-[12rem] flex-col gap-2">
+        <Label htmlFor="users-email-search">Search by email</Label>
+        <Input
+          id="users-email-search"
+          type="search"
+          placeholder="Search by email…"
+          value={searchInput}
+          onChange={(event) => setSearchInput(event.target.value)}
+          aria-describedby={
+            showSearchHint ? 'users-email-search-hint' : undefined
+          }
+        />
+        {showSearchHint ? (
+          <p
+            id="users-email-search-hint"
+            className="text-muted-foreground text-sm"
+          >
+            Enter at least {USERS_SEARCH_MIN_LENGTH} characters to search email.
+          </p>
+        ) : null}
       </div>
 
+      {statsError ? <AppErrorSurface error={statsError} /> : null}
       {listError ? <AppErrorSurface error={listError} /> : null}
 
       <AppErrorSurface error={mutationAppError} />
