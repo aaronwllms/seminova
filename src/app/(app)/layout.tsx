@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
-import { cookies } from 'next/headers'
+import { connection } from 'next/server'
 
 import { AuthenticatedBannerSlot } from '@/components/authenticated-banner-slot'
-import { BANNER_DISMISSED_AUTHENTICATED_COOKIE } from '@/constants/banner-cookies'
 import { getResolvedAppSettings } from '@/utils/app-settings'
 import { resolveLiveBannerSlot } from '@/utils/banner-dismiss-cookie'
 
@@ -18,10 +17,10 @@ type AppLayoutProps = {
 
 export default async function AppLayout({ children }: AppLayoutProps) {
   const settings = await getResolvedAppSettings()
-  const cookieStore = await cookies()
+  await connection()
   const authenticatedBanner = resolveLiveBannerSlot(
     settings.banner_authenticated,
-    cookieStore.get(BANNER_DISMISSED_AUTHENTICATED_COOKIE)?.value,
+    undefined,
   )
 
   return (
@@ -30,7 +29,6 @@ export default async function AppLayout({ children }: AppLayoutProps) {
         <AuthenticatedBannerSlot
           key={authenticatedBanner.dismissKey}
           config={authenticatedBanner.config}
-          dismissKey={authenticatedBanner.dismissKey}
         />
       ) : null}
       <AppShell>{children}</AppShell>
