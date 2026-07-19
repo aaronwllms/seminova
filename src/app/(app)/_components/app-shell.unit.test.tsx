@@ -25,19 +25,13 @@ vi.mock('@/components/site-footer', () => ({
   SiteFooter: () => <footer data-testid="site-footer" />,
 }))
 
-import { DEFAULT_BANNER_SETTING } from '@/types/banner'
-
 import { render, screen } from '@/test/test-utils'
 
 import { AppShell } from './app-shell'
 
 describe('AppShell', () => {
   it('should render header, main content, and footer without a shell-level profile provider', () => {
-    render(
-      <AppShell bannerConfig={DEFAULT_BANNER_SETTING}>
-        {<p>Profile content</p>}
-      </AppShell>,
-    )
+    render(<AppShell>{<p>Profile content</p>}</AppShell>)
 
     expect(screen.getByTestId('site-header')).toBeInTheDocument()
     expect(screen.getAllByTestId('app-header-account-nav-slot')).toHaveLength(2)

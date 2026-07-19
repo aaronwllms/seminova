@@ -1,5 +1,3 @@
-export const BANNER_DISMISS_STORAGE_PREFIX = 'banner-dismiss:' as const
-
 export const buildBannerDismissHash = (
   headline: string,
   detail: string | null,
@@ -14,8 +12,7 @@ export const buildBannerDismissHash = (
   return (hash >>> 0).toString(36)
 }
 
-export const buildBannerDismissStorageKey = (
+export const buildBannerDismissKey = (
   headline: string,
   detail: string | null,
-): string =>
-  `${BANNER_DISMISS_STORAGE_PREFIX}${buildBannerDismissHash(headline, detail)}`
+): string => buildBannerDismissHash(headline, detail)

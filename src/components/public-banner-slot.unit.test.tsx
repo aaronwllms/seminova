@@ -1,17 +1,36 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
+import { PublicBannerSlot } from '@/components/public-banner-slot'
+import { BANNER_DISMISSED_PUBLIC_COOKIE } from '@/constants/banner-cookies'
 import { DEFAULT_BANNER_SETTING } from '@/types/banner'
-import { buildBannerDismissStorageKey } from '@/utils/banner-dismiss-hash'
+import { readBannerDismissCookieValue } from '@/utils/banner-dismiss-cookie'
+import { buildBannerDismissKey } from '@/utils/banner-dismiss-hash'
 import { render, screen, userEvent } from '@/test/test-utils'
-
-import { PublicBannerSlot } from './public-banner-slot'
 
 describe('PublicBannerSlot', () => {
   beforeEach(() => {
-    window.localStorage.clear()
+    document.cookie = `${BANNER_DISMISSED_PUBLIC_COOKIE}=; path=/; max-age=0`
   })
 
-  it('should persist dismissal to localStorage keyed by headline and detail', async () => {
+  it('should render nothing when initialDismissed is true', () => {
+    const config = {
+      ...DEFAULT_BANNER_SETTING,
+      mode: 'on' as const,
+      headline: 'Public notice',
+    }
+
+    render(
+      <PublicBannerSlot
+        config={config}
+        dismissKey={buildBannerDismissKey(config.headline, config.detail)}
+        initialDismissed
+      />,
+    )
+
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+  })
+
+  it('should persist dismissal to the public dismiss cookie keyed by headline and detail', async () => {
     const user = userEvent.setup()
     const config = {
       ...DEFAULT_BANNER_SETTING,
@@ -19,16 +38,15 @@ describe('PublicBannerSlot', () => {
       headline: 'Public notice',
       detail: 'Details here',
     }
-    const dismissKey = buildBannerDismissStorageKey(
-      config.headline,
-      config.detail,
-    )
+    const dismissKey = buildBannerDismissKey(config.headline, config.detail)
 
-    render(<PublicBannerSlot config={config} />)
+    render(<PublicBannerSlot config={config} dismissKey={dismissKey} />)
 
     await user.click(screen.getByRole('button', { name: 'Dismiss banner' }))
 
-    expect(window.localStorage.getItem(dismissKey)).toBe('1')
+    expect(readBannerDismissCookieValue(BANNER_DISMISSED_PUBLIC_COOKIE)).toBe(
+      dismissKey,
+    )
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
   })
 
@@ -40,18 +58,34 @@ describe('PublicBannerSlot', () => {
       headline: 'Version one',
       detail: 'First detail',
     }
+    const initialDismissKey = buildBannerDismissKey(
+      initialConfig.headline,
+      initialConfig.detail,
+    )
 
-    const { rerender } = render(<PublicBannerSlot config={initialConfig} />)
+    const { rerender } = render(
+      <PublicBannerSlot
+        config={initialConfig}
+        dismissKey={initialDismissKey}
+      />,
+    )
 
     await user.click(screen.getByRole('button', { name: 'Dismiss banner' }))
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
 
+    const nextConfig = {
+      ...initialConfig,
+      headline: 'Version two',
+    }
+
     rerender(
       <PublicBannerSlot
-        config={{
-          ...initialConfig,
-          headline: 'Version two',
-        }}
+        key={buildBannerDismissKey(nextConfig.headline, nextConfig.detail)}
+        config={nextConfig}
+        dismissKey={buildBannerDismissKey(
+          nextConfig.headline,
+          nextConfig.detail,
+        )}
       />,
     )
 
