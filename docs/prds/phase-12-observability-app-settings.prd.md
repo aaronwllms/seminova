@@ -193,37 +193,13 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 - No "Show banned" checkbox remains anywhere in the UI; the default view is unfiltered.
 - `pnpm pre-push` is green.
 
-### Epic 13: Realtime infrastructure
-
-Adoption scope and rationale are settled in [ADR-0008](../adr/ADR-0008-realtime-scoped-to-logs-tiered-freshness.md) — which tables qualify, why the logs page is `INSERT`-only, and why the users page gets refetch-on-focus instead. This epic builds what the ADR calls for.
-
-- **13.1 Shared Realtime hook.** One client hook, reusable across pages — subscribes on mount, unsubscribes on unmount, reconnects after network blips. Only fires for admin sessions, per existing RLS on `app_logs`.
-- **13.2 `app_logs` realtime migration.** Add the table to Supabase's Realtime publication.
-
-*Success:*
-- The hook subscribes/unsubscribes cleanly across mount/unmount and survives a network blip.
-- `app_logs` is in the Realtime publication after migrations run.
-- `pnpm pre-push` is green.
-
-### Epic 14: Realtime consumption — logs feed + users soft freshness
-
-- **14.1 Logs page live feed.** The logs page subscribes to Epic 13's hook for INSERT events on `app_logs`; a new row triggers an invalidate-and-refetch of the current view (respecting active filters, tags, search, and paging) rather than a raw merge. When the new row falls outside the current filtered view or page, the refetch is a silent no-op — no banner, no "jump to top" prompt. Stat tile counts (Epic 9.1) refresh on the same event.
-- **14.2 Manual refresh button.** A refresh control next to "Mark all as read" for an explicit "catch up now" action — a safety valve alongside the live feed, not a replacement for it.
-- **14.3 Users page soft freshness.** The users page refetches on tab focus, so another admin's ban/promote action surfaces without a manual reload. Focus-triggered only — no interval polling.
-
-*Success:*
-- A new log row appears on the logs page without a manual refresh, respecting whatever filters/search/paging are active; a row outside the current view produces no visible change.
-- Stat tile counts update on the same INSERT event.
-- The refresh button forces an immediate refetch.
-- Returning focus to the users page tab picks up changes made elsewhere, via a single refetch — not a polling interval.
-- `pnpm pre-push` is green.
-
 ---
 
 ## Notes
 
-- **Three ADRs written during this phase's planning** — [ADR-0006](../adr/ADR-0006-settings-reads-cached-under-one-coarse-tag.md) settles the caching design behind Epic 1.3. [ADR-0007](../adr/ADR-0007-client-log-relay-unauthenticated.md) settles Epic 5's relay: why it takes no session, why it's a route handler rather than a Server Action, and why the template ships no rate limit. [ADR-0008](../adr/ADR-0008-realtime-scoped-to-logs-tiered-freshness.md) settles Epic 13's Realtime scope: why only the logs page qualifies, why it's `INSERT`-only with invalidate-and-refetch rather than client-side merge, and why the users page gets refetch-on-focus instead of Realtime. Nothing else in the phase clears all three bars.
-- **Dependencies:** Epic 1 before Epics 3.4 and 7 (both read settings). Epic 3 before Epics 4, 5, 7, and 10 (all need a wrapper). Epics 4 and 5 before Epic 6 — the guardrail's clean-pass criterion is meaningless until both sweeps have landed, and sequencing it after both means no swept site ever enters its exemption list. Epic 5 before Epic 10 — story 10.3's avatar upload path runs in the browser and needs the relay. Epic 8 before Epic 9 (same page). Epic 8 before Epic 11 — the shared primitive is extracted from `buildLogRowCopyText`, which Epic 8 creates. Epic 10 before Epic 11 (last): Epic 11 isn't observability-themed — it's a copy-format cleanup riding at the end of the phase since it's small and depends on Epic 8's helper existing. Epic 9 before Epic 12 — Epic 12 consumes the shared stat-tile component and toggle-filter hook that Epic 9.0 extracts; Epic 12 also depends on Epic 14 from Phase 11 (extends `admin_list_users`) but has no dependency on anything else in this phase. Epic 8 before Epic 13 — Realtime targets the logs page and its filter/paging model, which Epic 8 builds. Epic 13 before Epic 14 — 14.1's logs-feed wiring and 14.3's users soft-freshness both consume the shared Realtime hook and/or the pattern the ADR sets, though 14.3 itself doesn't touch Realtime (refetch-on-focus only).
+- **Three ADRs written during this phase's planning** — [ADR-0006](../adr/ADR-0006-settings-reads-cached-under-one-coarse-tag.md) settles the caching design behind Epic 1.3. [ADR-0007](../adr/ADR-0007-client-log-relay-unauthenticated.md) settles Epic 5's relay: why it takes no session, why it's a route handler rather than a Server Action, and why the template ships no rate limit. [ADR-0008](../adr/ADR-0008-realtime-scoped-to-logs-tiered-freshness.md) settles the Realtime scope originally planned for this phase — which tables qualify, why the logs page is `INSERT`-only with invalidate-and-refetch rather than client-side merge, why the users page gets refetch-on-focus instead — but that work was descoped to Phase 13 (see next note); the ADR carries forward as its scope authority. Nothing else in the phase cleared all three bars.
+- **Realtime descoped to Phase 13.** The Realtime work originally planned here (former Epics 13–14 — the shared client hook, the `app_logs` Realtime publication, the logs-page live feed, and users-page refetch-on-focus) was moved to Phase 13. Planning surfaced that a long-lived client subscription depends on token-refresh behavior intersecting [ADR-0005](../adr/ADR-0005-proxy-as-sole-session-authority.md)'s proxy-sole-refresh model — a foundational auth question that warranted its own phase rather than a tail-end epic here.
+- **Dependencies:** Epic 1 before Epics 3.4 and 7 (both read settings). Epic 3 before Epics 4, 5, 7, and 10 (all need a wrapper). Epics 4 and 5 before Epic 6 — the guardrail's clean-pass criterion is meaningless until both sweeps have landed, and sequencing it after both means no swept site ever enters its exemption list. Epic 5 before Epic 10 — story 10.3's avatar upload path runs in the browser and needs the relay. Epic 8 before Epic 9 (same page). Epic 8 before Epic 11 — the shared primitive is extracted from `buildLogRowCopyText`, which Epic 8 creates. Epic 10 before Epic 11 (last): Epic 11 isn't observability-themed — it's a copy-format cleanup riding at the end of the phase since it's small and depends on Epic 8's helper existing. Epic 9 before Epic 12 — Epic 12 consumes the shared stat-tile component and toggle-filter hook that Epic 9.0 extracts; Epic 12 also depends on Epic 14 from Phase 11 (extends `admin_list_users`) but has no dependency on anything else in this phase.
 - **Epics 8 and 9 deliberately split one page across two epics.** The logs page's scope is more than one context window holds. The intermediate state — a logs page with no filters — is real but harmless, since nothing ships to users mid-phase.
 - **Epic 3.4's threshold criterion is server- and CLI-scoped.** "A below-threshold call produces neither console output nor a row" holds for `appLog` and `cliLog`. Epic 5's client mirror deliberately prints regardless of threshold — the browser console has its own per-developer level filter, and gating it on an admin setting would both invert that ownership and reintroduce the staleness window ADR-0006 exists to prevent. Epic 3 is shipped; its criterion isn't rewritten.
 - **Known gap: nothing rate-limits the relay.** A closed key set, a context size cap, threshold gating, and Epic 7's purge all bound what a relayed row *is*; none bounds how many. Accepted at template scope and recorded in ADR-0007, which carries the rationale and the mitigation — so this is not a ROADMAP open question.
