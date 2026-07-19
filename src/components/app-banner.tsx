@@ -40,6 +40,15 @@ const VARIANT_BADGE_CLASSES: Record<BannerVariant, string> = {
   info: 'bg-info',
 }
 
+const VARIANT_DISMISS_BUTTON_CLASSES: Record<BannerVariant, string> = {
+  primary: 'hover:bg-primary/25 hover:text-primary dark:hover:bg-primary/25',
+  success: 'hover:bg-success/25 hover:text-success dark:hover:bg-success/25',
+  warning: 'hover:bg-warning/25 hover:text-warning dark:hover:bg-warning/25',
+  destructive:
+    'hover:bg-destructive/25 hover:text-destructive dark:hover:bg-destructive/25',
+  info: 'hover:bg-info/25 hover:text-info dark:hover:bg-info/25',
+}
+
 const VARIANT_ICONS: Record<BannerVariant, LucideIcon> = {
   primary: Megaphone,
   success: Check,
@@ -102,7 +111,10 @@ export const AppBanner = ({
               type="button"
               variant="ghost"
               size="icon-xs"
-              className="text-muted-foreground shrink-0"
+              className={cn(
+                'text-muted-foreground shrink-0',
+                VARIANT_DISMISS_BUTTON_CLASSES[config.variant],
+              )}
               aria-label="Dismiss banner"
               onClick={onDismiss}
             >
