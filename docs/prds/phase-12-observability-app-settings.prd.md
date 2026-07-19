@@ -193,7 +193,7 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 - No "Show banned" checkbox remains anywhere in the UI; the default view is unfiltered.
 - `pnpm pre-push` is green.
 
-### Epic 13: Banner engine & placement
+### Epic 13: Banner engine & placement `Complete`
 
 - **13.1 Banner settings.** Two new registry entries — `banner_public` and `banner_authenticated` — each holding: `mode` (`off` | `on` | `scheduled`), `starts_at` (nullable timestamp, only meaningful in scheduled mode — absent means the schedule starts immediately), `expires_at` (timestamp, required when mode is scheduled), `headline` (string, max 80 characters, supports inline `[text](url)` link and `**bold**` syntax), `detail` (string, optional, max 100 characters, same inline syntax), `variant` (`primary` | `success` | `warning` | `destructive` | `info`), and `show_icon` (boolean). Reuses Epic 1's registry/store pattern — no new persistence mechanism.
 - **13.2 Message parser.** A small parser (regex-based, not a markdown library) splits `headline` and `detail` into text/link/bold segments for safe rendering — no raw HTML ever comes from either stored string. A parsed link may target a relative path or an external `http`/`https` URL; a URL of any other scheme (e.g. `javascript:`, `data:`) renders as plain text, not a clickable link.
