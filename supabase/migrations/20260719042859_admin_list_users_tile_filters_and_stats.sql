@@ -72,6 +72,7 @@ begin
     u.raw_app_meta_data,
     u.banned_until
   from (
+    -- debt: identical inner subquery in admin_user_stats; extract to a shared SQL function or view if a third RPC needs the same shape
     select
       u_inner.*,
       (u_inner.email_confirmed_at is not null) as is_verified,
@@ -163,6 +164,7 @@ begin
     count(*) filter (where not u.is_verified)::bigint as unverified,
     count(*) filter (where u.is_currently_banned)::bigint as banned
   from (
+    -- debt: identical inner subquery in admin_list_users; extract to a shared SQL function or view if a third RPC needs the same shape
     select
       (u_inner.email_confirmed_at is not null) as is_verified,
       (u_inner.banned_until is not null and u_inner.banned_until > now()) as is_currently_banned

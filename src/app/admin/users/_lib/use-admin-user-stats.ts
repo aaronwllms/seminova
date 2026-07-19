@@ -4,23 +4,15 @@ import { useQuery } from '@tanstack/react-query'
 
 import type { AppError } from '@/types/app-error'
 
+import { unwrapStatsActionResult } from '@/app/admin/_lib/unwrap-stats-action-result'
+
 import { getUserStatsAction } from '../actions'
 import { adminUsersQueryKeys } from './admin-users-query-keys'
-
-const unwrapStatsResult = (
-  result: Awaited<ReturnType<typeof getUserStatsAction>>,
-) => {
-  if (!result.success) {
-    throw result.error
-  }
-
-  return result.data
-}
 
 export const useAdminUserStats = () => {
   const query = useQuery({
     queryKey: adminUsersQueryKeys.stats(),
-    queryFn: async () => unwrapStatsResult(await getUserStatsAction()),
+    queryFn: async () => unwrapStatsActionResult(await getUserStatsAction()),
     retry: (failureCount, error) =>
       (error as unknown as AppError)?.kind === 'fault' && failureCount < 1,
     retryDelay: 0,
