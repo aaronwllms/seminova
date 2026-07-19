@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 
 import { BannerPreviewThemeWrapper } from '@/app/admin/settings/_components/banner-preview-theme-wrapper'
+import { BannerStartsAtField } from '@/app/admin/settings/_components/banner-starts-at-field'
 import { saveAppSettingAction } from '@/app/admin/settings/_lib/actions'
 import { AppBanner } from '@/components/app-banner'
 import { AppErrorSurface } from '@/components/app-error-surface'
@@ -216,36 +217,16 @@ export const BannerSettingRow = <
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Starts</FormLabel>
-                      <div className="flex items-center gap-2">
-                        <FormControl>
-                          <Input
-                            type="datetime-local"
-                            {...field}
-                            disabled={isSaving}
-                            onChange={(event) => {
-                              field.onChange(event.target.value)
-                              setError(null)
-                            }}
-                          />
-                        </FormControl>
-                        {field.value ? (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            disabled={isSaving}
-                            onClick={() => {
-                              field.onChange('')
-                              setError(null)
-                            }}
-                          >
-                            Clear
-                          </Button>
-                        ) : null}
-                      </div>
-                      {!field.value ? (
-                        <p className="text-muted-foreground text-xs">Now</p>
-                      ) : null}
+                      <FormControl>
+                        <BannerStartsAtField
+                          value={field.value}
+                          disabled={isSaving}
+                          onChange={(value) => {
+                            field.onChange(value)
+                            setError(null)
+                          }}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -377,43 +358,24 @@ export const BannerSettingRow = <
               />
             </div>
 
-            <div className="flex flex-col gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="self-start"
-                disabled={isSaveDisabled}
-                onClick={() => void handleSave()}
-              >
-                {isSaving ? 'Saving…' : 'Save'}
-              </Button>
-              <AppErrorSurface error={error} />
-            </div>
-
             {showPreview ? (
-              <div className="border-t pt-4">
-                <div className="flex items-center justify-between gap-3">
-                  <FormLabel className="mb-0">Preview</FormLabel>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      setPreviewThemeOverride((current) => {
-                        const activeTheme =
-                          current ??
-                          (resolvedTheme === 'dark' ? 'dark' : 'light')
+              <div className="flex items-center justify-between gap-3">
+                <FormLabel className="mb-0">Preview</FormLabel>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    setPreviewThemeOverride((current) => {
+                      const activeTheme =
+                        current ?? (resolvedTheme === 'dark' ? 'dark' : 'light')
 
-                        return activeTheme === 'light' ? 'dark' : 'light'
-                      })
-                    }
-                  >
-                    {previewTheme === 'light'
-                      ? 'Preview dark'
-                      : 'Preview light'}
-                  </Button>
-                </div>
+                      return activeTheme === 'light' ? 'dark' : 'light'
+                    })
+                  }
+                >
+                  {previewTheme === 'light' ? 'Preview dark' : 'Preview light'}
+                </Button>
               </div>
             ) : null}
           </div>
@@ -421,10 +383,25 @@ export const BannerSettingRow = <
       </AccordionContent>
 
       {showPreview ? (
-        <div className="pb-3">
+        <div className={cn(isExpanded ? 'pb-4' : 'pb-3')}>
           <BannerPreviewThemeWrapper theme={previewTheme}>
             <AppBanner preview config={previewConfig} />
           </BannerPreviewThemeWrapper>
+        </div>
+      ) : null}
+
+      {isExpanded ? (
+        <div className="flex flex-col gap-2 border-t pt-4 pb-4">
+          <div className="flex justify-end">
+            <Button
+              type="button"
+              disabled={isSaveDisabled}
+              onClick={() => void handleSave()}
+            >
+              {isSaving ? 'Saving…' : 'Save'}
+            </Button>
+          </div>
+          <AppErrorSurface error={error} />
         </div>
       ) : null}
     </AccordionItem>

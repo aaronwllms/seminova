@@ -23,23 +23,24 @@ export const BannerSettingsSection = ({
   savedSettings,
   onSaved,
 }: BannerSettingsSectionProps) => {
-  const [openItems, setOpenItems] = useState<string[]>([])
+  const [openItem, setOpenItem] = useState('')
 
   return (
     <section className="flex flex-col gap-3">
       <h2 className="text-base font-medium">Banners</h2>
       <Card className="overflow-hidden py-0">
         <Accordion
-          type="multiple"
-          value={openItems}
-          onValueChange={setOpenItems}
+          type="single"
+          collapsible
+          value={openItem}
+          onValueChange={setOpenItem}
         >
           {BANNER_REGISTRY_ENTRIES.map((entry) => (
             <BannerSettingRow
               key={entry.key}
               entry={entry}
               savedValue={savedSettings[entry.key]}
-              isExpanded={openItems.includes(entry.key)}
+              isExpanded={openItem === entry.key}
               onSaved={onSaved}
             />
           ))}

@@ -53,18 +53,19 @@ describe('BannerSettingRow', () => {
     options?: { pageTheme?: 'light' | 'dark' },
   ) => {
     const ControlledRow = () => {
-      const [openItems, setOpenItems] = useState<string[]>([])
+      const [openItem, setOpenItem] = useState('')
 
       return (
         <Accordion
-          type="multiple"
-          value={openItems}
-          onValueChange={setOpenItems}
+          type="single"
+          collapsible
+          value={openItem}
+          onValueChange={setOpenItem}
         >
           <BannerSettingRow
             entry={entry}
             savedValue={savedValue}
-            isExpanded={openItems.includes('banner_public')}
+            isExpanded={openItem === 'banner_public'}
             onSaved={onSavedMock}
           />
         </Accordion>
@@ -105,6 +106,73 @@ describe('BannerSettingRow', () => {
 
     expect(screen.getByLabelText('Starts')).toBeInTheDocument()
     expect(screen.getByLabelText('Expires')).toBeInTheDocument()
+  })
+
+  it('should show Now inside the Starts field when no start time is set', async () => {
+    const user = userEvent.setup()
+
+    renderRow({
+      ...DEFAULT_BANNER_SETTING,
+      mode: 'scheduled',
+      headline: 'Scheduled headline',
+      starts_at: null,
+      expires_at: '2026-12-31T23:59:00.000Z',
+    })
+
+    await user.click(screen.getByRole('button', { name: /Public banner/i }))
+
+    expect(screen.getByLabelText('Starts')).toHaveTextContent('Now')
+  })
+
+  it('should reset Starts to Now when the clear control is clicked', async () => {
+    const user = userEvent.setup()
+
+    renderRow({
+      ...DEFAULT_BANNER_SETTING,
+      mode: 'scheduled',
+      headline: 'Scheduled headline',
+      starts_at: '2026-07-01T12:00:00.000Z',
+      expires_at: '2026-12-31T23:59:00.000Z',
+    })
+
+    await user.click(screen.getByRole('button', { name: /Public banner/i }))
+
+    await user.click(
+      screen.getByRole('button', { name: 'Reset start time to now' }),
+    )
+
+    expect(screen.getByLabelText('Starts')).toHaveTextContent('Now')
+  })
+
+  it('should hide Save when the accordion is collapsed', () => {
+    renderRow({
+      ...DEFAULT_BANNER_SETTING,
+      mode: 'on',
+      headline: 'Saved preview headline',
+    })
+
+    expect(
+      screen.queryByRole('button', { name: 'Save' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('should render Save below the preview bar when expanded', async () => {
+    const user = userEvent.setup()
+
+    renderRow({
+      ...DEFAULT_BANNER_SETTING,
+      mode: 'on',
+      headline: 'Saved preview headline',
+    })
+
+    await user.click(screen.getByRole('button', { name: /Public banner/i }))
+
+    const preview = screen.getByRole('status')
+    const save = screen.getByRole('button', { name: 'Save' })
+
+    expect(
+      preview.compareDocumentPosition(save) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
   })
 
   it('should disable Save when headline exceeds the character cap', async () => {
