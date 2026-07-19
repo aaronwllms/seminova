@@ -1,9 +1,6 @@
-import { cookies } from 'next/headers'
+import { Suspense } from 'react'
 
-import { PublicBannerSlot } from '@/components/public-banner-slot'
-import { BANNER_DISMISSED_PUBLIC_COOKIE } from '@/constants/banner-cookies'
-import { getResolvedAppSettings } from '@/utils/app-settings'
-import { resolveLiveBannerSlot } from '@/utils/banner-dismiss-cookie'
+import { PublicBannerSlotEntry } from '@/components/public-banner-slot-entry'
 
 import { LandingFooter } from './_components/landing-footer'
 import { LandingHeader } from './_components/landing-header'
@@ -12,25 +9,12 @@ type MarketingLayoutProps = {
   children: React.ReactNode
 }
 
-export default async function MarketingLayout({
-  children,
-}: MarketingLayoutProps) {
-  const settings = await getResolvedAppSettings()
-  const cookieStore = await cookies()
-  const publicBanner = resolveLiveBannerSlot(
-    settings.banner_public,
-    cookieStore.get(BANNER_DISMISSED_PUBLIC_COOKIE)?.value,
-  )
-
+export default function MarketingLayout({ children }: MarketingLayoutProps) {
   return (
     <>
-      {publicBanner ? (
-        <PublicBannerSlot
-          key={publicBanner.dismissKey}
-          config={publicBanner.config}
-          dismissKey={publicBanner.dismissKey}
-        />
-      ) : null}
+      <Suspense fallback={null}>
+        <PublicBannerSlotEntry />
+      </Suspense>
       <LandingHeader />
       {children}
       <LandingFooter />
