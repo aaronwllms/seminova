@@ -39,16 +39,24 @@ describe('BannerSettingRow', () => {
     onSavedMock.mockReset()
   })
 
-  const renderRow = (savedValue = DEFAULT_BANNER_SETTING) =>
-    render(
+  const renderRow = (
+    savedValue = DEFAULT_BANNER_SETTING,
+    options?: { pageTheme?: 'light' | 'dark' },
+  ) => {
+    const row = (
       <Accordion type="multiple">
         <BannerSettingRow
           entry={entry}
           savedValue={savedValue}
           onSaved={onSavedMock}
         />
-      </Accordion>,
+      </Accordion>
     )
+
+    return render(
+      options?.pageTheme === 'dark' ? <div className="dark">{row}</div> : row,
+    )
+  }
 
   it('should expand the form when the accordion trigger is clicked', async () => {
     const user = userEvent.setup()
@@ -165,5 +173,31 @@ describe('BannerSettingRow', () => {
       screen.getByRole('button', { name: 'Preview light' }),
     ).toBeInTheDocument()
     expect(document.querySelector('.dark.bg-background')).toBeInTheDocument()
+  })
+
+  it('should apply a light theme island to previews when the page is dark', async () => {
+    const user = userEvent.setup()
+
+    renderRow(
+      {
+        ...DEFAULT_BANNER_SETTING,
+        mode: 'on',
+        headline: 'Saved preview headline',
+      },
+      { pageTheme: 'dark' },
+    )
+
+    expect(document.querySelector('.light.bg-background')).toBeInTheDocument()
+    expect(
+      document.querySelector('.dark.bg-background'),
+    ).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /Public banner/i }))
+    await user.click(screen.getByRole('button', { name: 'Preview dark' }))
+
+    expect(document.querySelectorAll('.dark.bg-background')).toHaveLength(2)
+    expect(
+      document.querySelector('.light.bg-background'),
+    ).not.toBeInTheDocument()
   })
 })

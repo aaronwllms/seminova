@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 
+import { BannerPreviewThemeWrapper } from '@/app/admin/settings/_components/banner-preview-theme-wrapper'
 import { saveAppSettingAction } from '@/app/admin/settings/_lib/actions'
 import { AppBanner } from '@/components/app-banner'
 import { AppErrorSurface } from '@/components/app-error-surface'
@@ -159,7 +160,9 @@ export const BannerSettingRow = <
 
       {hasBannerPreviewContent(savedValue) ? (
         <div className="pb-3">
-          <AppBanner preview config={savedValue} />
+          <BannerPreviewThemeWrapper theme={previewTheme}>
+            <AppBanner preview config={savedValue} />
+          </BannerPreviewThemeWrapper>
         </div>
       ) : null}
 
@@ -388,14 +391,9 @@ export const BannerSettingRow = <
                   {previewTheme === 'light' ? 'Preview dark' : 'Preview light'}
                 </Button>
               </div>
-              <div
-                className={cn(
-                  'bg-background overflow-hidden rounded-md',
-                  previewTheme === 'dark' && 'dark',
-                )}
-              >
+              <BannerPreviewThemeWrapper theme={previewTheme}>
                 <AppBanner preview config={draftBanner} />
-              </div>
+              </BannerPreviewThemeWrapper>
             </div>
 
             <div className="flex flex-col gap-2">

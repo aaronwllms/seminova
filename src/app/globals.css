@@ -83,7 +83,8 @@
   --animate-accordion-up: accordion-up 0.2s ease-out;
 }
 
-:root {
+:root,
+.light {
   --background: oklch(0.9842 0.0034 247.8575);
   --foreground: oklch(0.2795 0.0368 260.031);
   --card: oklch(1 0 0);
