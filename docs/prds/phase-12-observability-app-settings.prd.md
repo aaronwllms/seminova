@@ -1,7 +1,7 @@
 # PRD — Phase 12: Observability & App Settings
 
 **Status:** `Active`
-**Last updated:** 2026-07-18
+**Last updated:** 2026-07-19
 
 ---
 
@@ -164,7 +164,7 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 - No seam's control flow or behavior changes as a result of its logging.
 - `pnpm pre-push` is green.
 
-### Epic 11: Structured copy standardization
+### Epic 11: Structured copy standardization `Complete`
 
 - **11.1 The shared primitive.** A new helper — `buildStructuredCopyText(fields: Record<string, unknown>)` — takes a plain object, omits any key whose value is `null` or `undefined`, and returns the result as pretty-printed JSON (2-space indent). This is the one place the omit-nullish + pretty-print logic lives.
 - **11.2 `buildLogRowCopyText` moves onto the primitive.** Epic 8's log-copy helper keeps its own field shape (`timestamp`, `level`, `tag`, `message`, `context`) but delegates the omit + format step to `buildStructuredCopyText` instead of doing it inline. Behavior and output are unchanged — this is a refactor, not a format change.
