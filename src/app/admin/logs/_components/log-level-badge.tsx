@@ -18,7 +18,13 @@ interface LogLevelBadgeProps {
 export const LogLevelBadge = ({ level, className }: LogLevelBadgeProps) => {
   if (level === 'error') {
     return (
-      <Badge variant="destructive" className={className}>
+      <Badge
+        variant="outline"
+        className={cn(
+          'border-destructive bg-destructive/10 text-destructive',
+          className,
+        )}
+      >
         {LEVEL_LABELS[level]}
       </Badge>
     )
