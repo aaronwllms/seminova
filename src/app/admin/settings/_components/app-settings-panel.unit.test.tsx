@@ -44,8 +44,13 @@ describe('AppSettingsPanel', () => {
       screen.getByRole('heading', { name: 'Logging', level: 2 }),
     ).toBeInTheDocument()
     expect(
-      screen.queryByRole('heading', { name: 'Banners', level: 2 }),
-    ).not.toBeInTheDocument()
+      screen.getByRole('heading', { name: 'Banners', level: 2 }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getAllByRole('heading', { name: 'Banners', level: 2 }),
+    ).toHaveLength(1)
+    expect(screen.getByText('Public banner')).toBeInTheDocument()
+    expect(screen.getByText('Authenticated banner')).toBeInTheDocument()
     expect(screen.getByText('min_log_level')).toBeInTheDocument()
     expect(screen.getByText('log_retention_days')).toBeInTheDocument()
 

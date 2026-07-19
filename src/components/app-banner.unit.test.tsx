@@ -70,4 +70,37 @@ describe('AppBanner', () => {
 
     expect(screen.getByRole('status')).not.toContainHTML('lucide-megaphone')
   })
+
+  it('should render in preview mode when the banner is off', () => {
+    render(
+      <AppBanner
+        preview
+        config={{
+          ...DEFAULT_BANNER_SETTING,
+          headline: 'Preview while off',
+        }}
+      />,
+    )
+
+    expect(screen.getByRole('status')).toHaveTextContent('Preview while off')
+  })
+
+  it('should not render dismiss chrome in preview mode', () => {
+    render(
+      <AppBanner
+        preview
+        config={{
+          ...DEFAULT_BANNER_SETTING,
+          mode: 'on',
+          headline: 'Preview banner',
+        }}
+        dismissible
+        onDismiss={vi.fn()}
+      />,
+    )
+
+    expect(
+      screen.queryByRole('button', { name: 'Dismiss banner' }),
+    ).not.toBeInTheDocument()
+  })
 })

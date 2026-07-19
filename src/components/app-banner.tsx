@@ -20,6 +20,7 @@ interface AppBannerProps {
   config: BannerSettingValue
   dismissible?: boolean
   onDismiss?: () => void
+  preview?: boolean
 }
 
 const VARIANT_BAR_CLASSES: Record<BannerVariant, string> = {
@@ -58,13 +59,14 @@ export const AppBanner = ({
   config,
   dismissible = false,
   onDismiss,
+  preview = false,
 }: AppBannerProps) => {
-  if (computeBannerStatus(config) !== 'live') {
+  if (!preview && computeBannerStatus(config) !== 'live') {
     return null
   }
 
   const Icon = VARIANT_ICONS[config.variant]
-  const showDismiss = dismissible && Boolean(onDismiss)
+  const showDismiss = !preview && dismissible && Boolean(onDismiss)
 
   return (
     <div

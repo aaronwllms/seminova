@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card'
 import type { AppSettingKey, ResolvedAppSettings } from '@/types/app-settings'
 
 import { AppSettingRow } from './app-setting-row'
+import { BannerSettingsSection } from './banner-settings-section'
 
 type AppSettingsPanelProps = {
   initialSettings: ResolvedAppSettings
@@ -64,6 +65,10 @@ export const AppSettingsPanel = ({
           </section>
         )
       })}
+      <BannerSettingsSection
+        savedSettings={savedSettings}
+        onSaved={handleSaved}
+      />
     </div>
   )
 }
