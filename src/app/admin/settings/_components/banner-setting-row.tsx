@@ -388,7 +388,12 @@ export const BannerSettingRow = <
                   {previewTheme === 'light' ? 'Preview dark' : 'Preview light'}
                 </Button>
               </div>
-              <div className={previewTheme === 'dark' ? 'dark' : undefined}>
+              <div
+                className={cn(
+                  'bg-background overflow-hidden rounded-md',
+                  previewTheme === 'dark' && 'dark',
+                )}
+              >
                 <AppBanner preview config={draftBanner} />
               </div>
             </div>

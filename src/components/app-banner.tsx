@@ -11,6 +11,7 @@ import {
 import type { LucideIcon } from 'lucide-react'
 
 import { BannerMessage } from '@/components/banner-message'
+import { SiteContainer } from '@/components/site-container'
 import { Button } from '@/components/ui/button'
 import type { BannerSettingValue, BannerVariant } from '@/types/banner'
 import { computeBannerStatus } from '@/utils/banner-status'
@@ -39,14 +40,6 @@ const VARIANT_BADGE_CLASSES: Record<BannerVariant, string> = {
   info: 'bg-info',
 }
 
-const VARIANT_ICON_CLASSES: Record<BannerVariant, string> = {
-  primary: 'text-primary/15',
-  success: 'text-success/15',
-  warning: 'text-warning/15',
-  destructive: 'text-destructive/15',
-  info: 'text-info/15',
-}
-
 const VARIANT_ICONS: Record<BannerVariant, LucideIcon> = {
   primary: Megaphone,
   success: Check,
@@ -71,52 +64,53 @@ export const AppBanner = ({
   return (
     <div
       role="status"
-      className={cn(
-        'flex w-full items-center gap-3 border-b px-4 py-2.5',
-        VARIANT_BAR_CLASSES[config.variant],
-      )}
+      className={cn('w-full border-b', VARIANT_BAR_CLASSES[config.variant])}
     >
-      {config.show_icon ? (
-        <span
-          className={cn(
-            'flex size-6 shrink-0 items-center justify-center rounded-md',
-            VARIANT_BADGE_CLASSES[config.variant],
-          )}
-        >
-          <Icon
-            aria-hidden
-            className={cn('size-3.5', VARIANT_ICON_CLASSES[config.variant])}
-          />
-        </span>
-      ) : null}
-      <p className="min-w-0 flex-1 text-sm leading-snug">
-        <span className="text-foreground">
-          <BannerMessage message={config.headline} />
-        </span>
-        {config.detail ? (
-          <>
-            <span className="text-muted-foreground"> · </span>
-            <span className="text-muted-foreground">
-              <BannerMessage
-                message={config.detail}
-                linkClassName="text-muted-foreground"
-              />
+      <SiteContainer className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-3 py-2.5">
+        <div aria-hidden className="min-w-0" />
+        <div className="col-start-2 flex min-w-0 items-center gap-3">
+          {config.show_icon ? (
+            <span
+              className={cn(
+                'flex size-6 shrink-0 items-center justify-center rounded-md',
+                VARIANT_BADGE_CLASSES[config.variant],
+              )}
+            >
+              <Icon aria-hidden className="text-background size-3.5" />
             </span>
-          </>
-        ) : null}
-      </p>
-      {showDismiss ? (
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-xs"
-          className="text-muted-foreground shrink-0"
-          aria-label="Dismiss banner"
-          onClick={onDismiss}
-        >
-          <X aria-hidden />
-        </Button>
-      ) : null}
+          ) : null}
+          <p className="min-w-0 text-sm leading-snug">
+            <span className="text-foreground">
+              <BannerMessage message={config.headline} />
+            </span>
+            {config.detail ? (
+              <>
+                <span className="text-muted-foreground"> · </span>
+                <span className="text-muted-foreground">
+                  <BannerMessage
+                    message={config.detail}
+                    linkClassName="text-muted-foreground"
+                  />
+                </span>
+              </>
+            ) : null}
+          </p>
+        </div>
+        <div className="col-start-3 flex justify-end">
+          {showDismiss ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              className="text-muted-foreground shrink-0"
+              aria-label="Dismiss banner"
+              onClick={onDismiss}
+            >
+              <X aria-hidden />
+            </Button>
+          ) : null}
+        </div>
+      </SiteContainer>
     </div>
   )
 }

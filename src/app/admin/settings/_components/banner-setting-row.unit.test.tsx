@@ -148,4 +148,22 @@ describe('BannerSettingRow', () => {
       'Saved preview headline',
     )
   })
+
+  it('should wrap the draft preview in dark mode with a background surface', async () => {
+    const user = userEvent.setup()
+
+    renderRow({
+      ...DEFAULT_BANNER_SETTING,
+      mode: 'on',
+      headline: 'Draft preview headline',
+    })
+
+    await user.click(screen.getByRole('button', { name: /Public banner/i }))
+    await user.click(screen.getByRole('button', { name: 'Preview dark' }))
+
+    expect(
+      screen.getByRole('button', { name: 'Preview light' }),
+    ).toBeInTheDocument()
+    expect(document.querySelector('.dark.bg-background')).toBeInTheDocument()
+  })
 })
