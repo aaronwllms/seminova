@@ -62,9 +62,15 @@ export const resolveAppSettings = async (): Promise<ResolvedAppSettings> => {
   return mergeRowsWithRegistry(rows)
 }
 
+const APP_SETTINGS_REGISTRY_FINGERPRINT = APP_SETTINGS_REGISTRY.map(
+  (entry) => entry.key,
+)
+  .sort()
+  .join(',')
+
 export const getResolvedAppSettings = unstable_cache(
   resolveAppSettings,
-  ['app-settings-snapshot'],
+  ['app-settings-snapshot', APP_SETTINGS_REGISTRY_FINGERPRINT],
   { tags: [APP_SETTINGS_CACHE_TAG] },
 )
 
