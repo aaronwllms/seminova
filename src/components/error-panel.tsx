@@ -4,41 +4,42 @@ import { AlertTriangle, Check, Copy } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
+import { buildStructuredCopyText } from '@/utils/build-structured-copy-text'
 import { cn } from '@/utils/tailwind'
 
 interface BuildErrorCopyTextParams {
   message: string
   code?: string
+  digest?: string
 }
 
 interface ErrorPanelProps {
   title?: string
   message: string
   code?: string
+  digest?: string
   className?: string
 }
 
 export const buildErrorCopyText = ({
   message,
   code,
-}: BuildErrorCopyTextParams): string => {
-  if (code) {
-    return `${message}\nCode: ${code}`
-  }
-
-  return message
-}
+  digest,
+}: BuildErrorCopyTextParams): string =>
+  buildStructuredCopyText({ message, code, digest })
 
 export const ErrorPanel = ({
   title,
   message,
   code,
+  digest,
   className,
 }: ErrorPanelProps) => {
   const { didCopy, copy } = useCopyToClipboard(
-    buildErrorCopyText({ message, code }),
+    buildErrorCopyText({ message, code, digest }),
   )
 
+  const chipLabel = code ?? digest
   const contentIndent = title ? 'pl-[30px]' : undefined
 
   return (
@@ -72,9 +73,9 @@ export const ErrorPanel = ({
       )}
 
       <div className="bg-muted ml-[30px] flex items-center justify-between gap-2 rounded-md px-2.5 py-2">
-        {code ? (
+        {chipLabel ? (
           <span className="text-muted-foreground font-mono text-sm">
-            {code}
+            {chipLabel}
           </span>
         ) : (
           <span className="sr-only">Error details</span>

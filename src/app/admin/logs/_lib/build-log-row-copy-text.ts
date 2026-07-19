@@ -1,5 +1,6 @@
 import type { AppLogContext } from '@/types/app-logs'
 import type { LogLevel } from '@/types/app-settings'
+import { buildStructuredCopyText } from '@/utils/build-structured-copy-text'
 
 export interface BuildLogRowCopyTextParams {
   createdAt: string
@@ -15,17 +16,11 @@ export const buildLogRowCopyText = ({
   tag,
   message,
   context,
-}: BuildLogRowCopyTextParams): string => {
-  const payload: Record<string, unknown> = {
+}: BuildLogRowCopyTextParams): string =>
+  buildStructuredCopyText({
     timestamp: createdAt,
     level,
     tag,
     message,
-  }
-
-  if (context !== null) {
-    payload.context = context
-  }
-
-  return JSON.stringify(payload, null, 2)
-}
+    context,
+  })

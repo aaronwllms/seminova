@@ -23,7 +23,7 @@ export default function AdminError({ error, reset }: AdminErrorProps) {
       <h1 className="text-2xl font-bold">Something went wrong</h1>
       <ErrorPanel
         message="The admin console could not be loaded. Try again or return to the app."
-        code={error.digest}
+        digest={error.digest}
       />
       <div className="flex flex-wrap gap-2">
         <Button type="button" onClick={() => reset()}>

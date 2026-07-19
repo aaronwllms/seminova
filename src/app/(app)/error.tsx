@@ -23,7 +23,7 @@ export default function AppError({ error, reset }: AppErrorProps) {
       <h1 className="text-2xl font-bold">Something went wrong</h1>
       <ErrorPanel
         message="This page could not be loaded. Try again or sign in."
-        code={error.digest}
+        digest={error.digest}
       />
       <div className="flex flex-wrap gap-2">
         <Button type="button" onClick={() => reset()}>
