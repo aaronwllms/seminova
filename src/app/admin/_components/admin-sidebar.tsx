@@ -4,6 +4,7 @@ import { ScrollText, Settings, Users } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
+import { syncAdminSettingsVisitKey } from '@/app/admin/settings/_lib/admin-settings-visit-key'
 import { SeminovaLogo } from '@/components/seminova-logo'
 import {
   ADMIN_LOGS,
@@ -36,6 +37,7 @@ type AdminSidebarProps = {
 
 export const AdminSidebar = ({ navUserSlot }: AdminSidebarProps) => {
   const pathname = usePathname()
+  syncAdminSettingsVisitKey(pathname)
 
   return (
     <Sidebar collapsible="icon">

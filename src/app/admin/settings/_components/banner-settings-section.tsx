@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 
+import { syncAdminSettingsVisitKey } from '@/app/admin/settings/_lib/admin-settings-visit-key'
 import { APP_SETTINGS_REGISTRY } from '@/config/app-settings-registry'
 import { Accordion } from '@/components/ui/accordion'
 import { Card } from '@/components/ui/card'
@@ -23,7 +25,26 @@ export const BannerSettingsSection = ({
   savedSettings,
   onSaved,
 }: BannerSettingsSectionProps) => {
+  const pathname = usePathname()
+  const settingsVisitKey = syncAdminSettingsVisitKey(pathname)
   const [openItem, setOpenItem] = useState('')
+  const [boundVisitKey, setBoundVisitKey] = useState(settingsVisitKey)
+
+  if (settingsVisitKey !== boundVisitKey) {
+    setBoundVisitKey(settingsVisitKey)
+    setOpenItem('')
+  }
+
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        setOpenItem('')
+      }
+    }
+
+    window.addEventListener('pageshow', handlePageShow)
+    return () => window.removeEventListener('pageshow', handlePageShow)
+  }, [])
 
   return (
     <section className="flex flex-col gap-3">
