@@ -55,7 +55,7 @@ export const LogDetailDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg gap-0 p-6 sm:max-w-lg">
+      <DialogContent className="gap-0 p-6 sm:max-w-2xl">
         <DialogHeader className="mb-6 space-y-0 text-left">
           <DialogTitle>Log details</DialogTitle>
         </DialogHeader>
@@ -82,9 +82,9 @@ export const LogDetailDialog = ({
           </p>
         </div>
 
-        <div className="mb-6">
+        <div className="mb-6 min-w-0">
           <p className={fieldLabelClassName}>Context</p>
-          <pre className="bg-muted text-muted-foreground max-h-64 overflow-auto rounded-md p-3 font-mono text-xs">
+          <pre className="bg-muted text-muted-foreground max-h-64 w-full min-w-0 overflow-auto rounded-md p-3 font-mono text-xs wrap-break-word whitespace-pre-wrap">
             {formatContextJson(log.context)}
           </pre>
         </div>
