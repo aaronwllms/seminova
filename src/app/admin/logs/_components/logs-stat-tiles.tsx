@@ -30,6 +30,7 @@ export const LogsStatTiles = ({
     error: 0,
     unread: 0,
   }
+  const isUnfiltered = selectedLevels.length === 0 && !unreadOnly
 
   return (
     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
@@ -37,7 +38,8 @@ export const LogsStatTiles = ({
         label="Total"
         count={counts.total}
         role="total"
-        selected={false}
+        selected={isUnfiltered}
+        tooltip="Clear all filters"
         onClick={onTotalClick}
       />
       {LOG_LEVELS.map((level) => (

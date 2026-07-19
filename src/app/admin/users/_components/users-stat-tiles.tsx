@@ -26,6 +26,7 @@ export const UsersStatTiles = ({
     unverified: 0,
     banned: 0,
   }
+  const isUnfiltered = !filterUnverified && !filterBanned
 
   return (
     <div className="grid grid-cols-3 gap-2">
@@ -33,7 +34,8 @@ export const UsersStatTiles = ({
         label="Total"
         count={counts.total}
         role="total"
-        selected={false}
+        selected={isUnfiltered}
+        tooltip="Clear all filters"
         onClick={onTotalClick}
       />
       <StatTile

@@ -25,6 +25,24 @@ describe('UsersStatTiles', () => {
     expect(onTotalClick).toHaveBeenCalledTimes(1)
   })
 
+  it('should mark Total as pressed when no filters are active', () => {
+    render(
+      <UsersStatTiles
+        stats={{ total: 5, unverified: 1, banned: 2 }}
+        filterUnverified={false}
+        filterBanned={false}
+        onTotalClick={vi.fn()}
+        onUnverifiedToggle={vi.fn()}
+        onBannedToggle={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByRole('button', { name: /total/i })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+  })
+
   it('should toggle aria-pressed on filter tiles', async () => {
     const user = userEvent.setup()
     const onUnverifiedToggle = vi.fn()
