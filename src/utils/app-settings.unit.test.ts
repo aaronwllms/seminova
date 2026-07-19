@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { DEFAULT_BANNER_SETTING } from '@/types/banner'
+
 const selectMock = vi.fn()
 const createServiceClientMock = vi.fn()
 
@@ -34,6 +36,8 @@ describe('app-settings', () => {
     expect(settings).toEqual({
       min_log_level: 'info',
       log_retention_days: 30,
+      banner_public: DEFAULT_BANNER_SETTING,
+      banner_authenticated: DEFAULT_BANNER_SETTING,
     })
   })
 
@@ -52,6 +56,8 @@ describe('app-settings', () => {
     expect(settings).toEqual({
       min_log_level: 'warn',
       log_retention_days: 14,
+      banner_public: DEFAULT_BANNER_SETTING,
+      banner_authenticated: DEFAULT_BANNER_SETTING,
     })
   })
 

@@ -4,8 +4,10 @@ import type {
   LogLevel,
 } from '@/types/app-settings'
 import { LOG_LEVELS } from '@/types/app-settings'
+import { DEFAULT_BANNER_SETTING } from '@/types/banner'
 
 export const APP_SETTINGS_GROUP_LOGGING = 'Logging' as const
+export const APP_SETTINGS_GROUP_BANNERS = 'Banners' as const
 
 export { LOG_LEVELS }
 
@@ -37,6 +39,22 @@ export const APP_SETTINGS_REGISTRY = [
     valueType: 'positive_int',
     default: 30,
     group: APP_SETTINGS_GROUP_LOGGING,
+  },
+  {
+    key: 'banner_public',
+    label: 'Public banner',
+    description: 'Shown on the marketing page.',
+    valueType: 'banner',
+    default: DEFAULT_BANNER_SETTING,
+    group: APP_SETTINGS_GROUP_BANNERS,
+  },
+  {
+    key: 'banner_authenticated',
+    label: 'Authenticated banner',
+    description: 'Shown in the app shell to signed-in users.',
+    valueType: 'banner',
+    default: DEFAULT_BANNER_SETTING,
+    group: APP_SETTINGS_GROUP_BANNERS,
   },
 ] as const satisfies readonly AppSettingRegistryEntry[]
 

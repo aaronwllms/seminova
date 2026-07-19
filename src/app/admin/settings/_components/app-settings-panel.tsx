@@ -39,21 +39,31 @@ export const AppSettingsPanel = ({
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">
-      {[...groupedEntries.entries()].map(([group, entries]) => (
-        <section key={group} className="flex flex-col gap-3">
-          <h2 className="text-base font-medium">{group}</h2>
-          <Card className="overflow-hidden py-0">
-            {entries.map((entry) => (
-              <AppSettingRow
-                key={`${entry.key}-${savedSettings[entry.key]}`}
-                entry={entry}
-                savedValue={savedSettings[entry.key]}
-                onSaved={handleSaved}
-              />
-            ))}
-          </Card>
-        </section>
-      ))}
+      {[...groupedEntries.entries()].map(([group, entries]) => {
+        const visibleEntries = entries.filter(
+          (entry) => entry.valueType !== 'banner',
+        )
+
+        if (visibleEntries.length === 0) {
+          return null
+        }
+
+        return (
+          <section key={group} className="flex flex-col gap-3">
+            <h2 className="text-base font-medium">{group}</h2>
+            <Card className="overflow-hidden py-0">
+              {visibleEntries.map((entry) => (
+                <AppSettingRow
+                  key={`${entry.key}-${savedSettings[entry.key]}`}
+                  entry={entry}
+                  savedValue={savedSettings[entry.key]}
+                  onSaved={handleSaved}
+                />
+              ))}
+            </Card>
+          </section>
+        )
+      })}
     </div>
   )
 }

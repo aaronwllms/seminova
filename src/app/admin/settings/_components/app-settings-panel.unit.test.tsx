@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import { render, screen } from '@/test/test-utils'
+import { DEFAULT_BANNER_SETTING } from '@/types/banner'
 
 import { AppSettingsPanel } from './app-settings-panel'
 
@@ -33,6 +34,8 @@ describe('AppSettingsPanel', () => {
         initialSettings={{
           min_log_level: 'info',
           log_retention_days: 30,
+          banner_public: DEFAULT_BANNER_SETTING,
+          banner_authenticated: DEFAULT_BANNER_SETTING,
         }}
       />,
     )
@@ -40,6 +43,9 @@ describe('AppSettingsPanel', () => {
     expect(
       screen.getByRole('heading', { name: 'Logging', level: 2 }),
     ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('heading', { name: 'Banners', level: 2 }),
+    ).not.toBeInTheDocument()
     expect(screen.getByText('min_log_level')).toBeInTheDocument()
     expect(screen.getByText('log_retention_days')).toBeInTheDocument()
 

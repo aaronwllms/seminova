@@ -6,6 +6,7 @@ import {
 } from '@/config/app-settings-registry'
 import type { AppSettingKey, AppSettingValueMap } from '@/types/app-settings'
 import { LOG_LEVELS } from '@/types/app-settings'
+import { parseBannerSettingValue } from '@/utils/banner-settings-schema'
 
 export const logLevelSchema = z.enum(LOG_LEVELS)
 
@@ -58,6 +59,19 @@ export const parseAppSettingValue = <K extends AppSettingKey>(
       return {
         success: false,
         message: 'Choose a valid log level',
+      }
+    }
+
+    return { success: true, value: parsed.data as AppSettingValueMap[K] }
+  }
+
+  if (entry.valueType === 'banner') {
+    const parsed = parseBannerSettingValue(raw)
+
+    if (!parsed.success) {
+      return {
+        success: false,
+        message: parsed.error.issues[0]?.message ?? 'Invalid banner settings',
       }
     }
 
