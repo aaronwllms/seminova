@@ -1,52 +1,45 @@
 'use client'
 
 import { AlertTriangle, Check, Copy } from 'lucide-react'
-import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
+import { buildStructuredCopyText } from '@/utils/build-structured-copy-text'
 import { cn } from '@/utils/tailwind'
 
 interface BuildErrorCopyTextParams {
   message: string
   code?: string
+  digest?: string
 }
 
 interface ErrorPanelProps {
   title?: string
   message: string
   code?: string
+  digest?: string
   className?: string
 }
 
 export const buildErrorCopyText = ({
   message,
   code,
-}: BuildErrorCopyTextParams): string => {
-  if (code) {
-    return `${message}\nCode: ${code}`
-  }
-
-  return message
-}
+  digest,
+}: BuildErrorCopyTextParams): string =>
+  buildStructuredCopyText({ message, code, digest })
 
 export const ErrorPanel = ({
   title,
   message,
   code,
+  digest,
   className,
 }: ErrorPanelProps) => {
-  const [didCopy, setDidCopy] = useState(false)
+  const { didCopy, copy } = useCopyToClipboard(
+    buildErrorCopyText({ message, code, digest }),
+  )
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(buildErrorCopyText({ message, code }))
-      setDidCopy(true)
-      window.setTimeout(() => setDidCopy(false), 2000)
-    } catch {
-      setDidCopy(false)
-    }
-  }
-
+  const chipLabel = code ?? digest
   const contentIndent = title ? 'pl-[30px]' : undefined
 
   return (
@@ -80,9 +73,9 @@ export const ErrorPanel = ({
       )}
 
       <div className="bg-muted ml-[30px] flex items-center justify-between gap-2 rounded-md px-2.5 py-2">
-        {code ? (
+        {chipLabel ? (
           <span className="text-muted-foreground font-mono text-sm">
-            {code}
+            {chipLabel}
           </span>
         ) : (
           <span className="sr-only">Error details</span>
@@ -92,7 +85,7 @@ export const ErrorPanel = ({
           variant="outline"
           size="xs"
           className="min-w-16 shrink-0"
-          onClick={() => void handleCopy()}
+          onClick={() => void copy()}
         >
           {didCopy ? (
             <>

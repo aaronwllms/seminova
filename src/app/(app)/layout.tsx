@@ -1,4 +1,7 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
+
+import { AuthenticatedBannerSlotEntry } from '@/components/authenticated-banner-slot-entry'
 
 import { AppShell } from './_components/app-shell'
 
@@ -11,5 +14,12 @@ type AppLayoutProps = {
 }
 
 export default function AppLayout({ children }: AppLayoutProps) {
-  return <AppShell>{children}</AppShell>
+  return (
+    <>
+      <Suspense fallback={null}>
+        <AuthenticatedBannerSlotEntry />
+      </Suspense>
+      <AppShell>{children}</AppShell>
+    </>
+  )
 }

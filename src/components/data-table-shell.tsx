@@ -137,6 +137,9 @@ type DataTableShellProps<TData> = {
   isLoading?: boolean
   loadingRowCount?: number
   loadingLabel?: string
+  onRowClick?: (row: TData) => void
+  getRowAccessibilityLabel?: (row: TData) => string
+  getRowClassName?: (row: TData) => string | undefined
 }
 
 export const DataTableShell = <TData,>({
@@ -147,7 +150,29 @@ export const DataTableShell = <TData,>({
   isLoading = false,
   loadingRowCount = DEFAULT_LOADING_ROW_COUNT,
   loadingLabel = 'Loading…',
+  onRowClick,
+  getRowAccessibilityLabel,
+  getRowClassName,
 }: DataTableShellProps<TData>) => {
+  const activateRow = onRowClick
+    ? (row: TData) => {
+        onRowClick(row)
+      }
+    : undefined
+
+  const handleRowKeyDown = (
+    event: React.KeyboardEvent<HTMLTableRowElement>,
+    row: TData,
+  ) => {
+    if (!activateRow) {
+      return
+    }
+
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      activateRow(row)
+    }
+  }
   const hasRows = table.getRowModel().rows.length > 0
   const showSkeleton = isLoading && !hasRows
 
@@ -184,7 +209,36 @@ export const DataTableShell = <TData,>({
             />
           ) : hasRows ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
+              <TableRow
+                key={row.id}
+                className={cn(
+                  activateRow
+                    ? 'focus-visible:ring-ring focus-visible:ring-offset-background cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
+                    : undefined,
+                  getRowClassName?.(row.original),
+                )}
+                tabIndex={activateRow ? 0 : undefined}
+                aria-label={
+                  activateRow
+                    ? (getRowAccessibilityLabel?.(row.original) ??
+                      'View row details')
+                    : undefined
+                }
+                onClick={
+                  activateRow
+                    ? () => {
+                        activateRow(row.original)
+                      }
+                    : undefined
+                }
+                onKeyDown={
+                  activateRow
+                    ? (event) => {
+                        handleRowKeyDown(event, row.original)
+                      }
+                    : undefined
+                }
+              >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
                     key={cell.id}

@@ -10,6 +10,7 @@ import {
 } from '@/constants/storage-paths'
 import { createClient } from '@/supabase/client'
 import { withAvatarCacheBust } from '@/utils/avatar-cache-bust'
+import { clientLog } from '@/utils/client-logger'
 
 export { withAvatarCacheBust }
 
@@ -163,8 +164,9 @@ export const uploadUserAvatar = async ({
     }
 
     if (user.id !== userId) {
-      console.error(
-        '[avatar-storage] Session user does not match upload target',
+      clientLog.error(
+        'avatar-storage',
+        'Session user does not match upload target',
       )
       throw new AvatarUploadError(
         'Could not upload your image. Please try again.',
@@ -181,11 +183,16 @@ export const uploadUserAvatar = async ({
       })
 
     if (error) {
-      console.error('[avatar-storage] Upload failed', error)
+      clientLog.error('avatar-storage', 'Upload failed', error)
       throw new AvatarUploadError(
         'Could not upload your image. Please try again.',
       )
     }
+
+    clientLog.debug('avatar-storage', 'Avatar uploaded', {
+      storagePath,
+      byteSize: webpBlob.size,
+    })
 
     return { publicUrl: getAvatarPublicUrl(storagePath) }
   } catch (error) {
@@ -193,7 +200,7 @@ export const uploadUserAvatar = async ({
       throw error
     }
 
-    console.error('[avatar-storage] Upload failed', error)
+    clientLog.error('avatar-storage', 'Upload failed', error)
     throw new AvatarUploadError(
       'Could not upload your image. Please try again.',
     )

@@ -6,13 +6,23 @@ import {
   extractAuthFormError,
 } from './extract-auth-form-error'
 
+const mockClientLogError = vi.fn()
+
+vi.mock('@/utils/client-logger', () => ({
+  clientLog: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: (...args: unknown[]) => mockClientLogError(...args),
+  },
+}))
+
 describe('extractAuthFormError', () => {
   afterEach(() => {
-    vi.restoreAllMocks()
+    mockClientLogError.mockReset()
   })
 
   it('should map invalid_credentials to sanitized copy without logging', () => {
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
     const error = new AuthApiError(
       'Invalid login credentials',
       400,
@@ -24,7 +34,7 @@ describe('extractAuthFormError', () => {
       code: 'SUPABASE_AUTH_ERROR',
       kind: 'operational',
     })
-    expect(consoleError).not.toHaveBeenCalled()
+    expect(mockClientLogError).not.toHaveBeenCalled()
   })
 
   it('should map weak_password to VALIDATION_ERROR', () => {
@@ -54,23 +64,22 @@ describe('extractAuthFormError', () => {
   })
 
   it('should fall back for unmapped auth codes and log supabaseCode', () => {
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
     const error = new AuthApiError('OTP has expired', 400, 'otp_expired')
 
-    expect(extractAuthFormError(error)).toEqual({
+    expect(extractAuthFormError(error, { email: 'user@example.com' })).toEqual({
       message: AUTH_ERROR_FALLBACK_MESSAGE,
       code: 'SUPABASE_AUTH_ERROR',
       kind: 'operational',
     })
     expect(error.message).not.toEqual(AUTH_ERROR_FALLBACK_MESSAGE)
-    expect(consoleError).toHaveBeenCalledWith(
-      '[extract-auth-form-error] Supabase auth error',
-      { supabaseCode: 'otp_expired' },
+    expect(mockClientLogError).toHaveBeenCalledWith(
+      'auth-form-error',
+      'Supabase auth error',
+      { email: 'user@example.com', supabaseCode: 'otp_expired' },
     )
   })
 
   it('should map user_banned to suspension copy without logging', () => {
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
     const error = new AuthApiError('User is banned', 403, 'user_banned')
 
     expect(extractAuthFormError(error)).toEqual({
@@ -79,7 +88,7 @@ describe('extractAuthFormError', () => {
       code: 'SUPABASE_AUTH_ERROR',
       kind: 'operational',
     })
-    expect(consoleError).not.toHaveBeenCalled()
+    expect(mockClientLogError).not.toHaveBeenCalled()
   })
 
   it('should fold email_not_confirmed into invalid credentials copy', () => {
@@ -97,7 +106,6 @@ describe('extractAuthFormError', () => {
   })
 
   it('should fall back for user_already_exists and log supabaseCode', () => {
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
     const error = new AuthApiError(
       'User already registered',
       400,
@@ -109,38 +117,37 @@ describe('extractAuthFormError', () => {
       code: 'SUPABASE_AUTH_ERROR',
       kind: 'operational',
     })
-    expect(consoleError).toHaveBeenCalledWith(
-      '[extract-auth-form-error] Supabase auth error',
+    expect(mockClientLogError).toHaveBeenCalledWith(
+      'auth-form-error',
+      'Supabase auth error',
       { supabaseCode: 'user_already_exists' },
     )
   })
 
   it('should return generic fault kind for non-auth errors', () => {
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
-
     expect(extractAuthFormError(new Error('Something broke'))).toEqual({
       message:
         'Something went wrong on our end. Please try again, or contact support if it continues.',
       code: 'INTERNAL_ERROR',
       kind: 'fault',
     })
-    expect(consoleError).toHaveBeenCalledWith(
-      '[extract-auth-form-error] Non-auth error',
+    expect(mockClientLogError).toHaveBeenCalledWith(
+      'auth-form-error',
+      'Non-auth error',
       { message: 'Something broke' },
     )
   })
 
   it('should return generic fault kind with fallback message for unknown values', () => {
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
-
     expect(extractAuthFormError(null)).toEqual({
       message:
         'Something went wrong on our end. Please try again, or contact support if it continues.',
       code: 'INTERNAL_ERROR',
       kind: 'fault',
     })
-    expect(consoleError).toHaveBeenCalledWith(
-      '[extract-auth-form-error] Non-auth error',
+    expect(mockClientLogError).toHaveBeenCalledWith(
+      'auth-form-error',
+      'Non-auth error',
       { message: 'An error occurred' },
     )
   })

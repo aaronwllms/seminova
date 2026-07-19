@@ -4,6 +4,8 @@
 import { NextRequest } from 'next/server'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { REQUEST_PATHNAME_LOG_HEADER } from '@/constants/request-log-context'
+
 const mockProxyGetClaims = vi.fn()
 const mockDisplayGetClaims = vi.fn()
 const mockSignOut = vi.fn()
@@ -27,6 +29,9 @@ vi.mock('next/headers', () => ({
     },
     set: () => undefined,
   })),
+  headers: vi.fn(async () =>
+    Promise.resolve(new Headers({ [REQUEST_PATHNAME_LOG_HEADER]: '/home' })),
+  ),
 }))
 
 vi.mock('@supabase/ssr', () => ({

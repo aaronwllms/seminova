@@ -3,6 +3,7 @@ import { render, RenderOptions } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import { Toaster } from '@/components/ui/sonner'
+import { TooltipProvider } from '@/components/ui/tooltip'
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: false } },
@@ -10,7 +11,7 @@ const queryClient = new QueryClient({
 
 const Wrapper = ({ children }: { children: ReactNode }) => (
   <QueryClientProvider client={queryClient}>
-    {children}
+    <TooltipProvider>{children}</TooltipProvider>
     <Toaster />
   </QueryClientProvider>
 )

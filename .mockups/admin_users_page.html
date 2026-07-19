@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mockup — Admin users page</title>
+    <style>
+      :root {
+        --text-primary: #2c2c2a;
+        --text-secondary: #5f5e5a;
+        --text-muted: #888780;
+        --border: rgba(0, 0, 0, 0.12);
+        --border-strong: rgba(0, 0, 0, 0.22);
+        --surface-page: #faf9f5;
+        --surface-1: #f4f3ee;
+        --surface-2: #ffffff;
+        --bg-danger: #fcebeb;
+        --text-danger: #a32d2d;
+        --border-danger: #f09595;
+        --bg-warning: #faeeda;
+        --text-warning: #854f0b;
+        --border-warning: #ef9f27;
+        --bg-success: #eaf3de;
+        --text-success: #3b6d11;
+        --border-success: #97c459;
+        --bg-accent: #e6f1fb;
+        --text-accent: #185fa5;
+        --radius: 8px;
+        --font-sans:
+          ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+        --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 2.5rem 1.5rem;
+        background: var(--surface-page);
+        font-family: var(--font-sans);
+        color: var(--text-primary);
+        line-height: 1.7;
+      }
+      .page {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+      .title {
+        font-size: 22px;
+        font-weight: 500;
+        margin: 0;
+      }
+      .subtitle {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin: 4px 0 0;
+      }
+      .tiles {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin: 1.25rem 0;
+      }
+      .tile {
+        border-radius: 12px;
+        padding: 0.85rem 1rem;
+      }
+      .tile-total {
+        background: var(--surface-2);
+        border: 2px solid var(--border-strong);
+      }
+      .tile-warning {
+        background: var(--bg-warning);
+        border: 0.5px solid var(--border-warning);
+      }
+      .tile-danger {
+        background: var(--bg-danger);
+        border: 0.5px solid var(--border-danger);
+      }
+      .tile-label {
+        font-size: 13px;
+        color: var(--text-secondary);
+        margin: 0 0 4px;
+      }
+      .tile-value {
+        font-size: 24px;
+        font-weight: 500;
+        margin: 0;
+      }
+      .tile-warning .tile-label,
+      .tile-warning .tile-value {
+        color: var(--text-warning);
+      }
+      .tile-danger .tile-label,
+      .tile-danger .tile-value {
+        color: var(--text-danger);
+      }
+      .search-wrap {
+        position: relative;
+        margin: 0 0 12px;
+      }
+      .search-icon {
+        position: absolute;
+        left: 11px;
+        top: 8px;
+        font-size: 15px;
+        color: var(--text-muted);
+      }
+      input[type='text'] {
+        width: 100%;
+        height: 36px;
+        padding: 0 12px 0 32px;
+        font-family: inherit;
+        font-size: 14px;
+        color: var(--text-primary);
+        background: var(--surface-2);
+        border: 0.5px solid var(--border);
+        border-radius: var(--radius);
+      }
+      .table {
+        border: 0.5px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        background: var(--surface-2);
+      }
+      .thead {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 14px;
+        border-bottom: 0.5px solid var(--border);
+        background: var(--surface-1);
+        font-size: 12px;
+        color: var(--text-secondary);
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 11px 14px;
+        border-bottom: 0.5px solid var(--border);
+        font-size: 13px;
+      }
+      .row:last-child {
+        border-bottom: 0;
+      }
+      .col-email {
+        flex: 2;
+      }
+      .col-date {
+        flex: 1;
+        color: var(--text-secondary);
+        font-size: 12px;
+      }
+      .col-verified {
+        width: 80px;
+      }
+      .col-role {
+        width: 70px;
+      }
+      .col-ban {
+        width: 130px;
+      }
+      .col-actions {
+        width: 20px;
+        color: var(--text-muted);
+      }
+      .badge {
+        font-size: 11px;
+        padding: 2px 7px;
+        border-radius: var(--radius);
+      }
+      .badge-success {
+        background: var(--bg-success);
+        color: var(--text-success);
+      }
+      .badge-accent {
+        background: var(--bg-accent);
+        color: var(--text-accent);
+      }
+      .badge-danger {
+        background: var(--bg-danger);
+        color: var(--text-danger);
+      }
+      .footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 16px;
+        margin-top: 14px;
+      }
+      .page-size {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--text-secondary);
+      }
+      select {
+        height: 32px;
+        border-radius: var(--radius);
+        border: 0.5px solid var(--border);
+        background: var(--surface-2);
+        font-size: 13px;
+        padding: 0 8px;
+      }
+      .pager {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .btn {
+        font-size: 13px;
+        padding: 7px 14px;
+        border-radius: var(--radius);
+        border: 0.5px solid var(--border-strong);
+        color: var(--text-secondary);
+        background: transparent;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <p class="title">Users</p>
+      <p class="subtitle">128 total users.</p>
+
+      <div class="tiles">
+        <div class="tile tile-total">
+          <p class="tile-label">Total</p>
+          <p class="tile-value">128</p>
+        </div>
+        <div class="tile tile-warning">
+          <p class="tile-label">Unverified</p>
+          <p class="tile-value">14</p>
+        </div>
+        <div class="tile tile-danger">
+          <p class="tile-label">Banned</p>
+          <p class="tile-value">3</p>
+        </div>
+      </div>
+
+      <div class="search-wrap">
+        <span class="search-icon">&#9906;</span>
+        <input type="text" placeholder="Search by email" />
+      </div>
+
+      <div class="table">
+        <div class="thead">
+          <span class="col-email">Email</span>
+          <span class="col-date">Created</span>
+          <span class="col-date">Last sign-in</span>
+          <span class="col-verified">Verified</span>
+          <span class="col-role">Role</span>
+          <span class="col-ban">Ban</span>
+          <span class="col-actions"></span>
+        </div>
+
+        <div class="row">
+          <span class="col-email">alice@example.com</span>
+          <span class="col-date">Jul 2, 2026</span>
+          <span class="col-date">Jul 17, 2026</span>
+          <span class="col-verified"
+            ><span class="badge badge-success">Verified</span></span
+          >
+          <span class="col-role"
+            ><span class="badge badge-accent">Admin</span></span
+          >
+          <span class="col-ban"></span>
+          <span class="col-actions">&#8942;</span>
+        </div>
+
+        <div class="row">
+          <span class="col-email">bob@example.com</span>
+          <span class="col-date">Jul 10, 2026</span>
+          <span class="col-date">Jul 16, 2026</span>
+          <span class="col-verified"
+            ><span class="badge badge-success">Verified</span></span
+          >
+          <span class="col-role"></span>
+          <span class="col-ban"></span>
+          <span class="col-actions">&#8942;</span>
+        </div>
+
+        <div class="row">
+          <span class="col-email">carla@example.com</span>
+          <span class="col-date">Jul 15, 2026</span>
+          <span class="col-date">&#8212;</span>
+          <span class="col-verified"></span>
+          <span class="col-role"></span>
+          <span class="col-ban"></span>
+          <span class="col-actions">&#8942;</span>
+        </div>
+
+        <div class="row">
+          <span class="col-email">dave@example.com</span>
+          <span class="col-date">Jun 20, 2026</span>
+          <span class="col-date">Jul 1, 2026</span>
+          <span class="col-verified"
+            ><span class="badge badge-success">Verified</span></span
+          >
+          <span class="col-role"></span>
+          <span class="col-ban"
+            ><span class="badge badge-danger">Banned</span></span
+          >
+          <span class="col-actions">&#8942;</span>
+        </div>
+
+        <div class="row">
+          <span class="col-email">erin@example.com</span>
+          <span class="col-date">Jul 18, 2026</span>
+          <span class="col-date">&#8212;</span>
+          <span class="col-verified"></span>
+          <span class="col-role"></span>
+          <span class="col-ban"
+            ><span class="badge badge-danger"
+              >Banned until Aug 1, 2026</span
+            ></span
+          >
+          <span class="col-actions">&#8942;</span>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="page-size">
+          <span>Rows per page</span>
+          <select>
+            <option>10</option>
+            <option selected>15</option>
+            <option>25</option>
+            <option>50</option>
+          </select>
+        </div>
+        <div class="pager">
+          <span class="btn">Previous</span>
+          <span class="btn">Next</span>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

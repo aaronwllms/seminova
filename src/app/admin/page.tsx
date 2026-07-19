@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Users } from 'lucide-react'
+import { ScrollText, Settings, Users } from 'lucide-react'
 import Link from 'next/link'
 
 import {
@@ -8,7 +8,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { ADMIN_USERS } from '@/constants/admin-paths'
+import {
+  ADMIN_LOGS,
+  ADMIN_SETTINGS,
+  ADMIN_USERS,
+} from '@/constants/admin-paths'
 
 export const metadata: Metadata = {
   title: 'Admin',
@@ -24,21 +28,53 @@ export default function AdminDashboardPage() {
           section as your product grows.
         </p>
       </div>
-      <Link href={ADMIN_USERS} className="max-w-sm">
-        <Card className="hover:bg-muted/50 transition-colors">
-          <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-            <span className="bg-primary text-primary-foreground flex size-10 shrink-0 items-center justify-center rounded-lg">
-              <Users className="size-5" aria-hidden />
-            </span>
-            <div className="flex flex-col gap-1">
-              <CardTitle className="text-base">Users</CardTitle>
-              <CardDescription>
-                View accounts, search by email, and manage admin roles.
-              </CardDescription>
-            </div>
-          </CardHeader>
-        </Card>
-      </Link>
+      <div className="grid max-w-2xl gap-4 sm:grid-cols-2">
+        <Link href={ADMIN_USERS} className="block">
+          <Card className="hover:bg-muted/50 h-full transition-colors">
+            <CardHeader className="flex flex-row items-center gap-3 space-y-0">
+              <span className="bg-primary text-primary-foreground flex size-10 shrink-0 items-center justify-center rounded-lg">
+                <Users className="size-5" aria-hidden />
+              </span>
+              <div className="flex flex-col gap-1">
+                <CardTitle className="text-base">Users</CardTitle>
+                <CardDescription>
+                  View accounts, search by email, and manage admin roles.
+                </CardDescription>
+              </div>
+            </CardHeader>
+          </Card>
+        </Link>
+        <Link href={ADMIN_LOGS} className="block">
+          <Card className="hover:bg-muted/50 h-full transition-colors">
+            <CardHeader className="flex flex-row items-center gap-3 space-y-0">
+              <span className="bg-primary text-primary-foreground flex size-10 shrink-0 items-center justify-center rounded-lg">
+                <ScrollText className="size-5" aria-hidden />
+              </span>
+              <div className="flex flex-col gap-1">
+                <CardTitle className="text-base">Logs</CardTitle>
+                <CardDescription>
+                  Browse runtime application logs with cursor paging.
+                </CardDescription>
+              </div>
+            </CardHeader>
+          </Card>
+        </Link>
+        <Link href={ADMIN_SETTINGS} className="block">
+          <Card className="hover:bg-muted/50 h-full transition-colors">
+            <CardHeader className="flex flex-row items-center gap-3 space-y-0">
+              <span className="bg-primary text-primary-foreground flex size-10 shrink-0 items-center justify-center rounded-lg">
+                <Settings className="size-5" aria-hidden />
+              </span>
+              <div className="flex flex-col gap-1">
+                <CardTitle className="text-base">Settings</CardTitle>
+                <CardDescription>
+                  Edit runtime configuration. Changes take effect immediately.
+                </CardDescription>
+              </div>
+            </CardHeader>
+          </Card>
+        </Link>
+      </div>
     </div>
   )
 }

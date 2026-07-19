@@ -11,15 +11,57 @@ alwaysApply: false
 
 ## Core Principle
 
-No `@/utils/logger` module — use bracket-tagged `console.*` so Vercel Functions logs (and terminal output for CLI scripts) stay searchable and scannable. This file owns log-level selection and tagging; `error-handling.mdc` owns error taxonomy and response envelopes for actual failures.
+Application logs route through three wrappers. **`appLog`** and **`cliLog`** gate **both** console mirror and persistence below the admin minimum log level — a below-threshold call produces neither output nor a row. **`clientLog`** always mirrors to the browser console (ungated) and fire-and-forgets to the relay; threshold gating applies only on the relay → `appLog` → persist path:
+
+- **`appLog`** ([`src/utils/app-logger.ts`](../../src/utils/app-logger.ts)) — server-side application code (e.g. Server Components, Server Actions, route handlers, auth proxy in [`src/supabase/proxy.ts`](../../src/supabase/proxy.ts), session helpers in [`src/supabase/require-auth.ts`](../../src/supabase/require-auth.ts)). Sync/void; persistence deferred via `after()`.
+- **`cliLog`** ([`src/utils/app-logger-cli.ts`](../../src/utils/app-logger-cli.ts)) — CLI scripts under `scripts/`. Async/awaited persistence.
+- **`clientLog`** ([`src/utils/client-logger.ts`](../../src/utils/client-logger.ts)) — browser call sites declared in [`client-log-registry.ts`](../../src/config/client-log-registry.ts). Prints to the browser console immediately (ungated) and fire-and-forgets a POST to [`POST /api/client-logs`](../../src/app/api/client-logs/route.ts), which validates the payload and forwards to `appLog` under a `client-` tag namespace.
+
+No separate `@/utils/logger` module. This file owns log-level selection and tagging; `error-handling.mdc` owns error taxonomy and response envelopes for actual failures.
+
+The tag is an **explicit first argument** to the wrapper, not a prefix embedded in the message — the wrapper formats `[tag] message` for console output. Client call sites pass a **declared registry key**; the relay constructs the persisted tag as `client-{key}`.
+
+**Raw `console.*` remains correct** only at the exempt surfaces listed below.
+
+## Server-only constraint
+
+**`appLog` is server-only** — [`app-logger.ts`](../../src/utils/app-logger.ts) imports `server-only` and `after()` from `next/server`. Do not import `appLog`, [`persist-app-log.ts`](../../src/utils/persist-app-log.ts), or [`service.ts`](../../src/supabase/service.ts) from client-reachable modules.
+
+**Enforcement:** ESLint default-deny on `src/**/*.{ts,tsx}` with an explicit server allowlist in [`eslint.config.mjs`](../../eslint.config.mjs). A boundary fixture at [`client-server-boundary.fixture.ts`](../../src/app/(app)/_lib/profile/client-server-boundary.fixture.ts) is lint-excluded but tested by [`eslint.config.unit.test.ts`](../../eslint.config.unit.test.ts). Do **not** add `server-only` to `persist-app-log.ts` or `service.ts` — admin CLI scripts import that chain under plain Node.
+
+## Exempt raw `console.*` call sites
+
+Grouped by **why** each surface bypasses the wrappers. **Enforcement:** swept surfaces are guarded by `check:no-raw-console` (ESLint `no-console` with category-aligned exemptions in [`eslint.config.mjs`](../../eslint.config.mjs)); only the surfaces below are exempt. A boundary fixture at [`raw-console-boundary.fixture.ts`](../../src/utils/raw-console-boundary.fixture.ts) is lint-excluded but tested by [`eslint.config.unit.test.ts`](../../eslint.config.unit.test.ts).
+
+### Wrapper internals (logging through the wrapper would recurse)
+
+| Surface | Reason |
+| ------- | ------ |
+| [`persist-app-log.ts`](../../src/utils/persist-app-log.ts) | Persist failure site — routing through `appLog`/`cliLog` recurses |
+| [`app-log-console.ts`](../../src/utils/app-log-console.ts) | Shared console mirror used by all wrappers |
+
+### Bootstrap path (fires when persistence prerequisites are absent)
+
+| Surface | Reason |
+| ------- | ------ |
+| [`src/utils/env.ts`](../../src/utils/env.ts) (`loadServiceEnvForCli`) | Sync helper for missing `NEXT_PUBLIC_SUPABASE_URL` / `SUPABASE_SECRET_KEY` — the credentials `cliLog`'s threshold read and persist both need; routing through `cliLog` would throw while telling the developer what to add |
+
+### Not application logging
+
+| Surface | Reason |
+| ------- | ------ |
+| Test files spying on `console.*` | Test infrastructure |
+| [`scripts/admin/lib/prompt.ts`](../../scripts/admin/lib/prompt.ts) | Interactive prompt stdout UI |
+| `scripts/checks/*.mjs` | CI hard-constraint output |
 
 ## Tag Convention
 
-Every log line carries a `[kebab-case-source]` tag matching the file or feature it comes from. Any log line reporting a failure passes the error object as the second argument — including a `console.warn` that reports a failed sub-operation, not just `console.error`.
+Every log line carries a `[kebab-case-source]` tag matching the file or feature it comes from — pass it as the wrapper's first argument. Any log line reporting a failure passes the error object as the context argument — including a `warn` that reports a failed sub-operation, not just `error`.
 
 ```typescript
-console.warn('[promote-admin] user@example.com is now an admin')
-console.error('[api-posts] Unexpected error', error)
+appLog.warn('promote-admin', 'user@example.com is now an admin')
+appLog.error('api-posts', 'Unexpected error', error)
+clientLog.error('auth-form-error', 'Supabase auth error', { supabaseCode: 'otp_expired', email })
 ```
 
 ## Level Taxonomy
@@ -33,6 +75,8 @@ console.error('[api-posts] Unexpected error', error)
 
 **Choosing a level:** ask "did this fail?" → `error`. "Did it succeed but is it the kind of thing someone should notice?" → `warn`. "Is this routine flow?" → `log`. "Is this only useful while actively debugging?" → `debug`.
 
+**Client mirror vs threshold:** `clientLog` always prints to the browser console regardless of the admin minimum log level. Threshold gating applies only on the relay → `appLog` → persist path.
+
 ## Never Log
 
 Passwords, API keys, auth tokens, full request/response bodies. See `security.mdc` for the full sensitive-data list.
@@ -41,3 +85,4 @@ Passwords, API keys, auth tokens, full request/response bodies. See `security.md
 
 - See `error-handling.mdc` for error taxonomy, response envelopes, and Supabase error code mapping
 - See `security.mdc` for what data must never appear in logs
+- See [ADR-0007](../../docs/adr/ADR-0007-client-log-relay-unauthenticated.md) for relay design (unauthenticated, no template rate limit)

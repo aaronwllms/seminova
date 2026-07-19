@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import {
   APP_HOME,
+  CLIENT_LOGS_RELAY_PATH,
   PRIVACY_PATH,
   REFERENCE_PATH,
   TERMS_PATH,
@@ -9,7 +10,10 @@ import {
 } from '@/constants/app-paths'
 import { getPublicSupabaseEnv, hasPublicSupabaseEnv } from '@/utils/env'
 import { isAdmin } from '@/utils/admin'
+import { appLog } from '@/utils/app-logger'
+import { REQUEST_PATHNAME_LOG_HEADER } from '@/constants/request-log-context'
 import { buildLoginRedirectUrl } from '@/utils/build-login-redirect-url'
+import { withPathnameLogContext } from '@/utils/request-log-context'
 import { parseAuthenticatedClaims } from '@/supabase/require-auth'
 
 const MISSING_SUPABASE_ENV_MESSAGE =
@@ -28,16 +32,28 @@ function redirectWithAuthCookies(
   return redirectResponse
 }
 
-export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  })
+const createForwardedResponse = (
+  request: NextRequest,
+  pathname: string,
+): NextResponse => {
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set(REQUEST_PATHNAME_LOG_HEADER, pathname)
 
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  })
+}
+
+export async function updateSession(request: NextRequest) {
   const rawPathname = request.nextUrl.pathname
   const pathname =
     rawPathname.length > 1 && rawPathname.endsWith('/')
       ? rawPathname.slice(0, -1)
       : rawPathname
+
+  let supabaseResponse = createForwardedResponse(request, pathname)
 
   const isPublicRoute =
     pathname === '/' ||
@@ -45,7 +61,8 @@ export async function updateSession(request: NextRequest) {
     pathname === TERMS_PATH ||
     pathname === PRIVACY_PATH ||
     pathname === REFERENCE_PATH ||
-    pathname === WORKFLOW_PATH
+    pathname === WORKFLOW_PATH ||
+    pathname === CLIENT_LOGS_RELAY_PATH
 
   if (!hasPublicSupabaseEnv) {
     if (process.env.NODE_ENV === 'production') {
@@ -61,6 +78,8 @@ export async function updateSession(request: NextRequest) {
 
   // With Fluid compute, don't put this client in a global environment
   // variable. Always create a new one on each request.
+  let authCookiesUpdated = false
+
   const { supabaseUrl, publishableKey } = getPublicSupabaseEnv()
   const supabase = createServerClient(supabaseUrl, publishableKey, {
     cookies: {
@@ -68,12 +87,11 @@ export async function updateSession(request: NextRequest) {
         return request.cookies.getAll()
       },
       setAll(cookiesToSet) {
+        authCookiesUpdated = true
         cookiesToSet.forEach(({ name, value }) =>
           request.cookies.set(name, value),
         )
-        supabaseResponse = NextResponse.next({
-          request,
-        })
+        supabaseResponse = createForwardedResponse(request, pathname)
         cookiesToSet.forEach(({ name, value, options }) =>
           supabaseResponse.cookies.set(name, value, options),
         )
@@ -97,7 +115,11 @@ export async function updateSession(request: NextRequest) {
 
   if (!isPublicRoute && (error || !sessionClaims)) {
     if (error) {
-      console.error('[proxy] Session invalid on protected route', error)
+      appLog.error(
+        'proxy',
+        'Session invalid on protected route',
+        withPathnameLogContext(pathname, error),
+      )
     }
 
     await clearLocalSession()
@@ -105,8 +127,9 @@ export async function updateSession(request: NextRequest) {
     const hasStrayAuthCode = request.nextUrl.searchParams.has('code')
 
     if (hasStrayAuthCode) {
-      console.error(
-        '[proxy] Stray auth code on protected route — email templates likely not routed through /auth/confirm',
+      appLog.error(
+        'proxy',
+        'Stray auth code on protected route — email templates likely not routed through /auth/confirm',
         { pathname },
       )
 
@@ -121,7 +144,11 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (isPublicRoute && error) {
-    console.error('[proxy] Clearing stale session on public route', error)
+    appLog.error(
+      'proxy',
+      'Clearing stale session on public route',
+      withPathnameLogContext(pathname, error),
+    )
     await clearLocalSession()
   }
 
@@ -147,6 +174,14 @@ export async function updateSession(request: NextRequest) {
   //    return myNewResponse
   // If this is not done, you may be causing the browser and server to go out
   // of sync and terminate the user's session prematurely!
+
+  if (!isPublicRoute && sessionClaims) {
+    appLog.debug(
+      'proxy',
+      authCookiesUpdated ? 'Session token refreshed' : 'Session token reused',
+      { pathname, refreshed: authCookiesUpdated },
+    )
+  }
 
   return supabaseResponse
 }

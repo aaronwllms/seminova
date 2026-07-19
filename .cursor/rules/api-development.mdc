@@ -42,7 +42,7 @@ globs:
 **See `.cursor/rules/error-handling.mdc` for complete error handling patterns and examples.**
 
 Quick reference:
-- Log server-side with prefixed `console.error('[api/…]', error)` — see `.cursor/rules/error-handling.mdc`
+- Log server-side with `appLog.error('api-tag', 'message', error)` — see `.cursor/rules/error-handling.mdc` and `.cursor/rules/logging.mdc` (shipped example: [`POST /api/client-logs`](../../src/app/api/client-logs/route.ts))
 - NEVER leak stack traces to clients - log server-side only
 - Use consistent error envelope: `{ success: false, error: { message, code, kind } }` — see `error-handling.mdc` for `kind` semantics
 - Wrap all async operations in try/catch

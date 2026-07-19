@@ -147,7 +147,7 @@ pnpm promote-admin your@email.com
 4. Grant yourself admin access using one of the options in [Grant admin access](#grant-admin-access) above.
 5. **Re-login** if you were already signed in — the admin role is embedded in the JWT and won't appear until you start a fresh session.
 
-6. Open the admin area at [http://localhost:3000/admin](http://localhost:3000/admin) (admins land here after login; non-admins land on `/home`). The Users page at `/admin/users` lists signed-up accounts with email search, column sort, configurable page size, and in-app promote/demote and ban/unban for admins.
+6. Open the admin area at [http://localhost:3000/admin](http://localhost:3000/admin) (admins land here after login; non-admins land on `/home`). `/admin/users` lists signed-up accounts with stat-tile filters (Total, Unverified, Banned), email search, column sort, configurable page size, and in-app promote/demote and ban/unban; `/admin/logs` browses persisted application logs with stat-tile filters (level + unread), tag and free-text search, global read/unread triage, cursor paging, timestamp sort direction, row detail, and copy-to-clipboard; `/admin/settings` edits runtime configuration (registry-driven, per-row save).
 
 Companion CLI commands (bootstrap / automation): `pnpm demote-admin <email>`, `pnpm delete-user <email>` (test-account cleanup; requires secret key and confirmation naming the target project), `pnpm list-admins` (read-only, no confirmation).
 
@@ -207,6 +207,7 @@ After that, the repo is a real project, not a template copy — and the phase-by
 | `pnpm check:seo-base-url` | SEO base-URL centralization (hard constraint) |
 | `pnpm check:a11y-structure` | Deterministic a11y structure (hard constraint) |
 | `pnpm check:a11y-contrast` | Deterministic a11y token contrast (hard constraint) |
+| `pnpm check:no-raw-console` | Application logging via wrappers (hard constraint) |
 | `pnpm test:ui` | Vitest UI |
 | `pnpm analyze` | Bundle analyzer |
 | `pnpm promote-admin <email>` | Grant admin role via CLI (requires secret key; bootstrap / automation) |
@@ -228,7 +229,17 @@ The one-time `pnpm exec supabase link` step is covered in Quick start above. Fro
 2. Apply: `pnpm db:push` (confirm when prompted)
 3. Regenerate types: `pnpm db:types`
 
+One migration enables the **`pg_cron`** extension and schedules a daily purge of `app_logs` rows older than the **Log retention window** on `/admin/settings` — change that value anytime; the next scheduled run (03:00 UTC) picks it up with no redeploy. After the first push, you can confirm the job under Supabase Dashboard → Integrations → Cron (`purge-expired-app-logs`).
+
 See [AGENTS.md](AGENTS.md) and [`.cursor/rules/do-migrations-agent.mdc`](.cursor/rules/do-migrations-agent.mdc) for agent constraints.
+
+---
+
+## Client log relay exposure
+
+The template ships an **unauthenticated write path** into `app_logs` at `/api/client-logs`. Browser call sites post through [`clientLog`](src/utils/client-logger.ts); the relay validates same-origin requests, a closed key registry, and payload size caps, then forwards to the server logger. There is **no rate limit** in the template — anyone who can reach your deployment can insert rows at any rate.
+
+**Mitigation (recommended for production):** rate-limit the relay path at your edge or WAF. On Vercel, add a [Web Application Firewall](https://vercel.com/docs/security/vercel-waf) rule scoped to `POST /api/client-logs` — for example, a fixed-window request cap per IP. Design rationale: [docs/adr/ADR-0007-client-log-relay-unauthenticated.md](docs/adr/ADR-0007-client-log-relay-unauthenticated.md).
 
 ---
 
@@ -258,7 +269,7 @@ See [AGENTS.md](AGENTS.md) and [`.cursor/rules/do-migrations-agent.mdc`](.cursor
 
 **Pre-push** (Husky): `pnpm pre-push` — type-check → hard-constraint checks → lint → format-check → `test:ci` (with 80% coverage thresholds). Mirrors CI exactly.
 
-**CI** (pull requests to `main`): same order as pre-push (`check:pnpm-only`, `check:no-shadcn-pkg`, `check:semantic-tokens`, `check:seo-base-url`, `check:a11y-structure`, `check:a11y-contrast` before lint). See [.github/workflows/pull-request.yaml](.github/workflows/pull-request.yaml).
+**CI** (pull requests to `main`): same order as pre-push (`check:pnpm-only`, `check:no-shadcn-pkg`, `check:semantic-tokens`, `check:seo-base-url`, `check:a11y-structure`, `check:a11y-contrast`, `check:no-raw-console` before lint). See [.github/workflows/pull-request.yaml](.github/workflows/pull-request.yaml).
 
 Before opening a PR, run locally:
 

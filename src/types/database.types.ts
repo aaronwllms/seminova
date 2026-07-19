@@ -39,6 +39,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_logs: {
+        Row: {
+          context: Json | null
+          context_text: string | null
+          created_at: string
+          id: number
+          level: string
+          message: string
+          read_at: string | null
+          tag: string
+        }
+        Insert: {
+          context?: Json | null
+          context_text?: string | null
+          created_at?: string
+          id?: never
+          level: string
+          message: string
+          read_at?: string | null
+          tag: string
+        }
+        Update: {
+          context?: Json | null
+          context_text?: string | null
+          created_at?: string
+          id?: never
+          level?: string
+          message?: string
+          read_at?: string | null
+          tag?: string
+        }
+        Relationships: []
+      }
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -67,10 +118,11 @@ export type Database = {
     Functions: {
       admin_list_users: {
         Args: {
+          p_filter_banned: boolean
+          p_filter_unverified: boolean
           p_page: number
           p_per_page: number
           p_search: string
-          p_show_banned: boolean
           p_sort_column: string
           p_sort_direction: string
         }
@@ -84,6 +136,15 @@ export type Database = {
           last_sign_in_at: string
         }[]
       }
+      admin_user_stats: {
+        Args: never
+        Returns: {
+          banned: number
+          total: number
+          unverified: number
+        }[]
+      }
+      purge_expired_app_logs: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

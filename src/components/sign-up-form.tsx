@@ -58,7 +58,7 @@ export function SignUpForm({
       if (error) throw error
       router.push('/auth/sign-up-success')
     } catch (caught: unknown) {
-      setFormError(extractAuthFormError(caught))
+      setFormError(extractAuthFormError(caught, { email }))
     } finally {
       setIsLoading(false)
     }

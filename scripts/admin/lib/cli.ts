@@ -2,6 +2,7 @@ import {
   AVATAR_BUCKET,
   buildAvatarStoragePath,
 } from '@/constants/storage-paths'
+import { cliLog } from '@/utils/app-logger-cli'
 
 import {
   deleteUserAvatarStorage,
@@ -27,7 +28,7 @@ export const runPromoteAdmin = async (args: string[]): Promise<void> => {
   const email = parseEmailArg(args)
 
   if (!email) {
-    console.error(`[promote-admin] ${MISSING_EMAIL_MESSAGE}`)
+    await cliLog.error('promote-admin', MISSING_EMAIL_MESSAGE)
     process.exit(1)
   }
 
@@ -40,7 +41,7 @@ export const runPromoteAdmin = async (args: string[]): Promise<void> => {
   )
 
   if (!confirmed) {
-    console.log('[promote-admin] Cancelled')
+    await cliLog.info('promote-admin', 'Cancelled')
     return
   }
 
@@ -48,25 +49,26 @@ export const runPromoteAdmin = async (args: string[]): Promise<void> => {
   const result = await promoteUser(client, email)
 
   if (result.status === 'not_found') {
-    console.error(
-      '[promote-admin] no user found with that email — sign up first',
+    await cliLog.error(
+      'promote-admin',
+      'no user found with that email — sign up first',
     )
     process.exit(1)
   }
 
   if (result.status === 'already_admin') {
-    console.log(`[promote-admin] ${result.email} is already an admin`)
+    await cliLog.info('promote-admin', `${result.email} is already an admin`)
     return
   }
 
-  console.warn(`[promote-admin] ${result.email} promoted to admin`)
+  await cliLog.warn('promote-admin', `${result.email} promoted to admin`)
 }
 
 export const runDemoteAdmin = async (args: string[]): Promise<void> => {
   const email = parseEmailArg(args)
 
   if (!email) {
-    console.error(`[demote-admin] ${MISSING_EMAIL_MESSAGE}`)
+    await cliLog.error('demote-admin', MISSING_EMAIL_MESSAGE)
     process.exit(1)
   }
 
@@ -79,7 +81,7 @@ export const runDemoteAdmin = async (args: string[]): Promise<void> => {
   )
 
   if (!confirmed) {
-    console.log('[demote-admin] Cancelled')
+    await cliLog.info('demote-admin', 'Cancelled')
     return
   }
 
@@ -87,25 +89,26 @@ export const runDemoteAdmin = async (args: string[]): Promise<void> => {
   const result = await demoteUser(client, email)
 
   if (result.status === 'not_found') {
-    console.error(
-      '[demote-admin] no user found with that email — sign up first',
+    await cliLog.error(
+      'demote-admin',
+      'no user found with that email — sign up first',
     )
     process.exit(1)
   }
 
   if (result.status === 'not_admin') {
-    console.log(`[demote-admin] ${result.email} is not an admin`)
+    await cliLog.info('demote-admin', `${result.email} is not an admin`)
     return
   }
 
-  console.warn(`[demote-admin] ${result.email} demoted from admin`)
+  await cliLog.warn('demote-admin', `${result.email} demoted from admin`)
 }
 
 export const runDeleteUser = async (args: string[]): Promise<void> => {
   const email = parseEmailArg(args)
 
   if (!email) {
-    console.error(`[delete-user] ${MISSING_EMAIL_MESSAGE}`)
+    await cliLog.error('delete-user', MISSING_EMAIL_MESSAGE)
     process.exit(1)
   }
 
@@ -114,7 +117,7 @@ export const runDeleteUser = async (args: string[]): Promise<void> => {
   const confirmed = await confirmAction(env.supabaseUrl, 'Delete user', email)
 
   if (!confirmed) {
-    console.log('[delete-user] Cancelled')
+    await cliLog.info('delete-user', 'Cancelled')
     return
   }
 
@@ -122,7 +125,7 @@ export const runDeleteUser = async (args: string[]): Promise<void> => {
   const user = await findUserByEmail(client, email)
 
   if (!user) {
-    console.error('[delete-user] no user found with that email')
+    await cliLog.error('delete-user', 'no user found with that email')
     process.exit(1)
   }
 
@@ -131,20 +134,21 @@ export const runDeleteUser = async (args: string[]): Promise<void> => {
   const deleteResult = await deleteUserById(client, user.id)
 
   if (deleteResult.status === 'not_found') {
-    console.error('[delete-user] no user found with that email')
+    await cliLog.error('delete-user', 'no user found with that email')
     process.exit(1)
   }
 
   const avatarResult = await deleteUserAvatarStorage(client, user.id)
 
   if (!avatarResult.ok) {
-    console.warn(
-      `[delete-user] user deleted but avatar file may remain at ${buildAvatarStoragePath(user.id)} in ${AVATAR_BUCKET}`,
+    await cliLog.warn(
+      'delete-user',
+      `user deleted but avatar file may remain at ${buildAvatarStoragePath(user.id)} in ${AVATAR_BUCKET}`,
       avatarResult.error,
     )
   }
 
-  console.warn(`[delete-user] ${deleteResult.email} deleted`)
+  await cliLog.warn('delete-user', `${deleteResult.email} deleted`)
 }
 
 export const runListAdmins = async (): Promise<void> => {
@@ -153,12 +157,12 @@ export const runListAdmins = async (): Promise<void> => {
   const admins = await listAdminUsers(client)
 
   if (admins.length === 0) {
-    console.log('[list-admins] no admins found')
+    await cliLog.info('list-admins', 'no admins found')
     return
   }
 
-  console.log('[list-admins] Admins:')
+  await cliLog.info('list-admins', 'Admins:')
   for (const email of admins) {
-    console.log(`  ${email}`)
+    await cliLog.info('list-admins', email)
   }
 }

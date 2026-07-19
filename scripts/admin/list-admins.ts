@@ -1,6 +1,8 @@
+import { cliLog } from '@/utils/app-logger-cli'
+
 import { runListAdmins } from './lib/cli'
 
-runListAdmins().catch((error: unknown) => {
-  console.error('[list-admins] Unexpected error', error)
+runListAdmins().catch(async (error: unknown) => {
+  await cliLog.error('list-admins', 'Unexpected error', error)
   process.exit(1)
 })

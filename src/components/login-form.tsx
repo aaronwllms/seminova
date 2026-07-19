@@ -55,7 +55,7 @@ export function LoginForm({ next, className, ...props }: LoginFormProps) {
           : getPostAuthRedirectPath(data.user?.app_metadata)
       router.push(destination)
     } catch (caught: unknown) {
-      setFormError(extractAuthFormError(caught))
+      setFormError(extractAuthFormError(caught, { email }))
     } finally {
       setIsLoading(false)
     }

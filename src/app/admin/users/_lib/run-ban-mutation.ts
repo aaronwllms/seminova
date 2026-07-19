@@ -28,9 +28,9 @@ export const runBanUserMutation = (
   runAdminUserMutation({
     userId,
     mutation: (client, id) => banUserById(client, id, banDuration),
-    logTag: '[users-ban]',
+    logTag: 'users-ban',
+    logMessage: 'Failed to mutate user ban status',
     faultMessage: 'Something went wrong banning this user. Please try again.',
-    faultLogMessage: '[users-ban] Failed to mutate user ban status',
     beforeMutation: (callerUserId, targetUserId) => {
       if (targetUserId === callerUserId) {
         return {
@@ -53,7 +53,7 @@ export const runUnbanUserMutation = (
   runAdminUserMutation({
     userId,
     mutation: unbanUserById,
-    logTag: '[users-unban]',
+    logTag: 'users-unban',
+    logMessage: 'Failed to mutate user ban status',
     faultMessage: 'Something went wrong unbanning this user. Please try again.',
-    faultLogMessage: '[users-unban] Failed to mutate user ban status',
   })

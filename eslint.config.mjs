@@ -8,6 +8,18 @@ import testScopeNamingRule from './eslint-rules/test-scope-naming.mjs'
 const SHADCN_PKG_MESSAGE =
   'Primitive-first UI: own components in src/components/ui — do not install shadcn as an npm package.'
 
+/** Mirrors logging.mdc exempt surfaces — keep in sync with logging.mdc. */
+export const NO_RAW_CONSOLE_IGNORES = [
+  '**/*.{test,unit.test,integration.test}.{ts,tsx}',
+  'src/utils/persist-app-log.ts',
+  'src/utils/app-log-console.ts',
+  'src/utils/env.ts',
+  'scripts/admin/lib/prompt.ts',
+  'src/**/raw-console-boundary.fixture.ts',
+]
+
+export const noRawConsoleRule = 'error'
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   globalIgnores([
@@ -50,6 +62,61 @@ const eslintConfig = defineConfig([
     },
     rules: {
       'local/semantic-tokens': 'error',
+    },
+  },
+  {
+    files: ['src/**/*.{ts,tsx}', 'scripts/admin/**/*.{ts,tsx}'],
+    ignores: NO_RAW_CONSOLE_IGNORES,
+    rules: {
+      'no-console': noRawConsoleRule,
+    },
+  },
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: [
+      'src/utils/app-logger.ts',
+      'src/utils/persist-app-log.ts',
+      'src/utils/app-logger-cli.ts',
+      'src/supabase/service.ts',
+      'src/utils/app-settings.ts',
+      'src/supabase/require-auth.ts',
+      'src/supabase/proxy.ts',
+      'src/app/auth/confirm/route.ts',
+      'src/app/admin/users/actions.ts',
+      'src/app/admin/logs/actions.ts',
+      'src/app/admin/users/_lib/run-admin-user-mutation.ts',
+      'src/app/admin/_lib/map-admin-action-fault.ts',
+      'src/app/(app)/_lib/get-current-user-profile.ts',
+      'src/app/(app)/_lib/profile/actions.ts',
+      'src/app/admin/settings/_lib/actions.ts',
+      'src/app/api/client-logs/route.ts',
+      '**/*.{test,unit.test,integration.test}.{ts,tsx}',
+      'src/**/client-server-boundary.fixture.ts',
+      '**/*.boundary.fixture.ts',
+    ],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@/utils/app-logger',
+              message:
+                'appLog is server-only — use clientLog from @/utils/client-logger in client code.',
+            },
+            {
+              name: '@/utils/persist-app-log',
+              message:
+                'persist-app-log is server-only — use clientLog from @/utils/client-logger in client code.',
+            },
+            {
+              name: '@/supabase/service',
+              message:
+                'Service client is server-only — use @/supabase/client or server surfaces.',
+            },
+          ],
+        },
+      ],
     },
   },
   {

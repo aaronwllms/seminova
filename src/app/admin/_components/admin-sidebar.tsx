@@ -1,11 +1,16 @@
 'use client'
 
-import { Users } from 'lucide-react'
+import { ScrollText, Settings, Users } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
+import { syncAdminSettingsVisitKey } from '@/app/admin/settings/_lib/admin-settings-visit-key'
 import { SeminovaLogo } from '@/components/seminova-logo'
-import { ADMIN_USERS } from '@/constants/admin-paths'
+import {
+  ADMIN_LOGS,
+  ADMIN_SETTINGS,
+  ADMIN_USERS,
+} from '@/constants/admin-paths'
 import {
   Sidebar,
   SidebarContent,
@@ -20,7 +25,11 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar'
 
-const NAV_ITEMS = [{ title: 'Users', href: ADMIN_USERS, icon: Users }] as const
+const NAV_ITEMS = [
+  { title: 'Users', href: ADMIN_USERS, icon: Users },
+  { title: 'Logs', href: ADMIN_LOGS, icon: ScrollText },
+  { title: 'Settings', href: ADMIN_SETTINGS, icon: Settings },
+] as const
 
 type AdminSidebarProps = {
   navUserSlot: React.ReactNode
@@ -28,6 +37,7 @@ type AdminSidebarProps = {
 
 export const AdminSidebar = ({ navUserSlot }: AdminSidebarProps) => {
   const pathname = usePathname()
+  syncAdminSettingsVisitKey(pathname)
 
   return (
     <Sidebar collapsible="icon">

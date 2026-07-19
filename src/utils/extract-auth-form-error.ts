@@ -1,6 +1,7 @@
 import { isAuthError } from '@supabase/supabase-js'
 
 import type { AppError } from '@/types/app-error'
+import { clientLog } from '@/utils/client-logger'
 
 export const AUTH_ERROR_FALLBACK_MESSAGE =
   "We couldn't complete that request. Please try again, or contact support if the problem continues."
@@ -62,7 +63,16 @@ const AUTH_ERROR_OVERRIDES: Record<string, AppError> = {
   },
 }
 
-export const extractAuthFormError = (caught: unknown): AppError => {
+export interface ExtractAuthFormErrorOptions {
+  email?: string
+}
+
+export const extractAuthFormError = (
+  caught: unknown,
+  options?: ExtractAuthFormErrorOptions,
+): AppError => {
+  const logContext = options?.email ? { email: options.email } : undefined
+
   if (isAuthError(caught) && typeof caught.code === 'string') {
     const override = AUTH_ERROR_OVERRIDES[caught.code]
 
@@ -70,9 +80,13 @@ export const extractAuthFormError = (caught: unknown): AppError => {
       return { ...override }
     }
 
-    console.error('[extract-auth-form-error] Supabase auth error', {
-      supabaseCode: caught.code,
-    })
+    clientLog.error(
+      'auth-form-error',
+      'Supabase auth error',
+      logContext
+        ? { ...logContext, supabaseCode: caught.code }
+        : { supabaseCode: caught.code },
+    )
 
     return {
       message: AUTH_ERROR_FALLBACK_MESSAGE,
@@ -83,7 +97,11 @@ export const extractAuthFormError = (caught: unknown): AppError => {
 
   const message = caught instanceof Error ? caught.message : 'An error occurred'
 
-  console.error('[extract-auth-form-error] Non-auth error', { message })
+  clientLog.error(
+    'auth-form-error',
+    'Non-auth error',
+    logContext ? { ...logContext, message } : { message },
+  )
 
   return {
     message:

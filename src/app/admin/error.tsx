@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 import { ErrorPanel } from '@/components/error-panel'
 import { Button } from '@/components/ui/button'
 import { APP_HOME } from '@/constants/app-paths'
+import { clientLog } from '@/utils/client-logger'
 
 type AdminErrorProps = {
   error: Error & { digest?: string }
@@ -14,7 +15,7 @@ type AdminErrorProps = {
 
 export default function AdminError({ error, reset }: AdminErrorProps) {
   useEffect(() => {
-    console.error('[admin-error] Route error', error)
+    clientLog.error('admin-error', 'Route error', error)
   }, [error])
 
   return (
@@ -22,7 +23,7 @@ export default function AdminError({ error, reset }: AdminErrorProps) {
       <h1 className="text-2xl font-bold">Something went wrong</h1>
       <ErrorPanel
         message="The admin console could not be loaded. Try again or return to the app."
-        code={error.digest}
+        digest={error.digest}
       />
       <div className="flex flex-wrap gap-2">
         <Button type="button" onClick={() => reset()}>

@@ -22,7 +22,7 @@ import {
   type UsersSortColumn,
   type UsersSortDirection,
 } from './_lib/admin-user-row'
-import { mapUsersActionFault } from './_lib/map-users-action-fault'
+import { mapAdminActionFault } from '@/app/admin/_lib/map-admin-action-fault'
 import {
   runDemoteUserMutation,
   runPromoteUserMutation,
@@ -32,6 +32,10 @@ import {
   runUnbanUserMutation,
 } from './_lib/run-ban-mutation'
 import { listAdminUsersPage } from './_lib/list-admin-users'
+import {
+  listAdminUserStats,
+  type AdminUserStats,
+} from './_lib/list-admin-user-stats'
 import type { AdminUserRow } from './_lib/admin-user-row'
 import type { UsersActionError } from './_lib/assert-admin-caller'
 
@@ -57,8 +61,18 @@ export interface ListUsersActionInput {
   sortColumn?: UsersSortColumn
   sortDirection?: UsersSortDirection
   perPage?: DataTablePageSize
-  showBanned?: boolean
+  filterUnverified?: boolean
+  filterBanned?: boolean
 }
+
+export type { AdminUserStats } from './_lib/list-admin-user-stats'
+
+type UserStatsActionSuccess = {
+  success: true
+  data: AdminUserStats
+}
+
+export type GetUserStatsActionResult = UserStatsActionSuccess | UsersActionError
 
 export const listUsersAction = async (
   input: ListUsersActionInput = {},
@@ -121,13 +135,31 @@ export const listUsersAction = async (
     }
   }
 
-  const showBanned = input.showBanned ?? false
+  const filterUnverified = input.filterUnverified ?? false
+  const filterBanned = input.filterBanned ?? false
 
-  if (input.showBanned !== undefined && typeof input.showBanned !== 'boolean') {
+  if (
+    input.filterUnverified !== undefined &&
+    typeof input.filterUnverified !== 'boolean'
+  ) {
     return {
       success: false,
       error: {
-        message: 'Show banned must be a boolean',
+        message: 'Unverified filter must be a boolean',
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
+    }
+  }
+
+  if (
+    input.filterBanned !== undefined &&
+    typeof input.filterBanned !== 'boolean'
+  ) {
+    return {
+      success: false,
+      error: {
+        message: 'Banned filter must be a boolean',
         code: 'VALIDATION_ERROR',
         kind: 'operational',
       },
@@ -142,7 +174,8 @@ export const listUsersAction = async (
       emailFilter: input.emailFilter?.trim(),
       sortColumn,
       sortDirection,
-      showBanned,
+      filterUnverified,
+      filterBanned,
     })
 
     return {
@@ -150,13 +183,40 @@ export const listUsersAction = async (
       data: result,
     }
   } catch (caught) {
-    return mapUsersActionFault(
-      '[users-list] Failed to list users',
+    return mapAdminActionFault(
+      'users-list',
+      'Failed to list users',
       'Something went wrong loading users. Please try again.',
       caught,
     )
   }
 }
+
+export const getUserStatsAction =
+  async (): Promise<GetUserStatsActionResult> => {
+    const authResult = await assertAdminCaller()
+
+    if (!authResult.success) {
+      return authResult
+    }
+
+    try {
+      const client = await createClient()
+      const stats = await listAdminUserStats(client)
+
+      return {
+        success: true,
+        data: stats,
+      }
+    } catch (caught) {
+      return mapAdminActionFault(
+        'users-stats',
+        'Failed to load user stats',
+        'Something went wrong loading user stats. Please try again.',
+        caught,
+      )
+    }
+  }
 
 type RoleMutationActionSuccess = {
   success: true

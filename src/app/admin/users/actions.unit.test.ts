@@ -10,6 +10,7 @@ const demoteUserByIdMock = vi.fn()
 const banUserByIdMock = vi.fn()
 const unbanUserByIdMock = vi.fn()
 const listAdminUsersPageMock = vi.fn()
+const listAdminUserStatsMock = vi.fn()
 
 vi.mock('@/supabase/server', () => ({
   createClient: () => createClientMock(),
@@ -28,6 +29,10 @@ vi.mock('@/utils/admin-user-mutations', () => ({
 
 vi.mock('./_lib/list-admin-users', () => ({
   listAdminUsersPage: (...args: unknown[]) => listAdminUsersPageMock(...args),
+}))
+
+vi.mock('./_lib/list-admin-user-stats', () => ({
+  listAdminUserStats: (...args: unknown[]) => listAdminUserStatsMock(...args),
 }))
 
 const adminUser = {
@@ -243,6 +248,7 @@ describe('listUsersAction', () => {
     createClientMock.mockReset()
     createServiceClientMock.mockReset()
     listAdminUsersPageMock.mockReset()
+    listAdminUserStatsMock.mockReset()
 
     createClientMock.mockResolvedValue({
       auth: { getUser: getUserMock },
@@ -339,7 +345,8 @@ describe('listUsersAction', () => {
       emailFilter: undefined,
       sortColumn: 'created_at',
       sortDirection: 'desc',
-      showBanned: false,
+      filterUnverified: false,
+      filterBanned: false,
     })
   })
 
@@ -397,11 +404,12 @@ describe('listUsersAction', () => {
       sortColumn: 'role',
       sortDirection: 'asc',
       emailFilter: 'alice',
-      showBanned: false,
+      filterUnverified: false,
+      filterBanned: false,
     })
   })
 
-  it('should forward showBanned true to listAdminUsersPage', async () => {
+  it('should forward filter flags to listAdminUsersPage', async () => {
     listAdminUsersPageMock.mockResolvedValue({
       rows: [],
       hasNextPage: false,
@@ -409,7 +417,7 @@ describe('listUsersAction', () => {
     })
 
     const { listUsersAction } = await import('./actions')
-    await listUsersAction({ showBanned: true })
+    await listUsersAction({ filterUnverified: true, filterBanned: true })
 
     expect(listAdminUsersPageMock).toHaveBeenCalledWith(expect.any(Object), {
       page: 1,
@@ -417,20 +425,38 @@ describe('listUsersAction', () => {
       emailFilter: undefined,
       sortColumn: 'created_at',
       sortDirection: 'desc',
-      showBanned: true,
+      filterUnverified: true,
+      filterBanned: true,
     })
   })
 
-  it('should return VALIDATION_ERROR for non-boolean showBanned', async () => {
+  it('should return VALIDATION_ERROR for non-boolean filterUnverified', async () => {
     const { listUsersAction } = await import('./actions')
     const result = await listUsersAction({
-      showBanned: 'yes' as unknown as boolean,
+      filterUnverified: 'yes' as unknown as boolean,
     })
 
     expect(result).toEqual({
       success: false,
       error: {
-        message: 'Show banned must be a boolean',
+        message: 'Unverified filter must be a boolean',
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
+    })
+    expect(listAdminUsersPageMock).not.toHaveBeenCalled()
+  })
+
+  it('should return VALIDATION_ERROR for non-boolean filterBanned', async () => {
+    const { listUsersAction } = await import('./actions')
+    const result = await listUsersAction({
+      filterBanned: 'yes' as unknown as boolean,
+    })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Banned filter must be a boolean',
         code: 'VALIDATION_ERROR',
         kind: 'operational',
       },
@@ -457,7 +483,8 @@ describe('listUsersAction', () => {
       emailFilter: undefined,
       sortColumn: 'banned_until',
       sortDirection: 'desc',
-      showBanned: false,
+      filterUnverified: false,
+      filterBanned: false,
     })
   })
 
@@ -471,6 +498,76 @@ describe('listUsersAction', () => {
       success: false,
       error: {
         message: 'Something went wrong loading users. Please try again.',
+        code: 'INTERNAL_ERROR',
+        kind: 'fault',
+      },
+    })
+  })
+})
+
+describe('getUserStatsAction', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    getUserMock.mockReset()
+    createClientMock.mockReset()
+    listAdminUserStatsMock.mockReset()
+
+    createClientMock.mockResolvedValue({
+      auth: { getUser: getUserMock },
+    })
+    getUserMock.mockResolvedValue({
+      data: { user: adminUser },
+      error: null,
+    })
+  })
+
+  it('should return FORBIDDEN when caller is not admin', async () => {
+    getUserMock.mockResolvedValue({
+      data: { user: { id: 'user-1', app_metadata: {} } },
+      error: null,
+    })
+
+    const { getUserStatsAction } = await import('./actions')
+    const result = await getUserStatsAction()
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Forbidden',
+        code: 'FORBIDDEN',
+        kind: 'operational',
+      },
+    })
+    expect(listAdminUserStatsMock).not.toHaveBeenCalled()
+  })
+
+  it('should return success envelope with stats', async () => {
+    listAdminUserStatsMock.mockResolvedValue({
+      total: 10,
+      unverified: 2,
+      banned: 1,
+    })
+
+    const { getUserStatsAction } = await import('./actions')
+    const result = await getUserStatsAction()
+
+    expect(result).toEqual({
+      success: true,
+      data: { total: 10, unverified: 2, banned: 1 },
+    })
+    expect(listAdminUserStatsMock).toHaveBeenCalledWith(expect.any(Object))
+  })
+
+  it('should return INTERNAL_ERROR when listAdminUserStats throws', async () => {
+    listAdminUserStatsMock.mockRejectedValue(new Error('db down'))
+
+    const { getUserStatsAction } = await import('./actions')
+    const result = await getUserStatsAction()
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Something went wrong loading user stats. Please try again.',
         code: 'INTERNAL_ERROR',
         kind: 'fault',
       },

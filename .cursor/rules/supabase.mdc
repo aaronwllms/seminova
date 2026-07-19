@@ -12,7 +12,7 @@ globs:
 
 ## Migration Safety Protocol
 
-**Shipped schema:** 4 custom migrations — [`20260622120000_create_profiles.sql`](../../supabase/migrations/20260622120000_create_profiles.sql) (`public.profiles`, 1:1 with `auth.users`), [`20260623120000_create_avatars_bucket.sql`](../../supabase/migrations/20260623120000_create_avatars_bucket.sql) (`storage.avatars` bucket with owner-scoped RLS), [`20260715003530_admin_list_users.sql`](../../supabase/migrations/20260715003530_admin_list_users.sql) (`public.admin_list_users` RPC), [`20260715004901_admin_list_users_banned_sort.sql`](../../supabase/migrations/20260715004901_admin_list_users_banned_sort.sql) (`admin_list_users` banned-column sort). See `AGENTS.md` data model section for full detail. Additional migrations live in `supabase/migrations/`; humans apply them via Supabase CLI; agents write SQL files only.
+**Shipped schema:** see [AGENTS.md § Data model](../../AGENTS.md#data-model-summary) for the authoritative migration list and per-table detail. Additional migrations live in `supabase/migrations/`; humans apply them via Supabase CLI; agents write SQL files only.
 
 **Agents** — see `do-migrations-agent.mdc`, `supabase-sql.mdc`, and `.cursor/skills/create-migration/SKILL.md`:
 
@@ -88,7 +88,7 @@ const supabase = await createClient()
 // Root proxy.ts delegates to src/supabase/proxy.ts
 import { updateSession } from '@/supabase/proxy'
 
-// Public routes: /, /auth/**, /terms, /privacy, /reference, and /workflow; others redirect to /auth/login when unauthenticated (with safe next). Display reads use getDisplayAuthClaims (allowExpired, no refresh) — see ADR-0005.
+// Public routes: /, /auth/**, /terms, /privacy, /reference, /workflow, and /api/client-logs (client log relay — see ADR-0007); others redirect to /auth/login when unauthenticated (with safe next). Display reads use getDisplayAuthClaims (allowExpired, no refresh) — see ADR-0005.
 ```
 
 **Reference:** `proxy.ts`, `src/supabase/proxy.ts`, `src/supabase/client.ts`, `src/supabase/server.ts`

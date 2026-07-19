@@ -4,6 +4,7 @@
 import { join } from 'node:path'
 import { NextRequest } from 'next/server'
 import { ADMIN_ROLE } from '@/constants/admin-role'
+import { CLIENT_LOGS_RELAY_PATH } from '@/constants/app-paths'
 import { discoverAppRoutes } from '@/utils/discover-app-routes'
 import { updateSession } from './proxy'
 
@@ -13,6 +14,7 @@ const PUBLIC_EXACT = [
   '/privacy',
   '/reference',
   '/workflow',
+  CLIENT_LOGS_RELAY_PATH,
 ] as const
 const PUBLIC_PREFIXES = ['/auth'] as const
 
@@ -22,6 +24,11 @@ const isDiscoveredPublicRoute = (pathname: string) =>
 
 const mockGetClaims = vi.fn()
 const mockSignOut = vi.fn()
+const mockAppLogDebug = vi.fn()
+const mockAppLogError = vi.fn()
+let mockSetAll:
+  | ((cookies: Array<{ name: string; value: string }>) => void)
+  | null = null
 
 vi.mock('@/utils/env', () => ({
   hasPublicSupabaseEnv: true,
@@ -31,13 +38,25 @@ vi.mock('@/utils/env', () => ({
   }),
 }))
 
+vi.mock('@/utils/app-logger', () => ({
+  appLog: {
+    debug: (...args: unknown[]) => mockAppLogDebug(...args),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: (...args: unknown[]) => mockAppLogError(...args),
+  },
+}))
+
 vi.mock('@supabase/ssr', () => ({
-  createServerClient: vi.fn(() => ({
-    auth: {
-      getClaims: mockGetClaims,
-      signOut: mockSignOut,
-    },
-  })),
+  createServerClient: vi.fn((_url, _key, config) => {
+    mockSetAll = config.cookies.setAll
+    return {
+      auth: {
+        getClaims: mockGetClaims,
+        signOut: mockSignOut,
+      },
+    }
+  }),
 }))
 
 const createRequest = (pathname: string) =>
@@ -47,6 +66,9 @@ describe('updateSession', () => {
   beforeEach(() => {
     mockGetClaims.mockClear()
     mockSignOut.mockClear()
+    mockAppLogDebug.mockClear()
+    mockAppLogError.mockClear()
+    mockSetAll = null
     mockSignOut.mockResolvedValue({ error: null })
     mockGetClaims.mockResolvedValue({ data: { claims: null }, error: null })
   })
@@ -84,6 +106,14 @@ describe('updateSession', () => {
     expect(response.status).toBe(307)
     expect(response.headers.get('location')).toContain('/auth/login')
     expect(mockSignOut).toHaveBeenCalledWith({ scope: 'local' })
+    expect(mockAppLogError).toHaveBeenCalledWith(
+      'proxy',
+      'Session invalid on protected route',
+      expect.objectContaining({
+        pathname: '/home',
+        message: 'Invalid Refresh Token: Already Used',
+      }),
+    )
   })
 
   it('should redirect stray auth code on protected routes to auth error', async () => {
@@ -143,6 +173,14 @@ describe('updateSession', () => {
 
     expect(response.status).toBe(200)
     expect(mockSignOut).toHaveBeenCalledWith({ scope: 'local' })
+    expect(mockAppLogError).toHaveBeenCalledWith(
+      'proxy',
+      'Clearing stale session on public route',
+      expect.objectContaining({
+        pathname: '/auth/login',
+        message: 'Invalid Refresh Token: Refresh Token Not Found',
+      }),
+    )
   })
 
   it('should allow authenticated users on protected routes', async () => {
@@ -153,6 +191,42 @@ describe('updateSession', () => {
     const response = await updateSession(createRequest('/home'))
 
     expect(response.status).toBe(200)
+    expect(mockAppLogDebug).toHaveBeenCalledWith(
+      'proxy',
+      'Session token reused',
+      { pathname: '/home', refreshed: false },
+    )
+  })
+
+  it('should log refreshed true when auth cookies are rewritten', async () => {
+    mockGetClaims.mockImplementation(async () => {
+      mockSetAll?.([{ name: 'sb-test-auth-token', value: 'chunk' }])
+      return { data: { claims: { sub: 'user-1' } } }
+    })
+
+    await updateSession(createRequest('/home'))
+
+    expect(mockAppLogDebug).toHaveBeenCalledWith(
+      'proxy',
+      'Session token refreshed',
+      { pathname: '/home', refreshed: true },
+    )
+  })
+
+  it('should not emit session debug on public routes', async () => {
+    mockGetClaims.mockResolvedValue({
+      data: { claims: { sub: 'user-1' } },
+    })
+
+    await updateSession(createRequest('/'))
+
+    expect(mockAppLogDebug).not.toHaveBeenCalled()
+  })
+
+  it('should not emit session debug when redirecting unauthenticated users', async () => {
+    await updateSession(createRequest('/home'))
+
+    expect(mockAppLogDebug).not.toHaveBeenCalled()
   })
 
   it('should redirect non-admin authenticated users from /admin to /home', async () => {
@@ -243,6 +317,9 @@ describe('auth boundary (discovered routes)', () => {
   beforeEach(() => {
     mockGetClaims.mockClear()
     mockSignOut.mockClear()
+    mockAppLogDebug.mockClear()
+    mockAppLogError.mockClear()
+    mockSetAll = null
     mockSignOut.mockResolvedValue({ error: null })
     mockGetClaims.mockResolvedValue({ data: { claims: null }, error: null })
   })
@@ -255,6 +332,7 @@ describe('auth boundary (discovered routes)', () => {
     expect(discoveredRoutes).toContain('/admin')
     expect(discoveredRoutes).toContain('/auth/login')
     expect(discoveredRoutes).toContain('/auth/confirm')
+    expect(discoveredRoutes).toContain(CLIENT_LOGS_RELAY_PATH)
     expect(discoveredRoutes).toContain('/terms')
     expect(discoveredRoutes).toContain('/privacy')
   })

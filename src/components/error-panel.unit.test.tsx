@@ -7,17 +7,54 @@ import { buildErrorCopyText, ErrorPanel } from './error-panel'
 describe('buildErrorCopyText', () => {
   it('should format message with code when code is provided', () => {
     expect(
-      buildErrorCopyText({
-        message: 'Something went wrong',
-        code: 'INTERNAL_ERROR',
-      }),
-    ).toBe('Something went wrong\nCode: INTERNAL_ERROR')
+      JSON.parse(
+        buildErrorCopyText({
+          message: 'Something went wrong',
+          code: 'INTERNAL_ERROR',
+        }),
+      ),
+    ).toEqual({
+      message: 'Something went wrong',
+      code: 'INTERNAL_ERROR',
+    })
   })
 
-  it('should return message only when code is absent', () => {
-    expect(buildErrorCopyText({ message: 'Something went wrong' })).toBe(
-      'Something went wrong',
-    )
+  it('should return message only when code and digest are absent', () => {
+    expect(
+      JSON.parse(buildErrorCopyText({ message: 'Something went wrong' })),
+    ).toEqual({
+      message: 'Something went wrong',
+    })
+  })
+
+  it('should include digest when digest is provided', () => {
+    expect(
+      JSON.parse(
+        buildErrorCopyText({
+          message: 'Something went wrong',
+          digest: 'a91c4e',
+        }),
+      ),
+    ).toEqual({
+      message: 'Something went wrong',
+      digest: 'a91c4e',
+    })
+  })
+
+  it('should include code and digest when both are provided', () => {
+    expect(
+      JSON.parse(
+        buildErrorCopyText({
+          message: 'Something went wrong',
+          code: 'INTERNAL_ERROR',
+          digest: 'a91c4e',
+        }),
+      ),
+    ).toEqual({
+      message: 'Something went wrong',
+      code: 'INTERNAL_ERROR',
+      digest: 'a91c4e',
+    })
   })
 })
 
@@ -43,7 +80,7 @@ describe('ErrorPanel', () => {
     render(
       <ErrorPanel
         message="This page could not be loaded. Try again or sign in."
-        code="a91c4e"
+        digest="a91c4e"
       />,
     )
 

@@ -44,6 +44,16 @@ export const TOKEN_PAIRS = [
     minRatio: MIN_TEXT_RATIO,
   },
   {
+    base: 'info',
+    foreground: 'info-foreground',
+    minRatio: MIN_TEXT_RATIO,
+  },
+  {
+    base: 'unread',
+    foreground: 'unread-foreground',
+    minRatio: MIN_TEXT_RATIO,
+  },
+  {
     base: 'sidebar',
     foreground: 'sidebar-foreground',
     minRatio: MIN_TEXT_RATIO,
@@ -63,7 +73,7 @@ export const TOKEN_PAIRS = [
 const OKLCH_REGEX =
   /^oklch\(\s*([\d.]+%?)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+%?))?\s*\)$/i
 
-const BLOCK_REGEX = /(?::root|\.dark)\s*\{([^}]*)\}/g
+const BLOCK_REGEX = /(?::root(?:\s*,\s*\.light)?|\.dark)\s*\{([^}]*)\}/g
 const TOKEN_DECL_REGEX = /--([a-z0-9-]+)\s*:\s*([^;]+);/g
 
 const fail = (message) => {

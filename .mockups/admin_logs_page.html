@@ -23,6 +23,9 @@
         --bg-accent: #e6f1fb;
         --text-accent: #185fa5;
         --fill-accent: #378add;
+        --bg-unread: #eeedfe;
+        --text-unread: #3c3489;
+        --fill-unread: #7f77dd;
         --radius: 8px;
         --font-sans:
           ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -53,9 +56,82 @@
         color: var(--text-secondary);
         margin: 4px 0 0;
       }
+      .tiles {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 8px;
+        margin: 1.25rem 0;
+      }
+      .tile {
+        border-radius: 12px;
+        padding: 0.6rem 0.7rem;
+      }
+      .tile-label {
+        font-size: 11px;
+        margin: 0 0 3px;
+      }
+      .tile-value {
+        font-size: 19px;
+        font-weight: 500;
+        margin: 0;
+      }
+      .tile-total {
+        background: var(--surface-2);
+        border: 0.5px solid var(--border);
+      }
+      .tile-total .tile-label,
+      .tile-total .tile-value {
+        color: var(--text-secondary);
+      }
+      .tile-debug {
+        background: var(--surface-1);
+        border: 0.5px solid var(--border);
+      }
+      .tile-debug .tile-label,
+      .tile-debug .tile-value {
+        color: var(--text-secondary);
+      }
+      .tile-info {
+        background: var(--bg-accent);
+        border: 0.5px solid var(--text-accent);
+      }
+      .tile-info .tile-label,
+      .tile-info .tile-value {
+        color: var(--text-accent);
+      }
+      .tile-warn {
+        background: var(--bg-warning);
+        border: 0.5px solid var(--border-warning);
+      }
+      .tile-warn .tile-label,
+      .tile-warn .tile-value {
+        color: var(--text-warning);
+      }
+      .tile-error {
+        background: var(--bg-danger);
+        border: 2px solid var(--text-danger);
+      }
+      .tile-error .tile-label,
+      .tile-error .tile-value {
+        color: var(--text-danger);
+      }
+      .tile-unread {
+        background: var(--bg-unread);
+        border: 2px solid var(--text-unread);
+      }
+      .tile-unread .tile-label,
+      .tile-unread .tile-value {
+        color: var(--text-unread);
+      }
+      .toolbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
       .search-wrap {
         position: relative;
-        margin: 1.25rem 0 12px;
+        flex: 1;
       }
       .search-icon {
         position: absolute;
@@ -75,41 +151,21 @@
         border: 0.5px solid var(--border);
         border-radius: var(--radius);
       }
-      .filters {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-        margin-bottom: 16px;
-      }
       .chip {
+        flex: none;
         display: inline-flex;
         align-items: center;
         gap: 5px;
         font-size: 12px;
-        padding: 5px 10px;
+        padding: 0 10px;
+        height: 36px;
         border-radius: var(--radius);
         border: 0.5px solid var(--border);
         color: var(--text-secondary);
-      }
-      .chip-error {
-        background: var(--bg-danger);
-        color: var(--text-danger);
-        border-color: var(--border-danger);
-      }
-      .chip-warn {
-        background: var(--bg-warning);
-        color: var(--text-warning);
-        border-color: var(--border-warning);
-      }
-      .divider-v {
-        width: 1px;
-        height: 20px;
-        background: var(--border);
-        margin: 0 2px;
+        background: var(--surface-2);
+        white-space: nowrap;
       }
       .mark-all {
-        margin-left: auto;
         border-color: var(--border-strong);
       }
       .table {
@@ -136,13 +192,8 @@
         border-bottom: 0.5px solid var(--border);
         font-size: 13px;
       }
-      .row:last-child,
-      .row-expanded .row {
+      .row:last-child {
         border-bottom: 0;
-      }
-      .row-expanded {
-        border-bottom: 0.5px solid var(--border);
-        background: var(--surface-1);
       }
       .col-flag {
         width: 16px;
@@ -181,7 +232,7 @@
         width: 6px;
         height: 6px;
         border-radius: 50%;
-        background: var(--fill-accent);
+        background: var(--fill-unread);
       }
       .badge {
         font-size: 11px;
@@ -192,10 +243,6 @@
         background: var(--bg-danger);
         color: var(--text-danger);
       }
-      .badge-warn {
-        background: var(--bg-warning);
-        color: var(--text-warning);
-      }
       .badge-info {
         background: var(--bg-accent);
         color: var(--text-accent);
@@ -205,70 +252,46 @@
         color: var(--text-secondary);
         border: 0.5px solid var(--border);
       }
-      .chevron {
-        color: var(--text-muted);
-        font-size: 11px;
-        flex: none;
-        padding-top: 1px;
-      }
-      .copy {
-        font-size: 14px;
-        color: var(--text-muted);
-        flex: none;
-        padding-top: 1px;
-      }
-      .context {
-        padding: 0 14px 14px 46px;
-      }
-      .context-label {
-        font-size: 12px;
-        color: var(--text-secondary);
-        margin: 0 0 6px;
-      }
-      pre {
-        margin: 0;
-        font-family: var(--font-mono);
-        font-size: 12px;
-        background: var(--surface-2);
-        border: 0.5px solid var(--border);
-        border-radius: var(--radius);
-        padding: 10px;
-        white-space: pre-wrap;
-        line-height: 1.5;
-      }
-      .load-more {
-        display: flex;
-        justify-content: center;
-        margin-top: 14px;
-      }
-      .btn {
-        font-size: 13px;
-        padding: 7px 14px;
-        border-radius: var(--radius);
-        border: 0.5px solid var(--border-strong);
-        color: var(--text-secondary);
-        background: transparent;
-      }
     </style>
   </head>
   <body>
     <div class="page">
       <p class="title">Logs</p>
-      <p class="subtitle">Runtime application logs. 12 unread.</p>
+      <p class="subtitle">Runtime application logs.</p>
 
-      <div class="search-wrap">
-        <span class="search-icon">&#9906;</span>
-        <input type="text" placeholder="Search message, context, or tag" />
+      <div class="tiles">
+        <div class="tile tile-total">
+          <p class="tile-label">Total</p>
+          <p class="tile-value">128</p>
+        </div>
+        <div class="tile tile-debug">
+          <p class="tile-label">Debug</p>
+          <p class="tile-value">41</p>
+        </div>
+        <div class="tile tile-info">
+          <p class="tile-label">Info</p>
+          <p class="tile-value">53</p>
+        </div>
+        <div class="tile tile-warn">
+          <p class="tile-label">Warn</p>
+          <p class="tile-value">22</p>
+        </div>
+        <div class="tile tile-error">
+          <p class="tile-label">Error</p>
+          <p class="tile-value">12</p>
+        </div>
+        <div class="tile tile-unread">
+          <p class="tile-label">Unread</p>
+          <p class="tile-value">12</p>
+        </div>
       </div>
 
-      <div class="filters">
-        <span class="chip chip-error">&#10003; Error</span>
-        <span class="chip chip-warn">&#10003; Warn</span>
-        <span class="chip">Info</span>
-        <span class="chip">Debug</span>
-        <span class="divider-v"></span>
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">&#9906;</span>
+          <input type="text" placeholder="Search message, context, or tag" />
+        </div>
         <span class="chip">All tags &#9662;</span>
-        <span class="chip">Unread only &#9662;</span>
         <span class="chip mark-all">&#10003;&#10003; Mark all as read</span>
       </div>
 
@@ -293,38 +316,10 @@
           <span class="col-msg truncate" style="font-weight: 500"
             >Storage delete failed, profile row updated anyway</span
           >
-          <span class="chevron">&#9656;</span>
-          <span class="copy">&#10697;</span>
-        </div>
-
-        <div class="row-expanded">
-          <div class="row">
-            <span class="col-flag"><span class="unread-dot"></span></span>
-            <span class="col-time">14:19:55.008</span>
-            <span class="col-level"
-              ><span class="badge badge-warn">warn</span></span
-            >
-            <span class="col-tag">require-auth</span>
-            <span class="col-msg" style="font-weight: 500"
-              >Claims read with allowExpired on protected route</span
-            >
-            <span class="chevron">&#9662;</span>
-            <span class="copy">&#10697;</span>
-          </div>
-          <div class="context">
-            <p class="context-label">Context</p>
-            <pre>
-{
-  "route": "/app/profile",
-  "userId": "8f3c&#8230;a91e",
-  "expiredBy": 42
-}</pre
-            >
-          </div>
         </div>
 
         <div class="row">
-          <span class="col-flag"></span>
+          <span class="col-flag"><span class="unread-dot"></span></span>
           <span class="col-time">14:18:30.771</span>
           <span class="col-level"
             ><span class="badge badge-info">info</span></span
@@ -333,8 +328,6 @@
           <span class="col-msg truncate" style="color: var(--text-secondary)"
             >Settings cache invalidated after save of min_log_level</span
           >
-          <span class="chevron">&#9656;</span>
-          <span class="copy">&#10697;</span>
         </div>
 
         <div class="row">
@@ -347,13 +340,7 @@
           <span class="col-msg truncate" style="color: var(--text-secondary)"
             >Access token refreshed, cookie rewritten on response</span
           >
-          <span class="chevron">&#9656;</span>
-          <span class="copy">&#10697;</span>
         </div>
-      </div>
-
-      <div class="load-more">
-        <span class="btn">Load more</span>
       </div>
     </div>
   </body>

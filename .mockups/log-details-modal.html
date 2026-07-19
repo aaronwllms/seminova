@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Log details modal mockup</title>
+<style>
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: #2c2c2a;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
+  }
+  .overlay {
+    background: rgba(0,0,0,0.45);
+    width: 100%;
+    min-height: 480px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
+  }
+  .modal {
+    width: 460px;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 0.5px solid rgba(0,0,0,0.12);
+    padding: 1.5rem;
+    box-sizing: border-box;
+  }
+  h3 { margin: 0; font-size: 16px; font-weight: 500; color: #0b0b0b; }
+  p { margin: 0; }
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  .close-btn {
+    width: 32px; height: 32px; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent; border: none; cursor: pointer;
+    color: #5f5e5a;
+  }
+  .field-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 0.8fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .field-label {
+    font-size: 12px;
+    color: #888780;
+    margin: 0 0 4px;
+  }
+  .field-value {
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: 13px;
+  }
+  .badge-warn {
+    display: inline-block;
+    font-size: 12px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: #FAEEDA;
+    color: #633806;
+    border: 0.5px solid #EF9F27;
+  }
+  .divider-section {
+    border-top: 0.5px solid rgba(0,0,0,0.08);
+    padding-top: 1rem;
+    margin-bottom: 1rem;
+  }
+  .message-value {
+    font-size: 14px;
+    color: #0b0b0b;
+  }
+  .context-block {
+    margin-bottom: 1.5rem;
+  }
+  .context-value {
+    background: #f4f3ef;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: 13px;
+    color: #5f5e5a;
+  }
+  .footer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 0.5px solid rgba(0,0,0,0.08);
+    padding-top: 1rem;
+  }
+  .btn-ghost {
+    font-size: 13px;
+    height: 32px;
+    padding: 0 12px;
+    background: transparent;
+    border: none;
+    color: #0b0b0b;
+    cursor: pointer;
+  }
+  .btn-bordered {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    height: 32px;
+    padding: 0 14px;
+    background: #ffffff;
+    border: 0.5px solid rgba(0,0,0,0.2);
+    border-radius: 8px;
+    color: #0b0b0b;
+    cursor: pointer;
+  }
+  .icon-copy::before {
+    content: "";
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 1.5px solid currentColor;
+    border-radius: 2px;
+    box-shadow: 3px -3px 0 -1.5px currentColor;
+    margin-right: 2px;
+  }
+</style>
+</head>
+<body>
+<div class="overlay">
+  <div class="modal">
+    <div class="header-row">
+      <h3>Log details</h3>
+      <button class="close-btn" aria-label="Close">✕</button>
+    </div>
+
+    <div class="field-grid">
+      <div>
+        <p class="field-label">Timestamp</p>
+        <p class="field-value" style="white-space: nowrap;">Jul 18, 3:52:59 PM</p>
+      </div>
+      <div>
+        <p class="field-label">Level</p>
+        <span class="badge-warn">Warn</span>
+      </div>
+      <div>
+        <p class="field-label">Tag</p>
+        <p class="field-value">users-demote</p>
+      </div>
+    </div>
+
+    <div class="divider-section">
+      <p class="field-label">Message</p>
+      <p class="message-value">forbin@gmail.com — demoted</p>
+    </div>
+
+    <div class="context-block">
+      <p class="field-label">Context</p>
+      <div class="context-value">null</div>
+    </div>
+
+    <div class="footer-row">
+      <button class="btn-ghost">Mark unread</button>
+      <button class="btn-bordered"><span class="icon-copy" aria-hidden="true"></span>Copy</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

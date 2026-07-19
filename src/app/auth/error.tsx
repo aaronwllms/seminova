@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 import { ErrorPanel } from '@/components/error-panel'
 import { Button } from '@/components/ui/button'
 import { LOGIN_PATH } from '@/constants/app-paths'
+import { clientLog } from '@/utils/client-logger'
 
 type AuthErrorProps = {
   error: Error & { digest?: string }
@@ -14,7 +15,7 @@ type AuthErrorProps = {
 
 export default function AuthError({ error, reset }: AuthErrorProps) {
   useEffect(() => {
-    console.error('[auth-error] Route error', error)
+    clientLog.error('auth-error', 'Route error', error)
   }, [error])
 
   return (
@@ -22,7 +23,7 @@ export default function AuthError({ error, reset }: AuthErrorProps) {
       <h1 className="text-2xl font-bold">Something went wrong</h1>
       <ErrorPanel
         message="This sign-in page could not be loaded. Try again or return home."
-        code={error.digest}
+        digest={error.digest}
       />
       <div className="flex flex-wrap gap-2">
         <Button type="button" onClick={() => reset()}>

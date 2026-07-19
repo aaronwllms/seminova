@@ -9,6 +9,17 @@ const mockSelect = vi.fn()
 const mockSingle = vi.fn()
 const mockGetPublicUrl = vi.fn()
 const mockRemove = vi.fn()
+const mockAppLogDebug = vi.fn()
+const mockAppLogWarn = vi.fn()
+
+vi.mock('@/utils/app-logger', () => ({
+  appLog: {
+    debug: (...args: unknown[]) => mockAppLogDebug(...args),
+    info: vi.fn(),
+    warn: (...args: unknown[]) => mockAppLogWarn(...args),
+    error: vi.fn(),
+  },
+}))
 
 const USER_ID = 'user-1'
 const CANONICAL_PUBLIC_URL = `https://example.supabase.co/storage/v1/object/public/avatars/${buildAvatarStoragePath(USER_ID)}`
@@ -30,9 +41,14 @@ vi.mock('@/supabase/server', () => ({
   })),
 }))
 
-vi.mock('next/cache', () => ({
-  revalidatePath: vi.fn(),
-}))
+vi.mock('next/cache', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('next/cache')>()
+
+  return {
+    ...actual,
+    revalidatePath: vi.fn(),
+  }
+})
 
 import { updateProfileAction } from './actions'
 
@@ -46,6 +62,8 @@ describe('updateProfileAction', () => {
     mockSingle.mockReset()
     mockGetPublicUrl.mockReset()
     mockRemove.mockReset()
+    mockAppLogDebug.mockReset()
+    mockAppLogWarn.mockReset()
 
     mockRemove.mockResolvedValue({ data: [], error: null })
 
@@ -253,6 +271,11 @@ describe('updateProfileAction', () => {
     expect(mockRemove).toHaveBeenCalledWith([buildAvatarStoragePath(USER_ID)])
     expect(callOrder).toEqual(['update', 'remove'])
     expect(result).toMatchObject({ success: true })
+    expect(mockAppLogDebug).toHaveBeenCalledWith(
+      'profile-update',
+      'Avatar storage deleted',
+      { userId: USER_ID },
+    )
   })
 
   it('should return success when avatar storage delete fails after row update', async () => {
@@ -274,6 +297,16 @@ describe('updateProfileAction', () => {
     expect(mockUpdate).toHaveBeenCalledWith({ avatar_url: null })
     expect(mockRemove).toHaveBeenCalled()
     expect(result).toMatchObject({ success: true })
+    expect(mockAppLogWarn).toHaveBeenCalledWith(
+      'profile-update',
+      'Avatar storage delete failed',
+      { message: 'storage delete failed' },
+    )
+    expect(mockAppLogDebug).toHaveBeenCalledWith(
+      'profile-update',
+      'Profile updated; avatar storage delete failed without blocking success',
+      { storageDeleteOk: false },
+    )
   })
 
   it('should return success when avatar storage delete throws after row update', async () => {
