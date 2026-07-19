@@ -57,6 +57,7 @@ type BannerSettingRowProps<
 > = {
   entry: AppSettingRegistryEntry<K>
   savedValue: BannerSettingValue
+  isExpanded: boolean
   onSaved: (key: K, value: BannerSettingValue) => void
 }
 
@@ -77,6 +78,7 @@ export const BannerSettingRow = <
 >({
   entry,
   savedValue,
+  isExpanded,
   onSaved,
 }: BannerSettingRowProps<K>) => {
   const [isSaving, setIsSaving] = useState(false)
@@ -106,6 +108,8 @@ export const BannerSettingRow = <
   })
   const isUnchanged = bannerSettingValuesEqual(draftBanner, savedValue)
   const isSaveDisabled = isSaving || !form.formState.isValid || isUnchanged
+  const previewConfig = isExpanded ? draftBanner : savedValue
+  const showPreview = hasBannerPreviewContent(previewConfig)
 
   useEffect(() => {
     form.reset(bannerValueToFormValues(savedValue))
@@ -163,14 +167,6 @@ export const BannerSettingRow = <
           </div>
         </div>
       </AccordionTrigger>
-
-      {hasBannerPreviewContent(savedValue) ? (
-        <div className="pb-3">
-          <BannerPreviewThemeWrapper theme={previewTheme}>
-            <AppBanner preview config={savedValue} />
-          </BannerPreviewThemeWrapper>
-        </div>
-      ) : null}
 
       <AccordionContent className="pt-0 pb-4">
         <Form {...form}>
@@ -381,30 +377,6 @@ export const BannerSettingRow = <
               />
             </div>
 
-            <div>
-              <div className="mb-1.5 flex items-center justify-between gap-3">
-                <FormLabel className="mb-0">Preview</FormLabel>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    setPreviewThemeOverride((current) => {
-                      const activeTheme =
-                        current ?? (resolvedTheme === 'dark' ? 'dark' : 'light')
-
-                      return activeTheme === 'light' ? 'dark' : 'light'
-                    })
-                  }
-                >
-                  {previewTheme === 'light' ? 'Preview dark' : 'Preview light'}
-                </Button>
-              </div>
-              <BannerPreviewThemeWrapper theme={previewTheme}>
-                <AppBanner preview config={draftBanner} />
-              </BannerPreviewThemeWrapper>
-            </div>
-
             <div className="flex flex-col gap-2">
               <Button
                 type="button"
@@ -418,9 +390,43 @@ export const BannerSettingRow = <
               </Button>
               <AppErrorSurface error={error} />
             </div>
+
+            {showPreview ? (
+              <div className="border-t pt-4">
+                <div className="flex items-center justify-between gap-3">
+                  <FormLabel className="mb-0">Preview</FormLabel>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setPreviewThemeOverride((current) => {
+                        const activeTheme =
+                          current ??
+                          (resolvedTheme === 'dark' ? 'dark' : 'light')
+
+                        return activeTheme === 'light' ? 'dark' : 'light'
+                      })
+                    }
+                  >
+                    {previewTheme === 'light'
+                      ? 'Preview dark'
+                      : 'Preview light'}
+                  </Button>
+                </div>
+              </div>
+            ) : null}
           </div>
         </Form>
       </AccordionContent>
+
+      {showPreview ? (
+        <div className="pb-3">
+          <BannerPreviewThemeWrapper theme={previewTheme}>
+            <AppBanner preview config={previewConfig} />
+          </BannerPreviewThemeWrapper>
+        </div>
+      ) : null}
     </AccordionItem>
   )
 }

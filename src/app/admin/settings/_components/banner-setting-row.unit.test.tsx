@@ -1,5 +1,6 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
+import { useState } from 'react'
 import { render, screen } from '@/test/test-utils'
 import { getRegistryEntry } from '@/config/app-settings-registry'
 import { Accordion } from '@/components/ui/accordion'
@@ -51,15 +52,26 @@ describe('BannerSettingRow', () => {
     savedValue = DEFAULT_BANNER_SETTING,
     options?: { pageTheme?: 'light' | 'dark' },
   ) => {
-    const row = (
-      <Accordion type="multiple">
-        <BannerSettingRow
-          entry={entry}
-          savedValue={savedValue}
-          onSaved={onSavedMock}
-        />
-      </Accordion>
-    )
+    const ControlledRow = () => {
+      const [openItems, setOpenItems] = useState<string[]>([])
+
+      return (
+        <Accordion
+          type="multiple"
+          value={openItems}
+          onValueChange={setOpenItems}
+        >
+          <BannerSettingRow
+            entry={entry}
+            savedValue={savedValue}
+            isExpanded={openItems.includes('banner_public')}
+            onSaved={onSavedMock}
+          />
+        </Accordion>
+      )
+    }
+
+    const row = <ControlledRow />
 
     return render(
       options?.pageTheme === 'dark' ? <div className="dark">{row}</div> : row,
@@ -152,7 +164,7 @@ describe('BannerSettingRow', () => {
     expect(showSuccessToastMock).toHaveBeenCalledWith('Public banner saved')
   })
 
-  it('should render a collapsed saved preview when headline content exists', () => {
+  it('should render a single saved preview at the bottom when headline content exists', () => {
     renderRow({
       ...DEFAULT_BANNER_SETTING,
       mode: 'on',
@@ -162,6 +174,35 @@ describe('BannerSettingRow', () => {
     expect(screen.getAllByRole('status')).toHaveLength(1)
     expect(screen.getByRole('status')).toHaveTextContent(
       'Saved preview headline',
+    )
+    expect(
+      screen.queryByRole('button', { name: 'Preview dark' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('should keep a single preview when expanded and update it from draft values', async () => {
+    const user = userEvent.setup()
+
+    renderRow({
+      ...DEFAULT_BANNER_SETTING,
+      mode: 'on',
+      headline: 'Saved preview headline',
+    })
+
+    await user.click(screen.getByRole('button', { name: /Public banner/i }))
+
+    expect(screen.getAllByRole('status')).toHaveLength(1)
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Saved preview headline',
+    )
+
+    const headlineInput = screen.getByLabelText('Headline')
+    await user.clear(headlineInput)
+    await user.type(headlineInput, 'Draft preview headline')
+
+    expect(screen.getAllByRole('status')).toHaveLength(1)
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Draft preview headline',
     )
   })
 
@@ -206,11 +247,11 @@ describe('BannerSettingRow', () => {
     expect(
       screen.getByRole('button', { name: 'Preview light' }),
     ).toBeInTheDocument()
-    expect(document.querySelectorAll('.dark.bg-background')).toHaveLength(2)
+    expect(document.querySelectorAll('.dark.bg-background')).toHaveLength(1)
 
     await user.click(screen.getByRole('button', { name: 'Preview light' }))
 
-    expect(document.querySelectorAll('.light.bg-background')).toHaveLength(2)
+    expect(document.querySelectorAll('.light.bg-background')).toHaveLength(1)
     expect(
       document.querySelector('.dark.bg-background'),
     ).not.toBeInTheDocument()
