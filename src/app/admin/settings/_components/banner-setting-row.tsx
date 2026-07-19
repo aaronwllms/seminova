@@ -1,6 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 
@@ -80,7 +81,12 @@ export const BannerSettingRow = <
 }: BannerSettingRowProps<K>) => {
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<AppError | null>(null)
-  const [previewTheme, setPreviewTheme] = useState<'light' | 'dark'>('light')
+  const [previewThemeOverride, setPreviewThemeOverride] = useState<
+    'light' | 'dark' | null
+  >(null)
+  const { resolvedTheme } = useTheme()
+  const previewTheme =
+    previewThemeOverride ?? (resolvedTheme === 'dark' ? 'dark' : 'light')
 
   const statusBadge = formatBannerStatusBadge(savedValue)
 
@@ -383,9 +389,12 @@ export const BannerSettingRow = <
                   variant="outline"
                   size="sm"
                   onClick={() =>
-                    setPreviewTheme((current) =>
-                      current === 'light' ? 'dark' : 'light',
-                    )
+                    setPreviewThemeOverride((current) => {
+                      const activeTheme =
+                        current ?? (resolvedTheme === 'dark' ? 'dark' : 'light')
+
+                      return activeTheme === 'light' ? 'dark' : 'light'
+                    })
                   }
                 >
                   {previewTheme === 'light' ? 'Preview dark' : 'Preview light'}

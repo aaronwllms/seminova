@@ -10,6 +10,13 @@ import { BannerSettingRow } from './banner-setting-row'
 
 const saveAppSettingActionMock = vi.fn()
 const showSuccessToastMock = vi.fn()
+let mockResolvedTheme: 'light' | 'dark' | undefined = 'light'
+
+vi.mock('next-themes', () => ({
+  useTheme: () => ({
+    resolvedTheme: mockResolvedTheme,
+  }),
+}))
 
 vi.mock('@/app/admin/settings/_lib/actions', () => ({
   saveAppSettingAction: (...args: unknown[]) =>
@@ -34,6 +41,7 @@ describe('BannerSettingRow', () => {
   })
 
   beforeEach(() => {
+    mockResolvedTheme = 'light'
     saveAppSettingActionMock.mockReset()
     showSuccessToastMock.mockReset()
     onSavedMock.mockReset()
@@ -175,8 +183,9 @@ describe('BannerSettingRow', () => {
     expect(document.querySelector('.dark.bg-background')).toBeInTheDocument()
   })
 
-  it('should apply a light theme island to previews when the page is dark', async () => {
+  it('should apply a dark theme island to previews when the active theme is dark', async () => {
     const user = userEvent.setup()
+    mockResolvedTheme = 'dark'
 
     renderRow(
       {
@@ -187,17 +196,23 @@ describe('BannerSettingRow', () => {
       { pageTheme: 'dark' },
     )
 
-    expect(document.querySelector('.light.bg-background')).toBeInTheDocument()
+    expect(document.querySelector('.dark.bg-background')).toBeInTheDocument()
     expect(
-      document.querySelector('.dark.bg-background'),
+      document.querySelector('.light.bg-background'),
     ).not.toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: /Public banner/i }))
-    await user.click(screen.getByRole('button', { name: 'Preview dark' }))
 
-    expect(document.querySelectorAll('.dark.bg-background')).toHaveLength(2)
     expect(
-      document.querySelector('.light.bg-background'),
+      screen.getByRole('button', { name: 'Preview light' }),
+    ).toBeInTheDocument()
+    expect(document.querySelectorAll('.dark.bg-background')).toHaveLength(2)
+
+    await user.click(screen.getByRole('button', { name: 'Preview light' }))
+
+    expect(document.querySelectorAll('.light.bg-background')).toHaveLength(2)
+    expect(
+      document.querySelector('.dark.bg-background'),
     ).not.toBeInTheDocument()
   })
 })
