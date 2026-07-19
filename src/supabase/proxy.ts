@@ -11,7 +11,9 @@ import {
 import { getPublicSupabaseEnv, hasPublicSupabaseEnv } from '@/utils/env'
 import { isAdmin } from '@/utils/admin'
 import { appLog } from '@/utils/app-logger'
+import { REQUEST_PATHNAME_LOG_HEADER } from '@/constants/request-log-context'
 import { buildLoginRedirectUrl } from '@/utils/build-login-redirect-url'
+import { withPathnameLogContext } from '@/utils/request-log-context'
 import { parseAuthenticatedClaims } from '@/supabase/require-auth'
 
 const MISSING_SUPABASE_ENV_MESSAGE =
@@ -30,16 +32,28 @@ function redirectWithAuthCookies(
   return redirectResponse
 }
 
-export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  })
+const createForwardedResponse = (
+  request: NextRequest,
+  pathname: string,
+): NextResponse => {
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set(REQUEST_PATHNAME_LOG_HEADER, pathname)
 
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  })
+}
+
+export async function updateSession(request: NextRequest) {
   const rawPathname = request.nextUrl.pathname
   const pathname =
     rawPathname.length > 1 && rawPathname.endsWith('/')
       ? rawPathname.slice(0, -1)
       : rawPathname
+
+  let supabaseResponse = createForwardedResponse(request, pathname)
 
   const isPublicRoute =
     pathname === '/' ||
@@ -77,9 +91,7 @@ export async function updateSession(request: NextRequest) {
         cookiesToSet.forEach(({ name, value }) =>
           request.cookies.set(name, value),
         )
-        supabaseResponse = NextResponse.next({
-          request,
-        })
+        supabaseResponse = createForwardedResponse(request, pathname)
         cookiesToSet.forEach(({ name, value, options }) =>
           supabaseResponse.cookies.set(name, value, options),
         )
@@ -103,7 +115,11 @@ export async function updateSession(request: NextRequest) {
 
   if (!isPublicRoute && (error || !sessionClaims)) {
     if (error) {
-      appLog.error('proxy', 'Session invalid on protected route', error)
+      appLog.error(
+        'proxy',
+        'Session invalid on protected route',
+        withPathnameLogContext(pathname, error),
+      )
     }
 
     await clearLocalSession()
@@ -128,7 +144,11 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (isPublicRoute && error) {
-    appLog.error('proxy', 'Clearing stale session on public route', error)
+    appLog.error(
+      'proxy',
+      'Clearing stale session on public route',
+      withPathnameLogContext(pathname, error),
+    )
     await clearLocalSession()
   }
 

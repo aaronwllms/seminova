@@ -5,13 +5,19 @@ const mockGetClaims = vi.fn()
 const mockReadAccessTokenFromCookies = vi.fn()
 const mockCreateClient = vi.fn()
 const mockAppLogDebug = vi.fn()
+const mockAppLogError = vi.fn()
+const mockHeaders = vi.fn()
+
+vi.mock('next/headers', () => ({
+  headers: () => mockHeaders(),
+}))
 
 vi.mock('@/utils/app-logger', () => ({
   appLog: {
     debug: (...args: unknown[]) => mockAppLogDebug(...args),
     info: vi.fn(),
     warn: vi.fn(),
-    error: vi.fn(),
+    error: (...args: unknown[]) => mockAppLogError(...args),
   },
 }))
 
@@ -33,6 +39,7 @@ import {
   getDisplayAuthClaims,
   hasServerAuthSession,
 } from './require-auth'
+import { REQUEST_PATHNAME_LOG_HEADER } from '@/constants/request-log-context'
 
 const makeAccessToken = (payload: { sub?: string; exp?: number }) => {
   const header = Buffer.from(JSON.stringify({ alg: 'HS256' })).toString(
@@ -49,6 +56,11 @@ describe('getDisplayAuthClaims', () => {
     mockReadAccessTokenFromCookies.mockReset()
     mockCreateClient.mockReset()
     mockAppLogDebug.mockReset()
+    mockAppLogError.mockReset()
+    mockHeaders.mockReset()
+    mockHeaders.mockResolvedValue(
+      new Headers({ [REQUEST_PATHNAME_LOG_HEADER]: '/home' }),
+    )
     mockCreateClient.mockResolvedValue({
       auth: { getClaims: mockGetClaims },
     })
@@ -62,6 +74,11 @@ describe('getDisplayAuthClaims', () => {
     )
 
     expect(mockGetClaims).not.toHaveBeenCalled()
+    expect(mockAppLogError).toHaveBeenCalledWith(
+      'require-auth',
+      'Missing access token on protected route',
+      { pathname: '/home' },
+    )
   })
 
   it('should call getClaims with allowExpired true', async () => {
@@ -146,6 +163,15 @@ describe('getDisplayAuthClaims', () => {
     await expect(getDisplayAuthClaims()).rejects.toBeInstanceOf(
       DisplayAuthInvariantError,
     )
+
+    expect(mockAppLogError).toHaveBeenCalledWith(
+      'require-auth',
+      'Invalid access token on protected route',
+      expect.objectContaining({
+        pathname: '/home',
+        name: 'AuthApiError',
+      }),
+    )
   })
 
   it('should throw when claims are malformed', async () => {
@@ -157,6 +183,12 @@ describe('getDisplayAuthClaims', () => {
 
     await expect(getDisplayAuthClaims()).rejects.toBeInstanceOf(
       DisplayAuthInvariantError,
+    )
+
+    expect(mockAppLogError).toHaveBeenCalledWith(
+      'require-auth',
+      'Malformed claims on protected route',
+      { pathname: '/home' },
     )
   })
 

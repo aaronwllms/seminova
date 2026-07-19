@@ -25,6 +25,7 @@ const isDiscoveredPublicRoute = (pathname: string) =>
 const mockGetClaims = vi.fn()
 const mockSignOut = vi.fn()
 const mockAppLogDebug = vi.fn()
+const mockAppLogError = vi.fn()
 let mockSetAll:
   | ((cookies: Array<{ name: string; value: string }>) => void)
   | null = null
@@ -42,7 +43,7 @@ vi.mock('@/utils/app-logger', () => ({
     debug: (...args: unknown[]) => mockAppLogDebug(...args),
     info: vi.fn(),
     warn: vi.fn(),
-    error: vi.fn(),
+    error: (...args: unknown[]) => mockAppLogError(...args),
   },
 }))
 
@@ -66,6 +67,7 @@ describe('updateSession', () => {
     mockGetClaims.mockClear()
     mockSignOut.mockClear()
     mockAppLogDebug.mockClear()
+    mockAppLogError.mockClear()
     mockSetAll = null
     mockSignOut.mockResolvedValue({ error: null })
     mockGetClaims.mockResolvedValue({ data: { claims: null }, error: null })
@@ -104,6 +106,14 @@ describe('updateSession', () => {
     expect(response.status).toBe(307)
     expect(response.headers.get('location')).toContain('/auth/login')
     expect(mockSignOut).toHaveBeenCalledWith({ scope: 'local' })
+    expect(mockAppLogError).toHaveBeenCalledWith(
+      'proxy',
+      'Session invalid on protected route',
+      expect.objectContaining({
+        pathname: '/home',
+        message: 'Invalid Refresh Token: Already Used',
+      }),
+    )
   })
 
   it('should redirect stray auth code on protected routes to auth error', async () => {
@@ -163,6 +173,14 @@ describe('updateSession', () => {
 
     expect(response.status).toBe(200)
     expect(mockSignOut).toHaveBeenCalledWith({ scope: 'local' })
+    expect(mockAppLogError).toHaveBeenCalledWith(
+      'proxy',
+      'Clearing stale session on public route',
+      expect.objectContaining({
+        pathname: '/auth/login',
+        message: 'Invalid Refresh Token: Refresh Token Not Found',
+      }),
+    )
   })
 
   it('should allow authenticated users on protected routes', async () => {
@@ -300,6 +318,7 @@ describe('auth boundary (discovered routes)', () => {
     mockGetClaims.mockClear()
     mockSignOut.mockClear()
     mockAppLogDebug.mockClear()
+    mockAppLogError.mockClear()
     mockSetAll = null
     mockSignOut.mockResolvedValue({ error: null })
     mockGetClaims.mockResolvedValue({ data: { claims: null }, error: null })
