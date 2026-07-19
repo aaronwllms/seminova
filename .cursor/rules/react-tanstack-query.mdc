@@ -32,15 +32,14 @@ For query hooks, use `createClient()` from `@/supabase/client` (RLS-scoped) in `
 
 In components using queries:
 - Show user-visible error UI (inline message, `role="alert"`, or empty state) when `isError`
-- Optional dev-only: `console.error('[my-component] Failed to fetch data', error)`
 - Include retry logic in query configuration where appropriate
-- Server-side logging uses prefixed `console.*` — see `.cursor/rules/error-handling.mdc`
+- Server-side logging uses `appLog` / `cliLog` — see `.cursor/rules/logging.mdc`
 
 For critical errors at the route level, use Next.js `error.tsx` with `InlineError` (`src/components/inline-error.tsx`) or `ErrorPanel` (`src/components/error-panel.tsx`).
 
 ## Mutations
 
-**Default to Server Actions** for internal UI mutations (`nextjs.mdc`) — not `fetch('/api/…')`. The repo has no shipped API routes today.
+**Default to Server Actions** for internal UI mutations and admin list reads (`nextjs.mdc`) — call Server Actions from `queryFn` / `mutationFn`, not `fetch('/api/…')`. The shipped exception is [`POST /api/client-logs`](../../src/app/api/client-logs/route.ts) (browser log relay — see ADR-0007), not a TanStack Query data source.
 
 - Call a Server Action from `mutationFn`; branch on `{ success, data }` / `{ success: false, error }` envelope
 - `onSuccess`: `queryClient.invalidateQueries({ queryKey: […] })` for affected keys

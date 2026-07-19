@@ -2,28 +2,19 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
+import { unwrapStatsActionResult } from '@/app/admin/_lib/unwrap-stats-action-result'
 import { showSuccessToast } from '@/utils/app-toast'
 
 import { markAllLogsReadAction } from '../actions'
 import { adminLogsQueryKeys } from './admin-logs-query-keys'
 import type { LogListFilters } from './log-list-filters'
 
-const unwrapMarkAllReadResult = (
-  result: Awaited<ReturnType<typeof markAllLogsReadAction>>,
-) => {
-  if (!result.success) {
-    throw result.error
-  }
-
-  return result.data
-}
-
 export const useMarkAllLogsReadMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async (filters: LogListFilters) =>
-      unwrapMarkAllReadResult(await markAllLogsReadAction({ filters })),
+      unwrapStatsActionResult(await markAllLogsReadAction({ filters })),
     onSuccess: (data) => {
       if (data.markedCount > 0) {
         showSuccessToast(

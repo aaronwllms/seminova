@@ -29,7 +29,7 @@ import {
   markLogUnread,
 } from './_lib/mark-app-logs-read'
 import { listAppLogStats, type AppLogStats } from './_lib/list-app-log-stats'
-import { mapUsersActionFault } from '@/app/admin/users/_lib/map-users-action-fault'
+import { mapAdminActionFault } from '@/app/admin/_lib/map-admin-action-fault'
 import type { LogsActionError } from './_lib/assert-admin-caller'
 
 export type {
@@ -189,7 +189,7 @@ export const listLogsAction = async (
       },
     }
   } catch (caught) {
-    return mapUsersActionFault(
+    return mapAdminActionFault(
       'logs-list',
       'Failed to list logs',
       'Something went wrong loading logs. Please try again.',
@@ -214,7 +214,7 @@ export const getLogStatsAction = async (): Promise<GetLogStatsActionResult> => {
       data: stats,
     }
   } catch (caught) {
-    return mapUsersActionFault(
+    return mapAdminActionFault(
       'logs-stats',
       'Failed to load log stats',
       'Something went wrong loading log stats. Please try again.',
@@ -239,7 +239,7 @@ export const listLogTagsAction = async (): Promise<ListLogTagsActionResult> => {
       data: tags,
     }
   } catch (caught) {
-    return mapUsersActionFault(
+    return mapAdminActionFault(
       'logs-tags',
       'Failed to load log tags',
       'Something went wrong loading log tags. Please try again.',
@@ -277,7 +277,7 @@ export const markLogReadAction = async (input: {
       data: { id: input.id },
     }
   } catch (caught) {
-    return mapUsersActionFault(
+    return mapAdminActionFault(
       'logs-mark-read',
       'Failed to mark log read',
       'Something went wrong marking the log read. Please try again.',
@@ -315,7 +315,7 @@ export const markLogUnreadAction = async (input: {
       data: { id: input.id },
     }
   } catch (caught) {
-    return mapUsersActionFault(
+    return mapAdminActionFault(
       'logs-mark-unread',
       'Failed to mark log unread',
       'Something went wrong marking the log unread. Please try again.',
@@ -359,7 +359,7 @@ export const markAllLogsReadAction = async (
       data: { markedCount },
     }
   } catch (caught) {
-    return mapUsersActionFault(
+    return mapAdminActionFault(
       'logs-mark-all-read',
       'Failed to mark logs read',
       'Something went wrong marking logs read. Please try again.',

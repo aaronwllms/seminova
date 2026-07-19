@@ -11,7 +11,7 @@ alwaysApply: false
 
 ## Core Principle
 
-Application logs route through three wrappers — all mirror to console (bracket-tag format preserved); server wrappers persist when above threshold:
+Application logs route through three wrappers. **`appLog`** and **`cliLog`** gate **both** console mirror and persistence below the admin minimum log level — a below-threshold call produces neither output nor a row. **`clientLog`** always mirrors to the browser console (ungated) and fire-and-forgets to the relay; threshold gating applies only on the relay → `appLog` → persist path:
 
 - **`appLog`** ([`src/utils/app-logger.ts`](../../src/utils/app-logger.ts)) — server-side application code (e.g. Server Components, Server Actions, route handlers, auth proxy in [`src/supabase/proxy.ts`](../../src/supabase/proxy.ts), session helpers in [`src/supabase/require-auth.ts`](../../src/supabase/require-auth.ts)). Sync/void; persistence deferred via `after()`.
 - **`cliLog`** ([`src/utils/app-logger-cli.ts`](../../src/utils/app-logger-cli.ts)) — CLI scripts under `scripts/`. Async/awaited persistence.

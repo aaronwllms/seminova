@@ -301,7 +301,7 @@ export const LogsTable = () => {
           emptyMessage="No logs found."
           onRowClick={handleRowClick}
           getRowClassName={(row) =>
-            row.isUnread ? cn('bg-chart-1/10 hover:bg-chart-1/15') : undefined
+            row.isUnread ? cn('bg-unread/10 hover:bg-unread/15') : undefined
           }
           getRowAccessibilityLabel={(row) =>
             `${row.isUnread ? 'Unread log' : 'Read log'}: ${row.timestampLabel}, ${row.level}, ${row.tag}, ${row.message}`

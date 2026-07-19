@@ -28,7 +28,7 @@ const statTileVariants = cva(
         error:
           'bg-destructive/10 text-destructive border-[0.5px] border-destructive hover:bg-destructive/15',
         unread:
-          'bg-chart-1/10 text-chart-1 border-[0.5px] border-chart-1 hover:bg-chart-1/15',
+          'bg-unread/10 text-unread border-[0.5px] border-unread hover:bg-unread/15',
       },
       selected: {
         true: '',
@@ -64,7 +64,7 @@ const statTileVariants = cva(
       {
         role: 'unread',
         selected: true,
-        className: 'border-2 border-chart-1',
+        className: 'border-2 border-unread',
       },
     ],
     defaultVariants: {

@@ -9,7 +9,7 @@ import { listLogsAction } from '../actions'
 import { adminLogsQueryKeys } from './admin-logs-query-keys'
 import type { AppLogCursor, LogsSortDirection } from './app-log-row'
 import type { LogListFilters } from './log-list-filters'
-import { unwrapListLogsResult } from './unwrap-logs-action'
+import { unwrapStatsActionResult } from '@/app/admin/_lib/unwrap-stats-action-result'
 
 type UseAdminLogsListOptions = {
   cursor: AppLogCursor | null
@@ -33,7 +33,7 @@ export const useAdminLogsList = ({
         perPage,
         filters,
       })
-      return unwrapListLogsResult(result)
+      return unwrapStatsActionResult(result)
     },
     placeholderData: keepPreviousData,
     retry: (failureCount, error) =>

@@ -1,8 +1,7 @@
+import type { UsersActionError } from '@/app/admin/users/_lib/assert-admin-caller'
 import { appLog } from '@/utils/app-logger'
 
-import type { UsersActionError } from './assert-admin-caller'
-
-export const mapUsersActionFault = (
+export const mapAdminActionFault = (
   logTag: string,
   logMessage: string,
   userMessage: string,

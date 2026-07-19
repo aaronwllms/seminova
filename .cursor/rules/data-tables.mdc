@@ -11,6 +11,8 @@ globs:
 
 Each data table gets a single search input, scoped to one explicitly-designated text column — never inferred from column position or implemented as a global multi-column search.
 
+**Exception:** [`src/app/admin/logs/_components/logs-table.tsx`](../../src/app/admin/logs/_components/logs-table.tsx) OR-searches message, tag, and context by product spec (PRD Epic 9.2) — the purge window keeps the table small enough that multi-field search is intentional there.
+
 - Designate the searchable column explicitly in the table's column config (e.g. a `searchable: true` flag or equivalent), not by assuming "first column."
 - Filter via substring match on that one column.
 - Non-text filters (booleans, enums, dates) are separate controls (dropdown, toggle, date picker) — never folded into the search box.

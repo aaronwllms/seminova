@@ -2,7 +2,7 @@ import { createServiceClient } from '@/supabase/service'
 import { appLog } from '@/utils/app-logger'
 
 import { assertAdminCaller, type UsersActionError } from './assert-admin-caller'
-import { mapUsersActionFault } from './map-users-action-fault'
+import { mapAdminActionFault } from '@/app/admin/_lib/map-admin-action-fault'
 
 export type AdminUserMutationResult =
   | { status: 'not_found' }
@@ -107,6 +107,6 @@ export const runAdminUserMutation = async <
       },
     }
   } catch (caught) {
-    return mapUsersActionFault(logTag, logMessage, faultMessage, caught)
+    return mapAdminActionFault(logTag, logMessage, faultMessage, caught)
   }
 }

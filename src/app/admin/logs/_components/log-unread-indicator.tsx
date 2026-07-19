@@ -34,7 +34,7 @@ export const LogUnreadIndicator = ({
       aria-label={`Mark log ${logId} as read`}
       onClick={handleClick}
     >
-      <span className="bg-chart-1 block size-1.5 rounded-full" aria-hidden />
+      <span className="bg-unread block size-1.5 rounded-full" aria-hidden />
     </button>
   )
 }

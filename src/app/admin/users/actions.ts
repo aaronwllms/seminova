@@ -22,7 +22,7 @@ import {
   type UsersSortColumn,
   type UsersSortDirection,
 } from './_lib/admin-user-row'
-import { mapUsersActionFault } from './_lib/map-users-action-fault'
+import { mapAdminActionFault } from '@/app/admin/_lib/map-admin-action-fault'
 import {
   runDemoteUserMutation,
   runPromoteUserMutation,
@@ -183,7 +183,7 @@ export const listUsersAction = async (
       data: result,
     }
   } catch (caught) {
-    return mapUsersActionFault(
+    return mapAdminActionFault(
       'users-list',
       'Failed to list users',
       'Something went wrong loading users. Please try again.',
@@ -209,7 +209,7 @@ export const getUserStatsAction =
         data: stats,
       }
     } catch (caught) {
-      return mapUsersActionFault(
+      return mapAdminActionFault(
         'users-stats',
         'Failed to load user stats',
         'Something went wrong loading user stats. Please try again.',

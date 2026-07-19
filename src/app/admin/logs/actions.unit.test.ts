@@ -41,6 +41,81 @@ const adminUser = {
   app_metadata: { role: ADMIN_ROLE },
 }
 
+const forbiddenEnvelope = {
+  success: false,
+  error: {
+    message: 'Forbidden',
+    code: 'FORBIDDEN',
+    kind: 'operational',
+  },
+} as const
+
+const setupAuthenticatedAdmin = () => {
+  createClientMock.mockResolvedValue({
+    auth: { getUser: getUserMock },
+  })
+  getUserMock.mockResolvedValue({
+    data: { user: adminUser },
+    error: null,
+  })
+}
+
+const setupNonAdmin = () => {
+  getUserMock.mockResolvedValue({
+    data: { user: { id: 'user-1', app_metadata: {} } },
+    error: null,
+  })
+}
+
+describe('logs actions admin gate', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    getUserMock.mockReset()
+    createClientMock.mockReset()
+    listAppLogsPageMock.mockReset()
+    listAppLogStatsMock.mockReset()
+    listAppLogTagsMock.mockReset()
+    markLogReadMock.mockReset()
+    markLogUnreadMock.mockReset()
+    markAllLogsReadMock.mockReset()
+    setupAuthenticatedAdmin()
+  })
+
+  it.each([
+    [
+      'listLogsAction',
+      () => import('./actions').then((m) => m.listLogsAction()),
+    ],
+    [
+      'getLogStatsAction',
+      () => import('./actions').then((m) => m.getLogStatsAction()),
+    ],
+    [
+      'listLogTagsAction',
+      () => import('./actions').then((m) => m.listLogTagsAction()),
+    ],
+    [
+      'markLogReadAction',
+      () => import('./actions').then((m) => m.markLogReadAction({ id: 1 })),
+    ],
+    [
+      'markLogUnreadAction',
+      () => import('./actions').then((m) => m.markLogUnreadAction({ id: 1 })),
+    ],
+    [
+      'markAllLogsReadAction',
+      () => import('./actions').then((m) => m.markAllLogsReadAction()),
+    ],
+  ])(
+    'should return FORBIDDEN when caller is not admin (%s)',
+    async (_, run) => {
+      setupNonAdmin()
+      const result = await run()
+      expect(result).toEqual(forbiddenEnvelope)
+    },
+  )
+})
+
 describe('listLogsAction', () => {
   beforeEach(() => {
     vi.resetModules()
@@ -48,39 +123,8 @@ describe('listLogsAction', () => {
     createClientMock.mockReset()
     listAppLogsPageMock.mockReset()
     countFilteredUnreadLogsMock.mockReset()
-    listAppLogStatsMock.mockReset()
-    listAppLogTagsMock.mockReset()
-    markLogReadMock.mockReset()
-    markAllLogsReadMock.mockReset()
-
-    createClientMock.mockResolvedValue({
-      auth: { getUser: getUserMock },
-    })
-    getUserMock.mockResolvedValue({
-      data: { user: adminUser },
-      error: null,
-    })
+    setupAuthenticatedAdmin()
     countFilteredUnreadLogsMock.mockResolvedValue(0)
-  })
-
-  it('should return FORBIDDEN when caller is not admin', async () => {
-    getUserMock.mockResolvedValue({
-      data: { user: { id: 'user-1', app_metadata: {} } },
-      error: null,
-    })
-
-    const { listLogsAction } = await import('./actions')
-    const result = await listLogsAction()
-
-    expect(result).toEqual({
-      success: false,
-      error: {
-        message: 'Forbidden',
-        code: 'FORBIDDEN',
-        kind: 'operational',
-      },
-    })
-    expect(listAppLogsPageMock).not.toHaveBeenCalled()
   })
 
   it('should return VALIDATION_ERROR for invalid page size', async () => {
@@ -162,37 +206,9 @@ describe('listLogsAction', () => {
 describe('getLogStatsAction', () => {
   beforeEach(() => {
     vi.resetModules()
-    getUserMock.mockReset()
     createClientMock.mockReset()
     listAppLogStatsMock.mockReset()
-
-    createClientMock.mockResolvedValue({
-      auth: { getUser: getUserMock },
-    })
-    getUserMock.mockResolvedValue({
-      data: { user: adminUser },
-      error: null,
-    })
-  })
-
-  it('should return FORBIDDEN when caller is not admin', async () => {
-    getUserMock.mockResolvedValue({
-      data: { user: { id: 'user-1', app_metadata: {} } },
-      error: null,
-    })
-
-    const { getLogStatsAction } = await import('./actions')
-    const result = await getLogStatsAction()
-
-    expect(result).toEqual({
-      success: false,
-      error: {
-        message: 'Forbidden',
-        code: 'FORBIDDEN',
-        kind: 'operational',
-      },
-    })
-    expect(listAppLogStatsMock).not.toHaveBeenCalled()
+    setupAuthenticatedAdmin()
   })
 
   it('should return success envelope with global stats', async () => {
@@ -220,37 +236,9 @@ describe('getLogStatsAction', () => {
 describe('listLogTagsAction', () => {
   beforeEach(() => {
     vi.resetModules()
-    getUserMock.mockReset()
     createClientMock.mockReset()
     listAppLogTagsMock.mockReset()
-
-    createClientMock.mockResolvedValue({
-      auth: { getUser: getUserMock },
-    })
-    getUserMock.mockResolvedValue({
-      data: { user: adminUser },
-      error: null,
-    })
-  })
-
-  it('should return FORBIDDEN when caller is not admin', async () => {
-    getUserMock.mockResolvedValue({
-      data: { user: { id: 'user-1', app_metadata: {} } },
-      error: null,
-    })
-
-    const { listLogTagsAction } = await import('./actions')
-    const result = await listLogTagsAction()
-
-    expect(result).toEqual({
-      success: false,
-      error: {
-        message: 'Forbidden',
-        code: 'FORBIDDEN',
-        kind: 'operational',
-      },
-    })
-    expect(listAppLogTagsMock).not.toHaveBeenCalled()
+    setupAuthenticatedAdmin()
   })
 
   it('should return success envelope with distinct tags', async () => {
@@ -267,170 +255,61 @@ describe('listLogTagsAction', () => {
   })
 })
 
-describe('markLogReadAction', () => {
+describe('mark log read state actions', () => {
   beforeEach(() => {
     vi.resetModules()
-    getUserMock.mockReset()
     createClientMock.mockReset()
     markLogReadMock.mockReset()
-
-    createClientMock.mockResolvedValue({
-      auth: { getUser: getUserMock },
-    })
-    getUserMock.mockResolvedValue({
-      data: { user: adminUser },
-      error: null,
-    })
-  })
-
-  it('should return FORBIDDEN when caller is not admin', async () => {
-    getUserMock.mockResolvedValue({
-      data: { user: { id: 'user-1', app_metadata: {} } },
-      error: null,
-    })
-
-    const { markLogReadAction } = await import('./actions')
-    const result = await markLogReadAction({ id: 1 })
-
-    expect(result).toEqual({
-      success: false,
-      error: {
-        message: 'Forbidden',
-        code: 'FORBIDDEN',
-        kind: 'operational',
-      },
-    })
-    expect(markLogReadMock).not.toHaveBeenCalled()
-  })
-
-  it('should return VALIDATION_ERROR for an invalid log id', async () => {
-    const { markLogReadAction } = await import('./actions')
-    const result = await markLogReadAction({ id: 0 })
-
-    expect(result).toEqual({
-      success: false,
-      error: {
-        message: 'Invalid log id',
-        code: 'VALIDATION_ERROR',
-        kind: 'operational',
-      },
-    })
-    expect(markLogReadMock).not.toHaveBeenCalled()
-  })
-
-  it('should return success envelope after marking a log read', async () => {
-    markLogReadMock.mockResolvedValue(undefined)
-
-    const { markLogReadAction } = await import('./actions')
-    const result = await markLogReadAction({ id: 42 })
-
-    expect(result).toEqual({
-      success: true,
-      data: { id: 42 },
-    })
-    expect(markLogReadMock).toHaveBeenCalledWith(expect.any(Object), 42)
-  })
-})
-
-describe('markLogUnreadAction', () => {
-  beforeEach(() => {
-    vi.resetModules()
-    getUserMock.mockReset()
-    createClientMock.mockReset()
     markLogUnreadMock.mockReset()
-
-    createClientMock.mockResolvedValue({
-      auth: { getUser: getUserMock },
-    })
-    getUserMock.mockResolvedValue({
-      data: { user: adminUser },
-      error: null,
-    })
+    setupAuthenticatedAdmin()
   })
 
-  it('should return FORBIDDEN when caller is not admin', async () => {
-    getUserMock.mockResolvedValue({
-      data: { user: { id: 'user-1', app_metadata: {} } },
-      error: null,
-    })
+  it.each([
+    ['markLogReadAction', markLogReadMock] as const,
+    ['markLogUnreadAction', markLogUnreadMock] as const,
+  ])(
+    'should return VALIDATION_ERROR for an invalid log id (%s)',
+    async (actionName, mock) => {
+      const actions = await import('./actions')
+      const result = await actions[actionName]({ id: 0 })
 
-    const { markLogUnreadAction } = await import('./actions')
-    const result = await markLogUnreadAction({ id: 1 })
+      expect(result).toEqual({
+        success: false,
+        error: {
+          message: 'Invalid log id',
+          code: 'VALIDATION_ERROR',
+          kind: 'operational',
+        },
+      })
+      expect(mock).not.toHaveBeenCalled()
+    },
+  )
 
-    expect(result).toEqual({
-      success: false,
-      error: {
-        message: 'Forbidden',
-        code: 'FORBIDDEN',
-        kind: 'operational',
-      },
-    })
-    expect(markLogUnreadMock).not.toHaveBeenCalled()
-  })
+  it.each([
+    ['markLogReadAction', markLogReadMock] as const,
+    ['markLogUnreadAction', markLogUnreadMock] as const,
+  ])(
+    'should return success envelope after updating read state (%s)',
+    async (actionName, mock) => {
+      mock.mockResolvedValue(undefined)
+      const actions = await import('./actions')
+      const result = await actions[actionName]({ id: 42 })
 
-  it('should return VALIDATION_ERROR for an invalid log id', async () => {
-    const { markLogUnreadAction } = await import('./actions')
-    const result = await markLogUnreadAction({ id: 0 })
-
-    expect(result).toEqual({
-      success: false,
-      error: {
-        message: 'Invalid log id',
-        code: 'VALIDATION_ERROR',
-        kind: 'operational',
-      },
-    })
-    expect(markLogUnreadMock).not.toHaveBeenCalled()
-  })
-
-  it('should return success envelope after marking a log unread', async () => {
-    markLogUnreadMock.mockResolvedValue(undefined)
-
-    const { markLogUnreadAction } = await import('./actions')
-    const result = await markLogUnreadAction({ id: 42 })
-
-    expect(result).toEqual({
-      success: true,
-      data: { id: 42 },
-    })
-    expect(markLogUnreadMock).toHaveBeenCalledWith(expect.any(Object), 42)
-  })
+      expect(result).toEqual({
+        success: true,
+        data: { id: 42 },
+      })
+      expect(mock).toHaveBeenCalledWith(expect.any(Object), 42)
+    },
+  )
 })
 
 describe('markAllLogsReadAction', () => {
   beforeEach(() => {
     vi.resetModules()
-    getUserMock.mockReset()
     createClientMock.mockReset()
     markAllLogsReadMock.mockReset()
-
-    createClientMock.mockResolvedValue({
-      auth: { getUser: getUserMock },
-    })
-    getUserMock.mockResolvedValue({
-      data: { user: adminUser },
-      error: null,
-    })
-  })
-
-  it('should return FORBIDDEN when caller is not admin', async () => {
-    getUserMock.mockResolvedValue({
-      data: { user: { id: 'user-1', app_metadata: {} } },
-      error: null,
-    })
-
-    const { markAllLogsReadAction } = await import('./actions')
-    const result = await markAllLogsReadAction()
-
-    expect(result).toEqual({
-      success: false,
-      error: {
-        message: 'Forbidden',
-        code: 'FORBIDDEN',
-        kind: 'operational',
-      },
-    })
-    expect(markAllLogsReadMock).not.toHaveBeenCalled()
+    setupAuthenticatedAdmin()
   })
 
   it('should return VALIDATION_ERROR for invalid filters', async () => {
