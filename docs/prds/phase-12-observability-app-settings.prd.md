@@ -177,7 +177,7 @@ Ship a generic, admin-editable settings store (settings table + registry + admin
 - Every call site of `buildErrorCopyText` continues to compile and pass existing tests updated for the new shape.
 - `pnpm pre-push` is green.
 
-### Epic 12: Users page — stat tile filters
+### Epic 12: Users page — stat tile filters `Complete`
 
 - **12.1 Stat tiles.** Three tiles above the users table — Total, Unverified, Banned — built on Epic 9.0's shared stat-tile primitive, each a global count unaffected by search or the other tile's state. Unverified and Banned toggle independently via the shared hook (a user can be both, however rare in practice). Total is unfiltered and clears both. Mockup: `.mockups/admin_users_page.html`.
 - **12.2 Verified filter in `admin_list_users`.** The listing function gains an unverified-only filter flag, same treatment as Epic 14's banned flag (Phase 11): a signature change means the migration must drop and recreate the function (create-or-replace with new params creates an overload, not a replacement), and "verified" is derived once, read by both the new filter and the existing Verified column/sort.
