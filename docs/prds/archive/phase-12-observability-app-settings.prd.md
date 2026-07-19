@@ -1,6 +1,6 @@
 # PRD — Phase 12: Observability & App Settings
 
-**Status:** `Active`
+**Status:** `Shipped`
 **Last updated:** 2026-07-19
 
 ---
