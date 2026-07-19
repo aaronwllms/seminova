@@ -137,7 +137,7 @@ export type Database = {
         }[]
       }
       admin_user_stats: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           banned: number
           total: number
