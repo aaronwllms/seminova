@@ -28,6 +28,7 @@ import { type LogListFilters } from '../_lib/log-list-filters'
 import { useAdminLogStats } from '../_lib/use-admin-log-stats'
 import { useAdminLogTags } from '../_lib/use-admin-log-tags'
 import { useAdminLogsList } from '../_lib/use-admin-logs-list'
+import { useAdminLogsRealtime } from '../_lib/use-admin-logs-realtime'
 import { useMarkAllLogsReadMutation } from '../_lib/use-mark-all-logs-read-mutation'
 import { useMarkLogReadMutation } from '../_lib/use-mark-log-read-mutation'
 import { useMarkLogUnreadMutation } from '../_lib/use-mark-log-unread-mutation'
@@ -90,6 +91,7 @@ export const LogsTable = () => {
   const cursor = cursorStack[cursorStackIndex] ?? null
   const page = cursorStackIndex + 1
 
+  const { connectionState, refresh, isRefreshing } = useAdminLogsRealtime()
   const { stats, error: statsError } = useAdminLogStats()
   const { tags, error: tagsError } = useAdminLogTags()
   const {
@@ -283,6 +285,9 @@ export const LogsTable = () => {
         onTagChange={handleTagChange}
         tags={tags}
         tagsDisabled={tagsError !== null}
+        connectionState={connectionState}
+        onRefresh={refresh}
+        isRefreshing={isRefreshing}
         onMarkAllRead={handleMarkAllRead}
         markAllDisabled={filteredUnreadCount === 0}
         isMarkAllPending={isMarkAllPending}

@@ -5,6 +5,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { LogsTable } from './logs-table'
 
+const refreshMock = vi.fn()
+const useAdminLogsRealtimeMock = vi.fn()
+
+vi.mock('../_lib/use-admin-logs-realtime', () => ({
+  useAdminLogsRealtime: () => useAdminLogsRealtimeMock(),
+}))
+
 const listLogsActionMock = vi.fn()
 const getLogStatsActionMock = vi.fn()
 const listLogTagsActionMock = vi.fn()
@@ -50,6 +57,13 @@ const defaultListParams = {
 
 describe('LogsTable', () => {
   beforeEach(() => {
+    refreshMock.mockReset()
+    useAdminLogsRealtimeMock.mockReturnValue({
+      connectionState: 'live',
+      refresh: refreshMock,
+      isRefreshing: false,
+    })
+
     listLogsActionMock.mockReset()
     getLogStatsActionMock.mockReset()
     listLogTagsActionMock.mockReset()
@@ -317,6 +331,65 @@ describe('LogsTable', () => {
         perPage: 15,
         filters: defaultFilters,
       })
+    })
+  })
+
+  it('should call refresh when the refresh button is clicked', async () => {
+    const user = userEvent.setup()
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /refresh logs/i }),
+      ).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole('button', { name: /refresh logs/i }))
+
+    expect(refreshMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('should render the live connection indicator', async () => {
+    renderTable()
+
+    expect(await screen.findByText('Live')).toBeInTheDocument()
+  })
+
+  it('should render reconnecting and offline connection labels', async () => {
+    useAdminLogsRealtimeMock.mockReturnValue({
+      connectionState: 'reconnecting',
+      refresh: refreshMock,
+      isRefreshing: false,
+    })
+
+    const { unmount } = renderTable()
+    expect(await screen.findByText('Reconnecting')).toBeInTheDocument()
+    unmount()
+
+    useAdminLogsRealtimeMock.mockReturnValue({
+      connectionState: 'offline',
+      refresh: refreshMock,
+      isRefreshing: false,
+    })
+
+    renderTable()
+    expect(await screen.findByText('Offline')).toBeInTheDocument()
+  })
+
+  it('should disable the refresh button while manual refresh is in flight', async () => {
+    useAdminLogsRealtimeMock.mockReturnValue({
+      connectionState: 'live',
+      refresh: refreshMock,
+      isRefreshing: true,
+    })
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /refresh logs/i }),
+      ).toBeDisabled()
     })
   })
 })

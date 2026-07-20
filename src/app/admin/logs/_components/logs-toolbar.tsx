@@ -1,10 +1,13 @@
 'use client'
 
-import { Search } from 'lucide-react'
+import { RefreshCw, Search } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { cn } from '@/utils/tailwind'
 
+import type { AdminLogsConnectionState } from '../_lib/use-admin-logs-realtime'
+import { LogsConnectionIndicator } from './logs-connection-indicator'
 import { LogsTagCombobox } from './logs-tag-combobox'
 
 interface LogsToolbarProps {
@@ -14,6 +17,9 @@ interface LogsToolbarProps {
   onTagChange: (tag: string | null) => void
   tags: string[]
   tagsDisabled?: boolean
+  connectionState: AdminLogsConnectionState
+  onRefresh: () => void
+  isRefreshing: boolean
   onMarkAllRead: () => void
   markAllDisabled: boolean
   isMarkAllPending: boolean
@@ -26,6 +32,9 @@ export const LogsToolbar = ({
   onTagChange,
   tags,
   tagsDisabled = false,
+  connectionState,
+  onRefresh,
+  isRefreshing,
   onMarkAllRead,
   markAllDisabled,
   isMarkAllPending,
@@ -53,14 +62,33 @@ export const LogsToolbar = ({
       disabled={tagsDisabled}
     />
 
-    <Button
-      type="button"
-      variant="outline"
-      className="shrink-0"
-      disabled={markAllDisabled || isMarkAllPending}
-      onClick={onMarkAllRead}
-    >
-      Mark all as read
-    </Button>
+    <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
+      <LogsConnectionIndicator connectionState={connectionState} />
+
+      <Button
+        type="button"
+        variant="outline"
+        size="icon"
+        className="shrink-0"
+        disabled={isRefreshing}
+        onClick={onRefresh}
+        aria-label="Refresh logs"
+      >
+        <RefreshCw
+          className={cn('size-4', isRefreshing && 'animate-spin')}
+          aria-hidden
+        />
+      </Button>
+
+      <Button
+        type="button"
+        variant="outline"
+        className="shrink-0"
+        disabled={markAllDisabled || isMarkAllPending}
+        onClick={onMarkAllRead}
+      >
+        Mark all as read
+      </Button>
+    </div>
   </div>
 )
