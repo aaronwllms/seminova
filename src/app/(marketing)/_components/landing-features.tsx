@@ -18,7 +18,7 @@ export const LandingFeatures = () => {
           <Badge variant="secondary">{features.label}</Badge>
           <h2
             id="features-heading"
-            className="text-3xl font-semibold tracking-tight text-pretty md:text-4xl lg:text-5xl"
+            className="text-3xl font-semibold tracking-tight text-pretty md:text-4xl"
           >
             {features.heading}
           </h2>

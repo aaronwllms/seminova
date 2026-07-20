@@ -1,3 +1,6 @@
+import { ArrowRight } from 'lucide-react'
+import Link from 'next/link'
+
 import type { LandingFeature } from '@/config/landing-content'
 
 type LandingFeatureItemProps = {
@@ -19,6 +22,15 @@ export const LandingFeatureItem = ({ feature }: LandingFeatureItemProps) => {
         <p className="text-muted-foreground text-sm md:text-base">
           {feature.description}
         </p>
+        {feature.href ? (
+          <Link
+            href={feature.href}
+            className="text-foreground hover:text-primary focus-visible:ring-ring mt-2 inline-flex min-h-11 items-center gap-1 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none md:min-h-0"
+          >
+            Learn more
+            <ArrowRight className="size-4" aria-hidden />
+          </Link>
+        ) : null}
       </div>
     </div>
   )

@@ -8,10 +8,13 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 
+import { REFERENCE_PATH, WORKFLOW_PATH } from '@/constants/app-paths'
+
 export interface LandingFeature {
   title: string
   description: string
   icon: LucideIcon
+  href?: string
 }
 
 export interface LandingTechLogo {
@@ -33,6 +36,10 @@ export const landingContent = {
     description:
       'An opinionated, AI-native starter with a real design-system structure, agent conventions, and admin shell — so your product begins consistent instead of blank.',
     cta: { label: 'Get started', href: '/auth/sign-up' },
+    secondaryCta: {
+      label: 'View pattern reference',
+      href: REFERENCE_PATH,
+    },
   },
   features: {
     label: 'Features',
@@ -43,12 +50,14 @@ export const landingContent = {
         description:
           'Semantic design tokens, not hardcoded values — the industry-standard pattern for theme consistency at scale.',
         icon: Palette,
+        href: REFERENCE_PATH,
       },
       {
         title: 'Primitive-first components',
         description:
           'shadcn/ui components owned as source, not installed as a dependency — the primitive-first pattern, not a black-box library.',
         icon: Blocks,
+        href: REFERENCE_PATH,
       },
       {
         title: 'Accessibility by default',
@@ -73,6 +82,7 @@ export const landingContent = {
         description:
           'A packaged collaboration model — Claude Desktop for PM-level planning, paired skills that turn the plan into agent-ready work.',
         icon: Users,
+        href: WORKFLOW_PATH,
       },
     ] satisfies LandingFeature[],
   },
