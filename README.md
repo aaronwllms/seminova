@@ -31,9 +31,9 @@ Most starter templates hand you a blank slate with dependencies pre-installed. S
 Seminova ships with a two-environment planning system: **Claude** owns planning, decomposition, and adversarial review; **Cursor** owns implementation. Skills on both sides drive each step — from project kickoff, which turns a fresh clone into a real project, through phase planning, plan review, build, and ship.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="images/workflow-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="images/workflow-light.svg">
-  <img alt="Seminova workflow: project kickoff and initialize project feed into a phase loop (plan phase, then a nested epic loop of plan epic, review plan, build, then ship phase)" src="images/workflow-light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="public/images/workflow-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="public/images/workflow-light.svg">
+  <img alt="Seminova workflow: project kickoff and initialize project feed into a phase loop (plan phase, then a nested epic loop of plan epic, review plan, build, then ship phase)" src="public/images/workflow-light.svg">
 </picture>
 
 > [!NOTE]

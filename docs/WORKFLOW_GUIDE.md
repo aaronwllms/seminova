@@ -147,9 +147,9 @@ Repeat Steps 4–7 for each phase.
 ### Visual overview
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="../images/workflow-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="../images/workflow-light.svg">
-  <img alt="Seminova workflow: project kickoff and initialize project feed into a phase loop (plan phase, then a nested epic loop of plan epic, review plan, build, then ship phase)" src="../images/workflow-light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="../public/images/workflow-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="../public/images/workflow-light.svg">
+  <img alt="Seminova workflow: project kickoff and initialize project feed into a phase loop (plan phase, then a nested epic loop of plan epic, review plan, build, then ship phase)" src="../public/images/workflow-light.svg">
 </picture>
 
 > [!NOTE]

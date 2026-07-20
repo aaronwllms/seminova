@@ -80,7 +80,7 @@
 
 ### Workflow Guide visual overview: Mermaid vs. image tradeoff
 
-**What:** [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md)'s Visual overview now uses the same `images/workflow-dark.svg` / `workflow-light.svg` picture-tag pattern as [README.md](../README.md), replacing a jumbled Mermaid flowchart. Mermaid renders in both Cursor and GitHub's markdown previews; the image only renders in GitHub's. Revisit once Mermaid's swimlane feature is stable enough to redo the diagram cleanly in Mermaid — evaluate whether it should replace the image or sit alongside it so Cursor viewers get a rendered diagram too.
+**What:** [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md)'s Visual overview now uses the same `public/images/workflow-dark.svg` / `workflow-light.svg` picture-tag pattern as [README.md](../README.md), replacing a jumbled Mermaid flowchart. Mermaid renders in both Cursor and GitHub's markdown previews; the image only renders in GitHub's. Revisit once Mermaid's swimlane feature is stable enough to redo the diagram cleanly in Mermaid — evaluate whether it should replace the image or sit alongside it so Cursor viewers get a rendered diagram too.
 
 **Why deferred:** Swimlane support isn't broadly available yet; not worth hand-rolling a workaround now.
 

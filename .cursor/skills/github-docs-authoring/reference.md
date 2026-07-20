@@ -24,7 +24,7 @@ Seminova-specific markdown conventions for files rendered on GitHub.
 | Relative links between repo files | Yes — branch-aware | Yes locally | Paths are plain text |
 
 **Template pattern:** theme-aware workflow diagrams use `<picture>` with
-`images/workflow-light.svg` / `workflow-dark.svg` — document the Cursor preview
+`public/images/workflow-light.svg` / `workflow-dark.svg` — document the Cursor preview
 gap where the diagram matters (see WORKFLOW_GUIDE Visual overview).
 
 **Deferred:** Mermaid swimlane workflow diagram — tracked in
