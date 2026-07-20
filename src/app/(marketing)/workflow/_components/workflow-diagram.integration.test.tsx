@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { WORKFLOW_LOOP_NODES } from '../_lib/workflow-page-content'
 import { WorkflowDiagram } from './workflow-diagram'
 
-const DEFAULT_DETAIL = /hover or focus a step to see what happens there/i
+const DEFAULT_DETAIL = /select or focus a step to see what happens there/i
 
 const ringRectCount = (step: HTMLElement) =>
   step.querySelectorAll('rect').length

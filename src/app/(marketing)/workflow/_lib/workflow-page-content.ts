@@ -15,14 +15,27 @@ export interface WorkflowEnvironmentLogo {
   height: number
 }
 
+const workflowRepoUrl = (segment: 'blob' | 'tree', path: string) =>
+  `${siteConfig.links.github}/${segment}/main/${path}` as const
+
+export const WORKFLOW_TOOL_LOGOS = {
+  claude: {
+    src: '/images/logos/Claude Spark - Clay.svg',
+    width: 94,
+    height: 94,
+  },
+  cursor: {
+    src: '/images/logos/CUBE_2D_LIGHT.svg',
+    srcDark: '/images/logos/CUBE_2D_DARK.svg',
+    width: 467,
+    height: 532,
+  },
+} as const satisfies Record<WorkflowEnvironment, WorkflowEnvironmentLogo>
+
 export const WORKFLOW_ENVIRONMENTS = [
   {
     name: 'Claude Desktop',
-    logo: {
-      src: '/images/logos/Claude Spark - Clay.svg',
-      width: 94,
-      height: 94,
-    },
+    logo: WORKFLOW_TOOL_LOGOS.claude,
     owns: [
       'Planning, alignment, and adversarial review',
       'Project kickoff and phase planning',
@@ -32,12 +45,7 @@ export const WORKFLOW_ENVIRONMENTS = [
   },
   {
     name: 'Cursor',
-    logo: {
-      src: '/images/logos/CUBE_2D_LIGHT.svg',
-      srcDark: '/images/logos/CUBE_2D_DARK.svg',
-      width: 467,
-      height: 532,
-    },
+    logo: WORKFLOW_TOOL_LOGOS.cursor,
     owns: [
       'Initializing spinoffs from the template',
       'Epic implementation plans',
@@ -50,6 +58,8 @@ export const WORKFLOW_ENVIRONMENTS = [
 export const WORKFLOW_DOCUMENTS = [
   {
     name: 'ROADMAP.md',
+    repoPath: 'ROADMAP.md',
+    url: workflowRepoUrl('blob', 'ROADMAP.md'),
     writtenBy: 'Claude Desktop',
     readBy: 'Both',
     purpose:
@@ -57,12 +67,16 @@ export const WORKFLOW_DOCUMENTS = [
   },
   {
     name: 'docs/prds/',
+    repoPath: 'docs/prds',
+    url: workflowRepoUrl('tree', 'docs/prds'),
     writtenBy: 'Claude Desktop',
     readBy: 'Cursor',
     purpose: 'Per-phase forward intent — epics, stories, and success criteria.',
   },
   {
     name: 'AGENTS.md',
+    repoPath: 'AGENTS.md',
+    url: workflowRepoUrl('blob', 'AGENTS.md'),
     writtenBy: 'Cursor',
     readBy: 'Both',
     purpose:
@@ -70,12 +84,16 @@ export const WORKFLOW_DOCUMENTS = [
   },
   {
     name: 'LEXICON.md',
+    repoPath: 'LEXICON.md',
+    url: workflowRepoUrl('blob', 'LEXICON.md'),
     writtenBy: 'Both',
     readBy: 'Both',
     purpose: 'Shared architectural vocabulary inherited by every spinoff.',
   },
   {
     name: 'docs/DOC_RULES.md',
+    repoPath: 'docs/DOC_RULES.md',
+    url: workflowRepoUrl('blob', 'docs/DOC_RULES.md'),
     writtenBy: 'Claude Desktop',
     readBy: 'Both',
     purpose: 'Authoritative document roles and write discipline.',

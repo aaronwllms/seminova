@@ -8,6 +8,7 @@ import { WorkflowConventionsSection } from './_components/workflow-conventions-s
 import { WorkflowDocumentsSection } from './_components/workflow-documents-section'
 import { WorkflowGuideCta } from './_components/workflow-guide-cta'
 import { WorkflowPlanReviewSection } from './_components/workflow-plan-review-section'
+import { WorkflowSectionNav } from './_components/workflow-section-nav'
 import { WorkflowTwoEnvironmentsSection } from './_components/workflow-two-environments-section'
 
 export const metadata: Metadata = {
@@ -35,6 +36,8 @@ export default function WorkflowPage() {
             side owns, how documents hand off, and the loop that turns
             requirements into shipped code.
           </p>
+
+          <WorkflowSectionNav />
         </div>
 
         <div className="mt-10 space-y-0">
@@ -42,11 +45,10 @@ export default function WorkflowPage() {
           <WorkflowPlanReviewSection />
           <WorkflowDocumentsSection />
           <WorkflowConventionsSection />
-          <div className="mx-auto max-w-3xl px-4 sm:px-0">
-            <WorkflowGuideCta />
-          </div>
         </div>
       </LandingContainer>
+
+      <WorkflowGuideCta />
     </main>
   )
 }

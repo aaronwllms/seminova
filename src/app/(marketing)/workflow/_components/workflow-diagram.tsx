@@ -9,11 +9,12 @@ import {
 
 import {
   WORKFLOW_LOOP_NODES,
+  WORKFLOW_TOOL_LOGOS,
   type WorkflowEnvironment,
   type WorkflowLoopNodeId,
 } from '../_lib/workflow-page-content'
 
-const DEFAULT_DETAIL = 'Hover or focus a step to see what happens there.'
+const DEFAULT_DETAIL = 'Select or focus a step to see what happens there.'
 
 interface WorkflowDiagramProps {
   ariaLabelledBy: string
@@ -24,18 +25,107 @@ const ENVIRONMENT_LABEL: Record<WorkflowEnvironment, string> = {
   cursor: 'Cursor',
 }
 
-const nodeTokens = (environment: WorkflowEnvironment) =>
-  environment === 'claude'
-    ? {
-        fill: 'var(--primary)',
-        stroke: 'var(--primary)',
-        text: 'var(--primary-foreground)',
-      }
-    : {
-        fill: 'var(--success)',
-        stroke: 'var(--success)',
-        text: 'var(--success-foreground)',
-      }
+const NODE_TOKENS = {
+  fill: 'var(--secondary)',
+  stroke: 'var(--border)',
+  text: 'var(--secondary-foreground)',
+} as const
+
+const MODEL_LINE_FONT_SIZE = 11
+const MODEL_LINE_LOGO_SIZE = 12
+const MODEL_LINE_LOGO_GAP = 4
+
+const estimateModelLabelWidth = (label: string) =>
+  label.length * (MODEL_LINE_FONT_SIZE * 0.55)
+
+const getModelLineLogoWidth = (environment: WorkflowEnvironment) => {
+  if (environment === 'claude') {
+    return MODEL_LINE_LOGO_SIZE
+  }
+
+  const cursorLogo = WORKFLOW_TOOL_LOGOS.cursor
+  return MODEL_LINE_LOGO_SIZE * (cursorLogo.width / cursorLogo.height)
+}
+
+const WorkflowNodeModelLine = ({
+  environment,
+  environmentName,
+  unitLeft,
+  y,
+}: {
+  environment: WorkflowEnvironment
+  environmentName: string
+  unitLeft: number
+  y: number
+}) => {
+  const logoWidth = getModelLineLogoWidth(environment)
+  const logoY = y - MODEL_LINE_LOGO_SIZE / 2
+
+  if (environment === 'claude') {
+    const logo = WORKFLOW_TOOL_LOGOS.claude
+
+    return (
+      <>
+        <image
+          href={logo.src}
+          x={unitLeft}
+          y={logoY}
+          width={MODEL_LINE_LOGO_SIZE}
+          height={MODEL_LINE_LOGO_SIZE}
+          preserveAspectRatio="xMidYMid meet"
+          aria-hidden
+        />
+        <text
+          x={unitLeft + logoWidth + MODEL_LINE_LOGO_GAP}
+          y={y}
+          dominantBaseline="central"
+          fontSize={MODEL_LINE_FONT_SIZE}
+          fill={NODE_TOKENS.text}
+          fontFamily="sans-serif"
+        >
+          {environmentName}
+        </text>
+      </>
+    )
+  }
+
+  const cursorLogo = WORKFLOW_TOOL_LOGOS.cursor
+
+  return (
+    <>
+      <image
+        href={cursorLogo.src}
+        x={unitLeft}
+        y={logoY}
+        width={logoWidth}
+        height={MODEL_LINE_LOGO_SIZE}
+        preserveAspectRatio="xMidYMid meet"
+        className="dark:hidden"
+        aria-hidden
+      />
+      <image
+        href={cursorLogo.srcDark}
+        x={unitLeft}
+        y={logoY}
+        width={logoWidth}
+        height={MODEL_LINE_LOGO_SIZE}
+        preserveAspectRatio="xMidYMid meet"
+        className="hidden dark:block"
+        aria-hidden
+      />
+      <text
+        x={unitLeft + logoWidth + MODEL_LINE_LOGO_GAP}
+        y={y}
+        dominantBaseline="central"
+        fontSize={MODEL_LINE_FONT_SIZE}
+        fill={NODE_TOKENS.text}
+        fontFamily="sans-serif"
+      >
+        {environmentName}
+      </text>
+    </>
+  )
+}
 
 export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
   const [hoveredNodeId, setHoveredNodeId] = useState<WorkflowLoopNodeId | null>(
@@ -238,7 +328,6 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
 
         {WORKFLOW_LOOP_NODES.map((node) => {
           const { geometry } = node
-          const tokens = nodeTokens(node.environment)
           const centerX = geometry.x + geometry.width / 2
           const isSpotlightDimmed =
             activeNodeId != null && activeNodeId !== node.id
@@ -247,6 +336,16 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
           const ariaLabel = node.skill
             ? `${node.label}, ${node.skill}, ${environmentName}`
             : `${node.label}, ${environmentName}`
+          const modelLineY =
+            geometry.layout === 'three-line'
+              ? geometry.y + (node.skill ? 54 : 36)
+              : geometry.y + 44
+          const logoWidth = getModelLineLogoWidth(node.environment)
+          const modelUnitWidth =
+            logoWidth +
+            MODEL_LINE_LOGO_GAP +
+            estimateModelLabelWidth(environmentName)
+          const modelUnitLeft = centerX - modelUnitWidth / 2
 
           return (
             <g
@@ -282,8 +381,8 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
                 width={geometry.width}
                 height={geometry.height}
                 rx="8"
-                fill={tokens.fill}
-                stroke={tokens.stroke}
+                fill={NODE_TOKENS.fill}
+                stroke={NODE_TOKENS.stroke}
                 strokeWidth="1"
               />
               {geometry.layout === 'three-line' ? (
@@ -295,7 +394,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
                     dominantBaseline="central"
                     fontWeight="600"
                     fontSize="13"
-                    fill={tokens.text}
+                    fill={NODE_TOKENS.text}
                     fontFamily="sans-serif"
                   >
                     {node.label}
@@ -308,51 +407,33 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
                       dominantBaseline="central"
                       fontSize="11"
                       fontStyle="italic"
-                      fill={tokens.text}
+                      fill={NODE_TOKENS.text}
                       fontFamily="sans-serif"
                     >
                       {node.skill}
                     </text>
                   ) : null}
-                  <text
-                    x={centerX}
-                    y={geometry.y + (node.skill ? 54 : 36)}
-                    textAnchor="middle"
-                    dominantBaseline="central"
-                    fontSize="11"
-                    fill={tokens.text}
-                    fontFamily="sans-serif"
-                  >
-                    {environmentName}
-                  </text>
                 </>
               ) : (
-                <>
-                  <text
-                    x={centerX}
-                    y={geometry.y + 24}
-                    textAnchor="middle"
-                    dominantBaseline="central"
-                    fontWeight="600"
-                    fontSize="13"
-                    fill={tokens.text}
-                    fontFamily="sans-serif"
-                  >
-                    {node.label}
-                  </text>
-                  <text
-                    x={centerX}
-                    y={geometry.y + 44}
-                    textAnchor="middle"
-                    dominantBaseline="central"
-                    fontSize="11"
-                    fill={tokens.text}
-                    fontFamily="sans-serif"
-                  >
-                    {environmentName}
-                  </text>
-                </>
+                <text
+                  x={centerX}
+                  y={geometry.y + 24}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fontWeight="600"
+                  fontSize="13"
+                  fill={NODE_TOKENS.text}
+                  fontFamily="sans-serif"
+                >
+                  {node.label}
+                </text>
               )}
+              <WorkflowNodeModelLine
+                environment={node.environment}
+                environmentName={environmentName}
+                unitLeft={modelUnitLeft}
+                y={modelLineY}
+              />
             </g>
           )
         })}

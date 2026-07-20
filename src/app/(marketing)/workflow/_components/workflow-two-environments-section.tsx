@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { cn } from '@/utils/tailwind'
 
 import { WORKFLOW_ENVIRONMENTS } from '../_lib/workflow-page-content'
+import { WORKFLOW_SECTION_SCROLL_CLASS } from '../_lib/workflow-anchor-links'
 
 const environmentLogoClassName = 'h-6 w-auto object-contain'
 
@@ -10,7 +11,7 @@ export const WorkflowTwoEnvironmentsSection = () => (
   <section aria-labelledby="two-environments" className="border-t py-10">
     <div className="mx-auto max-w-3xl px-4 sm:px-0">
       <h2
-        className="text-2xl font-semibold tracking-tight"
+        className={`${WORKFLOW_SECTION_SCROLL_CLASS} text-2xl font-semibold tracking-tight`}
         id="two-environments"
       >
         Two environments
