@@ -121,8 +121,9 @@ export const getDisplayAuthClaims = async (): Promise<AuthenticatedClaims> => {
  * Lightweight session probe for public surfaces (e.g. marketing header).
  * Validates the cookie-read access token via
  * `getClaims(accessToken, { allowExpired: true })` — same path as
- * `getDisplayAuthClaims`, but returns false instead of throwing. Does not
- * refresh tokens; refresh is proxy-only (see ADR-0005).
+ * `getDisplayAuthClaims`, but returns false instead of throwing. The proxy
+ * is the server-side session gate; the browser client refreshes client-side.
+ * This probe validates only; it does not refresh tokens.
  */
 export const hasServerAuthSession = async (): Promise<boolean> => {
   const accessToken = await readAccessTokenFromCookies()
