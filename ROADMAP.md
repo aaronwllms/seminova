@@ -22,6 +22,7 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 | 10 | App Home, Form Primitives & Reference Surfaces | `Shipped` | [Phase 10 PRD](docs/prds/archive/phase-10-app-home-reference-surfaces.prd.md) |
 | 11 | Corrections & Hardening | `Shipped` | [Phase 11 PRD](docs/prds/archive/phase-11-corrections-hardening.prd.md) |
 | 12 | Observability & App Settings | `Shipped` | [Phase 12 PRD](docs/prds/archive/phase-12-observability-app-settings.prd.md) |
+| 13 | Realtime Logs & Session Refresh | `Active` | [Phase 13 PRD](docs/prds/phase-13-realtime-logs-session-refresh.prd.md) |
 
 > [!NOTE]
 > Phases 1–7 pre-date the per-phase PRD system, so their PRD column is empty; their shipped detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md). From Phase 8 on, shipped rows link the archived PRD per [docs/DOC_RULES.md](docs/DOC_RULES.md).
@@ -31,7 +32,6 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 ## Upcoming phases
 
 Thin stubs for anticipated phases — intent and shape only; decomposition into epics happens at phase-planning time. This section is kept even when empty, so the next phase always has a home.
-
 
 ## Open questions / deferred decisions
 
