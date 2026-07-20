@@ -32,7 +32,7 @@ Give the admin logs page a live feed via Supabase Realtime — new rows appear w
 
 ## Epics & stories
 
-### Epic 1: Browser session refresh
+### Epic 1: Browser session refresh `Complete`
 
 - **1.1 The browser client refreshes its own token.** Re-enable the browser client's default token auto-refresh, currently disabled so the proxy is the only refresh authority. The proxy stays the server-side refresh authority and server-component auth reads stay validate-only (no refresh) — this adds foreground browser refresh back on top, returning to the two-authority model Supabase's refresh-token reuse interval and cross-tab lock are built to handle. [ADR-0005](../adr/ADR-0005-proxy-as-sole-session-authority.md) is amended in place to reflect that the proxy is no longer the *sole* refresh authority; the reasoning for why this is now safe is carried by [RESEARCH-0004](../research/RESEARCH-0004-supabase-realtime-session-refresh-nextjs.md) §6.
 
