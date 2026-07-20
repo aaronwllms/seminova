@@ -63,12 +63,3 @@ _Defer until: a future security phase_
 _Defer until: opportunistic_
 
 </details>
-
-<details>
-<summary>JWT expiration recurring failure (resolved)</summary>
-
-**Problem:** `JWT has expired` recurred when display auth reads validated `exp` on the cookie-read access token after the proxy had already refreshed the session on the same request.
-
-**Resolution:** [ADR-0005](docs/adr/ADR-0005-proxy-as-sole-session-authority.md) — proxy is the server-side session gate; RSC display reads use `getDisplayAuthClaims()` with `getClaims(accessToken, { allowExpired: true })` (signature verified, exp tolerated, no refresh). Browser client foreground auto-refresh was re-enabled in Phase 13 (two-authority model).
-
-</details>
