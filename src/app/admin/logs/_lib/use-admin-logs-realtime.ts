@@ -15,7 +15,7 @@ interface UseAdminLogsRealtimeOptions {
 }
 
 export const useAdminLogsRealtime = ({
-  enabled = true,
+  enabled = false,
 }: UseAdminLogsRealtimeOptions = {}) => {
   const queryClient = useQueryClient()
   const [isRefreshing, setIsRefreshing] = useState(false)

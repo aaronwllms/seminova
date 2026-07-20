@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { LogsTable } from './logs-table'
+import { LOGS_LIVE_ENABLED_STORAGE_KEY } from '../_lib/logs-live-preference'
 
 const refreshMock = vi.fn()
 const useAdminLogsRealtimeMock = vi.fn()
@@ -57,6 +58,7 @@ const defaultListParams = {
 
 describe('LogsTable', () => {
   beforeEach(() => {
+    localStorage.clear()
     refreshMock.mockReset()
     useAdminLogsRealtimeMock.mockReturnValue({
       refresh: refreshMock,
@@ -362,39 +364,69 @@ describe('LogsTable', () => {
     expect(refreshMock).toHaveBeenCalledTimes(1)
   })
 
-  it('should render live toggle pressed by default and pass enabled to realtime hook', async () => {
+  it('should render live toggle off by default and pass enabled=false to realtime hook', async () => {
     renderTable()
 
     await waitFor(() => {
-      expect(useAdminLogsRealtimeMock).toHaveBeenCalledWith({ enabled: true })
+      expect(useAdminLogsRealtimeMock).toHaveBeenCalledWith({ enabled: false })
     })
 
     expect(
-      screen.getByRole('button', { name: /turn live feed off/i }),
-    ).toHaveAttribute('aria-pressed', 'true')
+      screen.getByRole('button', { name: /turn live feed on/i }),
+    ).toHaveAttribute('aria-pressed', 'false')
   })
 
-  it('should pass enabled=false to realtime hook when live toggle is turned off', async () => {
+  it('should pass enabled=true to realtime hook when live toggle is turned on', async () => {
     const user = userEvent.setup()
 
     renderTable()
 
     await waitFor(() => {
       expect(
-        screen.getByRole('button', { name: /turn live feed off/i }),
+        screen.getByRole('button', { name: /turn live feed on/i }),
       ).toBeInTheDocument()
     })
+
+    await user.click(screen.getByRole('button', { name: /turn live feed on/i }))
+
+    expect(useAdminLogsRealtimeMock).toHaveBeenLastCalledWith({
+      enabled: true,
+    })
+    expect(
+      screen.getByRole('button', { name: /turn live feed off/i }),
+    ).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('should restore live enabled preference from localStorage on mount', async () => {
+    localStorage.setItem(LOGS_LIVE_ENABLED_STORAGE_KEY, 'true')
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(useAdminLogsRealtimeMock).toHaveBeenCalledWith({ enabled: true })
+    })
+  })
+
+  it('should persist live toggle preference to localStorage', async () => {
+    const user = userEvent.setup()
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /turn live feed on/i }),
+      ).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole('button', { name: /turn live feed on/i }))
+
+    expect(localStorage.getItem(LOGS_LIVE_ENABLED_STORAGE_KEY)).toBe('true')
 
     await user.click(
       screen.getByRole('button', { name: /turn live feed off/i }),
     )
 
-    expect(useAdminLogsRealtimeMock).toHaveBeenLastCalledWith({
-      enabled: false,
-    })
-    expect(
-      screen.getByRole('button', { name: /turn live feed on/i }),
-    ).toHaveAttribute('aria-pressed', 'false')
+    expect(localStorage.getItem(LOGS_LIVE_ENABLED_STORAGE_KEY)).toBe('false')
   })
 
   it('should show filtered empty state with reset and refresh actions', async () => {

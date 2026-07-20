@@ -34,6 +34,10 @@ import {
 import { useAdminLogStats } from '../_lib/use-admin-log-stats'
 import { useAdminLogTags } from '../_lib/use-admin-log-tags'
 import { useAdminLogsList } from '../_lib/use-admin-logs-list'
+import {
+  readLogsLiveEnabledPreference,
+  writeLogsLiveEnabledPreference,
+} from '../_lib/logs-live-preference'
 import { useAdminLogsRealtime } from '../_lib/use-admin-logs-realtime'
 import { useMarkAllLogsReadMutation } from '../_lib/use-mark-all-logs-read-mutation'
 import { useMarkLogReadMutation } from '../_lib/use-mark-log-read-mutation'
@@ -63,7 +67,7 @@ export const LogsTable = () => {
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
   const [unreadOnly, setUnreadOnly] = useState(false)
-  const [liveEnabled, setLiveEnabled] = useState(true)
+  const [liveEnabled, setLiveEnabled] = useState(false)
   const {
     activeValues: selectedLevelSet,
     toggle: toggleLevel,
@@ -76,6 +80,11 @@ export const LogsTable = () => {
   )
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration guard for localStorage preference restore
+    setLiveEnabled(readLogsLiveEnabledPreference())
+  }, [])
+
+  useEffect(() => {
     const timer = window.setTimeout(() => {
       setDebouncedSearch(searchInput.trim())
       setCursorStack([null])
@@ -84,6 +93,11 @@ export const LogsTable = () => {
 
     return () => window.clearTimeout(timer)
   }, [searchInput])
+
+  const handleLiveEnabledChange = useCallback((enabled: boolean) => {
+    setLiveEnabled(enabled)
+    writeLogsLiveEnabledPreference(enabled)
+  }, [])
 
   const filters: LogListFilters = useMemo(
     () => ({
@@ -343,7 +357,7 @@ export const LogsTable = () => {
           tags={tags}
           tagsDisabled={tagsError !== null}
           liveEnabled={liveEnabled}
-          onLiveEnabledChange={setLiveEnabled}
+          onLiveEnabledChange={handleLiveEnabledChange}
           onRefresh={refresh}
           isRefreshing={isRefreshing}
           onMarkAllRead={handleMarkAllRead}
