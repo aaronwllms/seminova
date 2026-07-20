@@ -4,6 +4,7 @@ export const referenceDemoFormInputSchema = z.object({
   displayName: z
     .string()
     .max(80, 'Display name must be 80 characters or fewer.'),
+  bio: z.string().max(160, 'Bio must be 160 characters or fewer.'),
 })
 
 export type ReferenceDemoFormInputValues = z.infer<
@@ -12,4 +13,5 @@ export type ReferenceDemoFormInputValues = z.infer<
 
 export type ReferenceDemoPartialValues = {
   displayName?: string | null
+  bio?: string | null
 }
