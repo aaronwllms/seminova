@@ -29,7 +29,11 @@ export const ActiveFilterChips = ({
     <div className="flex flex-wrap items-center gap-2">
       <span className="text-muted-foreground text-sm">Active filters:</span>
       {chips.map((chip) => (
-        <Badge key={chip.id} variant="secondary" className="gap-1 pr-1">
+        <Badge
+          key={chip.id}
+          variant="secondary"
+          className="gap-1 pr-0.5 pl-2.5"
+        >
           {chip.label}
           <button
             type="button"
