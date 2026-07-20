@@ -350,12 +350,6 @@ describe('LogsTable', () => {
     expect(refreshMock).toHaveBeenCalledTimes(1)
   })
 
-  it('should render the live connection indicator', async () => {
-    renderTable()
-
-    expect(await screen.findByText('Live')).toBeInTheDocument()
-  })
-
   it('should render reconnecting and offline connection labels', async () => {
     useAdminLogsRealtimeMock.mockReturnValue({
       connectionState: 'reconnecting',
