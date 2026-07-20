@@ -1,7 +1,9 @@
 'use client'
 
+import { InfoIcon } from 'lucide-react'
+
 import { AppErrorSurface } from '@/components/app-error-surface'
-import { Note } from '@/components/ui/note'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import type { AppError } from '@/types/app-error'
 
 import { REFERENCE_SECTION_SCROLL_CLASS } from '../_lib/reference-anchor-links'
@@ -31,10 +33,13 @@ export const ReferenceFeedbackSection = () => {
         Live: two components, for operational and fault errors.
       </p>
 
-      <Note className="mt-4">
-        Shown together for comparison — in the product these appear
-        individually, near their trigger.
-      </Note>
+      <Alert variant="info" role="note" className="mt-4">
+        <InfoIcon aria-hidden />
+        <AlertDescription>
+          Shown together for comparison — in the product these appear
+          individually, near their trigger.
+        </AlertDescription>
+      </Alert>
 
       <div className="mt-5 flex flex-col gap-3">
         <div>
