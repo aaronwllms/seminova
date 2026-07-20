@@ -64,7 +64,7 @@ Give the admin logs page a live feed via Supabase Realtime — new rows appear w
 - No manual refresh control or connection indicator is added to the users page.
 - `pnpm pre-push` is green.
 
-### Epic 4: Logs toolbar & empty-state polish
+### Epic 4: Logs toolbar & empty-state polish `Complete`
 
 - **4.1 Live indicator becomes a toggle.** Replace the static "Live" badge with a pressable toggle button. Off state: play icon + "Live" text, styled identically to the adjacent refresh button (no special muted treatment). On state: pause icon + "Live" text, `success` token color applied as text + border only (no background fill) — same token as the settings-page live pattern (which uses a filled pill), different treatment here (outline vs. filled). Toggling on subscribes to the Epic 2 Realtime feed; toggling off unsubscribes (manual refresh still works in either state). Positioned left of the existing refresh button, right of search.
 - **4.2 Empty-state refresh.** When the filtered view has zero rows, show "No logs found for selected filters" with a primary "Reset filters" button and a secondary "Refresh" button beside it.
