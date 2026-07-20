@@ -53,6 +53,7 @@ export const useAdminUsersList = ({
       return unwrapListUsersResult(result)
     },
     placeholderData: keepPreviousData,
+    refetchOnWindowFocus: 'always',
     retry: (failureCount, error) =>
       (error as unknown as AppError)?.kind === 'fault' && failureCount < 1,
     retryDelay: 0,
