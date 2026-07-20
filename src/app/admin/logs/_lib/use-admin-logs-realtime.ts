@@ -8,6 +8,7 @@ import { createClient } from '@/supabase/client'
 import { adminLogsQueryKeys } from './admin-logs-query-keys'
 
 const REALTIME_DEBOUNCE_MS = 300
+const REFRESH_MIN_VISIBLE_MS = 1000
 
 interface UseAdminLogsRealtimeOptions {
   enabled?: boolean
@@ -19,6 +20,40 @@ export const useAdminLogsRealtime = ({
   const queryClient = useQueryClient()
   const [isRefreshing, setIsRefreshing] = useState(false)
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const refreshInFlightRef = useRef(0)
+  const refreshStartedAtRef = useRef<number | null>(null)
+
+  const runWithRefreshIndicator = useCallback(
+    async (operation: () => Promise<void>) => {
+      refreshInFlightRef.current += 1
+
+      if (refreshStartedAtRef.current === null) {
+        refreshStartedAtRef.current = Date.now()
+        setIsRefreshing(true)
+      }
+
+      try {
+        await operation()
+      } finally {
+        refreshInFlightRef.current -= 1
+
+        if (refreshInFlightRef.current === 0) {
+          const startedAt = refreshStartedAtRef.current ?? Date.now()
+          const remainingMs = REFRESH_MIN_VISIBLE_MS - (Date.now() - startedAt)
+
+          if (remainingMs > 0) {
+            await new Promise<void>((resolve) => {
+              window.setTimeout(resolve, remainingMs)
+            })
+          }
+
+          refreshStartedAtRef.current = null
+          setIsRefreshing(false)
+        }
+      }
+    },
+    [],
+  )
 
   useEffect(() => {
     if (!enabled) {
@@ -42,8 +77,10 @@ export const useAdminLogsRealtime = ({
           }
 
           debounceTimerRef.current = setTimeout(() => {
-            void queryClient.invalidateQueries({
-              queryKey: adminLogsQueryKeys.all,
+            void runWithRefreshIndicator(async () => {
+              await queryClient.invalidateQueries({
+                queryKey: adminLogsQueryKeys.all,
+              })
             })
           }, REALTIME_DEBOUNCE_MS)
         },
@@ -58,17 +95,13 @@ export const useAdminLogsRealtime = ({
 
       void supabase.removeChannel(channel)
     }
-  }, [enabled, queryClient])
+  }, [enabled, queryClient, runWithRefreshIndicator])
 
   const refresh = useCallback(async () => {
-    setIsRefreshing(true)
-
-    try {
+    await runWithRefreshIndicator(async () => {
       await queryClient.refetchQueries({ queryKey: adminLogsQueryKeys.all })
-    } finally {
-      setIsRefreshing(false)
-    }
-  }, [queryClient])
+    })
+  }, [queryClient, runWithRefreshIndicator])
 
   return { refresh, isRefreshing }
 }

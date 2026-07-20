@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { act, renderHook, waitFor } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { adminLogsQueryKeys } from './admin-logs-query-keys'
@@ -145,8 +145,11 @@ describe('useAdminLogsRealtime', () => {
     })
   })
 
-  it('should not set isRefreshing when debounced realtime invalidation runs', async () => {
+  it('should set isRefreshing during debounced realtime invalidation', async () => {
     vi.useFakeTimers()
+    const invalidateSpy = vi
+      .spyOn(queryClient, 'invalidateQueries')
+      .mockResolvedValue(undefined)
 
     const { result } = renderRealtimeHook()
 
@@ -156,10 +159,50 @@ describe('useAdminLogsRealtime', () => {
       vi.advanceTimersByTime(300)
     })
 
+    expect(invalidateSpy).toHaveBeenCalledTimes(1)
+    expect(result.current.isRefreshing).toBe(true)
+
+    await act(async () => {
+      await Promise.resolve()
+      vi.advanceTimersByTime(1000)
+    })
+
+    expect(result.current.isRefreshing).toBe(false)
+  })
+
+  it('should keep isRefreshing visible for at least one second on fast manual refresh', async () => {
+    vi.useFakeTimers()
+    vi.spyOn(queryClient, 'refetchQueries').mockResolvedValue(undefined)
+
+    const { result } = renderRealtimeHook()
+
+    act(() => {
+      void result.current.refresh()
+    })
+
+    expect(result.current.isRefreshing).toBe(true)
+
+    await act(async () => {
+      await Promise.resolve()
+    })
+
+    expect(result.current.isRefreshing).toBe(true)
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(999)
+    })
+
+    expect(result.current.isRefreshing).toBe(true)
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1)
+    })
+
     expect(result.current.isRefreshing).toBe(false)
   })
 
   it('should set isRefreshing during manual refresh and clear it after settle', async () => {
+    vi.useFakeTimers()
     let resolveRefetch: (() => void) | undefined
     const refetchPromise = new Promise<void>((resolve) => {
       resolveRefetch = resolve
@@ -175,12 +218,18 @@ describe('useAdminLogsRealtime', () => {
       refreshPromise = result.current.refresh()
     })
 
-    await waitFor(() => {
-      expect(result.current.isRefreshing).toBe(true)
-    })
+    expect(result.current.isRefreshing).toBe(true)
 
     resolveRefetch?.()
+
     await act(async () => {
+      await Promise.resolve()
+    })
+
+    expect(result.current.isRefreshing).toBe(true)
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000)
       await refreshPromise
     })
 

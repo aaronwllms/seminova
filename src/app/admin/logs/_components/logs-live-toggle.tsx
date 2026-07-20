@@ -21,7 +21,7 @@ export const LogsLiveToggle = ({
       type="button"
       variant="outline"
       className={cn(
-        'shrink-0',
+        'relative shrink-0',
         liveEnabled &&
           'border-success text-success bg-background hover:bg-background hover:text-success',
         className,
@@ -30,6 +30,12 @@ export const LogsLiveToggle = ({
       aria-label={liveEnabled ? 'Turn live feed off' : 'Turn live feed on'}
       onClick={() => onLiveEnabledChange(!liveEnabled)}
     >
+      {liveEnabled ? (
+        <span
+          aria-hidden
+          className="shadow-success/45 ring-success/40 pointer-events-none absolute inset-0 animate-pulse rounded-md shadow-[0_0_18px_3px] ring-2"
+        />
+      ) : null}
       <Icon aria-hidden />
       Live
     </Button>

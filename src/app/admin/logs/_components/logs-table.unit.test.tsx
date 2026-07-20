@@ -505,5 +505,8 @@ describe('LogsTable', () => {
         screen.getByRole('button', { name: /refresh logs/i }),
       ).toBeDisabled()
     })
+    expect(
+      screen.getByRole('button', { name: /refresh logs/i }),
+    ).toHaveAttribute('aria-busy', 'true')
   })
 })

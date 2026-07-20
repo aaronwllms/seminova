@@ -1,10 +1,9 @@
 'use client'
 
-import { RefreshCw, Search } from 'lucide-react'
+import { Loader2, RefreshCw, Search } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { cn } from '@/utils/tailwind'
 
 import { LogsLiveToggle } from './logs-live-toggle'
 import { LogsTagCombobox } from './logs-tag-combobox'
@@ -77,11 +76,13 @@ export const LogsToolbar = ({
         disabled={isRefreshing}
         onClick={onRefresh}
         aria-label="Refresh logs"
+        aria-busy={isRefreshing}
       >
-        <RefreshCw
-          className={cn('size-4', isRefreshing && 'animate-spin')}
-          aria-hidden
-        />
+        {isRefreshing ? (
+          <Loader2 className="size-4 animate-spin" aria-hidden />
+        ) : (
+          <RefreshCw className="size-4" aria-hidden />
+        )}
       </Button>
 
       <Button
