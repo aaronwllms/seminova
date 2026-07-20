@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockGetDisplayAuthClaims = vi.fn()
+const mockHasServerAuthSession = vi.fn()
 const mockRedirect = vi.fn()
 
 vi.mock('next/navigation', () => ({
@@ -10,13 +11,10 @@ vi.mock('next/navigation', () => ({
   },
 }))
 
-vi.mock('next/server', () => ({
-  connection: vi.fn().mockResolvedValue(undefined),
-}))
-
 vi.mock('@/supabase/require-auth', () => ({
   getDisplayAuthClaims: (...args: unknown[]) =>
     mockGetDisplayAuthClaims(...args),
+  hasServerAuthSession: () => mockHasServerAuthSession(),
 }))
 
 vi.mock('@/app/(app)/_lib/get-current-user-profile', () => ({
@@ -35,6 +33,10 @@ vi.mock('./admin-sidebar-nav-user-slot', () => ({
   AdminSidebarNavUserSlot: () => (
     <div data-testid="admin-sidebar-nav-user-slot" />
   ),
+}))
+
+vi.mock('./admin-shell-skeleton', () => ({
+  AdminShellSkeleton: () => <div data-testid="admin-shell-skeleton" />,
 }))
 
 vi.mock('./admin-shell', () => ({
@@ -62,8 +64,21 @@ import { AdminAuthGate } from './admin-auth-gate'
 describe('AdminAuthGate', () => {
   beforeEach(() => {
     mockGetDisplayAuthClaims.mockReset()
+    mockHasServerAuthSession.mockReset()
     mockRedirect.mockReset()
+    mockHasServerAuthSession.mockResolvedValue(true)
     vi.mocked(getCurrentUserProfile).mockReset()
+  })
+
+  it('should render admin shell skeleton when no session is present', async () => {
+    mockHasServerAuthSession.mockResolvedValue(false)
+
+    render(await AdminAuthGate({ children: <p>Admin content</p> }))
+
+    expect(screen.getByTestId('admin-shell-skeleton')).toBeInTheDocument()
+    expect(mockGetDisplayAuthClaims).not.toHaveBeenCalled()
+    expect(mockRedirect).not.toHaveBeenCalled()
+    expect(screen.queryByText('Admin content')).not.toBeInTheDocument()
   })
 
   it('should redirect non-admin users to app home', async () => {
