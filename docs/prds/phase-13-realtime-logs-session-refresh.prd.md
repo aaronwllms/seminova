@@ -1,7 +1,7 @@
 # PRD — Phase 13: Realtime Logs & Session Refresh
 
 **Status:** `Active`
-**Last updated:** 2026-07-19
+**Last updated:** 2026-07-20
 
 ---
 
@@ -55,7 +55,7 @@ Give the admin logs page a live feed via Supabase Realtime — new rows appear w
 - Delivery stays admin-only (governed by the existing logs-table read policy).
 - `pnpm pre-push` is green.
 
-### Epic 3: Users-page freshness
+### Epic 3: Users-page freshness `Complete`
 
 - **3.1 The users list refreshes on focus.** The admin users list refetches when the tab regains focus, so another admin's ban or promotion surfaces within a focus cycle rather than only on a manual reload. No live feed, no connection indicator, and no manual refresh control — a deliberately lighter freshness tier than the logs page, per [ADR-0008](../adr/ADR-0008-realtime-scoped-to-logs-tiered-freshness.md).
 
