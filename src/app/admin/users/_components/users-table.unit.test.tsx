@@ -464,9 +464,7 @@ describe('UsersTable', () => {
       )
     })
 
-    await user.click(
-      screen.getByRole('button', { name: /total, clear all filters/i }),
-    )
+    await user.click(screen.getByRole('button', { name: /total, 1/i }))
 
     await waitFor(() => {
       expect(listUsersActionMock).toHaveBeenLastCalledWith(defaultListParams)
@@ -509,6 +507,62 @@ describe('UsersTable', () => {
       expect(
         screen.getByText('New (30d)', { selector: '[data-slot="badge"]' }),
       ).toBeInTheDocument()
+    })
+  })
+
+  it('should remove a single active filter chip without clearing others', async () => {
+    const user = userEvent.setup({ delay: null })
+
+    renderTable()
+
+    await waitForStatTiles()
+
+    await user.click(screen.getByRole('button', { name: /banned/i }))
+    await user.click(screen.getByRole('button', { name: /new \(30d\)/i }))
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /remove banned filter/i }),
+      ).toBeInTheDocument()
+    })
+
+    await user.click(
+      screen.getByRole('button', { name: /remove banned filter/i }),
+    )
+
+    await waitFor(() => {
+      expect(listUsersActionMock).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          filterBanned: false,
+          filterNew30d: true,
+        }),
+      )
+    })
+  })
+
+  it('should clear all active filter chips from the chip row', async () => {
+    const user = userEvent.setup({ delay: null })
+
+    renderTable()
+
+    await waitForStatTiles()
+
+    await user.click(screen.getByRole('button', { name: /banned/i }))
+    await user.type(
+      screen.getByRole('searchbox', { name: /search users by email/i }),
+      'admin',
+    )
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /^clear all$/i }),
+      ).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole('button', { name: /^clear all$/i }))
+
+    await waitFor(() => {
+      expect(listUsersActionMock).toHaveBeenLastCalledWith(defaultListParams)
     })
   })
 

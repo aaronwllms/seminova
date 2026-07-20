@@ -120,6 +120,17 @@ describe('LogsTable', () => {
     )
   }
 
+  const waitForStatTiles = async () => {
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /^error, 1$/i }),
+      ).toBeInTheDocument()
+    })
+  }
+
+  const getErrorStatTile = () =>
+    screen.getByRole('button', { name: /^error, 1$/i })
+
   it('should load logs on mount and render message column', async () => {
     renderTable()
 
@@ -202,7 +213,9 @@ describe('LogsTable', () => {
       expect(listLogsActionMock).toHaveBeenCalledTimes(1)
     })
 
-    await user.click(screen.getByRole('button', { name: /error/i }))
+    await waitForStatTiles()
+
+    await user.click(getErrorStatTile())
 
     await waitFor(() => {
       expect(listLogsActionMock).toHaveBeenLastCalledWith({
@@ -399,7 +412,9 @@ describe('LogsTable', () => {
 
     renderTable()
 
-    await user.click(screen.getByRole('button', { name: /error/i }))
+    await waitForStatTiles()
+
+    await user.click(getErrorStatTile())
 
     await waitFor(() => {
       expect(
@@ -429,7 +444,9 @@ describe('LogsTable', () => {
 
     renderTable()
 
-    await user.click(screen.getByRole('button', { name: /error/i }))
+    await waitForStatTiles()
+
+    await user.click(getErrorStatTile())
 
     await waitFor(() => {
       expect(
@@ -457,7 +474,9 @@ describe('LogsTable', () => {
       screen.getByRole('searchbox', { name: /search logs/i }),
       'token',
     )
-    await user.click(screen.getByRole('button', { name: /error/i }))
+    await waitForStatTiles()
+
+    await user.click(getErrorStatTile())
 
     await waitFor(() => {
       expect(listLogsActionMock).toHaveBeenLastCalledWith(
@@ -470,9 +489,7 @@ describe('LogsTable', () => {
       )
     })
 
-    await user.click(
-      screen.getByRole('button', { name: /total, clear all filters/i }),
-    )
+    await user.click(screen.getByRole('button', { name: /total, 1/i }))
 
     await waitFor(() => {
       expect(listLogsActionMock).toHaveBeenLastCalledWith(defaultListParams)
@@ -497,7 +514,9 @@ describe('LogsTable', () => {
 
     renderTable()
 
-    await user.click(screen.getByRole('button', { name: /error/i }))
+    await waitForStatTiles()
+
+    await user.click(getErrorStatTile())
 
     await waitFor(() => {
       expect(
@@ -547,5 +566,123 @@ describe('LogsTable', () => {
     expect(
       screen.getByRole('button', { name: /refresh logs/i }),
     ).toHaveAttribute('aria-busy', 'true')
+  })
+
+  it('should show active filter chips when filters are applied', async () => {
+    const user = userEvent.setup()
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(screen.getByText('Token refresh failed')).toBeInTheDocument()
+    })
+
+    await waitForStatTiles()
+
+    await user.click(getErrorStatTile())
+    await user.type(
+      screen.getByRole('searchbox', { name: /search logs/i }),
+      'token',
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText('Active filters:')).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: /remove error filter/i }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: /remove search: token filter/i }),
+      ).toBeInTheDocument()
+    })
+  })
+
+  it('should remove a single active filter chip without clearing others', async () => {
+    const user = userEvent.setup()
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(screen.getByText('Token refresh failed')).toBeInTheDocument()
+    })
+
+    await waitForStatTiles()
+
+    await user.click(getErrorStatTile())
+    await user.type(
+      screen.getByRole('searchbox', { name: /search logs/i }),
+      'token',
+    )
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /remove search: token filter/i }),
+      ).toBeInTheDocument()
+    })
+
+    await user.click(
+      screen.getByRole('button', { name: /remove search: token filter/i }),
+    )
+
+    await waitFor(() => {
+      expect(listLogsActionMock).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          filters: expect.objectContaining({
+            levels: ['error'],
+            search: null,
+          }),
+        }),
+      )
+    })
+  })
+
+  it('should clear all active filter chips from the chip row', async () => {
+    const user = userEvent.setup()
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(screen.getByText('Token refresh failed')).toBeInTheDocument()
+    })
+
+    await waitForStatTiles()
+
+    await user.click(getErrorStatTile())
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /^clear all$/i }),
+      ).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole('button', { name: /^clear all$/i }))
+
+    await waitFor(() => {
+      expect(listLogsActionMock).toHaveBeenLastCalledWith(defaultListParams)
+    })
+  })
+
+  it('should disable mark all as read when there are no unread logs in view', async () => {
+    listLogsActionMock.mockResolvedValue({
+      success: true,
+      data: {
+        rows: [
+          {
+            ...sampleRow,
+            readAt: '2026-07-18T15:00:00.000Z',
+            isUnread: false,
+          },
+        ],
+        hasNextPage: false,
+        filteredUnreadCount: 0,
+      },
+    })
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /mark all as read/i }),
+      ).toBeDisabled()
+    })
   })
 })

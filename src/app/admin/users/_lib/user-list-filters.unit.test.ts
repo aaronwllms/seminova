@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { USERS_SEARCH_MIN_LENGTH } from './admin-user-row'
 import {
+  buildUserListFilterChips,
   buildUserListFilterLabels,
   hasActiveUserListFilters,
 } from './user-list-filters'
@@ -82,5 +83,35 @@ describe('buildUserListFilterLabels', () => {
         search: longSearch,
       }),
     ).toEqual([`Email: ${'a'.repeat(17)}…`])
+  })
+})
+
+describe('buildUserListFilterChips', () => {
+  it('should return one chip per active filter with stable ids', () => {
+    expect(
+      buildUserListFilterChips({
+        filterUnverified: true,
+        filterBanned: false,
+        filterNew30d: true,
+        search: 'alice@example.com',
+      }),
+    ).toEqual([
+      { id: 'unverified', label: 'Unverified' },
+      { id: 'new30d', label: 'New (30d)' },
+      { id: 'search', label: 'Email: alice@example.com' },
+    ])
+  })
+
+  it('should truncate long search chip labels', () => {
+    const longSearch = 'a'.repeat(25)
+
+    expect(
+      buildUserListFilterChips({
+        filterUnverified: false,
+        filterBanned: false,
+        filterNew30d: false,
+        search: longSearch,
+      }),
+    ).toEqual([{ id: 'search', label: `Email: ${'a'.repeat(17)}…` }])
   })
 })

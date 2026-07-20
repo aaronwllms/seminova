@@ -31,6 +31,20 @@ Chart, border, ring, and input tokens are out of scope (no foreground partner). 
 
 The checklist and principles below are not mechanically enforced — screen-reader UX and keyboard flows stay manual review.
 
+## Tooltips
+
+**Default: no tooltip.** Add one only when:
+- **(a) Icon-only control whose function isn't inferable** from the icon/label alone, or
+- **(b) State-dependent behavior** needs explaining (why a control is disabled, what a toggle's on/off state actually does).
+
+Don't tooltip a control just because a sibling control has one — symmetry isn't a reason on its own.
+
+**Delay & motion:** 500ms hover delay, fade-in. No instant (0ms) tooltips outside the collapsed sidebar nav (`SidebarMenuButton`), which is a distinct, deliberate pattern for icon-only nav wayfinding.
+
+**Copy tone:** short imperative for action controls ("Filter to debug logs"); one-line explanatory only when covering a state/consequence a label can't ("Feed paused — Refresh to catch up").
+
+**ARIA:** pick one relationship per control, don't mix — either the tooltip text *is* the `aria-label` (icon-only controls with no other visible text), or the tooltip *supplements* a separately-set `aria-label`/visible label. Don't duplicate near-identical text across both mechanisms on the same control.
+
 ## shadcn/ui + Radix
 shadcn/ui components have **built-in accessibility** via Radix UI (ARIA, keyboard navigation, focus management, screen reader support). When customizing shadcn components, preserve Radix accessibility props — do not override ARIA roles or strip keyboard handlers.
 

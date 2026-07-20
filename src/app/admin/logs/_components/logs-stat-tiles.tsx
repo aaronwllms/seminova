@@ -1,6 +1,7 @@
 'use client'
 
 import { StatTile } from '@/components/stat-tile'
+import { Skeleton } from '@/components/ui/skeleton'
 import { LOG_LEVELS, type LogLevel } from '@/types/app-settings'
 
 import type { AppLogStats } from '../_lib/list-app-log-stats'
@@ -10,6 +11,7 @@ interface LogsStatTilesProps {
   isFullyUnfiltered: boolean
   selectedLevels: LogLevel[]
   unreadOnly: boolean
+  isLoading: boolean
   onTotalClick: () => void
   onLevelToggle: (level: LogLevel) => void
   onUnreadToggle: () => void
@@ -20,10 +22,24 @@ export const LogsStatTiles = ({
   isFullyUnfiltered,
   selectedLevels,
   unreadOnly,
+  isLoading,
   onTotalClick,
   onLevelToggle,
   onUnreadToggle,
 }: LogsStatTilesProps) => {
+  if (isLoading) {
+    return (
+      <div
+        className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6"
+        aria-busy="true"
+      >
+        {Array.from({ length: 6 }).map((_, index) => (
+          <Skeleton key={index} className="h-[3.625rem] rounded-xl" />
+        ))}
+      </div>
+    )
+  }
+
   const counts = stats ?? {
     total: 0,
     debug: 0,

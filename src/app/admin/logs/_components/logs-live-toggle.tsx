@@ -25,7 +25,7 @@ export const LogsLiveToggle = ({
     : 'Live feed paused. Turn on or use Refresh to catch up.'
 
   return (
-    <Tooltip delayDuration={500}>
+    <Tooltip>
       <TooltipTrigger asChild>
         <Button
           type="button"

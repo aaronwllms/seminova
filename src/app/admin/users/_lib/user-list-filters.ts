@@ -7,8 +7,18 @@ export interface UserListFilters {
   search: string | null
 }
 
+export type UserListFilterChipId = 'unverified' | 'banned' | 'new30d' | 'search'
+
+export interface UserListFilterChip {
+  id: UserListFilterChipId
+  label: string
+}
+
 const isAppliedSearch = (search: string | null): search is string =>
   search !== null && search.trim().length >= USERS_SEARCH_MIN_LENGTH
+
+const truncateFilterDisplay = (value: string): string =>
+  value.length > 20 ? `${value.slice(0, 17)}…` : value
 
 export const hasActiveUserListFilters = (filters: UserListFilters): boolean =>
   filters.filterUnverified ||
@@ -16,28 +26,33 @@ export const hasActiveUserListFilters = (filters: UserListFilters): boolean =>
   filters.filterNew30d ||
   isAppliedSearch(filters.search)
 
-export const buildUserListFilterLabels = (
+export const buildUserListFilterChips = (
   filters: UserListFilters,
-): string[] => {
-  const labels: string[] = []
+): UserListFilterChip[] => {
+  const chips: UserListFilterChip[] = []
 
   if (filters.filterUnverified) {
-    labels.push('Unverified')
+    chips.push({ id: 'unverified', label: 'Unverified' })
   }
 
   if (filters.filterBanned) {
-    labels.push('Banned')
+    chips.push({ id: 'banned', label: 'Banned' })
   }
 
   if (filters.filterNew30d) {
-    labels.push('New (30d)')
+    chips.push({ id: 'new30d', label: 'New (30d)' })
   }
 
   if (isAppliedSearch(filters.search)) {
     const trimmed = filters.search.trim()
-    const display = trimmed.length > 20 ? `${trimmed.slice(0, 17)}…` : trimmed
-    labels.push(`Email: ${display}`)
+    chips.push({
+      id: 'search',
+      label: `Email: ${truncateFilterDisplay(trimmed)}`,
+    })
   }
 
-  return labels
+  return chips
 }
+
+export const buildUserListFilterLabels = (filters: UserListFilters): string[] =>
+  buildUserListFilterChips(filters).map((chip) => chip.label)

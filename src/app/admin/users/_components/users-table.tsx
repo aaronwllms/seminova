@@ -179,6 +179,37 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
     setPage(1)
   }, [clearFilters])
 
+  const handleRemoveFilterChip = useCallback(
+    (id: string) => {
+      switch (id) {
+        case 'unverified':
+          if (filterUnverified) {
+            toggleFilter('unverified')
+            setPage(1)
+          }
+          break
+        case 'banned':
+          if (filterBanned) {
+            toggleFilter('banned')
+            setPage(1)
+          }
+          break
+        case 'new30d':
+          if (filterNew30d) {
+            toggleFilter('new30d')
+            setPage(1)
+          }
+          break
+        case 'search':
+          setSearchInput('')
+          setDebouncedSearch('')
+          setPage(1)
+          break
+      }
+    },
+    [filterBanned, filterNew30d, filterUnverified, toggleFilter],
+  )
+
   const handleUnverifiedToggle = useCallback(() => {
     toggleFilter('unverified')
     setPage(1)
@@ -354,7 +385,11 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
           isRefreshing={isRefreshing}
         />
 
-        <UsersActiveFilters filters={filters} />
+        <UsersActiveFilters
+          filters={filters}
+          onRemove={handleRemoveFilterChip}
+          onClearAll={handleResetFilters}
+        />
       </div>
 
       {statsError ? <AppErrorSurface error={statsError} /> : null}

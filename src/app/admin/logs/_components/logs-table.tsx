@@ -24,8 +24,10 @@ import type {
   AppLogRow,
   LogsSortDirection,
 } from '../_lib/app-log-row'
+import { isLogLevel } from '../_lib/app-log-row'
 import {
   type LogListFilters,
+  buildMarkAllLogsReadTooltip,
   hasActiveLogListFilters,
 } from '../_lib/log-list-filters'
 import { useAdminLogStats } from '../_lib/use-admin-log-stats'
@@ -36,6 +38,7 @@ import { useMarkAllLogsReadMutation } from '../_lib/use-mark-all-logs-read-mutat
 import { useMarkLogReadMutation } from '../_lib/use-mark-log-read-mutation'
 import { useMarkLogUnreadMutation } from '../_lib/use-mark-log-unread-mutation'
 import { LogDetailDialog } from './log-detail-dialog'
+import { LogsActiveFilters } from './logs-active-filters'
 import { LogsFilteredEmptyState } from './logs-filtered-empty-state'
 import { createLogsColumns } from './logs-columns'
 import { LogsStatTiles } from './logs-stat-tiles'
@@ -99,7 +102,11 @@ export const LogsTable = () => {
   const { refresh, isRefreshing } = useAdminLogsRealtime({
     enabled: liveEnabled,
   })
-  const { stats, error: statsError } = useAdminLogStats()
+  const {
+    stats,
+    isLoading: isStatsLoading,
+    error: statsError,
+  } = useAdminLogStats()
   const { tags, error: tagsError } = useAdminLogTags()
   const {
     rows,
@@ -152,6 +159,38 @@ export const LogsTable = () => {
     setSelectedTag(null)
     resetCursorStack()
   }, [clearLevelFilters, resetCursorStack])
+
+  const handleRemoveFilterChip = useCallback(
+    (id: string) => {
+      if (id.startsWith('level:')) {
+        const level = id.slice('level:'.length)
+
+        if (isLogLevel(level)) {
+          toggleLevel(level)
+          handleFiltersChange()
+        }
+
+        return
+      }
+
+      switch (id) {
+        case 'unread':
+          setUnreadOnly(false)
+          handleFiltersChange()
+          break
+        case 'tag':
+          setSelectedTag(null)
+          handleFiltersChange()
+          break
+        case 'search':
+          setSearchInput('')
+          setDebouncedSearch('')
+          resetCursorStack()
+          break
+      }
+    },
+    [handleFiltersChange, resetCursorStack, toggleLevel],
+  )
 
   const handleLevelToggle = useCallback(
     (level: LogLevel) => {
@@ -262,9 +301,10 @@ export const LogsTable = () => {
   const showFilteredEmptyState =
     !isLoading && rows.length === 0 && hasActiveLogListFilters(filters)
 
-  const markAllTooltip = hasActiveLogListFilters(filters)
-    ? 'Mark unread logs in the current filter view as read'
-    : 'Mark all unread logs as read'
+  const markAllTooltip = buildMarkAllLogsReadTooltip(
+    filteredUnreadCount,
+    filters,
+  )
 
   const { table } = useDataTableShell({
     data: rows,
@@ -280,38 +320,45 @@ export const LogsTable = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      {statsError ? (
-        <AppErrorSurface error={statsError} />
-      ) : (
+      <div className="flex flex-col gap-2">
         <LogsStatTiles
           stats={stats}
           isFullyUnfiltered={!hasActiveLogListFilters(filters)}
           selectedLevels={selectedLevels}
           unreadOnly={unreadOnly}
+          isLoading={isStatsLoading}
           onTotalClick={handleResetFilters}
           onLevelToggle={handleLevelToggle}
           onUnreadToggle={handleUnreadToggle}
         />
-      )}
 
-      {tagsError ? <AppErrorSurface error={tagsError} /> : null}
+        {tagsError ? <AppErrorSurface error={tagsError} /> : null}
 
-      <LogsToolbar
-        searchInput={searchInput}
-        onSearchInputChange={handleSearchInputChange}
-        selectedTag={selectedTag}
-        onTagChange={handleTagChange}
-        tags={tags}
-        tagsDisabled={tagsError !== null}
-        liveEnabled={liveEnabled}
-        onLiveEnabledChange={setLiveEnabled}
-        onRefresh={refresh}
-        isRefreshing={isRefreshing}
-        onMarkAllRead={handleMarkAllRead}
-        markAllDisabled={filteredUnreadCount === 0}
-        markAllTooltip={markAllTooltip}
-        isMarkAllPending={isMarkAllPending}
-      />
+        <LogsToolbar
+          searchInput={searchInput}
+          onSearchInputChange={handleSearchInputChange}
+          selectedTag={selectedTag}
+          onTagChange={handleTagChange}
+          tags={tags}
+          tagsDisabled={tagsError !== null}
+          liveEnabled={liveEnabled}
+          onLiveEnabledChange={setLiveEnabled}
+          onRefresh={refresh}
+          isRefreshing={isRefreshing}
+          onMarkAllRead={handleMarkAllRead}
+          markAllDisabled={filteredUnreadCount === 0}
+          markAllTooltip={markAllTooltip}
+          isMarkAllPending={isMarkAllPending}
+        />
+
+        <LogsActiveFilters
+          filters={filters}
+          onRemove={handleRemoveFilterChip}
+          onClearAll={handleResetFilters}
+        />
+      </div>
+
+      {statsError ? <AppErrorSurface error={statsError} /> : null}
 
       {error ? <AppErrorSurface error={error} /> : null}
 

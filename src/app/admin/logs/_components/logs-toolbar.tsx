@@ -92,7 +92,7 @@ export const LogsToolbar = ({
         )}
       </Button>
 
-      <Tooltip delayDuration={500}>
+      <Tooltip>
         <TooltipTrigger asChild>
           <span className="inline-flex">
             <Button
