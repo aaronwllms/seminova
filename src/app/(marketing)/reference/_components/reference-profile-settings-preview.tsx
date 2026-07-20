@@ -199,7 +199,7 @@ export const ReferenceProfileSettingsPreview = () => {
                     value={DEMO_EMAIL}
                     readOnly
                     autoComplete="username"
-                    className="text-muted-foreground cursor-default"
+                    className="text-muted-foreground focus-visible:border-input cursor-default focus-visible:ring-0"
                   />
                 </div>
               </div>
