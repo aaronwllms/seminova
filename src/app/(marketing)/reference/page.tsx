@@ -1,26 +1,20 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 
 import { REFERENCE_PATH } from '@/constants/app-paths'
 import { Badge } from '@/components/ui/badge'
-import { cn } from '@/utils/tailwind'
 
 import { LandingContainer } from '../_components/landing-container'
+import { ReferenceDesignSystemSection } from './_components/reference-design-system-section'
 import { ReferenceFeedbackSection } from './_components/reference-feedback-section'
 import { ReferenceFormsSection } from './_components/reference-forms-section'
+import { ReferenceSectionNav } from './_components/reference-section-nav'
 import { ReferenceTableSection } from './_components/reference-table-section'
-
-const ANCHOR_LINKS = [
-  { href: '#forms', label: 'Forms and save models' },
-  { href: '#feedback', label: 'InlineError and ErrorPanel' },
-  { href: '#toast', label: 'Toast' },
-  { href: '#table', label: 'Data table' },
-] as const
+import { ReferenceToastSection } from './_components/reference-toast-section'
 
 export const metadata: Metadata = {
   title: 'Pattern Reference',
   description:
-    'Live demos of the blur-save form pattern, error surfaces, toast variants, and canonical data table your spinoff inherits from Seminova.',
+    'Live demos of the blur-save form pattern, error surfaces, toast variants, canonical data table, and design tokens your spinoff inherits from Seminova.',
   alternates: {
     canonical: REFERENCE_PATH,
   },
@@ -44,27 +38,14 @@ export default function ReferencePage() {
             </p>
           </div>
 
-          <nav
-            aria-label="Reference sections"
-            className="mt-8 flex flex-wrap justify-center gap-2 border-b pb-8"
-          >
-            {ANCHOR_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  'text-muted-foreground hover:text-foreground rounded-md border px-3 py-1.5 text-sm transition-colors',
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+          <ReferenceSectionNav />
         </div>
 
         <div className="mx-auto max-w-3xl px-4 sm:px-0">
+          <ReferenceDesignSystemSection />
           <ReferenceFormsSection />
           <ReferenceFeedbackSection />
+          <ReferenceToastSection />
         </div>
 
         <ReferenceTableSection />

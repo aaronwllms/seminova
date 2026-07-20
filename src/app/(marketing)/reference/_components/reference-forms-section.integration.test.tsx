@@ -31,6 +31,10 @@ describe('ReferenceFormsSection', () => {
 
     render(<ReferenceFormsSection />)
 
+    await user.click(
+      screen.getByRole('button', { name: /preview profile settings/i }),
+    )
+
     await user.clear(screen.getByLabelText(/display name/i))
     await user.type(screen.getByLabelText(/display name/i), 'Jordan Lee')
     await user.tab()
