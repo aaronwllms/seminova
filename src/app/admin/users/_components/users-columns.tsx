@@ -89,7 +89,11 @@ export const createUsersColumns = ({
     cell: ({ row }) => {
       const isAdmin = row.getValue<boolean>('isAdmin')
 
-      return isAdmin ? <Badge>Admin</Badge> : null
+      return isAdmin ? (
+        <Badge>Admin</Badge>
+      ) : (
+        <Badge variant="outline">Member</Badge>
+      )
     },
     enableSorting: true,
   },

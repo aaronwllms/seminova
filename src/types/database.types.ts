@@ -119,6 +119,7 @@ export type Database = {
       admin_list_users: {
         Args: {
           p_filter_banned: boolean
+          p_filter_new_30d: boolean
           p_filter_unverified: boolean
           p_page: number
           p_per_page: number
@@ -140,6 +141,7 @@ export type Database = {
         Args: never
         Returns: {
           banned: number
+          new_30d: number
           total: number
           unverified: number
         }[]

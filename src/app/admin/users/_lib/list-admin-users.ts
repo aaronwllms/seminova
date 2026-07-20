@@ -18,6 +18,7 @@ export interface ListAdminUsersPageParams {
   sortDirection?: UsersSortDirection
   filterUnverified?: boolean
   filterBanned?: boolean
+  filterNew30d?: boolean
 }
 
 export interface ListAdminUsersPageResult {
@@ -45,6 +46,7 @@ export const listAdminUsersPage = async (
       trimmedFilter.length >= USERS_SEARCH_MIN_LENGTH ? trimmedFilter : '',
     p_filter_unverified: params.filterUnverified ?? false,
     p_filter_banned: params.filterBanned ?? false,
+    p_filter_new_30d: params.filterNew30d ?? false,
   })
 
   if (error) {

@@ -54,7 +54,7 @@ describe('admin users focus refetch', () => {
     })
     getUserStatsActionMock.mockResolvedValue({
       success: true,
-      data: { total: 1, unverified: 0, banned: 0 },
+      data: { total: 1, unverified: 0, banned: 0, new30d: 0 },
     })
 
     queryClient = new QueryClient({

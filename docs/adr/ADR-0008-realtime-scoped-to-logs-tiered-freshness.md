@@ -37,7 +37,8 @@ A manual refresh button ships alongside the logs page's live feed. This is a
 safety valve, not a redundant control: established live-monitoring UIs
 (Sentry, Grafana) keep an explicit refresh even with a push feed, because
 "catch up right now" is a distinct user intent from "notify me as things
-happen."
+happen." The admin users page uses the same manual-refresh pattern as that
+safety valve — tier-2 freshness alongside refetch-on-focus, without Realtime.
 
 Trade-off accepted: a table's Realtime *publication* membership (opted in via
 migration) is distinct from a page's *subscription* to it — publishing
