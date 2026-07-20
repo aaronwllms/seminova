@@ -1,4 +1,10 @@
+import Image from 'next/image'
+
+import { cn } from '@/utils/tailwind'
+
 import { WORKFLOW_ENVIRONMENTS } from '../_lib/workflow-page-content'
+
+const environmentLogoClassName = 'h-6 w-auto object-contain'
 
 export const WorkflowTwoEnvironmentsSection = () => (
   <section aria-labelledby="two-environments" className="border-t py-10">
@@ -20,7 +26,41 @@ export const WorkflowTwoEnvironmentsSection = () => (
     <div className="mx-auto mt-6 grid max-w-6xl gap-4 px-4 sm:grid-cols-2 sm:px-0">
       {WORKFLOW_ENVIRONMENTS.map((environment) => (
         <div key={environment.name} className="bg-card rounded-xl border p-5">
-          <h3 className="text-lg font-semibold tracking-tight">
+          <h3 className="flex items-center gap-2 text-lg font-semibold tracking-tight">
+            <div className="relative flex h-6 shrink-0 items-center">
+              {'srcDark' in environment.logo ? (
+                <>
+                  <Image
+                    src={environment.logo.src}
+                    alt=""
+                    width={environment.logo.width}
+                    height={environment.logo.height}
+                    className={cn(environmentLogoClassName, 'dark:hidden')}
+                    role="presentation"
+                  />
+                  <Image
+                    src={environment.logo.srcDark}
+                    alt=""
+                    width={environment.logo.width}
+                    height={environment.logo.height}
+                    className={cn(
+                      environmentLogoClassName,
+                      'hidden dark:block',
+                    )}
+                    role="presentation"
+                  />
+                </>
+              ) : (
+                <Image
+                  src={environment.logo.src}
+                  alt=""
+                  width={environment.logo.width}
+                  height={environment.logo.height}
+                  className={environmentLogoClassName}
+                  role="presentation"
+                />
+              )}
+            </div>
             {environment.name}
           </h3>
           <p className="text-muted-foreground mt-1 text-sm">Owns</p>

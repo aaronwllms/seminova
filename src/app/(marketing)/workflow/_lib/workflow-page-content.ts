@@ -8,9 +8,21 @@ export const WORKFLOW_SETUP_URL =
 
 export type WorkflowEnvironment = 'claude' | 'cursor'
 
+export interface WorkflowEnvironmentLogo {
+  src: string
+  srcDark?: string
+  width: number
+  height: number
+}
+
 export const WORKFLOW_ENVIRONMENTS = [
   {
     name: 'Claude Desktop',
+    logo: {
+      src: '/images/logos/Claude Spark - Clay.svg',
+      width: 94,
+      height: 94,
+    },
     owns: [
       'Planning, alignment, and adversarial review',
       'Project kickoff and phase planning',
@@ -20,6 +32,12 @@ export const WORKFLOW_ENVIRONMENTS = [
   },
   {
     name: 'Cursor',
+    logo: {
+      src: '/images/logos/CUBE_2D_LIGHT.svg',
+      srcDark: '/images/logos/CUBE_2D_DARK.svg',
+      width: 467,
+      height: 532,
+    },
     owns: [
       'Initializing spinoffs from the template',
       'Epic implementation plans',
