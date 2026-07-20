@@ -5,13 +5,8 @@ const MOBILE_BREAKPOINT = 768
 const getIsMobile = () => window.innerWidth < MOBILE_BREAKPOINT
 
 export const useIsMobile = () => {
-  const [isMobile, setIsMobile] = React.useState(() => {
-    if (typeof window === 'undefined') {
-      return false
-    }
-
-    return getIsMobile()
-  })
+  // Always false on server and first client paint so SSR markup matches hydration.
+  const [isMobile, setIsMobile] = React.useState(false)
 
   React.useEffect(() => {
     const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
@@ -19,6 +14,7 @@ export const useIsMobile = () => {
       setIsMobile(getIsMobile())
     }
 
+    onChange()
     mql.addEventListener('change', onChange)
     return () => mql.removeEventListener('change', onChange)
   }, [])
