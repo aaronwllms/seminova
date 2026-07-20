@@ -92,7 +92,7 @@ export const createUsersColumns = ({
       return isAdmin ? (
         <Badge>Admin</Badge>
       ) : (
-        <Badge variant="outline">Member</Badge>
+        <Badge variant="outline">User</Badge>
       )
     },
     enableSorting: true,

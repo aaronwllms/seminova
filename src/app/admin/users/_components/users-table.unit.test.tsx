@@ -587,7 +587,7 @@ describe('UsersTable', () => {
     })
   })
 
-  it('should render Member badge for non-admin users', async () => {
+  it('should render User badge for non-admin users', async () => {
     listUsersActionMock.mockResolvedValue({
       success: true,
       data: {
@@ -610,7 +610,7 @@ describe('UsersTable', () => {
     renderTable()
 
     await waitFor(() => {
-      expect(screen.getByText('Member')).toBeInTheDocument()
+      expect(screen.getByText('User')).toBeInTheDocument()
     })
   })
 
