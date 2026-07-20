@@ -46,8 +46,9 @@ const isAccessTokenExpired = (
  * Display-only auth claims for protected-route server reads. Reads the access
  * token from cookies (no refresh) and validates via
  * `getClaims(accessToken, { allowExpired: true })` — signature verified,
- * exp tolerated. The proxy is the sole session gate; missing or invalid tokens
- * here are invariant violations and throw (route error boundary), not redirects.
+ * exp tolerated. The proxy is the server-side session gate; the browser
+ * client refreshes client-side. Missing or invalid tokens here are invariant
+ * violations and throw (route error boundary), not redirects.
  *
  * Use `getUser()` only at mutation trust boundaries (server actions) where the
  * Auth server must validate the access token.

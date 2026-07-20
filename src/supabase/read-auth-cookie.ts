@@ -72,8 +72,8 @@ export const readJwtExpFromAccessToken = (
 
 /**
  * Reads the access token from Supabase auth cookies without calling
- * `getSession()` / `getClaims()` (which can trigger a refresh). The proxy is
- * the only layer that should refresh tokens.
+ * `getSession()` / `getClaims()` (which can trigger a refresh). Server-side
+ * refresh stays on the proxy; the browser client refreshes client-side.
  */
 export const readAccessTokenFromCookies = async (): Promise<string | null> => {
   const cookieStore = await cookies()
