@@ -45,7 +45,7 @@ export const WorkflowSectionNav = () => {
   return (
     <nav
       aria-label="Workflow sections"
-      className="mt-8 flex flex-wrap justify-center gap-2 border-b pb-8"
+      className="mt-8 flex flex-wrap justify-center gap-2 pb-8"
     >
       {WORKFLOW_ANCHOR_LINKS.map((link) => (
         <Button

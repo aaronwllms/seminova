@@ -40,7 +40,7 @@ export default function WorkflowPage() {
           <WorkflowSectionNav />
         </div>
 
-        <div className="mt-10 space-y-0">
+        <div className="space-y-0">
           <WorkflowTwoEnvironmentsSection />
           <WorkflowPlanReviewSection />
           <WorkflowDocumentsSection />
