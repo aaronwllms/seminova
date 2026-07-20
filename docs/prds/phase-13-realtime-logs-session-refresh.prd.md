@@ -42,7 +42,7 @@ Give the admin logs page a live feed via Supabase Realtime — new rows appear w
 - ADR-0005 reflects the amended two-authority model.
 - `pnpm pre-push` is green.
 
-### Epic 2: Realtime logs feed
+### Epic 2: Realtime logs feed `Complete`
 
 - **2.1 Logs opt into Realtime replication.** The logs table is added to Supabase's Realtime publication so its inserts are broadcast to subscribers. This is publication membership only — it confers no live behavior until a page subscribes. (Human runs the migration.)
 - **2.2 The logs page shows a live feed.** The admin logs page subscribes to new-row (INSERT) events only and, on each, invalidates and refetches the current view so new rows appear without a reload while respecting the active level / tag / read-status / search filters and cursor position. A toolbar indicator shows connection state (Live / Reconnecting / Offline) and a manual refresh button forces an immediate catch-up. Reconnection relies on the client library's built-in heartbeat and backoff — no manual resubscribe loops. INSERT-only is deliberate: read-state updates and the retention purge carry no live value, per [ADR-0008](../adr/ADR-0008-realtime-scoped-to-logs-tiered-freshness.md).
