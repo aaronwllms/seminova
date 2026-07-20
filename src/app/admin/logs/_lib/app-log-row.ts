@@ -27,38 +27,8 @@ export interface AppLogRow {
   message: string
   context: AppLogContext
   createdAt: string
-  timestampLabel: string
   readAt: string | null
   isUnread: boolean
-}
-
-const logDateFormatter = new Intl.DateTimeFormat(undefined, {
-  month: 'short',
-  day: 'numeric',
-})
-
-const logTimeFormatter = new Intl.DateTimeFormat(undefined, {
-  hour: 'numeric',
-  minute: '2-digit',
-  second: '2-digit',
-})
-
-export const formatLogTimestamp = (
-  value: string | null | undefined,
-): string => {
-  if (!value) {
-    return '—'
-  }
-
-  const date = new Date(value)
-
-  if (Number.isNaN(date.getTime())) {
-    return '—'
-  }
-
-  const ms = String(date.getMilliseconds()).padStart(3, '0')
-
-  return `${logDateFormatter.format(date)}, ${logTimeFormatter.format(date)}.${ms}`
 }
 
 export const isLogLevel = (value: string): value is LogLevel =>
@@ -71,7 +41,6 @@ export const mapAppLogRow = (row: AppLogDbRow): AppLogRow => ({
   message: row.message,
   context: row.context,
   createdAt: row.created_at,
-  timestampLabel: formatLogTimestamp(row.created_at),
   readAt: row.read_at,
   isUnread: row.read_at === null,
 })

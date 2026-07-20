@@ -25,6 +25,7 @@ import type {
   LogsSortDirection,
 } from '../_lib/app-log-row'
 import { isLogLevel } from '../_lib/app-log-row'
+import { formatLogTimestampDisplay } from '../_lib/format-log-timestamp-display'
 import {
   type LogListFilters,
   buildMarkAllLogsReadTooltip,
@@ -44,7 +45,7 @@ import { createLogsColumns } from './logs-columns'
 import { LogsStatTiles } from './logs-stat-tiles'
 import { LogsToolbar } from './logs-toolbar'
 
-const DEFAULT_SORTING: SortingState = [{ id: 'timestampLabel', desc: true }]
+const DEFAULT_SORTING: SortingState = [{ id: 'createdAt', desc: true }]
 const SEARCH_DEBOUNCE_MS = 300
 
 export const LogsTable = () => {
@@ -385,7 +386,7 @@ export const LogsTable = () => {
             row.isUnread ? cn('bg-unread/10 hover:bg-unread/15') : undefined
           }
           getRowAccessibilityLabel={(row) =>
-            `${row.isUnread ? 'Unread log' : 'Read log'}: ${row.timestampLabel}, ${row.level}, ${row.tag}, ${row.message}`
+            `${row.isUnread ? 'Unread log' : 'Read log'}: ${formatLogTimestampDisplay(row.createdAt)}, ${row.level}, ${row.tag}, ${row.message}`
           }
         />
       </div>

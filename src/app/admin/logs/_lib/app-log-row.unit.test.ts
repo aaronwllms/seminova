@@ -1,18 +1,36 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatLogTimestamp } from './app-log-row'
+import { mapAppLogRow } from './app-log-row'
 
-describe('formatLogTimestamp', () => {
-  it('should omit the year and include milliseconds', () => {
-    const result = formatLogTimestamp('2026-07-18T14:32:07.412Z')
+describe('mapAppLogRow', () => {
+  const baseRow = {
+    id: 1,
+    level: 'info',
+    tag: 'settings-read',
+    message: 'Cache hit',
+    context: null,
+    created_at: '2026-07-18T14:32:07.412Z',
+    read_at: null,
+  }
 
-    expect(result).toMatch(/^Jul 18, .+\.412$/)
-    expect(result).not.toContain('2026')
+  it('should fall back unknown level values to info', () => {
+    const result = mapAppLogRow({ ...baseRow, level: 'unknown' })
+
+    expect(result.level).toBe('info')
   })
 
-  it('should return an em dash for missing or invalid values', () => {
-    expect(formatLogTimestamp(null)).toBe('—')
-    expect(formatLogTimestamp(undefined)).toBe('—')
-    expect(formatLogTimestamp('not-a-date')).toBe('—')
+  it('should set isUnread to true when read_at is null', () => {
+    const result = mapAppLogRow({ ...baseRow, read_at: null })
+
+    expect(result.isUnread).toBe(true)
+  })
+
+  it('should set isUnread to false when read_at is set', () => {
+    const result = mapAppLogRow({
+      ...baseRow,
+      read_at: '2026-07-18T15:00:00.000Z',
+    })
+
+    expect(result.isUnread).toBe(false)
   })
 })
