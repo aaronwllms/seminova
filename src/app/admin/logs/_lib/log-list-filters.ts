@@ -19,6 +19,12 @@ export const EMPTY_LOG_LIST_FILTERS: LogListFilters = {
   search: null,
 }
 
+export const hasActiveLogListFilters = (filters: LogListFilters): boolean =>
+  filters.levels.length > 0 ||
+  filters.unreadOnly ||
+  filters.tag !== null ||
+  filters.search !== null
+
 export type FilterableAppLogsQuery = {
   in: (column: string, values: string[]) => FilterableAppLogsQuery
   is: (column: string, value: null) => FilterableAppLogsQuery

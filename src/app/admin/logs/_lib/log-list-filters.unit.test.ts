@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   applyLogListFilters,
   escapeIlikePattern,
+  hasActiveLogListFilters,
   parseLogListFiltersInput,
 } from './log-list-filters'
 
@@ -64,5 +65,34 @@ describe('log-list-filters', () => {
         search: null,
       },
     })
+  })
+
+  it('should detect active log list filters', () => {
+    expect(
+      hasActiveLogListFilters({
+        levels: [],
+        unreadOnly: false,
+        tag: null,
+        search: null,
+      }),
+    ).toBe(false)
+
+    expect(
+      hasActiveLogListFilters({
+        levels: ['error'],
+        unreadOnly: false,
+        tag: null,
+        search: null,
+      }),
+    ).toBe(true)
+
+    expect(
+      hasActiveLogListFilters({
+        levels: [],
+        unreadOnly: true,
+        tag: 'auth-session',
+        search: 'token',
+      }),
+    ).toBe(true)
   })
 })

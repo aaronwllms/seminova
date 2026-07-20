@@ -9,7 +9,8 @@ const refreshMock = vi.fn()
 const useAdminLogsRealtimeMock = vi.fn()
 
 vi.mock('../_lib/use-admin-logs-realtime', () => ({
-  useAdminLogsRealtime: () => useAdminLogsRealtimeMock(),
+  useAdminLogsRealtime: (options?: { enabled?: boolean }) =>
+    useAdminLogsRealtimeMock(options),
 }))
 
 const listLogsActionMock = vi.fn()
@@ -59,7 +60,6 @@ describe('LogsTable', () => {
   beforeEach(() => {
     refreshMock.mockReset()
     useAdminLogsRealtimeMock.mockReturnValue({
-      connectionState: 'live',
       refresh: refreshMock,
       isRefreshing: false,
     })
@@ -350,30 +350,150 @@ describe('LogsTable', () => {
     expect(refreshMock).toHaveBeenCalledTimes(1)
   })
 
-  it('should render reconnecting and offline connection labels', async () => {
-    useAdminLogsRealtimeMock.mockReturnValue({
-      connectionState: 'reconnecting',
-      refresh: refreshMock,
-      isRefreshing: false,
+  it('should render live toggle pressed by default and pass enabled to realtime hook', async () => {
+    renderTable()
+
+    await waitFor(() => {
+      expect(useAdminLogsRealtimeMock).toHaveBeenCalledWith({ enabled: true })
     })
 
-    const { unmount } = renderTable()
-    expect(await screen.findByText('Reconnecting')).toBeInTheDocument()
-    unmount()
+    expect(
+      screen.getByRole('button', { name: /turn live feed off/i }),
+    ).toHaveAttribute('aria-pressed', 'true')
+  })
 
-    useAdminLogsRealtimeMock.mockReturnValue({
-      connectionState: 'offline',
-      refresh: refreshMock,
-      isRefreshing: false,
+  it('should pass enabled=false to realtime hook when live toggle is turned off', async () => {
+    const user = userEvent.setup()
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /turn live feed off/i }),
+      ).toBeInTheDocument()
+    })
+
+    await user.click(
+      screen.getByRole('button', { name: /turn live feed off/i }),
+    )
+
+    expect(useAdminLogsRealtimeMock).toHaveBeenLastCalledWith({
+      enabled: false,
+    })
+    expect(
+      screen.getByRole('button', { name: /turn live feed on/i }),
+    ).toHaveAttribute('aria-pressed', 'false')
+  })
+
+  it('should show filtered empty state with reset and refresh actions', async () => {
+    listLogsActionMock.mockResolvedValue({
+      success: true,
+      data: {
+        rows: [],
+        hasNextPage: false,
+        filteredUnreadCount: 0,
+      },
+    })
+
+    const user = userEvent.setup()
+
+    renderTable()
+
+    await user.click(screen.getByRole('button', { name: /error/i }))
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('No logs found for selected filters'),
+      ).toBeInTheDocument()
+    })
+
+    expect(
+      screen.getByRole('button', { name: /reset filters/i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /^refresh$/i }),
+    ).toBeInTheDocument()
+  })
+
+  it('should reset filters from the filtered empty state', async () => {
+    listLogsActionMock.mockResolvedValue({
+      success: true,
+      data: {
+        rows: [],
+        hasNextPage: false,
+        filteredUnreadCount: 0,
+      },
+    })
+
+    const user = userEvent.setup()
+
+    renderTable()
+
+    await user.click(screen.getByRole('button', { name: /error/i }))
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /reset filters/i }),
+      ).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole('button', { name: /reset filters/i }))
+
+    await waitFor(() => {
+      expect(listLogsActionMock).toHaveBeenLastCalledWith(defaultListParams)
+    })
+  })
+
+  it('should call refresh from the filtered empty state', async () => {
+    listLogsActionMock.mockResolvedValue({
+      success: true,
+      data: {
+        rows: [],
+        hasNextPage: false,
+        filteredUnreadCount: 0,
+      },
+    })
+
+    const user = userEvent.setup()
+
+    renderTable()
+
+    await user.click(screen.getByRole('button', { name: /error/i }))
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /^refresh$/i }),
+      ).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole('button', { name: /^refresh$/i }))
+
+    expect(refreshMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('should show plain empty copy when no filters are active', async () => {
+    listLogsActionMock.mockResolvedValue({
+      success: true,
+      data: {
+        rows: [],
+        hasNextPage: false,
+        filteredUnreadCount: 0,
+      },
     })
 
     renderTable()
-    expect(await screen.findByText('Offline')).toBeInTheDocument()
+
+    await waitFor(() => {
+      expect(screen.getByText('No logs found.')).toBeInTheDocument()
+    })
+
+    expect(
+      screen.queryByRole('button', { name: /reset filters/i }),
+    ).not.toBeInTheDocument()
   })
 
   it('should disable the refresh button while manual refresh is in flight', async () => {
     useAdminLogsRealtimeMock.mockReturnValue({
-      connectionState: 'live',
       refresh: refreshMock,
       isRefreshing: true,
     })

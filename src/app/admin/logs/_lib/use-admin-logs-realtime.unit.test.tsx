@@ -6,12 +6,8 @@ import { adminLogsQueryKeys } from './admin-logs-query-keys'
 import { useAdminLogsRealtime } from './use-admin-logs-realtime'
 
 type InsertHandler = () => void
-type SubscribeCallback = (status: string) => void
 
 const insertHandlerRef: { current: InsertHandler | null } = { current: null }
-const subscribeCallbackRef: { current: SubscribeCallback | null } = {
-  current: null,
-}
 
 const mockRemoveChannel = vi.fn()
 const mockOn = vi.fn()
@@ -28,10 +24,7 @@ mockOn.mockImplementation((_event, _filter, handler: InsertHandler) => {
   return channelStub
 })
 
-mockSubscribe.mockImplementation((callback: SubscribeCallback) => {
-  subscribeCallbackRef.current = callback
-  return channelStub
-})
+mockSubscribe.mockImplementation(() => channelStub)
 
 mockChannel.mockReturnValue(channelStub)
 
@@ -45,8 +38,8 @@ vi.mock('@/supabase/client', () => ({
 describe('useAdminLogsRealtime', () => {
   let queryClient: QueryClient
 
-  const renderRealtimeHook = () =>
-    renderHook(() => useAdminLogsRealtime(), {
+  const renderRealtimeHook = (enabled = true) =>
+    renderHook(() => useAdminLogsRealtime({ enabled }), {
       wrapper: ({ children }) => (
         <QueryClientProvider client={queryClient}>
           {children}
@@ -59,7 +52,6 @@ describe('useAdminLogsRealtime', () => {
       defaultOptions: { queries: { retry: false } },
     })
     insertHandlerRef.current = null
-    subscribeCallbackRef.current = null
     mockRemoveChannel.mockReset()
     mockOn.mockClear()
     mockSubscribe.mockClear()
@@ -70,8 +62,8 @@ describe('useAdminLogsRealtime', () => {
     vi.useRealTimers()
   })
 
-  it('should subscribe to app_logs INSERT changes on mount', () => {
-    renderRealtimeHook()
+  it('should subscribe to app_logs INSERT changes when enabled', () => {
+    renderRealtimeHook(true)
 
     expect(mockChannel).toHaveBeenCalledWith('admin-logs-inserts')
     expect(mockOn).toHaveBeenCalledWith(
@@ -79,7 +71,56 @@ describe('useAdminLogsRealtime', () => {
       { event: 'INSERT', schema: 'public', table: 'app_logs' },
       expect.any(Function),
     )
-    expect(mockSubscribe).toHaveBeenCalledWith(expect.any(Function))
+    expect(mockSubscribe).toHaveBeenCalled()
+  })
+
+  it('should not subscribe when disabled', () => {
+    renderRealtimeHook(false)
+
+    expect(mockChannel).not.toHaveBeenCalled()
+    expect(mockOn).not.toHaveBeenCalled()
+    expect(mockSubscribe).not.toHaveBeenCalled()
+  })
+
+  it('should subscribe when toggled from disabled to enabled', () => {
+    const { rerender } = renderHook(
+      ({ enabled }: { enabled: boolean }) => useAdminLogsRealtime({ enabled }),
+      {
+        initialProps: { enabled: false },
+        wrapper: ({ children }) => (
+          <QueryClientProvider client={queryClient}>
+            {children}
+          </QueryClientProvider>
+        ),
+      },
+    )
+
+    expect(mockChannel).not.toHaveBeenCalled()
+
+    rerender({ enabled: true })
+
+    expect(mockChannel).toHaveBeenCalledWith('admin-logs-inserts')
+    expect(mockSubscribe).toHaveBeenCalled()
+  })
+
+  it('should remove channel when toggled from enabled to disabled', () => {
+    const { rerender } = renderHook(
+      ({ enabled }: { enabled: boolean }) => useAdminLogsRealtime({ enabled }),
+      {
+        initialProps: { enabled: true },
+        wrapper: ({ children }) => (
+          <QueryClientProvider client={queryClient}>
+            {children}
+          </QueryClientProvider>
+        ),
+      },
+    )
+
+    expect(mockChannel).toHaveBeenCalledTimes(1)
+
+    rerender({ enabled: false })
+
+    expect(mockRemoveChannel).toHaveBeenCalledWith(channelStub)
   })
 
   it('should coalesce rapid INSERT events into one invalidateQueries call', async () => {
@@ -116,30 +157,6 @@ describe('useAdminLogsRealtime', () => {
     })
 
     expect(result.current.isRefreshing).toBe(false)
-  })
-
-  it('should map subscription status to connection state', async () => {
-    const { result } = renderRealtimeHook()
-
-    act(() => {
-      subscribeCallbackRef.current?.('SUBSCRIBED')
-    })
-    expect(result.current.connectionState).toBe('live')
-
-    act(() => {
-      subscribeCallbackRef.current?.('TIMED_OUT')
-    })
-    expect(result.current.connectionState).toBe('reconnecting')
-
-    act(() => {
-      subscribeCallbackRef.current?.('CHANNEL_ERROR')
-    })
-    expect(result.current.connectionState).toBe('reconnecting')
-
-    act(() => {
-      subscribeCallbackRef.current?.('CLOSED')
-    })
-    expect(result.current.connectionState).toBe('offline')
   })
 
   it('should set isRefreshing during manual refresh and clear it after settle', async () => {

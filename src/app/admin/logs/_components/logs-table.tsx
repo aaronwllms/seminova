@@ -24,7 +24,10 @@ import type {
   AppLogRow,
   LogsSortDirection,
 } from '../_lib/app-log-row'
-import { type LogListFilters } from '../_lib/log-list-filters'
+import {
+  type LogListFilters,
+  hasActiveLogListFilters,
+} from '../_lib/log-list-filters'
 import { useAdminLogStats } from '../_lib/use-admin-log-stats'
 import { useAdminLogTags } from '../_lib/use-admin-log-tags'
 import { useAdminLogsList } from '../_lib/use-admin-logs-list'
@@ -33,6 +36,7 @@ import { useMarkAllLogsReadMutation } from '../_lib/use-mark-all-logs-read-mutat
 import { useMarkLogReadMutation } from '../_lib/use-mark-log-read-mutation'
 import { useMarkLogUnreadMutation } from '../_lib/use-mark-log-unread-mutation'
 import { LogDetailDialog } from './log-detail-dialog'
+import { LogsFilteredEmptyState } from './logs-filtered-empty-state'
 import { createLogsColumns } from './logs-columns'
 import { LogsStatTiles } from './logs-stat-tiles'
 import { LogsToolbar } from './logs-toolbar'
@@ -55,6 +59,7 @@ export const LogsTable = () => {
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
   const [unreadOnly, setUnreadOnly] = useState(false)
+  const [liveEnabled, setLiveEnabled] = useState(true)
   const {
     activeValues: selectedLevelSet,
     toggle: toggleLevel,
@@ -91,7 +96,9 @@ export const LogsTable = () => {
   const cursor = cursorStack[cursorStackIndex] ?? null
   const page = cursorStackIndex + 1
 
-  const { connectionState, refresh, isRefreshing } = useAdminLogsRealtime()
+  const { refresh, isRefreshing } = useAdminLogsRealtime({
+    enabled: liveEnabled,
+  })
   const { stats, error: statsError } = useAdminLogStats()
   const { tags, error: tagsError } = useAdminLogTags()
   const {
@@ -142,6 +149,15 @@ export const LogsTable = () => {
     setUnreadOnly(false)
     handleFiltersChange()
   }, [clearLevelFilters, handleFiltersChange])
+
+  const handleResetFilters = useCallback(() => {
+    clearLevelFilters()
+    setUnreadOnly(false)
+    setSearchInput('')
+    setDebouncedSearch('')
+    setSelectedTag(null)
+    resetCursorStack()
+  }, [clearLevelFilters, resetCursorStack])
 
   const handleLevelToggle = useCallback(
     (level: LogLevel) => {
@@ -249,6 +265,9 @@ export const LogsTable = () => {
     [handleMarkRead],
   )
 
+  const showFilteredEmptyState =
+    !isLoading && rows.length === 0 && hasActiveLogListFilters(filters)
+
   const { table } = useDataTableShell({
     data: rows,
     columns,
@@ -285,7 +304,8 @@ export const LogsTable = () => {
         onTagChange={handleTagChange}
         tags={tags}
         tagsDisabled={tagsError !== null}
-        connectionState={connectionState}
+        liveEnabled={liveEnabled}
+        onLiveEnabledChange={setLiveEnabled}
         onRefresh={refresh}
         isRefreshing={isRefreshing}
         onMarkAllRead={handleMarkAllRead}
@@ -304,6 +324,15 @@ export const LogsTable = () => {
           isLoading={isLoading && rows.length === 0}
           loadingLabel="Loading logs…"
           emptyMessage="No logs found."
+          emptyContent={
+            showFilteredEmptyState ? (
+              <LogsFilteredEmptyState
+                onResetFilters={handleResetFilters}
+                onRefresh={refresh}
+                isRefreshing={isRefreshing}
+              />
+            ) : undefined
+          }
           onRowClick={handleRowClick}
           getRowClassName={(row) =>
             row.isUnread ? cn('bg-unread/10 hover:bg-unread/15') : undefined

@@ -133,6 +133,7 @@ type DataTableShellProps<TData> = {
   table: ReturnType<typeof useReactTable<TData>>
   columns: Array<ColumnDef<TData, unknown>>
   emptyMessage?: string
+  emptyContent?: React.ReactNode
   className?: string
   isLoading?: boolean
   loadingRowCount?: number
@@ -146,6 +147,7 @@ export const DataTableShell = <TData,>({
   table,
   columns,
   emptyMessage = 'No results.',
+  emptyContent,
   className,
   isLoading = false,
   loadingRowCount = DEFAULT_LOADING_ROW_COUNT,
@@ -254,7 +256,7 @@ export const DataTableShell = <TData,>({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                {emptyMessage}
+                {emptyContent ?? emptyMessage}
               </TableCell>
             </TableRow>
           )}

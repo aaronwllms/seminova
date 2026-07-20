@@ -6,8 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/utils/tailwind'
 
-import type { AdminLogsConnectionState } from '../_lib/use-admin-logs-realtime'
-import { LogsConnectionIndicator } from './logs-connection-indicator'
+import { LogsLiveToggle } from './logs-live-toggle'
 import { LogsTagCombobox } from './logs-tag-combobox'
 
 interface LogsToolbarProps {
@@ -17,7 +16,8 @@ interface LogsToolbarProps {
   onTagChange: (tag: string | null) => void
   tags: string[]
   tagsDisabled?: boolean
-  connectionState: AdminLogsConnectionState
+  liveEnabled: boolean
+  onLiveEnabledChange: (enabled: boolean) => void
   onRefresh: () => void
   isRefreshing: boolean
   onMarkAllRead: () => void
@@ -32,7 +32,8 @@ export const LogsToolbar = ({
   onTagChange,
   tags,
   tagsDisabled = false,
-  connectionState,
+  liveEnabled,
+  onLiveEnabledChange,
   onRefresh,
   isRefreshing,
   onMarkAllRead,
@@ -63,7 +64,10 @@ export const LogsToolbar = ({
     />
 
     <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
-      <LogsConnectionIndicator connectionState={connectionState} />
+      <LogsLiveToggle
+        liveEnabled={liveEnabled}
+        onLiveEnabledChange={onLiveEnabledChange}
+      />
 
       <Button
         type="button"
