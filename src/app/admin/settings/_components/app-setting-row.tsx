@@ -262,9 +262,6 @@ const SettingRowShell = ({ entry, error, children }: SettingRowShellProps) => (
       <p className="text-muted-foreground mt-0.5 text-sm leading-relaxed">
         {entry.description}
       </p>
-      <p className="text-muted-foreground mt-1.5 font-mono text-xs">
-        {entry.key}
-      </p>
     </div>
     <div className="flex shrink-0 flex-col gap-2 sm:items-end sm:pt-0.5">
       <div className="flex items-center gap-2">{children}</div>
@@ -282,7 +279,6 @@ type SaveButtonProps = {
 const SaveButton = ({ disabled, isSaving, onSave }: SaveButtonProps) => (
   <Button
     type="button"
-    variant="outline"
     size="sm"
     disabled={disabled}
     onClick={() => void onSave()}

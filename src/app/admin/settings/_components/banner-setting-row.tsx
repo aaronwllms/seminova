@@ -71,6 +71,9 @@ const MODE_LABELS: Record<(typeof BANNER_MODES)[number], string> = {
 const formatVariantLabel = (variant: BannerVariant): string =>
   variant.charAt(0).toUpperCase() + variant.slice(1)
 
+const BANNER_COPY_SYNTAX_HINT =
+  'Supports bold via **text** and links via [text](url).'
+
 export const hasBannerPreviewContent = (value: BannerSettingValue): boolean =>
   value.headline.trim().length > 0
 
@@ -154,17 +157,24 @@ export const BannerSettingRow = <
         <div className="min-w-0 flex-1 text-left">
           <p className="text-sm font-medium">{entry.label}</p>
           <div className="mt-1 flex items-center justify-between gap-3">
-            <p className="text-muted-foreground text-sm leading-relaxed">
+            <p className="text-muted-foreground min-w-0 flex-1 text-sm leading-relaxed">
               {entry.description}
             </p>
-            <Badge
-              className={cn(
-                'shrink-0',
-                BANNER_STATUS_BADGE_CLASSES[statusBadge.tone],
-              )}
-            >
-              {statusBadge.label}
-            </Badge>
+            <div className="flex shrink-0 items-center gap-2">
+              {!isUnchanged ? (
+                <span className="text-muted-foreground text-xs whitespace-nowrap">
+                  Unsaved changes
+                </span>
+              ) : null}
+              <Badge
+                className={cn(
+                  'shrink-0',
+                  BANNER_STATUS_BADGE_CLASSES[statusBadge.tone],
+                )}
+              >
+                {statusBadge.label}
+              </Badge>
+            </div>
           </div>
         </div>
       </AccordionTrigger>
@@ -272,6 +282,9 @@ export const BannerSettingRow = <
                       }}
                     />
                   </FormControl>
+                  <p className="text-muted-foreground text-xs">
+                    {BANNER_COPY_SYNTAX_HINT}
+                  </p>
                   <p className="text-muted-foreground text-right text-xs">
                     {draftHeadline.length} / 80
                   </p>
@@ -296,6 +309,9 @@ export const BannerSettingRow = <
                       }}
                     />
                   </FormControl>
+                  <p className="text-muted-foreground text-xs">
+                    {BANNER_COPY_SYNTAX_HINT}
+                  </p>
                   <p className="text-muted-foreground text-right text-xs">
                     {draftDetail.length} / 100
                   </p>
