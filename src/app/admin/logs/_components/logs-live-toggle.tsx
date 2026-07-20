@@ -1,6 +1,11 @@
 import { Pause, Play } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { cn } from '@/utils/tailwind'
 
 interface LogsLiveToggleProps {
@@ -15,29 +20,37 @@ export const LogsLiveToggle = ({
   className,
 }: LogsLiveToggleProps) => {
   const Icon = liveEnabled ? Pause : Play
+  const tooltip = liveEnabled
+    ? 'Pause the live feed. Use Refresh to catch up manually.'
+    : 'Live feed paused. Turn on or use Refresh to catch up.'
 
   return (
-    <Button
-      type="button"
-      variant="outline"
-      className={cn(
-        'relative shrink-0',
-        liveEnabled &&
-          'border-success text-success bg-background hover:bg-background hover:text-success',
-        className,
-      )}
-      aria-pressed={liveEnabled}
-      aria-label={liveEnabled ? 'Turn live feed off' : 'Turn live feed on'}
-      onClick={() => onLiveEnabledChange(!liveEnabled)}
-    >
-      {liveEnabled ? (
-        <span
-          aria-hidden
-          className="shadow-success/45 ring-success/40 pointer-events-none absolute inset-0 animate-pulse rounded-md shadow-[0_0_18px_3px] ring-2"
-        />
-      ) : null}
-      <Icon aria-hidden />
-      Live
-    </Button>
+    <Tooltip delayDuration={500}>
+      <TooltipTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          className={cn(
+            'relative shrink-0',
+            liveEnabled &&
+              'border-success text-success bg-background hover:bg-background hover:text-success',
+            className,
+          )}
+          aria-pressed={liveEnabled}
+          aria-label={liveEnabled ? 'Turn live feed off' : 'Turn live feed on'}
+          onClick={() => onLiveEnabledChange(!liveEnabled)}
+        >
+          {liveEnabled ? (
+            <span
+              aria-hidden
+              className="shadow-success/45 ring-success/40 pointer-events-none absolute inset-0 animate-pulse rounded-md shadow-[0_0_18px_3px] ring-2"
+            />
+          ) : null}
+          <Icon aria-hidden />
+          Live
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side="top">{tooltip}</TooltipContent>
+    </Tooltip>
   )
 }

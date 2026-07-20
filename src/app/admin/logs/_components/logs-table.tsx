@@ -144,12 +144,6 @@ export const LogsTable = () => {
     resetCursorStack()
   }, [resetCursorStack])
 
-  const handleTotalClick = useCallback(() => {
-    clearLevelFilters()
-    setUnreadOnly(false)
-    handleFiltersChange()
-  }, [clearLevelFilters, handleFiltersChange])
-
   const handleResetFilters = useCallback(() => {
     clearLevelFilters()
     setUnreadOnly(false)
@@ -268,6 +262,10 @@ export const LogsTable = () => {
   const showFilteredEmptyState =
     !isLoading && rows.length === 0 && hasActiveLogListFilters(filters)
 
+  const markAllTooltip = hasActiveLogListFilters(filters)
+    ? 'Mark unread logs in the current filter view as read'
+    : 'Mark all unread logs as read'
+
   const { table } = useDataTableShell({
     data: rows,
     columns,
@@ -287,9 +285,10 @@ export const LogsTable = () => {
       ) : (
         <LogsStatTiles
           stats={stats}
+          isFullyUnfiltered={!hasActiveLogListFilters(filters)}
           selectedLevels={selectedLevels}
           unreadOnly={unreadOnly}
-          onTotalClick={handleTotalClick}
+          onTotalClick={handleResetFilters}
           onLevelToggle={handleLevelToggle}
           onUnreadToggle={handleUnreadToggle}
         />
@@ -310,6 +309,7 @@ export const LogsTable = () => {
         isRefreshing={isRefreshing}
         onMarkAllRead={handleMarkAllRead}
         markAllDisabled={filteredUnreadCount === 0}
+        markAllTooltip={markAllTooltip}
         isMarkAllPending={isMarkAllPending}
       />
 

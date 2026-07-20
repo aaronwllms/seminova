@@ -444,6 +444,45 @@ describe('LogsTable', () => {
     })
   })
 
+  it('should reset all filters when the Total tile is clicked', async () => {
+    const user = userEvent.setup()
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(screen.getByText('Token refresh failed')).toBeInTheDocument()
+    })
+
+    await user.type(
+      screen.getByRole('searchbox', { name: /search logs/i }),
+      'token',
+    )
+    await user.click(screen.getByRole('button', { name: /error/i }))
+
+    await waitFor(() => {
+      expect(listLogsActionMock).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          filters: expect.objectContaining({
+            levels: ['error'],
+            search: 'token',
+          }),
+        }),
+      )
+    })
+
+    await user.click(
+      screen.getByRole('button', { name: /total, clear all filters/i }),
+    )
+
+    await waitFor(() => {
+      expect(listLogsActionMock).toHaveBeenLastCalledWith(defaultListParams)
+    })
+
+    expect(screen.getByRole('searchbox', { name: /search logs/i })).toHaveValue(
+      '',
+    )
+  })
+
   it('should call refresh from the filtered empty state', async () => {
     listLogsActionMock.mockResolvedValue({
       success: true,

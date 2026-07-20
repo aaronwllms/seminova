@@ -4,6 +4,11 @@ import { Loader2, RefreshCw, Search } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 import { LogsLiveToggle } from './logs-live-toggle'
 import { LogsTagCombobox } from './logs-tag-combobox'
@@ -21,6 +26,7 @@ interface LogsToolbarProps {
   isRefreshing: boolean
   onMarkAllRead: () => void
   markAllDisabled: boolean
+  markAllTooltip: string
   isMarkAllPending: boolean
 }
 
@@ -37,6 +43,7 @@ export const LogsToolbar = ({
   isRefreshing,
   onMarkAllRead,
   markAllDisabled,
+  markAllTooltip,
   isMarkAllPending,
 }: LogsToolbarProps) => (
   <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -85,15 +92,22 @@ export const LogsToolbar = ({
         )}
       </Button>
 
-      <Button
-        type="button"
-        variant="outline"
-        className="shrink-0"
-        disabled={markAllDisabled || isMarkAllPending}
-        onClick={onMarkAllRead}
-      >
-        Mark all as read
-      </Button>
+      <Tooltip delayDuration={500}>
+        <TooltipTrigger asChild>
+          <span className="inline-flex">
+            <Button
+              type="button"
+              variant="outline"
+              className="shrink-0"
+              disabled={markAllDisabled || isMarkAllPending}
+              onClick={onMarkAllRead}
+            >
+              Mark all as read
+            </Button>
+          </span>
+        </TooltipTrigger>
+        <TooltipContent side="top">{markAllTooltip}</TooltipContent>
+      </Tooltip>
     </div>
   </div>
 )

@@ -7,6 +7,7 @@ import type { AppLogStats } from '../_lib/list-app-log-stats'
 
 interface LogsStatTilesProps {
   stats: AppLogStats | null
+  isFullyUnfiltered: boolean
   selectedLevels: LogLevel[]
   unreadOnly: boolean
   onTotalClick: () => void
@@ -16,6 +17,7 @@ interface LogsStatTilesProps {
 
 export const LogsStatTiles = ({
   stats,
+  isFullyUnfiltered,
   selectedLevels,
   unreadOnly,
   onTotalClick,
@@ -30,7 +32,6 @@ export const LogsStatTiles = ({
     error: 0,
     unread: 0,
   }
-  const isUnfiltered = selectedLevels.length === 0 && !unreadOnly
 
   return (
     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
@@ -38,7 +39,7 @@ export const LogsStatTiles = ({
         label="Total"
         count={counts.total}
         role="total"
-        selected={isUnfiltered}
+        selected={isFullyUnfiltered}
         tooltip="Clear all filters"
         onClick={onTotalClick}
       />
