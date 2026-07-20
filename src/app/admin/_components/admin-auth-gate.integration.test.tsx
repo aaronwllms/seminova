@@ -10,6 +10,10 @@ vi.mock('next/navigation', () => ({
   },
 }))
 
+vi.mock('next/server', () => ({
+  connection: vi.fn().mockResolvedValue(undefined),
+}))
+
 vi.mock('@/supabase/require-auth', () => ({
   getDisplayAuthClaims: (...args: unknown[]) =>
     mockGetDisplayAuthClaims(...args),

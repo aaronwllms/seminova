@@ -6,7 +6,7 @@ Modular Cursor AI rules (`.mdc` format) for the Seminova template: an opinionate
 
 ## What this rule set covers
 
-- **Stack accuracy** — patterns match the actual repo layout (`src/supabase/`, `proxy.ts`, Vitest, pnpm)
+- **Stack accuracy** — patterns match the actual repo layout (`src/supabase/`, `src/proxy.ts`, Vitest, pnpm)
 - **Template conventions** — primitive-first UI, semantic tokens, WCAG 2.1 AA, conventional commits
 - **Agent workflow** — migration safety, testing minimalism, git hooks (see `git-workflow.mdc`)
 
@@ -58,10 +58,10 @@ Roadmap and active build scope: [ROADMAP.md](../../ROADMAP.md) and [docs/prds/](
 | `notifications.mdc` | Auto attached | feedback surfaces | Toast vs inline routing; success taxonomy |
 | `react-tanstack-query.mdc` | Auto attached | `hooks/**`, `components/**`, provider | TanStack Query v5 keys, hooks, mutations |
 | `rule-authoring-pointer.mdc` | Auto attached | `.cursor/rules/**` | Stub → read rule-authoring skill before rule edits |
-| `security.mdc` | Auto attached | `src/**`, `proxy.ts`, migrations | Auth, validation, RLS, OWASP patterns |
+| `security.mdc` | Auto attached | `src/**`, migrations | Auth, validation, RLS, OWASP patterns |
 | `seo.mdc` | Auto attached | `src/app/**`, SEO utils, `site.ts` | Metadata wire-up, crawler surface, favicon, social previews |
 | `supabase-sql.mdc` | Auto attached | `migrations/**` | Project SQL style, RLS, functions (deltas only) |
-| `supabase.mdc` | Auto attached | `src/**`, `supabase/**`, `proxy.ts` | `@supabase/ssr` clients, auth proxy |
+| `supabase.mdc` | Auto attached | `src/**`, `supabase/**` | `@supabase/ssr` clients, auth proxy |
 | `testing.mdc` | Auto attached | `*.test.*`, `src/test/**` | Vitest + RTL + MSW v2; 80% coverage gates |
 | `typescript.mdc` | Auto attached | `src/**`, `scripts/**` | Strict TS, named exports, shared types |
 | `ui-accessibility.mdc` | Auto attached | `components/**`, `app/**` | WCAG 2.1 AA patterns |
@@ -115,7 +115,7 @@ Per-rule detail (topics and cross-references):
 
 ### `supabase.mdc`
 
-**Applies to:** `src/**/*.ts`, `src/**/*.tsx`, `src/supabase/**`, `proxy.ts`, migrations
+**Applies to:** `src/**/*.ts`, `src/**/*.tsx`, `src/supabase/**`, migrations
 
 - Context-specific Supabase client usage (`@/supabase/client`, `@/supabase/server`)
 - Auth proxy session handling
@@ -123,7 +123,7 @@ Per-rule detail (topics and cross-references):
 
 ### `security.mdc`
 
-**Applies to:** `src/**`, `proxy.ts`, `src/app/api/**`, migrations
+**Applies to:** `src/**`, `src/app/api/**`, migrations
 
 - Authentication and authorization patterns
 - Input validation (Zod at server boundary — profile forms, server actions)

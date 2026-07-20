@@ -5,7 +5,7 @@
 Server Component auth reads (`requireAuthClaims`, `hasServerAuthSession`)
 validate the access token pulled from the request cookie locally and never
 call `getSession()` or bare `getClaims()`, even though either could recover
-an expired token via refresh. Only `proxy.ts` is allowed to refresh a
+an expired token via refresh. Only `src/proxy.ts` is allowed to refresh a
 session. This was nearly reversed during Phase 8 remediation on the
 reasonable-looking assumption that aligning RSC reads with the proxy's call
 pattern would fix a landing-page/profile-page auth mismatch — investigation

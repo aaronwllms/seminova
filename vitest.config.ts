@@ -21,7 +21,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
-      include: ['src/**/*.{ts,tsx}', 'proxy.ts'],
+      include: ['src/**/*.{ts,tsx}'],
       exclude: [
         'src/components/ui/**',
         'src/mocks/**',
@@ -34,7 +34,7 @@ export default defineConfig({
         'src/providers/**',
         'src/supabase/client.ts',
         'src/supabase/server.ts',
-        'proxy.ts',
+        'src/proxy.ts',
         '**/*.d.ts',
       ],
       thresholds: {

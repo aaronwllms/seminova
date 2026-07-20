@@ -6,7 +6,7 @@ import { PROXY_MATCHER_PATTERN } from './proxy-matcher'
 
 const matcher = new RegExp(PROXY_MATCHER_PATTERN)
 
-/** Decode a single-quoted JS string literal body from proxy.ts source. */
+/** Decode a single-quoted JS string literal body from src/proxy.ts source. */
 const decodeJsStringLiteral = (value: string): string =>
   value
     .replace(/\\\\/g, '\u0000')
@@ -16,14 +16,17 @@ const decodeJsStringLiteral = (value: string): string =>
 const extractProxyMatcherFromSource = (source: string): string => {
   const match = source.match(/matcher:\s*\[[\s\S]*?'([^']+)'/)
   if (!match) {
-    throw new Error('proxy.ts matcher literal not found')
+    throw new Error('src/proxy.ts matcher literal not found')
   }
   return decodeJsStringLiteral(match[1])
 }
 
 describe('PROXY_MATCHER_PATTERN', () => {
-  it('should stay in sync with the literal in proxy.ts', () => {
-    const proxySource = readFileSync(join(process.cwd(), 'proxy.ts'), 'utf8')
+  it('should stay in sync with the literal in src/proxy.ts', () => {
+    const proxySource = readFileSync(
+      join(process.cwd(), 'src/proxy.ts'),
+      'utf8',
+    )
     expect(extractProxyMatcherFromSource(proxySource)).toBe(
       PROXY_MATCHER_PATTERN,
     )

@@ -14,11 +14,11 @@ Scope: Full repository pass — application code (`src/`, `scripts/`, `supabase/
 
 ## Architectural mental model
 
-Seminova is a **Next.js 16 App Router template** organized into route groups: public `(marketing)/` at `/`, `auth/` at `/auth/**`, authenticated `(app)/` at `/home`, and `admin/` at `/admin/**`. Session refresh and the auth boundary run in `proxy.ts` → `src/supabase/proxy.ts`; admin role gating is defense-in-depth in the proxy (redirect non-admins) and `AdminAuthGate` (layout gate via `getDisplayAuthClaims`). Data access splits three ways: browser client (`@/supabase/client` + RLS), server session client (`@/supabase/server`), and secret-key service client (`@/supabase/service`) for admin user listing and role mutations.
+Seminova is a **Next.js 16 App Router template** organized into route groups: public `(marketing)/` at `/`, `auth/` at `/auth/**`, authenticated `(app)/` at `/home`, and `admin/` at `/admin/**`. Session refresh and the auth boundary run in `src/proxy.ts` → `src/supabase/proxy.ts`; admin role gating is defense-in-depth in the proxy (redirect non-admins) and `AdminAuthGate` (layout gate via `getDisplayAuthClaims`). Data access splits three ways: browser client (`@/supabase/client` + RLS), server session client (`@/supabase/server`), and secret-key service client (`@/supabase/service`) for admin user listing and role mutations.
 
 Since the June audit, auth read paths were tightened: layouts and profile reads use `getDisplayAuthClaims` (cookie JWT via `allowExpired`, no refresh in layout) while mutations still call `getUser()` at trust boundaries. UI is shadcn-owned primitives + shared chrome (`site-*`) + route-scoped `_components`. Config-driven identity lives in `src/config/site.ts` and `landing-content.ts`.
 
-**Hot paths:** `proxy.ts`, `require-auth.ts`, auth forms, `getCurrentUserProfile`, profile blur-save, admin users table + server actions, avatar upload pipeline.
+**Hot paths:** `src/proxy.ts`, `require-auth.ts`, auth forms, `getCurrentUserProfile`, profile blur-save, admin users table + server actions, avatar upload pipeline.
 
 **Cold corners:** CSP nonce strategy (F053 deferred).
 
@@ -57,7 +57,7 @@ Since the June audit, auth read paths were tightened: layouts and profile reads 
 
 ## Things that look bad but are actually fine
 
-- **Dual admin gating (`proxy.ts` + `AdminAuthGate`)** — Defense-in-depth by design: proxy rejects early at the edge; layout gate catches test/dev bypass. Keep both unless proxy becomes sole enforcement by explicit decision.
+- **Dual admin gating (`src/proxy.ts` + `AdminAuthGate`)** — Defense-in-depth by design: proxy rejects early at the edge; layout gate catches test/dev bypass. Keep both unless proxy becomes sole enforcement by explicit decision.
 
 - **`getClaims()` on reads vs `getUser()` on mutations** — Documented in `require-auth.ts` and AGENTS.md § Auth & session. Supabase recommends JWT validation for session refresh paths; Auth server validation for sensitive writes.
 

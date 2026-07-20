@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { connection } from 'next/server'
 
 import { AdminShell } from '@/app/admin/_components/admin-shell'
 import { AdminSidebarNavUserSlot } from '@/app/admin/_components/admin-sidebar-nav-user-slot'
@@ -14,6 +15,7 @@ type AdminAuthGateProps = {
 }
 
 export const AdminAuthGate = async ({ children }: AdminAuthGateProps) => {
+  await connection()
   const claims = await getDisplayAuthClaims()
 
   if (!isAdmin(claims)) {

@@ -52,7 +52,7 @@ Inventory each surface with **counts and key paths**:
 | Per-page metadata | `metadata` / `generateMetadata` exports across `src/app/**` |
 | Crawler surface | `src/utils/robots-policy.ts`, `src/app/robots.ts`, `src/utils/sitemap-routes.ts`, sitemap route (`src/app/sitemap.ts`) |
 | Structured data | `src/utils/structured-data.ts` and its call sites |
-| Social previews | `src/utils/og-image.tsx`, `**/opengraph-image.tsx`, `src/utils/proxy-matcher.ts`, `proxy.ts` |
+| Social previews | `src/utils/og-image.tsx`, `**/opengraph-image.tsx`, `src/utils/proxy-matcher.ts`, `src/proxy.ts` |
 
 Note review hotspots — not findings yet. This map becomes the surface-map section of the output file.
 
@@ -80,7 +80,7 @@ Audit each dimension against the cited files. Read `seo.mdc` and AGENTS.md § Ha
 
 **D5 — Structured data:** JSON-LD comes from `structured-data.ts`; `Organization` + `WebSite` on the landing page only; nothing inlines JSON-LD directly on a page; new schema types extend the helper rather than bypassing it.
 
-**D6 — Social previews:** the shared OG template `og-image.tsx` backs per-route `opengraph-image.tsx` segment files; every public marketing route has one; OG/twitter image paths in `proxy-matcher.ts` match the bypass list in `proxy.ts` (drift = a broken preview on a public page, or an auth leak). Preview titles/descriptions derive from page metadata + site config, not hardcoded strings.
+**D6 — Social previews:** the shared OG template `og-image.tsx` backs per-route `opengraph-image.tsx` segment files; every public marketing route has one; OG/twitter image paths in `proxy-matcher.ts` match the bypass list in `src/proxy.ts` (drift = a broken preview on a public page, or an auth leak). Preview titles/descriptions derive from page metadata + site config, not hardcoded strings.
 
 **D7 — Content standards** — three checks with different reach:
 

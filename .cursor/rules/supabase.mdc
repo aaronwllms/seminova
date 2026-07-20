@@ -4,7 +4,6 @@ globs:
   - 'src/**/*.ts'
   - 'src/**/*.tsx'
   - 'src/supabase/**/*.ts'
-  - 'proxy.ts'
   - 'supabase/migrations/**/*.sql'
 ---
 
@@ -85,20 +84,20 @@ const supabase = await createClient()
 
 ### Auth Proxy (session refresh + route protection)
 ```typescript
-// Root proxy.ts delegates to src/supabase/proxy.ts
+// src/proxy.ts delegates to src/supabase/proxy.ts
 import { updateSession } from '@/supabase/proxy'
 
 // Public routes: /, /auth/**, /terms, /privacy, /reference, /workflow, and /api/client-logs (client log relay — see ADR-0007); others redirect to /auth/login when unauthenticated (with safe next). Refresh: proxy on matched server requests + browser client default auto-refresh; display reads use getDisplayAuthClaims (allowExpired, no refresh) — see ADR-0005.
 ```
 
-**Reference:** `proxy.ts`, `src/supabase/proxy.ts`, `src/supabase/client.ts`, `src/supabase/server.ts`
+**Reference:** `src/proxy.ts`, `src/supabase/proxy.ts`, `src/supabase/client.ts`, `src/supabase/server.ts`
 
 ## Best Practices
 - Always handle authentication errors gracefully
 - Implement proper TypeScript types for database queries
 - Use Supabase Row Level Security (RLS) policies for data protection
 - Handle auth state changes reactively
-- Follow existing Supabase auth and session patterns in this repo (`proxy.ts`, `src/supabase/proxy.ts`, auth forms under `src/app/auth/`)
+- Follow existing Supabase auth and session patterns in this repo (`src/proxy.ts`, `src/supabase/proxy.ts`, auth forms under `src/app/auth/`)
 
 ## Security
 

@@ -59,13 +59,13 @@ Defense-in-depth on top of the auth proxy — a route accidentally made public c
 
 - Shared template: [`src/utils/og-image.tsx`](../../src/utils/og-image.tsx) (`createOgImageResponse`).
 - Per-route segment files: `opengraph-image.tsx` (e.g. root + [`src/app/auth/login/opengraph-image.tsx`](../../src/app/auth/login/opengraph-image.tsx)). New public routes add their own segment file; title/description come from page metadata + site config.
-- OG/twitter image paths bypass auth via [`src/utils/proxy-matcher.ts`](../../src/utils/proxy-matcher.ts) — keep in sync with [`proxy.ts`](../../proxy.ts). Include `/icon` and nested `*/icon` alongside `/opengraph-image`, `/twitter-image`, and their nested variants.
+- OG/twitter image paths bypass auth via [`src/utils/proxy-matcher.ts`](../../src/utils/proxy-matcher.ts) — keep in sync with [`src/proxy.ts`](../../src/proxy.ts). Include `/icon` and nested `*/icon` alongside `/opengraph-image`, `/twitter-image`, and their nested variants.
 
 ## Favicon
 
 - Shared util: [`src/utils/brand-mark-image.tsx`](../../src/utils/brand-mark-image.tsx) (`createBrandMarkImageResponse`) — primary-filled rounded square + `siteConfig.Logo`.
 - Segment file: [`src/app/icon.tsx`](../../src/app/icon.tsx) — re-exports size/contentType and calls the util. No static `favicon.ico`; the dynamic route wins.
-- `/icon` and nested `*/icon` bypass auth via [`src/utils/proxy-matcher.ts`](../../src/utils/proxy-matcher.ts) — keep in sync with [`proxy.ts`](../../proxy.ts).
+- `/icon` and nested `*/icon` bypass auth via [`src/utils/proxy-matcher.ts`](../../src/utils/proxy-matcher.ts) — keep in sync with [`src/proxy.ts`](../../src/proxy.ts).
 
 ## Satori constraints (OG + favicon)
 

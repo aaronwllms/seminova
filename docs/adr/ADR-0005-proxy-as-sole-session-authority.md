@@ -2,7 +2,7 @@
 
 **Status:** Accepted
 
-`proxy.ts` is the server-side session gate: it refreshes sessions on matched
+`src/proxy.ts` is the server-side session gate: it refreshes sessions on matched
 HTTP requests and redirects unauthenticated users on protected routes. The
 browser client (`src/supabase/client.ts`) uses default foreground
 auto-refresh for Client Components (auth forms, avatar upload, Realtime).
