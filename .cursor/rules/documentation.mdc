@@ -11,13 +11,17 @@ Thin structural guardrail only. Conventions and procedure live elsewhere (linked
 ```
 docs/
   DOC_RULES.md         # doc-maintenance procedure + authoritative document roles
+  WORKFLOW_GUIDE.md    # planning & build workflow (PM)
+  WORKFLOW_SETUP.md    # one-time Claude-side workflow setup (PM)
   WORKFLOW_BACKLOG.md  # permanently deferred workflow items
   adr/                 # Architecture Decision Records (immutable history)
   research/            # exploratory research briefs (revisable; archive/ frozen)
   prds/                # one PRD per phase (forward intent)
+  claude-skills/       # Claude-side .skill upload bundles (see WORKFLOW_SETUP.md)
+  skill-feedback/      # per-skill feedback logs (collect-skill-feedback only)
   archive/             # frozen pre-restructure history — closed
 ```
-**Do NOT create new top-level `docs/` directories** beyond those listed above. If a genuinely new category seems needed, that is a PM decision — surface it, don't invent the directory.
+Full role table → [DOC_RULES.md](mdc:docs/DOC_RULES.md). **Do NOT create new top-level `docs/` directories** beyond those listed above. If a genuinely new category seems needed, that is a PM decision — surface it, don't invent the directory.
 ## Where things go
 - A per-phase requirements doc → `docs/prds/`. See [prds/README.md](mdc:docs/prds/README.md).
 - A recorded architectural decision → `docs/adr/`. See [adr/README.md](mdc:docs/adr/README.md).

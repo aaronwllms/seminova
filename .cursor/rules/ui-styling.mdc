@@ -27,16 +27,12 @@ globs:
 - Follow Tailwind's spacing scale consistently (4, 8, 12, 16, etc.)
 - Component organization: reusable in `src/components/`, shadcn primitives in `src/components/ui/`, page-specific in `src/app/[page]/_components/`
 
-## Image Optimization
-- Use Next.js `Image` component for all images
-- Include size data (width/height) to prevent layout shift
-- Implement lazy loading for below-the-fold images; use `priority` for above-the-fold
+## Images
+Images → `nextjs.mdc` (`next/image`, dimensions, priority).
 
 ## Best Practices
 - ✅ Use CSS variables for theming (already configured)
 - ✅ Follow mobile-first responsive approach
 - ✅ Use semantic spacing scale
-- ✅ Optimize images with Next.js Image component
 - ❌ Don't fight the CSS variables system for theming
 - ❌ Don't hardcode colors; use theme variables
-- ❌ Don't skip image dimensions (causes layout shift)

@@ -66,5 +66,4 @@ alwaysApply: false
 - Error handling → `error-handling.mdc`
 - Security → `security.mdc`
 - Quality bar before merge → `AGENTS.md` (`pnpm type-check`, `pnpm lint`, `pnpm format-check`, `pnpm test:ci`)
-- RORO pattern for multi-parameter functions → `typescript.mdc`
 - TypeScript and App Router conventions → `typescript.mdc`, `nextjs.mdc`

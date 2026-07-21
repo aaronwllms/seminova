@@ -134,7 +134,7 @@ Avoid many near-duplicate edge-case or validation micro-tests, or asserting impl
 - Test authentication/authorization failures
 - Validate request/response shapes for key scenarios
 - Assert proper HTTP status codes
-- Use MSW to mock external API dependencies
+- Mock external HTTP with MSW only after global infra ships (see MSW section above); until then mock at the module boundary (`vi.mock`) as the shipped client-logs integration test does
 - **Don't test**: Every validation error scenario, database errors (unless route-specific behavior)
 
 ### Hooks & Utilities

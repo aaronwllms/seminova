@@ -15,11 +15,8 @@ globs:
 - See `seo.mdc` for metadata, indexing, and social-preview wire-up.
 
 ## Data Fetching
-- Fetch directly in Server Components when possible
-- Prefer server-side data fetching over client-side when possible
-- Use TanStack Query for client-side and complex client-side data fetching needs
-- Leverage Next.js built-in caching and revalidation
-- Implement proper loading and error states
+- Prefer Server Components / Server Actions for data; use TanStack Query when client cache or interactive refetch is required
+- See Caching & Revalidation and Avoiding Data-Fetching Waterfalls below
 
 ## Server Actions vs. Route Handlers
 
@@ -29,7 +26,7 @@ Use a Route Handler (`route.ts`) only when:
 - The caller is external to Next.js (webhook, third-party integration, mobile client)
 - The response needs HTTP-level caching/revalidation semantics a Server Action can't provide
 
-See `.cursor/rules/api-development.mdc` for Route Handler conventions when one is warranted.
+Route Handler conventions → `.cursor/rules/api-development.mdc`. Error envelopes → `error-handling.mdc`.
 
 When building any user-facing form or feedback UI, read `forms.mdc` and `notifications.mdc`.
 
@@ -49,14 +46,6 @@ When building any user-facing form or feedback UI, read `forms.mdc` and `notific
 - Prefer time-based revalidation (`next: { revalidate: N }`) over no caching for data that's expensive to compute but tolerant of staleness
 
 **See `.cursor/rules/supabase.mdc` for database query optimization (N+1, indexing, pagination) and `.cursor/rules/supabase-sql.mdc` for RLS performance patterns.**
-
-## API Routes
-- Place in `src/app/api/` directory
-- Export named functions (GET, POST, PUT, DELETE)
-- Return proper HTTP status codes
-- Validate request data
-- Handle errors gracefully
-- Follow the patterns in `.cursor/rules/api-development.mdc` and `.cursor/rules/error-handling.mdc`
 
 ## Project Structure Best Practices
 - Place both `/app` and `/components` under `/src` directory (already done)

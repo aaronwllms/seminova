@@ -151,10 +151,10 @@ When a shared service layer is introduced, add `src/services/` and update this r
 
 ## Anti-Patterns to Avoid
 
-### ❌ Direct Database Access from UI Components
-- Never call Supabase directly from UI components
-- Use hooks (TanStack Query) or server actions — see profile page patterns above
-- Keep data fetching logic testable and reusable
+### ❌ Ad-hoc Supabase from presentational UI
+- Don't put query/mutation chains inline in presentational components — use hooks, server actions, or shared utils
+- **Allowed:** client `createClient()` behind shared helpers (auth/session, storage) — e.g. [`avatar-storage.ts`](../../src/utils/avatar-storage.ts), password-change flows under profile
+- Keep data access testable and reusable; see Data access placement above
 
 ### ❌ Poor Query Performance
 - Don't fetch all columns with `select('*')`

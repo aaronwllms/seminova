@@ -33,7 +33,7 @@ globs:
 
 ## Input Validation
 - Validate ALL API inputs with Zod schemas
-- Co-locate schemas in route `_lib/` until a shared contracts directory exists (e.g. `src/app/api/posts/_lib/schemas.ts`)
+- Co-locate schemas in the route's `_lib/` (shipped: [`src/app/api/client-logs/_lib/client-log-relay-schema.ts`](../../src/app/api/client-logs/_lib/client-log-relay-schema.ts))
 - Use `schema.safeParse()` for validation
 - Return typed error envelopes on validation failure
 
@@ -42,12 +42,11 @@ globs:
 **See `.cursor/rules/error-handling.mdc` for complete error handling patterns and examples.**
 
 Quick reference:
-- Log server-side with `appLog.error('api-tag', 'message', error)` — see `.cursor/rules/error-handling.mdc` and `.cursor/rules/logging.mdc` (shipped example: [`POST /api/client-logs`](../../src/app/api/client-logs/route.ts))
+- Log server-side with `appLog.error('api-tag', 'message', error)` — kebab-case tag first; see `.cursor/rules/logging.mdc` (shipped example: [`POST /api/client-logs`](../../src/app/api/client-logs/route.ts))
 - NEVER leak stack traces to clients - log server-side only
 - Use consistent error envelope: `{ success: false, error: { message, code, kind } }` — see `error-handling.mdc` for `kind` semantics
 - Wrap all async operations in try/catch
 - Return appropriate HTTP status codes (400, 401, 403, 404, 500)
-- Include `source` parameter in all logs (e.g., 'api/posts/route.ts')
 
 ## Data Transfer Objects (DTOs)
 - Use DTOs for API responses - don't expose raw database entities
@@ -87,7 +86,7 @@ Common API error codes:
 - [ ] Input validation with Zod schema
 - [ ] Auth check if endpoint is protected
 - [ ] Try/catch wrapping async operations
-- [ ] Logging with `[api/…]` console prefix on errors
+- [ ] Errors logged via `appLog.error('<kebab-tag>', '…', error)` per `logging.mdc`
 - [ ] DTO transformation (no raw DB types)
 - [ ] Error envelope includes `kind: 'operational' | 'fault'`
 - [ ] Appropriate HTTP status codes

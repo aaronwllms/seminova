@@ -19,7 +19,6 @@ Roadmap and active build scope: [ROADMAP.md](../../ROADMAP.md) and [docs/prds/](
 
 - DRY and SOLID principles (scoped rules — not duplicated in always-on context)
 - Module depth heuristic (Ousterhout): inspect at ~300–400 lines; split only when low-depth (god file or shallow/classitis), not on line count alone — see `project-standards.mdc`
-- RORO pattern (Receive Object, Return Object) — owned by `typescript.mdc`
 - Arrow functions and named exports
 - Conventional commits specification
 - Mobile-first responsive design
