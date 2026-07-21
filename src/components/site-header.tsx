@@ -1,12 +1,14 @@
 import { SeminovaLogo } from '@/components/seminova-logo'
 import { SiteContainer } from '@/components/site-container'
 import { SiteNavLinks } from '@/components/site-nav-links'
+import { cn } from '@/utils/tailwind'
 
 type SiteHeaderProps = {
   logoHref?: string
   showNav?: boolean
   rightSlot?: React.ReactNode
   mobileNav?: React.ReactNode
+  sticky?: boolean
 }
 
 export const SiteHeader = ({
@@ -14,8 +16,14 @@ export const SiteHeader = ({
   showNav = true,
   rightSlot,
   mobileNav,
+  sticky = true,
 }: SiteHeaderProps) => (
-  <header className="bg-background/95 sticky top-0 z-50 border-b backdrop-blur">
+  <header
+    className={cn(
+      'bg-background/95 border-b backdrop-blur',
+      sticky && 'sticky top-0 z-50',
+    )}
+  >
     <SiteContainer>
       <div className="flex h-16 items-center justify-between gap-4 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center">
         {/* debt: grid track string coupled with site-footer.tsx — change both together */}

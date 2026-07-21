@@ -27,7 +27,7 @@ Scope: test suite health and adherence to `.cursor/rules/testing.mdc`
 
 **Shape:** Unit coverage on utils, hooks, server actions, and admin `_lib/` helpers; integration coverage on auth forms, profile settings, logout, `/auth/confirm`, route error boundaries, and session-aware marketing CTA. Marketing section components intentionally have no render tests per `testing.mdc`. MSW global setup deferred; Supabase/auth boundaries use `vi.mock` at module level.
 
-**High-churn sources (6 months):** auth forms, `proxy.ts`, profile actions, admin users table — all have corresponding tests including `listUsersAction` at the action boundary.
+**High-churn sources (6 months):** auth forms, `src/proxy.ts`, profile actions, admin users table — all have corresponding tests including `listUsersAction` at the action boundary.
 
 ## Findings
 
@@ -49,7 +49,7 @@ Scope: test suite health and adherence to `.cursor/rules/testing.mdc`
 - **`route-error-boundaries.integration.test.tsx`:** Parameterized `it.each` over app/admin/auth segments — one file, three boundaries, behavior-level assertions.
 - **`users-table.unit.test.tsx:127` `sr-only` class:** Asserts loading text is screen-reader-only — borderline implementation detail, but pins an a11y contract for the loading state label.
 - **Marketing components at 0% coverage:** `landing-hero`, `landing-features`, etc. are config-driven static sections — no render tests is correct per `testing.mdc` render-only rule.
-- **Scripts tests outside coverage include:** `vitest.config.ts` scopes coverage to `src/**` and `proxy.ts` only — script checks are tested but don't affect the 80% gate; intentional.
+- **Scripts tests outside coverage include:** `vitest.config.ts` scopes coverage to `src/**` only — script checks are tested but don't affect the 80% gate; intentional.
 - **Page/layout exclusions:** `page.tsx` and `layout.tsx` excluded from denominator — documented in `testing.mdc`; not threshold gaming.
 - **No quarantined skips, no snapshots:** ESLint `seminova-test/no-unquarantined-skips` and snapshot ban are clean across the suite.
 - **`components/ui/sidebar/cookie.unit.test.ts`:** Tests owned cookie-parsing logic colocated in the sidebar primitive — reasonable unit scope despite `ui/` coverage exclusion.

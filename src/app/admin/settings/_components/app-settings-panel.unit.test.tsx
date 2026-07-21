@@ -51,8 +51,6 @@ describe('AppSettingsPanel', () => {
     ).toHaveLength(1)
     expect(screen.getByText('Public banner')).toBeInTheDocument()
     expect(screen.getByText('Authenticated banner')).toBeInTheDocument()
-    expect(screen.getByText('min_log_level')).toBeInTheDocument()
-    expect(screen.getByText('log_retention_days')).toBeInTheDocument()
 
     const retentionInput = screen.getByRole('spinbutton', {
       name: 'Log retention window',

@@ -1,6 +1,8 @@
 import { connection } from 'next/server'
 import { Suspense } from 'react'
 
+import { REFERENCE_SECTION_SCROLL_CLASS } from '../_lib/reference-anchor-links'
+
 import { ReferenceTableDemo } from './reference-table-demo'
 import { ReferenceTableDemoFallback } from './reference-table-demo-fallback'
 
@@ -12,7 +14,10 @@ const ReferenceTableDemoEntry = async () => {
 export const ReferenceTableSection = () => (
   <section className="border-t py-10">
     <div className="mx-auto max-w-3xl px-4 sm:px-0">
-      <h2 id="table" className="text-2xl font-semibold tracking-tight">
+      <h2
+        id="table"
+        className={`${REFERENCE_SECTION_SCROLL_CLASS} text-2xl font-semibold tracking-tight`}
+      >
         Data table
       </h2>
       <p className="text-muted-foreground mt-1 text-sm">

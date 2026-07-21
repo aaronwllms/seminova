@@ -10,6 +10,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
+import { TooltipProvider } from '@/components/ui/tooltip'
 
 import { SIDEBAR_WIDTH_MOBILE } from './constants'
 import { useSidebar } from './context'
@@ -28,6 +29,10 @@ function Sidebar({
 }) {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
 
+  const sidebarContent = (
+    <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
+  )
+
   if (collapsible === 'none') {
     return (
       <div
@@ -38,7 +43,7 @@ function Sidebar({
         )}
         {...props}
       >
-        {children}
+        {sidebarContent}
       </div>
     )
   }
@@ -62,7 +67,7 @@ function Sidebar({
             <SheetTitle>Sidebar</SheetTitle>
             <SheetDescription>Displays the mobile sidebar.</SheetDescription>
           </SheetHeader>
-          <div className="flex h-full w-full flex-col">{children}</div>
+          <div className="flex h-full w-full flex-col">{sidebarContent}</div>
         </SheetContent>
       </Sheet>
     )
@@ -109,7 +114,7 @@ function Sidebar({
           data-slot="sidebar-inner"
           className="bg-sidebar group-data-[variant=floating]:border-sidebar-border flex h-full w-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-sm"
         >
-          {children}
+          {sidebarContent}
         </div>
       </div>
     </div>

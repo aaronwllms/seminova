@@ -14,7 +14,7 @@ const createMatchMedia = (matches: boolean) =>
   }))
 
 describe('useIsMobile', () => {
-  it('should return true when viewport is below the mobile breakpoint', () => {
+  it('should return true after mount when viewport is below the mobile breakpoint', () => {
     vi.stubGlobal('matchMedia', createMatchMedia(true))
     Object.defineProperty(window, 'innerWidth', {
       configurable: true,
@@ -22,6 +22,8 @@ describe('useIsMobile', () => {
     })
 
     const { result } = renderHook(() => useIsMobile())
+
+    act(() => {})
 
     expect(result.current).toBe(true)
   })
@@ -48,6 +50,8 @@ describe('useIsMobile', () => {
     })
 
     const { result } = renderHook(() => useIsMobile())
+
+    act(() => {})
 
     expect(result.current).toBe(false)
 

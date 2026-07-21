@@ -8,11 +8,15 @@ import {
 } from '@/components/ui/table'
 
 import { WORKFLOW_DOCUMENTS } from '../_lib/workflow-page-content'
+import { WORKFLOW_SECTION_SCROLL_CLASS } from '../_lib/workflow-anchor-links'
 
 export const WorkflowDocumentsSection = () => (
   <section aria-labelledby="the-documents" className="border-t py-10">
     <div className="mx-auto max-w-3xl px-4 sm:px-0">
-      <h2 className="text-2xl font-semibold tracking-tight" id="the-documents">
+      <h2
+        className={`${WORKFLOW_SECTION_SCROLL_CLASS} text-2xl font-semibold tracking-tight`}
+        id="the-documents"
+      >
         The documents
       </h2>
       <p className="text-muted-foreground mt-4 max-w-prose text-[15px] leading-relaxed">
@@ -36,7 +40,14 @@ export const WorkflowDocumentsSection = () => (
             {WORKFLOW_DOCUMENTS.map((document) => (
               <TableRow key={document.name}>
                 <TableCell className="font-mono text-sm font-medium">
-                  {document.name}
+                  <a
+                    href={document.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-foreground hover:underline"
+                  >
+                    {document.name}
+                  </a>
                 </TableCell>
                 <TableCell>{document.writtenBy}</TableCell>
                 <TableCell>{document.readBy}</TableCell>

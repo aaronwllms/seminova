@@ -79,6 +79,44 @@ describe('BannerSettingRow', () => {
     )
   }
 
+  it('should show an unsaved changes indicator in the header when the draft differs from saved', async () => {
+    const user = userEvent.setup()
+
+    renderRow({
+      ...DEFAULT_BANNER_SETTING,
+      mode: 'on',
+      headline: 'Saved headline',
+    })
+
+    expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /Public banner/i }))
+
+    const headlineInput = screen.getByLabelText('Headline')
+    await user.clear(headlineInput)
+    await user.type(headlineInput, 'Draft headline')
+
+    expect(screen.getByText('Unsaved changes')).toBeInTheDocument()
+  })
+
+  it('should explain banner copy syntax under headline and detail fields', async () => {
+    const user = userEvent.setup()
+
+    renderRow({
+      ...DEFAULT_BANNER_SETTING,
+      mode: 'on',
+      headline: 'Saved headline',
+    })
+
+    await user.click(screen.getByRole('button', { name: /Public banner/i }))
+
+    expect(
+      screen.getAllByText(
+        'Supports bold via **text** and links via [text](url).',
+      ),
+    ).toHaveLength(2)
+  })
+
   it('should expand the form when the accordion trigger is clicked', async () => {
     const user = userEvent.setup()
 

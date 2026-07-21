@@ -5,8 +5,9 @@ import type { ColumnDef } from '@tanstack/react-table'
 import { DataTableColumnHeader } from '@/components/data-table-shell'
 import { cn } from '@/utils/tailwind'
 
-import { buildLogRowCopyText } from '../_lib/build-log-row-copy-text'
 import type { AppLogRow } from '../_lib/app-log-row'
+import { buildLogRowCopyText } from '../_lib/build-log-row-copy-text'
+import { formatLogTimestampDisplay } from '../_lib/format-log-timestamp-display'
 import { LogCopyButton } from './log-copy-button'
 import { LogLevelBadge } from './log-level-badge'
 import { LogUnreadIndicator } from './log-unread-indicator'
@@ -35,7 +36,7 @@ export const createLogsColumns = ({
     enableSorting: false,
   },
   {
-    accessorKey: 'timestampLabel',
+    accessorKey: 'createdAt',
     meta: {
       skeletonClassName: 'h-4 w-36',
       cellClassName: 'text-sm tabular-nums',
@@ -43,6 +44,7 @@ export const createLogsColumns = ({
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Timestamp" />
     ),
+    cell: ({ row }) => formatLogTimestampDisplay(row.original.createdAt),
     enableSorting: true,
   },
   {

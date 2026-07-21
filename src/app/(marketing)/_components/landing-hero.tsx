@@ -19,9 +19,19 @@ export const LandingHero = () => {
             {hero.description}
           </p>
         </div>
-        <Button asChild size="lg" className="mt-8 h-12 px-8 text-base">
-          <Link href={hero.cta.href}>{hero.cta.label}</Link>
-        </Button>
+        <div className="mt-8 flex flex-wrap justify-center gap-2">
+          <Button asChild size="lg" className="h-12 px-8 text-base">
+            <Link href={hero.cta.href}>{hero.cta.label}</Link>
+          </Button>
+          <Button
+            asChild
+            size="lg"
+            variant="outline"
+            className="h-12 px-8 text-base"
+          >
+            <Link href={hero.secondaryCta.href}>{hero.secondaryCta.label}</Link>
+          </Button>
+        </div>
       </LandingContainer>
     </section>
   )

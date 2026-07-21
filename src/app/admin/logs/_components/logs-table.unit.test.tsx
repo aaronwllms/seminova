@@ -4,6 +4,15 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { LogsTable } from './logs-table'
+import { LOGS_LIVE_ENABLED_STORAGE_KEY } from '../_lib/logs-live-preference'
+
+const refreshMock = vi.fn()
+const useAdminLogsRealtimeMock = vi.fn()
+
+vi.mock('../_lib/use-admin-logs-realtime', () => ({
+  useAdminLogsRealtime: (options?: { enabled?: boolean }) =>
+    useAdminLogsRealtimeMock(options),
+}))
 
 const listLogsActionMock = vi.fn()
 const getLogStatsActionMock = vi.fn()
@@ -29,7 +38,6 @@ const sampleRow = {
   message: 'Token refresh failed',
   context: { reason: 'expired_refresh_token' },
   createdAt: '2026-07-18T14:32:07.412Z',
-  timestampLabel: 'Jul 18, 2:32:07 PM.412',
   readAt: null,
   isUnread: true,
 }
@@ -50,6 +58,13 @@ const defaultListParams = {
 
 describe('LogsTable', () => {
   beforeEach(() => {
+    localStorage.clear()
+    refreshMock.mockReset()
+    useAdminLogsRealtimeMock.mockReturnValue({
+      refresh: refreshMock,
+      isRefreshing: false,
+    })
+
     listLogsActionMock.mockReset()
     getLogStatsActionMock.mockReset()
     listLogTagsActionMock.mockReset()
@@ -105,6 +120,17 @@ describe('LogsTable', () => {
       </QueryClientProvider>,
     )
   }
+
+  const waitForStatTiles = async () => {
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /^error, 1$/i }),
+      ).toBeInTheDocument()
+    })
+  }
+
+  const getErrorStatTile = () =>
+    screen.getByRole('button', { name: /^error, 1$/i })
 
   it('should load logs on mount and render message column', async () => {
     renderTable()
@@ -188,7 +214,9 @@ describe('LogsTable', () => {
       expect(listLogsActionMock).toHaveBeenCalledTimes(1)
     })
 
-    await user.click(screen.getByRole('button', { name: /error/i }))
+    await waitForStatTiles()
+
+    await user.click(getErrorStatTile())
 
     await waitFor(() => {
       expect(listLogsActionMock).toHaveBeenLastCalledWith({
@@ -317,6 +345,375 @@ describe('LogsTable', () => {
         perPage: 15,
         filters: defaultFilters,
       })
+    })
+  })
+
+  it('should call refresh when the refresh button is clicked', async () => {
+    const user = userEvent.setup()
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /refresh logs/i }),
+      ).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole('button', { name: /refresh logs/i }))
+
+    expect(refreshMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('should render live toggle off by default and pass enabled=false to realtime hook', async () => {
+    renderTable()
+
+    await waitFor(() => {
+      expect(useAdminLogsRealtimeMock).toHaveBeenCalledWith({ enabled: false })
+    })
+
+    expect(
+      screen.getByRole('button', { name: /turn live feed on/i }),
+    ).toHaveAttribute('aria-pressed', 'false')
+  })
+
+  it('should pass enabled=true to realtime hook when live toggle is turned on', async () => {
+    const user = userEvent.setup()
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /turn live feed on/i }),
+      ).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole('button', { name: /turn live feed on/i }))
+
+    expect(useAdminLogsRealtimeMock).toHaveBeenLastCalledWith({
+      enabled: true,
+    })
+    expect(
+      screen.getByRole('button', { name: /turn live feed off/i }),
+    ).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('should restore live enabled preference from localStorage on mount', async () => {
+    localStorage.setItem(LOGS_LIVE_ENABLED_STORAGE_KEY, 'true')
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(useAdminLogsRealtimeMock).toHaveBeenCalledWith({ enabled: true })
+    })
+  })
+
+  it('should persist live toggle preference to localStorage', async () => {
+    const user = userEvent.setup()
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /turn live feed on/i }),
+      ).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole('button', { name: /turn live feed on/i }))
+
+    expect(localStorage.getItem(LOGS_LIVE_ENABLED_STORAGE_KEY)).toBe('true')
+
+    await user.click(
+      screen.getByRole('button', { name: /turn live feed off/i }),
+    )
+
+    expect(localStorage.getItem(LOGS_LIVE_ENABLED_STORAGE_KEY)).toBe('false')
+  })
+
+  it('should show filtered empty state with reset and refresh actions', async () => {
+    listLogsActionMock.mockResolvedValue({
+      success: true,
+      data: {
+        rows: [],
+        hasNextPage: false,
+        filteredUnreadCount: 0,
+      },
+    })
+
+    const user = userEvent.setup()
+
+    renderTable()
+
+    await waitForStatTiles()
+
+    await user.click(getErrorStatTile())
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('No logs found for selected filters'),
+      ).toBeInTheDocument()
+    })
+
+    expect(
+      screen.getByRole('button', { name: /reset filters/i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /^refresh$/i }),
+    ).toBeInTheDocument()
+  })
+
+  it('should reset filters from the filtered empty state', async () => {
+    listLogsActionMock.mockResolvedValue({
+      success: true,
+      data: {
+        rows: [],
+        hasNextPage: false,
+        filteredUnreadCount: 0,
+      },
+    })
+
+    const user = userEvent.setup()
+
+    renderTable()
+
+    await waitForStatTiles()
+
+    await user.click(getErrorStatTile())
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /reset filters/i }),
+      ).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole('button', { name: /reset filters/i }))
+
+    await waitFor(() => {
+      expect(listLogsActionMock).toHaveBeenLastCalledWith(defaultListParams)
+    })
+  })
+
+  it('should reset all filters when the Total tile is clicked', async () => {
+    const user = userEvent.setup()
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(screen.getByText('Token refresh failed')).toBeInTheDocument()
+    })
+
+    await user.type(
+      screen.getByRole('searchbox', { name: /search logs/i }),
+      'token',
+    )
+    await waitForStatTiles()
+
+    await user.click(getErrorStatTile())
+
+    await waitFor(() => {
+      expect(listLogsActionMock).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          filters: expect.objectContaining({
+            levels: ['error'],
+            search: 'token',
+          }),
+        }),
+      )
+    })
+
+    await user.click(screen.getByRole('button', { name: /total, 1/i }))
+
+    await waitFor(() => {
+      expect(listLogsActionMock).toHaveBeenLastCalledWith(defaultListParams)
+    })
+
+    expect(screen.getByRole('searchbox', { name: /search logs/i })).toHaveValue(
+      '',
+    )
+  })
+
+  it('should call refresh from the filtered empty state', async () => {
+    listLogsActionMock.mockResolvedValue({
+      success: true,
+      data: {
+        rows: [],
+        hasNextPage: false,
+        filteredUnreadCount: 0,
+      },
+    })
+
+    const user = userEvent.setup()
+
+    renderTable()
+
+    await waitForStatTiles()
+
+    await user.click(getErrorStatTile())
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /^refresh$/i }),
+      ).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole('button', { name: /^refresh$/i }))
+
+    expect(refreshMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('should show plain empty copy when no filters are active', async () => {
+    listLogsActionMock.mockResolvedValue({
+      success: true,
+      data: {
+        rows: [],
+        hasNextPage: false,
+        filteredUnreadCount: 0,
+      },
+    })
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(screen.getByText('No logs found.')).toBeInTheDocument()
+    })
+
+    expect(
+      screen.queryByRole('button', { name: /reset filters/i }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('should disable the refresh button while manual refresh is in flight', async () => {
+    useAdminLogsRealtimeMock.mockReturnValue({
+      refresh: refreshMock,
+      isRefreshing: true,
+    })
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /refresh logs/i }),
+      ).toBeDisabled()
+    })
+    expect(
+      screen.getByRole('button', { name: /refresh logs/i }),
+    ).toHaveAttribute('aria-busy', 'true')
+  })
+
+  it('should show active filter chips when filters are applied', async () => {
+    const user = userEvent.setup()
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(screen.getByText('Token refresh failed')).toBeInTheDocument()
+    })
+
+    await waitForStatTiles()
+
+    await user.click(getErrorStatTile())
+    await user.type(
+      screen.getByRole('searchbox', { name: /search logs/i }),
+      'token',
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText('Active filters:')).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: /remove error filter/i }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: /remove search: token filter/i }),
+      ).toBeInTheDocument()
+    })
+  })
+
+  it('should remove a single active filter chip without clearing others', async () => {
+    const user = userEvent.setup()
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(screen.getByText('Token refresh failed')).toBeInTheDocument()
+    })
+
+    await waitForStatTiles()
+
+    await user.click(getErrorStatTile())
+    await user.type(
+      screen.getByRole('searchbox', { name: /search logs/i }),
+      'token',
+    )
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /remove search: token filter/i }),
+      ).toBeInTheDocument()
+    })
+
+    await user.click(
+      screen.getByRole('button', { name: /remove search: token filter/i }),
+    )
+
+    await waitFor(() => {
+      expect(listLogsActionMock).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          filters: expect.objectContaining({
+            levels: ['error'],
+            search: null,
+          }),
+        }),
+      )
+    })
+  })
+
+  it('should clear all active filter chips from the chip row', async () => {
+    const user = userEvent.setup()
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(screen.getByText('Token refresh failed')).toBeInTheDocument()
+    })
+
+    await waitForStatTiles()
+
+    await user.click(getErrorStatTile())
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /^clear all$/i }),
+      ).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole('button', { name: /^clear all$/i }))
+
+    await waitFor(() => {
+      expect(listLogsActionMock).toHaveBeenLastCalledWith(defaultListParams)
+    })
+  })
+
+  it('should disable mark all as read when there are no unread logs in view', async () => {
+    listLogsActionMock.mockResolvedValue({
+      success: true,
+      data: {
+        rows: [
+          {
+            ...sampleRow,
+            readAt: '2026-07-18T15:00:00.000Z',
+            isUnread: false,
+          },
+        ],
+        hasNextPage: false,
+        filteredUnreadCount: 0,
+      },
+    })
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /mark all as read/i }),
+      ).toBeDisabled()
     })
   })
 })

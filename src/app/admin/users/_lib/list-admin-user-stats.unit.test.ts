@@ -8,6 +8,7 @@ const createClientMock = (
     total: number
     unverified: number
     banned: number
+    new_30d: number
   } | null,
 ) =>
   ({
@@ -23,12 +24,17 @@ describe('listAdminUserStats', () => {
   })
 
   it('should call admin_user_stats and map counts', async () => {
-    const client = createClientMock({ total: 10, unverified: 2, banned: 1 })
+    const client = createClientMock({
+      total: 10,
+      unverified: 2,
+      banned: 1,
+      new_30d: 4,
+    })
 
     const result = await listAdminUserStats(client)
 
     expect(client.rpc).toHaveBeenCalledWith('admin_user_stats')
-    expect(result).toEqual({ total: 10, unverified: 2, banned: 1 })
+    expect(result).toEqual({ total: 10, unverified: 2, banned: 1, new30d: 4 })
   })
 
   it('should default missing row values to zero', async () => {
@@ -36,6 +42,6 @@ describe('listAdminUserStats', () => {
 
     const result = await listAdminUserStats(client)
 
-    expect(result).toEqual({ total: 0, unverified: 0, banned: 0 })
+    expect(result).toEqual({ total: 0, unverified: 0, banned: 0, new30d: 0 })
   })
 })

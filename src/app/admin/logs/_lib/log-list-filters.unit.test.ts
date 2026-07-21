@@ -2,7 +2,10 @@ import { describe, expect, it, vi } from 'vitest'
 
 import {
   applyLogListFilters,
+  buildLogListFilterChips,
+  buildMarkAllLogsReadTooltip,
   escapeIlikePattern,
+  hasActiveLogListFilters,
   parseLogListFiltersInput,
 } from './log-list-filters'
 
@@ -64,5 +67,96 @@ describe('log-list-filters', () => {
         search: null,
       },
     })
+  })
+
+  it('should detect active log list filters', () => {
+    expect(
+      hasActiveLogListFilters({
+        levels: [],
+        unreadOnly: false,
+        tag: null,
+        search: null,
+      }),
+    ).toBe(false)
+
+    expect(
+      hasActiveLogListFilters({
+        levels: ['error'],
+        unreadOnly: false,
+        tag: null,
+        search: null,
+      }),
+    ).toBe(true)
+
+    expect(
+      hasActiveLogListFilters({
+        levels: [],
+        unreadOnly: true,
+        tag: 'auth-session',
+        search: 'token',
+      }),
+    ).toBe(true)
+  })
+
+  it('should build one chip per active filter with stable ids', () => {
+    expect(
+      buildLogListFilterChips({
+        levels: ['debug', 'error'],
+        unreadOnly: true,
+        tag: 'auth-session',
+        search: 'token',
+      }),
+    ).toEqual([
+      { id: 'level:debug', label: 'Debug' },
+      { id: 'level:error', label: 'Error' },
+      { id: 'unread', label: 'Unread' },
+      { id: 'tag', label: 'Tag: auth-session' },
+      { id: 'search', label: 'Search: token' },
+    ])
+  })
+
+  it('should truncate long tag and search chip labels', () => {
+    const longValue = 'a'.repeat(25)
+
+    expect(
+      buildLogListFilterChips({
+        levels: [],
+        unreadOnly: false,
+        tag: longValue,
+        search: longValue,
+      }),
+    ).toEqual([
+      { id: 'tag', label: `Tag: ${'a'.repeat(17)}…` },
+      { id: 'search', label: `Search: ${'a'.repeat(17)}…` },
+    ])
+  })
+
+  it('should build mark-all-read tooltip copy from unread count and filters', () => {
+    expect(
+      buildMarkAllLogsReadTooltip(0, {
+        levels: [],
+        unreadOnly: false,
+        tag: null,
+        search: null,
+      }),
+    ).toBe('No unread logs in the current view.')
+
+    expect(
+      buildMarkAllLogsReadTooltip(2, {
+        levels: ['error'],
+        unreadOnly: false,
+        tag: null,
+        search: null,
+      }),
+    ).toBe('Mark unread logs in the current filter view as read')
+
+    expect(
+      buildMarkAllLogsReadTooltip(2, {
+        levels: [],
+        unreadOnly: false,
+        tag: null,
+        search: null,
+      }),
+    ).toBe('Mark all unread logs as read')
   })
 })

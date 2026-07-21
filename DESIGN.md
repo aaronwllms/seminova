@@ -2,7 +2,7 @@
 
 **Purpose:** Document the token architecture, the structure-vs-theme split, and how to re-skin the template for a new product. For agents: read this for design-system conventions. For repo truth and hard constraints, see [AGENTS.md](AGENTS.md). For roadmap, see [ROADMAP.md](ROADMAP.md); for active-phase design scope, see [docs/prds/](docs/prds/).
 
-**Last updated:** 2026-07-07
+**Last updated:** 2026-07-20
 
 ---
 
@@ -167,10 +167,11 @@ For full hard-constraint wording, see [AGENTS.md › Hard constraints](AGENTS.md
 
 Status tokens (`destructive`, `warning`, `success`, `info`, `unread`) each ship with a `-foreground` partner for solid fills. **`primary`** is brand/actions; **`accent`** is hover/highlight chrome — neither is a log-level or toast status color.
 
-| Pattern                     | When                                                                                   | Utilities                                                                                |
-| --------------------------- | -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Tinted chip / outline badge | Stat tiles, warn/info log badges, unread triage tint, status icons on neutral surfaces | `bg-{status}/15`, `text-{status}`, `border-{status}`; selected stat tiles add `border-2` |
-| Solid badge / button        | Strong emphasis (e.g. error log badge via destructive variant)                         | `bg-{status}`, `text-{status}-foreground`                                                |
+| Pattern                     | When                                                                                   | Utilities                                                                                                  |
+| --------------------------- | -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Tinted chip / outline badge | Stat tiles, warn/info log badges, unread triage tint, status icons on neutral surfaces | `bg-{status}/15`, `text-{status}`, `border-{status}`; selected stat tiles add `border-2`                   |
+| Solid badge / button        | Strong emphasis (e.g. error log badge via destructive variant)                         | `bg-{status}`, `text-{status}-foreground`                                                                  |
+| Alert callout               | Informational or status callouts on neutral surfaces (reference page, marketing copy)  | shadcn [`Alert`](src/components/ui/alert.tsx) with `info` / `success` / `warning` / `destructive` variants |
 
 ---
 

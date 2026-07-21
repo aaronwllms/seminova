@@ -17,7 +17,12 @@ globs:
 - Client-side mutations with optimistic updates
 
 ## Custom Hooks Pattern
-Create custom hooks in `src/hooks/`. See `src/hooks/use-sign-out.ts` for the project's hook conventions (arrow export, `'use client'`, `@/` imports).
+Hook placement follows surface ownership (`project-standards.mdc`):
+
+- **Cross-route or app-wide hooks** — `src/hooks/` (e.g. `src/hooks/use-sign-out.ts`)
+- **Single-route hooks** — that route group's `_lib/` under the surface folder (e.g. `src/app/admin/logs/_lib/use-admin-logs-realtime.ts`)
+
+See `src/hooks/use-sign-out.ts` for shared hook conventions (arrow export, `'use client'`, `@/` imports).
 
 For query hooks, use `createClient()` from `@/supabase/client` (RLS-scoped) in `queryFn` with descriptive query keys (e.g. `['profiles', userId]`).
 

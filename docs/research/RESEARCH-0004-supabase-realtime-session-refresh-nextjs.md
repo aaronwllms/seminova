@@ -15,7 +15,7 @@ What is Supabase's recommended architecture for cookie-backed auth session refre
 **Given facts (not evaluated as decisions):**
 
 - Next.js App Router on Vercel; `@supabase/ssr` with cookie-backed sessions (`createBrowserClient` / `createServerClient`).
-- Auth proxy (`proxy.ts` → `src/supabase/proxy.ts`) refreshes sessions on matched requests; RSC read paths validate cookies without refreshing.
+- Auth proxy (`src/proxy.ts` → `src/supabase/proxy.ts`) refreshes sessions on matched requests; RSC read paths validate cookies without refreshing.
 - Access-token expiry configured at 3600 s.
 - Browser client currently calls `stopAutoRefresh()` (session refresh owned by proxy).
 - Upcoming need: admin-only page with a long-lived Postgres Changes subscription on `app_logs`.

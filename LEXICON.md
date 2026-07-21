@@ -6,7 +6,7 @@
 
 **Discipline:** Entries are short — a sentence or two of meaning, plus a pointer to the canonical home (a rule, `DESIGN.md`, [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints), an ADR) where the authoritative detail and any values live. Do not duplicate token values, rule wording, or schema here; point to the source of truth instead.
 
-**Last updated:** 2026-07-10
+**Last updated:** 2026-07-19
 
 ---
 
@@ -33,6 +33,7 @@
   - [Owned storage path](#owned-storage-path)
   - [Avatar cache bust](#avatar-cache-bust)
   - [Canonical data table](#canonical-data-table)
+  - [Tiered freshness](#tiered-freshness)
 - [Domain terms](#domain-terms)
 
 ---
@@ -53,7 +54,7 @@ The split that makes Seminova re-skinnable. _Structure_ — token names, compone
 
 ### Auth boundary
 
-The line between public and authenticated routes. A small allowlist of paths is public — the landing page, the auth screens, the pattern reference page, the workflow explainer page, the legal pages, and the client log relay at `/api/client-logs` — and everything else requires an authenticated session. The allowlist values are constants in [`src/constants/app-paths.ts`](src/constants/app-paths.ts); the boundary is enforced in [`proxy.ts`](proxy.ts) (→ [`src/supabase/proxy.ts`](src/supabase/proxy.ts)), which refreshes the session and redirects unauthenticated users to the login path. Adding a public route is a hard-constraint change, not a routing detail. Hard constraint (enforced: `check:auth-boundary`). See [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints).
+The line between public and authenticated routes. A small allowlist of paths is public — the landing page, the auth screens, the pattern reference page, the workflow explainer page, the legal pages, and the client log relay at `/api/client-logs` — and everything else requires an authenticated session. The allowlist values are constants in [`src/constants/app-paths.ts`](src/constants/app-paths.ts); the boundary is enforced in [`src/proxy.ts`](src/proxy.ts) (→ [`src/supabase/proxy.ts`](src/supabase/proxy.ts)), which refreshes the session and redirects unauthenticated users to the login path. Adding a public route is a hard-constraint change, not a routing detail. Hard constraint (enforced: `check:auth-boundary`). See [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints).
 
 The proxy reads session state via `getClaims()`, not `getUser()`. `getClaims()` reads the JWT locally with no network round-trip; `getUser()` hits the Supabase Auth server. The proxy comment warns explicitly against swapping them — doing so can cause users to be randomly logged out.
 
@@ -61,11 +62,11 @@ When the Supabase env vars are absent (`hasPublicSupabaseEnv` is false), the pro
 
 ### Admin gate
 
-Admin access is keyed on `app_metadata.role` on the Supabase user — **not** a `role` column on `profiles`. The gate is enforced in [`proxy.ts`](proxy.ts) (non-admins redirected away from `/admin/**`) and [`AdminAuthGate`](src/app/admin/_components/admin-auth-gate.tsx). Roles are granted in-app on `/admin/users` (promote/demote) or via the secret-key CLI (`pnpm promote-admin`). Keeping the gate on `app_metadata` rather than the database is a hard constraint (enforced: `check:admin-gate`). See [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints).
+Admin access is keyed on `app_metadata.role` on the Supabase user — **not** a `role` column on `profiles`. The gate is enforced in [`src/proxy.ts`](src/proxy.ts) (non-admins redirected away from `/admin/**`) and [`AdminAuthGate`](src/app/admin/_components/admin-auth-gate.tsx). Roles are granted in-app on `/admin/users` (promote/demote) or via the secret-key CLI (`pnpm promote-admin`). Keeping the gate on `app_metadata` rather than the database is a hard constraint (enforced: `check:admin-gate`). See [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints).
 
 ### Defense in depth (admin)
 
-Admin privilege is re-verified at every layer that can reach elevated operations: proxy redirect → [`AdminAuthGate`](src/app/admin/_components/admin-auth-gate.tsx) in the layout → `assertAdminCaller()` in each server action before `createServiceClient()` runs. No single gate is considered sufficient. The service client is never reached without passing all three. Enforcement: [`proxy.ts`](proxy.ts), [`AdminAuthGate`](src/app/admin/_components/admin-auth-gate.tsx), and `assertAdminCaller()` in [`src/app/admin/users/_lib/assert-admin-caller.ts`](src/app/admin/users/_lib/assert-admin-caller.ts).
+Admin privilege is re-verified at every layer that can reach elevated operations: proxy redirect → [`AdminAuthGate`](src/app/admin/_components/admin-auth-gate.tsx) in the layout → `assertAdminCaller()` in each server action before `createServiceClient()` runs. No single gate is considered sufficient. The service client is never reached without passing all three. Enforcement: [`src/proxy.ts`](src/proxy.ts), [`AdminAuthGate`](src/app/admin/_components/admin-auth-gate.tsx), and `assertAdminCaller()` in [`src/app/admin/users/_lib/assert-admin-caller.ts`](src/app/admin/users/_lib/assert-admin-caller.ts).
 
 ### Supabase clients (browser / server / service)
 
@@ -152,6 +153,10 @@ Public avatar URLs are versioned with a `?v=` query param so browsers fetch the 
 ### Canonical data table
 
 The reference pattern for admin tables: `DataTableShell` with single-column search, server-side Next/Previous pagination with a selectable page size (10 / 15 / 25 / 50; default 15) via shared `DataTablePaginationControls`, and skeleton loading via column meta. Per-column width and alignment use `columnDef.meta.cellClassName` on header and body cells; loading skeletons use `columnDef.meta.skeletonClassName`. See [`src/components/data-table-shell.tsx`](src/components/data-table-shell.tsx) and the users table as the production reference; the [`/reference`](src/app/(marketing)/reference/_components/reference-table-section.tsx) fixture demo is the sanctioned client-side pagination exception. New admin list views should follow this pattern before reaching for a custom table.
+
+### Tiered freshness
+
+Matching a data-freshness mechanism to a surface's actual needs rather than applying one everywhere. A monitoring/triage surface with ongoing inserts where stale data would drive a wrong decision gets Realtime (live push); a low-churn, single-actor surface gets a lighter signal — refetch-on-focus, or a save-confirmation toast. A table earns Realtime only against fixed criteria, evaluated per surface, not added by precedent. This is a template-level pattern every spinoff inherits and applies to its own tables. Criteria and trade-offs in [docs/adr/ADR-0008-realtime-scoped-to-logs-tiered-freshness.md](docs/adr/ADR-0008-realtime-scoped-to-logs-tiered-freshness.md).
 
 ---
 

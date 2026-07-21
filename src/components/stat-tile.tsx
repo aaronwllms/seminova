@@ -1,5 +1,6 @@
 'use client'
 
+import { useId } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 
 import {
@@ -8,11 +9,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { cn } from '@/utils/tailwind'
-
-/** Supplementary hints — slower than sidebar icon labels (provider delay 0). */
-const STAT_TILE_TOOLTIP_DELAY_MS = 500
-/** TW4 `duration-*` sets transition-duration; tooltips animate via `animation`. */
-const STAT_TILE_TOOLTIP_FADE_CLASS = '[animation-duration:300ms]'
 
 const statTileVariants = cva(
   'cursor-pointer rounded-xl px-3 py-2.5 text-left transition-colors focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
@@ -95,12 +91,16 @@ export const StatTile = ({
   tooltip,
   onClick,
 }: StatTileProps) => {
+  const tooltipId = useId()
+  const accessibleName = `${label}, ${count}`
+
   const button = (
     <button
       type="button"
       className={cn(statTileVariants({ role, selected }))}
       aria-pressed={selected}
-      aria-label={tooltip ? `${label}, ${tooltip}` : undefined}
+      aria-label={accessibleName}
+      aria-describedby={tooltip ? tooltipId : undefined}
       onClick={onClick}
     >
       <p className="mb-0.5 text-[11px] leading-none">{label}</p>
@@ -113,17 +113,14 @@ export const StatTile = ({
   }
 
   return (
-    <Tooltip delayDuration={STAT_TILE_TOOLTIP_DELAY_MS}>
-      <TooltipTrigger asChild>{button}</TooltipTrigger>
-      <TooltipContent
-        side="top"
-        className={cn(
-          'fill-mode-backwards zoom-in-100 data-[side=top]:slide-in-from-bottom-0 data-[state=closed]:zoom-out-100 ease-in-out',
-          STAT_TILE_TOOLTIP_FADE_CLASS,
-        )}
-      >
+    <>
+      <span id={tooltipId} className="sr-only">
         {tooltip}
-      </TooltipContent>
-    </Tooltip>
+      </span>
+      <Tooltip>
+        <TooltipTrigger asChild>{button}</TooltipTrigger>
+        <TooltipContent side="top">{tooltip}</TooltipContent>
+      </Tooltip>
+    </>
   )
 }

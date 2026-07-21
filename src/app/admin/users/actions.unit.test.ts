@@ -347,6 +347,7 @@ describe('listUsersAction', () => {
       sortDirection: 'desc',
       filterUnverified: false,
       filterBanned: false,
+      filterNew30d: false,
     })
   })
 
@@ -406,6 +407,7 @@ describe('listUsersAction', () => {
       emailFilter: 'alice',
       filterUnverified: false,
       filterBanned: false,
+      filterNew30d: false,
     })
   })
 
@@ -427,7 +429,25 @@ describe('listUsersAction', () => {
       sortDirection: 'desc',
       filterUnverified: true,
       filterBanned: true,
+      filterNew30d: false,
     })
+  })
+
+  it('should return VALIDATION_ERROR for non-boolean filterNew30d', async () => {
+    const { listUsersAction } = await import('./actions')
+    const result = await listUsersAction({
+      filterNew30d: 'yes' as unknown as boolean,
+    })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'New (30d) filter must be a boolean',
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
+    })
+    expect(listAdminUsersPageMock).not.toHaveBeenCalled()
   })
 
   it('should return VALIDATION_ERROR for non-boolean filterUnverified', async () => {
@@ -485,6 +505,7 @@ describe('listUsersAction', () => {
       sortDirection: 'desc',
       filterUnverified: false,
       filterBanned: false,
+      filterNew30d: false,
     })
   })
 
@@ -546,6 +567,7 @@ describe('getUserStatsAction', () => {
       total: 10,
       unverified: 2,
       banned: 1,
+      new30d: 4,
     })
 
     const { getUserStatsAction } = await import('./actions')
@@ -553,7 +575,7 @@ describe('getUserStatsAction', () => {
 
     expect(result).toEqual({
       success: true,
-      data: { total: 10, unverified: 2, banned: 1 },
+      data: { total: 10, unverified: 2, banned: 1, new30d: 4 },
     })
     expect(listAdminUserStatsMock).toHaveBeenCalledWith(expect.any(Object))
   })

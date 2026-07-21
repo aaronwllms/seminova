@@ -42,7 +42,7 @@ export const UnbanUserDialog = ({
         <AlertDialogAction asChild>
           <Button
             type="button"
-            variant="destructive"
+            variant="default"
             disabled={isPending}
             className={cn(isPending && 'pointer-events-none opacity-50')}
             onClick={(event) => {

@@ -19,6 +19,66 @@ export const EMPTY_LOG_LIST_FILTERS: LogListFilters = {
   search: null,
 }
 
+export interface LogListFilterChip {
+  id: string
+  label: string
+}
+
+const truncateFilterDisplay = (value: string): string =>
+  value.length > 20 ? `${value.slice(0, 17)}…` : value
+
+export const hasActiveLogListFilters = (filters: LogListFilters): boolean =>
+  filters.levels.length > 0 ||
+  filters.unreadOnly ||
+  filters.tag !== null ||
+  filters.search !== null
+
+export const buildLogListFilterChips = (
+  filters: LogListFilters,
+): LogListFilterChip[] => {
+  const chips: LogListFilterChip[] = []
+
+  for (const level of filters.levels) {
+    chips.push({
+      id: `level:${level}`,
+      label: level.charAt(0).toUpperCase() + level.slice(1),
+    })
+  }
+
+  if (filters.unreadOnly) {
+    chips.push({ id: 'unread', label: 'Unread' })
+  }
+
+  if (filters.tag) {
+    chips.push({
+      id: 'tag',
+      label: `Tag: ${truncateFilterDisplay(filters.tag)}`,
+    })
+  }
+
+  if (filters.search) {
+    chips.push({
+      id: 'search',
+      label: `Search: ${truncateFilterDisplay(filters.search)}`,
+    })
+  }
+
+  return chips
+}
+
+export const buildMarkAllLogsReadTooltip = (
+  filteredUnreadCount: number,
+  filters: LogListFilters,
+): string => {
+  if (filteredUnreadCount === 0) {
+    return 'No unread logs in the current view.'
+  }
+
+  return hasActiveLogListFilters(filters)
+    ? 'Mark unread logs in the current filter view as read'
+    : 'Mark all unread logs as read'
+}
+
 export type FilterableAppLogsQuery = {
   in: (column: string, values: string[]) => FilterableAppLogsQuery
   is: (column: string, value: null) => FilterableAppLogsQuery

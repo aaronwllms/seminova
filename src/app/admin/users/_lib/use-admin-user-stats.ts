@@ -13,6 +13,7 @@ export const useAdminUserStats = () => {
   const query = useQuery({
     queryKey: adminUsersQueryKeys.stats(),
     queryFn: async () => unwrapStatsActionResult(await getUserStatsAction()),
+    refetchOnWindowFocus: 'always',
     retry: (failureCount, error) =>
       (error as unknown as AppError)?.kind === 'fault' && failureCount < 1,
     retryDelay: 0,

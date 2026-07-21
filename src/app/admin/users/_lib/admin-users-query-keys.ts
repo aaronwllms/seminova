@@ -10,6 +10,7 @@ export const adminUsersQueryKeys = {
     perPage: number,
     filterUnverified: boolean,
     filterBanned: boolean,
+    filterNew30d: boolean,
   ) =>
     [
       'admin-users',
@@ -22,6 +23,7 @@ export const adminUsersQueryKeys = {
         perPage,
         filterUnverified,
         filterBanned,
+        filterNew30d,
       },
     ] as const,
   stats: () => ['admin-users', 'stats'] as const,

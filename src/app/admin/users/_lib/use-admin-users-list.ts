@@ -19,6 +19,7 @@ type UseAdminUsersListOptions = {
   perPage: DataTablePageSize
   filterUnverified?: boolean
   filterBanned?: boolean
+  filterNew30d?: boolean
 }
 
 export const useAdminUsersList = ({
@@ -29,6 +30,7 @@ export const useAdminUsersList = ({
   perPage,
   filterUnverified = false,
   filterBanned = false,
+  filterNew30d = false,
 }: UseAdminUsersListOptions) => {
   const query = useQuery({
     queryKey: adminUsersQueryKeys.list(
@@ -39,6 +41,7 @@ export const useAdminUsersList = ({
       perPage,
       filterUnverified,
       filterBanned,
+      filterNew30d,
     ),
     queryFn: async () => {
       const result = await listUsersAction({
@@ -49,10 +52,12 @@ export const useAdminUsersList = ({
         perPage,
         filterUnverified,
         filterBanned,
+        filterNew30d,
       })
       return unwrapListUsersResult(result)
     },
     placeholderData: keepPreviousData,
+    refetchOnWindowFocus: 'always',
     retry: (failureCount, error) =>
       (error as unknown as AppError)?.kind === 'fault' && failureCount < 1,
     retryDelay: 0,

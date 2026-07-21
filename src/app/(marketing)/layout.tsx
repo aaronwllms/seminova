@@ -1,9 +1,7 @@
-import { Suspense } from 'react'
+import { SiteFooter } from '@/components/site-footer'
 
-import { PublicBannerSlotEntry } from '@/components/public-banner-slot-entry'
-
-import { LandingFooter } from './_components/landing-footer'
-import { LandingHeader } from './_components/landing-header'
+import { MarketingFooterBorder } from './_components/marketing-footer-border'
+import { MarketingStickyChrome } from './_components/marketing-sticky-chrome'
 
 type MarketingLayoutProps = {
   children: React.ReactNode
@@ -12,12 +10,11 @@ type MarketingLayoutProps = {
 export default function MarketingLayout({ children }: MarketingLayoutProps) {
   return (
     <>
-      <Suspense fallback={null}>
-        <PublicBannerSlotEntry />
-      </Suspense>
-      <LandingHeader />
+      <MarketingStickyChrome />
       {children}
-      <LandingFooter />
+      <MarketingFooterBorder>
+        <SiteFooter logoHref="/" showTopBorder={false} />
+      </MarketingFooterBorder>
     </>
   )
 }

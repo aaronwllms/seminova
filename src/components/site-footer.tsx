@@ -16,13 +16,15 @@ const socialIcons = {
 type SiteFooterProps = {
   logoHref?: string
   showNav?: boolean
+  showTopBorder?: boolean
 }
 
 export const SiteFooter = ({
   logoHref = '/',
   showNav = true,
+  showTopBorder = true,
 }: SiteFooterProps) => (
-  <footer className="bg-background border-t">
+  <footer className={cn('bg-background', showTopBorder && 'border-t')}>
     <SiteContainer className="py-6">
       <div
         className={cn(

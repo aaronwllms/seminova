@@ -4,6 +4,7 @@ export interface AdminUserStats {
   total: number
   unverified: number
   banned: number
+  new30d: number
 }
 
 export const listAdminUserStats = async (
@@ -21,5 +22,6 @@ export const listAdminUserStats = async (
     total: Number(row?.total ?? 0),
     unverified: Number(row?.unverified ?? 0),
     banned: Number(row?.banned ?? 0),
+    new30d: Number(row?.new_30d ?? 0),
   }
 }

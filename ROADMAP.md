@@ -2,7 +2,7 @@
 
 The planning horizon: anticipated phases as thin stubs, plus living status. Shipped phase detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md); build-time workflow and authoritative schema in [AGENTS.md](AGENTS.md). Phase status vocabulary and PRD lifecycle in [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
-**Last updated:** 2026-07-19
+**Last updated:** 2026-07-21
 
 ---
 
@@ -22,6 +22,11 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 | 10 | App Home, Form Primitives & Reference Surfaces | `Shipped` | [Phase 10 PRD](docs/prds/archive/phase-10-app-home-reference-surfaces.prd.md) |
 | 11 | Corrections & Hardening | `Shipped` | [Phase 11 PRD](docs/prds/archive/phase-11-corrections-hardening.prd.md) |
 | 12 | Observability & App Settings | `Shipped` | [Phase 12 PRD](docs/prds/archive/phase-12-observability-app-settings.prd.md) |
+| 13 | Realtime Logs & Session Refresh | `Shipped` | [Phase 13 PRD](docs/prds/archive/phase-13-realtime-logs-session-refresh.prd.md) |
+| 14 | Features Page & Landing Refresh | `Draft` | — |
+| 15 | Magic Link Auth | `Draft` | — |
+| 16 | Blog Page | `Draft` | — |
+| 17 | Pricing Page | `Draft` | — |
 
 > [!NOTE]
 > Phases 1–7 pre-date the per-phase PRD system, so their PRD column is empty; their shipped detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md). From Phase 8 on, shipped rows link the archived PRD per [docs/DOC_RULES.md](docs/DOC_RULES.md).
@@ -32,6 +37,17 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 
 Thin stubs for anticipated phases — intent and shape only; decomposition into epics happens at phase-planning time. This section is kept even when empty, so the next phase always has a home.
 
+### 14 — Features Page & Landing Refresh
+Add a standalone `/features` page (scannable, categorized) covering the full capability set, and refresh the home page feature grid to a curated set of highlights linking out to it. Includes folding loose-end #19 (admin-shell card copy) into this work rather than doing it separately.
+
+### 15 — Magic Link Auth
+Add magic-link (passwordless email) sign-in, toggleable from admin settings. Open question: alongside password auth (user chooses) or eventual replacement — undecided, resolve at phase-planning.
+
+### 16 — Blog Page
+Add a `/blog` page, toggleable from admin settings (nav + route both respect the toggle). Content model TBD at phase-planning (MDX files vs DB-backed posts vs CMS).
+
+### 17 — Pricing Page
+Add a `/pricing` page, toggleable from admin settings. Static content vs plan-driven (tied to actual billing) TBD at phase-planning.
 
 ## Open questions / deferred decisions
 
@@ -61,14 +77,5 @@ _Defer until: a future security phase_
 **Problem:** Name is Seminova; `.com` is contested (out-of-lane semiconductor/agriculture firms).
 **Solution:** Plan to claim `seminova.dev` (or similar) and carry keywords in the repo description/topics rather than the name. Low priority.
 _Defer until: opportunistic_
-
-</details>
-
-<details>
-<summary>JWT expiration recurring failure (resolved)</summary>
-
-**Problem:** `JWT has expired` recurred when display auth reads validated `exp` on the cookie-read access token after the proxy had already refreshed the session on the same request.
-
-**Resolution:** [ADR-0005](docs/adr/ADR-0005-proxy-as-sole-session-authority.md) — proxy is the sole session gate and refresh authority; RSC display reads use `getDisplayAuthClaims()` with `getClaims(accessToken, { allowExpired: true })` (signature verified, exp tolerated, no refresh).
 
 </details>

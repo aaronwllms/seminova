@@ -8,7 +8,7 @@
 
 **An opinionated, AI-native starter for building SaaS products with Next.js and Supabase — with the planning workflow built in.**
 
-<!-- TODO: hero screenshot — landing page, light and dark side by side, saved to images/ or .github/ -->
+<!-- TODO: hero screenshot — landing page, light and dark side by side, saved to public/images/ or .github/ -->
 
 ## Why this exists
 
@@ -31,9 +31,9 @@ Most starter templates hand you a blank slate with dependencies pre-installed. S
 Seminova ships with a two-environment planning system: **Claude** owns planning, decomposition, and adversarial review; **Cursor** owns implementation. Skills on both sides drive each step — from project kickoff, which turns a fresh clone into a real project, through phase planning, plan review, build, and ship.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="images/workflow-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="images/workflow-light.svg">
-  <img alt="Seminova workflow: project kickoff and initialize project feed into a phase loop (plan phase, then a nested epic loop of plan epic, review plan, build, then ship phase)" src="images/workflow-light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="public/images/workflow-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="public/images/workflow-light.svg">
+  <img alt="Seminova workflow: project kickoff and initialize project feed into a phase loop (plan phase, then a nested epic loop of plan epic, review plan, build, then ship phase)" src="public/images/workflow-light.svg">
 </picture>
 
 > [!NOTE]
@@ -147,7 +147,7 @@ pnpm promote-admin your@email.com
 4. Grant yourself admin access using one of the options in [Grant admin access](#grant-admin-access) above.
 5. **Re-login** if you were already signed in — the admin role is embedded in the JWT and won't appear until you start a fresh session.
 
-6. Open the admin area at [http://localhost:3000/admin](http://localhost:3000/admin) (admins land here after login; non-admins land on `/home`). `/admin/users` lists signed-up accounts with stat-tile filters (Total, Unverified, Banned), email search, column sort, configurable page size, and in-app promote/demote and ban/unban; `/admin/logs` browses persisted application logs with stat-tile filters (level + unread), tag and free-text search, global read/unread triage, cursor paging, timestamp sort direction, row detail, and copy-to-clipboard; `/admin/settings` edits runtime configuration (registry-driven, per-row save).
+6. Open the admin area at [http://localhost:3000/admin](http://localhost:3000/admin) (admins land here after login; non-admins land on `/home`). `/admin/users` lists signed-up accounts with stat-tile filters (Total, Unverified, Banned, New (30d)), email search, column sort, configurable page size, refetch-on-focus freshness, and in-app promote/demote and ban/unban; `/admin/logs` browses persisted application logs with a live feed (Supabase Realtime INSERT subscription, live on/off toggle default off with preference persisted across visits, manual refresh), stat-tile filters (level + unread), tag and free-text search, global read/unread triage, filtered empty state with reset and refresh, cursor paging, timestamp sort direction, row detail, and copy-to-clipboard; `/admin/settings` edits runtime configuration (registry-driven, per-row save).
 
 Companion CLI commands (bootstrap / automation): `pnpm demote-admin <email>`, `pnpm delete-user <email>` (test-account cleanup; requires secret key and confirmation naming the target project), `pnpm list-admins` (read-only, no confirmation).
 

@@ -46,8 +46,9 @@ const isAccessTokenExpired = (
  * Display-only auth claims for protected-route server reads. Reads the access
  * token from cookies (no refresh) and validates via
  * `getClaims(accessToken, { allowExpired: true })` — signature verified,
- * exp tolerated. The proxy is the sole session gate; missing or invalid tokens
- * here are invariant violations and throw (route error boundary), not redirects.
+ * exp tolerated. The proxy is the server-side session gate; the browser
+ * client refreshes client-side. Missing or invalid tokens here are invariant
+ * violations and throw (route error boundary), not redirects.
  *
  * Use `getUser()` only at mutation trust boundaries (server actions) where the
  * Auth server must validate the access token.
@@ -120,8 +121,9 @@ export const getDisplayAuthClaims = async (): Promise<AuthenticatedClaims> => {
  * Lightweight session probe for public surfaces (e.g. marketing header).
  * Validates the cookie-read access token via
  * `getClaims(accessToken, { allowExpired: true })` — same path as
- * `getDisplayAuthClaims`, but returns false instead of throwing. Does not
- * refresh tokens; refresh is proxy-only (see ADR-0005).
+ * `getDisplayAuthClaims`, but returns false instead of throwing. The proxy
+ * is the server-side session gate; the browser client refreshes client-side.
+ * This probe validates only; it does not refresh tokens.
  */
 export const hasServerAuthSession = async (): Promise<boolean> => {
   const accessToken = await readAccessTokenFromCookies()

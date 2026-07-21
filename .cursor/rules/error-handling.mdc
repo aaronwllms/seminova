@@ -106,7 +106,7 @@ Use Next.js `error.tsx` for route-level error boundaries. For component-level er
 ### Database Errors
 
 - Map Supabase `error.code` to taxonomy (`PGRST116` → `NOT_FOUND`, `42501` → `FORBIDDEN`, etc.)
-- Log: `appLog.error('source-tag', '…', { postId, supabaseCode: error.code })` — no raw PII
+- Log: `appLog.error('api-resource', '…', { postId, supabaseCode: error.code })` — kebab-case tag first per `logging.mdc`; no raw PII
 - Return user-safe message in the error envelope
 
 **Auth Errors:**
@@ -184,7 +184,7 @@ Test user-visible error UI for operational failures and envelope `kind`/`code` a
 
 Before shipping error handling code:
 - [ ] All async operations wrapped in try/catch
-- [ ] Errors logged with source and code
+- [ ] Errors logged with kebab-case tag and taxonomy code (see `logging.mdc` § Tag Convention)
 - [ ] User-friendly error messages (not internal details)
 - [ ] Appropriate HTTP status codes
 - [ ] No sensitive data in logs

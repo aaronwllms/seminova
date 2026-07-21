@@ -63,6 +63,7 @@ export interface ListUsersActionInput {
   perPage?: DataTablePageSize
   filterUnverified?: boolean
   filterBanned?: boolean
+  filterNew30d?: boolean
 }
 
 export type { AdminUserStats } from './_lib/list-admin-user-stats'
@@ -137,6 +138,7 @@ export const listUsersAction = async (
 
   const filterUnverified = input.filterUnverified ?? false
   const filterBanned = input.filterBanned ?? false
+  const filterNew30d = input.filterNew30d ?? false
 
   if (
     input.filterUnverified !== undefined &&
@@ -166,6 +168,20 @@ export const listUsersAction = async (
     }
   }
 
+  if (
+    input.filterNew30d !== undefined &&
+    typeof input.filterNew30d !== 'boolean'
+  ) {
+    return {
+      success: false,
+      error: {
+        message: 'New (30d) filter must be a boolean',
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
+    }
+  }
+
   try {
     const client = await createClient()
     const result = await listAdminUsersPage(client, {
@@ -176,6 +192,7 @@ export const listUsersAction = async (
       sortDirection,
       filterUnverified,
       filterBanned,
+      filterNew30d,
     })
 
     return {

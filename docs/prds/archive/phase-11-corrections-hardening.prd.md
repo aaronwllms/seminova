@@ -26,7 +26,7 @@ Clear the Phase 10 correction list, extend the token system with the missing sta
 
 ## Out of scope
 
-- **JWT session handling** — resolved separately via [ADR-0005](../adr/ADR-0005-proxy-as-sole-session-authority.md); not part of this phase.
+- **JWT session handling** — resolved separately via [ADR-0005](../adr/ADR-0005-proxy-session-gate-two-authority-refresh.md); not part of this phase.
 - **CSP enforcement, the theme-regeneration skill, the admin logging page, and name/domain finalization** — remain deferred ROADMAP open questions.
 - **Email change as a capability** — the profile email field is display-only; editing email is not built here.
 - **Upload-on-complete and explicit-submit primitive extraction** — unchanged from Phase 10; neither is revisited.

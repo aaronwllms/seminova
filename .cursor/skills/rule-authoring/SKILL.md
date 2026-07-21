@@ -58,11 +58,35 @@ blocks, generic programming advice the agent already knows. Showing 3+
 similar examples means you're teaching, not guiding — collapse to one
 principle statement plus at most one example.
 
-Point at a real file over writing a code block: reference an existing
-implementation instead of demonstrating the pattern inline — it stays DRY
-and current with the codebase. Every path a rule cites must exist and still
-match the described pattern; a rule citing a moved, renamed, or deleted file
-is stale and needs fixing, not left alone. Prefer stable locations (a
+### Canonical shapes vs file references
+
+**Canonical shapes** — small inline blocks (types, envelopes, call signatures)
+that define a **contract** agents must reproduce. Belong in the **primary-owner**
+rule when the pattern is project-specific and easy to get wrong.
+
+**File references** — point at one stable implementation for everything else
+(hook wiring, component composition, test layout). Prefer utilities and shared
+primitives over feature-specific paths.
+
+**Repo-truth catalogs** — lists of what is shipped (routes, forms, migrations,
+test files, production tables) belong in **AGENTS.md**, not rules. A rule may
+cite **at most one** canonical reference per pattern; do not inventory every
+consumer.
+
+**The grep test** — if the agent could discover the same information with one
+grep, do not catalog it in a rule.
+
+**Enforcement allowlists** — tables listing every exempt lint or console call
+site duplicate `eslint.config.mjs`, check scripts, or test fixtures. State
+the principle and point at the enforcement file; do not inventory every path
+in the rule.
+
+Point at a real file over writing a code block for implementation detail —
+see Canonical shapes vs file references above for when inline blocks belong.
+Reference an existing implementation instead of demonstrating wiring inline —
+it stays DRY and current with the codebase. Every path a rule cites must exist
+and still match the described pattern; a rule citing a moved, renamed, or deleted
+file is stale and needs fixing, not left alone. Prefer stable locations (a
 directory, a well-established file) over files likely to churn.
 
 Document **why**, not just what — for project-specific anti-patterns only.
@@ -110,6 +134,11 @@ text lives in AGENTS.md plus its enforcement code; `.mdc` files carry guidance.
 | Supabase tools | `supabase.mdc` | Cross-ref from `security.mdc` |
 | Test writing | `testing.mdc` | Security testing lives in `security.mdc` |
 | Error patterns | `error-handling.mdc` | Cross-ref from everywhere |
+| Forms stack & save model | `forms.mdc` | Cross-ref from `notifications.mdc`, `error-handling.mdc` |
+| Toast / feedback routing | `notifications.mdc` | Cross-ref from `forms.mdc`, `error-handling.mdc` |
+| TanStack Query patterns | `react-tanstack-query.mdc` | Cross-ref from `nextjs.mdc` |
+| Data table conventions | `data-tables.mdc` | — |
+| Logging wrappers & levels | `logging.mdc` | Cross-ref from `error-handling.mdc`, `security.mdc` |
 | SEO wire-up + content standards | `seo.mdc` | Hard constraint text in AGENTS.md; cross-ref from `nextjs.mdc` |
 
 *This table is the highest-churn content in this file — it hardcodes
@@ -178,6 +207,12 @@ through this checklist:
 - [ ] Does it contradict itself anywhere in its own body?
 - [ ] Does every line pass the no-op test — would deleting it change the
       agent's behaviour?
+- [ ] If this rule owns a contract (envelope, action return, toast API, mutation
+      branch), is the shape inline here or explicitly delegated to an owner that
+      has it?
+- [ ] File references: at most one per pattern? Stable path? No test-file inventory?
+- [ ] Does any sentence answer "what did we build?" — if yes, move to AGENTS.md
+      or delete.
 
 **Before adding a code example:** is the pattern unique to this project?
 Could a file reference replace it? Does showing code add value over

@@ -9,8 +9,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 
-import { buildLogRowCopyText } from '../_lib/build-log-row-copy-text'
 import type { AppLogRow } from '../_lib/app-log-row'
+import { buildLogRowCopyText } from '../_lib/build-log-row-copy-text'
+import { formatLogTimestampDisplay } from '../_lib/format-log-timestamp-display'
 import { LogCopyButton } from './log-copy-button'
 import { LogLevelBadge } from './log-level-badge'
 
@@ -63,7 +64,9 @@ export const LogDetailDialog = ({
         <div className="mb-5 grid grid-cols-[1.6fr_0.8fr_1fr] gap-4">
           <div className="min-w-0">
             <p className={fieldLabelClassName}>Timestamp</p>
-            <p className="text-sm tabular-nums">{log.timestampLabel}</p>
+            <p className="text-sm tabular-nums">
+              {formatLogTimestampDisplay(log.createdAt)}
+            </p>
           </div>
           <div className="shrink-0">
             <p className={fieldLabelClassName}>Level</p>

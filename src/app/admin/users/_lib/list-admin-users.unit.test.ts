@@ -48,6 +48,7 @@ describe('listAdminUsersPage', () => {
       p_search: '',
       p_filter_unverified: false,
       p_filter_banned: false,
+      p_filter_new_30d: false,
     })
   })
 
@@ -83,6 +84,7 @@ describe('listAdminUsersPage', () => {
       p_search: 'match@example.com',
       p_filter_unverified: false,
       p_filter_banned: false,
+      p_filter_new_30d: false,
     })
   })
 
@@ -93,6 +95,7 @@ describe('listAdminUsersPage', () => {
       page: 1,
       filterUnverified: true,
       filterBanned: true,
+      filterNew30d: true,
     })
 
     expect(client.rpc).toHaveBeenCalledWith(
@@ -100,6 +103,7 @@ describe('listAdminUsersPage', () => {
       expect.objectContaining({
         p_filter_unverified: true,
         p_filter_banned: true,
+        p_filter_new_30d: true,
       }),
     )
   })

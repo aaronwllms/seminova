@@ -21,15 +21,25 @@ Mechanically enforced via `check:a11y-structure` and `check:a11y-contrast` — s
 
 ### Color contrast (`check:a11y-contrast`)
 
-Semantic token foreground pairs in `src/app/globals.css` (`:root` and `.dark`) must meet **WCAG AA 4.5:1** for text-on-surface:
-
-`background`/`foreground`, `card`/`card-foreground`, `popover`/`popover-foreground`, `primary`/`primary-foreground`, `secondary`/`secondary-foreground`, `muted`/`muted-foreground`, `accent`/`accent-foreground`, `destructive`/`destructive-foreground`, `success`/`success-foreground`, `warning`/`warning-foreground`, `info`/`info-foreground`, `sidebar`/`sidebar-foreground`, `sidebar-primary`/`sidebar-primary-foreground`, `sidebar-accent`/`sidebar-accent-foreground`.
-
-Chart, border, ring, and input tokens are out of scope (no foreground partner). Token parsing ceilings (var() indirection, alpha compositing) — see `scripts/checks/a11y-contrast.mjs` `// debt:` markers.
+Paired semantic token foregrounds in `src/app/globals.css` (`:root` and `.dark`) must meet **WCAG AA 4.5:1** — the checker owns the pair inventory. Chart, border, ring, and input tokens are out of scope (no foreground partner). Token parsing ceilings (var() indirection, alpha compositing) — see `scripts/checks/a11y-contrast.mjs` `// debt:` markers.
 
 ## Guidance (manual / subjective)
 
-The checklist and principles below are not mechanically enforced — screen-reader UX and keyboard flows stay manual review.
+Screen-reader UX and keyboard flows stay manual review — the items below are not covered by `check:*`.
+
+## Tooltips
+
+**Default: no tooltip.** Add one only when:
+- **(a) Icon-only control whose function isn't inferable** from the icon/label alone, or
+- **(b) State-dependent behavior** needs explaining (why a control is disabled, what a toggle's on/off state actually does).
+
+Don't tooltip a control just because a sibling control has one — symmetry isn't a reason on its own.
+
+**Delay & motion:** 500ms hover delay, fade-in. No instant (0ms) tooltips outside the collapsed sidebar nav (`SidebarMenuButton`), which is a distinct, deliberate pattern for icon-only nav wayfinding.
+
+**Copy tone:** short imperative for action controls ("Filter to debug logs"); one-line explanatory only when covering a state/consequence a label can't ("Feed paused — Refresh to catch up").
+
+**ARIA:** pick one relationship per control, don't mix — either the tooltip text *is* the `aria-label` (icon-only controls with no other visible text), or the tooltip *supplements* a separately-set `aria-label`/visible label. Don't duplicate near-identical text across both mechanisms on the same control.
 
 ## shadcn/ui + Radix
 shadcn/ui components have **built-in accessibility** via Radix UI (ARIA, keyboard navigation, focus management, screen reader support). When customizing shadcn components, preserve Radix accessibility props — do not override ARIA roles or strip keyboard handlers.
@@ -42,26 +52,7 @@ shadcn/ui components have **built-in accessibility** via Radix UI (ARIA, keyboar
 - **Forms** — associate labels, describe errors accessibly (`role="alert"`), use `aria-invalid` where appropriate
 - **Modals** — use shadcn Dialog (focus trap, Escape to close, focus restore built-in)
 
-## Accessibility Testing
-
-### Manual Testing Checklist
-- [ ] Can be navigated with keyboard only (no mouse)
-- [ ] Has visible focus indicators on all interactive elements
-- [ ] Includes descriptive labels and aria-labels where needed
-- [ ] Works with screen readers (test with NVDA, JAWS, VoiceOver)
-- [ ] Provides error feedback accessibly (role="alert")
-- [ ] Forms have proper labels and error states
-- [ ] Images have appropriate alt text
-- [ ] Headings follow logical hierarchy
-
-### Testing Tools
-- **Browser DevTools**: Lighthouse accessibility audit
-- **axe DevTools**: Browser extension for accessibility testing
-- **WAVE**: Web accessibility evaluation tool
-- **Screen readers**: NVDA (Windows), JAWS (Windows), VoiceOver (macOS/iOS)
-- **Keyboard only**: Unplug mouse and navigate
-
-## Resources
-- [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
-- [Radix UI Accessibility](https://www.radix-ui.com/primitives/docs/overview/accessibility)
-- [A11y Project Checklist](https://www.a11yproject.com/checklist/)
+## Manual review checklist
+- [ ] Keyboard-only path reaches every interactive control (Tab / Shift+Tab / Enter / Space / Escape)
+- [ ] Screen reader announces control purpose and state changes (icon-only buttons, live regions, dialogs)
+- [ ] Form errors are announced (`role="alert"` / `aria-invalid`) without relying on color alone
