@@ -93,7 +93,7 @@ Do **not** add debug on existing error paths; those stay at `error`.
 
 **Security:** never log access tokens, refresh tokens, or full JWTs.
 
-**ADR alignment:** [ADR-0005](docs/adr/ADR-0005-proxy-as-sole-session-authority.md) — debug observes refresh authority vs display reads tolerating `exp`, without changing either behavior.
+**ADR alignment:** [ADR-0005](docs/adr/ADR-0005-proxy-session-gate-two-authority-refresh.md) — debug observes refresh authority vs display reads tolerating `exp`, without changing either behavior.
 
 ---
 

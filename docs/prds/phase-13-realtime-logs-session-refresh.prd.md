@@ -1,13 +1,13 @@
 # PRD — Phase 13: Realtime Logs & Session Refresh
 
 **Status:** `Active`
-**Last updated:** 2026-07-20
+**Last updated:** 2026-07-21
 
 ---
 
 ## Problem
 
-The admin logs page shows persisted rows but only updates on reload — an admin triaging live activity has to manually refetch to see new entries, which is the wrong interaction for a monitoring surface. Adding a live feed via Supabase Realtime requires the browser to hold a long-lived authenticated subscription, but the current session model disables browser token auto-refresh entirely — the proxy is the sole refresh authority ([ADR-0005](../adr/ADR-0005-proxy-as-sole-session-authority.md)). A Realtime socket left without a fresh token silently drops when the access token expires (~1 hour), so the feed can't be built without first resolving how the browser keeps its token fresh.
+The admin logs page shows persisted rows but only updates on reload — an admin triaging live activity has to manually refetch to see new entries, which is the wrong interaction for a monitoring surface. Adding a live feed via Supabase Realtime requires the browser to hold a long-lived authenticated subscription, but the current session model disables browser token auto-refresh entirely — the proxy is the sole refresh authority ([ADR-0005](../adr/ADR-0005-proxy-session-gate-two-authority-refresh.md)). A Realtime socket left without a fresh token silently drops when the access token expires (~1 hour), so the feed can't be built without first resolving how the browser keeps its token fresh.
 
 [RESEARCH-0004](../research/RESEARCH-0004-supabase-realtime-session-refresh-nextjs.md) investigated this and recommends re-enabling default browser auto-refresh — the model Supabase's SSR + Realtime docs assume — now safe because the third refresh authority that caused the original refresh-token race (server-component-path refresh) has already been removed, returning the app to the two-authority model Supabase's built-in mitigations are designed for.
 
@@ -34,7 +34,7 @@ Give the admin logs page a live feed via Supabase Realtime — new rows appear w
 
 ### Epic 1: Browser session refresh `Complete`
 
-- **1.1 The browser client refreshes its own token.** Re-enable the browser client's default token auto-refresh, currently disabled so the proxy is the only refresh authority. The proxy stays the server-side refresh authority and server-component auth reads stay validate-only (no refresh) — this adds foreground browser refresh back on top, returning to the two-authority model Supabase's refresh-token reuse interval and cross-tab lock are built to handle. [ADR-0005](../adr/ADR-0005-proxy-as-sole-session-authority.md) is amended in place to reflect that the proxy is no longer the *sole* refresh authority; the reasoning for why this is now safe is carried by [RESEARCH-0004](../research/RESEARCH-0004-supabase-realtime-session-refresh-nextjs.md) §6.
+- **1.1 The browser client refreshes its own token.** Re-enable the browser client's default token auto-refresh, currently disabled so the proxy is the only refresh authority. The proxy stays the server-side refresh authority and server-component auth reads stay validate-only (no refresh) — this adds foreground browser refresh back on top, returning to the two-authority model Supabase's refresh-token reuse interval and cross-tab lock are built to handle. [ADR-0005](../adr/ADR-0005-proxy-session-gate-two-authority-refresh.md) is amended in place to reflect that the proxy is no longer the *sole* refresh authority; the reasoning for why this is now safe is carried by [RESEARCH-0004](../research/RESEARCH-0004-supabase-realtime-session-refresh-nextjs.md) §6.
 
 *Success:*
 - The historical refresh-race flows all pass with no `Invalid Refresh Token: Already Used` error and no unexpected sign-out: sign-in followed by immediate parallel navigation; rapid navigation near token expiry; two tabs open concurrently; an idle tab returned to after the token would have expired.
@@ -57,11 +57,12 @@ Give the admin logs page a live feed via Supabase Realtime — new rows appear w
 
 ### Epic 3: Users-page freshness `Complete`
 
-- **3.1 The users list refreshes on focus.** The admin users list refetches when the tab regains focus, so another admin's ban or promotion surfaces within a focus cycle rather than only on a manual reload. No live feed, no connection indicator, and no manual refresh control — a deliberately lighter freshness tier than the logs page, per [ADR-0008](../adr/ADR-0008-realtime-scoped-to-logs-tiered-freshness.md).
+- **3.1 The users list refreshes on focus.** The admin users list refetches when the tab regains focus, so another admin's ban or promotion surfaces within a focus cycle rather than only on a manual reload. No live feed and no connection indicator — a deliberately lighter freshness tier than the logs page, per [ADR-0008](../adr/ADR-0008-realtime-scoped-to-logs-tiered-freshness.md). A manual refresh control ships as a catch-up safety valve (toolbar and filtered empty state), the same tier-2 pattern ADR-0008 documents for users alongside refetch-on-focus — not a live-feed substitute.
 
 *Success:*
 - Returning focus to the users page surfaces another admin's ban or promote without a manual reload.
-- No manual refresh control or connection indicator is added to the users page.
+- No connection indicator is added to the users page (lighter tier than logs).
+- A manual refresh control is available as catch-up (toolbar and filtered empty state), consistent with ADR-0008.
 - `pnpm pre-push` is green.
 
 ### Epic 4: Logs toolbar & empty-state polish `Complete`

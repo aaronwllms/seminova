@@ -1,6 +1,6 @@
 # ADR-0003: No token refresh in Server Component auth reads
 
-**Status:** Superseded by [ADR-0005](ADR-0005-proxy-as-sole-session-authority.md)
+**Status:** Superseded by [ADR-0005](ADR-0005-proxy-session-gate-two-authority-refresh.md)
 
 Server Component auth reads (`requireAuthClaims`, `hasServerAuthSession`)
 validate the access token pulled from the request cookie locally and never

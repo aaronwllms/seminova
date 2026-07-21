@@ -66,7 +66,7 @@ In [`src/supabase/client.ts`](src/supabase/client.ts):
 
 ## Step 2 — Amend ADR-0005 in place
 
-Update [`docs/adr/ADR-0005-proxy-as-sole-session-authority.md`](docs/adr/ADR-0005-proxy-as-sole-session-authority.md) (keep filename; amend content per PRD):
+Update [`docs/adr/ADR-0005-proxy-session-gate-two-authority-refresh.md`](docs/adr/ADR-0005-proxy-session-gate-two-authority-refresh.md) (keep filename; amend content per PRD):
 
 - Reframe decision: **proxy remains the server-side session gate and refresh authority on matched HTTP requests**; **browser client resumes default foreground auto-refresh** for Client Components (auth forms, avatar upload, future Realtime).
 - Retain: RSC reads stay validate-only via `getDisplayAuthClaims()` (`allowExpired: true`, no refresh); mutations still use `getUser()` at trust boundary.

@@ -44,6 +44,8 @@ requires.]
 - Next sequential number, zero-padded to four digits (`0001`, `0002`, …).
 - Filename: `ADR-NNNN-short-slug.md` (e.g. `ADR-0001-component-sizing-by-depth.md`).
 
+**Rename note:** `ADR-0005` was renamed from `ADR-0005-proxy-as-sole-session-authority.md` to [`ADR-0005-proxy-session-gate-two-authority-refresh.md`](ADR-0005-proxy-session-gate-two-authority-refresh.md) when Phase 13 amended the decision to a two-authority refresh model. Same record number and decision history — filename only.
+
 ## Immutability — never edit a past ADR
 
 > [!IMPORTANT]
