@@ -1,151 +1,159 @@
 # Tech Debt Audit — Seminova
 
-Last full audit: 2026-07-04
-Last synced: 2026-07-11 (sync pass — proxy sole-auth review fixes; test count refresh)
-Scope: Full repository pass — application code (`src/`, `scripts/`, `supabase/migrations/`), config, and agent docs cross-check. Prior audit (2026-06-23) was removed from the repo in commit `85301c2`; this pass re-establishes the artifact and re-verifies every prior finding in code.
+Last full audit: 2026-07-21
+Last synced: 2026-07-21 (Batch 0 / Phase 13 ship — F083, F084, F096 resolved)
+Scope: Full repository pass — application code (`src/`, `scripts/`, `supabase/migrations/`), config, agent docs cross-check. Replaces the prior 2026-07-21 full pass on the same calendar day (re-verified against current tree). Resolved appendix pruned of entries older than the previous full-audit date (2026-07-21).
 
 ## Executive summary
 
-- **Wide-interface god files remain churn magnets** — `users-table.tsx` (231) and `dropdown-menu.tsx` (257) still carry width; profile form and admin actions decomposed in Phase 8 Epic 5; sidebar primitive decomposed in Phase 8 Epic 4. The old ≤150-line locked rule is gone (ADR-0001) but the width problem is real where it remains.
-- **Session hardening landed since last audit** — `getDisplayAuthClaims()` + `read-auth-cookie.ts` fix refresh-token races and document the display-read vs `getUser` mutation split ([ADR-0005](docs/adr/ADR-0005-proxy-as-sole-session-authority.md)); route-group `error.tsx` boundaries now cover `(app)/`, `admin/`, and `auth/`. Proxy `/login` dead branch is gone.
-- **One declared `// debt:` marker** — CSP report-only default in `security-headers.ts`; enforcing requires nonce strategy before `CSP_ENFORCE=true`.
-- **Quality gates pass** — `pnpm audit` clean; `type-check`, `lint`, `test:ci` green (323 tests).
-- **Three open findings remain** — F011 (marketing wrapper, intentional boundary), F022 (dual form stacks, intentional per `forms.mdc`), F053 (CSP report-only declared debt).
+- **Admin table orchestrators remain the primary god files** — `users-table.tsx` (466 LOC) and `logs-table.tsx` (428 LOC) each own filters, debounced search, paging, dialogs, and mutations. They co-changed 12× in six months; shared extraction is overdue.
+- **Phase 12–13 added width without decomposition** — `banner-setting-row.tsx` (425 LOC), `logs/actions.ts` (369 LOC), and `workflow-diagram.tsx` (485 LOC) join the large-file list. Sidebar and profile decompositions from Phase 8 held; admin surfaces did not get the same treatment.
+- **Six declared `// debt:` markers in application code** — CSP report-only (F053), app-settings registry hand-sync (F059), chrome grid coupling (F060), duplicate profile providers (F061), settings row dispatch switch (F062), plus CLI catch duplication in `scripts/admin/` (F063).
+- **Supabase query typing relies on casts** — `FilterableAppLogsQuery` plus `as unknown as` chains in `list-app-logs.ts` and `mark-app-logs-read.ts` (F074–F076) are a type-debt cluster waiting on generated filter types or RPC.
+- **Dependency hygiene is noisy in the toolchain** — `pnpm audit` reports 4 high-severity issues: three `brace-expansion` DoS paths plus transitive `js-yaml` (F081). MSW v2 and `public/mockServiceWorker.js` ship with zero handlers (F072).
+- **Phase 13 planning close-out is done** — Epic 3 amended for users Refresh, ADR-0005 renamed, PRD/ROADMAP shipped (F083 / F084 / F096 resolved in Batch 0).
+- **Quality gates green** — `type-check`, `lint`, and `test:ci` pass (665 tests / 133 files). Coverage thresholds met. No circular deps (`madge src`).
 
 ## Architectural mental model
 
-Seminova is a **Next.js 16 App Router template** organized into route groups: public `(marketing)/` at `/`, `auth/` at `/auth/**`, authenticated `(app)/` at `/home`, and `admin/` at `/admin/**`. Session refresh and the auth boundary run in `src/proxy.ts` → `src/supabase/proxy.ts`; admin role gating is defense-in-depth in the proxy (redirect non-admins) and `AdminAuthGate` (layout gate via `getDisplayAuthClaims`). Data access splits three ways: browser client (`@/supabase/client` + RLS), server session client (`@/supabase/server`), and secret-key service client (`@/supabase/service`) for admin user listing and role mutations.
+Seminova is a **Next.js 16 App Router template** with route groups: public `(marketing)/`, `auth/`, authenticated `(app)/` at `/home`, and `admin/` at `/admin/**`. Session gating runs in `src/proxy.ts` → `src/supabase/proxy.ts`; Phase 13 restored the **two-authority refresh model** (proxy on matched server requests + browser foreground auto-refresh) per amended ADR-0005, enabling Supabase Realtime on `/admin/logs`.
 
-Since the June audit, auth read paths were tightened: layouts and profile reads use `getDisplayAuthClaims` (cookie JWT via `allowExpired`, no refresh in layout) while mutations still call `getUser()` at trust boundaries. UI is shadcn-owned primitives + shared chrome (`site-*`) + route-scoped `_components`. Config-driven identity lives in `src/config/site.ts` and `landing-content.ts`.
+Data access splits three ways: browser client (RLS), server session client, and secret-key service client for admin listing and log persistence. Admin surfaces are the current complexity center: users table (offset paging + RPC sort + focus refetch + manual refresh), logs table (cursor paging + Realtime INSERT invalidation + localStorage live toggle), settings registry (cached reads + per-row save), and banner engine (SSR cookie dismissal on marketing, in-memory on authenticated).
 
-**Hot paths:** `src/proxy.ts`, `require-auth.ts`, auth forms, `getCurrentUserProfile`, profile blur-save, admin users table + server actions, avatar upload pipeline.
+**Hot paths:** `src/proxy.ts`, `require-auth.ts`, admin users/logs tables and their TanStack Query hooks, `persistAppLogRow`, profile blur-save, avatar upload.
 
-**Cold corners:** CSP nonce strategy (F053 deferred).
+**Cold corners:** CSP nonce strategy (F053), MSW infrastructure (F072), rate limiting on `/api/client-logs` (F082 — accepted per ADR-0007).
 
-**Largest files (LOC):** `dropdown-menu.tsx` (257), `sidebar-menu.tsx` (274), `users-table.tsx` (234), `profile-password-dialog.tsx` (164), `avatar-storage.ts` (177).
+**Largest source files (LOC, excluding tests):** `workflow-diagram.tsx` (485), `users-table.tsx` (466), `logs-table.tsx` (428), `banner-setting-row.tsx` (425), `logs/actions.ts` (369), `reference-profile-settings-preview.tsx` (340).
 
-**Git churn (6 months):** Planning docs (`AGENTS.md`, `ROADMAP.md`, `.cursor/skills/`, `.cursor/rules/`) dominate; feature churn concentrated in auth session hardening, security remediation (Phase 7), and doc/hard-constraint enforcement.
+**Git churn (6 months):** Planning docs dominate; feature churn concentrated in Phase 12 observability (logs, settings, banners) and Phase 13 (Realtime, session refresh, admin UX polish). Highest `src/` churn: `proxy.ts` (20), login-form tests (15), `users-table` / `logs-table` (12 each) — strongest co-change signal in `src/app/admin/`.
+
+**LOC scale:** ~21k lines of non-test TypeScript under `src/` — below the skill’s subagent threshold; this pass ran serially.
 
 ## Findings
 
-| ID   | Category                       | File:Line                                                                        | Severity | Description                                                                                                                                                                                                                   | Recommendation                                                                                                                    | Effort |
-| ---- | ------------------------------ | -------------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------ |
-| F011 | Architectural decay            | `src/app/(marketing)/_components/landing-container.tsx:1`                        | Low      | One-line re-export of `SiteContainer`; adds indirection without behavior (still imported by hero/features/tech-stack).                                                                                                        | Import `SiteContainer` directly in marketing components; delete alias.                                                            | S      |
-| F022 | Consistency rot                | `src/components/login-form.tsx:19-29` / `profile-settings-form.tsx:4-6`          | Low      | Auth forms use `useState`; profile uses `react-hook-form` + zod. Two form stacks.                                                                                                                                             | **Intentional per `forms.mdc`** — no migration without cause.                                                                     | —      |
-| F053 | Declared debt                  | `src/utils/security-headers.ts:1`                                                | Medium   | Template-default CSP ships report-only. Enforcing (`CSP_ENFORCE=true`) requires nonce-based script handling for Next.js inline bootstrap scripts.                                                                             | Implement per-request nonce in middleware before setting `CSP_ENFORCE=true`; tighten directives per product surface.              | L      |
+| ID   | Category            | File:Line                                                                 | Severity | Description                                                                                                                                                                                                 | Recommendation                                                                                                                                  | Effort |
+| ---- | ------------------- | ------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| F011 | Architectural decay | `src/app/(marketing)/_components/landing-container.tsx:1`                 | Low      | One-line re-export of `SiteContainer`; still imported by 9 marketing components.                                                                                                                            | Import `SiteContainer` directly; delete alias unless a spinoff needs the boundary.                                                               | S      |
+| F022 | Consistency rot     | `src/components/login-form.tsx:19-29` / `profile-settings-form.tsx:4-6`    | Low      | Auth forms use `useState`; profile uses RHF + zod. Two form stacks.                                                                                                                                           | **Intentional per `forms.mdc`** — no migration without cause.                                                                                   | —      |
+| F053 | Declared debt       | `src/utils/security-headers.ts:1`                                         | Medium   | Template-default CSP ships report-only. Enforcing requires per-request nonce for Next.js inline scripts.                                                                                                      | Implement nonce in middleware before `CSP_ENFORCE=true`; tighten directives per surface.                                                        | L      |
+| F059 | Declared debt       | `src/config/app-settings-registry.ts:23`                                  | Medium   | `AppSettingKey` / `AppSettingValueMap` and `APP_SETTINGS_REGISTRY` kept in sync by hand — a new registry entry can compile with wrong types.                                                                | Derive key union and value map from the registry const (marker's upgrade path).                                                                 | M      |
+| F060 | Declared debt       | `src/components/site-header.tsx:29` / `site-footer.tsx:31`                | Low      | Identical `md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]` track string duplicated across header and footer.                                                                                               | Extract shared grid class constant in one module; import in both chrome files.                                                                  | S      |
+| F061 | Declared debt       | `src/app/(app)/_components/app-header-account-nav.tsx:10`                 | Low      | Desktop and mobile marketing header slots each mount `ProfileDialogProvider` + dialog tree.                                                                                                                   | Consolidate via `SiteHeader` API if a third slot appears (marker's ceiling).                                                                    | M      |
+| F062 | Declared debt       | `src/app/admin/settings/_components/app-setting-row.tsx:290`              | Low      | Two-type `if (valueType === …)` dispatch for logging settings; banner rows bypass this component entirely.                                                                                                  | Refactor to registry-driven dispatch when a third non-banner `valueType` lands.                                                                  | S      |
+| F063 | Declared debt       | `scripts/admin/promote-admin.ts:5`                                        | Low      | Identical async catch-and-exit wrapper duplicated across four admin CLI entry scripts.                                                                                                                      | Extract shared `runCliScript(promise, tag)` in `scripts/admin/lib/cli.ts`.                                                                      | S      |
+| F064 | Architectural decay | `src/app/admin/users/_components/users-table.tsx:67-466`                  | Medium   | ~400 LOC orchestrator: paging, debounced search, tile filters, sort mapping, three confirmation dialogs, ban/unban/role mutations, stat tiles, toolbar, empty state — wide interface, many responsibilities. | Extract `useAdminUsersTableState` (filters + paging + dialogs) mirroring logs decomposition pattern; leave JSX composition thin.                | M      |
+| F065 | Architectural decay | `src/app/admin/logs/_components/logs-table.tsx:55-428`                    | Medium   | Parallel god file: cursor stack, live toggle + localStorage, Realtime subscription, mark-read mutations, stat tiles, detail dialog, toolbar — same width problem as users table.                             | Same as F064 — shared admin-table primitives (`useDebouncedValue`, filter chip wiring) then logs-specific cursor/live layers.                  | M      |
+| F066 | Architectural decay | `src/app/admin/settings/_components/banner-setting-row.tsx:56-425`        | Medium   | Accordion form, schedule fields, preview theme toggle, live banner preview, save/error/footer — single component owns full banner editing UX.                                                                  | Split preview island and form fields into subcomponents; keep row as accordion shell only.                                                      | M      |
+| F067 | Architectural decay | `src/app/admin/logs/actions.ts:1-369`                                     | Low      | Six exported server actions (list, stats, tags, mark read/unread, mark-all-read) plus re-exports in one file — manageable today but widening with each logs feature.                                        | Group mark-read mutations into `_lib/mark-read-actions.ts`; keep `actions.ts` as thin re-export barrel.                                          | S      |
+| F068 | Architectural decay | `src/app/admin/users/_components/users-table.tsx:50-160` / `logs-table.tsx:53-92` | Medium | Duplicate search debounce effect (`SEARCH_DEBOUNCE_MS = 300`, `useEffect` + `setTimeout`) copied across users table, logs table, and reference demo — co-change cluster from git stat.                      | Add `useDebouncedValue(value, ms)` in `src/hooks/`; replace three call sites.                                                                   | S      |
+| F069 | Architectural decay | `src/app/admin/users/_lib/use-admin-users-list.ts:59-66`                  | Low      | Fault-only retry + `AppError` cast pattern duplicated identically in `use-admin-logs-list`, `use-admin-user-stats`, and `use-admin-log-stats` (4 hooks).                                                    | Extract `useAdminQueryOptions()` returning `{ retry, selectError }` or a thin `useAdminActionQuery` wrapper.                                    | S      |
+| F070 | Architectural decay | `src/app/admin/_lib/unwrap-stats-action-result.ts:7-15` / `unwrap-users-action.ts:14-22` | Low | Two unwrap helpers with identical throw-on-error semantics; `unwrapMutationResult` adds a third variant in the same file.                                                                                   | Consolidate to one generic `unwrapActionResult<T>(result)` in `src/app/admin/_lib/`.                                                             | S      |
+| F071 | Architectural decay | `src/components/ui/dropdown-menu.tsx:1-257`                               | Low      | Radix re-export barrel still ~257 LOC with many re-exported sub-primitives (carried from prior audit).                                                                                                        | Accept as shadcn ecosystem surface unless a future shadcn update splits it; no action unless import tree bloat matters.                           | —      |
+| F072 | Dependency & config | `package.json:94` / `public/mockServiceWorker.js:1`                       | Low      | MSW v2 devDependency and generated service worker present; zero handlers, no test imports (`knip` flags `msw` unused).                                                                                      | Remove MSW + worker until HTTP mocking is needed, or add first handler + setup in one PR (AGENTS.md defers intentionally).                      | S      |
+| F073 | Test debt           | `vitest.config.ts:33`                                                     | Low      | Entire `src/app/(marketing)/workflow/_components/**` tree excluded from coverage denominator — includes interactive `workflow-diagram.tsx` (485 LOC) that already has an integration test file.              | Stop excluding the diagram (or narrow exclude to static section files only); update the `// debt:` comment which currently claims “static.”      | S      |
+| F074 | Type & contract     | `src/app/admin/logs/_lib/list-app-logs.ts:29-34`                          | Medium   | Supabase client `.from('app_logs')` cast through `unknown` to a hand-rolled `AppLogsListQuery` interface — bypasses generated Database types.                                                               | Use generated `Database['public']['Tables']['app_logs']` builder types or move list to RPC with typed return.                                   | M      |
+| F075 | Type & contract     | `src/app/admin/logs/_lib/mark-app-logs-read.ts:47-76`                     | Medium   | Chained `as unknown as MarkAllReadQuery` / `FilterableAppLogsQuery as UnreadCountQuery` to reuse filter helper on update/count builders.                                                                   | Same root fix as F074 — typed query helper or RPC for filtered mark-all/count.                                                                    | M      |
+| F076 | Type & contract     | `src/app/admin/logs/_lib/log-list-filters.ts:82-88`                       | Low      | `FilterableAppLogsQuery` is a minimal duck-type interface driving the casts in F074–F075 — no link to Supabase's actual builder.                                                                            | Collapse into one typed module once F074 approach is chosen; until then document as intentional seam.                                           | S      |
+| F077 | Type & contract     | `src/app/admin/users/_lib/use-admin-users-list.ts:66`                     | Low      | `query.error as unknown as AppError` assumes server actions always throw typed errors — no runtime guard if TanStack surfaces a network Error. No `isAppError` helper exists in `src/`.                      | Add `isAppError()` type guard and use it at hook error surfaces, or throw only `AppError` from unwrap helpers.                                    | S      |
+| F078 | Test debt           | `src/app/admin/users/actions.unit.test.ts:1-767`                          | Low      | Users actions test file (767 LOC) exceeds its subject `actions.ts` (300 LOC) — high maintenance surface on a churn-heavy module.                                                                              | Split by action group (list vs mutations) mirroring `_lib/` layout.                                                                             | S      |
+| F079 | Test debt           | `src/utils/env.ts:27-30`                                                  | Low      | `getPublicSupabaseEnv` throw branches for missing URL/key at 78% line coverage — env validation is security-adjacent but undertested.                                                                        | Add `env.unit.test.ts` cases for each throw path (pattern exists for service env).                                                              | S      |
+| F080 | Performance         | `src/app/(marketing)/workflow/_components/workflow-diagram.tsx:1-485`     | Low      | Large client component with hover/focus state machine, step panels, and SVG layout — no code-splitting; loads with workflow page bundle.                                                                    | Accept for marketing page; `dynamic()` split only if bundle analyzer shows regression.                                                            | —      |
+| F081 | Dependency & config | `pnpm audit` (brace-expansion + js-yaml)                                  | Medium   | 4 high-severity CVE paths: brace-expansion DoS (3 advisory rows via eslint/vitest toolchain) and js-yaml merge-key quadratic CPU via `@eslint/eslintrc`.                                                     | `pnpm update` / pnpm overrides to patched `brace-expansion` and `js-yaml@>=4.3.0` when toolchain permits; re-run audit before release.          | S      |
+| F082 | Security hygiene    | `docs/adr/ADR-0007-client-log-relay-unauthenticated.md:7`               | Low      | Client log relay intentionally ships without rate limiting — public POST surface bounded by closed registry + same-origin check only.                                                                         | Add path-based rate limit (CDN or middleware) before production scale; ADR documents the seam.                                                  | M      |
+| F085 | Documentation drift | `README.md:11`                                                            | Low      | Hero screenshot TODO comment — landing page renders without committed marketing asset.                                                                                                                      | Capture light/dark hero PNG to `public/images/` and remove TODO.                                                                                | S      |
+| F086 | Documentation drift | `package.json:6` / `README.md:4`                                           | Low      | `package.json` author is legacy template attribution (`Michael Troya`); README/GitHub org is `aaronwllms/seminova`.                                                                                         | Update `author` field to current maintainer or remove if template spinoffs should replace it.                                                   | S      |
+| F087 | Consistency rot     | `src/app/admin/users/actions.ts:1-300`                                    | Low      | Users actions file still monolithic (list + stats + promote/demote/ban/unban) though `_lib/` helpers exist — less severe than logs but same pattern.                                                          | Optional: thin `actions.ts` re-export only (Phase 8 pattern for users partially applied).                                                       | S      |
+| F088 | Speculative flex    | `src/app/admin/users/_lib/unwrap-users-action.ts:24-30`                   | Low      | `unwrapMutationResult` generic exported alongside list unwrap — only consumed by role/ban mutation hooks; could inline.                                                                                     | Keep until a third mutation hook appears; otherwise fold into shared unwrap (F070).                                                             | S      |
+| F089 | Reinventing platform | `src/app/admin/logs/_components/logs-table.tsx:83-84` / `profile-theme-segment.tsx:16` | Low | Manual hydration guards with `eslint-disable-next-line react-hooks/set-state-in-effect` for localStorage and next-themes — no shared primitive.                                                              | Accept as idiomatic for SSR hydration mismatches; extract only if a third guard appears.                                                        | —      |
+| F090 | Architectural decay | `src/app/(marketing)/reference/_components/reference-table-demo.tsx:22-42` | Low     | Reference fixture table re-implements production debounce/search/pagination patterns separately from admin tables — drift risk on convention changes.                                                       | Document as intentional demo isolation in `data-tables.mdc`; optionally consume shared debounce hook after F068.                                  | S      |
+| F091 | Error handling      | `src/utils/persist-app-log.ts:44-52`                                      | Low      | Persist failures log via raw `console.error` and silent-drop — intentional anti-recursion, but rows are lost with no admin surfacing.                                                                       | Accept for template; add metrics/alert on persist failure rate if logs become production-critical.                                              | —      |
+| F092 | Dependency & config | `pnpm audit` / `knip`                                                     | Low      | `@eslint/eslintrc` flagged unused by knip — likely pulled for ESLint flat-config compat; verify before removal.                                                                                               | Confirm eslint.config.mjs dependency graph; remove if truly orphaned.                                                                           | S      |
+| F093 | Test debt           | `src/utils/persist-app-log.ts:15-16`                                      | Low      | `toJsonSafeContext` array branch returns `{ value }` wrapper — 90% coverage; edge cases for circular refs partially tested.                                                                                 | Extend `persist-app-log` unit tests for array/primitive context shapes.                                                                           | S      |
+| F094 | Shallow module      | `src/app/admin/logs/_lib/use-admin-log-tags.ts:1-40`                      | Low      | Thin TanStack wrapper (~40 LOC) over `listLogTagsAction` — interface nearly equals implementation; co-changes with `logs-table.tsx` on filter work.                                                           | Merge into table hook or tags combobox only if F065 extraction happens; otherwise acceptable.                                                   | —      |
+| F095 | Security hygiene    | `src/utils/security-headers.ts:38`                                        | Low      | `style-src 'unsafe-inline'` required for Tailwind — not separately marked with `// debt:`; pairs with F053 enforcement work.                                                                                 | Revisit when CSP moves to enforcing; may need nonce/hash strategy for styles too.                                                                 | L      |
+| F097 | Consistency rot     | `src/supabase/read-auth-cookie.ts:10` / `avatar-cache-bust.ts:44` / `security-headers.ts:24` | Low | Three call sites still read `process.env.NEXT_PUBLIC_SUPABASE_URL` directly instead of `getPublicSupabaseEnv()` / a shared origin helper — Phase 8 env consolidation incomplete at the edges.                | Route URL-only reads through a small `getSupabaseOrigin()` (or tolerate URL-only optional reads with one documented helper).                    | S      |
+| F098 | Architectural decay | `src/app/(marketing)/reference/_components/reference-profile-settings-preview.tsx:1-340` | Low | 340 LOC reference demo re-implements profile save models (blur-save, avatar, password accordion, theme) as a parallel form — high drift risk vs production profile dialog.                                  | Prefer composing real profile subcomponents with demo stubs (partially done) or mark as intentional parity fixture in AGENTS `/reference` prose. | M      |
+| F099 | Declared debt       | `vitest.config.ts:32-33`                                                  | Low      | Coverage excludes OG segment files and the entire workflow `_components` tree via `// debt:` markers — one claim (“static marketing sections”) is inaccurate for the interactive diagram (see F073).         | Narrow the workflow exclude; keep OG exclude until threshold pressure returns.                                                                  | S      |
+| F100 | Declared debt       | `scripts/checks/a11y-structure.mjs:1` / `a11y-contrast.mjs:136`           | Low      | Hard-constraint checkers document static-analysis ceilings (barrel imports, dynamic `alt`, OKLCH alpha, `var()` indirection) as `// debt:` — known false-negative surface for a11y gates.                   | Accept until a real miss escapes CI; then upgrade checkers rather than papering with more rules.                                                | M      |
 
 ## Top 5
 
-1. **F053 — CSP enforcement** — Requires per-request nonce strategy; deferred out of Phase 8 scope.
+1. **F064 + F065 — Admin table god files** — Extract shared debounce hook (F068) first as a quick win, then `useAdminUsersTableState` / `useAdminLogsTableState` to collapse the 400+ LOC orchestrators. Sketch: move dialog state + filter composition into hooks; tables become toolbar + `DataTableShell` + dialog mounts.
 
-2. **F011 — LandingContainer wrapper** — Intentional marketing import boundary per audit assessment; low-priority cleanup only.
+2. **F074 + F075 + F076 — Logs query typing cluster** — The cast chain exists because `FilterableAppLogsQuery` duck-types Supabase builders. Fix: either (a) add `admin_list_logs` RPC returning typed rows + filter params (matches users pattern), or (b) generate a narrow Postgrest builder type from `database.types.ts` once per operation shape.
 
-3. **F022 — Dual form stacks** — Intentional per `forms.mdc`; no migration without cause.
+3. **F053 — CSP enforcement** — Still the largest security ceiling. Requires middleware nonce threaded into `script-src` and Next.js bootstrap before `CSP_ENFORCE=true`. Deferred to a future security phase per ROADMAP; no shortcut.
+
+4. **F059 — App settings registry type drift** — Hand-synced types will bite when Phase 15+ adds settings keys (magic link toggle, blog, pricing). Derive `AppSettingKey` from `APP_SETTINGS_REGISTRY` now while the registry is small (4 keys).
+
+5. **F081 — Toolchain CVEs** — Patch transitive brace-expansion / js-yaml before release (`pnpm audit` still reports 4 high).
 
 ## Quick wins
 
-- [x] F016: Gate `ReactQueryDevtools` behind development-only check (Phase 8 Epic 6)
-- [x] F014: Remove duplicate `@radix-ui/react-*` packages (Phase 8 Epic 2)
-- [x] F001–F003: Delete demo hook, test, and MSW handler (Phase 8 Epic 1)
-- [x] F004: Delete unused `auth-button.tsx` (Phase 8 Epic 1)
-- [x] F005: Delete unused `ThemeProvider.tsx` wrapper (Phase 8 Epic 1)
-- [x] F010: Delete unused `landing-copyright.tsx` re-export (Phase 8 Epic 1)
-- [x] F045: Document `VERCEL_URL` in `.env.example` (Phase 8 Epic 2)
-- [x] F052: Remove dead `@/lib` alias from `components.json` (Phase 8 Epic 2)
-- [x] F035: Surface avatar upload errors in `profile-avatar-field.tsx` catch block (Phase 8 Epic 6)
-- [x] F017: Revoke object URLs after avatar preview (Phase 8 Epic 6)
+- [ ] F011: Delete `LandingContainer` alias; update 9 imports to `SiteContainer`
+- [ ] F060: Extract shared header/footer grid class constant
+- [ ] F063: Extract CLI catch-and-exit helper (4 one-line entry script edits)
+- [ ] F068: Add `useDebouncedValue` hook; dedupe three debounce effects
+- [ ] F069: Extract shared admin query retry/error options
+- [ ] F070: Consolidate unwrap helpers to one generic
+- [ ] F073 / F099: Narrow workflow coverage exclude to static files only
+- [ ] F081: Patch brace-expansion / js-yaml transitive dependencies
 
 ## Things that look bad but are actually fine
 
-- **Dual admin gating (`src/proxy.ts` + `AdminAuthGate`)** — Defense-in-depth by design: proxy rejects early at the edge; layout gate catches test/dev bypass. Keep both unless proxy becomes sole enforcement by explicit decision.
+- **Dual admin gating (`proxy.ts` + `AdminAuthGate`)** — Defense-in-depth; `AdminAuthGate` probes `hasServerAuthSession` before claims on cold cache (Phase 13 fix). Keep both.
 
-- **`getClaims()` on reads vs `getUser()` on mutations** — Documented in `require-auth.ts` and AGENTS.md § Auth & session. Supabase recommends JWT validation for session refresh paths; Auth server validation for sensitive writes.
+- **Two refresh authorities (proxy + browser)** — Amended ADR-0005 + RESEARCH-0004; RSC refresh removed. Filename now matches (`ADR-0005-proxy-session-gate-two-authority-refresh.md`).
 
-- **Auth forms on `useState` while profile uses RHF+zod** — `forms.mdc` explicitly defers auth migration. Migrating login/sign-up to RHF would be churn without UX benefit.
+- **Auth forms on `useState` vs profile RHF** — `forms.mdc` intentional (F022).
 
-- **Coverage exclusions for `page.tsx` / `layout.tsx` shells** — Thin re-exports with no logic; excluding them from the denominator is reasonable. Admin `_components` are now in-scope (F028 resolved Phase 8 Epic 3).
+- **MSW deferred (F072)** — AGENTS.md explicitly documents global setup deferred until HTTP handlers needed; removing now saves little vs future test work.
 
-- **Bracket-tagged `console.error` instead of a logger module** — `AGENTS.md` and `logging.mdc` lock this pattern for Vercel searchability; not debt.
+- **`persistAppLogRow` silent drop (F091)** — Anti-recursion design; raw `console.error` is the exempt surface per `logging.mdc`.
 
-- **`APP_HOME === PROFILE_PATH` with comment about future divergence** — `app-paths.ts` documents the intentional collapse; acceptable until a separate app home exists.
+- **Client log relay without session (F082)** — ADR-0007 accepted; closed registry + same-origin + size caps bound abuse for template scale.
 
-- **`LandingContainer` one-liner wrappers (F011)** — Looks pointless but establishes a marketing import boundary for products that fork landing independently of shared chrome. Low priority cleanup only.
+- **Reference table client-side pagination** — Sanctioned fixture exception in `data-tables.mdc`.
 
-- **No `src/services/` repository layer yet** — `supabase.mdc` recommends it for future queries; only two tables exist. Premature abstraction would violate code-minimalism.
+- **`dropdown-menu.tsx` width (F071)** — shadcn ecosystem re-export barrel; splitting fights upstream updates.
 
-- **`require-auth.ts` + `read-auth-cookie.ts` added complexity** — Looks like over-engineering vs direct `getClaims()`, but fixes real refresh-token race bugs (commit `c3276dd`). Keep.
+- **Workflow diagram bundle size (F080)** — Marketing explainer page; integration test covers a11y; code-split only on evidence.
+
+- **Coverage exclusions for `page.tsx` / `layout.tsx` / UI primitives** — Thin shells or vendored shadcn; enforced elsewhere.
+
+- **No `src/services/` layer** — Two tables + RPCs; premature per code-minimalism.
+
+- **Authenticated banner in-memory dismissal** — Product spec (AGENTS.md § Banners); cookie dismissal is marketing-only for SSR correctness.
+
+- **665 tests with large test files (F078)** — High count reflects Phase 11–13 hardening; file size is maintenance cost, not wrong coverage strategy.
+
+- **knip unused sidebar / table / Toggle exports** — shadcn primitive surface area kept for composition; not dead product code.
 
 ## Open questions
 
-- **Phase 8 ship:** Phase 8 epics complete — run `ship-phase` when ready.
+- **Admin table extraction timing:** Fold into Phase 14 landing work, or a dedicated hardening epic before magic-link auth adds more admin settings? (PM decision: dedicated hardening epic / Batch 2.)
+- **MSW:** Remove dead scaffolding (F072) vs keep for imminent HTTP integration tests — PM call: keep until HTTP handlers are needed.
 
 ## Resolved
 
-- 2026-07-05 — **F054:** ROADMAP Phase 8 stub and PRD now reference the 2026-07-04 full audit; stale "has not yet been run" copy removed at planning time (`ROADMAP.md:35`, `docs/prds/phase-8-tech-debt-remediation.prd.md:4`).
-- 2026-07-05 — **F009:** Renamed `data-table1.tsx` → `data-table-shell.tsx`; updated imports and living docs (Phase 8 Epic 7).
-- 2026-07-05 — **F021:** Mirrored read-vs-mutation auth split into AGENTS.md § Auth & session (Phase 8 Epic 7).
-- 2026-07-05 — **F023:** Renamed `useDataTable` → `useDataTableShell` and `UseDataTableOptions` → `UseDataTableShellOptions` with F009 (Phase 8 Epic 7).
-- 2026-07-05 — **F024:** Wired `Profile` / `ProfileUpdate` in `getCurrentUserProfile`, profile actions, and `profile.ts` mappers; `CurrentUserProfile` composes from `ProfileFieldsView` (Phase 8 Epic 7).
-- 2026-07-05 — **F025:** Typed `AppMetadata` with `role?: string | null | undefined`; runtime gate in `isAdminFromAppMetadata`; `parseAppMetadata` at auth redirect boundaries (Phase 8 Epic 7).
-- 2026-07-05 — **F027:** Added `parseJwtClaims` / `parseAuthenticatedClaims`; proxy fail-closed on unparseable claims; replaced bare casts in require-auth, assert-admin-caller, admin users page (Phase 8 Epic 7).
-- 2026-07-05 — **F041:** Added `.cursor/plans/archive/README.md` path-migration header instead of bulk-editing archived plans (Phase 8 Epic 7).
-- 2026-07-05 — **F042:** Added post–Phase 6 path footnote to `docs/archive/CONTEXT_ARCHIVE.md` (Phase 8 Epic 7).
-- 2026-07-05 — **F016:** Gated `ReactQueryDevtools` behind `ReactQueryDevtoolsPanel` development-only wrapper in `src/providers/react-query-devtools.tsx`.
-- 2026-07-05 — **F017:** Avatar preview object URLs revoked on replace, unmount, and after successful upload in `profile-avatar-field.tsx`.
-- 2026-07-05 — **F018:** Documented `AVATAR_MAX_DIMENSION` (256px) as intentional main-thread resize bound in `avatar-storage.ts` (resolved under PRD story 6.5).
-- 2026-07-05 — **F035:** Removed silent `catch` in avatar field; upload errors surface via `useProfileAvatarUpload` → `InlineError` / `ErrorPanel`.
-- 2026-07-05 — **F037:** `getCurrentUserProfile` sets `profileLoadFailed`; profile page renders `ErrorPanel` when profile read fails.
-- 2026-07-05 — **F038:** Added `admin/error.tsx` and `auth/error.tsx` route boundaries; completes prior partial resolution from 2026-07-04.
-- 2026-07-05 — **F039:** Production returns 503 when Supabase env missing; dev bypass preserved; README documents clone-and-configure behavior.
-- 2026-07-05 — **F047:** Set conservative `QueryClient` defaultOptions in `ReactQueryProvider.tsx` (resolved under PRD story 6.5).
-- 2026-07-05 — **F048:** `SeminovaLogo` requires explicit `href: string | null`; admin sidebar passes `ADMIN_HOME` (resolved under PRD story 6.5).
-- 2026-07-05 — **F050:** Compressed `opengraph-image.png` and `twitter-image.png` (~479 KB → ~105 KB); README re-skin note added.
-- 2026-07-05 — F007: Extracted `useBlurSaveField`, `useProfileAvatarUpload`, and parameterized `profile-text-field.tsx`; `profile-settings-form.tsx` is now a thin orchestrator (~125 LOC).
-- 2026-07-05 — F008: Extracted `assert-admin-caller.ts`, `map-users-action-fault.ts`, and `run-role-mutation.ts` to `admin/users/_lib/`; `actions.ts` holds thin exports only.
-- 2026-07-05 — F026: Replaced non-null env assertions in `client.ts` and `server.ts` with `getPublicSupabaseEnv()` from shared `utils/env.ts`.
-- 2026-07-05 — F049: Promote and demote share `runRoleMutation` envelope in `run-role-mutation.ts`.
-- 2026-07-05 — F055: Consolidated service env loading into `getServiceSupabaseEnv()` in `utils/env.ts`; app `service.ts` and CLI `scripts/admin/lib/env.ts` both consume it.
-- 2026-07-05 — F057: Removed `getServiceEnvForFetch` passthrough alias; `list-admin-users.ts` calls `getServiceSupabaseEnv()` directly.
-- 2026-07-05 — F058: Consolidated env validation into `utils/env.ts` with layered helpers (`hasPublicSupabaseEnv`, `getPublicSupabaseEnv`, `getServiceSupabaseEnv`, `loadServiceEnvForCli`).
-- 2026-07-05 — F006: Decomposed `sidebar.tsx` monolith into `src/components/ui/sidebar/` focused modules (provider, shell, controls, layout, group, menu); public `@/components/ui/sidebar` import path unchanged.
-- 2026-07-05 — F028: Removed four admin `_components` from `vitest.config.ts` coverage exclude list; added smoke/integration tests for admin chrome.
-- 2026-07-05 — F029: Added `service.unit.test.ts` covering `getServiceEnv` throw paths and happy path for `createServiceClient` / `getServiceEnvForFetch`.
-- 2026-07-05 — F030: Extended `actions.unit.test.ts` with promote/demote `not_found` and service-client catch branches.
-- 2026-07-05 — F031: Added `app-shell.unit.test.tsx` rendering async shell with mocked profile.
-- 2026-07-05 — F032: Fixed users-table debounce test — real timers + `waitFor` flush; no `act(...)` warnings.
-- 2026-07-05 — F033: Fixed profile blur-save in-flight tests — await state flush after resolving mock save.
-- 2026-07-05 — F034: Site-footer tests wrap `SiteFooter` in Suspense matching production; sync `SiteCopyright` mock eliminates async client-tree warnings.
-- 2026-07-05 — F051: Added `admin-auth-gate.unit.test.tsx` covering unauthenticated redirect, non-admin redirect, and admin happy path.
-- 2026-07-05 — F014: Removed unused `@radix-ui/react-dropdown-menu`, `@radix-ui/react-label`, `@radix-ui/react-slot`; umbrella `radix-ui` is sole Radix dependency.
-- 2026-07-05 — F015: Wired `tailwindcss-animate` via `@plugin` in `globals.css` after visual QA confirmed dialog/sheet/dropdown/alert-dialog/tooltip animations need the plugin on TW4.
-- 2026-07-05 — F045: Documented optional `VERCEL_URL` in `.env.example` (auto-set on Vercel; local dev falls back to localhost).
-- 2026-07-05 — F052: Removed stale `"lib": "@/lib"` alias from `components.json`.
-- 2026-07-05 — F001: Demo `useGetMessage` hook and test deleted; `react-tanstack-query.mdc` cites `use-sign-out.ts`.
-- 2026-07-05 — F002: `axios` dependency removed (sole consumer was demo hook).
-- 2026-07-05 — F003: `/api/message` MSW handler removed; MSW node infra retained.
-- 2026-07-05 — F004: Unused `auth-button.tsx` deleted; vitest coverage exclude removed.
-- 2026-07-05 — F005: Unused `ThemeProvider.tsx` wrapper deleted; layout uses `next-themes` directly.
-- 2026-07-05 — F010: Unused `landing-copyright.tsx` re-export deleted.
-- 2026-07-05 — F012: Unused `checkbox.tsx` primitive deleted; `@radix-ui/react-checkbox` removed from manifest.
-- 2026-07-05 — F013: Unused `collapsible.tsx` primitive deleted.
-- 2026-07-05 — F019: camelCase demo hook filename resolved by deletion (F001).
-- 2026-07-05 — F020: Default-export demo hook resolved by deletion (F001).
-- 2026-07-05 — F043: Stale `use-get-message` test path in `testing.mdc` resolved by deletion + example update.
-- 2026-07-05 — F044: Misleading comment on dead `auth-button.tsx` resolved by deletion (F004).
-- 2026-07-05 — F046: Unused MSW browser worker entry (`browser.ts`, `index.ts`) deleted.
-- 2026-07-05 — F056: Checkbox Radix split pattern mooted by deleting unused primitive (F012).
-- 2026-07-04 — F036: `getCurrentUserProfile` no longer returns empty profile on missing auth — now calls `getDisplayAuthClaims` which throws on invariant violation (proxy owns gating).
-- 2026-07-04 — F040: Stale `/login` proxy path check removed; public routes are `/` and `/auth/**` only.
+| ID   | Resolved | Notes |
+| ---- | -------- | ----- |
+| F083 | 2026-07-21 | Phase 13 `ship-phase` — ROADMAP `Shipped`, PRD archived. |
+| F084 | 2026-07-21 | ADR-0005 renamed to `ADR-0005-proxy-session-gate-two-authority-refresh.md`; links + adr README note updated. |
+| F096 | 2026-07-21 | Epic 3 amended: users Refresh is intentional catch-up; no connection indicator. |
+
+_(Older Resolved entries predated the previous full-audit date of 2026-07-21 and were pruned. Historical Phase 8 remediations remain in git history and archived Phase 8 PRD.)_
 
 ## Tooling notes
 
-| Tool                       | Result                                                                                                                                                                                |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm audit`               | No known vulnerabilities                                                                                                                                                              |
-| `pnpm type-check`          | Pass                                                                                                                                                                                  |
-| `pnpm lint`                | Pass                                                                                                                                                                                  |
-| `pnpm test:ci`             | 323 tests pass; coverage thresholds met                                                                                                                                               |
-| `npx knip`                 | No unused profile type consumers (F024 resolved) |
-| `npx madge --circular src` | Not run (optional; repo ~13k LOC — below subagent threshold)                                                                                                                          |
+| Tool                       | Result                                                                                                      |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `pnpm audit`               | 4 high (brace-expansion ×3 advisory rows + js-yaml via eslint/vitest toolchain)                            |
+| `pnpm type-check`          | Pass                                                                                                        |
+| `pnpm lint`                | Pass                                                                                                        |
+| `pnpm test:ci`             | 665 tests / 133 files pass; coverage thresholds met                                                         |
+| `npx knip`                 | Unused exports dominated by shadcn sidebar/table surface; `msw` + `@eslint/eslintrc` flagged unused         |
+| `npx madge --circular src` | No circular dependencies                                                                                    |
 
 Adapted from [ksimback/tech-debt-skill](https://github.com/ksimback/tech-debt-skill) (MIT).
