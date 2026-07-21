@@ -1,5 +1,6 @@
 import Image from 'next/image'
 
+import { MarketingDisplayCard } from '@/components/marketing-display-card'
 import { cn } from '@/utils/tailwind'
 
 import { WORKFLOW_ENVIRONMENTS } from '../_lib/workflow-page-content'
@@ -26,7 +27,7 @@ export const WorkflowTwoEnvironmentsSection = () => (
 
     <div className="mx-auto mt-6 grid max-w-6xl gap-4 px-4 sm:grid-cols-2 sm:px-0">
       {WORKFLOW_ENVIRONMENTS.map((environment) => (
-        <div key={environment.name} className="bg-card rounded-xl border p-5">
+        <MarketingDisplayCard key={environment.name}>
           <h3 className="flex items-center gap-2 text-lg font-semibold tracking-tight">
             <div className="relative flex h-6 shrink-0 items-center">
               {'srcDark' in environment.logo ? (
@@ -70,7 +71,7 @@ export const WorkflowTwoEnvironmentsSection = () => (
               <li key={item}>{item}</li>
             ))}
           </ul>
-        </div>
+        </MarketingDisplayCard>
       ))}
     </div>
   </section>

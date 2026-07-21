@@ -1,3 +1,4 @@
+import { MarketingDisplayCard } from '@/components/marketing-display-card'
 import { Badge } from '@/components/ui/badge'
 
 import {
@@ -33,7 +34,7 @@ export const WorkflowConventionsSection = () => (
 
     <div className="mx-auto mt-6 grid max-w-6xl gap-4 px-4 sm:grid-cols-2 sm:px-0 lg:grid-cols-3">
       {WORKFLOW_CI_CONSTRAINTS.map((constraint) => (
-        <div key={constraint.name} className="bg-card rounded-xl border p-5">
+        <MarketingDisplayCard key={constraint.name}>
           <div className="flex flex-wrap items-start justify-between gap-2">
             <h3 className="text-base font-semibold tracking-tight">
               {constraint.name}
@@ -45,7 +46,7 @@ export const WorkflowConventionsSection = () => (
           <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
             {constraint.description}
           </p>
-        </div>
+        </MarketingDisplayCard>
       ))}
     </div>
   </section>
