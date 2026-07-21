@@ -1,6 +1,6 @@
 # PRD — Phase 13: Realtime Logs & Session Refresh
 
-**Status:** `Active`
+**Status:** `Shipped`
 **Last updated:** 2026-07-21
 
 ---

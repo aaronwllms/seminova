@@ -2,7 +2,7 @@
 
 The planning horizon: anticipated phases as thin stubs, plus living status. Shipped phase detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md); build-time workflow and authoritative schema in [AGENTS.md](AGENTS.md). Phase status vocabulary and PRD lifecycle in [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
-**Last updated:** 2026-07-19
+**Last updated:** 2026-07-21
 
 ---
 
@@ -22,7 +22,7 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 | 10 | App Home, Form Primitives & Reference Surfaces | `Shipped` | [Phase 10 PRD](docs/prds/archive/phase-10-app-home-reference-surfaces.prd.md) |
 | 11 | Corrections & Hardening | `Shipped` | [Phase 11 PRD](docs/prds/archive/phase-11-corrections-hardening.prd.md) |
 | 12 | Observability & App Settings | `Shipped` | [Phase 12 PRD](docs/prds/archive/phase-12-observability-app-settings.prd.md) |
-| 13 | Realtime Logs & Session Refresh | `Active` | [Phase 13 PRD](docs/prds/phase-13-realtime-logs-session-refresh.prd.md) |
+| 13 | Realtime Logs & Session Refresh | `Shipped` | [Phase 13 PRD](docs/prds/archive/phase-13-realtime-logs-session-refresh.prd.md) |
 | 14 | Features Page & Landing Refresh | `Draft` | — |
 | 15 | Magic Link Auth | `Draft` | — |
 | 16 | Blog Page | `Draft` | — |
