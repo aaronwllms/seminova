@@ -76,6 +76,11 @@ consumer.
 **The grep test** — if the agent could discover the same information with one
 grep, do not catalog it in a rule.
 
+**Enforcement allowlists** — tables listing every exempt lint or console call
+site duplicate `eslint.config.mjs`, check scripts, or test fixtures. State
+the principle and point at the enforcement file; do not inventory every path
+in the rule.
+
 Point at a real file over writing a code block for implementation detail —
 see Canonical shapes vs file references above for when inline blocks belong.
 Reference an existing implementation instead of demonstrating wiring inline —
@@ -129,6 +134,11 @@ text lives in AGENTS.md plus its enforcement code; `.mdc` files carry guidance.
 | Supabase tools | `supabase.mdc` | Cross-ref from `security.mdc` |
 | Test writing | `testing.mdc` | Security testing lives in `security.mdc` |
 | Error patterns | `error-handling.mdc` | Cross-ref from everywhere |
+| Forms stack & save model | `forms.mdc` | Cross-ref from `notifications.mdc`, `error-handling.mdc` |
+| Toast / feedback routing | `notifications.mdc` | Cross-ref from `forms.mdc`, `error-handling.mdc` |
+| TanStack Query patterns | `react-tanstack-query.mdc` | Cross-ref from `nextjs.mdc` |
+| Data table conventions | `data-tables.mdc` | — |
+| Logging wrappers & levels | `logging.mdc` | Cross-ref from `error-handling.mdc`, `security.mdc` |
 | SEO wire-up + content standards | `seo.mdc` | Hard constraint text in AGENTS.md; cross-ref from `nextjs.mdc` |
 
 *This table is the highest-churn content in this file — it hardcodes

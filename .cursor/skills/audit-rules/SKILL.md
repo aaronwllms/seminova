@@ -20,7 +20,7 @@ at the repo root with cited findings.
 carries no copy of its criteria; if the rule changes, the audit changes with
 it.
 
-Read the actual referenced files and actual other rule files before flagging anything; a plausible-sounding finding that doesn't hold up on inspection is worse than no finding. No sycophancy — if a rule is fine, say so and move on.
+Read the actual referenced files and actual other rule files before flagging anything; a plausible-sounding finding that doesn't hold up on inspection is worse than no finding. No sycophancy — but **do not waive a mechanical trigger without documenting the waiver** in Rules that are fine (see Phase 3). Rationalizing density or shape issues away in prose without a waiver line is an audit failure.
 
 ## Run modes
 
@@ -77,7 +77,32 @@ Audit-specific judgment the skill doesn't carry:
   restate implemented-features prose from AGENTS.md without adding a how-to
   decision. Category: `Repo-truth duplication`.
 
-**Done when:** every rule file has been checked against every principle, and every rule file appears in either the Findings table or the Rules That Are Fine section. No file unaccounted for.
+### Mechanical triggers
+
+Apply these **before** judgment waivers. When a trigger fires, file a
+finding unless the waiver criteria below are met — then document the waiver
+in Rules that are fine.
+
+| Trigger | Category | Default severity | Finding unless |
+| ------- | -------- | ---------------- | -------------- |
+| Bulleted/numbered list of **2+ test file paths** (`*.test.*`) | `Reference density` | Low | Exactly **one** path, labeled canonical example |
+| Section titled **Reference Implementations** or **Reference Examples** with **4+ file-path entries** | `Reference density` | Low | Each path maps to a **distinct named pattern** in the rule body (not just "another production table") — waiver must name the patterns |
+| Table or list duplicating **enforcement allowlist paths** already in `eslint.config.mjs`, `package.json` check scripts, or hard-constraint scanners | `Repo-truth duplication` | Low | Rule states principle + pointer to enforcement file; table could shrink to one example row |
+| **Every owner** in rule-authoring's ownership table lacks inline contract shape **and** lacks explicit `See \`owner.mdc\`` delegation to an owner that has it | `Canonical shape` | Low–Medium | Delegation target verified to contain the shape inline |
+
+**Canonical shape mandatory pass:** for **each row** in rule-authoring's
+ownership table, record one line in the **Criterion review** table (Phase 3)
+— either a finding ID or `waived` with reason. Do not summarize the whole
+pass as "none flagged" without per-owner rows.
+
+**Waiver format (Rules that are fine):** each entry for a file that triggered
+a mechanical check must append:
+
+`Criterion considered: <name> — waived (<one-line reason>)`
+
+If no mechanical trigger applied to that file, omit the suffix.
+
+**Done when:** every rule file has been checked against every principle, and every rule file appears in either the Findings table or the Rules That Are Fine section. No file unaccounted for. Criterion review table has one row per ownership-table owner plus any file where a mechanical trigger fired.
 
 ## Phase 3: Deliverable
 
@@ -89,7 +114,11 @@ Write or update `RULE_AUDIT.md` at repo root per the Output template below.
   `Repo-truth duplication`, `Reference density`, `Fictional example`, and
   `Canonical shape`, plus other rule-authoring violations as needed
 - **Severity** calibrated by how badly the problem would mislead Cursor
-- **Rules that are fine** is required; if empty, you didn't look hard enough
+- **Rules that are fine** is required; if empty, you didn't look hard enough.
+  Entries for files that hit a mechanical trigger must include the waiver suffix
+  (see Phase 2). Generic praise without criterion accounting is insufficient.
+- **Criterion review** table is required on full pass — one row per
+  rule-authoring ownership-table owner
 - On a full pass, prune Resolved entries older than the previous full audit date
 - Finding IDs are stable across passes — never renumber
 
@@ -124,13 +153,20 @@ Scope: .cursor/rules/*.mdc against the rule-authoring standard
 
 ## Rules that are fine
 
-- (required — if empty, you didn't look hard enough)
+- **`example.mdc`** — (why it's fine). Criterion considered: Reference density — waived (one canonical example only).
+- (required — if empty, you didn't look hard enough; mechanical-trigger waivers must show the suffix)
+
+## Criterion review
+
+Mandatory on full pass — one row per rule-authoring ownership-table owner.
+
+| Owner rule | Canonical shape | Reference density | Repo-truth | Result |
+| ---------- | --------------- | ----------------- | ---------- | ------ |
+| `error-handling.mdc` | inline envelopes | test list 3 paths | — | R0xx or waived: … |
 
 ## Open questions
 
 - ...
-- **Canonical shapes flagged this pass:** (owner rules with shape gaps — remediation
-  is a separate edit pass; this skill does not fix rule files)
 
 ## Resolved
 
