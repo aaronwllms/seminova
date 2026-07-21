@@ -36,7 +36,10 @@ Read the actual referenced files and actual other rule files before flagging any
 
 1. Read `rule-authoring` in full.
 2. Read `AGENTS.md` § Hard constraints at the repo root.
-3. List every file in `.cursor/rules/*.mdc`.
+3. Skim `AGENTS.md` § Implemented now and `docs/DOC_RULES.md` document-roles
+   table — enough to detect repo-truth duplication in rules, not a full
+   inventory pass.
+4. List every file in `.cursor/rules/*.mdc`.
 
 ## Phase 2: Audit
 
@@ -48,6 +51,31 @@ Audit-specific judgment the skill doesn't carry:
 - **Contradiction** — read both rules' actual content and name the specific scenario where their directives collide. A shared topic is not a contradiction.
 - **Currency** — verify referenced file paths against the actual filesystem, not from memory.
 - **Mode fit** — check the activation mode against the rule's actual relevance shape, not just whether frontmatter is internally consistent. `alwaysApply` only for true per-request universals; `globs` when relevance is bound to editing a specific file type; Agent Requested when relevance is task-bound but not file-bound (and the `description` must be specific enough to match on); Manual only when invocation-by-name is intentional. Syntactically valid frontmatter can still be the wrong mode — that's the finding.
+- **Repo-truth boundary** — per DOC_RULES, `.cursor/rules/` owns how to write
+  code, not product truth. Flag catalogs of shipped features (route lists,
+  migration inventories, "shipped flow" walkthroughs, test-file lists, every
+  production table) that duplicate AGENTS.md or are grep-able. Exception:
+  one canonical reference per pattern; security-contextual route lists when
+  the list *is* the rule.
+- **Reference density** — flag rules with 3+ file pointers to the same concern,
+  or "Reference Implementations" sections that enumerate every production
+  consumer. Recommend collapse to one stable pointer (utility, shared primitive,
+  or designated canonical example).
+- **Fictional example** — flag paths, routes, or patterns that do not exist on
+  disk or imply unshipped architecture (e.g. generic `/api/posts` with no such
+  route). Severity: Medium when an agent might copy the pattern; Low when
+  clearly labeled as hypothetical naming convention only.
+- **Canonical shape gap** — for each primary owner in rule-authoring's
+  ownership table (and any rule that defines a repeated contract), verify the
+  contract shape is inline in the owner or explicitly delegated to an owner
+  that has it. Flag when only prose + file refs exist for a pattern agents
+  repeatedly get wrong (envelopes, mutation branching, toast API, blur-save
+  hook contract). Category: `Canonical shape`. Severity: Low–Medium based on
+  repeat-mistake risk. Recommendation: add a ≤15-line inline shape, not a file
+  catalog.
+- **AGENTS.md prose overlap** — beyond § Hard constraints, flag rules that
+  restate implemented-features prose from AGENTS.md without adding a how-to
+  decision. Category: `Repo-truth duplication`.
 
 **Done when:** every rule file has been checked against every principle, and every rule file appears in either the Findings table or the Rules That Are Fine section. No file unaccounted for.
 
@@ -56,7 +84,10 @@ Audit-specific judgment the skill doesn't carry:
 Write or update `RULE_AUDIT.md` at repo root per the Output template below.
 
 - **Executive summary** — rank by what would most confuse Cursor if left unfixed
-- **Category** = rule-authoring principle violated, with Contradiction as a value — name both rules and the specific conflicting scenario in Description
+- **Category** = rule-authoring principle violated — includes `Contradiction`
+  (name both rules and the specific conflicting scenario in Description),
+  `Repo-truth duplication`, `Reference density`, `Fictional example`, and
+  `Canonical shape`, plus other rule-authoring violations as needed
 - **Severity** calibrated by how badly the problem would mislead Cursor
 - **Rules that are fine** is required; if empty, you didn't look hard enough
 - On a full pass, prune Resolved entries older than the previous full audit date
@@ -98,6 +129,8 @@ Scope: .cursor/rules/*.mdc against the rule-authoring standard
 ## Open questions
 
 - ...
+- **Canonical shapes flagged this pass:** (owner rules with shape gaps — remediation
+  is a separate edit pass; this skill does not fix rule files)
 
 ## Resolved
 
