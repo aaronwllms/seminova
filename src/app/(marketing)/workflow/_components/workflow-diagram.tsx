@@ -1,11 +1,14 @@
 'use client'
 
+import { InfoIcon } from 'lucide-react'
 import {
   useState,
   type FocusEvent,
   type KeyboardEvent,
   type MouseEvent,
 } from 'react'
+
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 import {
   WORKFLOW_LOOP_NODES,
@@ -25,11 +28,28 @@ const ENVIRONMENT_LABEL: Record<WorkflowEnvironment, string> = {
   cursor: 'Cursor',
 }
 
-const NODE_TOKENS = {
-  fill: 'var(--secondary)',
-  stroke: 'var(--border)',
-  text: 'var(--secondary-foreground)',
-} as const
+const ENVIRONMENT_ACCENT_VAR: Record<WorkflowEnvironment, string> = {
+  claude: '--info',
+  cursor: '--primary',
+}
+
+const getNodeColors = (
+  environment: WorkflowEnvironment,
+  isSpotlightActive: boolean,
+) => {
+  const accentVar = ENVIRONMENT_ACCENT_VAR[environment]
+  const fillMix = isSpotlightActive ? '28%' : '15%'
+
+  return {
+    fill: `color-mix(in oklch, var(${accentVar}) ${fillMix}, var(--card))`,
+    stroke: isSpotlightActive
+      ? `var(${accentVar})`
+      : `color-mix(in oklch, var(${accentVar}) 30%, var(--border))`,
+    ring: `var(${accentVar})`,
+    text: 'var(--foreground)',
+    modelText: 'var(--muted-foreground)',
+  }
+}
 
 const MODEL_LINE_FONT_SIZE = 11
 const MODEL_LINE_LOGO_SIZE = 12
@@ -52,11 +72,13 @@ const WorkflowNodeModelLine = ({
   environmentName,
   unitLeft,
   y,
+  textFill,
 }: {
   environment: WorkflowEnvironment
   environmentName: string
   unitLeft: number
   y: number
+  textFill: string
 }) => {
   const logoWidth = getModelLineLogoWidth(environment)
   const logoY = y - MODEL_LINE_LOGO_SIZE / 2
@@ -80,7 +102,7 @@ const WorkflowNodeModelLine = ({
           y={y}
           dominantBaseline="central"
           fontSize={MODEL_LINE_FONT_SIZE}
-          fill={NODE_TOKENS.text}
+          fill={textFill}
           fontFamily="sans-serif"
         >
           {environmentName}
@@ -118,7 +140,7 @@ const WorkflowNodeModelLine = ({
         y={y}
         dominantBaseline="central"
         fontSize={MODEL_LINE_FONT_SIZE}
-        fill={NODE_TOKENS.text}
+        fill={textFill}
         fontFamily="sans-serif"
       >
         {environmentName}
@@ -139,10 +161,8 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
 
   const activeNodeId = hoveredNodeId ?? focusedNodeId ?? selectedNodeId
   const ringNodeId = focusedNodeId ?? selectedNodeId
-
-  const detail =
-    WORKFLOW_LOOP_NODES.find((node) => node.id === activeNodeId)?.detail ??
-    DEFAULT_DETAIL
+  const activeNode =
+    WORKFLOW_LOOP_NODES.find((node) => node.id === activeNodeId) ?? null
 
   const handleDiagramBlur = (event: FocusEvent<HTMLDivElement>) => {
     if (!event.currentTarget.contains(event.relatedTarget)) {
@@ -175,7 +195,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
         role="group"
         aria-labelledby={ariaLabelledBy}
         aria-describedby="workflow-diagram-detail"
-        className="rounded-lg border"
+        className="rounded-xl border"
         onMouseOver={handleDiagramMouseOver}
         onMouseLeave={() => setHoveredNodeId(null)}
       >
@@ -185,6 +205,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
           plan, build, then out to ship phase, with a dashed revise arrow back
           from review plan to plan epic.
         </desc>
+        <rect x="0" y="0" width="860" height="320" rx="12" fill="var(--card)" />
         <defs>
           <marker
             id="workflow-arrow"
@@ -329,9 +350,11 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
         {WORKFLOW_LOOP_NODES.map((node) => {
           const { geometry } = node
           const centerX = geometry.x + geometry.width / 2
+          const isSpotlightActive = activeNodeId === node.id
           const isSpotlightDimmed =
             activeNodeId != null && activeNodeId !== node.id
           const showRing = ringNodeId === node.id
+          const nodeColors = getNodeColors(node.environment, isSpotlightActive)
           const environmentName = ENVIRONMENT_LABEL[node.environment]
           const ariaLabel = node.skill
             ? `${node.label}, ${node.skill}, ${environmentName}`
@@ -370,7 +393,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
                   height={geometry.height + 6}
                   rx="10"
                   fill="none"
-                  stroke="var(--ring)"
+                  stroke={nodeColors.ring}
                   strokeWidth="2"
                   pointerEvents="none"
                 />
@@ -381,9 +404,9 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
                 width={geometry.width}
                 height={geometry.height}
                 rx="8"
-                fill={NODE_TOKENS.fill}
-                stroke={NODE_TOKENS.stroke}
-                strokeWidth="1"
+                fill={nodeColors.fill}
+                stroke={nodeColors.stroke}
+                strokeWidth={isSpotlightActive ? 1.5 : 1}
               />
               {geometry.layout === 'three-line' ? (
                 <>
@@ -394,7 +417,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
                     dominantBaseline="central"
                     fontWeight="600"
                     fontSize="13"
-                    fill={NODE_TOKENS.text}
+                    fill={nodeColors.text}
                     fontFamily="sans-serif"
                   >
                     {node.label}
@@ -407,7 +430,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
                       dominantBaseline="central"
                       fontSize="11"
                       fontStyle="italic"
-                      fill={NODE_TOKENS.text}
+                      fill={nodeColors.text}
                       fontFamily="sans-serif"
                     >
                       {node.skill}
@@ -422,7 +445,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
                   dominantBaseline="central"
                   fontWeight="600"
                   fontSize="13"
-                  fill={NODE_TOKENS.text}
+                  fill={nodeColors.text}
                   fontFamily="sans-serif"
                 >
                   {node.label}
@@ -433,19 +456,30 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
                 environmentName={environmentName}
                 unitLeft={modelUnitLeft}
                 y={modelLineY}
+                textFill={nodeColors.modelText}
               />
             </g>
           )
         })}
       </svg>
 
-      <p
+      <Alert
         id="workflow-diagram-detail"
+        variant="info"
+        role="note"
         aria-live="polite"
-        className="text-muted-foreground mt-3 min-h-9 text-[13px]"
+        className="mt-3 min-h-14"
       >
-        {detail}
-      </p>
+        <InfoIcon aria-hidden />
+        {activeNode ? (
+          <>
+            <AlertTitle>{activeNode.label}</AlertTitle>
+            <AlertDescription>{activeNode.detail}</AlertDescription>
+          </>
+        ) : (
+          <AlertDescription>{DEFAULT_DETAIL}</AlertDescription>
+        )}
+      </Alert>
     </div>
   )
 }

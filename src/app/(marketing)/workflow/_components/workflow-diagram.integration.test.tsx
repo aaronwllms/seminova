@@ -7,6 +7,14 @@ import { WorkflowDiagram } from './workflow-diagram'
 
 const DEFAULT_DETAIL = /select or focus a step to see what happens there/i
 
+const getDetailRegion = () => {
+  const region = document.getElementById('workflow-diagram-detail')
+  if (!region) {
+    throw new Error('Expected workflow diagram detail region')
+  }
+  return region
+}
+
 const ringRectCount = (step: HTMLElement) =>
   step.querySelectorAll('rect').length
 
@@ -21,7 +29,6 @@ describe('WorkflowDiagram', () => {
 
     render(<WorkflowDiagram ariaLabelledBy="plan-review-build" />)
 
-    const detail = screen.getByText(DEFAULT_DETAIL)
     const firstStep = screen.getByRole('button', {
       name: new RegExp(firstNode.label, 'i'),
     })
@@ -31,11 +38,11 @@ describe('WorkflowDiagram', () => {
 
     await user.tab()
     expect(firstStep).toHaveFocus()
-    expect(detail).toHaveTextContent(firstNode.detail)
+    expect(getDetailRegion()).toHaveTextContent(firstNode.detail)
 
     await user.tab()
     expect(secondStep).toHaveFocus()
-    expect(detail).toHaveTextContent(secondNode.detail)
+    expect(getDetailRegion()).toHaveTextContent(secondNode.detail)
   })
 
   it('should activate a step with Enter and Space', async () => {
@@ -73,7 +80,6 @@ describe('WorkflowDiagram', () => {
 
     render(<WorkflowDiagram ariaLabelledBy="plan-review-build" />)
 
-    const detail = screen.getByText(DEFAULT_DETAIL)
     const firstStep = screen.getByRole('button', {
       name: new RegExp(firstNode.label, 'i'),
     })
@@ -82,7 +88,7 @@ describe('WorkflowDiagram', () => {
     })
 
     await user.hover(firstStep)
-    expect(detail).toHaveTextContent(firstNode.detail)
+    expect(getDetailRegion()).toHaveTextContent(firstNode.detail)
     expect(firstStep).toHaveStyle({ opacity: 1 })
     expect(secondStep).toHaveStyle({ opacity: 0.75 })
     expect(ringRectCount(firstStep)).toBe(1)
@@ -92,7 +98,7 @@ describe('WorkflowDiagram', () => {
       throw new Error('Expected svg diagram')
     }
     await user.unhover(diagram)
-    expect(detail).toHaveTextContent(DEFAULT_DETAIL)
+    expect(getDetailRegion()).toHaveTextContent(DEFAULT_DETAIL)
     expect(firstStep).toHaveStyle({ opacity: 1 })
     expect(secondStep).toHaveStyle({ opacity: 1 })
   })
@@ -104,7 +110,6 @@ describe('WorkflowDiagram', () => {
 
     render(<WorkflowDiagram ariaLabelledBy="plan-review-build" />)
 
-    const detail = screen.getByText(DEFAULT_DETAIL)
     const firstStep = screen.getByRole('button', {
       name: new RegExp(firstNode.label, 'i'),
     })
@@ -113,12 +118,12 @@ describe('WorkflowDiagram', () => {
     })
 
     await user.hover(firstStep)
-    expect(detail).toHaveTextContent(firstNode.detail)
+    expect(getDetailRegion()).toHaveTextContent(firstNode.detail)
     expect(firstStep).toHaveStyle({ opacity: 1 })
     expect(secondStep).toHaveStyle({ opacity: 0.75 })
 
     await user.hover(secondStep)
-    expect(detail).toHaveTextContent(secondNode.detail)
+    expect(getDetailRegion()).toHaveTextContent(secondNode.detail)
     expect(firstStep).toHaveStyle({ opacity: 0.75 })
     expect(secondStep).toHaveStyle({ opacity: 1 })
     expect(ringRectCount(firstStep)).toBe(1)
@@ -132,7 +137,6 @@ describe('WorkflowDiagram', () => {
 
     render(<WorkflowDiagram ariaLabelledBy="plan-review-build" />)
 
-    const detail = screen.getByText(DEFAULT_DETAIL)
     const firstStep = screen.getByRole('button', {
       name: new RegExp(firstNode.label, 'i'),
     })
@@ -141,7 +145,7 @@ describe('WorkflowDiagram', () => {
     })
 
     await user.hover(firstStep)
-    expect(detail).toHaveTextContent(firstNode.detail)
+    expect(getDetailRegion()).toHaveTextContent(firstNode.detail)
     expect(firstStep).toHaveStyle({ opacity: 1 })
     expect(secondStep).toHaveStyle({ opacity: 0.75 })
 
@@ -155,7 +159,7 @@ describe('WorkflowDiagram', () => {
     }
 
     fireEvent.mouseOver(diagram, { target: connector })
-    expect(detail).toHaveTextContent(firstNode.detail)
+    expect(getDetailRegion()).toHaveTextContent(firstNode.detail)
     expect(firstStep).toHaveStyle({ opacity: 1 })
     expect(secondStep).toHaveStyle({ opacity: 0.75 })
   })
@@ -195,19 +199,18 @@ describe('WorkflowDiagram', () => {
 
     render(<WorkflowDiagram ariaLabelledBy="plan-review-build" />)
 
-    const detail = screen.getByText(DEFAULT_DETAIL)
     const buildStep = screen.getByRole('button', { name: /build/i })
     const planStep = screen.getByRole('button', {
       name: new RegExp(WORKFLOW_LOOP_NODES[0].label, 'i'),
     })
 
     await user.click(buildStep)
-    expect(detail).toHaveTextContent(buildNode.detail)
+    expect(getDetailRegion()).toHaveTextContent(buildNode.detail)
     expect(ringRectCount(buildStep)).toBe(2)
     expect(planStep).toHaveStyle({ opacity: 0.75 })
 
     await user.unhover(buildStep)
-    expect(detail).toHaveTextContent(buildNode.detail)
+    expect(getDetailRegion()).toHaveTextContent(buildNode.detail)
     expect(ringRectCount(buildStep)).toBe(2)
     expect(planStep).toHaveStyle({ opacity: 0.75 })
   })
@@ -224,7 +227,6 @@ describe('WorkflowDiagram', () => {
       </>,
     )
 
-    const detail = screen.getByText(DEFAULT_DETAIL)
     const firstStep = screen.getByRole('button', {
       name: new RegExp(firstNode.label, 'i'),
     })
@@ -238,12 +240,12 @@ describe('WorkflowDiagram', () => {
     await user.tab()
     expect(firstStep).toHaveFocus()
     await user.keyboard('{Enter}')
-    expect(detail).toHaveTextContent(firstNode.detail)
+    expect(getDetailRegion()).toHaveTextContent(firstNode.detail)
     expect(ringRectCount(firstStep)).toBe(2)
 
     await user.tab()
     expect(secondStep).toHaveFocus()
-    expect(detail).toHaveTextContent(secondNode.detail)
+    expect(getDetailRegion()).toHaveTextContent(secondNode.detail)
     expect(ringRectCount(firstStep)).toBe(1)
     expect(ringRectCount(secondStep)).toBe(2)
 
@@ -253,7 +255,7 @@ describe('WorkflowDiagram', () => {
     await user.tab()
 
     expect(outsideButton).toHaveFocus()
-    expect(detail).toHaveTextContent(DEFAULT_DETAIL)
+    expect(getDetailRegion()).toHaveTextContent(DEFAULT_DETAIL)
     expect(ringRectCount(firstStep)).toBe(1)
   })
 })
