@@ -3,6 +3,7 @@
 import { AppErrorSurface } from '@/components/app-error-surface'
 import { DataTableShell } from '@/components/data-table-shell'
 import { DataTablePaginationControls } from '@/components/data-table-pagination-controls'
+import { cn } from '@/utils/tailwind'
 
 import { useAdminUsersTableState } from '../_lib/use-admin-users-table-state'
 import { hasActiveUserListFilters } from '../_lib/user-list-filters'
@@ -85,6 +86,7 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
             void refresh()
           }}
           isRefreshing={isRefreshing}
+          isFetching={isFetching}
         />
 
         <UsersActiveFilters
@@ -99,7 +101,13 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
 
       <AppErrorSurface error={mutationAppError} />
 
-      <div aria-busy={isFetching}>
+      <div
+        aria-busy={isFetching}
+        className={cn(
+          'transition-opacity',
+          isFetching && rows.length > 0 && 'opacity-60',
+        )}
+      >
         <DataTableShell
           table={table}
           columns={columns}

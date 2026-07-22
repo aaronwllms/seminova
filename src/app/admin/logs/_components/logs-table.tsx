@@ -90,6 +90,7 @@ export const LogsTable = () => {
           onLiveEnabledChange={handleLiveEnabledChange}
           onRefresh={refresh}
           isRefreshing={isRefreshing}
+          isFetching={isFetching}
           onMarkAllRead={handleMarkAllRead}
           markAllDisabled={filteredUnreadCount === 0}
           markAllTooltip={markAllTooltip}
@@ -109,7 +110,13 @@ export const LogsTable = () => {
 
       <AppErrorSurface error={mutationAppError} />
 
-      <div aria-busy={isFetching}>
+      <div
+        aria-busy={isFetching}
+        className={cn(
+          'transition-opacity',
+          isFetching && rows.length > 0 && 'opacity-60',
+        )}
+      >
         <DataTableShell
           table={table}
           columns={columns}

@@ -12,6 +12,7 @@ interface UsersToolbarProps {
   onSearchInputChange: (value: string) => void
   onRefresh: () => void
   isRefreshing: boolean
+  isFetching?: boolean
 }
 
 export const UsersToolbar = ({
@@ -19,10 +20,12 @@ export const UsersToolbar = ({
   onSearchInputChange,
   onRefresh,
   isRefreshing,
+  isFetching = false,
 }: UsersToolbarProps) => {
   const showSearchHint =
     searchInput.trim().length > 0 &&
     searchInput.trim().length < USERS_SEARCH_MIN_LENGTH
+  const showRefreshSpinner = isRefreshing || isFetching
 
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -60,9 +63,9 @@ export const UsersToolbar = ({
         disabled={isRefreshing}
         onClick={onRefresh}
         aria-label="Refresh users"
-        aria-busy={isRefreshing}
+        aria-busy={showRefreshSpinner}
       >
-        {isRefreshing ? (
+        {showRefreshSpinner ? (
           <Loader2 className="size-4 animate-spin" aria-hidden />
         ) : (
           <RefreshCw className="size-4" aria-hidden />
