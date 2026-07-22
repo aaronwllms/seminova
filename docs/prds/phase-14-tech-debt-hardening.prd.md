@@ -96,7 +96,7 @@ Hand-maintained types that can drift from their source are replaced with types d
 
 ---
 
-### Epic 5: Actions-Layer Thinning
+### Epic 5: Actions-Layer Thinning `Complete`
 
 The logs and users server-action files are split into per-operation modules behind a barrel, using one consistent pattern across both surfaces.
 
