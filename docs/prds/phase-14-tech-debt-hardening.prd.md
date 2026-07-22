@@ -18,7 +18,6 @@ Resolve the actionable clusters from the audit, batched so each epic is a single
 
 **Out of scope:**
 - **F053 / F095** — CSP enforcement. L effort, requires a per-request nonce strategy; deferred to a future security phase per ROADMAP open questions.
-- **F085** — hero screenshot. Requires a captured asset and design judgement; a manual PM/design task, not agent work.
 - **Audit-resolved "no action" findings** — F022, F061, F062, F071, F072, F080, F082, F089, F091, F100 are documented as intentional or ceiling-gated in the audit and are not reopened here.
 - **F066** (`banner-setting-row.tsx`, 425 LOC) — excluded **deliberately, not by oversight**. Re-examined against the deep-module-vs-god-file definition in [LEXICON.md](../../LEXICON.md) and [ADR-0001](../adr/ADR-0001-component-sizing-by-depth.md): it exposes a narrow interface (4 props) and owns one responsibility — editing a single banner setting. Its internal parts are implementation, which the rule permits decomposing freely without that being debt. No co-change signal, unlike F064/F065. It is a deep module, not a god file.
 

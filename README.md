@@ -8,8 +8,6 @@
 
 **An opinionated, AI-native starter for building SaaS products with Next.js and Supabase — with the planning workflow built in.**
 
-<!-- TODO: hero screenshot — landing page, light and dark side by side, saved to public/images/ or .github/ -->
-
 ## Why this exists
 
 Most starter templates hand you a blank slate with dependencies pre-installed. Seminova hands you a *curated* foundation: codified design-system structure, owned UI primitives, accessibility defaults, and — the part that makes it AI-native rather than just AI-friendly — a documented, skill-driven workflow for planning and building with AI coding tools. The structure enforces good patterns from the first commit, while each product built from it stays free to define its own identity and features on top.
