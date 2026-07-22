@@ -4,22 +4,22 @@ overview: Extract all orchestration from the ~422-line logs table into a dedicat
 todos:
   - id: create-state-hook
     content: Create use-admin-logs-table-state.ts — move cursor paging, search, filters, sort, live toggle, realtime, tags query (inline), mutations, detail dialog, and derived table state from logs-table.tsx
-    status: pending
+    status: completed
   - id: slim-component
     content: Refactor logs-table.tsx to thin composer calling the state hook and wiring presentational children only
-    status: pending
+    status: completed
   - id: delete-log-tags-module
     content: Delete use-admin-log-tags.ts; grep confirms no remaining imports
-    status: pending
+    status: completed
   - id: verify-tests
     content: Run logs-table.unit.test.tsx + use-admin-logs-realtime.unit.test.tsx; confirm no behavior change
-    status: pending
+    status: completed
   - id: quality-gate
     content: Run pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci
-    status: pending
+    status: completed
   - id: commit-epic
     content: "Conventional commit with Epic: 14.3 trailer — single commit, clean working tree"
-    status: pending
+    status: completed
 isProject: false
 ---
 
@@ -200,4 +200,4 @@ Authorized by this approved plan:
 
 ## Handoff
 
-Epic 14.3 committed. Baseline SHA (pre-implementation): `<SHA recorded in the Precondition step>`. Next: open a new agent window and run `/code-review` from that baseline.
+Epic 14.3 committed. Baseline SHA (pre-implementation): `ed691e78bc8e055c3bd7e1104677068b260b0348`. Next: open a new agent window and run `/code-review` from that baseline.
