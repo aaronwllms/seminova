@@ -39,7 +39,7 @@ export const AppSettingsPanel = ({
   }
 
   return (
-    <div className="flex max-w-2xl flex-col gap-6">
+    <div className="flex max-w-3xl flex-col gap-6">
       {[...groupedEntries.entries()].map(([group, entries]) => {
         const visibleEntries = entries.filter(
           (entry) => entry.valueType !== 'banner',

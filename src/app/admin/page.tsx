@@ -28,7 +28,7 @@ export default function AdminDashboardPage() {
           section as your product grows.
         </p>
       </div>
-      <div className="grid max-w-2xl gap-4 sm:grid-cols-2">
+      <div className="grid max-w-3xl gap-4 sm:grid-cols-2">
         <Link href={ADMIN_USERS} className="block">
           <Card className="hover:bg-muted/50 h-full transition-colors">
             <CardHeader className="flex flex-row items-center gap-3 space-y-0">
