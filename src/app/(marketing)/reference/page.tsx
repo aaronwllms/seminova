@@ -14,7 +14,7 @@ import { ReferenceToastSection } from './_components/reference-toast-section'
 export const metadata: Metadata = {
   title: 'Pattern Reference',
   description:
-    'Live demos of the blur-save form pattern, error surfaces, toast variants, canonical data table, and design tokens your spinoff inherits from Seminova.',
+    'Live demos of shipped form save models, error surfaces, toast variants, canonical data table, and design tokens your spinoff inherits from Seminova.',
   alternates: {
     canonical: REFERENCE_PATH,
   },
