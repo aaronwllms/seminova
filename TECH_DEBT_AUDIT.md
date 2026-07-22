@@ -1,8 +1,8 @@
 # Tech Debt Audit — Seminova
 
 Last full audit: 2026-07-21
-Last synced: 2026-07-22 (F081 sharp override via Phase 14 Epic 7; temporary until stable Next ships sharp ≥0.35)
-Scope: Sync pass — resolved F081 with `pnpm-workspace.yaml` sharp override; ROADMAP tracks Next bump + override removal. No full-repo rescan.
+Last synced: 2026-07-22 (sync — verified Open F053/F082/F095; Accepted markers unchanged; tooling counts refreshed)
+Scope: Sync pass — no Open findings resolved; no full-repo rescan.
 
 ## Executive summary
 
@@ -10,7 +10,7 @@ Scope: Sync pass — resolved F081 with `pnpm-workspace.yaml` sharp override; RO
 - **Open backlog is short** — client-log rate limit before production scale (F082), and CSP enforcement + style CSP (F053 / F095) deferred to a future security phase.
 - **Accepted rows are not todos** — intentional design, ceiling-gated markers, and template-scale risks live under **Accepted** with reopen triggers.
 - **Three declared `// debt:` markers in application code** — CSP (F053, Open/Deferred), duplicate profile providers (F061, Accepted), settings row dispatch switch (F062, Accepted).
-- **Quality gates green** — `type-check`, `lint`, and `test:ci` pass (690 tests / 141 files). Coverage thresholds met. No circular deps (`madge src`).
+- **Quality gates green** — `type-check`, `lint`, and `test:ci` pass (697 tests / 142 files). Coverage thresholds met. No circular deps (`madge src`).
 
 ## Architectural mental model
 
@@ -36,7 +36,7 @@ Actionable backlog only. `Status`: `Do next` | `Deferred` | `Needs decision`.
 | ---- | -------- | ------------------- | --------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- | ------ |
 | F082 | Deferred | Security hygiene    | `docs/adr/ADR-0007-client-log-relay-unauthenticated.md:7`             | Low      | Client log relay intentionally ships without rate limiting — public POST surface bounded by closed registry + same-origin check only.                                                | Add path-based rate limit (CDN or middleware) before production scale; ADR documents the seam. Home: pre-production gate.    | M      |
 | F053 | Deferred | Declared debt       | `src/utils/security-headers.ts:1`                                     | Medium   | Template-default CSP ships report-only. Enforcing requires per-request nonce for Next.js inline scripts.                                                                             | Implement nonce in middleware before `CSP_ENFORCE=true`; tighten directives per surface. Home: future security phase.        | L      |
-| F095 | Deferred | Security hygiene    | `src/utils/security-headers.ts:38`                                    | Low      | `style-src 'unsafe-inline'` required for Tailwind — not separately marked with `// debt:`; pairs with F053 enforcement work.                                                         | Revisit when CSP moves to enforcing; may need nonce/hash strategy for styles too. Home: same security phase as F053.         | L      |
+| F095 | Deferred | Security hygiene    | `src/utils/security-headers.ts:26`                                    | Low      | `style-src 'unsafe-inline'` required for Tailwind — not separately marked with `// debt:`; pairs with F053 enforcement work.                                                         | Revisit when CSP moves to enforcing; may need nonce/hash strategy for styles too. Home: same security phase as F053.         | L      |
 
 ## Accepted
 
@@ -125,7 +125,7 @@ _(Resolved entries from the 2026-07-21 full pass not listed above were pruned on
 | `pnpm audit`               | No known vulnerabilities (`sharp@0.35.3` via workspace override; brace-expansion / js-yaml cleared) |
 | `pnpm type-check`          | Pass                                                                                                        |
 | `pnpm lint`                | Pass                                                                                                        |
-| `pnpm test:ci`             | 690 tests / 141 files pass; coverage thresholds met                                                         |
+| `pnpm test:ci`             | 697 tests / 142 files pass; coverage thresholds met                                                         |
 | `npx knip`                 | Unused exports dominated by shadcn sidebar/table surface; `msw` flagged unused devDependency                |
 | `npx madge --circular src` | No circular dependencies                                                                                    |
 
