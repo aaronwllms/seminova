@@ -80,7 +80,7 @@ The same decomposition applied to the logs table, preserving current admin-facin
 
 ---
 
-### Epic 4: Type Derivation
+### Epic 4: Type Derivation `Complete`
 
 Hand-maintained types that can drift from their source are replaced with types derived from that source — in the settings registry and in the logs query layer.
 
