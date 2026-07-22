@@ -51,7 +51,7 @@ Consolidate the duplicated helpers behind admin table search, fetching, and erro
 
 ---
 
-### Epic 2: Users Table Decomposition
+### Epic 2: Users Table Decomposition `Complete`
 
 Admins get the same users table experience, now backed by an extracted state hook rather than one wide orchestrating component.
 
