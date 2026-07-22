@@ -19,6 +19,15 @@ import { createServiceClient } from './service-client'
 const MISSING_EMAIL_MESSAGE =
   'Usage: pnpm <command> <email> — email is required'
 
+export const runCliScript = (run: () => Promise<void>, tag: string): void => {
+  Promise.resolve()
+    .then(() => run())
+    .catch(async (error: unknown) => {
+      await cliLog.error(tag, 'Unexpected error', error)
+      process.exit(1)
+    })
+}
+
 export const parseEmailArg = (args: string[]): string | null => {
   const email = args[0]?.trim()
   return email || null

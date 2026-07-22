@@ -3,7 +3,7 @@
   "description": "An opinionated, AI-native starter for building SaaS products with Next.js and Supabase.",
   "version": "1.0.0",
   "private": true,
-  "author": "Michael Troya <hi@michaeltroya.ca> (@michaeltroya)",
+  "author": "Aaron Williams (https://github.com/aaronwllms)",
   "license": "MIT",
   "keywords": [
     "nextjs",

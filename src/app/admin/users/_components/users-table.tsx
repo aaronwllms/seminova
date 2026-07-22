@@ -1,7 +1,7 @@
 'use client'
 
 import type { SortingState } from '@tanstack/react-table'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { AppErrorSurface } from '@/components/app-error-surface'
 import {
@@ -11,7 +11,8 @@ import {
 import { DataTablePaginationControls } from '@/components/data-table-pagination-controls'
 import type { AdminBanDuration } from '@/constants/admin-ban'
 import { useToggleFilterSet } from '@/hooks/use-toggle-filter-set'
-import type { AppError } from '@/types/app-error'
+import { useDebouncedValue } from '@/hooks/use-debounced-value'
+import { toAppError } from '@/utils/is-app-error'
 
 import {
   DATA_TABLE_DEFAULT_PAGE_SIZE,
@@ -47,8 +48,6 @@ import { UsersStatTiles } from './users-stat-tiles'
 import { UsersToolbar } from './users-toolbar'
 import { createUsersColumns } from './users-columns'
 
-const SEARCH_DEBOUNCE_MS = 300
-
 const COLUMN_ID_TO_SORT_KEY: Record<string, UsersSortColumn> = {
   email: 'email',
   isVerified: 'email_confirmed_at',
@@ -71,7 +70,9 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
   )
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [searchInput, setSearchInput] = useState('')
-  const [debouncedSearch, setDebouncedSearch] = useState('')
+  const debouncedSearch = useDebouncedValue(searchInput, 300)
+  const [trackedDebouncedSearch, setTrackedDebouncedSearch] =
+    useState(debouncedSearch)
   const {
     toggle: toggleFilter,
     clearAll: clearFilters,
@@ -109,6 +110,11 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
     [appliedSearch, filterBanned, filterNew30d, filterUnverified],
   )
 
+  if (trackedDebouncedSearch !== debouncedSearch) {
+    setTrackedDebouncedSearch(debouncedSearch)
+    setPage(1)
+  }
+
   const { refresh, isRefreshing } = useAdminUsersRefresh()
   const {
     stats,
@@ -123,7 +129,7 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
     error: listError,
   } = useAdminUsersList({
     page,
-    emailFilter: debouncedSearch || undefined,
+    emailFilter: debouncedSearch.trim() || undefined,
     sortColumn,
     sortDirection,
     perPage,
@@ -149,18 +155,7 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
   } = useAdminUserBanMutation()
 
   const mutationError = roleMutationError ?? banMutationError
-  const mutationAppError = mutationError
-    ? (mutationError as unknown as AppError)
-    : null
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setDebouncedSearch(searchInput.trim())
-      setPage(1)
-    }, SEARCH_DEBOUNCE_MS)
-
-    return () => window.clearTimeout(timer)
-  }, [searchInput])
+  const mutationAppError = mutationError ? toAppError(mutationError) : null
 
   const handleSortingChange = useCallback((next: SortingState) => {
     setSorting(next)
@@ -175,7 +170,6 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
   const handleResetFilters = useCallback(() => {
     clearFilters()
     setSearchInput('')
-    setDebouncedSearch('')
     setPage(1)
   }, [clearFilters])
 
@@ -202,7 +196,6 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
           break
         case 'search':
           setSearchInput('')
-          setDebouncedSearch('')
           setPage(1)
           break
       }

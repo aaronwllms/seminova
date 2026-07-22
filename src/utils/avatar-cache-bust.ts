@@ -2,6 +2,7 @@ import {
   AVATAR_BUCKET,
   buildAvatarStoragePath,
 } from '@/constants/storage-paths'
+import { getSupabaseOrigin } from '@/utils/env'
 
 export const extractAvatarCacheBust = (url: string): number | null => {
   try {
@@ -22,27 +23,11 @@ export const withAvatarCacheBust = (
   version?: number,
 ): string => `${publicUrl}?v=${version ?? Date.now()}`
 
-const parseSupabaseOrigin = (
-  supabaseUrl: string | undefined,
-): string | null => {
-  if (!supabaseUrl) {
-    return null
-  }
-
-  try {
-    return new URL(supabaseUrl).origin
-  } catch {
-    return null
-  }
-}
-
 export const isOwnedAvatarStorageUrl = (
   url: string,
   userId: string,
 ): boolean => {
-  const supabaseOrigin = parseSupabaseOrigin(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-  )
+  const supabaseOrigin = getSupabaseOrigin()
 
   if (!supabaseOrigin) {
     return false

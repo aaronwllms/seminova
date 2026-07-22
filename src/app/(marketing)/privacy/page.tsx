@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 import { PRIVACY_PATH } from '@/constants/app-paths'
 
-import { LandingContainer } from '../_components/landing-container'
+import { SiteContainer } from '@/components/site-container'
 import { LegalPlaceholder } from '../_components/legal-placeholder'
 
 export const metadata: Metadata = {
@@ -17,9 +17,9 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <main id="main-content" className="bg-background py-12">
-      <LandingContainer>
+      <SiteContainer>
         <LegalPlaceholder title="Privacy Policy" />
-      </LandingContainer>
+      </SiteContainer>
     </main>
   )
 }

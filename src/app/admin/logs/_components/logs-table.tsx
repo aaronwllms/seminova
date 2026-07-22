@@ -15,8 +15,9 @@ import {
   type DataTablePageSize,
 } from '@/constants/data-table'
 import { useToggleFilterSet } from '@/hooks/use-toggle-filter-set'
-import type { AppError } from '@/types/app-error'
+import { useDebouncedValue } from '@/hooks/use-debounced-value'
 import type { LogLevel } from '@/types/app-settings'
+import { toAppError } from '@/utils/is-app-error'
 import { cn } from '@/utils/tailwind'
 
 import type {
@@ -50,7 +51,6 @@ import { LogsStatTiles } from './logs-stat-tiles'
 import { LogsToolbar } from './logs-toolbar'
 
 const DEFAULT_SORTING: SortingState = [{ id: 'createdAt', desc: true }]
-const SEARCH_DEBOUNCE_MS = 300
 
 export const LogsTable = () => {
   const [cursorStack, setCursorStack] = useState<Array<AppLogCursor | null>>([
@@ -64,7 +64,9 @@ export const LogsTable = () => {
   const [selectedLog, setSelectedLog] = useState<AppLogRow | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
   const [searchInput, setSearchInput] = useState('')
-  const [debouncedSearch, setDebouncedSearch] = useState('')
+  const debouncedSearch = useDebouncedValue(searchInput, 300)
+  const [trackedDebouncedSearch, setTrackedDebouncedSearch] =
+    useState(debouncedSearch)
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
   const [unreadOnly, setUnreadOnly] = useState(false)
   const [liveEnabled, setLiveEnabled] = useState(false)
@@ -84,15 +86,11 @@ export const LogsTable = () => {
     setLiveEnabled(readLogsLiveEnabledPreference())
   }, [])
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setDebouncedSearch(searchInput.trim())
-      setCursorStack([null])
-      setCursorStackIndex(0)
-    }, SEARCH_DEBOUNCE_MS)
-
-    return () => window.clearTimeout(timer)
-  }, [searchInput])
+  if (trackedDebouncedSearch !== debouncedSearch) {
+    setTrackedDebouncedSearch(debouncedSearch)
+    setCursorStack([null])
+    setCursorStackIndex(0)
+  }
 
   const handleLiveEnabledChange = useCallback((enabled: boolean) => {
     setLiveEnabled(enabled)
@@ -104,7 +102,7 @@ export const LogsTable = () => {
       levels: selectedLevels,
       unreadOnly,
       tag: selectedTag,
-      search: debouncedSearch || null,
+      search: debouncedSearch.trim() || null,
     }),
     [debouncedSearch, selectedLevels, selectedTag, unreadOnly],
   )
@@ -152,9 +150,7 @@ export const LogsTable = () => {
 
   const mutationAppError =
     (markLogReadError ?? markLogUnreadError ?? markAllReadError)
-      ? ((markLogReadError ??
-          markLogUnreadError ??
-          markAllReadError) as unknown as AppError)
+      ? toAppError(markLogReadError ?? markLogUnreadError ?? markAllReadError)
       : null
 
   const resetCursorStack = useCallback(() => {
@@ -170,7 +166,6 @@ export const LogsTable = () => {
     clearLevelFilters()
     setUnreadOnly(false)
     setSearchInput('')
-    setDebouncedSearch('')
     setSelectedTag(null)
     resetCursorStack()
   }, [clearLevelFilters, resetCursorStack])
@@ -199,7 +194,6 @@ export const LogsTable = () => {
           break
         case 'search':
           setSearchInput('')
-          setDebouncedSearch('')
           resetCursorStack()
           break
       }

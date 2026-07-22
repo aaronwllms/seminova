@@ -1,7 +1,7 @@
 'use client'
 
 import type { SortingState } from '@tanstack/react-table'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import {
   DataTableShell,
@@ -14,6 +14,7 @@ import {
   type DataTablePageSize,
 } from '@/constants/data-table'
 import { useToggleFilterSet } from '@/hooks/use-toggle-filter-set'
+import { useDebouncedValue } from '@/hooks/use-debounced-value'
 
 import {
   hasActiveReferenceListFilters,
@@ -30,8 +31,6 @@ import { referenceShipmentsColumns } from './reference-shipments-columns'
 import { ReferenceStatTiles } from './reference-stat-tiles'
 import { ReferenceToolbar } from './reference-toolbar'
 
-const SEARCH_DEBOUNCE_MS = 300
-
 export const ReferenceTableDemo = () => {
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState<DataTablePageSize>(
@@ -39,7 +38,9 @@ export const ReferenceTableDemo = () => {
   )
   const [sorting, setSorting] = useState<SortingState>([])
   const [searchInput, setSearchInput] = useState('')
-  const [debouncedSearch, setDebouncedSearch] = useState('')
+  const debouncedSearch = useDebouncedValue(searchInput, 300)
+  const [trackedDebouncedSearch, setTrackedDebouncedSearch] =
+    useState(debouncedSearch)
   const {
     activeValues: selectedStatusSet,
     toggle: toggleStatus,
@@ -61,24 +62,20 @@ export const ReferenceTableDemo = () => {
     [appliedSearch, selectedStatuses],
   )
 
+  if (trackedDebouncedSearch !== debouncedSearch) {
+    setTrackedDebouncedSearch(debouncedSearch)
+    setPage(1)
+  }
+
   const { refresh, isRefreshing } = useReferenceShipmentsRefresh()
   const { stats, isLoading: isStatsLoading } = useReferenceShipmentStats()
   const { rows, hasNextPage, isLoading, isFetching } = useReferenceShipments({
     page,
-    search: debouncedSearch,
+    search: debouncedSearch.trim(),
     perPage,
     sorting,
     statuses: selectedStatuses,
   })
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setDebouncedSearch(searchInput.trim())
-      setPage(1)
-    }, SEARCH_DEBOUNCE_MS)
-
-    return () => window.clearTimeout(timer)
-  }, [searchInput])
 
   const handleSortingChange = useCallback((next: SortingState) => {
     setSorting(next)
@@ -93,7 +90,6 @@ export const ReferenceTableDemo = () => {
   const handleResetFilters = useCallback(() => {
     clearStatusFilters()
     setSearchInput('')
-    setDebouncedSearch('')
     setPage(1)
   }, [clearStatusFilters])
 
@@ -110,7 +106,6 @@ export const ReferenceTableDemo = () => {
           break
         case 'search':
           setSearchInput('')
-          setDebouncedSearch('')
           setPage(1)
           break
       }

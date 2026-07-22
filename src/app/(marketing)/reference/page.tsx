@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { REFERENCE_PATH } from '@/constants/app-paths'
 import { Badge } from '@/components/ui/badge'
 
-import { LandingContainer } from '../_components/landing-container'
+import { SiteContainer } from '@/components/site-container'
 import { ReferenceDesignSystemSection } from './_components/reference-design-system-section'
 import { ReferenceFeedbackSection } from './_components/reference-feedback-section'
 import { ReferenceFormsSection } from './_components/reference-forms-section'
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 export default function ReferencePage() {
   return (
     <main id="main-content" className="bg-background py-12">
-      <LandingContainer>
+      <SiteContainer>
         <div className="mx-auto max-w-3xl px-4 sm:px-0">
           <div className="text-center">
             <Badge variant="secondary" className="mb-3">
@@ -49,7 +49,7 @@ export default function ReferencePage() {
         </div>
 
         <ReferenceTableSection />
-      </LandingContainer>
+      </SiteContainer>
     </main>
   )
 }

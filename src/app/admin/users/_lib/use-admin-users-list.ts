@@ -2,14 +2,17 @@
 
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
-import type { AppError } from '@/types/app-error'
-
+import {
+  ADMIN_ACTION_QUERY_RETRY_DELAY,
+  adminActionQueryRetry,
+} from '@/app/admin/_lib/admin-query-options'
+import { unwrapActionResult } from '@/app/admin/_lib/unwrap-action-result'
 import { type DataTablePageSize } from '@/constants/data-table'
+import { toAppError } from '@/utils/is-app-error'
 
 import { listUsersAction } from '../actions'
 import { adminUsersQueryKeys } from './admin-users-query-keys'
 import type { UsersSortColumn, UsersSortDirection } from './admin-user-row'
-import { unwrapListUsersResult } from './unwrap-users-action'
 
 type UseAdminUsersListOptions = {
   page: number
@@ -54,16 +57,15 @@ export const useAdminUsersList = ({
         filterBanned,
         filterNew30d,
       })
-      return unwrapListUsersResult(result)
+      return unwrapActionResult(result)
     },
     placeholderData: keepPreviousData,
     refetchOnWindowFocus: 'always',
-    retry: (failureCount, error) =>
-      (error as unknown as AppError)?.kind === 'fault' && failureCount < 1,
-    retryDelay: 0,
+    retry: adminActionQueryRetry,
+    retryDelay: ADMIN_ACTION_QUERY_RETRY_DELAY,
   })
 
-  const listError = query.isError ? (query.error as unknown as AppError) : null
+  const listError = query.isError ? toAppError(query.error) : null
   const rows = listError ? [] : (query.data?.rows ?? [])
   const hasNextPage = listError ? false : (query.data?.hasNextPage ?? false)
 

@@ -1,8 +1,3 @@
-import { cliLog } from '@/utils/app-logger-cli'
+import { runCliScript, runDemoteAdmin } from './lib/cli'
 
-import { runDemoteAdmin } from './lib/cli'
-
-runDemoteAdmin(process.argv.slice(2)).catch(async (error: unknown) => {
-  await cliLog.error('demote-admin', 'Unexpected error', error)
-  process.exit(1)
-})
+runCliScript(() => runDemoteAdmin(process.argv.slice(2)), 'demote-admin')

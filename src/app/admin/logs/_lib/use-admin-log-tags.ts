@@ -2,33 +2,27 @@
 
 import { useQuery } from '@tanstack/react-query'
 
-import type { AppError } from '@/types/app-error'
+import {
+  ADMIN_ACTION_QUERY_RETRY_DELAY,
+  adminActionQueryRetry,
+} from '@/app/admin/_lib/admin-query-options'
+import { unwrapActionResult } from '@/app/admin/_lib/unwrap-action-result'
+import { toAppError } from '@/utils/is-app-error'
 
 import { listLogTagsAction } from '../actions'
 import { adminLogsQueryKeys } from './admin-logs-query-keys'
 
-const unwrapTagsResult = (
-  result: Awaited<ReturnType<typeof listLogTagsAction>>,
-) => {
-  if (!result.success) {
-    throw result.error
-  }
-
-  return result.data
-}
-
 export const useAdminLogTags = () => {
   const query = useQuery({
     queryKey: adminLogsQueryKeys.tags(),
-    queryFn: async () => unwrapTagsResult(await listLogTagsAction()),
-    retry: (failureCount, error) =>
-      (error as unknown as AppError)?.kind === 'fault' && failureCount < 1,
-    retryDelay: 0,
+    queryFn: async () => unwrapActionResult(await listLogTagsAction()),
+    retry: adminActionQueryRetry,
+    retryDelay: ADMIN_ACTION_QUERY_RETRY_DELAY,
   })
 
   return {
     tags: query.data ?? [],
     isLoading: query.isLoading,
-    error: query.isError ? (query.error as unknown as AppError) : null,
+    error: query.isError ? toAppError(query.error) : null,
   }
 }
