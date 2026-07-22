@@ -77,16 +77,13 @@ export const ReferenceToastSection = () => {
       >
         Toast
       </h2>
-      <p className="text-muted-foreground mt-1 text-sm">
-        Live: all five variants via Sonner — same icons and styling as
-        production.
-      </p>
 
       <Alert variant="info" role="note" className="mt-4">
         <InfoIcon aria-hidden />
         <AlertDescription>
-          Only success toasts are wired in the app today — the other four
-          variants are configured and ready to use.
+          Live demos of all five Sonner variants with production icons and
+          styling. Only success toasts are wired in the app today — the other
+          four are configured and ready to use.
         </AlertDescription>
       </Alert>
 

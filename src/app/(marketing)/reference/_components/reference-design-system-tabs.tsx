@@ -143,9 +143,27 @@ export const ReferenceDesignSystemTabs = () => {
       </TabsList>
 
       <TabsContent value="colors" className="mt-6">
-        <p className="text-muted-foreground text-sm">
+        <p className="text-muted-foreground max-w-prose text-[15px] leading-relaxed">
           Semantic color tokens — values live in globals.css and switch with
-          light/dark mode.
+          light/dark mode. Default theme based on{' '}
+          <a
+            href="https://tweakcn.com/editor/theme?p=dashboard"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={EXTERNAL_LINK_CLASS}
+          >
+            Clean Slate
+          </a>{' '}
+          from{' '}
+          <a
+            href="https://tweakcn.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={EXTERNAL_LINK_CLASS}
+          >
+            tweakcn
+          </a>
+          .
         </p>
         <ul className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
           {SEMANTIC_COLOR_TOKENS.map((token) => (

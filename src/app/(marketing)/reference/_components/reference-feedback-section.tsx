@@ -29,16 +29,13 @@ export const ReferenceFeedbackSection = () => {
       >
         InlineError and ErrorPanel
       </h2>
-      <p className="text-muted-foreground mt-1 text-sm">
-        Live: InlineError for operational errors; ErrorPanel for faults with
-        copyable code.
-      </p>
 
       <Alert variant="info" role="note" className="mt-4">
         <InfoIcon aria-hidden />
         <AlertDescription>
-          Shown together for comparison — in the product these appear
-          individually, near their trigger.
+          Live demos of InlineError (operational) and ErrorPanel (fault,
+          copyable code) — shown together here for comparison; in the product
+          they appear individually, near their trigger.
         </AlertDescription>
       </Alert>
 

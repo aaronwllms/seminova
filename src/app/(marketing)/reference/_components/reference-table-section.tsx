@@ -1,8 +1,5 @@
-import { InfoIcon } from 'lucide-react'
 import { connection } from 'next/server'
 import { Suspense } from 'react'
-
-import { Alert, AlertDescription } from '@/components/ui/alert'
 
 import { REFERENCE_SECTION_SCROLL_CLASS } from '../_lib/reference-anchor-links'
 
@@ -23,18 +20,10 @@ export const ReferenceTableSection = () => (
       >
         Data table
       </h2>
-      <p className="text-muted-foreground mt-1 text-sm">
-        Live: stat-tile filters, search, filter chips, refresh, sort, and
-        pagination over a sample dataset.
+      <p className="text-muted-foreground mt-4 max-w-prose text-[15px] leading-relaxed">
+        Sample data on the same shell as admin Users and Logs — stat-tile
+        filters, search, filter chips, refresh, sort, and pagination.
       </p>
-
-      <Alert variant="info" role="note" className="mt-4">
-        <InfoIcon aria-hidden />
-        <AlertDescription>
-          Sample rows, not real records. Hard-refresh this page to see skeleton
-          placeholders while the table loads.
-        </AlertDescription>
-      </Alert>
     </div>
 
     <Suspense fallback={<ReferenceTableDemoFallback />}>

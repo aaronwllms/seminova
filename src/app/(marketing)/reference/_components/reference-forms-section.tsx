@@ -1,7 +1,3 @@
-import { InfoIcon } from 'lucide-react'
-
-import { Alert, AlertDescription } from '@/components/ui/alert'
-
 import { REFERENCE_SECTION_SCROLL_CLASS } from '../_lib/reference-anchor-links'
 import { ReferenceFormsTabs } from './reference-forms-tabs'
 
@@ -14,18 +10,11 @@ export const ReferenceFormsSection = () => {
       >
         Forms and save models
       </h2>
-      <p className="text-muted-foreground mt-1 text-sm">
+      <p className="text-muted-foreground mt-4 max-w-prose text-[15px] leading-relaxed">
         Live demos of every shipped save pattern — mock persist only on this
-        page.
+        page. Save model follows form shape: blur and upload confirm inline;
+        explicit Save confirms with a toast.
       </p>
-
-      <Alert variant="info" role="note" className="mt-4">
-        <InfoIcon aria-hidden />
-        <AlertDescription>
-          Save model follows form shape — blur and upload confirm inline;
-          explicit Save confirms with a toast.
-        </AlertDescription>
-      </Alert>
 
       <ReferenceFormsTabs />
     </section>
