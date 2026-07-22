@@ -63,7 +63,7 @@ export const UsersStatTiles = ({
       <StatTile
         label="Unverified"
         count={counts.unverified}
-        role="warn"
+        role="total"
         selected={filterUnverified}
         tooltip="Show unverified users only"
         onClick={onUnverifiedToggle}
@@ -71,7 +71,7 @@ export const UsersStatTiles = ({
       <StatTile
         label="Banned"
         count={counts.banned}
-        role="error"
+        role="total"
         selected={filterBanned}
         tooltip="Show banned users only"
         onClick={onBannedToggle}
@@ -79,7 +79,7 @@ export const UsersStatTiles = ({
       <StatTile
         label="New (30d)"
         count={counts.new30d}
-        role="info"
+        role="total"
         selected={filterNew30d}
         tooltip="Show users created in the last 30 days"
         onClick={onNew30dToggle}

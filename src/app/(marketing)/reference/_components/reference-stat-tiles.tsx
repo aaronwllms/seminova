@@ -53,7 +53,7 @@ export const ReferenceStatTiles = ({
       <StatTile
         label="Cleared"
         count={counts.cleared}
-        role="info"
+        role="total"
         selected={selectedStatuses.includes('Cleared')}
         tooltip="Show cleared shipments only"
         onClick={() => onStatusToggle('Cleared')}
@@ -61,7 +61,7 @@ export const ReferenceStatTiles = ({
       <StatTile
         label="Held"
         count={counts.held}
-        role="warn"
+        role="total"
         selected={selectedStatuses.includes('Held')}
         tooltip="Show held shipments only"
         onClick={() => onStatusToggle('Held')}
@@ -69,7 +69,7 @@ export const ReferenceStatTiles = ({
       <StatTile
         label="In transit"
         count={counts.inTransit}
-        role="unread"
+        role="total"
         selected={selectedStatuses.includes('In transit')}
         tooltip="Show in-transit shipments only"
         onClick={() => onStatusToggle('In transit')}

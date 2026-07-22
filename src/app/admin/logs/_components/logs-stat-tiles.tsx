@@ -72,7 +72,7 @@ export const LogsStatTiles = ({
       <StatTile
         label="Unread"
         count={counts.unread}
-        role="unread"
+        role="total"
         selected={unreadOnly}
         onClick={onUnreadToggle}
       />
