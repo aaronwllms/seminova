@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest'
 import { DATA_TABLE_DEFAULT_PAGE_SIZE } from '@/constants/data-table'
 
 import { SEARCHABLE_COLUMN } from './reference-shipment'
+import { filterReferenceShipments } from './reference-shipment-data'
 import { REFERENCE_SHIPMENTS_FIXTURE } from './reference-shipments.fixture'
 import {
   sortReferenceShipments,
@@ -33,6 +34,7 @@ describe('useReferenceShipments', () => {
           search: 'Alderman',
           perPage: DATA_TABLE_DEFAULT_PAGE_SIZE,
           sorting: [],
+          statuses: [],
         }),
       { wrapper: createWrapper(queryClient) },
     )
@@ -44,9 +46,10 @@ describe('useReferenceShipments', () => {
       expect(result.current.isLoading).toBe(false)
     })
 
-    const expectedRows = REFERENCE_SHIPMENTS_FIXTURE.filter((row) =>
-      row[SEARCHABLE_COLUMN].toLowerCase().includes('alderman'),
-    ).slice(0, DATA_TABLE_DEFAULT_PAGE_SIZE)
+    const expectedRows = filterReferenceShipments(REFERENCE_SHIPMENTS_FIXTURE, {
+      search: 'Alderman',
+      statuses: [],
+    }).slice(0, DATA_TABLE_DEFAULT_PAGE_SIZE)
 
     expect(result.current.rows).toEqual(expectedRows)
   })
@@ -63,6 +66,7 @@ describe('useReferenceShipments', () => {
           search: '',
           perPage: DATA_TABLE_DEFAULT_PAGE_SIZE,
           sorting: [],
+          statuses: [],
         }),
       { wrapper: createWrapper(queryClient) },
     )
@@ -91,6 +95,7 @@ describe('useReferenceShipments', () => {
           search: '',
           perPage: DATA_TABLE_DEFAULT_PAGE_SIZE,
           sorting: [],
+          statuses: [],
         }),
       { wrapper: createWrapper(queryClient) },
     )
@@ -115,6 +120,7 @@ describe('useReferenceShipments', () => {
           search: '',
           perPage,
           sorting: [{ id: 'consignee', desc: true }],
+          statuses: [],
         }),
       { wrapper: createWrapper(queryClient) },
     )
@@ -144,6 +150,7 @@ describe('useReferenceShipments', () => {
           search: '',
           perPage: 25,
           sorting: [],
+          statuses: [],
         }),
       { wrapper: createWrapper(queryClient) },
     )
@@ -154,5 +161,30 @@ describe('useReferenceShipments', () => {
 
     expect(result.current.rows).toHaveLength(25)
     expect(result.current.hasNextPage).toBe(true)
+  })
+
+  it('should apply status tile filters before paginating', async () => {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    })
+
+    const { result } = renderHook(
+      () =>
+        useReferenceShipments({
+          page: 1,
+          search: '',
+          perPage: DATA_TABLE_DEFAULT_PAGE_SIZE,
+          sorting: [],
+          statuses: ['Held'],
+        }),
+      { wrapper: createWrapper(queryClient) },
+    )
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false)
+    })
+
+    expect(result.current.rows.every((row) => row.status === 'Held')).toBe(true)
+    expect(result.current.rows[0]?.[SEARCHABLE_COLUMN]).toBeDefined()
   })
 })
