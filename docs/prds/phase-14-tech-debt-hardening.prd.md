@@ -14,7 +14,7 @@ Resolve the actionable clusters from the audit, batched so each epic is a single
 
 ## Scope
 
-**In scope:** the six epics below.
+**In scope:** the seven epics below.
 
 **Out of scope:**
 - **F053 / F095** — CSP enforcement. L effort, requires a per-request nonce strategy; deferred to a future security phase per ROADMAP open questions.
@@ -23,7 +23,7 @@ Resolve the actionable clusters from the audit, batched so each epic is a single
 
 **Resolves an audit open question:** "Admin table extraction timing — fold into landing work, or a dedicated hardening epic before magic-link auth adds more admin settings?" This phase is the dedicated hardening pass. Close that entry on the next audit sync.
 
-**Sequencing:** Epic 1 ships first — Epics 2, 3, and 6 consume its shared helpers. Epic 4 must land before Phase 16. Epics 5 and 6 have no ordering constraints beyond that.
+**Sequencing:** Epic 1 ships first — Epics 2, 3, and 6 consume its shared helpers. Epic 4 must land before Phase 16. Epics 5–7 have no ordering constraints beyond that.
 
 ---
 
@@ -126,3 +126,20 @@ A batch of independent maintenance items: dependency patches, two coverage gaps,
 - Both previously-uncovered paths have passing tests exercising them.
 - Both reference demos carry inline documentation naming which parts are intentional fixtures and why.
 - **No re-implementation of either demo** beyond the debounce-hook reuse and the documentation. In particular, the real profile dialog is not restructured to serve the demo.
+
+---
+
+### Epic 7: Sharp CVE Override `Complete`
+
+Clear the remaining high-severity `sharp` / libvips advisory while stable Next.js still pins an older optional dependency.
+
+- A temporary `sharp: ^0.35.3` override is added in `pnpm-workspace.yaml` (F081) — preferred Next bump is unavailable on the stable line (16.2.x still declares `^0.34.5`; patched sharp ships on 16.3 canary/preview only).
+- Image/OG/favicon paths are smoke-checked after the override so the Next image toolchain still works.
+- ROADMAP records the follow-up: when a stable Next release ships `sharp >= 0.35`, bump Next and remove the override.
+
+**Success criteria:**
+- `pnpm audit` reports no known vulnerabilities (including the prior sharp high).
+- Lockfile resolves `sharp@0.35.3` (or newer patched 0.35.x).
+- Production build succeeds; `/icon` and opengraph-image routes return valid PNG responses.
+- ROADMAP open question names the override as temporary and the stable-Next bump as the exit criteria.
+- **No jump onto Next 16.3 canary/preview** solely to pick up sharp — stay on the stable Next line until that line ships the patched dependency.

@@ -1,13 +1,13 @@
 # Tech Debt Audit — Seminova
 
 Last full audit: 2026-07-21
-Last synced: 2026-07-22 (F085 hero-screenshot TODO purged — README comment removed; not Accepted, won't-do for template)
-Scope: Sync pass — purged F085 after PM decision (template needs no GitHub hero marketing asset). No full-repo rescan.
+Last synced: 2026-07-22 (F081 sharp override via Phase 14 Epic 7; temporary until stable Next ships sharp ≥0.35)
+Scope: Sync pass — resolved F081 with `pnpm-workspace.yaml` sharp override; ROADMAP tracks Next bump + override removal. No full-repo rescan.
 
 ## Executive summary
 
-- **Phase 14 cleared the actionable audit clusters** — shared debounce/query/unwrap helpers (Epic 1), admin table decomposition into thin components + state hooks (Epics 2–3), settings-registry type derivation and logs filter typing without production casts (Epic 4), actions-layer barrels and split tests (Epic 5), dependency/test/reference hygiene (Epic 6). Twenty-six findings moved to Resolved; F066 reclassified as a deep module.
-- **Open backlog is short** — sharp transitive CVE (F081), client-log rate limit before production scale (F082), and CSP enforcement + style CSP (F053 / F095) deferred to a future security phase.
+- **Phase 14 cleared the actionable audit clusters** — shared debounce/query/unwrap helpers (Epic 1), admin table decomposition into thin components + state hooks (Epics 2–3), settings-registry type derivation and logs filter typing without production casts (Epic 4), actions-layer barrels and split tests (Epic 5), dependency/test/reference hygiene (Epic 6), sharp CVE override (Epic 7). Twenty-seven findings moved to Resolved; F066 reclassified as a deep module.
+- **Open backlog is short** — client-log rate limit before production scale (F082), and CSP enforcement + style CSP (F053 / F095) deferred to a future security phase.
 - **Accepted rows are not todos** — intentional design, ceiling-gated markers, and template-scale risks live under **Accepted** with reopen triggers.
 - **Three declared `// debt:` markers in application code** — CSP (F053, Open/Deferred), duplicate profile providers (F061, Accepted), settings row dispatch switch (F062, Accepted).
 - **Quality gates green** — `type-check`, `lint`, and `test:ci` pass (690 tests / 141 files). Coverage thresholds met. No circular deps (`madge src`).
@@ -34,7 +34,6 @@ Actionable backlog only. `Status`: `Do next` | `Deferred` | `Needs decision`.
 
 | ID   | Status   | Category            | File:Line                                                             | Severity | Description                                                                                                                                                                          | Recommendation                                                                                                               | Effort |
 | ---- | -------- | ------------------- | --------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- | ------ |
-| F081 | Do next  | Dependency & config | `pnpm audit` (sharp via Next.js)                                      | Medium   | 1 high-severity CVE path: `sharp` <0.35.0 (libvips) via `next`, `@vercel/analytics>next`, and `nextjs-toploader>next`. Prior brace-expansion / js-yaml advisories cleared in Epic 6. | Prefer a Next.js bump that pulls patched `sharp@>=0.35.0`; use `pnpm.overrides` only if image/OG/favicon paths still work.   | S      |
 | F082 | Deferred | Security hygiene    | `docs/adr/ADR-0007-client-log-relay-unauthenticated.md:7`             | Low      | Client log relay intentionally ships without rate limiting — public POST surface bounded by closed registry + same-origin check only.                                                | Add path-based rate limit (CDN or middleware) before production scale; ADR documents the seam. Home: pre-production gate.    | M      |
 | F053 | Deferred | Declared debt       | `src/utils/security-headers.ts:1`                                     | Medium   | Template-default CSP ships report-only. Enforcing requires per-request nonce for Next.js inline scripts.                                                                             | Implement nonce in middleware before `CSP_ENFORCE=true`; tighten directives per surface. Home: future security phase.        | L      |
 | F095 | Deferred | Security hygiene    | `src/utils/security-headers.ts:38`                                    | Low      | `style-src 'unsafe-inline'` required for Tailwind — not separately marked with `// debt:`; pairs with F053 enforcement work.                                                         | Revisit when CSP moves to enforcing; may need nonce/hash strategy for styles too. Home: same security phase as F053.         | L      |
@@ -59,13 +58,12 @@ Deliberately not doing now. Not a todo list.
 ## Top 5
 
 1. **F053 — CSP enforcement** — Largest security ceiling. Middleware nonce before `CSP_ENFORCE=true`. Deferred to a future security phase (Open/Deferred with F095).
-2. **F081 — Sharp transitive CVE** — One high via Next.js's `sharp`. Patch or override before release (Open/Do next).
-3. **F082 — Client-log rate limit** — ADR-0007 seam; add before production scale (Open/Deferred).
-4. **F095 + F053 — Style CSP when enforcing** — Plan `unsafe-inline` for Tailwind with the script nonce work.
+2. **F082 — Client-log rate limit** — ADR-0007 seam; add before production scale (Open/Deferred).
+3. **F095 + F053 — Style CSP when enforcing** — Plan `unsafe-inline` for Tailwind with the script nonce work.
 
 ## Quick wins
 
-- [ ] F081: Patch or override transitive `sharp` to `>=0.35.0`; re-run `pnpm audit`
+- _(none — F081 cleared via temporary sharp override; Next bump tracked on ROADMAP)_
 
 ## Verified OK
 
@@ -103,6 +101,7 @@ Deliberately not doing now. Not a todo list.
 | F077 | 2026-07-22 | `isAppError` / `toAppError` in `src/utils/is-app-error.ts`; hooks use guard at error surfaces. |
 | F078 | 2026-07-22 | Monolithic `users/actions.unit.test.ts` split into `_lib/*-actions.unit.test.ts` files (Epic 5). |
 | F079 | 2026-07-22 | `env.unit.test.ts` covers `getPublicSupabaseEnv` throw branches (Epic 6). |
+| F081 | 2026-07-22 | Temporary `sharp: ^0.35.3` override in `pnpm-workspace.yaml` (Epic 7); remove when stable Next ships sharp ≥0.35 (ROADMAP). |
 | F083 | 2026-07-21 | Phase 13 `ship-phase` — ROADMAP `Shipped`, PRD archived. |
 | F084 | 2026-07-21 | ADR-0005 renamed to `ADR-0005-proxy-session-gate-two-authority-refresh.md`; links + adr README note updated. |
 | F086 | 2026-07-22 | `package.json` author updated to current maintainer. |
@@ -123,7 +122,7 @@ _(Resolved entries from the 2026-07-21 full pass not listed above were pruned on
 
 | Tool                       | Result                                                                                                      |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `pnpm audit`               | 1 high (`sharp` <0.35.0 via Next.js transitive paths); brace-expansion / js-yaml cleared since prior sync |
+| `pnpm audit`               | No known vulnerabilities (`sharp@0.35.3` via workspace override; brace-expansion / js-yaml cleared) |
 | `pnpm type-check`          | Pass                                                                                                        |
 | `pnpm lint`                | Pass                                                                                                        |
 | `pnpm test:ci`             | 690 tests / 141 files pass; coverage thresholds met                                                         |

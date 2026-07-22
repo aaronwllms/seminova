@@ -82,10 +82,10 @@ _Defer until: opportunistic_
 </details>
 
 <details>
-<summary>Sharp transitive CVE (pnpm audit)</summary>
+<summary>Remove temporary sharp override when Next ships ≥0.35</summary>
 
-**Problem:** After Phase 14 cleared brace-expansion / js-yaml, `pnpm audit` still reports one high-severity path: `sharp` older than 0.35.0 (libvips) via Next.js and related packages (tech debt audit F081). Overrides can fight the Next image toolchain.
-**Solution:** Prefer a Next.js bump that pulls a patched `sharp`; use `pnpm.overrides` only if image/OG/favicon paths are verified after. Re-run `pnpm audit` before production launch.
-_Defer until: pre-production release gate_
+**Problem:** Stable Next.js 16.2.x still declares optional `sharp@^0.34.5`. Phase 14 Epic 7 cleared the libvips advisory with a temporary `pnpm-workspace.yaml` override (`sharp: ^0.35.3`). 16.3 canary/preview already ships `^0.35.3`, but no stable release does yet.
+**Solution:** When a **stable** Next.js release first ships `sharp >= 0.35`, bump `next` (and related Next packages as needed), remove the `sharp` override, re-run `pnpm install` / `pnpm audit`, and smoke-check `/icon`, OG image routes, and `next/image` surfaces.
+_Defer until: first stable Next.js release that depends on sharp ≥ 0.35_
 
 </details>
