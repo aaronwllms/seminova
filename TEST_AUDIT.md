@@ -1,74 +1,103 @@
 # Test Audit — seminova
 
-Last full audit: 2026-07-06
-Last synced: 2026-07-22 (disposition split — Open / Accepted / Resolved)
-Scope: test suite health and adherence to `.cursor/rules/testing.mdc`; disposition re-bucket only — no full suite rescan.
+Last full audit: 2026-07-22
+Last synced: 2026-07-22 (TS019: exclude `reference/_components/**` from coverage)
+Scope: test suite health and adherence to `.cursor/rules/testing.mdc`
 
 ## Executive summary
 
-- **Remediation landed:** Nine of ten open findings from the 2026-07-06 full audit are verified fixed in code — admin `listUsersAction` tests, security utility gaps, route error boundaries, marketing over-testing, assertion-quality fixes, integration naming, MSW deferral, and `assertAdminCaller` `getUser` failure path.
-- **Only Open finding:** TS009 (slow integration tests) — password dialog and other integrations still exceed Vitest's 300ms threshold; not flaky.
-- **Accepted table empty** — no parked test findings; intentional suite shape lives under **Verified OK**.
-- **Strong areas unchanged:** auth forms, proxy auth boundary, profile mutations, `extract-auth-form-error`, `avatar-cache-bust`, and admin actions include `listUsersAction` coverage.
-
-> [!NOTE]
-> Suite metrics below reflect the 2026-07-06 full pass. Phase 14 and later work grew the suite (see `TECH_DEBT_AUDIT.md` tooling notes: 690 tests / 141 files). Re-run `/audit-tests` full pass to refresh counts.
+- Suite grew sharply since 2026-07-06 (62 → **142** files, 272 → **697** tests) — Phase 14 admin tables, banners, logs realtime, and reference demos drove most of the expansion.
+- Coverage is **88.26%** stmts/lines after excluding `reference/_components/**` demo shells (TS019 resolved) — ~8 pts above the 80% floor; `reference/_lib/**` stays measured.
+- **Critical gap:** `probeSessionAction` (session trust probe for idle-tab avatar retry) is mocked by consumers and never tested at the action boundary (TS011).
+- **Public relay incomplete:** `/api/client-logs` integration suite misses invalid JSON body, session-probe catch, and outer 500 paths (TS012).
+- **Largest suites are bloated and misnamed:** `logs-table` (719 / 25) and `users-table` (670 / 21) are `.unit` but mock server actions; near-duplicate filter-chip matrices (TS015–TS016).
+- **Slow-test problem shifted:** password section already uses `delay: null`; worst offenders are now `banner-setting-row` (~1.3s), admin table chip/Total cases (~0.9s), and `use-reference-shipments` (hard-coded 400ms sleep × 6) (TS009, TS018).
+- Auth forms, proxy, require-auth, profile mutations, and security utils remain strong — see **Verified OK**.
 
 ## Suite mental model
 
-| Metric                           | Value                                                     |
-| -------------------------------- | --------------------------------------------------------- |
-| Test files                       | 62 (59 under `src/`, 3 under `scripts/`)                  |
-| Tests                            | 272                                                       |
-| Unit : integration (by filename) | ~50 : 12 (~4.2 : 1; ~81% unit)                            |
-| Total test LOC                   | ~5,396                                                    |
-| CI command                       | `pnpm test:ci` (`vitest run --coverage`)                  |
-| Coverage thresholds              | 80% lines / branches / functions / statements             |
-| Actual coverage                  | 86.34% stmts, 84.45% branches, 88.83% funcs, 86.34% lines |
-| Slow-test flag                   | Vitest default 300ms; ~12 tests exceed it (longest ~1.1s) |
-| Skips / snapshots                | 0 skips; 0 snapshots (ESLint-enforced)                    |
+| Metric                           | Value                                                            |
+| -------------------------------- | ---------------------------------------------------------------- |
+| Test files                       | 142 (125 unit, 17 integration; 0 unsuffixed)                     |
+| Tests                            | 697 passed                                                       |
+| Unit : integration (by filename) | 125 : 17 (~7.4 : 1; **88%** unit)                                |
+| Total test LOC                   | ~15,491                                                          |
+| CI command                       | `pnpm test:ci` (`vitest run --coverage`)                         |
+| Coverage thresholds              | 80% lines / branches / functions / statements                    |
+| Actual coverage                  | 88.26% stmts, 87.65% branches, 88.62% funcs, 88.26% lines        |
+| Slow-test flag                   | Vitest default 300ms; dozens of cases exceed it (longest ~1.35s) |
+| Skips / snapshots                | 0 skips; 0 snapshots (ESLint-enforced)                           |
+| Suite duration                   | ~26s wall (`pnpm test:ci`)                                       |
 
-**Shape:** Unit coverage on utils, hooks, server actions, and admin `_lib/` helpers; integration coverage on auth forms, profile settings, logout, `/auth/confirm`, route error boundaries, and session-aware marketing CTA. Marketing section components intentionally have no render tests per `testing.mdc`. MSW global setup deferred; Supabase/auth boundaries use `vi.mock` at module level.
+**Shape:** Heavy unit coverage on utils, hooks, and admin `_lib/` helpers; integration coverage on auth forms, profile settings, confirm route, client-logs relay, landing auth slots, admin auth gate, and session-flow. Admin data tables and settings rows are integration-shaped (mock Server Actions) but still named `.unit`. Marketing static sections correctly have no render tests. MSW global setup remains deferred; Supabase/auth use `vi.mock` at module level. Global `vitest.setup.ts` stubs `getAppSetting` and `persistAppLogRow` (appropriate boundaries; persist module unmocks itself under test).
 
-**High-churn sources (6 months):** auth forms, `src/proxy.ts`, profile actions, admin users table — all have corresponding tests including `listUsersAction` at the action boundary.
+**High-churn sources (6 months):** admin users/logs tables and actions, `require-auth`, proxy, banner settings, profile form, workflow diagram — all have corresponding tests; quality issues are bloat/naming (tables) and missing action-layer cases (`probeSessionAction`, logs list faults), not wholesale absence.
+
+**Exclude list:** `vitest.config.ts` excludes pages/layouts/UI/providers/client factories; workflow static sections are named individually so `workflow-diagram.tsx` stays measured; all `reference/_components/**` demo shells are excluded while `reference/_lib/**` stays measured; OG segment files carry a `// debt:` note.
 
 ## Open
 
 Actionable backlog only. `Status`: `Do next` | `Deferred` | `Needs decision`.
 
-| ID    | Status  | Category            | File:Line                                                                             | Severity | Description                                                                                                                                                                                            | Recommendation                                                                                                                                                                                                                                 |
-| ----- | ------- | ------------------- | ------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| TS009 | Do next | Reliability & speed | `src/app/(app)/profile/_components/profile-password-dialog.integration.test.tsx:1-85` | Low      | Multiple integration tests exceed Vitest's 300ms slow threshold (longest ~1.1s for password dialog suite; login ~625ms; users-table ~420ms). Not flaky today, but slow tests lengthen CI and pre-push. | Profile password dialog: share one `render` + reuse form where cases are sequential validation (already partially done). Apply `userEvent` `{ delay: null }` if not set. Track in CI slow-test output; no quarantine unless flakiness appears. |
+| ID    | Status   | Category             | File:Line                                                                                                            | Severity | Description                                                                                                                                                                                                                                                                                                                                                  | Recommendation                                                                                                                                                                                                                                                                                        |
+| ----- | -------- | -------------------- | -------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TS009 | Do next  | Reliability & speed  | `src/app/admin/settings/_components/banner-setting-row.unit.test.tsx:213` (suite); many others                       | Low      | Dozens of tests exceed Vitest’s 300ms slow threshold. Longest observed: banner headline-cap case ~1352ms; users/logs Total/chip cases ~900ms; password section already uses `userEvent.setup({ delay: null })` at `profile-password-section.integration.test.tsx:29`. Not flaky today.                                                                       | Apply `userEvent.setup({ delay: null })` in remaining interactive suites that still use default delay. Share one `render` where sequential validation allows. Track via CI slow-test output; no quarantine unless flakiness appears. Related root cause for reference demos: TS018.                   |
+| TS011 | Do next  | Coverage gaps        | `src/app/(app)/_lib/profile/probe-session-action.ts:11-23`                                                           | Critical | Session trust-boundary action confirms `getUser()` for idle-tab avatar retry. Consumer `use-profile-avatar-upload.unit.test.ts` mocks it; success/failure of the action itself is never exercised (~16.7% coverage on the file).                                                                                                                             | Add a small colocated unit file: `{ success: true }` when user present; `{ success: false }` on error or null user. Do not pad coverage via the hook mock.                                                                                                                                            |
+| TS012 | Do next  | Coverage gaps        | `src/app/api/client-logs/route.ts:32-46`, `80-82`, `97-110`                                                          | High     | Public client-log relay at ~72% stmts. Integration suite covers happy path, unknown key, origin deny, truncation, session `userId` — **not** invalid JSON body (400), session-probe `catch` (still 202), or outer handler 500 + `appLog.error`.                                                                                                              | Extend `route.integration.test.ts` with those three cases. Keep asserting status + envelope `kind`/`code`, not implementation internals.                                                                                                                                                              |
+| TS013 | Do next  | Coverage gaps        | `src/app/admin/logs/_lib/list-actions.ts:104-156` (+ stats/tags fault catches)                                       | High     | Logs list action layer covers admin gate, bad page size, bad cursor, and happy list — **missing** invalid `sortDirection`, invalid filters on list, and `mapAdminActionFault` paths for list/stats/tags. Mark-read fault paths similarly thin.                                                                                                               | In `actions.unit.test.ts` (or thin `_lib` unit): 1 invalid sortDirection, 1 invalid filters, 1 fault reject per action family (mock underlying helper to throw).                                                                                                                                      |
+| TS014 | Do next  | Coverage gaps        | `src/app/api/client-logs/_lib/is-same-origin-relay-request.ts:5-28`                                                  | Medium   | Same-origin helper at ~76% with **no dedicated unit file**. Route tests cover Origin/Referer happy/deny; malformed Origin/Referer (`normalizeOrigin` catch) and Referer-only allow are under-exercised.                                                                                                                                                      | Add `is-same-origin-relay-request.unit.test.ts`: malformed Origin → deny; valid Referer-only → allow; mismatched Referer → deny.                                                                                                                                                                      |
+| TS015 | Do next  | Over-testing         | `src/app/admin/logs/_components/logs-table.unit.test.tsx:1-719`; `users-table.unit.test.tsx:1-670`                   | Medium   | Both suites pass `testing.mdc` investigate signals (~400 lines / >15 component tests). Near-identical Total-tile / empty-reset / chip show-remove-clear matrices; logs mark-read tested four ways; live-preference storage overlapped by `logs-live-preference.unit.test.ts`.                                                                                | Collapse each table suite to H/I/B representatives (~8–12 tests). Move chip UX assertions to a dedicated `active-filter-chips.unit.test.tsx` (`src/components/active-filter-chips.tsx`); keep **one** Total/wiring case per admin table. Rename to `.integration` under TS016.                        |
+| TS016 | Do next  | Structural adherence | `eslint-rules/test-scope-naming.mjs:6-35`; e.g. `users-table.unit.test.tsx:16-23`, `app-nav-user.unit.test.tsx:8-18` | Medium   | `test-scope-naming` only flags `.unit.test.tsx` mocking `@/supabase/require-auth`, `@/supabase/server`, or `next/headers`. Slip-throughs mock `@/supabase/client` and/or colocated `../actions` while staying `.unit` (users/logs tables, banner/settings rows, app/admin nav-user). `logout-button` correctly uses `.integration` for the same client mock. | Expand `EXTERNAL_BOUNDARY_MOCKS` with `@/supabase/client`. For `*.unit.test.tsx` under `_components/`, also flag `vi.mock` of modules ending in `/actions` or `../actions`. Rename affected UI files to `.integration.test.tsx`. Keep `.unit.test.ts` helper/action files out of scope.               |
+| TS017 | Do next  | Assertion quality    | `src/app/admin/settings/_components/banner-setting-row.unit.test.tsx:312-361`, `194-211`                             | Medium   | Preview theme cases assert via `document.querySelector('.dark.bg-background')` / `.light…` and Save-below-preview via `compareDocumentPosition` — implementation-detail / CSS-class assertions banned by `testing.mdc` (same class as prior TS006).                                                                                                          | Rewrite to role/name/text only (`Preview dark` / `Preview light` toggles, Save enabled/disabled, preview status text). Add ESLint `no-restricted-syntax` in `*.test.*` banning `toHaveClass` and class-string `querySelector` probes (allowlist the existing users-table `sr-only` a11y pin if kept). |
+| TS018 | Do next  | Reliability & speed  | `src/app/(marketing)/reference/_lib/use-reference-shipments.ts:11`, `90-93`; `*.unit.test.tsx:25-55`                 | Medium   | Hook hard-codes `REFERENCE_SHIPMENTS_FETCH_DELAY_MS = 400`; all six hook tests wait real time (~410–467ms each). Also re-tests filter/sort already covered by `reference-shipment-data.unit.test.ts` and asserts RQ loading→ready (framework behavior).                                                                                                      | Unit-test `sortReferenceShipments` / paginate helpers directly; keep ≤2 hook cases with fake timers or delay stubbed to `0` under test. Add a CI gate that fails any test ≥ `slowTestThreshold` unless the file is allowlisted — catches unstubbed artificial delays.                                 |
+| TS020 | Deferred | Coverage gaps        | `src/utils/app-settings.ts:24-26`, `37-41`, `77-82`                                                                  | Medium   | `app-settings.ts` at ~80.7% — happy merge covered; DB select error, invalid stored value throw, and thin `getAppSetting` path under-tested.                                                                                                                                                                                                                  | Two unit cases: select error propagates; bad stored value throws tagged message. Home: next threshold-pressure epic or when settings persistence changes.                                                                                                                                             |
+| TS021 | Deferred | Coverage gaps        | `src/components/banner-message.tsx:19-38`                                                                            | Medium   | Component ~61%; parser unit-tested thoroughly, but bold / internal `Link` / external `<a>` render branches largely unhit.                                                                                                                                                                                                                                    | One focused unit: message with bold + `/path` link + `https://` link asserts roles/hrefs. Home: next banner UX pass.                                                                                                                                                                                  |
+| TS022 | Deferred | Coverage gaps        | `src/app/admin/logs/_components/logs-tag-combobox.tsx:17-36`                                                         | Medium   | Tag combobox filter/select/outside-click at ~36% with no dedicated tests; only indirectly touched via logs table.                                                                                                                                                                                                                                            | Small integration: open → filter → select tag → `onTagChange`; outside click closes. Home: next logs-table trim (TS015) so coverage isn’t duplicated.                                                                                                                                                 |
 
 ## Accepted
 
-_No accepted findings._ (Intentional suite shape that is not a defect lives under **Verified OK**.)
+Deliberately not doing now. Not a todo list.
+
+| ID    | Category      | File:Line                                                                                      | Severity | Description                                                                                                                | Why accepted                                                                                         | Reopen when                                           |
+| ----- | ------------- | ---------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| TS023 | Coverage gaps | `src/hooks/use-password-accordion-scroll.ts:26-87`                                             | Low      | Accordion scroll tween ~55%, untested.                                                                                     | UX motion helper, not a trust boundary; TypeScript + visual review suffice.                          | a11y/scroll bugs ship on password accordion           |
+| TS024 | Coverage gaps | `src/components/authenticated-banner-slot-entry.tsx:7-25`; `public-banner-slot-entry.tsx:8-27` | Low      | 0% thin RSC entry wrappers.                                                                                                | Logic lives in `resolveLiveBannerSlot` + slot components (already tested).                           | entries gain branching or non-trivial props           |
+| TS025 | Over-testing  | `src/components/seminova-logo.unit.test.tsx:6-11`; `site-header.unit.test.tsx:15-30`           | Low      | Render-only tests on shared chrome reachable in normal dev flow — conflicts with `testing.mdc` render-only rule.           | Cheap regression pins for wordmark/nav composition; low maintenance cost.                            | suite-trim pass or chrome layout regressions multiply |
+| TS026 | Over-testing  | `src/app/(app)/_components/profile/profile-settings-form.integration.test.tsx:154-239`         | Low      | Duplicate in-flight blur-save cases for display name and bio; same contract already in `use-blur-save-field.unit.test.ts`. | Cross-field avatar↔name concurrency cases are the distinctive form-level risk; mild redundancy only. | trimming the 420-line profile integration suite       |
 
 ## Quick wins
 
-- [ ] TS009: Apply `userEvent.setup({ delay: null })` and shared `render` where password-dialog cases allow.
+- [ ] TS011: Add ~2–3 `probeSessionAction` unit cases (success / null user / auth error).
+- [ ] TS012: Add invalid-JSON → 400 and outer-fault → 500 cases to client-logs route integration test.
+- [ ] TS014: Add `is-same-origin-relay-request.unit.test.ts` (malformed Origin, Referer-only).
+- [ ] TS013: Add invalid `sortDirection` + one fault reject on `listLogsAction`.
+- [ ] TS018: Stub or fake-timer the 400ms reference shipments delay; drop overlapping filter re-tests.
 
 ## Verified OK
 
-- **`extract-auth-form-error.unit.test.ts` (8 tests, 134 lines):** Looks like enumeration overkill, but maps a security-sensitive override table with logging contracts — appropriate depth per `testing.mdc` exception for auth sanitization.
-- **`proxy.unit.test.ts` (25 tests, 217 lines):** Large, but auth boundary is a hard constraint enforced by `check:auth-boundary` — breadth is intentional.
-- **`avatar-cache-bust.unit.test.ts` (10 tests):** Covers host spoofing and cross-user path rejection — security utility, not redundant validation permutations.
-- **`profile/actions.unit.test.ts` (11 tests):** Exercises partial updates, avatar URL ownership rejection, and fault paths — matches trust-boundary needs.
-- **`actions.unit.test.ts` `listUsersAction` block:** Five cases cover non-admin, `getUser` failure, validation, success, and fault — closes the prior action-layer gap.
-- **`route-error-boundaries.integration.test.tsx`:** Parameterized `it.each` over app/admin/auth segments — one file, three boundaries, behavior-level assertions.
-- **`users-table.unit.test.tsx:127` `sr-only` class:** Asserts loading text is screen-reader-only — borderline implementation detail, but pins an a11y contract for the loading state label.
-- **Marketing components at 0% coverage:** `landing-hero`, `landing-features`, etc. are config-driven static sections — no render tests is correct per `testing.mdc` render-only rule.
-- **Scripts tests outside coverage include:** `vitest.config.ts` scopes coverage to `src/**` only — script checks are tested but don't affect the 80% gate; intentional.
-- **Page/layout exclusions:** `page.tsx` and `layout.tsx` excluded from denominator — documented in `testing.mdc`; not threshold gaming.
-- **No quarantined skips, no snapshots:** ESLint `seminova-test/no-unquarantined-skips` and snapshot ban are clean across the suite.
-- **`components/ui/sidebar/cookie.unit.test.ts`:** Tests owned cookie-parsing logic colocated in the sidebar primitive — reasonable unit scope despite `ui/` coverage exclusion.
+- **`extract-auth-form-error.unit.test.ts`:** Security-sensitive override table + logging contracts — appropriate depth.
+- **`proxy.unit.test.ts` (41 tests) + `proxy.no-env` + `auth-session-flow.integration.test.ts`:** Auth boundary breadth is intentional; hard-constraint `check:auth-boundary` backed by these tests.
+- **`require-auth.unit.test.ts` (~97%):** Display reads / expired-token probe paths covered.
+- **`avatar-cache-bust` / `avatar-storage` / `is-safe-redirect`:** Host spoofing, ownership, malformed URL — security utilities, not redundant permutations.
+- **Profile `actions.unit.test.ts` + `profile-settings-form.integration.test.tsx`:** Partial updates, avatar ownership rejection, blur-save H/I/B — trust-boundary adequate (aside from TS011 / mild TS026).
+- **Admin users action layer** (`list-actions`, ban/role mutations): Gate, validation, success, fault covered at the action boundary.
+- **`route-error-boundaries.integration.test.tsx`:** Parameterized app/admin/auth fault boundaries.
+- **Marketing static / reference demo shells:** Correct per render-only rule; workflow static sections excluded by name so diagram stays measured; `reference/_components/**` excluded with `_lib` measured (TS019).
+- **`users-table` `toHaveClass('sr-only')` on loading label:** Borderline implementation detail, but pins an a11y contract — keep unless TS017’s lint forces an allowlist.
+- **Scripts tests outside coverage include:** Intentional — coverage scoped to `src/**`.
+- **No quarantined skips, no snapshots:** ESLint `seminova-test/no-unquarantined-skips` and snapshot ban clean.
+- **`vitest.setup.ts` global mocks** of `getAppSetting` / `persistAppLogRow` / `after` / `unstable_cache`: Appropriate suite-wide boundaries; `persist-app-log.unit.test.ts` uses `vi.unmock`.
+- **Pyramid for forms/auth:** Login/sign-up/forgot/update-password, profile modal/password, confirm, client-logs, landing auth already `.integration` — skew is utils + mislabeled admin UI (TS016), not a missing-integration hole.
+- **`components/ui/sidebar/cookie.unit.test.ts`:** Owned cookie-parsing logic — reasonable despite `ui/` coverage exclusion.
 
 ## Open questions
 
-- TS009: Worth extracting a shared slow-integration test helper (shared `render`, `delay: null`) repo-wide, or leave per-file optimization as needed?
+- TS018 / TS009: Fail CI on any test ≥ 300ms unless allowlisted, or keep Vitest’s advisory slow-test output only?
+- TS016: Should `_lib/**/*.unit.test.tsx` hooks that mock `@/supabase/client` (e.g. realtime) be renamed to `.integration`, or explicitly excluded from the expanded lint?
 
 ## Resolved
 
+- 2026-07-22 — TS019: Excluded `src/app/(marketing)/reference/_components/**` from coverage denominator (keep `reference/_lib/**`); coverage 82.33% → 88.26% stmts/lines; `testing.mdc` documents the pattern.
 - 2026-07-06 — TS001: `listUsersAction` action-layer tests added to `actions.unit.test.ts` (non-admin, validation, success, fault).
 - 2026-07-06 — TS002: Malformed-URL `catch` test added to `is-safe-redirect.unit.test.ts` (`http://[%`).
 - 2026-07-06 — TS003: `uploadUserAvatar` tests added for userId mismatch, storage error, and non-`AvatarUploadError` re-wrap.

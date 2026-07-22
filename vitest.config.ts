@@ -36,6 +36,7 @@ export default defineConfig({
         'src/app/(marketing)/workflow/_components/workflow-plan-review-section.tsx',
         'src/app/(marketing)/workflow/_components/workflow-section-nav.tsx',
         'src/app/(marketing)/workflow/_components/workflow-two-environments-section.tsx', // static marketing sections excluded; workflow-diagram.tsx is measured
+        'src/app/(marketing)/reference/_components/**', // pattern-page demo shells; reference/_lib helpers stay measured
         'src/providers/**',
         'src/supabase/client.ts',
         'src/supabase/server.ts',
