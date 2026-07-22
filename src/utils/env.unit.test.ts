@@ -42,6 +42,17 @@ describe('getPublicSupabaseEnv', () => {
     )
   })
 
+  it('should throw when NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is missing', async () => {
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://test.supabase.co')
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', '')
+
+    const { getPublicSupabaseEnv } = await import('./env')
+
+    expect(() => getPublicSupabaseEnv()).toThrow(
+      '[supabase-env] Missing NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY',
+    )
+  })
+
   it('should return public env when configured', async () => {
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://test.supabase.co')
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 'test-publishable-key')

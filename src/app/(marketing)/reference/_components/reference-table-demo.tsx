@@ -1,5 +1,9 @@
 'use client'
 
+// Showroom fixture over static sample data — not production admin behavior.
+// Client-side sort + pagination is the sanctioned exception (no server to page against; see data-tables.mdc).
+// Search debounce uses the shared useDebouncedValue hook from Epic 1.
+
 import type { SortingState } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 
