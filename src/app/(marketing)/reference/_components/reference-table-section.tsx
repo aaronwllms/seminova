@@ -1,5 +1,8 @@
+import { InfoIcon } from 'lucide-react'
 import { connection } from 'next/server'
 import { Suspense } from 'react'
+
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
 import { REFERENCE_SECTION_SCROLL_CLASS } from '../_lib/reference-anchor-links'
 
@@ -24,17 +27,18 @@ export const ReferenceTableSection = () => (
         Live: stat-tile filters, search, filter chips, refresh, sort, and
         pagination over a sample dataset.
       </p>
+
+      <Alert variant="info" role="note" className="mt-4">
+        <InfoIcon aria-hidden />
+        <AlertDescription>
+          Sample rows, not real records. Hard-refresh this page to see skeleton
+          placeholders while the table loads.
+        </AlertDescription>
+      </Alert>
     </div>
 
     <Suspense fallback={<ReferenceTableDemoFallback />}>
       <ReferenceTableDemoEntry />
     </Suspense>
-
-    <p className="mx-auto mt-5 max-w-prose px-4 text-[15px] leading-relaxed sm:px-0">
-      The rows are a sample dataset, not real records — read it as the shape
-      your own list view could take: filters and search live above the table,
-      not inside it. While a page loads, rows show as loading placeholders
-      instead of this content.
-    </p>
   </section>
 )

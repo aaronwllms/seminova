@@ -1,4 +1,6 @@
-'use client'
+import { InfoIcon } from 'lucide-react'
+
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
 import { REFERENCE_SECTION_SCROLL_CLASS } from '../_lib/reference-anchor-links'
 import { ReferenceProfileSettingsPreview } from './reference-profile-settings-preview'
@@ -17,17 +19,18 @@ export const ReferenceFormsSection = () => {
         local mock handlers on this page.
       </p>
 
+      <Alert variant="info" role="note" className="mt-4">
+        <InfoIcon aria-hidden />
+        <AlertDescription>
+          Save model is per field, not per form — blur-save for standalone
+          fields, explicit submit for coupled fields, upload-on-complete for
+          files. Profile settings uses all three in one modal.
+        </AlertDescription>
+      </Alert>
+
       <div className="mt-8">
         <ReferenceProfileSettingsPreview />
       </div>
-
-      <p className="mt-8 max-w-prose text-[15px] leading-relaxed">
-        The save model is a choice made per field, not per form. Blur-save fits
-        a field that&apos;s valid on its own, like a name or a bio. Explicit
-        submit fits fields that only mean something together, like a password
-        change. Upload-on-complete fits files, where the upload finishing is
-        itself the save. Signed-in profile settings uses all three in one modal.
-      </p>
     </section>
   )
 }

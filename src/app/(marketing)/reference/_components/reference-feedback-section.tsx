@@ -30,7 +30,8 @@ export const ReferenceFeedbackSection = () => {
         InlineError and ErrorPanel
       </h2>
       <p className="text-muted-foreground mt-1 text-sm">
-        Live: two components, for operational and fault errors.
+        Live: InlineError for operational errors; ErrorPanel for faults with
+        copyable code.
       </p>
 
       <Alert variant="info" role="note" className="mt-4">
@@ -55,15 +56,6 @@ export const ReferenceFeedbackSection = () => {
           <AppErrorSurface error={FAULT_DEMO_ERROR} />
         </div>
       </div>
-
-      <p className="mt-5 max-w-prose text-[15px] leading-relaxed">
-        Every error carries a kind: operational or fault. Operational errors are
-        things the user caused and can fix themselves — InlineError shows those
-        next to the field, no border. Faults are on the app&apos;s side —
-        ErrorPanel shows those with the error code in a neutral chip and a
-        labeled Copy control that copies the message and code for a support
-        request.
-      </p>
     </section>
   )
 }
