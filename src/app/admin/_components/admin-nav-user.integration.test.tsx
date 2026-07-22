@@ -78,7 +78,7 @@ describe('AdminNavUser', () => {
 
   it('should open menu with open app link and sign out', async () => {
     mockSignOut.mockResolvedValue({ error: null })
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(
       <AdminNavUser
@@ -107,7 +107,7 @@ describe('AdminNavUser', () => {
   })
 
   it('should open profile settings when profile is selected', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(
       <AdminNavUser

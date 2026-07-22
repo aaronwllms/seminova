@@ -23,7 +23,7 @@ const stepsWithRing = () =>
 
 describe('WorkflowDiagram', () => {
   it('should reveal step detail on keyboard focus and keep it when tabbing between steps', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const firstNode = WORKFLOW_LOOP_NODES[0]
     const secondNode = WORKFLOW_LOOP_NODES[1]
 
@@ -46,7 +46,7 @@ describe('WorkflowDiagram', () => {
   })
 
   it('should activate a step with Enter and Space', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const buildIndex = WORKFLOW_LOOP_NODES.findIndex(
       (node) => node.id === 'build',
     )
@@ -74,7 +74,7 @@ describe('WorkflowDiagram', () => {
   })
 
   it('should preview detail and dim siblings on hover without a ring', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const firstNode = WORKFLOW_LOOP_NODES[0]
     const secondNode = WORKFLOW_LOOP_NODES[1]
 
@@ -104,7 +104,7 @@ describe('WorkflowDiagram', () => {
   })
 
   it('should move hover spotlight directly between steps without clearing', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const firstNode = WORKFLOW_LOOP_NODES[0]
     const secondNode = WORKFLOW_LOOP_NODES[1]
 
@@ -131,7 +131,7 @@ describe('WorkflowDiagram', () => {
   })
 
   it('should keep hover spotlight when moving over non-node diagram chrome', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const firstNode = WORKFLOW_LOOP_NODES[0]
     const secondNode = WORKFLOW_LOOP_NODES[1]
 
@@ -165,7 +165,7 @@ describe('WorkflowDiagram', () => {
   })
 
   it('should move the ring to the focused step after click then Tab', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const firstNode = WORKFLOW_LOOP_NODES[0]
     const secondNode = WORKFLOW_LOOP_NODES[1]
 
@@ -190,7 +190,7 @@ describe('WorkflowDiagram', () => {
   })
 
   it('should show a ring and persist detail after click and unhover', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const buildNode = WORKFLOW_LOOP_NODES.find((node) => node.id === 'build')
 
     if (!buildNode) {
@@ -216,7 +216,7 @@ describe('WorkflowDiagram', () => {
   })
 
   it('should keep selection when tabbing between steps and clear when focus leaves the diagram', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const firstNode = WORKFLOW_LOOP_NODES[0]
     const secondNode = WORKFLOW_LOOP_NODES[1]
 

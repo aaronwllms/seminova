@@ -159,6 +159,24 @@ const eslintConfig = defineConfig([
           message:
             'Snapshot tests are banned — write explicit assertions instead.',
         },
+        {
+          selector:
+            "CallExpression > MemberExpression[property.name='toHaveClass']",
+          message:
+            'Assert user-visible behavior instead of CSS classes — see testing.mdc.',
+        },
+        {
+          selector:
+            "CallExpression[callee.property.name='querySelector'] > Literal[value=/^\\./]",
+          message:
+            'Do not probe DOM via CSS class selectors — use role/name/text queries.',
+        },
+        {
+          selector:
+            "CallExpression[callee.property.name='querySelectorAll'] > Literal[value=/^\\./]",
+          message:
+            'Do not probe DOM via CSS class selectors — use role/name/text queries.',
+        },
       ],
     },
   },

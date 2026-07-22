@@ -42,7 +42,7 @@ describe('SignUpForm', () => {
 
   it('should sign up and redirect on success', async () => {
     mockSignUp.mockResolvedValue({ error: null })
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(<SignUpForm />)
 
@@ -58,7 +58,7 @@ describe('SignUpForm', () => {
   })
 
   it('should show an error when passwords do not match', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(<SignUpForm />)
 

@@ -22,7 +22,7 @@ describe('AppSettingsPanel', () => {
   })
 
   it('should group registry entries under their feature-area heading and update saved state after a row save', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     saveAppSettingActionMock.mockResolvedValue({
       success: true,

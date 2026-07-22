@@ -54,7 +54,7 @@ describe('UpdatePasswordForm', () => {
       error: null,
       data: { user: { app_metadata: {} } },
     })
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(<UpdatePasswordForm />)
 
@@ -75,7 +75,7 @@ describe('UpdatePasswordForm', () => {
       error: null,
       data: { user: { app_metadata: { role: 'admin' } } },
     })
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(<UpdatePasswordForm />)
 
@@ -91,7 +91,7 @@ describe('UpdatePasswordForm', () => {
     mockUpdateUser.mockResolvedValue({
       error: new Error('Password is too weak'),
     })
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(<UpdatePasswordForm />)
 

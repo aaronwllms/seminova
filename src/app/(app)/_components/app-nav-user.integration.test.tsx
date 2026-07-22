@@ -36,7 +36,7 @@ describe('AppNavUser', () => {
 
   it('should open profile dialog from menu and sign out', async () => {
     mockSignOut.mockResolvedValue({ error: null })
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(
       <AppNavUser
@@ -64,7 +64,7 @@ describe('AppNavUser', () => {
   })
 
   it('should not show account label text beside the avatar trigger', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(
       <AppNavUser
@@ -82,7 +82,7 @@ describe('AppNavUser', () => {
   })
 
   it('should show admin console link for admins', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(
       <AppNavUser
@@ -101,7 +101,7 @@ describe('AppNavUser', () => {
   })
 
   it('should show Open app link when showOpenApp is true', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(
       <AppNavUser
@@ -122,7 +122,7 @@ describe('AppNavUser', () => {
   })
 
   it('should not show Open app link when showOpenApp is omitted', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(
       <AppNavUser

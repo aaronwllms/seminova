@@ -19,7 +19,7 @@ describe('ProfileThemeSegment', () => {
   })
 
   it('should render theme options and apply selection', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(<ProfileThemeSegment />)
 

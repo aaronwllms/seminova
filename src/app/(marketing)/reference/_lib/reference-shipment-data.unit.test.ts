@@ -6,6 +6,7 @@ import {
   computeReferenceShipmentStats,
   filterReferenceShipments,
 } from './reference-shipment-data'
+import { sortReferenceShipments } from './use-reference-shipments'
 
 describe('reference-shipment-data', () => {
   it('should compute global stats from the full fixture', () => {
@@ -38,5 +39,21 @@ describe('reference-shipment-data', () => {
     expect(filtered).toHaveLength(1)
     expect(filtered[0]?.[SEARCHABLE_COLUMN]).toBe('Gullstrand Lines')
     expect(filtered[0]?.status).toBe('In transit')
+  })
+
+  it('should sort consignee descending when requested', () => {
+    const sorted = sortReferenceShipments(REFERENCE_SHIPMENTS_FIXTURE, [
+      { id: 'consignee', desc: true },
+    ])
+
+    expect(sorted[0]?.consignee).toBe('Zephyr Global')
+  })
+
+  it('should leave rows unchanged when sort column is not supported', () => {
+    const sorted = sortReferenceShipments(REFERENCE_SHIPMENTS_FIXTURE, [
+      { id: 'unsupported', desc: true },
+    ])
+
+    expect(sorted).toEqual(REFERENCE_SHIPMENTS_FIXTURE)
   })
 })

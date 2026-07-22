@@ -35,7 +35,7 @@ describe('LogsStatTiles', () => {
   })
 
   it('should clear filters when Total is clicked', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const onTotalClick = vi.fn()
 
     render(

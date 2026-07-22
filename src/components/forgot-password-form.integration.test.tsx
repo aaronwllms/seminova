@@ -28,7 +28,7 @@ describe('ForgotPasswordForm', () => {
 
   it('should show success message after sending reset email', async () => {
     mockResetPasswordForEmail.mockResolvedValue({ error: null })
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(<ForgotPasswordForm />)
 
@@ -48,7 +48,7 @@ describe('ForgotPasswordForm', () => {
     mockResetPasswordForEmail.mockResolvedValue({
       error: new Error('Unable to send reset email'),
     })
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(<ForgotPasswordForm />)
 

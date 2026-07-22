@@ -66,7 +66,7 @@ describe('ProfileSettingsForm', () => {
   })
 
   it('should blur-save display name with partial action and refresh', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(
       <ProfileSettingsForm
@@ -98,7 +98,7 @@ describe('ProfileSettingsForm', () => {
   })
 
   it('should blur-save bio without refreshing', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(
       <ProfileSettingsForm
@@ -124,7 +124,7 @@ describe('ProfileSettingsForm', () => {
   })
 
   it('should not persist invalid display name on blur', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(
       <ProfileSettingsForm
@@ -160,7 +160,7 @@ describe('ProfileSettingsForm', () => {
         }),
     )
 
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(
       <ProfileSettingsForm
@@ -204,7 +204,7 @@ describe('ProfileSettingsForm', () => {
         }),
     )
 
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(
       <ProfileSettingsForm
@@ -248,7 +248,7 @@ describe('ProfileSettingsForm', () => {
       },
     })
 
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(
       <ProfileSettingsForm
@@ -292,7 +292,7 @@ describe('ProfileSettingsForm', () => {
       },
     )
 
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     render(<ProfileSettingsForm {...defaultFormProps} />)
 
     const file = new File(['avatar'], 'avatar.png', { type: 'image/png' })
@@ -350,7 +350,7 @@ describe('ProfileSettingsForm', () => {
       },
     )
 
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     render(<ProfileSettingsForm {...defaultFormProps} />)
 
     await user.clear(screen.getByLabelText(/display name/i))
@@ -397,7 +397,7 @@ describe('ProfileSettingsForm', () => {
   })
 
   it('should remove avatar via server action', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(
       <ProfileSettingsForm

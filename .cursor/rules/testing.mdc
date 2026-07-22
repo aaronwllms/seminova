@@ -27,6 +27,7 @@ Past ~400 lines, review the file for redundant cases, irrelevant edge cases, and
 - Write tests for components with logic or user interactions
 - Use descriptive test names; cover Happy, Invalid, and Boundary per the [H/I/B Pattern](#hib-pattern-quality-over-quantity) section
 - Use `render`, `screen`, `waitFor` from `@/test/test-utils` (includes ReactQueryProvider)
+- Interactive suites: `const user = userEvent.setup({ delay: null })` — avoids default typing delay in CI
 
 ## Test Pyramid Guidelines
 
@@ -100,7 +101,7 @@ If a function or component needs more than ~15 tests, investigate for redundancy
 - **Every validation rule**: If you have 10 form validations, test 1-2 representative cases, not all 10
 - **Every edge case**: Don't test empty string AND whitespace AND unicode AND emoji AND special chars
 - **Combinations of edge cases**: Don't test "empty string with whitespace" or "unicode emoji"
-- **Implementation details**: Don't test internal state, private methods, or CSS classes
+- **Implementation details**: Don't test internal state, private methods, or CSS classes — ESLint bans `toHaveClass` and class-string `querySelector` probes in `*.test.*` (allowlisted `sr-only` a11y pin on admin users-table loading label)
 - **Multiple ways to trigger the same behavior**: Don't test keyboard AND mouse if they do the same thing
 - **Render smoke tests for components visible in normal dev flow**: See the render-only rule under UI Components & Pages
 
@@ -169,13 +170,15 @@ Before merge: run `pnpm test:ci`. If thresholds fail, add targeted high-value te
 ## File Naming Conventions
 Test files should be co-located with source files using these naming patterns:
 
-- **Unit tests**: `.unit.test.tsx` or `.unit.test.ts`
-  - Pure functions, isolated component logic, custom hooks, components without external dependencies
-  - Example: `utils/extract-auth-form-error.unit.test.ts`, `hooks/use-sign-out.unit.test.ts`, `components/inline-error.unit.test.tsx`
-
 - **Integration tests**: `.integration.test.tsx` or `.integration.test.ts`
   - Components with external dependencies, API routes, auth flows, database interactions
+  - UI under `_components/` that mocks `@/supabase/client` or colocated server `actions` modules
   - Example: `components/login-form.integration.test.tsx`, `app/auth/confirm/route.integration.test.ts`
+
+- **Unit tests**: `.unit.test.tsx` or `.unit.test.ts`
+  - Pure functions, isolated component logic, custom hooks, components without external dependencies
+  - `_lib/**` hook units that mock `@/supabase/client` stay `.unit` (explicit exclusion from `test-scope-naming`)
+  - Example: `utils/extract-auth-form-error.unit.test.ts`, `hooks/use-sign-out.unit.test.ts`, `components/inline-error.unit.test.tsx`
 
 The file naming helps identify test scope at a glance and organize test runs (e.g., running only unit tests for quick feedback loops).
 

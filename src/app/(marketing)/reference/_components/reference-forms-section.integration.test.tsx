@@ -50,7 +50,7 @@ describe('ReferenceFormsSection', () => {
   })
 
   it('should blur-save display name through the mock persist and show saved state', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(<ReferenceFormsSection />)
 
@@ -71,7 +71,7 @@ describe('ReferenceFormsSection', () => {
   })
 
   it('should per-row save through mock persist and toast on success', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(<ReferenceFormsSection />)
 
@@ -94,7 +94,7 @@ describe('ReferenceFormsSection', () => {
   })
 
   it('should per-section save through mock persist and toast on success', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(<ReferenceFormsSection />)
 

@@ -7,13 +7,15 @@ import { POST } from './route'
 
 const mockAppLogError = vi.fn()
 const mockAppLogInfo = vi.fn()
+const mockAppLogDebug = vi.fn()
+const mockAppLogWarn = vi.fn()
 const mockGetUser = vi.fn()
 
 vi.mock('@/utils/app-logger', () => ({
   appLog: {
-    debug: vi.fn(),
+    debug: (...args: unknown[]) => mockAppLogDebug(...args),
     info: (...args: unknown[]) => mockAppLogInfo(...args),
-    warn: vi.fn(),
+    warn: (...args: unknown[]) => mockAppLogWarn(...args),
     error: (...args: unknown[]) => mockAppLogError(...args),
   },
 }))
@@ -43,8 +45,11 @@ describe('POST /api/client-logs', () => {
   beforeEach(() => {
     mockAppLogError.mockReset()
     mockAppLogInfo.mockReset()
+    mockAppLogDebug.mockReset()
+    mockAppLogWarn.mockReset()
     mockGetUser.mockReset()
     mockGetUser.mockResolvedValue({ data: { user: null } })
+    mockAppLogError.mockImplementation(() => {})
   })
 
   it('should forward a valid same-origin payload to appLog', async () => {
@@ -145,6 +150,75 @@ describe('POST /api/client-logs', () => {
       'client-app-error',
       'm'.repeat(2_000),
       null,
+    )
+  })
+
+  it('should return VALIDATION_ERROR for an invalid JSON body', async () => {
+    const response = await POST(
+      new NextRequest('http://localhost:3000/api/client-logs', {
+        method: 'POST',
+        headers: {
+          origin: 'http://localhost:3000',
+          'content-type': 'application/json',
+        },
+        body: 'not-json',
+      }),
+    )
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({
+      success: false,
+      error: {
+        message: 'Invalid request body',
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
+    })
+  })
+
+  it('should still accept the relay when the session probe throws', async () => {
+    mockGetUser.mockRejectedValue(new Error('session probe failed'))
+
+    const response = await POST(
+      createRequest({
+        key: 'app-error',
+        level: 'error',
+        message: 'Route error',
+      }),
+    )
+
+    expect(response.status).toBe(202)
+    expect(await response.json()).toEqual({ success: true, data: null })
+  })
+
+  it('should return INTERNAL_ERROR fault when the handler throws unexpectedly', async () => {
+    mockAppLogError.mockImplementation((tag: string) => {
+      if (tag.startsWith('client-')) {
+        throw new Error('relay write failed')
+      }
+    })
+
+    const response = await POST(
+      createRequest({
+        key: 'app-error',
+        level: 'error',
+        message: 'Route error',
+      }),
+    )
+
+    expect(response.status).toBe(500)
+    expect(await response.json()).toEqual({
+      success: false,
+      error: {
+        message: 'Something went wrong',
+        code: 'INTERNAL_ERROR',
+        kind: 'fault',
+      },
+    })
+    expect(mockAppLogError).toHaveBeenCalledWith(
+      'api-client-logs',
+      'Relay failed',
+      expect.any(Error),
     )
   })
 
