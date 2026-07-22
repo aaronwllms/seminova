@@ -12,17 +12,15 @@ type SiteNavLinksProps = {
   onNavigate?: () => void
 }
 
-const inactiveLinkStyles =
-  'text-muted-foreground hover:text-foreground transition-colors'
-const activeLinkStyles =
-  'text-foreground underline decoration-foreground/30 underline-offset-4 transition-colors'
+const linkBaseStyles =
+  'rounded-md transition-colors focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none'
+const inactiveLinkStyles = 'text-muted-foreground hover:text-foreground'
+const activeLinkStyles = 'text-foreground font-medium'
 
 /**
- * v1 active matching: pathname only (hash ignored).
- * Home (`/`) and Features (`/#features`) both match `/` — Features is an in-page
- * anchor, not a separate route. Only the path-only Home link gets
- * aria-current="page". External links never active. Hash-aware Features-only
- * active state is deferred.
+ * v1 active matching: pathname only; in-page anchors (hash hrefs) never match.
+ * On `/`, only Home is active — Features (`/#features`) stays inactive until
+ * hash-aware active state ships. External links never active.
  */
 export const isSiteNavLinkActive = (
   href: string,
@@ -30,6 +28,7 @@ export const isSiteNavLinkActive = (
   external?: boolean,
 ): boolean => {
   if (external) return false
+  if (href.includes('#')) return false
   const path = href.split('#')[0] || '/'
   return path === pathname
 }
@@ -48,9 +47,12 @@ export const SiteNavLinks = ({
     >
       {siteConfig.nav.map((item) => {
         const isActive = isSiteNavLinkActive(item.href, pathname, item.external)
-        // Features shares visual active on `/` but is not a distinct page.
-        const ariaCurrent =
-          isActive && !item.href.includes('#') ? ('page' as const) : undefined
+        const ariaCurrent = isActive ? ('page' as const) : undefined
+        const linkStyles = cn(
+          linkBaseStyles,
+          isActive ? activeLinkStyles : inactiveLinkStyles,
+          linkClassName,
+        )
 
         if (item.external) {
           return (
@@ -60,7 +62,7 @@ export const SiteNavLinks = ({
               target="_blank"
               rel="noopener noreferrer"
               onClick={onNavigate}
-              className={cn(inactiveLinkStyles, linkClassName)}
+              className={linkStyles}
             >
               {item.label}
             </a>
@@ -73,10 +75,7 @@ export const SiteNavLinks = ({
             href={item.href}
             onClick={onNavigate}
             aria-current={ariaCurrent}
-            className={cn(
-              isActive ? activeLinkStyles : inactiveLinkStyles,
-              linkClassName,
-            )}
+            className={linkStyles}
           >
             {item.label}
           </Link>

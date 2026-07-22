@@ -10,9 +10,9 @@ import { isSiteNavLinkActive, SiteNavLinks } from '@/components/site-nav-links'
 import { render, screen } from '@/test/test-utils'
 
 describe('isSiteNavLinkActive', () => {
-  it('should match pathname and ignore hash fragments', () => {
+  it('should match pathname for route links and exclude hash anchors', () => {
     expect(isSiteNavLinkActive('/', '/')).toBe(true)
-    expect(isSiteNavLinkActive('/#features', '/')).toBe(true)
+    expect(isSiteNavLinkActive('/#features', '/')).toBe(false)
     expect(isSiteNavLinkActive('/reference', '/reference')).toBe(true)
     expect(isSiteNavLinkActive('/reference', '/')).toBe(false)
   })
