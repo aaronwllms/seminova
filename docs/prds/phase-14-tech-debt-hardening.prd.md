@@ -111,7 +111,7 @@ The logs and users server-action files are split into per-operation modules behi
 
 ---
 
-### Epic 6: Hygiene & Drift
+### Epic 6: Hygiene & Drift `Complete`
 
 A batch of independent maintenance items: dependency patches, two coverage gaps, and documenting the reference demos' intentional divergence.
 
