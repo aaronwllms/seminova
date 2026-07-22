@@ -1,4 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
+
+import type { AppSettingKey } from '@/config/app-settings-registry'
 
 import {
   APP_SETTINGS_REGISTRY,
@@ -53,5 +55,14 @@ describe('app-settings-registry', () => {
     expect(isAppSettingKey('min_log_level')).toBe(true)
     expect(isAppSettingKey('banner_public')).toBe(true)
     expect(isAppSettingKey('unknown_setting')).toBe(false)
+  })
+
+  it('should derive AppSettingKey from registry entries', () => {
+    expectTypeOf<AppSettingKey>().toEqualTypeOf<
+      | 'min_log_level'
+      | 'log_retention_days'
+      | 'banner_public'
+      | 'banner_authenticated'
+    >()
   })
 })

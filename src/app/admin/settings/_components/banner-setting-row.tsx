@@ -53,13 +53,19 @@ import {
 } from '@/utils/format-banner-status-badge'
 import { cn } from '@/utils/tailwind'
 
-type BannerSettingRowProps<
-  K extends 'banner_public' | 'banner_authenticated' = 'banner_public',
-> = {
-  entry: AppSettingRegistryEntry<K>
+type BannerAppSettingRegistryEntry = Extract<
+  AppSettingRegistryEntry,
+  { readonly key: 'banner_public' | 'banner_authenticated' }
+>
+
+type BannerSettingRowProps = {
+  entry: BannerAppSettingRegistryEntry
   savedValue: BannerSettingValue
   isExpanded: boolean
-  onSaved: (key: K, value: BannerSettingValue) => void
+  onSaved: (
+    key: BannerAppSettingRegistryEntry['key'],
+    value: BannerSettingValue,
+  ) => void
 }
 
 const MODE_LABELS: Record<(typeof BANNER_MODES)[number], string> = {
@@ -77,14 +83,12 @@ const BANNER_COPY_SYNTAX_HINT =
 export const hasBannerPreviewContent = (value: BannerSettingValue): boolean =>
   value.headline.trim().length > 0
 
-export const BannerSettingRow = <
-  K extends 'banner_public' | 'banner_authenticated',
->({
+export const BannerSettingRow = ({
   entry,
   savedValue,
   isExpanded,
   onSaved,
-}: BannerSettingRowProps<K>) => {
+}: BannerSettingRowProps) => {
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<AppError | null>(null)
   const [previewThemeOverride, setPreviewThemeOverride] = useState<

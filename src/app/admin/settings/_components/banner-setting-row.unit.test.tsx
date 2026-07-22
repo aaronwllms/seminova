@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { render, screen } from '@/test/test-utils'
 import { getRegistryEntry } from '@/config/app-settings-registry'
 import { Accordion } from '@/components/ui/accordion'
-import type { AppSettingRegistryEntry } from '@/types/app-settings'
 import { DEFAULT_BANNER_SETTING } from '@/types/banner'
 
 import { BannerSettingRow } from './banner-setting-row'
@@ -30,9 +29,7 @@ vi.mock('@/utils/app-toast', () => ({
 
 describe('BannerSettingRow', () => {
   const onSavedMock = vi.fn()
-  const entry = getRegistryEntry(
-    'banner_public',
-  ) as AppSettingRegistryEntry<'banner_public'>
+  const entry = getRegistryEntry('banner_public')
 
   beforeAll(() => {
     Element.prototype.hasPointerCapture ??= () => false

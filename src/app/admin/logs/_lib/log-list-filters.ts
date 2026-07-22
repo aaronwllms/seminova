@@ -24,6 +24,13 @@ export interface LogListFilterChip {
   label: string
 }
 
+type LogListFilterMethods = {
+  in(column: string, values: string[]): LogListFilterMethods
+  is(column: string, value: null): LogListFilterMethods
+  eq(column: string, value: string): LogListFilterMethods
+  or(filters: string): LogListFilterMethods
+}
+
 const truncateFilterDisplay = (value: string): string =>
   value.length > 20 ? `${value.slice(0, 17)}…` : value
 
@@ -79,14 +86,6 @@ export const buildMarkAllLogsReadTooltip = (
     : 'Mark all unread logs as read'
 }
 
-export type FilterableAppLogsQuery = {
-  in: (column: string, values: string[]) => FilterableAppLogsQuery
-  is: (column: string, value: null) => FilterableAppLogsQuery
-  eq: (column: string, value: string) => FilterableAppLogsQuery
-  or: (filters: string) => FilterableAppLogsQuery
-  ilike: (column: string, pattern: string) => FilterableAppLogsQuery
-}
-
 export const escapeIlikePattern = (value: string): string =>
   value.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_')
 
@@ -98,11 +97,11 @@ const wrapPostgrestFilterValue = (value: string): string => {
   return value
 }
 
-export const applyLogListFilters = (
-  query: FilterableAppLogsQuery,
+const applyLogListFiltersCore = (
+  query: LogListFilterMethods,
   filters: LogListFilters,
-): FilterableAppLogsQuery => {
-  let result: FilterableAppLogsQuery = query
+): LogListFilterMethods => {
+  let result: LogListFilterMethods = query
 
   if (filters.levels.length > 0) {
     result = result.in('level', filters.levels)
@@ -127,6 +126,9 @@ export const applyLogListFilters = (
 
   return result
 }
+
+export const applyLogListFilters = <T>(query: T, filters: LogListFilters): T =>
+  applyLogListFiltersCore(query as LogListFilterMethods, filters) as T
 
 export const parseLogListFiltersInput = (
   input: unknown,
