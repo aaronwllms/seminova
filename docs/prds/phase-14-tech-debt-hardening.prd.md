@@ -28,7 +28,7 @@ Resolve the actionable clusters from the audit, batched so each epic is a single
 
 ---
 
-### Epic 1: Foundation Sweep
+### Epic 1: Foundation Sweep `Complete`
 
 Consolidate the duplicated helpers behind admin table search, fetching, and error handling into single shared implementations, and clear the batch of independent one-line findings — so later epics build on one canonical version of each helper rather than duplicating them again.
 
