@@ -65,7 +65,7 @@ Admins get the same users table experience, now backed by an extracted state hoo
 
 ---
 
-### Epic 3: Logs Table Decomposition
+### Epic 3: Logs Table Decomposition `Complete`
 
 The same decomposition applied to the logs table, preserving current admin-facing behavior including the live feed.
 
