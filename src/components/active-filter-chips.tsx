@@ -29,15 +29,11 @@ export const ActiveFilterChips = ({
     <div className="flex flex-wrap items-center gap-2">
       <span className="text-muted-foreground text-sm">Active filters:</span>
       {chips.map((chip) => (
-        <Badge
-          key={chip.id}
-          variant="secondary"
-          className="gap-1 pr-0.5 pl-2.5"
-        >
+        <Badge key={chip.id} variant="secondary" className="gap-1 pr-1.5 pl-3">
           {chip.label}
           <button
             type="button"
-            className="hover:bg-secondary-foreground/10 focus-visible:ring-ring inline-flex size-7 shrink-0 items-center justify-center rounded-full focus-visible:ring-2 focus-visible:outline-none"
+            className="hover:bg-secondary-foreground/10 focus-visible:ring-ring inline-flex size-6 shrink-0 items-center justify-center rounded-full focus-visible:ring-2 focus-visible:outline-none"
             aria-label={`Remove ${chip.label} filter`}
             onClick={() => onRemove(chip.id)}
           >
