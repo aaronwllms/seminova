@@ -1,6 +1,6 @@
 # Phase 14 PRD: Tech Debt Hardening
 
-**Status:** `Ready`
+**Status:** `Active`
 
 ---
 

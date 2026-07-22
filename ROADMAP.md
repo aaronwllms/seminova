@@ -23,7 +23,7 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 | 11 | Corrections & Hardening | `Shipped` | [Phase 11 PRD](docs/prds/archive/phase-11-corrections-hardening.prd.md) |
 | 12 | Observability & App Settings | `Shipped` | [Phase 12 PRD](docs/prds/archive/phase-12-observability-app-settings.prd.md) |
 | 13 | Realtime Logs & Session Refresh | `Shipped` | [Phase 13 PRD](docs/prds/archive/phase-13-realtime-logs-session-refresh.prd.md) |
-| 14 | Tech Debt Hardening | `Ready` | [Phase 14 PRD](docs/prds/phase-14-tech-debt-hardening.prd.md) |
+| 14 | Tech Debt Hardening | `Active` | [Phase 14 PRD](docs/prds/phase-14-tech-debt-hardening.prd.md) |
 | 15 | Features Page & Landing Refresh | `Draft` | — |
 | 16 | Magic Link Auth | `Draft` | — |
 | 17 | Blog Page | `Draft` | — |
@@ -37,9 +37,6 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 ## Upcoming phases
 
 Thin stubs for anticipated phases — intent and shape only; decomposition into epics happens at phase-planning time. This section is kept even when empty, so the next phase always has a home.
-
-### 14 — Tech Debt Hardening
-Resolve the actionable clusters from `TECH_DEBT_AUDIT.md`: shared admin-table primitives plus a quick-wins sweep, the two admin god-file extractions (users table, logs table), type derivation (settings registry + logs query typing), actions-layer thinning, and a hygiene/drift batch. Answers the audit's own open question on admin-table extraction timing — this is the dedicated hardening phase. Settings-registry derivation is time-sensitive: it must land before Phase 16 adds a magic-link settings key. Excludes CSP enforcement (deferred security phase) and the hero-screenshot item (manual/design task, not agent work).
 
 ### 15 — Features Page & Landing Refresh
 Add a standalone `/features` page (scannable, categorized) covering the full capability set, and refresh the home page feature grid to a curated set of highlights linking out to it. Includes folding loose-end #19 (admin-shell card copy) into this work rather than doing it separately.
