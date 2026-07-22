@@ -89,9 +89,12 @@ const TYPE_SCALE_SAMPLES = [
   },
 ] as const
 
+/** Fixed sample — matches formatLogTimestampDisplay unit test input (not live time). */
+const REFERENCE_MONO_TIMESTAMP_ISO = '2026-07-18T14:32:07.412Z'
+
 export const ReferenceDesignSystemSection = () => {
   const monoTimestampSample = formatLogTimestampDisplay(
-    new Date().toISOString(),
+    REFERENCE_MONO_TIMESTAMP_ISO,
   )
 
   return (
