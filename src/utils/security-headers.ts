@@ -1,6 +1,6 @@
 // debt: template-default CSP ships report-only. Enforcing it (CSP_ENFORCE=true) requires nonce-based script handling — a per-request nonce generated in middleware and threaded into both the CSP script-src and Next.js's inline scripts. `script-src 'self'` alone will block Next.js inline bootstrap/streaming scripts under enforcement. Tighten directives AND add the nonce strategy per product surface before setting CSP_ENFORCE=true.
 
-import { getSupabaseOrigin } from '@/utils/env'
+import { getSupabaseOrigin } from './env'
 
 const VERCEL_ANALYTICS_ORIGIN = 'https://va.vercel-scripts.com'
 
