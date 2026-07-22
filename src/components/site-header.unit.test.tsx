@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/',
+}))
+
 vi.mock('@/utils/env', () => ({
   hasPublicSupabaseEnv: true,
 }))

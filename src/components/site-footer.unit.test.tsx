@@ -1,6 +1,10 @@
 import { Suspense } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/',
+}))
+
 vi.mock('next/server', () => ({
   connection: vi.fn().mockResolvedValue(undefined),
 }))
