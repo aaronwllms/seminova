@@ -14,6 +14,7 @@ const SEMANTIC_COLOR_TOKENS = [
   },
   { name: 'Success', cssVar: '--success', className: 'bg-success' },
   { name: 'Warning', cssVar: '--warning', className: 'bg-warning' },
+  { name: 'Info', cssVar: '--info', className: 'bg-info' },
 ] as const
 
 const TYPE_SCALE_SAMPLES = [

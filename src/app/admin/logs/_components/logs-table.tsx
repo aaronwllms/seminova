@@ -397,7 +397,7 @@ export const LogsTable = () => {
           }
           onRowClick={handleRowClick}
           getRowClassName={(row) =>
-            row.isUnread ? cn('bg-unread/10 hover:bg-unread/15') : undefined
+            row.isUnread ? cn('bg-primary/10 hover:bg-primary/15') : undefined
           }
           getRowAccessibilityLabel={(row) =>
             `${row.isUnread ? 'Unread log' : 'Read log'}: ${formatLogTimestampDisplay(row.createdAt)}, ${row.level}, ${row.tag}, ${row.message}`

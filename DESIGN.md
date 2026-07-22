@@ -86,7 +86,6 @@ Token **names** below. Values: see `globals.css` only.
 | `success`, `success-foreground`         | `bg-success`, `text-success`, `text-success-foreground`             |
 | `warning`, `warning-foreground`         | `bg-warning`, `text-warning`, `text-warning-foreground`             |
 | `info`, `info-foreground`               | `bg-info`, `text-info`, `text-info-foreground`                      |
-| `unread`, `unread-foreground`           | `bg-unread`, `text-unread`, `text-unread-foreground`                |
 | `border`                                | `border-border`                                                     |
 | `input`                                 | `border-input`                                                      |
 | `ring`                                  | `ring-ring`                                                         |
@@ -165,7 +164,7 @@ For full hard-constraint wording, see [AGENTS.md › Hard constraints](AGENTS.md
 
 ### Status color consumption
 
-Status tokens (`destructive`, `warning`, `success`, `info`, `unread`) each ship with a `-foreground` partner for solid fills. **`primary`** is brand/actions; **`accent`** is hover/highlight chrome — neither is a log-level or toast status color.
+Status tokens (`destructive`, `warning`, `success`, `info`) each ship with a `-foreground` partner for solid fills. **`primary`** is brand/actions and also drives unread log triage tint (row background and dot); **`accent`** is hover/highlight chrome — neither is a log-level or toast status color.
 
 | Pattern                     | When                                                                                   | Utilities                                                                                                  |
 | --------------------------- | -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
