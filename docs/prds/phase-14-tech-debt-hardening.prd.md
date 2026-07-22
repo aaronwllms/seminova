@@ -37,7 +37,7 @@ Consolidate the duplicated helpers behind admin table search, fetching, and erro
 - Server action results are unwrapped through a single generic helper, folding in the mutation-result variant (F070, F088).
 - Error-kind checks route through a single shared type guard instead of an unguarded cast (F077).
 - The `LandingContainer` alias is removed and its consumers import `SiteContainer` directly (F011).
-- The duplicated header/footer grid track string is extracted to one shared constant (F060).
+- The duplicated header/footer grid track string is left inline with paired intentional-duplication comments rather than extracted (F060) — constant extraction deferred until a third chrome surface needs the pattern; F060 remains open in the audit.
 - The duplicated catch-and-exit wrapper across the admin CLI entry scripts is extracted to one shared helper (F063).
 - The `package.json` author field is updated from legacy template attribution to the current maintainer (F086).
 - Remaining direct `process.env.NEXT_PUBLIC_SUPABASE_URL` reads route through a shared accessor rather than reading the env var inline (F097).

@@ -80,3 +80,12 @@ _Defer until: a future security phase_
 _Defer until: opportunistic_
 
 </details>
+
+<details>
+<summary>Sharp transitive CVE (pnpm audit)</summary>
+
+**Problem:** After Phase 14 cleared brace-expansion / js-yaml, `pnpm audit` still reports one high-severity path: `sharp` older than 0.35.0 (libvips) via Next.js and related packages (tech debt audit F081). Overrides can fight the Next image toolchain.
+**Solution:** Prefer a Next.js bump that pulls a patched `sharp`; use `pnpm.overrides` only if image/OG/favicon paths are verified after. Re-run `pnpm audit` before production launch.
+_Defer until: pre-production release gate_
+
+</details>
