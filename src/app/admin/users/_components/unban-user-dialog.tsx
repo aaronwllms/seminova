@@ -10,7 +10,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
 import { cn } from '@/utils/tailwind'
 
 import type { UserMutationConfirmAction } from './user-mutation-confirm-action'
@@ -39,19 +38,15 @@ export const UnbanUserDialog = ({
       </AlertDialogHeader>
       <AlertDialogFooter>
         <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-        <AlertDialogAction asChild>
-          <Button
-            type="button"
-            variant="default"
-            disabled={isPending}
-            className={cn(isPending && 'pointer-events-none opacity-50')}
-            onClick={(event) => {
-              event.preventDefault()
-              onConfirm()
-            }}
-          >
-            Unban
-          </Button>
+        <AlertDialogAction
+          disabled={isPending}
+          className={cn(isPending && 'pointer-events-none opacity-50')}
+          onClick={(event) => {
+            event.preventDefault()
+            onConfirm()
+          }}
+        >
+          Unban
         </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>

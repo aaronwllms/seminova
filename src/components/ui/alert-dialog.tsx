@@ -120,11 +120,14 @@ function AlertDialogDescription({
 
 function AlertDialogAction({
   className,
+  asChild = false,
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Action>) {
   return (
     <AlertDialogPrimitive.Action
-      className={cn(buttonVariants(), className)}
+      // asChild: child owns presentation — don't stack buttonVariants()
+      className={cn(!asChild && buttonVariants(), className)}
+      asChild={asChild}
       {...props}
     />
   )
@@ -132,11 +135,17 @@ function AlertDialogAction({
 
 function AlertDialogCancel({
   className,
+  asChild = false,
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Cancel>) {
   return (
     <AlertDialogPrimitive.Cancel
-      className={cn(buttonVariants({ variant: 'outline' }), className)}
+      // asChild: child owns presentation — don't stack buttonVariants()
+      className={cn(
+        !asChild && buttonVariants({ variant: 'outline' }),
+        className,
+      )}
+      asChild={asChild}
       {...props}
     />
   )
