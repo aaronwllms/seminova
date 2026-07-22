@@ -1,16 +1,18 @@
 # Rule Audit — seminova
 
-Last full audit: 2026-07-21
-Last synced: 2026-07-21
+Last full audit: 2026-07-22
+Last synced: 2026-07-22
 Scope: `.cursor/rules/*.mdc` against the rule-authoring standard
 
 ## Executive summary
 
-- **No open findings** — R028–R039 remediated 2026-07-21 (logging wording, MSW deferral qualifier, RORO cross-refs deleted, docs layout allowlist, a11y/nextjs/ui-styling trim, supabase anti-pattern narrowed).
-- **Always Apply set still under budget** (~776 body words; accepted code-minimalism exception unchanged).
-- **No rule file crosses the 300-line inspect trigger** (largest: `supabase.mdc` ~194 lines).
+- **R040 (Low):** `testing.mdc` Run Tests table labels `pnpm test` as the agent/automation default, but `AGENTS.md` assigns agents to `pnpm test:ci` (coverage gates) — agents may skip the quality bar if they follow the table row alone.
+- **Rules unchanged since 2026-07-21 remediation** — no `.cursor/rules/` commits since the prior full pass; R028–R039 fixes verified still in place.
+- **Always Apply set still under budget** (~776 body words; accepted `code-minimalism.mdc` exception unchanged).
+- **No rule file crosses the 300-line inspect trigger** (largest: `supabase.mdc` 194 lines).
 - **26 files, no invalid frontmatter keys**; activation modes match rule shape.
-- **Deferred (not rule defects):** broad `src/**` globs; `check:auth-boundary` vs `pre-push` (WORKFLOW_BACKLOG).
+- **All cited production paths spot-checked** — no stale or missing references found.
+- **Deferred (not rule defects):** broad `src/**` globs; `check:auth-boundary` vs `pre-push` step list (WORKFLOW_BACKLOG).
 
 ## Orient
 
@@ -47,11 +49,13 @@ Scope: `.cursor/rules/*.mdc` against the rule-authoring standard
 
 ## Findings
 
-_(None open after 2026-07-21 remediation sync.)_
+| ID   | Category      | File:Line | Severity | Description | Recommendation |
+| ---- | ------------- | --------- | -------- | ----------- | -------------- |
+| R040 | Contradiction | `testing.mdc`:56–58 | Low | Run Tests table row **Default (agents, automation, one-shot) → `pnpm test`** conflicts with `AGENTS.md` Setup table (`pnpm test:ci` — “agents, CI, pre-push”) and `git-workflow.mdc` Before Committing (“never bare `pnpm test` in agent terminals”). Same file later says “Before merge: run `pnpm test:ci`,” but the table row is what agents load first when editing tests. | Split the table: e.g. **Quick one-shot (no coverage)** → `pnpm test` / `pnpm test:file`; **Agent quality bar / CI / pre-push** → `pnpm test:ci`. Drop “agents” from the `pnpm test` row label. |
 
 ## Rules that are fine
 
-- **`code-minimalism.mdc`** — Core ethos rule; always-on placement earned; cross-refs guards without duplicating them.
+- **`code-minimalism.mdc`** — Core ethos rule; always-on placement earned per rule-authoring accepted exception; cross-refs guards without duplicating them. (436 body words — justified always-on; set total ~776 ≤ budget.)
 - **`do-migrations-pointer.mdc`** — Minimal always-on pointer; earns its token cost.
 - **`do-migrations-agent.mdc`** — Clear agent/human split, correct globs, no duplicate SQL conventions.
 - **`general-conventions.mdc`** — Appropriate always-on date/env awareness.
@@ -62,7 +66,7 @@ _(None open after 2026-07-21 remediation sync.)_
 - **`forms.mdc`** — Strong ownership of save model and autofill conventions; cross-refs notifications/error-handling; blur-save inline shape present.
 - **`notifications.mdc`** — Clear toast vs inline vs panel routing; defers errors to error-handling; routing table is inline canonical shape.
 - **`logging.mdc`** — Focused level taxonomy and exempt-surface table; broad `src/**` glob acceptable at current size. Criterion considered: Repo-truth duplication — waived (exempt-surface table states principle + pointer to `eslint.config.mjs`; rows grouped by *why*, not a bare path inventory).
-- **`typescript.mdc`** — Project-delta only; globs scoped to app + scripts; RORO deliberately omitted (cross-refs removed 2026-07-21).
+- **`typescript.mdc`** — Project-delta only; globs scoped to app + scripts.
 - **`supabase-sql.mdc`** — Project-delta-only SQL conventions; cites shipped migrations.
 - **`ui-shadcn.mdc`** — CLI flags, primitive-first workflow; non-interactive add discipline.
 - **`ui-accessibility.mdc`** — Enforced vs guidance split; Tooltips high-signal; contrast inventory deferred to checker; manual checklist limited to flows `check:*` don't cover.
@@ -73,22 +77,21 @@ _(None open after 2026-07-21 remediation sync.)_
 - **`security.mdc`** — Trust-boundary guidance via principles + shipped file refs; auth-boundary route list is security-contextual (not a pure AGENTS duplicate).
 - **`supabase.mdc`** — Storage, client usage, migration safety; anti-pattern narrowed to ad-hoc presentational queries (allows shared client helpers); broad glob acceptable at current size.
 - **`seo.mdc`** — Metadata wire-up, crawler surface, Satori constraints; hard-constraint pointer correct.
-- **`testing.mdc`** — H/I/B pattern, MSW deferral policy, API-routes MSW bullet qualified to match deferral; coverage gates and render-only rule are high-signal. Criterion considered: Reference density — waived (Examples section splits unit vs integration scopes).
-- **`api-development.mdc`** — Path naming, DTO, auth checklist; logging via `appLog` + shipped client-logs schema path; defers envelopes to `error-handling.mdc`.
+- **`api-development.mdc`** — Path naming, DTO, auth checklist; logging via `appLog` + shipped client-logs schema path; defers envelopes to `error-handling.mdc`. Criterion considered: Fictional example — waived (`/api/posts`/`/api/users` are illustrative REST naming in Path Naming Standards; shipped `client-logs` is the canonical real route; `nextjs.mdc` defaults internal work to Server Actions).
 - **`documentation.mdc`** — Layout matches disk (workflow markdown, `claude-skills/`, `skill-feedback/`); closed-`archive/` rule; DOC_RULES pointer.
-- **`project-standards.mdc`** — Agent Requested with specific description; Ousterhout depth heuristic is project-specific; no dead RORO cross-ref.
+- **`project-standards.mdc`** — Agent Requested with specific description; Ousterhout depth heuristic is project-specific.
 
 ## Criterion review
 
-Mandatory on full pass — one row per rule-authoring ownership-table owner. Retained from 2026-07-21 full pass; remediation sync cleared open results.
+Mandatory on full pass — one row per rule-authoring ownership-table owner.
 
 | Owner rule                 | Canonical shape                                      | Reference density                         | Repo-truth                         | Result                                                          |
 | -------------------------- | ---------------------------------------------------- | ----------------------------------------- | ---------------------------------- | --------------------------------------------------------------- |
 | `security.mdc`             | defers envelopes to `error-handling.mdc`             | —                                         | auth route list security-contextual | waived: trust-boundary principles + canonical assert-admin-caller pointer |
-| `api-development.mdc`      | defers envelopes to `error-handling.mdc`             | —                                         | —                                  | waived (R028/R029/R031 fixed)                                   |
-| `supabase.mdc`             | storage contract + client-usage examples inline      | —                                         | schema pointer to AGENTS.md        | waived (R039 fixed)                                             |
-| `testing.mdc`              | H/I/B inline                                         | Examples section 4 paths                  | —                                  | waived (R030 fixed); reference density waived                   |
-| `error-handling.mdc`       | inline envelopes + UI branch rules                   | 3 test paths                              | —                                  | waived (R032 fixed); reference density waived                   |
+| `api-development.mdc`      | defers envelopes to `error-handling.mdc`             | —                                         | —                                  | waived: fictional REST names illustrative; client-logs canonical |
+| `supabase.mdc`             | storage contract + client-usage examples inline      | —                                         | schema pointer to AGENTS.md        | waived: one avatar storage reference, not a catalog             |
+| `testing.mdc`              | H/I/B inline                                         | Examples section 4 paths                  | —                                  | **R040** (agent default row vs AGENTS.md); reference density waived |
+| `error-handling.mdc`       | inline envelopes + UI branch rules                   | 3 test paths                              | —                                  | waived; reference density waived (distinct patterns)            |
 | `forms.mdc`                | inline blur-save + server-action steps               | —                                         | —                                  | waived: save-model table + client/server patterns inline        |
 | `notifications.mdc`        | inline routing table + toast API pointer             | —                                         | —                                  | waived: what-goes-where table is canonical shape                |
 | `react-tanstack-query.mdc` | mutation envelope prose                              | Reference Examples 4 entries              | —                                  | waived: defers envelope detail to `error-handling.mdc`; examples distinct |
@@ -98,10 +101,10 @@ Mandatory on full pass — one row per rule-authoring ownership-table owner. Ret
 
 ## Open questions
 
-- **Broad `src/**` globs:** no narrowing yet — revisit when any of `logging.mdc`, `security.mdc`, or `supabase.mdc` crosses 300 lines or a fourth broad rule is added. *(Confirmed defer 2026-07-21.)*
-- **MSW global setup:** deferred until first HTTP-boundary test; per-test `server.use()` for overrides only (policy in `testing.mdc`; R030 wording aligned). *(Confirmed keep deferred 2026-07-21.)*
-- **`check:auth-boundary` vs `pre-push`:** `git-workflow.mdc` accurately mirrors `package.json` pre-push (no dedicated `check:auth-boundary` step); auth-boundary coverage runs incidentally under `test:ci`. Tracked in `docs/WORKFLOW_BACKLOG.md` — not a rule-file inaccuracy. *(Confirmed leave on WORKFLOW_BACKLOG 2026-07-21; not a ROADMAP item.)*
-- **RORO disposition:** ~~restore vs delete~~ — **resolved 2026-07-21:** delete dead cross-refs; do not restore RORO in `typescript.mdc`.
+- **Broad `src/**` globs:** no narrowing yet — revisit when any of `logging.mdc`, `security.mdc`, or `supabase.mdc` crosses 300 lines or a fourth broad rule is added.
+- **MSW global setup:** deferred until first HTTP-boundary test; per-test `server.use()` for overrides only (policy in `testing.mdc`; `vitest.setup.ts` comment aligned).
+- **`check:auth-boundary` vs `pre-push`:** `git-workflow.mdc` accurately mirrors `package.json` pre-push (no dedicated `check:auth-boundary` step); auth-boundary coverage runs under `test:ci` via `src/supabase/proxy.unit.test.ts`. Tracked in `docs/WORKFLOW_BACKLOG.md` — not a rule-file inaccuracy.
+- **RORO disposition:** resolved 2026-07-21 — delete dead cross-refs; do not restore RORO in `typescript.mdc`.
 
 ## Resolved
 
