@@ -21,6 +21,15 @@ vi.mock('@/app/(app)/_components/profile/profile-dialog-provider', () => ({
   useProfileDialog: () => ({ openProfile: mockOpenProfile }),
 }))
 
+const mockSetTheme = vi.fn()
+
+vi.mock('next-themes', () => ({
+  useTheme: () => ({
+    theme: 'light',
+    setTheme: mockSetTheme,
+  }),
+}))
+
 import { APP_HOME } from '@/constants/app-paths'
 import { ADMIN_HOME } from '@/constants/admin-paths'
 import { render, screen, waitFor } from '@/test/test-utils'
@@ -32,11 +41,12 @@ describe('AppNavUser', () => {
     mockSignOut.mockReset()
     mockPush.mockReset()
     mockOpenProfile.mockReset()
+    mockSetTheme.mockReset()
   })
 
   it('should open profile dialog from menu and sign out', async () => {
     mockSignOut.mockResolvedValue({ error: null })
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(
       <AppNavUser
@@ -64,7 +74,7 @@ describe('AppNavUser', () => {
   })
 
   it('should not show account label text beside the avatar trigger', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(
       <AppNavUser
@@ -82,7 +92,7 @@ describe('AppNavUser', () => {
   })
 
   it('should show admin console link for admins', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(
       <AppNavUser
@@ -101,7 +111,7 @@ describe('AppNavUser', () => {
   })
 
   it('should show Open app link when showOpenApp is true', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(
       <AppNavUser
@@ -122,7 +132,7 @@ describe('AppNavUser', () => {
   })
 
   it('should not show Open app link when showOpenApp is omitted', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(
       <AppNavUser
@@ -138,5 +148,27 @@ describe('AppNavUser', () => {
     expect(
       screen.queryByRole('menuitem', { name: /open app/i }),
     ).not.toBeInTheDocument()
+  })
+
+  it('should show theme options and apply selection from the account menu', async () => {
+    const user = userEvent.setup({ delay: null })
+
+    render(
+      <AppNavUser
+        displayName="Alex"
+        avatarUrl={null}
+        email="alex@example.com"
+        isAdmin={false}
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: /account menu/i }))
+
+    const lightItem = screen.getByRole('menuitem', { name: /light/i })
+    expect(lightItem.querySelector('svg.lucide-check')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('menuitem', { name: /dark/i }))
+
+    expect(mockSetTheme).toHaveBeenCalledWith('dark')
   })
 })

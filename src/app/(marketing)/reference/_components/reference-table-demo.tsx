@@ -1,48 +1,85 @@
 'use client'
 
+// Showroom fixture over static sample data — not production admin behavior.
+// Client-side sort + pagination is the sanctioned exception (no server to page against; see data-tables.mdc).
+// Search debounce uses the shared useDebouncedValue hook from Epic 1.
+
 import type { SortingState } from '@tanstack/react-table'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import {
   DataTableShell,
   useDataTableShell,
 } from '@/components/data-table-shell'
 import { DataTablePaginationControls } from '@/components/data-table-pagination-controls'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-
 import {
   DATA_TABLE_DEFAULT_PAGE_SIZE,
   DATA_TABLE_PAGE_SIZE_OPTIONS,
+  type DataTablePageSize,
 } from '@/constants/data-table'
+import { useToggleFilterSet } from '@/hooks/use-toggle-filter-set'
+import { useDebouncedValue } from '@/hooks/use-debounced-value'
 
+import {
+  hasActiveReferenceListFilters,
+  type ReferenceListFilters,
+} from '../_lib/reference-list-filters'
+import type { ShipmentStatus } from '../_lib/reference-shipment'
+import { useReferenceShipmentStats } from '../_lib/use-reference-shipment-stats'
+import { useReferenceShipmentsRefresh } from '../_lib/use-reference-shipments-refresh'
 import { useReferenceShipments } from '../_lib/use-reference-shipments'
-import { referenceShipmentsColumns } from './reference-shipments-columns'
 
-const SEARCH_DEBOUNCE_MS = 300
+import { ReferenceActiveFilters } from './reference-active-filters'
+import { ReferenceFilteredEmptyState } from './reference-filtered-empty-state'
+import { referenceShipmentsColumns } from './reference-shipments-columns'
+import { ReferenceStatTiles } from './reference-stat-tiles'
+import { ReferenceToolbar } from './reference-toolbar'
 
 export const ReferenceTableDemo = () => {
   const [page, setPage] = useState(1)
-  const [perPage, setPerPage] = useState(DATA_TABLE_DEFAULT_PAGE_SIZE)
+  const [perPage, setPerPage] = useState<DataTablePageSize>(
+    DATA_TABLE_DEFAULT_PAGE_SIZE,
+  )
   const [sorting, setSorting] = useState<SortingState>([])
   const [searchInput, setSearchInput] = useState('')
-  const [debouncedSearch, setDebouncedSearch] = useState('')
+  const debouncedSearch = useDebouncedValue(searchInput, 300)
+  const [trackedDebouncedSearch, setTrackedDebouncedSearch] =
+    useState(debouncedSearch)
+  const {
+    activeValues: selectedStatusSet,
+    toggle: toggleStatus,
+    clearAll: clearStatusFilters,
+  } = useToggleFilterSet<ShipmentStatus>()
 
+  const selectedStatuses = useMemo(
+    () => [...selectedStatusSet],
+    [selectedStatusSet],
+  )
+
+  const appliedSearch = debouncedSearch.trim() || null
+
+  const filters: ReferenceListFilters = useMemo(
+    () => ({
+      statuses: selectedStatuses,
+      search: appliedSearch,
+    }),
+    [appliedSearch, selectedStatuses],
+  )
+
+  if (trackedDebouncedSearch !== debouncedSearch) {
+    setTrackedDebouncedSearch(debouncedSearch)
+    setPage(1)
+  }
+
+  const { refresh, isRefreshing } = useReferenceShipmentsRefresh()
+  const { stats, isLoading: isStatsLoading } = useReferenceShipmentStats()
   const { rows, hasNextPage, isLoading, isFetching } = useReferenceShipments({
     page,
-    search: debouncedSearch,
+    search: debouncedSearch.trim(),
     perPage,
     sorting,
+    statuses: selectedStatuses,
   })
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setDebouncedSearch(searchInput.trim())
-      setPage(1)
-    }, SEARCH_DEBOUNCE_MS)
-
-    return () => window.clearTimeout(timer)
-  }, [searchInput])
 
   const handleSortingChange = useCallback((next: SortingState) => {
     setSorting(next)
@@ -50,9 +87,43 @@ export const ReferenceTableDemo = () => {
   }, [])
 
   const handlePageSizeChange = useCallback((nextPageSize: number) => {
-    setPerPage(nextPageSize)
+    setPerPage(nextPageSize as DataTablePageSize)
     setPage(1)
   }, [])
+
+  const handleResetFilters = useCallback(() => {
+    clearStatusFilters()
+    setSearchInput('')
+    setPage(1)
+  }, [clearStatusFilters])
+
+  const handleRemoveFilterChip = useCallback(
+    (id: string) => {
+      switch (id) {
+        case 'Cleared':
+        case 'Held':
+        case 'In transit':
+          if (selectedStatusSet.has(id)) {
+            toggleStatus(id)
+            setPage(1)
+          }
+          break
+        case 'search':
+          setSearchInput('')
+          setPage(1)
+          break
+      }
+    },
+    [selectedStatusSet, toggleStatus],
+  )
+
+  const handleStatusToggle = useCallback(
+    (status: ShipmentStatus) => {
+      toggleStatus(status)
+      setPage(1)
+    },
+    [toggleStatus],
+  )
 
   const { table } = useDataTableShell({
     data: rows,
@@ -66,21 +137,35 @@ export const ReferenceTableDemo = () => {
     },
   })
 
+  const showFilteredEmptyState =
+    !isLoading && rows.length === 0 && hasActiveReferenceListFilters(filters)
+
   return (
     <div className="mx-auto mt-5 max-w-6xl px-4 sm:px-0">
-      <div className="bg-card overflow-hidden rounded-xl border">
-        <div className="border-b p-3">
-          <Label htmlFor="reference-shipments-search" className="sr-only">
-            Search shipments
-          </Label>
-          <Input
-            id="reference-shipments-search"
-            type="search"
-            placeholder="Search shipments"
-            value={searchInput}
-            onChange={(event) => setSearchInput(event.target.value)}
-          />
-        </div>
+      <div className="flex flex-col gap-4">
+        <ReferenceStatTiles
+          stats={stats}
+          isFullyUnfiltered={!hasActiveReferenceListFilters(filters)}
+          selectedStatuses={selectedStatuses}
+          isLoading={isStatsLoading}
+          onTotalClick={handleResetFilters}
+          onStatusToggle={handleStatusToggle}
+        />
+
+        <ReferenceToolbar
+          searchInput={searchInput}
+          onSearchInputChange={setSearchInput}
+          onRefresh={() => {
+            void refresh()
+          }}
+          isRefreshing={isRefreshing}
+        />
+
+        <ReferenceActiveFilters
+          filters={filters}
+          onRemove={handleRemoveFilterChip}
+          onClearAll={handleResetFilters}
+        />
 
         <div aria-busy={isFetching}>
           <DataTableShell
@@ -89,12 +174,21 @@ export const ReferenceTableDemo = () => {
             isLoading={isLoading && rows.length === 0}
             loadingLabel="Loading shipments…"
             emptyMessage="No shipments found."
-            className="rounded-none border-0"
+            emptyContent={
+              showFilteredEmptyState ? (
+                <ReferenceFilteredEmptyState
+                  onResetFilters={handleResetFilters}
+                  onRefresh={() => {
+                    void refresh()
+                  }}
+                  isRefreshing={isRefreshing}
+                />
+              ) : undefined
+            }
           />
         </div>
 
         <DataTablePaginationControls
-          className="border-t p-3"
           page={page}
           hasNextPage={hasNextPage}
           isPending={isFetching}

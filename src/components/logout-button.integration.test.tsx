@@ -25,7 +25,7 @@ describe('LogoutButton', () => {
 
   it('should sign out and redirect to login', async () => {
     mockSignOut.mockResolvedValue({ error: null })
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(<LogoutButton />)
 

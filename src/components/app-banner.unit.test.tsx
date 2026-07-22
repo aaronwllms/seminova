@@ -36,7 +36,7 @@ describe('AppBanner', () => {
   })
 
   it('should call onDismiss when the dismiss button is clicked', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const onDismiss = vi.fn()
 
     render(

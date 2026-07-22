@@ -28,9 +28,19 @@ Conducts a deliberate, read-only audit of the repo's SEO implementation against 
 
 **Full pass** — Phase 1 (surface map) → Phase 2 (dimensions D1–D7) → Phase 3 (write the deliverable). On a full pass, also prune the Resolved appendix: delete entries older than the previous full-audit date.
 
-**Sync pass** — read the existing `SEO_AUDIT.md` → gather narrow evidence for open findings only (re-read only the files those findings cite; no full dimension sweep) → verify each affected finding in code → make minimal edits → report what changed. Escalate to a full pass (after telling the user) if the file is stale, mostly wrong, or too many new findings surface mid-sync.
+**Sync pass** — read the existing `SEO_AUDIT.md` → gather narrow evidence for **Open** findings only (re-read only the files those findings cite; no full dimension sweep) → verify each affected finding in code → make minimal edits → report what changed. Spot-check **Accepted** rows only when their cited code clearly changed. Never flatten Accepted back into Open without an explicit PM decision. Escalate to a full pass (after telling the user) if the file is stale, mostly wrong, or too many new findings surface mid-sync.
 
-**Verify-in-code gate (both modes):** nothing is marked resolved without confirming the fix exists in the code. A ticked checkbox or a commit message claiming a fix does not count. Resolved findings are removed from the Findings table and moved to the Resolved appendix with the date, keeping their ID.
+**Verify-in-code gate (both modes):** nothing is marked resolved without confirming the fix exists in the code. A ticked checkbox or a commit message claiming a fix does not count. Resolved findings are removed from **Open** / **Accepted** and moved to the Resolved appendix with the date, keeping their ID.
+
+**Finding disposition (required):** every non-resolved finding lands in exactly one section — never leave disposition implied in Recommendation prose alone:
+
+| Section | Meaning | At-a-glance |
+| ------- | ------- | ----------- |
+| **Open** | Still actionable. `Status` column is `Do next`, `Deferred` (named home), or `Needs decision` (blocked on PM). | Real backlog |
+| **Accepted** | Deliberately not doing now. Rows carry **Why accepted** and **Reopen when**. | Not a todo list |
+| **Resolved** | Fixed in code (appendix). | Done |
+
+Accepted risks that lack a stable finding ID may appear as bullets under **Accepted**; ID'd findings always use the Accepted table.
 
 ## Read first
 
@@ -89,7 +99,7 @@ Audit each dimension against the cited files. Read `seo.mdc` and AGENTS.md § Ha
 - **Canonical** — one self-referential canonical per **indexable** page, relative and resolved via `metadataBase`; no duplicate indexable URLs. A missing or added canonical on a `noindex` page is **not** a finding — it's a no-op there.
 - **Answer-first structure** is a judgment call — record it under **Open questions**, not as an asserted finding, unless a page is egregiously buried.
 
-For each finding: assign a stable **ID** (`SEO001`, `SEO002`, … — never renumber across passes), a **Category** (dimension D1–D7), a **Severity**, **File:Line** evidence, a **Description**, and a **Recommendation**. Clean areas go under **Verified OK**. **Do not invent issues** — if a dimension is solid, say so.
+For each finding: assign a stable **ID** (`SEO001`, `SEO002`, … — never renumber across passes), a **Category** (dimension D1–D7), a **Severity**, **File:Line** evidence, a **Description**, and a **Recommendation**. Place each finding in **Open** or **Accepted** per Finding disposition — do not keep accepted/parked items in Open. Clean areas go under **Verified OK**. **Do not invent issues** — if a dimension is solid, say so.
 
 **Severity calibration (discoverability impact, not exploitability):**
 
@@ -135,6 +145,7 @@ Before finishing:
 - [ ] Every dimension D1–D7 was reviewed (or explicitly scoped out)
 - [ ] `pnpm check:seo-base-url` was run and its result recorded
 - [ ] Every finding has stable ID, category, severity, File:Line, description, recommendation
+- [ ] Findings are split into **Open** / **Accepted** / **Resolved** (no accepted risk left in Open)
 - [ ] Verified OK is populated; no a11y-owned checks (headings, `<h1>`, alt) appear as findings
 - [ ] Output written to `SEO_AUDIT.md` at repo root with **Last full audit** / **Last synced** / **Scope** set correctly for the run mode
 - [ ] No application code was modified
@@ -163,11 +174,23 @@ Scope: <full SEO surface, or narrowed scope>
 | Structured data |  |  |
 | Social previews |  |  |
 
-## Findings
+## Open
 
-| ID | Category | File:Line | Severity | Description | Recommendation |
-| -- | -------- | --------- | -------- | ----------- | -------------- |
-| SEO001 | D3 | ... | High | ... | ... |
+Actionable backlog only. `Status`: `Do next` | `Deferred` | `Needs decision`.
+
+| ID | Status | Category | File:Line | Severity | Description | Recommendation |
+| -- | ------ | -------- | --------- | -------- | ----------- | -------------- |
+| SEO001 | Do next | D3 | ... | High | ... | ... |
+
+## Accepted
+
+Deliberately not doing now. Not a todo list.
+
+| ID | Category | File:Line | Severity | Description | Why accepted | Reopen when |
+| -- | -------- | --------- | -------- | ----------- | ------------ | ----------- |
+| SEO0xx | ... | ... | Low | ... | ... | ... |
+
+(Accepted risks without a stable ID may appear as bullets below the table.)
 
 ## Verified OK
 
@@ -176,10 +199,6 @@ Scope: <full SEO surface, or narrowed scope>
 ## Human / tooling follow-ups
 
 - (checks a read-only agent can't complete: validate JSON-LD in Google's Rich Results Test, preview OG cards in the social debuggers, submit/verify the sitemap in Search Console)
-
-## Deferred / accepted risk
-
-- ...
 
 ## Open questions
 

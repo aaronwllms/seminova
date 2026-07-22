@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Features page — mockup</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/dist/tabler-icons.min.css" />
+<style>
+  :root {
+    --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --surface-2: #ffffff;
+    --surface-1: #f7f6f3;
+    --border: rgba(0,0,0,0.10);
+    --border-accent: #378add;
+    --text-primary: #1f1e1c;
+    --text-secondary: #5f5e5a;
+    --text-muted: #888780;
+    --text-accent: #185fa5;
+    --page: #fbfaf8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    font-family: var(--sans);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 3rem 1.5rem; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85em; background: rgba(0,0,0,0.05); padding: 1px 4px; border-radius: 3px; }
+  a { color: var(--text-accent); text-decoration: none; }
+  h1, h2 { font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div style="max-width:640px;margin:0 auto 2rem;background:var(--surface-1);border:0.5px solid var(--border);border-left:3px solid var(--border-accent);padding:14px 16px">
+    <div style="font-size:13px;font-weight:500;color:var(--text-primary);margin:0 0 6px;display:flex;align-items:center;gap:6px"><i class="ti ti-info-circle" style="font-size:16px;color:var(--text-accent)" aria-hidden="true"></i>Build note — not page content</div>
+    <ul style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin:0;padding-left:18px">
+      <li>Card names and blurbs are <strong>representative placeholders</strong> — reconcile against the real capability inventory at build; don't ship this copy verbatim.</li>
+      <li>Icons are <strong>stand-ins</strong> to show the slot, not final choices.</li>
+      <li>Width tiers: intro prose sits at <code>max-w-3xl</code>, the card grids widen to <code>max-w-6xl</code> — same per-content-type pattern as home and reference, not one flat width.</li>
+      <li>The "see it live" link appears <strong>only</strong> where a <code>/reference</code> demo exists (the design-system cards), pointing at the existing <code>REFERENCE_ANCHOR_LINKS</code> anchors.</li>
+    </ul>
+  </div>
+
+  <div style="max-width:520px;margin:0 auto 2.5rem;text-align:center">
+    <h1 style="font-size:22px;margin:0 0 8px">Everything in the box</h1>
+    <p style="font-size:16px;color:var(--text-secondary);line-height:1.6;margin:0">A full inventory of what ships with the template — auth, an admin console, a design system, observability, and the agent workflow that builds it. Browse the reel on the home page; this is the whole shelf.</p>
+  </div>
+
+  <div id="sections"></div>
+
+</div>
+
+<script>
+const sections = [
+  { icon:'ti-lock', name:'Auth and role-based access', cards:[
+    { i:'ti-mail', n:'Email and password auth', b:'Sign-up, sign-in, and password reset wired end to end.' },
+    { i:'ti-shield-lock', n:'Sessions and route protection', b:'Server-enforced sessions guarding every protected route.' },
+    { i:'ti-user-shield', n:'Role-based admin access', b:'An admin role gate applied consistently, server-side.' },
+    { i:'ti-mail-check', n:'Email confirmation flow', b:'Confirmation and recovery links routed through the app.' },
+  ]},
+  { icon:'ti-layout-dashboard', name:'Admin console', cards:[
+    { i:'ti-layout-sidebar', n:'Admin shell', b:'A sidebar console layout, separate from the app shell.' },
+    { i:'ti-users', n:'User management', b:'List, search, sort, and paginate every user, server-side.' },
+    { i:'ti-arrows-up-down', n:'Promote and demote', b:'Grant or revoke admin from the users table.' },
+    { i:'ti-ban', n:'Ban and unban', b:'Time-based or permanent bans, enforced at sign-in.' },
+    { i:'ti-settings', n:'Runtime settings', b:'Admin-editable settings backed by a typed registry.' },
+    { i:'ti-flag', n:'Banners admin', b:'Publish and manage site-wide banners from the console.' },
+    { i:'ti-terminal-2', n:'Admin CLI', b:'Break-glass scripts for promote, demote, and delete.' },
+  ]},
+  { icon:'ti-palette', name:'Design system', cards:[
+    { i:'ti-color-swatch', n:'Semantic token theming', b:'One token layer drives light and dark across the app.', l:'#design-system' },
+    { i:'ti-components', n:'Owned UI primitives', b:'Vendored primitives you edit, not a black-box package.', l:'#design-system' },
+    { i:'ti-table', n:'Data table pattern', b:'Server sort, pagination, and page-size, shared.', l:'#table' },
+    { i:'ti-forms', n:'Forms and save models', b:'A canonical form-with-save pattern, schema-validated.', l:'#forms' },
+    { i:'ti-alert-circle', n:'Error surfaces', b:'InlineError and ErrorPanel for operational vs fault states.', l:'#feedback' },
+    { i:'ti-bell', n:'Toast system', b:'Semantic success, warning, and error toasts.', l:'#toast' },
+    { i:'ti-accessible', n:'Accessibility checks', b:'Heading order, alt text, and contrast enforced in CI.' },
+  ]},
+  { icon:'ti-activity', name:'Observability', cards:[
+    { i:'ti-file-text', n:'Persistent logging', b:'Structured logs written to the database, not the console.' },
+    { i:'ti-broadcast', n:'Live logs feed', b:'A realtime admin feed of new log rows as they land.' },
+    { i:'ti-browser', n:'Browser log relay', b:'Client errors relayed server-side through one boundary.' },
+    { i:'ti-trash', n:'Retention auto-purge', b:'Scheduled cleanup on a configurable retention window.' },
+  ]},
+  { icon:'ti-search', name:'SEO and GEO', cards:[
+    { i:'ti-photo', n:'Metadata and social previews', b:'Per-route metadata and Open Graph cards.' },
+    { i:'ti-sitemap', n:'Sitemap and robots', b:'Generated sitemap and robots wired to a base URL.' },
+    { i:'ti-code', n:'Structured data', b:'JSON-LD so pages surface well in search and AI answers.' },
+  ]},
+  { icon:'ti-robot', name:'PM and agent workflow', cards:[
+    { i:'ti-lock-square', n:'Locked rules', b:'AGENTS.md as the single source of hard constraints.' },
+    { i:'ti-ruler-2', n:'Deterministic rules', b:'Cursor rules enforcing the constraints via lint and CI.' },
+    { i:'ti-puzzle', n:'Skills suite', b:'Paired Claude and Cursor skills for each workflow step.' },
+    { i:'ti-checks', n:'CI quality gates', b:'A pre-push gate that blocks drift before it ships.' },
+    { i:'ti-users-group', n:'Collaboration model', b:'Plan with Claude, build with Cursor — the loop, packaged.' },
+  ]},
+  { icon:'ti-file-settings', name:'Site content and configuration', cards:[
+    { i:'ti-flag-2', n:'Public banners', b:'Announcement banners rendered on public surfaces.' },
+    { i:'ti-license', n:'Legal placeholder pages', b:'Privacy and terms stubs with a generator callout.' },
+    { i:'ti-adjustments', n:'Site identity config', b:'Name, branding, and base URL in one place to swap.' },
+  ]},
+];
+
+const root = document.getElementById('sections');
+sections.forEach(s => {
+  const sec = document.createElement('div');
+  sec.style.cssText = 'max-width:960px;margin:0 auto 2.5rem';
+  const head = document.createElement('div');
+  head.style.cssText = 'display:flex;align-items:center;gap:10px;margin:0 0 1rem;padding:0 2px';
+  head.innerHTML = '<i class="ti '+s.icon+'" style="font-size:20px;color:var(--text-secondary)" aria-hidden="true"></i>'+
+    '<h2 style="font-size:18px;margin:0">'+s.name+'</h2>';
+  sec.appendChild(head);
+  const grid = document.createElement('div');
+  grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px';
+  s.cards.forEach(c => {
+    const card = document.createElement('div');
+    card.style.cssText = 'background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px';
+    let link = '';
+    if (c.l) link = '<a href="/reference'+c.l+'" style="font-size:12px;margin-top:4px;display:inline-flex;align-items:center;gap:4px">See it live <i class="ti ti-arrow-right" style="font-size:14px" aria-hidden="true"></i></a>';
+    card.innerHTML = '<i class="ti '+c.i+'" style="font-size:20px;color:var(--text-accent)" aria-hidden="true"></i>'+
+      '<div style="font-size:15px;font-weight:500;color:var(--text-primary)">'+c.n+'</div>'+
+      '<div style="font-size:13px;color:var(--text-secondary);line-height:1.5">'+c.b+'</div>'+link;
+    grid.appendChild(card);
+  });
+  sec.appendChild(grid);
+  root.appendChild(sec);
+});
+</script>
+</body>
+</html>

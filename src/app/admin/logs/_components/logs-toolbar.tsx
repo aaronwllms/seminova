@@ -24,6 +24,7 @@ interface LogsToolbarProps {
   onLiveEnabledChange: (enabled: boolean) => void
   onRefresh: () => void
   isRefreshing: boolean
+  isFetching?: boolean
   onMarkAllRead: () => void
   markAllDisabled: boolean
   markAllTooltip: string
@@ -41,73 +42,78 @@ export const LogsToolbar = ({
   onLiveEnabledChange,
   onRefresh,
   isRefreshing,
+  isFetching = false,
   onMarkAllRead,
   markAllDisabled,
   markAllTooltip,
   isMarkAllPending,
-}: LogsToolbarProps) => (
-  <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-    <div className="relative min-w-0 flex-1">
-      <Search
-        className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
-        aria-hidden
+}: LogsToolbarProps) => {
+  const showRefreshSpinner = isRefreshing || isFetching
+
+  return (
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+      <div className="relative min-w-0 flex-1">
+        <Search
+          className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
+          aria-hidden
+        />
+        <Input
+          type="search"
+          value={searchInput}
+          onChange={(event) => onSearchInputChange(event.target.value)}
+          placeholder="Search message, context, or tag"
+          className="pl-9"
+          aria-label="Search logs"
+        />
+      </div>
+
+      <LogsTagCombobox
+        tags={tags}
+        selectedTag={selectedTag}
+        onTagChange={onTagChange}
+        disabled={tagsDisabled}
       />
-      <Input
-        type="search"
-        value={searchInput}
-        onChange={(event) => onSearchInputChange(event.target.value)}
-        placeholder="Search message, context, or tag"
-        className="pl-9"
-        aria-label="Search logs"
-      />
+
+      <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
+        <LogsLiveToggle
+          liveEnabled={liveEnabled}
+          onLiveEnabledChange={onLiveEnabledChange}
+        />
+
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          className="shrink-0"
+          disabled={isRefreshing}
+          onClick={onRefresh}
+          aria-label="Refresh logs"
+          aria-busy={showRefreshSpinner}
+        >
+          {showRefreshSpinner ? (
+            <Loader2 className="size-4 animate-spin" aria-hidden />
+          ) : (
+            <RefreshCw className="size-4" aria-hidden />
+          )}
+        </Button>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="inline-flex">
+              <Button
+                type="button"
+                variant="outline"
+                className="shrink-0"
+                disabled={markAllDisabled || isMarkAllPending}
+                onClick={onMarkAllRead}
+              >
+                Mark all as read
+              </Button>
+            </span>
+          </TooltipTrigger>
+          <TooltipContent side="top">{markAllTooltip}</TooltipContent>
+        </Tooltip>
+      </div>
     </div>
-
-    <LogsTagCombobox
-      tags={tags}
-      selectedTag={selectedTag}
-      onTagChange={onTagChange}
-      disabled={tagsDisabled}
-    />
-
-    <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
-      <LogsLiveToggle
-        liveEnabled={liveEnabled}
-        onLiveEnabledChange={onLiveEnabledChange}
-      />
-
-      <Button
-        type="button"
-        variant="outline"
-        size="icon"
-        className="shrink-0"
-        disabled={isRefreshing}
-        onClick={onRefresh}
-        aria-label="Refresh logs"
-        aria-busy={isRefreshing}
-      >
-        {isRefreshing ? (
-          <Loader2 className="size-4 animate-spin" aria-hidden />
-        ) : (
-          <RefreshCw className="size-4" aria-hidden />
-        )}
-      </Button>
-
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span className="inline-flex">
-            <Button
-              type="button"
-              variant="outline"
-              className="shrink-0"
-              disabled={markAllDisabled || isMarkAllPending}
-              onClick={onMarkAllRead}
-            >
-              Mark all as read
-            </Button>
-          </span>
-        </TooltipTrigger>
-        <TooltipContent side="top">{markAllTooltip}</TooltipContent>
-      </Tooltip>
-    </div>
-  </div>
-)
+  )
+}

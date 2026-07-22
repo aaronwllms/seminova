@@ -20,19 +20,14 @@ export const ReferenceTableSection = () => (
       >
         Data table
       </h2>
-      <p className="text-muted-foreground mt-1 text-sm">
-        Live: search, sort, and pagination over a sample dataset.
+      <p className="text-muted-foreground mt-4 max-w-prose text-[15px] leading-relaxed">
+        Sample data on the same shell as admin Users and Logs — stat-tile
+        filters, search, filter chips, refresh, sort, and pagination.
       </p>
     </div>
 
     <Suspense fallback={<ReferenceTableDemoFallback />}>
       <ReferenceTableDemoEntry />
     </Suspense>
-
-    <p className="mx-auto mt-5 max-w-prose px-4 text-[15px] leading-relaxed sm:px-0">
-      The rows are a sample dataset, not real records — read it as the shape
-      your own list view could take. While a page loads, rows show as loading
-      placeholders instead of this content.
-    </p>
   </section>
 )

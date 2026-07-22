@@ -2,14 +2,18 @@
 
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
-import type { AppError } from '@/types/app-error'
+import {
+  ADMIN_ACTION_QUERY_RETRY_DELAY,
+  adminActionQueryRetry,
+} from '@/app/admin/_lib/admin-query-options'
+import { unwrapActionResult } from '@/app/admin/_lib/unwrap-action-result'
 import type { DataTablePageSize } from '@/constants/data-table'
+import { toAppError } from '@/utils/is-app-error'
 
 import { listLogsAction } from '../actions'
 import { adminLogsQueryKeys } from './admin-logs-query-keys'
 import type { AppLogCursor, LogsSortDirection } from './app-log-row'
 import type { LogListFilters } from './log-list-filters'
-import { unwrapStatsActionResult } from '@/app/admin/_lib/unwrap-stats-action-result'
 
 type UseAdminLogsListOptions = {
   cursor: AppLogCursor | null
@@ -33,15 +37,14 @@ export const useAdminLogsList = ({
         perPage,
         filters,
       })
-      return unwrapStatsActionResult(result)
+      return unwrapActionResult(result)
     },
     placeholderData: keepPreviousData,
-    retry: (failureCount, error) =>
-      (error as unknown as AppError)?.kind === 'fault' && failureCount < 1,
-    retryDelay: 0,
+    retry: adminActionQueryRetry,
+    retryDelay: ADMIN_ACTION_QUERY_RETRY_DELAY,
   })
 
-  const listError = query.isError ? (query.error as unknown as AppError) : null
+  const listError = query.isError ? toAppError(query.error) : null
   const rows = listError ? [] : (query.data?.rows ?? [])
   const hasNextPage = listError ? false : (query.data?.hasNextPage ?? false)
   const filteredUnreadCount = listError

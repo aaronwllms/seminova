@@ -11,13 +11,18 @@ const mockDisplayGetClaims = vi.fn()
 const mockSignOut = vi.fn()
 let cookieJar = new Map<string, string>()
 
-vi.mock('@/utils/env', () => ({
-  hasPublicSupabaseEnv: true,
-  getPublicSupabaseEnv: () => ({
-    supabaseUrl: 'https://example.supabase.co',
-    publishableKey: 'test-publishable-key',
-  }),
-}))
+vi.mock('@/utils/env', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/utils/env')>()
+
+  return {
+    ...actual,
+    hasPublicSupabaseEnv: true,
+    getPublicSupabaseEnv: () => ({
+      supabaseUrl: 'https://example.supabase.co',
+      publishableKey: 'test-publishable-key',
+    }),
+  }
+})
 
 vi.mock('next/headers', () => ({
   cookies: vi.fn(async () => ({

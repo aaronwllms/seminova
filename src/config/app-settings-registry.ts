@@ -1,6 +1,6 @@
 import type {
-  AppSettingKey,
-  AppSettingRegistryEntry,
+  AppSettingValueByType,
+  AppSettingValueType,
   LogLevel,
 } from '@/types/app-settings'
 import { LOG_LEVELS } from '@/types/app-settings'
@@ -20,7 +20,15 @@ const LOG_LEVEL_RANK: Record<LogLevel, number> = {
 
 export const logLevelRank = (level: LogLevel): number => LOG_LEVEL_RANK[level]
 
-// debt: AppSettingKey / AppSettingValueMap in src/types/app-settings.ts and APP_SETTINGS_REGISTRY here are kept in sync by hand. Upgrade path: derive the key union and value map from the registry const so a new entry cannot compile without its types.
+type AppSettingRegistryEntryBase = {
+  readonly key: string
+  readonly label: string
+  readonly description: string
+  readonly valueType: AppSettingValueType
+  readonly default: unknown
+  readonly group: string
+}
+
 export const APP_SETTINGS_REGISTRY = [
   {
     key: 'min_log_level',
@@ -56,7 +64,34 @@ export const APP_SETTINGS_REGISTRY = [
     default: DEFAULT_BANNER_SETTING,
     group: APP_SETTINGS_GROUP_BANNERS,
   },
-] as const satisfies readonly AppSettingRegistryEntry[]
+] as const satisfies readonly AppSettingRegistryEntryBase[]
+
+export type AppSettingKey = (typeof APP_SETTINGS_REGISTRY)[number]['key']
+
+export type AppSettingValueMap = {
+  [Entry in (typeof APP_SETTINGS_REGISTRY)[number] as Entry['key']]: AppSettingValueByType[Entry['valueType']]
+}
+
+export type AppSettingRegistryEntry = (typeof APP_SETTINGS_REGISTRY)[number]
+
+export type AppSettingRegistryEntryFor<K extends AppSettingKey> = Extract<
+  AppSettingRegistryEntry,
+  { readonly key: K }
+>
+
+type AssertRegistryDefaults = {
+  [Entry in (typeof APP_SETTINGS_REGISTRY)[number] as Entry['key']]: Entry['default'] extends AppSettingValueByType[Entry['valueType']]
+    ? true
+    : 'Registry default does not match valueType'
+}
+
+type RegistryDefaultsValid =
+  AssertRegistryDefaults[keyof AssertRegistryDefaults] extends true
+    ? true
+    : 'Registry default type mismatch'
+
+const registryDefaultsValid: RegistryDefaultsValid = true
+void registryDefaultsValid
 
 const registryByKey = new Map<AppSettingKey, AppSettingRegistryEntry>(
   APP_SETTINGS_REGISTRY.map((entry) => [entry.key, entry]),
@@ -65,14 +100,14 @@ const registryByKey = new Map<AppSettingKey, AppSettingRegistryEntry>(
 export const isAppSettingKey = (key: string): key is AppSettingKey =>
   registryByKey.has(key as AppSettingKey)
 
-export const getRegistryEntry = (
-  key: AppSettingKey,
-): AppSettingRegistryEntry => {
+export const getRegistryEntry = <K extends AppSettingKey>(
+  key: K,
+): AppSettingRegistryEntryFor<K> => {
   const entry = registryByKey.get(key)
 
   if (!entry) {
     throw new Error(`Unknown app setting key: ${key}`)
   }
 
-  return entry
+  return entry as AppSettingRegistryEntryFor<K>
 }

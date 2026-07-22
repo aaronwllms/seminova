@@ -34,9 +34,19 @@ Respect **intentional design** documented in `AGENTS.md` § Hard constraints and
 
 **Full pass** — Phase 1 (Orient) → Phase 2 (dimensions) → Phase 3 (write the deliverable). On a full pass, also prune the Resolved appendix: delete any entry older than the previous full audit date.
 
-**Sync pass** — read the existing `TECH_DEBT_AUDIT.md` → gather narrow evidence for open findings only (no full-repo scan) → verify each affected finding in code → make minimal edits → report what changed. Escalate to a full pass (after telling the user) if the file is stale, mostly wrong, or too many new findings surface mid-sync.
+**Sync pass** — read the existing `TECH_DEBT_AUDIT.md` → gather narrow evidence for **Open** findings only (no full-repo scan) → verify each affected finding in code → make minimal edits → report what changed. Spot-check **Accepted** rows only when their cited marker or code clearly changed. Never flatten Accepted back into Open without an explicit PM decision. Escalate to a full pass (after telling the user) if the file is stale, mostly wrong, or too many new findings surface mid-sync.
 
-**Verify-in-code gate (both modes):** nothing is marked resolved without confirming the fix exists in the code. A ticked checkbox or a commit message claiming a fix does not count. Resolved findings are removed from the Findings table and moved to the Resolved appendix with the date, keeping their ID.
+**Verify-in-code gate (both modes):** nothing is marked resolved without confirming the fix exists in the code. A ticked checkbox or a commit message claiming a fix does not count. Resolved findings are removed from **Open** / **Accepted** and moved to the Resolved appendix with the date, keeping their ID.
+
+**Finding disposition (required):** every non-resolved finding lands in exactly one section — never leave disposition implied in Recommendation prose alone:
+
+| Section | Meaning | At-a-glance |
+| ------- | ------- | ----------- |
+| **Open** | Still actionable. `Status` column is `Do next`, `Deferred` (named home: phase / release gate / ROADMAP item), or `Needs decision` (blocked on PM). | Real backlog |
+| **Accepted** | Deliberately not doing now. Rows carry **Why accepted** and **Reopen when**. Ceiling-gated `// debt:` markers whose trigger has not fired belong here. | Not a todo list |
+| **Resolved** | Fixed in code (appendix). | Done |
+
+**Top 5** and **Quick wins** draw only from **Open**.
 
 ## Phase 1: Orient
 
@@ -79,7 +89,7 @@ Use `rg` (Grep tool), shell commands, and language-native tooling to find concre
 
 9. **Documentation drift** — README or AGENTS.md claims that don't match reality, comments that contradict adjacent code, public APIs without docstrings.
 
-10. **Declared debt** — harvest the deliberate shortcuts the author flagged inline per `code-minimalism.mdc`: `rg -n "// debt:" src/`. Each marker names a known ceiling and upgrade path (e.g. `// debt: in-memory cache, swap for Redis if multi-instance`). These are **pre-classified, uncontested** findings — the author already declared them debt, so do not re-litigate whether they belong. Record each in the findings table under category **Declared debt**, citing the marker's `startLine:endLine:filepath`, using the marker's stated upgrade path as the Recommendation, and setting Severity/Effort from the nature of the ceiling. A marker whose shortcut is no longer present (upgraded already) is not a finding.
+10. **Declared debt** — harvest the deliberate shortcuts the author flagged inline per `code-minimalism.mdc`: `rg -n "// debt:" src/`. Each marker names a known ceiling and upgrade path (e.g. `// debt: in-memory cache, swap for Redis if multi-instance`). These are **pre-classified, uncontested** findings — the author already declared them debt, so do not re-litigate whether they belong. Record under category **Declared debt**, citing the marker's `startLine:endLine:filepath`, using the marker's stated upgrade path as the Recommendation, and setting Severity/Effort from the nature of the ceiling. Place ceiling-gated markers whose trigger has not fired in **Accepted**; place markers whose upgrade is actively queued or deferred to a named phase in **Open**. A marker whose shortcut is no longer present (upgraded already) is not a finding.
 
 ## Phase 3: Deliverable
 
@@ -87,9 +97,10 @@ Write to `TECH_DEBT_AUDIT.md` in the repo root per the Output template below.
 
 - Aim for 30–80 findings on a full pass; padding past that is noise
 - **Declared debt** stays a distinct category — self-declared `// debt:` markers remain visibly separate from auditor-discovered findings
-- **Top 5** needs concrete diff sketches or refactor outlines, not vague advice
-- **Quick wins** = Low effort × Medium+ severity
-- **Things that look bad but are actually fine** is required; if empty, the audit was shallow
+- Split findings into **Open** / **Accepted** / **Resolved** per Finding disposition above — do not dump accepted or parked items into Open
+- **Top 5** needs concrete diff sketches or refactor outlines, not vague advice; **Open only**
+- **Quick wins** = Low effort × Medium+ severity from **Open only**
+- **Verified OK** (areas that look scary but are sound) is required prose; if empty, the audit was shallow — it is not a substitute for the **Accepted** findings table
 - On a full pass, prune Resolved entries older than the previous full audit date
 - Finding IDs are stable across passes — never renumber
 
@@ -137,23 +148,33 @@ Scope: <what this audit covers>
 
 ...
 
-## Findings
+## Open
 
-| ID   | Category | File:Line  | Severity | Description | Recommendation | Effort |
-| ---- | -------- | ---------- | -------- | ----------- | -------------- | ------ |
-| F001 | ...      | src/...:42 | High     | ...         | ...            | M      |
+Actionable backlog only. `Status`: `Do next` | `Deferred` | `Needs decision`.
+
+| ID   | Status   | Category | File:Line  | Severity | Description | Recommendation | Effort |
+| ---- | -------- | -------- | ---------- | -------- | ----------- | -------------- | ------ |
+| F001 | Do next  | ...      | src/...:42 | High     | ...         | ...            | M      |
+
+## Accepted
+
+Deliberately not doing now. Not a todo list.
+
+| ID   | Category | File:Line | Severity | Description | Why accepted | Reopen when | Effort |
+| ---- | -------- | --------- | -------- | ----------- | ------------ | ----------- | ------ |
+| F022 | ...      | ...       | Low      | ...         | ...          | ...         | —      |
 
 ## Top 5
 
-1. **F001 — ...** ...
+1. **F001 — ...** ... (Open findings only)
 
 ## Quick wins
 
-- [ ] F042: ...
+- [ ] F042: ... (Open findings only)
 
-## Things that look bad but are actually fine
+## Verified OK
 
-- ...
+- (areas that look scary but are sound — required; not a substitute for Accepted)
 
 ## Open questions
 

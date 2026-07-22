@@ -28,7 +28,7 @@ export const SiteFooter = ({
     <SiteContainer className="py-6">
       <div
         className={cn(
-          // debt: grid track string coupled with site-header.tsx — change both together
+          // Intentionally shares the same grid class string inline with site-header.tsx — F060 constant extraction is deferred.
           'flex flex-col gap-6 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center',
         )}
       >

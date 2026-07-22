@@ -4,6 +4,7 @@ import { LayoutDashboard, LogOut, User } from 'lucide-react'
 import Link from 'next/link'
 
 import { useProfileDialog } from '@/app/(app)/_components/profile/profile-dialog-provider'
+import { ThemeDropdownMenuItems } from '@/components/theme-dropdown-menu-items'
 import { UserAvatar } from '@/components/user-avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -73,6 +74,7 @@ export const AppNavUser = ({
             </Link>
           </DropdownMenuItem>
         ) : null}
+        <ThemeDropdownMenuItems />
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut}>
           <LogOut />

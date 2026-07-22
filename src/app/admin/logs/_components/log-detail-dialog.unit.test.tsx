@@ -45,7 +45,7 @@ describe('LogDetailDialog', () => {
   })
 
   it('should show Mark unread for a read log and call the handler', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const onMarkUnread = vi.fn()
 
     render(
@@ -78,7 +78,7 @@ describe('LogDetailDialog', () => {
   })
 
   it('should swap the copy button to a Copied state after clicking', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(
       <LogDetailDialog log={sampleLog} open onOpenChange={() => undefined} />,

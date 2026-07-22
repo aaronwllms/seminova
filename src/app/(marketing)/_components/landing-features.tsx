@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge'
 import { landingContent } from '@/config/landing-content'
 
-import { LandingContainer } from './landing-container'
+import { SiteContainer } from '@/components/site-container'
 import { LandingFeatureItem } from './landing-feature-item'
 
 export const LandingFeatures = () => {
@@ -13,7 +13,7 @@ export const LandingFeatures = () => {
       aria-labelledby="features-heading"
       className="bg-background py-12 md:py-14"
     >
-      <LandingContainer>
+      <SiteContainer>
         <div className="mx-auto mb-10 flex max-w-3xl flex-col items-center gap-4 text-center md:mb-12">
           <Badge variant="secondary">{features.label}</Badge>
           <h2
@@ -28,7 +28,7 @@ export const LandingFeatures = () => {
             <LandingFeatureItem key={feature.title} feature={feature} />
           ))}
         </div>
-      </LandingContainer>
+      </SiteContainer>
     </section>
   )
 }

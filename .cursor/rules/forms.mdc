@@ -1,6 +1,6 @@
 ---
 # Form-shaped paths only — actions, *form* components, password dialogs, avatar upload. New form components must match these globs or be added to them.
-description: Canonical form stack (react-hook-form + zod), the save-model rule (blur vs explicit submit vs upload completion), and password-field autofill conventions
+description: Canonical form stack (react-hook-form + zod), the save-model rule (blur vs explicit submit vs upload completion vs per-row/per-section admin save), and password-field autofill conventions
 globs:
   - 'src/**/*form*'
   - 'src/**/actions.ts'
@@ -38,11 +38,14 @@ Pick the save trigger by form shape. This is the routing rule for any new form:
 | Inline, independent fields (each stands alone) | Save on blur, per field | Inline transient indicator (see `notifications.mdc`) — **not** a toast |
 | Modal, coupled fields that submit as a unit, or higher-stakes (e.g. password change) | Explicit submit button | Toast (`showSuccessToast`) |
 | File upload | Persist on upload completion — no separate save step | Inline indicator on the control |
+| Independent admin config (one setting per row) | Per-row explicit Save | Toast (`showSuccessToast`) |
+| Related admin fields that must commit as a unit (e.g. banner block) | Per-section explicit Save | Toast (`showSuccessToast`) |
 
 - **Blur-save:** validate the field on blur and **never persist an invalid field**; save only changed fields.
 - **Why inline, not toast, for blur-save:** a toast per field blur is disproportionate for silent auto-save and stacks when the user tabs between fields. Toasts are reserved for explicit, discrete actions. See `notifications.mdc`.
 - **Coupled fields** (e.g. new + confirm password) validate and submit as a unit, never per-field.
 - **Higher-stakes mutations** (password, email, anything that can lock a user out) use explicit submit, typically in a modal, and re-authenticate at the server boundary where the provider supports it.
+- **Admin settings exception:** cross-user, ambient, or sometimes-irreversible config uses explicit Save even for a single field — never blur-save. Per-row ([`app-setting-row.tsx`](../../src/app/admin/settings/_components/app-setting-row.tsx)) when each value stands alone; per-section ([`banner-setting-row.tsx`](../../src/app/admin/settings/_components/banner-setting-row.tsx)) when related fields must stay consistent. Reference demos: [`/reference`](../../src/app/(marketing)/reference/_components/reference-forms-section.tsx) Forms section.
 
 ## Password fields & autofill
 

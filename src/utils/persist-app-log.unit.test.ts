@@ -69,6 +69,20 @@ describe('persist-app-log', () => {
     )
   })
 
+  it('should wrap array context in a value object', async () => {
+    const { normalizeLogContext } = await import('./persist-app-log')
+
+    expect(normalizeLogContext(['a', 'b'])).toEqual({ value: ['a', 'b'] })
+  })
+
+  it('should wrap primitive context in a value object', async () => {
+    const { normalizeLogContext } = await import('./persist-app-log')
+
+    expect(normalizeLogContext('plain-string')).toEqual({
+      value: 'plain-string',
+    })
+  })
+
   it('should substitute unserializable context with a string fallback', async () => {
     const { normalizeLogContext, persistAppLogRow } =
       await import('./persist-app-log')

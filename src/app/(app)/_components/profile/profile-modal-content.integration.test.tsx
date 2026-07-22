@@ -89,7 +89,7 @@ describe('ProfileModalContent', () => {
   })
 
   it('should keep password collapsed by default and reveal fields on expand', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(<ProfileModalContent {...defaultProps} />)
 

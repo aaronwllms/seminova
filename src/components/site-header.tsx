@@ -26,7 +26,7 @@ export const SiteHeader = ({
   >
     <SiteContainer>
       <div className="flex h-16 items-center justify-between gap-4 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center">
-        {/* debt: grid track string coupled with site-footer.tsx — change both together */}
+        {/* Intentionally shares the same grid class string inline with site-footer.tsx — F060 constant extraction is deferred. */}
         <SeminovaLogo
           href={logoHref}
           className="text-foreground min-w-0 justify-self-start"

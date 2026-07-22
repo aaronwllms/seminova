@@ -28,6 +28,7 @@ import { LOG_LEVELS } from '@/types/app-settings'
 import type {
   AppSettingKey,
   AppSettingRegistryEntry,
+  AppSettingRegistryEntryFor,
   AppSettingValueMap,
   LogLevel,
 } from '@/types/app-settings'
@@ -40,19 +41,19 @@ import {
 } from '@/utils/app-settings-schema'
 
 type AppSettingRowProps<K extends AppSettingKey> = {
-  entry: AppSettingRegistryEntry<K>
+  entry: AppSettingRegistryEntryFor<K>
   savedValue: AppSettingValueMap[K]
   onSaved: (key: K, value: AppSettingValueMap[K]) => void
 }
 
 type LogLevelRowProps<K extends AppSettingKey> = {
-  entry: AppSettingRegistryEntry<K>
+  entry: AppSettingRegistryEntryFor<K>
   savedValue: LogLevel
   onSaved: (key: K, value: AppSettingValueMap[K]) => void
 }
 
 type PositiveIntRowProps<K extends AppSettingKey> = {
-  entry: AppSettingRegistryEntry<K>
+  entry: AppSettingRegistryEntryFor<K>
   savedValue: number
   onSaved: (key: K, value: AppSettingValueMap[K]) => void
 }

@@ -170,7 +170,6 @@ export const createUsersColumns = ({
             {canDemote ? (
               <DropdownMenuItem
                 disabled={isRowPending}
-                variant="destructive"
                 onSelect={() => onDemote(user)}
               >
                 Demote from admin

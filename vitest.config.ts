@@ -30,7 +30,13 @@ export default defineConfig({
         'src/app/**/page.tsx',
         'src/app/**/layout.tsx',
         'src/app/**/opengraph-image.tsx', // debt: thin OG segment files; cover via og-image util tests if threshold pressure returns
-        'src/app/(marketing)/workflow/_components/**', // debt: static marketing sections; TypeScript + visual review cover copy
+        'src/app/(marketing)/workflow/_components/workflow-conventions-section.tsx',
+        'src/app/(marketing)/workflow/_components/workflow-documents-section.tsx',
+        'src/app/(marketing)/workflow/_components/workflow-guide-cta.tsx',
+        'src/app/(marketing)/workflow/_components/workflow-plan-review-section.tsx',
+        'src/app/(marketing)/workflow/_components/workflow-section-nav.tsx',
+        'src/app/(marketing)/workflow/_components/workflow-two-environments-section.tsx', // static marketing sections excluded; workflow-diagram.tsx is measured
+        'src/app/(marketing)/reference/_components/**', // pattern-page demo shells; reference/_lib helpers stay measured
         'src/providers/**',
         'src/supabase/client.ts',
         'src/supabase/server.ts',

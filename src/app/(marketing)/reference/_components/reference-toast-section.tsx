@@ -1,7 +1,9 @@
 'use client'
 
+import { InfoIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
   TOAST_ICON_VARIANTS,
@@ -75,10 +77,15 @@ export const ReferenceToastSection = () => {
       >
         Toast
       </h2>
-      <p className="text-muted-foreground mt-1 text-sm">
-        Live: all five variants via Sonner — same icons and styling as
-        production.
-      </p>
+
+      <Alert variant="info" role="note" className="mt-4">
+        <InfoIcon aria-hidden />
+        <AlertDescription>
+          Live demos of all five Sonner variants with production icons and
+          styling. Only success toasts are wired in the app today — the other
+          four are configured and ready to use.
+        </AlertDescription>
+      </Alert>
 
       <ul className="mt-5 flex flex-col gap-3">
         {TOAST_ICON_VARIANTS.map(
@@ -104,13 +111,6 @@ export const ReferenceToastSection = () => {
           ),
         )}
       </ul>
-
-      <p className="mt-5 max-w-prose text-[15px] leading-relaxed">
-        Five variants: success, info, warning, error, and loading. Today only
-        success is actually called anywhere in the app — the other four are
-        configured and ready, but nothing triggers them yet. Toasts confirm or
-        narrate something in progress and then get out of the way on their own.
-      </p>
     </section>
   )
 }

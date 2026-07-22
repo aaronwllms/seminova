@@ -28,13 +28,13 @@ export const LogUnreadIndicator = ({
     <button
       type="button"
       className={cn(
-        'inline-flex size-11 shrink-0 items-center justify-center rounded-full',
+        'inline-flex size-4 shrink-0 items-center justify-center rounded-full',
         'focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none',
       )}
       aria-label={`Mark log ${logId} as read`}
       onClick={handleClick}
     >
-      <span className="bg-unread block size-1.5 rounded-full" aria-hidden />
+      <span className="bg-primary block size-1.5 rounded-full" aria-hidden />
     </button>
   )
 }

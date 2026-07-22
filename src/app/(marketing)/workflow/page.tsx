@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { WORKFLOW_PATH } from '@/constants/app-paths'
 import { Badge } from '@/components/ui/badge'
 
-import { LandingContainer } from '../_components/landing-container'
+import { SiteContainer } from '@/components/site-container'
 import { WorkflowConventionsSection } from './_components/workflow-conventions-section'
 import { WorkflowDocumentsSection } from './_components/workflow-documents-section'
 import { WorkflowGuideCta } from './_components/workflow-guide-cta'
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 export default function WorkflowPage() {
   return (
     <main id="main-content" className="bg-background py-12">
-      <LandingContainer>
+      <SiteContainer>
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-0">
           <Badge variant="secondary" className="mb-3">
             Workflow
@@ -46,7 +46,7 @@ export default function WorkflowPage() {
           <WorkflowDocumentsSection />
           <WorkflowConventionsSection />
         </div>
-      </LandingContainer>
+      </SiteContainer>
 
       <WorkflowGuideCta />
     </main>

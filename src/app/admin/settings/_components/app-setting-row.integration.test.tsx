@@ -35,7 +35,7 @@ describe('AppSettingRow', () => {
   })
 
   it('should call saveAppSettingAction and show a toast on success for positive_int', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const entry = getRegistryEntry('log_retention_days')
 
     saveAppSettingActionMock.mockResolvedValue({
@@ -65,7 +65,7 @@ describe('AppSettingRow', () => {
   })
 
   it('should call saveAppSettingAction and show a toast on success for log_level', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const entry = getRegistryEntry('min_log_level')
 
     saveAppSettingActionMock.mockResolvedValue({
@@ -102,7 +102,7 @@ describe('AppSettingRow', () => {
   })
 
   it('should render AppErrorSurface when save fails', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const entry = getRegistryEntry('log_retention_days')
 
     saveAppSettingActionMock.mockResolvedValue({
@@ -132,7 +132,7 @@ describe('AppSettingRow', () => {
   })
 
   it('should disable Save and mark the field invalid when positive_int input is cleared or non-numeric', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const entry = getRegistryEntry('log_retention_days')
 
     render(

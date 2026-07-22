@@ -58,7 +58,7 @@ describe('LandingMobileHeaderChrome', () => {
 
   it('should render auth CTAs inside the sheet when anonymous', async () => {
     mockHasServerAuthSession.mockResolvedValue(false)
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(await LandingMobileHeaderChrome())
 

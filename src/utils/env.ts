@@ -51,6 +51,37 @@ export const getServiceSupabaseEnv = (): ServiceSupabaseEnv => {
   return { supabaseUrl, secretKey }
 }
 
+export const getSupabaseUrlOptional = (): string | undefined =>
+  process.env.NEXT_PUBLIC_SUPABASE_URL
+
+export const getSupabaseOrigin = (): string | null => {
+  const supabaseUrl = getSupabaseUrlOptional()
+
+  if (!supabaseUrl) {
+    return null
+  }
+
+  try {
+    return new URL(supabaseUrl).origin
+  } catch {
+    return null
+  }
+}
+
+export const getSupabaseProjectRef = (): string | null => {
+  const supabaseUrl = getSupabaseUrlOptional()
+
+  if (!supabaseUrl) {
+    return null
+  }
+
+  try {
+    return new URL(supabaseUrl).hostname.split('.')[0] ?? null
+  } catch {
+    return null
+  }
+}
+
 export const loadServiceEnvForCli = (): ServiceSupabaseEnv => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const secretKey = process.env.SUPABASE_SECRET_KEY

@@ -12,7 +12,7 @@ Conducts a deliberate, read-only security audit of an entire codebase and writes
 
 **Agent mode required** — this skill writes a file. Do not run in Ask mode.
 
-**Read-only** — this skill reviews and reports. It never edits application code, runs exploits, or opens a browser. Fixing findings happens in separate chats.
+**Read-only** — this skill reviews and reports. It never edits application code, runs exploits, or opens a browser. Read-only commands that inspect state without modifying it (e.g. `pnpm audit`) are permitted. Fixing findings happens in separate chats.
 
 **Not the same as:**
 
@@ -25,11 +25,21 @@ Conducts a deliberate, read-only security audit of an entire codebase and writes
 
 The existing **quick scan** scoping option still applies within either mode.
 
-**Full pass** — Phase 1 (surface map) → Phase 2 (workstreams W1–W6) → Phase 3 (write the deliverable). On a full pass, also prune the Resolved appendix: delete any entry older than the previous full audit date.
+**Full pass** — Phase 1 (surface map) → Phase 2 (workstreams W1–W7) → Phase 3 (write the deliverable). On a full pass, also prune the Resolved appendix: delete any entry older than the previous full audit date.
 
-**Sync pass** — read the existing `SECURITY_AUDIT.md` → gather narrow evidence for open findings only (re-read only the files those findings cite; no full workstream sweep) → verify each affected finding in code → make minimal edits → report what changed. Escalate to a full pass (after telling the user) if the file is stale, mostly wrong, or too many new findings surface mid-sync.
+**Sync pass** — read the existing `SECURITY_AUDIT.md` → gather narrow evidence for **Open** findings only (re-read only the files those findings cite; no full workstream sweep) → verify each affected finding in code → make minimal edits → report what changed. Spot-check **Accepted** rows only when their cited code clearly changed. Never flatten Accepted back into Open without an explicit PM decision. Escalate to a full pass (after telling the user) if the file is stale, mostly wrong, or too many new findings surface mid-sync.
 
-**Verify-in-code gate (both modes):** nothing is marked resolved without confirming the fix exists in the code. Resolved findings are removed from the Findings table and moved to the Resolved appendix with the date, keeping their ID.
+**Verify-in-code gate (both modes):** nothing is marked resolved without confirming the fix exists in the code. Resolved findings are removed from **Open** / **Accepted** and moved to the Resolved appendix with the date, keeping their ID.
+
+**Finding disposition (required):** every non-resolved finding lands in exactly one section — never leave disposition implied in Recommendation prose alone:
+
+| Section | Meaning | At-a-glance |
+| ------- | ------- | ----------- |
+| **Open** | Still actionable. `Status` column is `Do next`, `Deferred` (named home: phase / release gate / ROADMAP item), or `Needs decision` (blocked on PM). | Real backlog |
+| **Accepted** | Deliberately not doing now (accepted risk at current scope). Rows carry **Why accepted** and **Reopen when**. | Not a todo list |
+| **Resolved** | Fixed in code (appendix). | Done |
+
+Accepted risks that lack a stable finding ID may appear as bullets under **Accepted**; ID'd findings always use the Accepted table.
 
 ## Read first
 
@@ -52,9 +62,14 @@ Inventory each surface with **counts and key paths**:
 | API routes               | `src/app/api/`                                                                   |
 | Repositories / DB access | `src/services/`, `src/**/repository*.ts`                                         |
 | Migrations & RLS         | `supabase/migrations/`                                                           |
+| DB functions / RPC       | `supabase/migrations/` (`CREATE FUNCTION`, `SECURITY DEFINER`)                   |
+| Realtime & logging       | realtime subscription code, log relay/pipeline modules                           |
 | Storage                  | bucket policies in migrations, upload utils                                      |
 | Admin / privileged       | `src/app/admin/`, JWT `app_metadata` / role checks                               |
 | Env & secrets            | `.env.example`, `NEXT_PUBLIC_*`, `SUPABASE_SECRET_KEY` references                 |
+| Dependencies             | `package.json`, lockfile                                                         |
+
+If a Supabase MCP connection is available, run its security advisors (`get_advisors`) and fold the output into the hotspot list — advisor output informs where to look, it is not findings yet.
 
 Note review hotspots — not findings yet. This map becomes the surface-map section of the output file.
 
@@ -67,24 +82,26 @@ Audit each workstream against the cited files. Read AGENTS.md § Hard constraint
 | ID  | Scope                                                                       |
 | --- | --------------------------------------------------------------------------- |
 | W1  | Auth & routing vs AGENTS.md; middleware/proxy; layout gates; open redirects |
-| W2  | RLS every table; shared vs user-owned vs FK-scoped per AGENTS.md            |
-| W3  | Server actions + API routes: auth, IDOR, validation, error leakage          |
+| W2  | RLS every table; DB functions/RPC; Realtime authorization; scoping per AGENTS.md |
+| W3  | Server actions + API routes: auth, IDOR, validation, SSRF, XSS, error leakage |
 | W4  | Storage buckets, policies, upload validation, path scoping                  |
-| W5  | Secrets, `SUPABASE_SECRET_KEY`, DTOs, admin-only mutations                  |
-| W6  | Transport & abuse hardening: security headers, rate limiting, CSRF/origin verification |
+| W5  | Secrets, `SUPABASE_SECRET_KEY`, DTOs, log hygiene, admin-only mutations     |
+| W6  | Transport & abuse hardening: security headers, rate limiting, CSRF/origin verification, cache safety |
+| W7  | Dependency & framework currency: installed versions vs known advisories, supply-chain hygiene |
 
 Per-workstream checklist (5–8 concrete checks each):
 
 - **W1 — Auth & routing:** every non-public route requires a session; middleware/proxy boundary matches AGENTS.md public-vs-protected list; no open redirects; admin segments gated server-side; post-login redirect targets are safe.
-- **W2 — Data layer / RLS:** RLS enabled on every table; policy scope matches the table's intent (user-owned `auth.uid()` vs shared-catalog vs FK-scoped) per AGENTS.md; separate policies per operation/role; no table relying on client-side filtering for isolation.
-- **W3 — Server surface:** server actions and API routes authenticate the caller; no IDOR (user can't act on another user's row by changing an ID); inputs validated (Zod) before DB/external calls; errors don't leak internals or user existence.
+- **W2 — Data layer / RLS:** RLS enabled on every table; policy scope matches the table's intent (user-owned `auth.uid()` vs shared-catalog vs FK-scoped) per AGENTS.md; separate policies per operation/role; no table relying on client-side filtering for isolation; database functions (especially `SECURITY DEFINER`) derive scope from `auth.uid()`, never from client-supplied IDs; Realtime subscriptions cannot stream rows the subscriber couldn't `SELECT` under RLS.
+- **W3 — Server surface:** server actions and API routes authenticate the caller; no IDOR (user can't act on another user's row by changing an ID); inputs validated (Zod) before DB/external calls; no SSRF (server never fetches a user/client-supplied URL without an allowlist); no XSS sinks (`dangerouslySetInnerHTML`, raw HTML rendering of user content); errors don't leak internals or user existence.
 - **W4 — Storage:** bucket read/write policies scope to the owning user (path segment = `auth.uid()`); uploads validated server-side (type, size, path); no world-writable buckets; public-read buckets intended.
-- **W5 — Exposure & secrets:** no secrets in client code or committed files; `SUPABASE_SECRET_KEY` never in client or `NEXT_PUBLIC_*`; responses return only needed fields (DTO discipline); privileged mutations enforced server-side, not client-only.
-- **W6 — Transport & abuse hardening:** security headers configured in next.config (Content-Security-Policy, frame-ancestors or X-Frame-Options, HSTS in production); CSP does not rely on `'unsafe-inline'`/`'unsafe-eval'` without a documented exception; rate limiting exists on auth-adjacent and expensive endpoints (or absence is recorded as accepted risk); state-changing operations are server actions (built-in origin check) or API routes that verify origin; no cookie-authenticated state-changing API route lacking origin verification.
+- **W5 — Exposure & secrets:** no secrets in client code or committed files; `SUPABASE_SECRET_KEY` never in client or `NEXT_PUBLIC_*`; responses return only needed fields (DTO discipline); logging pipelines (including any client log relay) never capture secrets, tokens, or PII; privileged mutations enforced server-side, not client-only.
+- **W6 — Transport & abuse hardening:** security headers configured in next.config (Content-Security-Policy, frame-ancestors or X-Frame-Options, HSTS in production); CSP does not rely on `'unsafe-inline'`/`'unsafe-eval'` without a documented exception; rate limiting exists on auth-adjacent and expensive endpoints (or absence is recorded as accepted risk); state-changing operations are server actions (built-in origin check) or API routes that verify origin; no cookie-authenticated state-changing API route lacking origin verification; authenticated or personalized responses are never cacheable by shared caches (cache-control discipline on session-dependent pages, RSC payloads, and API responses).
+- **W7 — Dependency & framework currency:** framework and auth-critical packages (Next.js, React, `@supabase/*`) are at patched versions against known advisories — middleware/auth-bypass CVEs make version currency an auth control, not hygiene; run `pnpm audit` (read-only) and triage results by exploitability rather than reported severity alone; no security-relevant dependency that is deprecated or unmaintained; dependencies resolve from the lockfile (no floating versions on security-relevant packages).
 
-For each finding: assign a stable **ID** (e.g. S001 — never renumber across passes), **Category** (workstream W1–W6), **severity** (Critical / High / Medium / Low), **File:Line** evidence, **Description** (the issue), **Recommendation** (remediation hint), and **Scenario** (how it's exploited). Clean areas → record under **Verified OK**. **Do not invent issues** — if a workstream is solid, say so.
+For each finding: assign a stable **ID** (e.g. S001 — never renumber across passes), **Category** (workstream W1–W7), **severity** (Critical / High / Medium / Low), **File:Line** evidence, **Description** (the issue), **Recommendation** (remediation hint), and **Scenario** (how it's exploited). Place each finding in **Open** or **Accepted** per Finding disposition — do not keep accepted/parked risks in Open. Clean areas → record under **Verified OK**. **Do not invent issues** — if a workstream is solid, say so.
 
-**Parallelism (large repos).** Default to running W1–W6 sequentially. If the repo is large (>50k LOC or >5 top-level modules), dispatch one subagent per workstream via the `Task` tool, each scoped to its files with its checklist and the read-only + citation requirements, then merge, dedupe, and rank the results. Subagents never edit code.
+**Parallelism (large repos).** Default to running W1–W7 sequentially. If the repo is large (>50k LOC or >5 top-level modules), dispatch one subagent per workstream via the `Task` tool, each scoped to its files with its checklist and the read-only + citation requirements, then merge, dedupe, and rank the results. Subagents never edit code.
 
 ## Phase 3 — Write SECURITY_AUDIT.md
 
@@ -98,10 +115,10 @@ Write the audit to `SECURITY_AUDIT.md` at the repo root per the Output template 
 ## Rules
 
 - **Read-only** — never edit application code, run exploits, or open a browser
-- Every finding: stable ID, category (W1–W6), severity, File:Line evidence, description, recommendation, scenario
+- Every finding: stable ID, category (W1–W7), severity, File:Line evidence, description, recommendation, scenario
 - **Do not invent issues** — clean areas go under Verified OK
 - Read code (and the relevant hard constraints) before judging it
-- Human/tooling items (`pnpm audit`, manual IDOR testing) are follow-ups, not agent fix tasks
+- Human/tooling items (e.g. manual IDOR testing with a second account) are follow-ups, not agent fix tasks
 - The user commits the audit file; fixes happen outside this skill
 
 ## When this skill ends
@@ -120,8 +137,9 @@ Stop after `SECURITY_AUDIT.md` is written or updated. Tell the user the file is 
 Before finishing:
 
 - [ ] Surface map has real paths and counts from discovery
-- [ ] Every workstream W1–W6 was reviewed (or explicitly scoped out for a quick scan)
+- [ ] Every workstream W1–W7 was reviewed (or explicitly scoped out for a quick scan)
 - [ ] Every finding has stable ID, category, severity, File:Line, description, recommendation, and scenario
+- [ ] Findings are split into **Open** / **Accepted** / **Resolved** (no accepted risk left in Open)
 - [ ] Verified OK and Human/tooling follow-ups sections are populated
 - [ ] Output written to `SECURITY_AUDIT.md` at repo root with **Last full audit** / **Last synced** / **Scope** set correctly for the run mode
 - [ ] No application code was modified
@@ -147,26 +165,37 @@ Scope: <full repo, or narrowed quick-scan scope>
 | Server actions     |       |           |
 | API routes         |       |           |
 | DB / RLS           |       |           |
+| DB functions / RPC |       |           |
+| Realtime & logging |       |           |
 | Storage            |       |           |
 | Admin / privileged |       |           |
+| Dependencies       |       |           |
 
-## Findings
+## Open
 
-| ID   | Category | File:Line | Severity | Description | Recommendation | Scenario |
-| ---- | -------- | --------- | -------- | ----------- | -------------- | -------- |
-| S001 | W2       | ...       | Critical | ...         | ...            | ...      |
+Actionable backlog only. `Status`: `Do next` | `Deferred` | `Needs decision`.
+
+| ID   | Status   | Category | File:Line | Severity | Description | Recommendation | Scenario |
+| ---- | -------- | -------- | --------- | -------- | ----------- | -------------- | -------- |
+| S001 | Do next  | W2       | ...       | Critical | ...         | ...            | ...      |
+
+## Accepted
+
+Deliberately not doing now. Not a todo list.
+
+| ID   | Category | File:Line | Severity | Description | Why accepted | Reopen when | Scenario |
+| ---- | -------- | --------- | -------- | ----------- | ------------ | ----------- | -------- |
+| S004 | W6       | ...       | Low      | ...         | ...          | ...         | ...      |
+
+(Accepted risks without a stable ID may appear as bullets below the table.)
 
 ## Verified OK
 
 - (areas reviewed and found sound — required)
 
-## Deferred / accepted risk
-
-- ...
-
 ## Human / tooling follow-ups
 
-- (e.g. `pnpm audit`, manual IDOR testing with a second account)
+- (e.g. manual IDOR testing with a second account)
 
 ## Open questions
 

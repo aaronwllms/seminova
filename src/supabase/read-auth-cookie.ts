@@ -1,5 +1,7 @@
 import { cookies } from 'next/headers'
 
+import { getSupabaseProjectRef } from '@/utils/env'
+
 const BASE64_PREFIX = 'base64-'
 
 type SessionCookie = {
@@ -7,12 +9,11 @@ type SessionCookie = {
 }
 
 const getAuthStorageKey = (): string => {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  if (!url) {
+  const ref = getSupabaseProjectRef()
+  if (!ref) {
     return 'sb-auth-token'
   }
 
-  const ref = new URL(url).hostname.split('.')[0]
   return `sb-${ref}-auth-token`
 }
 

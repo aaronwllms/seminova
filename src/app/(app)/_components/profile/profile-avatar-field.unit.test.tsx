@@ -23,7 +23,7 @@ describe('ProfileAvatarField', () => {
   })
 
   it('should revoke preview URLs and clear preview after a successful upload', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const onUpload = vi.fn().mockResolvedValue(undefined)
 
     render(

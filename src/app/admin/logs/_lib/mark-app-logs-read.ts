@@ -1,16 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 
-import {
-  applyLogListFilters,
-  type FilterableAppLogsQuery,
-  type LogListFilters,
-} from './log-list-filters'
-
-type MarkAllReadQuery = FilterableAppLogsQuery &
-  Promise<{ data: { id: number }[] | null; error: Error | null }>
-
-type UnreadCountQuery = FilterableAppLogsQuery &
-  Promise<{ count: number | null; error: Error | null }>
+import { applyLogListFilters, type LogListFilters } from './log-list-filters'
 
 export const markLogRead = async (
   client: SupabaseClient,
@@ -44,13 +34,14 @@ export const markAllLogsRead = async (
   client: SupabaseClient,
   filters: LogListFilters,
 ): Promise<number> => {
-  const baseQuery = client
-    .from('app_logs')
-    .update({ read_at: new Date().toISOString() })
-    .is('read_at', null)
-    .select('id') as unknown as MarkAllReadQuery
-
-  const query = applyLogListFilters(baseQuery, filters) as MarkAllReadQuery
+  const query = applyLogListFilters(
+    client
+      .from('app_logs')
+      .update({ read_at: new Date().toISOString() })
+      .is('read_at', null)
+      .select('id'),
+    filters,
+  )
 
   const { data, error } = await query
 
@@ -65,15 +56,16 @@ export const countFilteredUnreadLogs = async (
   client: SupabaseClient,
   filters: LogListFilters,
 ): Promise<number> => {
-  const baseQuery = client.from('app_logs').select('id', {
-    count: 'exact',
-    head: true,
-  }) as unknown as FilterableAppLogsQuery as UnreadCountQuery
-
-  const query = applyLogListFilters(baseQuery, {
-    ...filters,
-    unreadOnly: true,
-  }) as UnreadCountQuery
+  const query = applyLogListFilters(
+    client.from('app_logs').select('id', {
+      count: 'exact',
+      head: true,
+    }),
+    {
+      ...filters,
+      unreadOnly: true,
+    },
+  )
 
   const { count, error } = await query
 

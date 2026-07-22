@@ -47,7 +47,7 @@ While a fetch is in flight and the table body is empty, show skeleton rows — n
 - Skeleton rows render via `DataTableSkeletonBody` using the `Skeleton` primitive (`src/components/ui/skeleton.tsx`).
 - Per-column skeleton shape via `columnDef.meta.skeletonClassName` (see users columns for reference) — shape only; width and alignment come from `cellClassName` (see [Column sizing](#column-sizing)).
 - Default skeleton row count: 8 — intentionally fewer than page size (15). Enough to signal loading without flooding the viewport or implying a specific result count.
-- When stale rows are already on screen (pagination/search refetch), keep showing stale data; disable controls via `isPending` — do not flash skeleton over existing rows.
+- When stale rows are already on screen (pagination/search refetch), keep showing stale data with light table dimming while `isFetching`; disable controls via `isPending` — do not flash skeleton over existing rows.
 - `emptyMessage` is for the zero-results state only.
 
 **Why:** placeholder text in a single merged cell reads as an empty state, not a loading state; skeleton rows preserve column structure and match the design-system loading convention.
@@ -62,4 +62,4 @@ Per-column width and alignment via `columnDef.meta.cellClassName` — applied to
 - [`src/components/data-table-pagination-controls.tsx`](src/components/data-table-pagination-controls.tsx) — shared page-size selector + Previous/Next controls
 - `src/app/admin/users/_components/users-table.tsx` — Users table, search on `email`, offset paging + server sort via `admin_list_users` RPC, skeleton loading via `DataTableShell`. Production reference for offset paging.
 - `src/app/admin/logs/_components/logs-table.tsx` — Logs table, cursor paging on `(created_at, id)`, timestamp-only server sort, modal row detail via `onRowClick`, skeleton loading via `DataTableShell`. Production reference for cursor paging.
-- `src/app/(marketing)/reference/_components/reference-table-section.tsx` — Fixture demo table; client-side sort + pagination over a bounded fixture (sanctioned exception per Pagination Pattern), otherwise conforms.
+- `src/app/(marketing)/reference/_components/reference-table-section.tsx` — Fixture demo table; client-side sort + pagination over a bounded fixture (sanctioned exception per Pagination Pattern), composed like production list views (stat tiles, toolbar, filter chips, refresh, table shell, pagination).

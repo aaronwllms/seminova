@@ -10,7 +10,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { landingContent } from '@/config/landing-content'
 
-import { LandingContainer } from './landing-container'
+import { SiteContainer } from '@/components/site-container'
 import { LandingTechStackItem } from './landing-tech-stack-item'
 
 const TRACK_REPEAT_COUNT = 3
@@ -38,7 +38,7 @@ export const LandingTechStack = () => {
       aria-labelledby="tech-stack-label"
       className="bg-background pt-7 pb-12 md:pb-14"
     >
-      <LandingContainer>
+      <SiteContainer>
         <div className="mb-6 flex justify-center md:mb-8">
           <Badge variant="secondary" id="tech-stack-label">
             {techStack.label}
@@ -53,7 +53,7 @@ export const LandingTechStack = () => {
           <MarqueeFade side="left" className="w-16 md:w-20" />
           <MarqueeFade side="right" className="w-16 md:w-20" />
         </Marquee>
-      </LandingContainer>
+      </SiteContainer>
     </section>
   )
 }

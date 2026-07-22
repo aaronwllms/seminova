@@ -20,7 +20,7 @@ describe('AuthenticatedBannerSlot', () => {
   })
 
   it('should hide on dismiss without writing a dismiss cookie', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const config = {
       ...DEFAULT_BANNER_SETTING,
       mode: 'on' as const,
@@ -38,7 +38,7 @@ describe('AuthenticatedBannerSlot', () => {
   })
 
   it('should reappear after remount following an in-session dismiss', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const config = {
       ...DEFAULT_BANNER_SETTING,
       mode: 'on' as const,

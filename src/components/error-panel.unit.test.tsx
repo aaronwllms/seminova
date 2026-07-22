@@ -94,7 +94,7 @@ describe('ErrorPanel', () => {
   })
 
   it('should swap the copy button to a Copied state after clicking', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     render(
       <ErrorPanel

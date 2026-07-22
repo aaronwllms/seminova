@@ -1,5 +1,11 @@
 'use client'
 
+// Showroom fixture — real production pieces: ProfileAvatarField, ProfileThemeSegment,
+// BlurSaveTextField, useBlurSaveField (parity with the live profile dialog).
+// Demo-only: local password accordion (not wired to Supabase), referenceDemoPersist stub
+// (_lib/reference-demo-persist.ts — simulated delay, no DB write), read-only demo email.
+// Non-persisting saves on this public page are correct behavior, not drift.
+
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'

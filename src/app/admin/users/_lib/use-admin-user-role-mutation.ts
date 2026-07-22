@@ -10,7 +10,7 @@ import { showSuccessToast } from '@/utils/app-toast'
 
 import { demoteUserAction, promoteUserAction } from '../actions'
 import { adminUsersQueryKeys } from './admin-users-query-keys'
-import { unwrapMutationResult } from './unwrap-users-action'
+import { unwrapActionResult } from '@/app/admin/_lib/unwrap-action-result'
 
 export type RoleMutationInput = {
   type: 'promote' | 'demote'
@@ -27,7 +27,7 @@ export const useAdminUserRoleMutation = () => {
           ? await promoteUserAction({ userId })
           : await demoteUserAction({ userId })
 
-      return unwrapMutationResult(result)
+      return unwrapActionResult(result)
     },
     onSuccess: (data) => {
       showSuccessToast(

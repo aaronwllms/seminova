@@ -52,7 +52,7 @@ describe('StatTile', () => {
   })
 
   it('should call onClick when pressed', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const onClick = vi.fn()
 
     render(

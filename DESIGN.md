@@ -2,7 +2,7 @@
 
 **Purpose:** Document the token architecture, the structure-vs-theme split, and how to re-skin the template for a new product. For agents: read this for design-system conventions. For repo truth and hard constraints, see [AGENTS.md](AGENTS.md). For roadmap, see [ROADMAP.md](ROADMAP.md); for active-phase design scope, see [docs/prds/](docs/prds/).
 
-**Last updated:** 2026-07-20
+**Last updated:** 2026-07-22
 
 ---
 
@@ -86,7 +86,6 @@ Token **names** below. Values: see `globals.css` only.
 | `success`, `success-foreground`         | `bg-success`, `text-success`, `text-success-foreground`             |
 | `warning`, `warning-foreground`         | `bg-warning`, `text-warning`, `text-warning-foreground`             |
 | `info`, `info-foreground`               | `bg-info`, `text-info`, `text-info-foreground`                      |
-| `unread`, `unread-foreground`           | `bg-unread`, `text-unread`, `text-unread-foreground`                |
 | `border`                                | `border-border`                                                     |
 | `input`                                 | `border-input`                                                      |
 | `ring`                                  | `ring-ring`                                                         |
@@ -108,11 +107,11 @@ Token **names** below. Values: see `globals.css` only.
 
 ### Typography
 
-| CSS variable   | Tailwind utility | Loaded via                                                                 |
-| -------------- | ---------------- | -------------------------------------------------------------------------- |
-| `--font-sans`  | `font-sans`      | Inter — `next/font` in [`src/app/layout.tsx`](src/app/layout.tsx)          |
-| `--font-serif` | `font-serif`     | Merriweather — CSS fallback only (not `next/font` today)                   |
-| `--font-mono`  | `font-mono`      | JetBrains Mono — `next/font` in [`src/app/layout.tsx`](src/app/layout.tsx) |
+| CSS variable   | Tailwind utility | Loaded via                                                                                            |
+| -------------- | ---------------- | ----------------------------------------------------------------------------------------------------- |
+| `--font-sans`  | `font-sans`      | Inter — `next/font` in [`src/app/layout.tsx`](src/app/layout.tsx)                                     |
+| `--font-serif` | `font-serif`     | Merriweather — `next/font` in [`src/app/layout.tsx`](src/app/layout.tsx); terms and privacy body copy |
+| `--font-mono`  | `font-mono`      | JetBrains Mono — `next/font` in [`src/app/layout.tsx`](src/app/layout.tsx)                            |
 
 Body uses `font-sans antialiased`. Mono stacks apply to code blocks and `font-mono` utilities.
 
@@ -165,7 +164,7 @@ For full hard-constraint wording, see [AGENTS.md › Hard constraints](AGENTS.md
 
 ### Status color consumption
 
-Status tokens (`destructive`, `warning`, `success`, `info`, `unread`) each ship with a `-foreground` partner for solid fills. **`primary`** is brand/actions; **`accent`** is hover/highlight chrome — neither is a log-level or toast status color.
+Status tokens (`destructive`, `warning`, `success`, `info`) each ship with a `-foreground` partner for solid fills. **`primary`** is brand/actions and also drives unread log triage tint (row background and dot); **`accent`** is hover/highlight chrome — neither is a log-level or toast status color.
 
 | Pattern                     | When                                                                                   | Utilities                                                                                                  |
 | --------------------------- | -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |

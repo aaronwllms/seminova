@@ -52,7 +52,7 @@ describe('BannerSettingsSection', () => {
   })
 
   it('should keep only one banner accordion open at a time', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     renderSection()
 
@@ -70,7 +70,7 @@ describe('BannerSettingsSection', () => {
   })
 
   it('should collapse banner accordions when returning to settings from logs', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const { rerender } = renderSection()
 
     await user.click(screen.getByRole('button', { name: /Public banner/i }))
@@ -98,7 +98,7 @@ describe('BannerSettingsSection', () => {
   })
 
   it('should stay expanded while remaining on settings', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const { rerender } = renderSection()
 
     await user.click(screen.getByRole('button', { name: /Public banner/i }))
@@ -115,7 +115,7 @@ describe('BannerSettingsSection', () => {
   })
 
   it('should collapse banner accordions when the page is restored from bfcache', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     renderSection()
 

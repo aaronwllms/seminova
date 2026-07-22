@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { render, screen } from '@/test/test-utils'
 import { getRegistryEntry } from '@/config/app-settings-registry'
 import { Accordion } from '@/components/ui/accordion'
-import type { AppSettingRegistryEntry } from '@/types/app-settings'
 import { DEFAULT_BANNER_SETTING } from '@/types/banner'
 
 import { BannerSettingRow } from './banner-setting-row'
@@ -30,9 +29,7 @@ vi.mock('@/utils/app-toast', () => ({
 
 describe('BannerSettingRow', () => {
   const onSavedMock = vi.fn()
-  const entry = getRegistryEntry(
-    'banner_public',
-  ) as AppSettingRegistryEntry<'banner_public'>
+  const entry = getRegistryEntry('banner_public')
 
   beforeAll(() => {
     Element.prototype.hasPointerCapture ??= () => false
@@ -80,7 +77,7 @@ describe('BannerSettingRow', () => {
   }
 
   it('should show an unsaved changes indicator in the header when the draft differs from saved', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     renderRow({
       ...DEFAULT_BANNER_SETTING,
@@ -100,7 +97,7 @@ describe('BannerSettingRow', () => {
   })
 
   it('should explain banner copy syntax under headline and detail fields', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     renderRow({
       ...DEFAULT_BANNER_SETTING,
@@ -118,7 +115,7 @@ describe('BannerSettingRow', () => {
   })
 
   it('should expand the form when the accordion trigger is clicked', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     renderRow()
 
@@ -131,7 +128,7 @@ describe('BannerSettingRow', () => {
   })
 
   it('should show schedule fields only when mode is scheduled', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     renderRow()
 
@@ -147,7 +144,7 @@ describe('BannerSettingRow', () => {
   })
 
   it('should show Now inside the Starts field when no start time is set', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     renderRow({
       ...DEFAULT_BANNER_SETTING,
@@ -163,7 +160,7 @@ describe('BannerSettingRow', () => {
   })
 
   it('should reset Starts to Now when the clear control is clicked', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     renderRow({
       ...DEFAULT_BANNER_SETTING,
@@ -194,8 +191,8 @@ describe('BannerSettingRow', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('should render Save below the preview bar when expanded', async () => {
-    const user = userEvent.setup()
+  it('should render Save with the preview when expanded', async () => {
+    const user = userEvent.setup({ delay: null })
 
     renderRow({
       ...DEFAULT_BANNER_SETTING,
@@ -205,16 +202,14 @@ describe('BannerSettingRow', () => {
 
     await user.click(screen.getByRole('button', { name: /Public banner/i }))
 
-    const preview = screen.getByRole('status')
-    const save = screen.getByRole('button', { name: 'Save' })
-
-    expect(
-      preview.compareDocumentPosition(save) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy()
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Saved preview headline',
+    )
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled()
   })
 
   it('should disable Save when headline exceeds the character cap', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     renderRow({
       ...DEFAULT_BANNER_SETTING,
@@ -235,7 +230,7 @@ describe('BannerSettingRow', () => {
   })
 
   it('should call saveAppSettingAction and show a toast on success', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const savedValue = {
       ...DEFAULT_BANNER_SETTING,
       mode: 'on' as const,
@@ -287,7 +282,7 @@ describe('BannerSettingRow', () => {
   })
 
   it('should keep a single preview when expanded and update it from draft values', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
 
     renderRow({
       ...DEFAULT_BANNER_SETTING,
@@ -312,8 +307,8 @@ describe('BannerSettingRow', () => {
     )
   })
 
-  it('should wrap the draft preview in dark mode with a background surface', async () => {
-    const user = userEvent.setup()
+  it('should toggle preview theme with Preview dark and Preview light controls', async () => {
+    const user = userEvent.setup({ delay: null })
 
     renderRow({
       ...DEFAULT_BANNER_SETTING,
@@ -322,16 +317,22 @@ describe('BannerSettingRow', () => {
     })
 
     await user.click(screen.getByRole('button', { name: /Public banner/i }))
+    expect(
+      screen.getByRole('button', { name: 'Preview dark' }),
+    ).toBeInTheDocument()
+
     await user.click(screen.getByRole('button', { name: 'Preview dark' }))
 
     expect(
       screen.getByRole('button', { name: 'Preview light' }),
     ).toBeInTheDocument()
-    expect(document.querySelector('.dark.bg-background')).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Draft preview headline',
+    )
   })
 
-  it('should apply a dark theme island to previews when the active theme is dark', async () => {
-    const user = userEvent.setup()
+  it('should default expanded preview controls to Preview light when the page theme is dark', async () => {
+    const user = userEvent.setup({ delay: null })
     mockResolvedTheme = 'dark'
 
     renderRow(
@@ -343,23 +344,19 @@ describe('BannerSettingRow', () => {
       { pageTheme: 'dark' },
     )
 
-    expect(document.querySelector('.dark.bg-background')).toBeInTheDocument()
-    expect(
-      document.querySelector('.light.bg-background'),
-    ).not.toBeInTheDocument()
-
     await user.click(screen.getByRole('button', { name: /Public banner/i }))
 
     expect(
       screen.getByRole('button', { name: 'Preview light' }),
     ).toBeInTheDocument()
-    expect(document.querySelectorAll('.dark.bg-background')).toHaveLength(1)
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Saved preview headline',
+    )
 
     await user.click(screen.getByRole('button', { name: 'Preview light' }))
 
-    expect(document.querySelectorAll('.light.bg-background')).toHaveLength(1)
     expect(
-      document.querySelector('.dark.bg-background'),
-    ).not.toBeInTheDocument()
+      screen.getByRole('button', { name: 'Preview dark' }),
+    ).toBeInTheDocument()
   })
 })

@@ -3,27 +3,12 @@
 import type { SortingState } from '@tanstack/react-table'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
-import { SEARCHABLE_COLUMN, type ReferenceShipment } from './reference-shipment'
+import { filterReferenceShipments } from './reference-shipment-data'
 import { REFERENCE_SHIPMENTS_FIXTURE } from './reference-shipments.fixture'
-
-export const REFERENCE_SHIPMENTS_QUERY_KEY = 'reference-shipments' as const
+import type { ReferenceShipment, ShipmentStatus } from './reference-shipment'
+import { referenceShipmentsQueryKeys } from './reference-shipments-query-keys'
 
 export const REFERENCE_SHIPMENTS_FETCH_DELAY_MS = 400
-
-const filterShipments = (
-  rows: ReferenceShipment[],
-  search: string,
-): ReferenceShipment[] => {
-  const normalizedSearch = search.trim().toLowerCase()
-
-  if (!normalizedSearch) {
-    return rows
-  }
-
-  return rows.filter((row) =>
-    row[SEARCHABLE_COLUMN].toLowerCase().includes(normalizedSearch),
-  )
-}
 
 type ReferenceSortColumn = keyof Pick<
   ReferenceShipment,
@@ -84,6 +69,7 @@ type UseReferenceShipmentsOptions = {
   search: string
   perPage: number
   sorting: SortingState
+  statuses: ShipmentStatus[]
 }
 
 export const useReferenceShipments = ({
@@ -91,15 +77,25 @@ export const useReferenceShipments = ({
   search,
   perPage,
   sorting,
+  statuses,
 }: UseReferenceShipmentsOptions) => {
   const query = useQuery({
-    queryKey: [REFERENCE_SHIPMENTS_QUERY_KEY, search, page, perPage, sorting],
+    queryKey: referenceShipmentsQueryKeys.list({
+      page,
+      search,
+      perPage,
+      sorting,
+      statuses,
+    }),
     queryFn: async () => {
       await new Promise((resolve) => {
         window.setTimeout(resolve, REFERENCE_SHIPMENTS_FETCH_DELAY_MS)
       })
 
-      const filtered = filterShipments(REFERENCE_SHIPMENTS_FIXTURE, search)
+      const filtered = filterReferenceShipments(REFERENCE_SHIPMENTS_FIXTURE, {
+        search,
+        statuses,
+      })
       const sorted = sortReferenceShipments(filtered, sorting)
       return paginateShipments(sorted, page, perPage)
     },

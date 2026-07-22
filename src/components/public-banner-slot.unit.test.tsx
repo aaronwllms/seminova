@@ -31,7 +31,7 @@ describe('PublicBannerSlot', () => {
   })
 
   it('should persist dismissal to the public dismiss cookie keyed by headline and detail', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const config = {
       ...DEFAULT_BANNER_SETTING,
       mode: 'on' as const,
@@ -51,7 +51,7 @@ describe('PublicBannerSlot', () => {
   })
 
   it('should show the banner again when headline or detail changes', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const initialConfig = {
       ...DEFAULT_BANNER_SETTING,
       mode: 'on' as const,

@@ -11,7 +11,7 @@ import { showSuccessToast } from '@/utils/app-toast'
 
 import { banUserAction, unbanUserAction } from '../actions'
 import { adminUsersQueryKeys } from './admin-users-query-keys'
-import { unwrapMutationResult } from './unwrap-users-action'
+import { unwrapActionResult } from '@/app/admin/_lib/unwrap-action-result'
 
 export type BanMutationInput = {
   type: 'ban'
@@ -39,7 +39,7 @@ export const useAdminUserBanMutation = () => {
             })
           : await unbanUserAction({ userId: input.userId })
 
-      return unwrapMutationResult(result)
+      return unwrapActionResult(result)
     },
     onSuccess: (data) => {
       showSuccessToast(

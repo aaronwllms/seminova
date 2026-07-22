@@ -13,11 +13,13 @@ export const LegalPlaceholder = ({
 }: LegalPlaceholderProps) => (
   <div className="flex w-full flex-col gap-4">
     <h1 className="text-2xl font-bold">{title}</h1>
-    <p className="text-muted-foreground max-w-prose text-sm">
-      This is a placeholder for your legal policies. Replace it with your own
-      Terms of Service and Privacy Policy when you spin off from the template —
-      use a generator or engage counsel.
-    </p>
+    <div className="max-w-prose font-serif text-[15px] leading-relaxed">
+      <p className="text-muted-foreground">
+        This is a placeholder for your legal policies. Replace it with your own
+        Terms of Service and Privacy Policy when you spin off from the template
+        — use a generator or engage counsel.
+      </p>
+    </div>
     <aside
       aria-label="Policy generator resources"
       className="border-border bg-muted max-w-prose rounded-lg border p-4 text-sm"

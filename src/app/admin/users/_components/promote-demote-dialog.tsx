@@ -10,7 +10,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
 import { cn } from '@/utils/tailwind'
 
 export type RoleConfirmAction = {
@@ -49,19 +48,15 @@ export const PromoteDemoteDialog = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-          <AlertDialogAction asChild>
-            <Button
-              type="button"
-              variant={isDemote ? 'destructive' : 'default'}
-              disabled={isPending}
-              className={cn(isPending && 'pointer-events-none opacity-50')}
-              onClick={(event) => {
-                event.preventDefault()
-                onConfirm()
-              }}
-            >
-              {isDemote ? 'Demote' : 'Promote'}
-            </Button>
+          <AlertDialogAction
+            disabled={isPending}
+            className={cn(isPending && 'pointer-events-none opacity-50')}
+            onClick={(event) => {
+              event.preventDefault()
+              onConfirm()
+            }}
+          >
+            {isDemote ? 'Demote' : 'Promote'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

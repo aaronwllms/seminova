@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { landingContent } from '@/config/landing-content'
 
-import { LandingContainer } from './landing-container'
+import { SiteContainer } from '@/components/site-container'
 
 export const LandingProofCta = () => {
   const { proofCta } = landingContent
@@ -14,7 +14,7 @@ export const LandingProofCta = () => {
       aria-labelledby="proof-cta-heading"
       className="bg-muted py-12 md:py-14"
     >
-      <LandingContainer className="text-center">
+      <SiteContainer className="text-center">
         <div className="mx-auto flex max-w-3xl flex-col items-center gap-4">
           <h2
             id="proof-cta-heading"
@@ -34,7 +34,7 @@ export const LandingProofCta = () => {
             <Link href={secondaryLink.href}>{secondaryLink.label}</Link>
           </Button>
         </div>
-      </LandingContainer>
+      </SiteContainer>
     </section>
   )
 }

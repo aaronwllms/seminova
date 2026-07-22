@@ -159,6 +159,54 @@ describe('listLogsAction', () => {
     expect(listAppLogsPageMock).not.toHaveBeenCalled()
   })
 
+  it('should return VALIDATION_ERROR for invalid sortDirection', async () => {
+    const { listLogsAction } = await import('./actions')
+    const result = await listLogsAction({ sortDirection: 'sideways' as 'desc' })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Sort direction must be asc or desc',
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
+    })
+    expect(listAppLogsPageMock).not.toHaveBeenCalled()
+  })
+
+  it('should return VALIDATION_ERROR for invalid list filters', async () => {
+    const { listLogsAction } = await import('./actions')
+    const result = await listLogsAction({
+      filters: { levels: ['bad'] } as never,
+    })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Invalid level filters',
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
+    })
+    expect(listAppLogsPageMock).not.toHaveBeenCalled()
+  })
+
+  it('should return INTERNAL_ERROR fault when listAppLogsPage throws', async () => {
+    listAppLogsPageMock.mockRejectedValue(new Error('db down'))
+
+    const { listLogsAction } = await import('./actions')
+    const result = await listLogsAction()
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Something went wrong loading logs. Please try again.',
+        code: 'INTERNAL_ERROR',
+        kind: 'fault',
+      },
+    })
+  })
+
   it('should return success envelope with listed logs and filtered unread count', async () => {
     const pageData = {
       rows: [
@@ -230,6 +278,22 @@ describe('getLogStatsAction', () => {
     })
     expect(listAppLogStatsMock).toHaveBeenCalledWith(expect.any(Object))
   })
+
+  it('should return INTERNAL_ERROR fault when listAppLogStats throws', async () => {
+    listAppLogStatsMock.mockRejectedValue(new Error('stats down'))
+
+    const { getLogStatsAction } = await import('./actions')
+    const result = await getLogStatsAction()
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Something went wrong loading log stats. Please try again.',
+        code: 'INTERNAL_ERROR',
+        kind: 'fault',
+      },
+    })
+  })
 })
 
 describe('listLogTagsAction', () => {
@@ -251,6 +315,22 @@ describe('listLogTagsAction', () => {
       data: ['auth-session', 'settings-read'],
     })
     expect(listAppLogTagsMock).toHaveBeenCalledWith(expect.any(Object))
+  })
+
+  it('should return INTERNAL_ERROR fault when listAppLogTags throws', async () => {
+    listAppLogTagsMock.mockRejectedValue(new Error('tags down'))
+
+    const { listLogTagsAction } = await import('./actions')
+    const result = await listLogTagsAction()
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Something went wrong loading log tags. Please try again.',
+        code: 'INTERNAL_ERROR',
+        kind: 'fault',
+      },
+    })
   })
 })
 
@@ -301,6 +381,22 @@ describe('mark log read state actions', () => {
       expect(mock).toHaveBeenCalledWith(expect.any(Object), 42)
     },
   )
+
+  it('should return INTERNAL_ERROR fault when markLogRead throws', async () => {
+    markLogReadMock.mockRejectedValue(new Error('mark read failed'))
+
+    const { markLogReadAction } = await import('./actions')
+    const result = await markLogReadAction({ id: 42 })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Something went wrong marking the log read. Please try again.',
+        code: 'INTERNAL_ERROR',
+        kind: 'fault',
+      },
+    })
+  })
 })
 
 describe('markAllLogsReadAction', () => {

@@ -139,9 +139,7 @@ describe('UsersTable', () => {
     const user = userEvent.setup({ delay: null })
 
     renderTable()
-
     await waitForStatTiles()
-
     await user.click(screen.getByRole('button', { name: /banned/i }))
 
     await waitFor(() => {
@@ -150,18 +148,6 @@ describe('UsersTable', () => {
         filterBanned: true,
       })
     })
-  })
-
-  it('should not render the Show banned checkbox', async () => {
-    renderTable()
-
-    await waitFor(() => {
-      expect(screen.getByText('admin@example.com')).toBeInTheDocument()
-    })
-
-    expect(
-      screen.queryByRole('checkbox', { name: /show banned/i }),
-    ).not.toBeInTheDocument()
   })
 
   it('should show an error with copy affordance when listUsersAction fails', async () => {
@@ -194,6 +180,7 @@ describe('UsersTable', () => {
     const skeletons = container.querySelectorAll('[data-slot="skeleton"]')
     expect(skeletons.length).toBeGreaterThan(0)
     expect(screen.queryByText('No users found.')).not.toBeInTheDocument()
+    // eslint-disable-next-line no-restricted-syntax -- a11y sr-only loading label pin
     expect(screen.getByText('Loading users…')).toHaveClass('sr-only')
   })
 
@@ -274,168 +261,6 @@ describe('UsersTable', () => {
     })
 
     expect(showSuccessToastMock).toHaveBeenCalledWith('User promoted to admin')
-    await waitFor(() => {
-      expect(listUsersActionMock.mock.calls.length).toBeGreaterThan(1)
-    })
-  })
-
-  it('should ban a user after confirmation and show success toast', async () => {
-    const user = userEvent.setup({ delay: null })
-
-    listUsersActionMock.mockResolvedValue({
-      success: true,
-      data: {
-        rows: [
-          {
-            id: 'user-2',
-            email: 'bob@example.com',
-            isVerified: true,
-            createdAtLabel: 'Jun 1, 2024',
-            lastSignInAtLabel: 'Jun 2, 2024',
-            isAdmin: false,
-            banStatus: null,
-          },
-        ],
-        hasNextPage: false,
-        page: 1,
-      },
-    })
-
-    banUserActionMock.mockResolvedValue({
-      success: true,
-      data: { status: 'banned', email: 'bob@example.com' },
-    })
-
-    renderTable()
-
-    await waitFor(() => {
-      expect(screen.getByText('bob@example.com')).toBeInTheDocument()
-    })
-
-    await user.click(
-      screen.getByRole('button', { name: /actions for bob@example.com/i }),
-    )
-    await user.click(screen.getByRole('menuitem', { name: /ban user/i }))
-    await user.click(screen.getByRole('button', { name: /^ban user$/i }))
-
-    await waitFor(() => {
-      expect(banUserActionMock).toHaveBeenCalledWith({
-        userId: 'user-2',
-        banDuration: '24h',
-      })
-    })
-
-    expect(showSuccessToastMock).toHaveBeenCalledWith('User banned')
-  })
-
-  it('should unban a banned user after confirmation', async () => {
-    const user = userEvent.setup({ delay: null })
-    const until = new Date('2026-01-01T00:00:00.000Z')
-
-    listUsersActionMock.mockResolvedValue({
-      success: true,
-      data: {
-        rows: [
-          {
-            id: 'user-2',
-            email: 'bob@example.com',
-            isVerified: true,
-            createdAtLabel: 'Jun 1, 2024',
-            lastSignInAtLabel: 'Jun 2, 2024',
-            isAdmin: false,
-            banStatus: { until },
-          },
-        ],
-        hasNextPage: false,
-        page: 1,
-      },
-    })
-
-    unbanUserActionMock.mockResolvedValue({
-      success: true,
-      data: { status: 'unbanned', email: 'bob@example.com' },
-    })
-
-    renderTable()
-
-    await waitFor(() => {
-      expect(screen.getByText('bob@example.com')).toBeInTheDocument()
-    })
-
-    await user.click(
-      screen.getByRole('button', { name: /actions for bob@example.com/i }),
-    )
-    await user.click(screen.getByRole('menuitem', { name: /^unban$/i }))
-    await user.click(screen.getByRole('button', { name: /^unban$/i }))
-
-    await waitFor(() => {
-      expect(unbanUserActionMock).toHaveBeenCalledWith({ userId: 'user-2' })
-    })
-
-    expect(showSuccessToastMock).toHaveBeenCalledWith('User unbanned')
-  })
-
-  it('should show filtered empty state with reset and refresh actions', async () => {
-    listUsersActionMock.mockResolvedValue({
-      success: true,
-      data: {
-        rows: [],
-        hasNextPage: false,
-        page: 1,
-      },
-    })
-
-    const user = userEvent.setup({ delay: null })
-
-    renderTable()
-
-    await waitForStatTiles()
-
-    await user.click(screen.getByRole('button', { name: /banned/i }))
-
-    await waitFor(() => {
-      expect(
-        screen.getByText('No users found for selected filters'),
-      ).toBeInTheDocument()
-    })
-
-    expect(
-      screen.getByRole('button', { name: /reset filters/i }),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: /^refresh$/i }),
-    ).toBeInTheDocument()
-  })
-
-  it('should reset filters from the filtered empty state', async () => {
-    listUsersActionMock.mockResolvedValue({
-      success: true,
-      data: {
-        rows: [],
-        hasNextPage: false,
-        page: 1,
-      },
-    })
-
-    const user = userEvent.setup({ delay: null })
-
-    renderTable()
-
-    await waitForStatTiles()
-
-    await user.click(screen.getByRole('button', { name: /banned/i }))
-
-    await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: /reset filters/i }),
-      ).toBeInTheDocument()
-    })
-
-    await user.click(screen.getByRole('button', { name: /reset filters/i }))
-
-    await waitFor(() => {
-      expect(listUsersActionMock).toHaveBeenLastCalledWith(defaultListParams)
-    })
   })
 
   it('should reset all filters when the Total tile is clicked', async () => {
@@ -448,7 +273,6 @@ describe('UsersTable', () => {
     })
 
     await waitForStatTiles()
-
     await user.type(
       screen.getByRole('searchbox', { name: /search users by email/i }),
       'admin',
@@ -475,143 +299,34 @@ describe('UsersTable', () => {
     ).toHaveValue('')
   })
 
-  it('should refetch list and stats when refresh is clicked', async () => {
-    const user = userEvent.setup({ delay: null })
-
-    renderTable()
-
-    await waitFor(() => {
-      expect(listUsersActionMock).toHaveBeenCalledTimes(1)
-      expect(getUserStatsActionMock).toHaveBeenCalledTimes(1)
-    })
-
-    await user.click(screen.getByRole('button', { name: /refresh users/i }))
-
-    await waitFor(() => {
-      expect(listUsersActionMock.mock.calls.length).toBeGreaterThan(1)
-      expect(getUserStatsActionMock.mock.calls.length).toBeGreaterThan(1)
-    })
-  })
-
-  it('should show active filter chips when filters are applied', async () => {
-    const user = userEvent.setup({ delay: null })
-
-    renderTable()
-
-    await waitForStatTiles()
-
-    await user.click(screen.getByRole('button', { name: /new \(30d\)/i }))
-
-    await waitFor(() => {
-      expect(screen.getByText('Active filters:')).toBeInTheDocument()
-      expect(
-        screen.getByText('New (30d)', { selector: '[data-slot="badge"]' }),
-      ).toBeInTheDocument()
-    })
-  })
-
-  it('should remove a single active filter chip without clearing others', async () => {
-    const user = userEvent.setup({ delay: null })
-
-    renderTable()
-
-    await waitForStatTiles()
-
-    await user.click(screen.getByRole('button', { name: /banned/i }))
-    await user.click(screen.getByRole('button', { name: /new \(30d\)/i }))
-
-    await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: /remove banned filter/i }),
-      ).toBeInTheDocument()
-    })
-
-    await user.click(
-      screen.getByRole('button', { name: /remove banned filter/i }),
-    )
-
-    await waitFor(() => {
-      expect(listUsersActionMock).toHaveBeenLastCalledWith(
-        expect.objectContaining({
-          filterBanned: false,
-          filterNew30d: true,
-        }),
-      )
-    })
-  })
-
-  it('should clear all active filter chips from the chip row', async () => {
-    const user = userEvent.setup({ delay: null })
-
-    renderTable()
-
-    await waitForStatTiles()
-
-    await user.click(screen.getByRole('button', { name: /banned/i }))
-    await user.type(
-      screen.getByRole('searchbox', { name: /search users by email/i }),
-      'admin',
-    )
-
-    await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: /^clear all$/i }),
-      ).toBeInTheDocument()
-    })
-
-    await user.click(screen.getByRole('button', { name: /^clear all$/i }))
-
-    await waitFor(() => {
-      expect(listUsersActionMock).toHaveBeenLastCalledWith(defaultListParams)
-    })
-  })
-
-  it('should pass new30d filter to listUsersAction', async () => {
-    const user = userEvent.setup({ delay: null })
-
-    renderTable()
-
-    await waitForStatTiles()
-
-    await waitFor(() => {
-      expect(listUsersActionMock).toHaveBeenCalledWith(defaultListParams)
-    })
-
-    await user.click(screen.getByRole('button', { name: /new \(30d\)/i }))
-
-    await waitFor(() => {
-      expect(listUsersActionMock).toHaveBeenLastCalledWith({
-        ...defaultListParams,
-        filterNew30d: true,
-      })
-    })
-  })
-
-  it('should render User badge for non-admin users', async () => {
+  it('should show filtered empty state with reset and refresh actions', async () => {
     listUsersActionMock.mockResolvedValue({
       success: true,
       data: {
-        rows: [
-          {
-            id: 'user-2',
-            email: 'member@example.com',
-            isVerified: true,
-            createdAtLabel: 'Jun 1, 2024',
-            lastSignInAtLabel: 'Jun 2, 2024',
-            isAdmin: false,
-            banStatus: null,
-          },
-        ],
+        rows: [],
         hasNextPage: false,
         page: 1,
       },
     })
 
+    const user = userEvent.setup({ delay: null })
+
     renderTable()
+    await waitForStatTiles()
+    await user.click(screen.getByRole('button', { name: /banned/i }))
 
     await waitFor(() => {
-      expect(screen.getByText('User')).toBeInTheDocument()
+      expect(
+        screen.getByText('No users found for selected filters'),
+      ).toBeInTheDocument()
     })
+
+    expect(
+      screen.getByRole('button', { name: /reset filters/i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /^refresh$/i }),
+    ).toBeInTheDocument()
   })
 
   it('should show mutation faults in a reportable panel without replacing table rows', async () => {

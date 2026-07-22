@@ -13,7 +13,7 @@ const defaultStats = {
 
 describe('UsersStatTiles', () => {
   it('should clear filters when Total is clicked', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const onTotalClick = vi.fn()
 
     render(
@@ -79,7 +79,7 @@ describe('UsersStatTiles', () => {
   })
 
   it('should toggle the New (30d) tile', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     const onNew30dToggle = vi.fn()
 
     render(
