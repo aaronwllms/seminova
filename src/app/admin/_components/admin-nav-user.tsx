@@ -3,6 +3,7 @@
 import { ChevronsUpDown, LayoutDashboard, LogOut, User } from 'lucide-react'
 import Link from 'next/link'
 
+import { ThemeDropdownMenuItems } from '@/components/theme-dropdown-menu-items'
 import { UserAvatar } from '@/components/user-avatar'
 import {
   DropdownMenu,
@@ -91,6 +92,7 @@ export const AdminNavUser = ({
                 Open app
               </Link>
             </DropdownMenuItem>
+            <ThemeDropdownMenuItems />
             <DropdownMenuItem onClick={handleSignOut}>
               <LogOut />
               Sign out

@@ -21,6 +21,15 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush }),
 }))
 
+const mockSetTheme = vi.fn()
+
+vi.mock('next-themes', () => ({
+  useTheme: () => ({
+    theme: 'light',
+    setTheme: mockSetTheme,
+  }),
+}))
+
 vi.mock('@/components/ui/sidebar', () => ({
   SidebarMenu: ({ children }: { children: React.ReactNode }) => (
     <div>{children}</div>
@@ -49,6 +58,7 @@ describe('AdminNavUser', () => {
     mockSignOut.mockReset()
     mockPush.mockReset()
     mockOpenProfile.mockReset()
+    mockSetTheme.mockReset()
   })
 
   it('should show display name when present', () => {
@@ -121,5 +131,26 @@ describe('AdminNavUser', () => {
     await user.click(screen.getByRole('menuitem', { name: /profile/i }))
 
     expect(mockOpenProfile).toHaveBeenCalledOnce()
+  })
+
+  it('should show theme options and apply selection from the account menu', async () => {
+    const user = userEvent.setup({ delay: null })
+
+    render(
+      <AdminNavUser
+        displayName="Admin User"
+        avatarUrl={null}
+        email="admin@example.com"
+      />,
+    )
+
+    await user.click(screen.getByRole('button'))
+
+    const lightItem = screen.getByRole('menuitem', { name: /light/i })
+    expect(lightItem.querySelector('svg.lucide-check')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('menuitem', { name: /system/i }))
+
+    expect(mockSetTheme).toHaveBeenCalledWith('system')
   })
 })
