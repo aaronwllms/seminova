@@ -107,11 +107,11 @@ Token **names** below. Values: see `globals.css` only.
 
 ### Typography
 
-| CSS variable   | Tailwind utility | Loaded via                                                                 |
-| -------------- | ---------------- | -------------------------------------------------------------------------- |
-| `--font-sans`  | `font-sans`      | Inter — `next/font` in [`src/app/layout.tsx`](src/app/layout.tsx)          |
-| `--font-serif` | `font-serif`     | Merriweather — CSS fallback only (not `next/font` today)                   |
-| `--font-mono`  | `font-mono`      | JetBrains Mono — `next/font` in [`src/app/layout.tsx`](src/app/layout.tsx) |
+| CSS variable   | Tailwind utility | Loaded via                                                                                            |
+| -------------- | ---------------- | ----------------------------------------------------------------------------------------------------- |
+| `--font-sans`  | `font-sans`      | Inter — `next/font` in [`src/app/layout.tsx`](src/app/layout.tsx)                                     |
+| `--font-serif` | `font-serif`     | Merriweather — `next/font` in [`src/app/layout.tsx`](src/app/layout.tsx); terms and privacy body copy |
+| `--font-mono`  | `font-mono`      | JetBrains Mono — `next/font` in [`src/app/layout.tsx`](src/app/layout.tsx)                            |
 
 Body uses `font-sans antialiased`. Mono stacks apply to code blocks and `font-mono` utilities.
 

@@ -1,4 +1,4 @@
-import { Inter, JetBrains_Mono } from 'next/font/google'
+import { Inter, JetBrains_Mono, Merriweather } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
 import NextTopLoader from 'nextjs-toploader'
 import { Analytics } from '@vercel/analytics/react'
@@ -24,6 +24,13 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
 })
 
+const merriweather = Merriweather({
+  variable: '--font-merriweather',
+  display: 'swap',
+  subsets: ['latin'],
+  weight: ['400', '700'],
+})
+
 type RootLayoutProps = {
   children: React.ReactNode
 }
@@ -33,7 +40,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${jetbrainsMono.variable} scroll-pt-20`}
+      className={`${inter.variable} ${jetbrainsMono.variable} ${merriweather.variable} scroll-pt-20`}
     >
       <body className="font-sans antialiased">
         <NextTopLoader showSpinner={false} height={2} color="var(--primary)" />

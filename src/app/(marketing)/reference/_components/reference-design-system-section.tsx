@@ -1,6 +1,19 @@
+import {
+  AlertCircle,
+  Check,
+  InfoIcon,
+  Search,
+  Users,
+  type LucideIcon,
+} from 'lucide-react'
+
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { formatLogTimestampDisplay } from '@/app/admin/logs/_lib/format-log-timestamp-display'
 import { cn } from '@/utils/tailwind'
 
 import { REFERENCE_SECTION_SCROLL_CLASS } from '../_lib/reference-anchor-links'
+
+const EXTERNAL_LINK_CLASS = 'text-primary underline-offset-4 hover:underline'
 
 const SEMANTIC_COLOR_TOKENS = [
   { name: 'Primary', cssVar: '--primary', className: 'bg-primary' },
@@ -16,6 +29,37 @@ const SEMANTIC_COLOR_TOKENS = [
   { name: 'Warning', cssVar: '--warning', className: 'bg-warning' },
   { name: 'Info', cssVar: '--info', className: 'bg-info' },
 ] as const
+
+const FONT_STACKS = [
+  {
+    name: 'Inter',
+    role: 'Default UI — body, headings, and chrome',
+    utility: 'font-sans',
+    sample: 'The quick brown fox jumps over the lazy dog.',
+    mono: false,
+  },
+  {
+    name: 'Merriweather',
+    role: 'Long-form — terms and privacy policy content',
+    utility: 'font-serif',
+    sample: 'The quick brown fox jumps over the lazy dog.',
+    mono: false,
+  },
+  {
+    name: 'JetBrains Mono',
+    role: 'Monospace — codes, tags, paths, and structured data',
+    utility: 'font-mono',
+    mono: true,
+  },
+] as const
+
+const REFERENCE_ICONS: { name: string; Icon: LucideIcon }[] = [
+  { name: 'Check', Icon: Check },
+  { name: 'AlertCircle', Icon: AlertCircle },
+  { name: 'Search', Icon: Search },
+  { name: 'Users', Icon: Users },
+  { name: 'Info', Icon: InfoIcon },
+]
 
 const TYPE_SCALE_SAMPLES = [
   {
@@ -46,6 +90,10 @@ const TYPE_SCALE_SAMPLES = [
 ] as const
 
 export const ReferenceDesignSystemSection = () => {
+  const monoTimestampSample = formatLogTimestampDisplay(
+    new Date().toISOString(),
+  )
+
   return (
     <section className="py-10">
       <h2
@@ -55,8 +103,35 @@ export const ReferenceDesignSystemSection = () => {
         Design system
       </h2>
       <p className="text-muted-foreground mt-1 text-sm">
-        Semantic tokens and type scale from the inherited theme.
+        Semantic tokens, typography, and icons from the inherited theme.
       </p>
+
+      <Alert variant="info" role="note" className="mt-4">
+        <InfoIcon aria-hidden />
+        <AlertDescription>
+          <p>
+            Default theme based on{' '}
+            <a
+              href="https://tweakcn.com/editor/theme?p=dashboard"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={EXTERNAL_LINK_CLASS}
+            >
+              Clean Slate
+            </a>{' '}
+            from{' '}
+            <a
+              href="https://tweakcn.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={EXTERNAL_LINK_CLASS}
+            >
+              tweakcn
+            </a>
+            — colors, typography, radius, shadows, and spacing.
+          </p>
+        </AlertDescription>
+      </Alert>
 
       <div className="mt-8">
         <h3 className="text-lg font-semibold tracking-tight">Colors</h3>
@@ -83,6 +158,30 @@ export const ReferenceDesignSystemSection = () => {
       </div>
 
       <div className="mt-10">
+        <h3 className="text-lg font-semibold tracking-tight">Fonts</h3>
+        <p className="text-muted-foreground mt-1 text-sm">
+          Font families from the inherited theme — sans, serif, and mono stacks.
+        </p>
+        <ul className="mt-4 flex flex-col gap-6">
+          {FONT_STACKS.map((font) => (
+            <li key={font.name} className="flex flex-col gap-1">
+              <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+                {font.name}
+              </p>
+              <p className="text-muted-foreground text-xs">{font.role}</p>
+              {font.mono ? (
+                <p className="mt-1 font-mono text-sm tabular-nums">
+                  {monoTimestampSample}
+                </p>
+              ) : (
+                <p className={cn(font.utility, 'mt-1')}>{font.sample}</p>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="mt-10">
         <h3 className="text-lg font-semibold tracking-tight">Type scale</h3>
         <p className="text-muted-foreground mt-1 text-sm">
           Heading and body styles used across marketing and app surfaces.
@@ -94,6 +193,25 @@ export const ReferenceDesignSystemSection = () => {
                 {sample.label}
               </p>
               <p className={sample.className}>{sample.sample}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="mt-10">
+        <h3 className="text-lg font-semibold tracking-tight">Icons</h3>
+        <p className="text-muted-foreground mt-1 text-sm">
+          Lucide React — shadcn&apos;s default icon library. Import icons by
+          name from lucide-react.
+        </p>
+        <ul className="mt-4 flex flex-wrap gap-4">
+          {REFERENCE_ICONS.map(({ name, Icon }) => (
+            <li
+              key={name}
+              className="border-border flex min-w-[7rem] flex-col items-center gap-2 rounded-lg border px-4 py-3"
+            >
+              <Icon className="size-5" aria-hidden />
+              <p className="text-muted-foreground font-mono text-xs">{name}</p>
             </li>
           ))}
         </ul>
