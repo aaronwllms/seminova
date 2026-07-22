@@ -38,9 +38,19 @@ Where a violation is mechanically checkable, the Recommendation must propose a l
 
 **Full pass** — Phase 1 (Orient) → Phase 2 (dimensions) → Phase 3 (write the deliverable). On a full pass, also prune the Resolved appendix: delete any entry older than the previous full audit date.
 
-**Sync pass** — read the existing `TEST_AUDIT.md` → gather narrow evidence for open findings only → verify each affected finding in code → make minimal edits → report what changed. Escalate to a full pass (after telling the user) if the file is stale, mostly wrong, or too many new findings surface mid-sync.
+**Sync pass** — read the existing `TEST_AUDIT.md` → gather narrow evidence for **Open** findings only → verify each affected finding in code → make minimal edits → report what changed. Spot-check **Accepted** rows only when their cited tests clearly changed. Never flatten Accepted back into Open without an explicit PM decision. Escalate to a full pass (after telling the user) if the file is stale, mostly wrong, or too many new findings surface mid-sync.
 
-**Verify-in-code gate (both modes):** nothing is marked resolved without confirming the fix exists in the code. A ticked checkbox or a commit message claiming a fix does not count. Resolved findings move to the Resolved appendix with the date, keeping their ID.
+**Verify-in-code gate (both modes):** nothing is marked resolved without confirming the fix exists in the code. A ticked checkbox or a commit message claiming a fix does not count. Resolved findings are removed from **Open** / **Accepted** and moved to the Resolved appendix with the date, keeping their ID.
+
+**Finding disposition (required):** every non-resolved finding lands in exactly one section — never leave disposition implied in Recommendation prose alone:
+
+| Section | Meaning | At-a-glance |
+| ------- | ------- | ----------- |
+| **Open** | Still actionable. `Status` column is `Do next`, `Deferred` (named home), or `Needs decision` (blocked on PM). | Real backlog |
+| **Accepted** | Deliberately not doing now. Rows carry **Why accepted** and **Reopen when**. | Not a todo list |
+| **Resolved** | Fixed in code (appendix). | Done |
+
+**Quick wins** draw only from **Open**.
 
 ## Phase 1: Orient
 
@@ -70,7 +80,9 @@ Write to `TEST_AUDIT.md` in the repo root per the Output template below.
 - Category values are the seven dimension names
 - Before finalizing: reread every Recommendation cell for a mechanically-checkable finding — if it contains "optionally," "consider," or similar hedges around enforcement, rewrite it as the direct recommendation (see anti-example under Operating principles)
 - Severity calibration: **Critical** = untested security/auth path, or flaky test in the CI gate; **High** = coverage gap on a core flow, mock-testing-the-mock; **Medium** = over-testing, convention violations; **Low** = speed, naming nits
-- **Verified OK** is required; if empty, the audit was shallow
+- Split findings into **Open** / **Accepted** / **Resolved** per Finding disposition above
+- **Quick wins** draw only from **Open**
+- **Verified OK** (areas that look scary but are sound) is required prose; if empty, the audit was shallow — it is not a substitute for the **Accepted** findings table
 - Finding IDs (`TS001`…) are stable across passes — never renumber
 - Don't pad. If a dimension has nothing material, write "Nothing material" and move on
 - Do not fix tests unless the user asks — this skill produces the audit artifact only
@@ -92,19 +104,29 @@ Scope: test suite health and adherence to .cursor/rules/testing.mdc
 
 ...
 
-## Findings
+## Open
 
-| ID    | Category | File:Line | Severity | Description | Recommendation |
-| ----- | -------- | --------- | -------- | ----------- | -------------- |
-| TS001 | ...      | src/...:42 | High    | ...         | ...            |
+Actionable backlog only. `Status`: `Do next` | `Deferred` | `Needs decision`.
+
+| ID    | Status  | Category | File:Line  | Severity | Description | Recommendation |
+| ----- | ------- | -------- | ---------- | -------- | ----------- | -------------- |
+| TS001 | Do next | ...      | src/...:42 | High     | ...         | ...            |
+
+## Accepted
+
+Deliberately not doing now. Not a todo list.
+
+| ID    | Category | File:Line | Severity | Description | Why accepted | Reopen when |
+| ----- | -------- | --------- | -------- | ----------- | ------------ | ----------- |
+| TS0xx | ...      | ...       | Low      | ...         | ...          | ...         |
 
 ## Quick wins
 
-- [ ] TS042: ...
+- [ ] TS042: ... (Open findings only)
 
-## Verified OK / looks bad but is fine
+## Verified OK
 
-- ...
+- (areas that look scary but are sound — required; not a substitute for Accepted)
 
 ## Open questions
 

@@ -1,15 +1,18 @@
 # Test Audit — seminova
 
 Last full audit: 2026-07-06
-Last synced: 2026-07-06
-Scope: test suite health and adherence to `.cursor/rules/testing.mdc`
+Last synced: 2026-07-22 (disposition split — Open / Accepted / Resolved)
+Scope: test suite health and adherence to `.cursor/rules/testing.mdc`; disposition re-bucket only — no full suite rescan.
 
 ## Executive summary
 
 - **Remediation landed:** Nine of ten open findings from the 2026-07-06 full audit are verified fixed in code — admin `listUsersAction` tests, security utility gaps, route error boundaries, marketing over-testing, assertion-quality fixes, integration naming, MSW deferral, and `assertAdminCaller` `getUser` failure path.
-- **Suite remains green:** 62 files, 272 tests, all passing; global coverage ~86% lines / ~84% branches — still above the 80% CI floor (coverage dipped slightly after removing config-echo marketing smoke tests).
-- **Only open finding:** TS009 (slow integration tests) — unchanged; password dialog (~666ms / ~474ms), users-table (~420ms), and auth forms still exceed Vitest's 300ms threshold; not flaky.
-- **Strong areas unchanged:** auth forms, proxy auth boundary, profile mutations, `extract-auth-form-error`, `avatar-cache-bust`, and admin actions now include full `listUsersAction` coverage.
+- **Only Open finding:** TS009 (slow integration tests) — password dialog and other integrations still exceed Vitest's 300ms threshold; not flaky.
+- **Accepted table empty** — no parked test findings; intentional suite shape lives under **Verified OK**.
+- **Strong areas unchanged:** auth forms, proxy auth boundary, profile mutations, `extract-auth-form-error`, `avatar-cache-bust`, and admin actions include `listUsersAction` coverage.
+
+> [!NOTE]
+> Suite metrics below reflect the 2026-07-06 full pass. Phase 14 and later work grew the suite (see `TECH_DEBT_AUDIT.md` tooling notes: 690 tests / 141 files). Re-run `/audit-tests` full pass to refresh counts.
 
 ## Suite mental model
 
@@ -29,17 +32,23 @@ Scope: test suite health and adherence to `.cursor/rules/testing.mdc`
 
 **High-churn sources (6 months):** auth forms, `src/proxy.ts`, profile actions, admin users table — all have corresponding tests including `listUsersAction` at the action boundary.
 
-## Findings
+## Open
 
-| ID    | Category            | File:Line                                                                             | Severity | Description                                                                                                                                                                                            | Recommendation                                                                                                                                                                                                                                    |
-| ----- | ------------------- | ------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| TS009 | Reliability & speed | `src/app/(app)/profile/_components/profile-password-dialog.integration.test.tsx:1-85` | Low      | Multiple integration tests exceed Vitest's 300ms slow threshold (longest ~1.1s for password dialog suite; login ~625ms; users-table ~420ms). Not flaky today, but slow tests lengthen CI and pre-push. | Profile password dialog: share one `render` + reuse form where cases are sequential validation (already partially done). Consider `userEvent` `{ delay: null }` if not set. Track in CI slow-test output; no quarantine unless flakiness appears. |
+Actionable backlog only. `Status`: `Do next` | `Deferred` | `Needs decision`.
+
+| ID    | Status  | Category            | File:Line                                                                             | Severity | Description                                                                                                                                                                                            | Recommendation                                                                                                                                                                                                                                 |
+| ----- | ------- | ------------------- | ------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TS009 | Do next | Reliability & speed | `src/app/(app)/profile/_components/profile-password-dialog.integration.test.tsx:1-85` | Low      | Multiple integration tests exceed Vitest's 300ms slow threshold (longest ~1.1s for password dialog suite; login ~625ms; users-table ~420ms). Not flaky today, but slow tests lengthen CI and pre-push. | Profile password dialog: share one `render` + reuse form where cases are sequential validation (already partially done). Apply `userEvent` `{ delay: null }` if not set. Track in CI slow-test output; no quarantine unless flakiness appears. |
+
+## Accepted
+
+_No accepted findings._ (Intentional suite shape that is not a defect lives under **Verified OK**.)
 
 ## Quick wins
 
-- [ ] TS009: Profile password dialog already uses `userEvent.setup({ delay: null })` in route-error-boundaries; apply same pattern and shared `render` where password-dialog cases allow.
+- [ ] TS009: Apply `userEvent.setup({ delay: null })` and shared `render` where password-dialog cases allow.
 
-## Verified OK / looks bad but is fine
+## Verified OK
 
 - **`extract-auth-form-error.unit.test.ts` (8 tests, 134 lines):** Looks like enumeration overkill, but maps a security-sensitive override table with logging contracts — appropriate depth per `testing.mdc` exception for auth sanitization.
 - **`proxy.unit.test.ts` (25 tests, 217 lines):** Large, but auth boundary is a hard constraint enforced by `check:auth-boundary` — breadth is intentional.
