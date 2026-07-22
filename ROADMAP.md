@@ -23,7 +23,7 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 | 11 | Corrections & Hardening | `Shipped` | [Phase 11 PRD](docs/prds/archive/phase-11-corrections-hardening.prd.md) |
 | 12 | Observability & App Settings | `Shipped` | [Phase 12 PRD](docs/prds/archive/phase-12-observability-app-settings.prd.md) |
 | 13 | Realtime Logs & Session Refresh | `Shipped` | [Phase 13 PRD](docs/prds/archive/phase-13-realtime-logs-session-refresh.prd.md) |
-| 14 | Tech Debt Hardening | `Active` | [Phase 14 PRD](docs/prds/phase-14-tech-debt-hardening.prd.md) |
+| 14 | Tech Debt Hardening | `Shipped` | [Phase 14 PRD](docs/prds/archive/phase-14-tech-debt-hardening.prd.md) |
 | 15 | Features Page & Landing Refresh | `Draft` | — |
 | 16 | Magic Link Auth | `Draft` | — |
 | 17 | Blog Page | `Draft` | — |
