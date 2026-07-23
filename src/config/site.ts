@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Sparkles, type LucideIcon } from 'lucide-react'
 
 import {
+  FEATURES_PATH,
   PRIVACY_PATH,
   REFERENCE_PATH,
   TERMS_PATH,
@@ -52,7 +53,7 @@ export const siteConfig: SiteConfig = {
   },
   nav: [
     { label: 'Home', href: '/' },
-    { label: 'Features', href: '/#features' },
+    { label: 'Features', href: FEATURES_PATH },
     { label: 'Reference', href: REFERENCE_PATH },
     { label: 'Workflow', href: WORKFLOW_PATH },
     { label: 'GitHub', href: GITHUB_URL, external: true },

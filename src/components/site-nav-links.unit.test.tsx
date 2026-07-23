@@ -12,7 +12,8 @@ import { render, screen } from '@/test/test-utils'
 describe('isSiteNavLinkActive', () => {
   it('should match pathname for route links and exclude hash anchors', () => {
     expect(isSiteNavLinkActive('/', '/')).toBe(true)
-    expect(isSiteNavLinkActive('/#features', '/')).toBe(false)
+    expect(isSiteNavLinkActive('/#main-content', '/')).toBe(false)
+    expect(isSiteNavLinkActive('/features', '/features')).toBe(true)
     expect(isSiteNavLinkActive('/reference', '/reference')).toBe(true)
     expect(isSiteNavLinkActive('/reference', '/')).toBe(false)
   })
@@ -46,6 +47,19 @@ describe('SiteNavLinks', () => {
     render(<SiteNavLinks />)
 
     expect(screen.getByRole('link', { name: 'Reference' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
+    expect(screen.getByRole('link', { name: 'Home' })).not.toHaveAttribute(
+      'aria-current',
+    )
+  })
+
+  it('should mark Features as the current page on /features', () => {
+    mockPathname.mockReturnValue('/features')
+    render(<SiteNavLinks />)
+
+    expect(screen.getByRole('link', { name: 'Features' })).toHaveAttribute(
       'aria-current',
       'page',
     )

@@ -323,3 +323,10 @@ export const featuresContent = {
     },
   ] satisfies FeatureCategory[],
 } as const
+
+export const getHomeHighlightCapabilities = (): FeatureCapability[] =>
+  featuresContent.categories.flatMap((category) =>
+    category.capabilities.filter(
+      (capability) => capability.homeHighlight === true,
+    ),
+  )

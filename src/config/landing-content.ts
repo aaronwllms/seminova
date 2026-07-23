@@ -1,21 +1,8 @@
 import {
-  Accessibility,
-  Blocks,
-  Bot,
-  LayoutDashboard,
-  Palette,
-  Users,
-  type LucideIcon,
-} from 'lucide-react'
-
-import { REFERENCE_PATH, WORKFLOW_PATH } from '@/constants/app-paths'
-
-export interface LandingFeature {
-  title: string
-  description: string
-  icon: LucideIcon
-  href?: string
-}
+  FEATURES_PATH,
+  REFERENCE_PATH,
+  WORKFLOW_PATH,
+} from '@/constants/app-paths'
 
 export interface LandingTechLogo {
   name: string
@@ -41,50 +28,10 @@ export const landingContent = {
       href: REFERENCE_PATH,
     },
   },
-  features: {
-    label: 'Features',
-    heading: 'Everything a SaaS foundation should ship with',
-    items: [
-      {
-        title: 'Design-system token layer',
-        description:
-          'Semantic design tokens, not hardcoded values — the industry-standard pattern for theme consistency at scale.',
-        icon: Palette,
-        href: REFERENCE_PATH,
-      },
-      {
-        title: 'Primitive-first components',
-        description:
-          'shadcn/ui components owned as source, not installed as a dependency — the primitive-first pattern, not a black-box library.',
-        icon: Blocks,
-        href: REFERENCE_PATH,
-      },
-      {
-        title: 'Accessibility by default',
-        description:
-          'WCAG 2.1 AA conventions — semantic HTML, focus states, contrast — are baked into the foundation, not bolted on after launch.',
-        icon: Accessibility,
-      },
-      {
-        title: 'Admin shell out of the box',
-        description:
-          'A real admin console — sidebar, users table, and in-app promote/demote — with role-gated access already wired.',
-        icon: LayoutDashboard,
-      },
-      {
-        title: 'Agent-ready conventions',
-        description:
-          'AGENTS.md, rules, and skills lock in coding standards for any agent working in the codebase.',
-        icon: Bot,
-      },
-      {
-        title: 'PM/agent collaboration model',
-        description:
-          'A packaged collaboration model — Claude Desktop for PM-level planning, paired skills that turn the plan into agent-ready work.',
-        icon: Users,
-        href: WORKFLOW_PATH,
-      },
-    ] satisfies LandingFeature[],
+  featureHighlights: {
+    label: 'Feature highlights',
+    heading: "The pieces you'd otherwise build first",
+    cta: { label: 'See all features', href: FEATURES_PATH },
   },
   proofCta: {
     heading: 'Explore the template',
