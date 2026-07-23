@@ -45,7 +45,7 @@ Add a standalone public `/features` page presenting the full capability set as c
 - `/features` loads for an unauthenticated visitor and the auth-boundary check passes.
 - `pnpm pre-push` is green.
 
-### Epic 2: Home reel refresh & nav repoint
+### Epic 2: Home reel refresh & nav repoint `Complete`
 
 *Depends on Epic 1 — the shared content source must exist before the home reel can draw its subset from it.*
 

@@ -164,7 +164,7 @@ After that, the repo is a real project, not a template copy — and the phase-by
 
 **Re-skinning:** colors, type, and radius are per-product by design. [DESIGN.md](DESIGN.md) documents the token architecture and re-skin workflow.
 
-- Landing page hero, features, proof CTA, and tech-stack copy — [`src/config/landing-content.ts`](src/config/landing-content.ts)
+- Landing page hero, highlight-reel section chrome, proof CTA, and tech-stack copy — [`src/config/landing-content.ts`](src/config/landing-content.ts)
 - Features inventory taxonomy — [`src/config/features-content.ts`](src/config/features-content.ts)
 - App name, logo, and nav/social links — [`src/config/site.ts`](src/config/site.ts)
 - Social preview images — generated dynamically via [`src/utils/og-image.tsx`](src/utils/og-image.tsx) and per-route `opengraph-image.tsx` files; update template colors (mirroring `globals.css` light tokens) and font at [`src/assets/fonts/Inter-SemiBold.ttf`](src/assets/fonts/Inter-SemiBold.ttf)
