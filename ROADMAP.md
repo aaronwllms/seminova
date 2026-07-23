@@ -53,6 +53,15 @@ Add a `/pricing` page, toggleable from admin settings. Static content vs plan-dr
 Nothing here is blocking current work unless noted.
 
 <details>
+<summary>Focus / focus-visible instant motion carve-out</summary>
+
+**Problem:** Tabbing through a form is the highest-traversal-rate interaction in the app, and a focus ring is an accessibility affordance rather than an aesthetic one — delay there is a real cost. Phase 16's motion tier rule applies uniformly, so focus transitions take a tier like any other state transition.
+**Solution:** Carve focus and focus-visible states out of the tier system as instant — exempt them in the `local/motion-tier` ESLint rule and document the carve-out in DESIGN.md's Motion section.
+_Defer until: after Phase 16 ships and the tier system has real usage_
+
+</details>
+
+<details>
 <summary>Theme regeneration as skill vs mode</summary>
 
 **Problem:** The "put a new spin on the design for this project" capability should not regenerate structure, only theme values.
