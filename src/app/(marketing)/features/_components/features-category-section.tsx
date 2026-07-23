@@ -22,7 +22,7 @@ export const FeaturesCategorySection = ({
           {category.name}
         </h2>
       </div>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {category.capabilities.map((capability) => (
           <FeatureCapabilityCard
             key={capability.name}

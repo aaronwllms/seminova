@@ -1,9 +1,9 @@
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
+import { MarketingDisplayCard } from '@/components/marketing-display-card'
 import { REFERENCE_PATH } from '@/constants/app-paths'
 import type { FeatureCapability } from '@/config/features-content'
-import { Card } from '@/components/ui/card'
 
 type FeatureCapabilityCardProps = {
   capability: FeatureCapability
@@ -15,7 +15,7 @@ export const FeatureCapabilityCard = ({
   const Icon = capability.icon
 
   return (
-    <Card className="flex flex-col gap-1.5 p-4 shadow-none">
+    <MarketingDisplayCard className="flex flex-col gap-1.5">
       <Icon className="text-primary size-5" aria-hidden />
       <h3 className="text-[15px] font-medium tracking-tight">
         {capability.name}
@@ -32,6 +32,6 @@ export const FeatureCapabilityCard = ({
           <ArrowRight className="size-4" aria-hidden />
         </Link>
       ) : null}
-    </Card>
+    </MarketingDisplayCard>
   )
 }
