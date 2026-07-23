@@ -11,7 +11,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { APP_HOME } from '@/constants/app-paths'
@@ -75,7 +74,6 @@ export const AppNavUser = ({
           </DropdownMenuItem>
         ) : null}
         <ThemeDropdownMenuItems />
-        <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut}>
           <LogOut />
           Sign out
