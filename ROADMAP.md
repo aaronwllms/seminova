@@ -2,7 +2,7 @@
 
 The planning horizon: anticipated phases as thin stubs, plus living status. Shipped phase detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md); build-time workflow and authoritative schema in [AGENTS.md](AGENTS.md). Phase status vocabulary and PRD lifecycle in [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
-**Last updated:** 2026-07-22
+**Last updated:** 2026-07-23
 
 ---
 
@@ -24,7 +24,7 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 | 12 | Observability & App Settings | `Shipped` | [Phase 12 PRD](docs/prds/archive/phase-12-observability-app-settings.prd.md) |
 | 13 | Realtime Logs & Session Refresh | `Shipped` | [Phase 13 PRD](docs/prds/archive/phase-13-realtime-logs-session-refresh.prd.md) |
 | 14 | Tech Debt Hardening | `Shipped` | [Phase 14 PRD](docs/prds/archive/phase-14-tech-debt-hardening.prd.md) |
-| 15 | Features Page & Landing Refresh | `Active` | [Phase 15 PRD](docs/prds/phase-15-features-page-landing-refresh.prd.md) |
+| 15 | Features Page & Landing Refresh | `Shipped` | [Phase 15 PRD](docs/prds/archive/phase-15-features-page-landing-refresh.prd.md) |
 | 16 | Magic Link Auth | `Draft` | — |
 | 17 | Blog Page | `Draft` | — |
 | 18 | Pricing Page | `Draft` | — |

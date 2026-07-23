@@ -1,6 +1,6 @@
 # PRD — Phase 15: Features Page & Landing Refresh
 
-**Status:** `Active`
+**Status:** `Shipped`
 **Last updated:** 2026-07-23
 
 ---
