@@ -25,9 +25,10 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 | 13 | Realtime Logs & Session Refresh | `Shipped` | [Phase 13 PRD](docs/prds/archive/phase-13-realtime-logs-session-refresh.prd.md) |
 | 14 | Tech Debt Hardening | `Shipped` | [Phase 14 PRD](docs/prds/archive/phase-14-tech-debt-hardening.prd.md) |
 | 15 | Features Page & Landing Refresh | `Shipped` | [Phase 15 PRD](docs/prds/archive/phase-15-features-page-landing-refresh.prd.md) |
-| 16 | Magic Link Auth | `Draft` | — |
-| 17 | Blog Page | `Draft` | — |
-| 18 | Pricing Page | `Draft` | — |
+| 16 | Motion System & Table Fetch Feedback | `Active` | [Phase 16 PRD](docs/prds/phase-16-motion-system-table-fetch-feedback.prd.md) |
+| 17 | Magic Link Auth | `Draft` | — |
+| 18 | Blog Page | `Draft` | — |
+| 19 | Pricing Page | `Draft` | — |
 
 > [!NOTE]
 > Phases 1–7 pre-date the per-phase PRD system, so their PRD column is empty; their shipped detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md). From Phase 8 on, shipped rows link the archived PRD per [docs/DOC_RULES.md](docs/DOC_RULES.md).
@@ -38,13 +39,13 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 
 Thin stubs for anticipated phases — intent and shape only; decomposition into epics happens at phase-planning time. This section is kept even when empty, so the next phase always has a home.
 
-### 16 — Magic Link Auth
-Add magic-link (passwordless email) sign-in, toggleable from admin settings. Open question: alongside password auth (user chooses) or eventual replacement — undecided, resolve at phase-planning.
+### 17 — Magic Link Auth
+Add magic-link (passwordless email) sign-in, toggleable from admin settings. Open question: alongside password auth (user chooses) or eventual replacement — undecided, resolve at phase-planning. Research: [RESEARCH-0005](docs/research/RESEARCH-0005-magic-link-auth-ux-patterns.md) (leans alongside, not replacement).
 
-### 17 — Blog Page
+### 18 — Blog Page
 Add a `/blog` page, toggleable from admin settings (nav + route both respect the toggle). Content model TBD at phase-planning (MDX files vs DB-backed posts vs CMS).
 
-### 18 — Pricing Page
+### 19 — Pricing Page
 Add a `/pricing` page, toggleable from admin settings. Static content vs plan-driven (tied to actual billing) TBD at phase-planning.
 
 ## Open questions / deferred decisions
