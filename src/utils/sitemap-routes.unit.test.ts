@@ -19,6 +19,7 @@ describe('buildSitemapEntries', () => {
 
     expect(entries).toEqual([
       { url: 'https://example.com/' },
+      { url: 'https://example.com/features' },
       { url: 'https://example.com/privacy' },
       { url: 'https://example.com/reference' },
       { url: 'https://example.com/terms' },

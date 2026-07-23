@@ -19,8 +19,8 @@ const activeLinkStyles = 'text-foreground font-medium'
 
 /**
  * v1 active matching: pathname only; in-page anchors (hash hrefs) never match.
- * On `/`, only Home is active — Features (`/#features`) stays inactive until
- * hash-aware active state ships. External links never active.
+ * Features is a route link (`/features`), not a hash anchor. External links
+ * never active.
  */
 export const isSiteNavLinkActive = (
   href: string,

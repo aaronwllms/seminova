@@ -18,6 +18,7 @@ docs/
   research/            # exploratory research briefs (revisable; archive/ frozen)
   prds/                # one PRD per phase (forward intent)
   claude-skills/       # Claude-side .skill upload bundles (see WORKFLOW_SETUP.md)
+  mockups/             # HTML mockup explorations (archive/ for superseded or shipped)
   skill-feedback/      # per-skill feedback logs (collect-skill-feedback only)
   archive/             # frozen pre-restructure history — closed
 ```

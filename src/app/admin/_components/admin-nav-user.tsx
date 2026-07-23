@@ -62,13 +62,13 @@ export const AdminNavUser = ({
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+            className="min-w-52 rounded-lg"
             side={isMobile ? 'bottom' : 'right'}
             align="end"
             sideOffset={4}
           >
-            <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+            <DropdownMenuLabel className="font-normal">
+              <div className="flex items-center gap-2 text-left text-sm">
                 <UserAvatar
                   displayName={displayName}
                   email={email}
@@ -76,9 +76,7 @@ export const AdminNavUser = ({
                   className="h-8 w-8 rounded-lg"
                   fallbackClassName="rounded-lg"
                 />
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate text-xs">{accountLabel}</span>
-                </div>
+                <span className="text-xs">{accountLabel}</span>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />

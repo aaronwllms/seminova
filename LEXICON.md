@@ -54,7 +54,7 @@ The split that makes Seminova re-skinnable. _Structure_ — token names, compone
 
 ### Auth boundary
 
-The line between public and authenticated routes. A small allowlist of paths is public — the landing page, the auth screens, the pattern reference page, the workflow explainer page, the legal pages, and the client log relay at `/api/client-logs` — and everything else requires an authenticated session. The allowlist values are constants in [`src/constants/app-paths.ts`](src/constants/app-paths.ts); the boundary is enforced in [`src/proxy.ts`](src/proxy.ts) (→ [`src/supabase/proxy.ts`](src/supabase/proxy.ts)), which refreshes the session and redirects unauthenticated users to the login path. Adding a public route is a hard-constraint change, not a routing detail. Hard constraint (enforced: `check:auth-boundary`). See [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints).
+The line between public and authenticated routes. A small allowlist of paths is public — the landing page, the auth screens, the pattern reference page, the features inventory page, the workflow explainer page, the legal pages, and the client log relay at `/api/client-logs` — and everything else requires an authenticated session. The allowlist values are constants in [`src/constants/app-paths.ts`](src/constants/app-paths.ts); the boundary is enforced in [`src/proxy.ts`](src/proxy.ts) (→ [`src/supabase/proxy.ts`](src/supabase/proxy.ts)), which refreshes the session and redirects unauthenticated users to the login path. Adding a public route is a hard-constraint change, not a routing detail. Hard constraint (enforced: `check:auth-boundary`). See [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints).
 
 The proxy reads session state via `getClaims()`, not `getUser()`. `getClaims()` reads the JWT locally with no network round-trip; `getUser()` hits the Supabase Auth server. The proxy comment warns explicitly against swapping them — doing so can cause users to be randomly logged out.
 
@@ -116,7 +116,7 @@ The standard return shape for server actions: `{ success: true, data }` or `{ su
 
 ### Site config
 
-The re-skin entry point for product identity. [`src/config/site.ts`](src/config/site.ts) holds the product name, metadata, and nav links. [`src/config/landing-content.ts`](src/config/landing-content.ts) holds marketing copy. When spinning off a new product, these two files are the first things that change. Keep product-specific values here — not hardcoded in components.
+The re-skin entry point for product identity. [`src/config/site.ts`](src/config/site.ts) holds the product name, metadata, and nav links. [`src/config/landing-content.ts`](src/config/landing-content.ts) holds marketing copy. [`src/config/features-content.ts`](src/config/features-content.ts) holds the capability inventory taxonomy. When spinning off a new product, these files are the first things that change. Keep product-specific values here — not hardcoded in components.
 
 ### Save model
 

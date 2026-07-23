@@ -56,5 +56,7 @@ describe('ThemeDropdownMenuItems', () => {
     await user.click(screen.getByRole('menuitem', { name: /dark/i }))
 
     expect(mockSetTheme).toHaveBeenCalledWith('dark')
+    expect(screen.getByRole('menu')).toBeInTheDocument()
+    expect(screen.getByRole('menuitem', { name: /light/i })).toBeInTheDocument()
   })
 })

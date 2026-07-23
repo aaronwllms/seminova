@@ -34,16 +34,20 @@ export const ThemeDropdownMenuItems = () => {
       {THEME_OPTIONS.map(({ value, label, Icon }) => (
         <DropdownMenuItem
           key={value}
-          className="pl-8"
-          onSelect={() => setTheme(value)}
+          aria-checked={theme === value}
+          onSelect={(event) => {
+            event.preventDefault()
+            setTheme(value)
+          }}
         >
-          <span className="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
-            {theme === value ? <Check className="size-4" /> : null}
-          </span>
           <Icon />
           {label}
+          {theme === value ? (
+            <Check className="text-muted-foreground ml-auto size-4" />
+          ) : null}
         </DropdownMenuItem>
       ))}
+      <DropdownMenuSeparator />
     </>
   )
 }

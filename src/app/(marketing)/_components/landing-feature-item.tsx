@@ -1,14 +1,11 @@
-import { ArrowRight } from 'lucide-react'
-import Link from 'next/link'
-
-import type { LandingFeature } from '@/config/landing-content'
+import type { FeatureCapability } from '@/config/features-content'
 
 type LandingFeatureItemProps = {
-  feature: LandingFeature
+  capability: FeatureCapability
 }
 
-export const LandingFeatureItem = ({ feature }: LandingFeatureItemProps) => {
-  const Icon = feature.icon
+export const LandingFeatureItem = ({ capability }: LandingFeatureItemProps) => {
+  const Icon = capability.icon
 
   return (
     <div className="flex gap-6 md:block md:space-y-4">
@@ -17,20 +14,11 @@ export const LandingFeatureItem = ({ feature }: LandingFeatureItemProps) => {
       </span>
       <div>
         <h3 className="font-medium tracking-tight md:mb-2 md:text-xl">
-          {feature.title}
+          {capability.name}
         </h3>
         <p className="text-muted-foreground text-sm md:text-base">
-          {feature.description}
+          {capability.blurb}
         </p>
-        {feature.href ? (
-          <Link
-            href={feature.href}
-            className="text-foreground hover:text-primary focus-visible:ring-ring mt-2 inline-flex min-h-11 items-center gap-1 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none md:min-h-0"
-          >
-            Learn more
-            <ArrowRight className="size-4" aria-hidden />
-          </Link>
-        ) : null}
       </div>
     </div>
   )

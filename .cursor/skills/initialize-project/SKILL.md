@@ -24,7 +24,7 @@ Before scrubbing, check all nine of this skill's outputs for whether they're alr
 - **`src/config/landing-content.ts`** — hero/feature copy is stubbed placeholders, not Seminova's content
 - **`.cursor/plans/archive/`** — empty
 - **`docs/WORKFLOW_BACKLOG.md`** — "Deferred items" section matches the stub placeholder (no real entries)
-- **`.mockups/`** — empty
+- **`docs/mockups/`** — empty
 - **`docs/archive/`** — empty
 - **`docs/research/`** — active dir contains only `README.md` (no `RESEARCH-*.md`); `docs/research/archive/` has no `RESEARCH-*.md` (`.gitkeep` alone is OK)
 - **`CONTRIBUTING.md`** — absent (the file ships with every template clone; its absence means the scrub deleted it)
@@ -62,7 +62,7 @@ These are the only sources of truth for identity. Do not ask the user for any of
    - Clear the "Deferred items" section and replace it with a placeholder line (e.g. `_None yet — entries get added here as workflow decisions are deliberately parked._`). This is Seminova's own deferred workflow decisions; they have no relevance to the new project.
    - Preserve the header ("What this is" / "Why it exists" / "How to use it") and overall structure unchanged — the backlog mechanism itself is part of what every spinoff inherits, just empty until the new project parks its first decision.
 
-6. **`.mockups/`**
+6. **`docs/mockups/`**
    - Purge all contents. These are Seminova's own design mockups; they have no relevance to the new project.
 
 7. **`docs/archive/`**
