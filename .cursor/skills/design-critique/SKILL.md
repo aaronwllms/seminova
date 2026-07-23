@@ -16,7 +16,7 @@ For **shipped code** before PR, use [pre-release-review](../pre-release-review/S
 **Locate the artifact:**
 
 - Screenshot or image attachment — read with the Read tool
-- HTML mockup — **new** mockups in `.mockups/*.html`; **archived** in `.mockups/archive/*.html` (if present)
+- HTML mockup — **new** mockups in `docs/mockups/*.html`; **archived** in `docs/mockups/archive/*.html` (if present)
 - Live route — describe or `@`-reference the page; read relevant components under `src/app/` if comparing to shipped UI
 - Verbal description — ask clarifying questions if context is thin
 

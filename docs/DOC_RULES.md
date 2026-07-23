@@ -29,8 +29,8 @@ This table is authoritative. [AGENTS.md](../AGENTS.md) carries a one-line pointe
 | **[.cursor/agents/](../.cursor/agents/)** | Agents | Readonly subagent definitions, invoked only by the skills that dispatch them — never directly or automatically |
 | **[.cursor/plans/](../.cursor/plans/)** | In-repo planning | Ephemeral epic plans; evidence of intent, not shipped truth |
 | **Root audit artifacts** (`TECH_DEBT_AUDIT.md`, `TEST_AUDIT.md`, `RULE_AUDIT.md`, `SECURITY_AUDIT.md`) | PM + agents | Regenerated repo-health snapshots from audit skills (`/audit-tech-debt`, `/audit-tests`, `/audit-rules`, `/audit-security`); not shipped product truth |
-| **`.mockups/`** | PM / design | HTML mockup explorations |
-| **`.mockups/archive/`** | PM / design | Superseded or shipped-phase mockups |
+| **[mockups/](mockups/)** | PM / design | HTML mockup explorations |
+| **[mockups/archive/](mockups/archive/)** | PM / design | Superseded or shipped-phase mockups |
 
 Agent guidance lives in `.cursor/` (rules and skills), never duplicated into product code.
 
@@ -89,7 +89,7 @@ These rules apply to anyone updating the planning docs — PM or coding agent.
    ### Epic N: Name `Complete`
    ```
 
-10. **HTML mockups:** save new explorations as `.mockups/*.html`. When a mockup is superseded or tied to a shipped phase, move it to `.mockups/archive/`.
+10. **HTML mockups:** save new explorations as `docs/mockups/*.html`. When a mockup is superseded or tied to a shipped phase, move it to `docs/mockups/archive/`.
 
 11. **Research briefs:** active briefs live in [research/](research/). When a brief has served its purpose, the PM archives it via **[archive-research](../.cursor/skills/archive-research/SKILL.md)** — @-attach the brief(s) in the same invocation. Move to [research/archive/](research/archive/); briefs there are frozen. Procedure in [research/README.md](research/README.md).
 

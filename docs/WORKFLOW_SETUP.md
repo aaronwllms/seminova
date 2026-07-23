@@ -80,7 +80,7 @@ This workflow depends on a set of Claude-side skills. They are global to your Cl
 | `phase-planning` | Required | Aligns on terminology/decisions, then decomposes a phase into epics/stories and writes the PRD | Steady-state loop |
 | `plan-review` | Required | Reviews Cursor's implementation plan before build | Steady-state loop |
 | `lexicon-update` | Required | Writes or sharpens a LEXICON.md entry when a new term surfaces (often during `phase-planning`) | Steady-state loop, ad hoc trigger |
-| `create-mockup` | Required | Static UI mockups as reviewable inline widgets, saved to `.mockups/` for PRD stories to reference (invoked by `phase-planning` or ad hoc) | Steady-state loop, ad hoc trigger |
+| `create-mockup` | Required | Static UI mockups as reviewable inline widgets, saved to `docs/mockups/` for PRD stories to reference (invoked by `phase-planning` or ad hoc) | Steady-state loop, ad hoc trigger |
 | `skill-authoring` | Optional | Create, edit, or audit a skill. Applies the quality standard (invocation choices, information hierarchy, pruning, failure modes) while running an interview, draft, eval, iterate loop | Template extension work |
 
 ### Where skill files live

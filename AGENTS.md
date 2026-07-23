@@ -227,6 +227,7 @@ Directory-level map. File-level detail lives in the [Implemented now](#implement
 | `docs/prds/` | Per-phase PRDs (`docs/prds/archive/` when shipped) |
 | `docs/adr/` | Architecture Decision Records |
 | `docs/research/` | Exploratory research briefs (`docs/research/README.md`; `docs/research/archive/` when retired) |
+| `docs/mockups/` | HTML mockup explorations (`docs/mockups/archive/` when superseded or shipped) |
 | `DESIGN.md` | Token architecture and re-skin workflow (names only — values in globals.css) |
 | `.cursor/rules/` | Agent coding standards |
 | `.cursor/skills/` | Agent workflows |
