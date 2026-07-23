@@ -33,7 +33,7 @@ The organizing principle: **duration follows traversal rate** — how many of a 
 
 ## Epics & stories
 
-### Epic 1: Motion tier system
+### Epic 1: Motion tier system `Complete`
 
 - **1.1 Motion durations become themeable tokens.** Two duration tokens are defined in `globals.css` alongside the existing token layer, generating a `swept` (150ms) and a `dwell` (300ms) duration utility. DESIGN.md gains a Motion section stating the traversal-rate principle, what each tier covers, the scope boundary (state transitions on persistent elements only — not enter/exit or layout animation), and the rationale for excluding `src/components/ui/`. LEXICON.md gains a "Motion tier" architectural entry pointing to DESIGN.md as its canonical home, carrying no values of its own.
 
