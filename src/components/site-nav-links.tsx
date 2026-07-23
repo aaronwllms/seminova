@@ -12,6 +12,7 @@ type SiteNavLinksProps = {
   onNavigate?: () => void
 }
 
+// debt: motion-tier lint does not resolve identifiers passed to cn() back to their declaration; a future removal of duration-swept from this constant won't be caught. Upgrade path: extend local/motion-tier to scan top-level string constants.
 const linkBaseStyles =
   'rounded-md transition-colors duration-swept focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none'
 const inactiveLinkStyles = 'text-muted-foreground hover:text-foreground'

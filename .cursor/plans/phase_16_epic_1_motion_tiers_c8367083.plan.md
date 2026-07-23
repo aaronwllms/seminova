@@ -4,25 +4,25 @@ overview: Introduce swept/dwell duration tokens, document the traversal-rate pri
 todos:
   - id: tokens-globals
     content: Declare --duration-swept / --duration-dwell as literals once in @theme inline
-    status: pending
+    status: completed
   - id: docs-design-lexicon
     content: Add DESIGN.md Motion section + LEXICON Motion tier entry with cross-links
-    status: pending
+    status: completed
   - id: migrate-call-sites
     content: Add duration-swept/dwell to in-scope call sites + table/tabs hand-edits; eslint-disable admin-shell; strip numeric duration-* when adding tiers
-    status: pending
+    status: completed
   - id: eslint-motion-tier
     content: Add motion-tier.mjs, own eslint.config.mjs block, lintText unit tests (no fixture files)
-    status: pending
+    status: completed
   - id: authoring-rule
     content: Add Motion tiers section to ui-styling.mdc; update rules README blurb
-    status: pending
+    status: completed
   - id: quality-gate
     content: Run pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci (and pre-push)
-    status: pending
+    status: completed
   - id: commit-epic
     content: "Capture baseline SHA, then conventional commit with Epic: 16.1 trailer"
-    status: pending
+    status: completed
 isProject: false
 ---
 

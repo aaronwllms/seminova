@@ -48,6 +48,7 @@ export const SiteFooter = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={social.label}
+                // debt: swept-tier footer link class bundle duplicated for legal links below; a tier/focus-ring change here can be missed there (same pattern as site-nav-links.tsx linkBaseStyles).
                 className="text-muted-foreground hover:text-foreground focus-visible:ring-ring duration-swept rounded-md transition-colors focus-visible:ring-2 focus-visible:outline-none"
               >
                 <Icon className="size-5" aria-hidden />

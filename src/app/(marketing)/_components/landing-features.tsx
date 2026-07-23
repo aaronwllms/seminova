@@ -34,6 +34,7 @@ export const LandingFeatures = () => {
           ))}
         </div>
         <div className="mt-10 flex justify-center md:mt-12">
+          {/* debt: swept-tier CTA link class bundle duplicated in feature-capability-card.tsx; a tier/focus-ring change here can be missed there. */}
           <Link
             href={featureHighlights.cta.href}
             className="text-foreground hover:text-primary focus-visible:ring-ring duration-swept inline-flex min-h-11 items-center gap-1 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none md:min-h-0"
