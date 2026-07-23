@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import {
   APP_HOME,
   CLIENT_LOGS_RELAY_PATH,
+  FEATURES_PATH,
   PRIVACY_PATH,
   REFERENCE_PATH,
   TERMS_PATH,
@@ -61,6 +62,7 @@ export async function updateSession(request: NextRequest) {
     pathname === TERMS_PATH ||
     pathname === PRIVACY_PATH ||
     pathname === REFERENCE_PATH ||
+    pathname === FEATURES_PATH ||
     pathname === WORKFLOW_PATH ||
     pathname === CLIENT_LOGS_RELAY_PATH
 

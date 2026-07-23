@@ -13,6 +13,7 @@ const PUBLIC_EXACT = [
   '/terms',
   '/privacy',
   '/reference',
+  '/features',
   '/workflow',
   CLIENT_LOGS_RELAY_PATH,
 ] as const
