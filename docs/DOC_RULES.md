@@ -1,8 +1,8 @@
 # DOC_RULES — File Management Rules
 
-**Purpose:** Invariant doc-maintenance procedure governing the planning docs ([ROADMAP.md](../ROADMAP.md), the PRDs in [prds/](prds/), and the frozen [archive/](archive/)). This is not project state — it applies to every product built from this template. Governs the planning skills (`phase-planning`, `plan-next-epic`, `mark-epic-complete`, `ship-phase`), the research skills (`research`, `archive-research`), and the repo-sync skill (`sync-repo-docs`).
+**Purpose:** Invariant doc-maintenance procedure governing the planning docs ([ROADMAP.md](../ROADMAP.md), the PRDs in [prds/](prds/), and the frozen [archive/](archive/)). This is not project state — it applies to every product built from this template. Governs the planning skills (`phase-planning`, `kickoff-phase`, `plan-next-epic`, `mark-epic-complete`, `ship-phase`), the research skills (`research`, `archive-research`), and the repo-sync skill (`sync-repo-docs`).
 
-**Last updated:** 2026-07-08
+**Last updated:** 2026-07-23
 
 ---
 
@@ -60,7 +60,7 @@ These rules apply to anyone updating the planning docs — PM or coding agent.
 
 1. **The active phase's PRD is the source of truth for what is planned but not yet shipped.** The docs must never contradict the repo.
 
-2. **PRD creation and promotion are split by lifecycle stage.** `phase-planning` (Claude-side planning skill) creates the PRD at `Planning` and flips it to `Ready` on PM sign-off, decomposing it into numbered epics and vertical-slice stories at that point. `plan-next-epic` (Cursor-side) flips it to `Active` when it generates the plan for the phase's first epic — the flip precedes the plan so every plan review sees an `Active` phase. Each skill updates the ROADMAP row to match at its transition. On the same first-epic pass, `plan-next-epic` removes the phase's stub from ROADMAP's **Upcoming phases** section — an `Active` phase's PRD owns its scope, so the stub would drift.
+2. **PRD creation and promotion are split by lifecycle stage.** `phase-planning` (Claude-side planning skill) creates the PRD at `Planning` and flips it to `Ready` on PM sign-off, decomposing it into numbered epics and vertical-slice stories at that point. `kickoff-phase` (Cursor-side) flips it to `Active`, creating the phase branch in the same pass — the flip precedes any epic planning, so every plan and plan review sees an `Active` phase. Each skill updates the ROADMAP row to match at its transition. On the same kickoff pass, `kickoff-phase` removes the phase's stub from ROADMAP's **Upcoming phases** section — an `Active` phase's PRD owns its scope, so the stub would drift.
 
 > [!IMPORTANT]
 > **`mark-epic-complete` must never promote** — if an epic is marked `Complete` while its PRD or ROADMAP row reads `Draft`, `Planning`, or `Ready`, halt and report the inconsistency; do not auto-correct.

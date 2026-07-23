@@ -21,7 +21,8 @@ is in flight, the file lives in `docs/prds/`.
    `Draft` to `Planning`. Epics and stories are not yet written in.
 2. **Ready** — PM sign-off flips `Planning` to `Ready`; `phase-planning` writes
    the numbered epics and vertical-slice stories in at this flip.
-3. **Active** — `phase-planning` flips to `Active` when the build starts. Only
+3. **Active** — `kickoff-phase` flips `Ready` to `Active` and creates the phase
+   branch in the same pass, before any epic is planned. Only
    one phase should be `Active` at a time in practice.
 4. **Shipped** — `ship-phase` flips the PRD and ROADMAP row to `Shipped` in the
    same pass, **moves the file to [archive/](archive/)**, and updates the
