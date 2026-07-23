@@ -26,8 +26,7 @@ export default function FeaturesPage() {
           <p className="text-muted-foreground mx-auto mt-2 max-w-lg text-[15px] leading-relaxed">
             A full inventory of what ships with the template — auth, an admin
             console, a design system, observability, and the agent workflow that
-            builds it. Browse the reel on the home page; this is the whole
-            shelf.
+            builds it. This is the whole shelf.
           </p>
         </div>
 

@@ -316,7 +316,7 @@ export const featuresContent = {
         {
           name: 'Site identity config',
           blurb:
-            'Product name, nav links, metadata, and landing copy in two config files to re-skin.',
+            'Product name, nav links, metadata, and landing copy in three config files to re-skin.',
           icon: Settings,
         },
       ],
