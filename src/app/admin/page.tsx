@@ -30,7 +30,7 @@ export default function AdminDashboardPage() {
       </div>
       <div className="grid max-w-3xl gap-4 sm:grid-cols-2">
         <Link href={ADMIN_USERS} className="block">
-          <Card className="hover:bg-muted/50 h-full transition-colors">
+          <Card className="hover:bg-muted/50 duration-swept h-full transition-colors">
             <CardHeader className="flex flex-row items-center gap-3 space-y-0">
               <span className="bg-primary text-primary-foreground flex size-10 shrink-0 items-center justify-center rounded-lg">
                 <Users className="size-5" aria-hidden />
@@ -45,7 +45,7 @@ export default function AdminDashboardPage() {
           </Card>
         </Link>
         <Link href={ADMIN_LOGS} className="block">
-          <Card className="hover:bg-muted/50 h-full transition-colors">
+          <Card className="hover:bg-muted/50 duration-swept h-full transition-colors">
             <CardHeader className="flex flex-row items-center gap-3 space-y-0">
               <span className="bg-primary text-primary-foreground flex size-10 shrink-0 items-center justify-center rounded-lg">
                 <ScrollText className="size-5" aria-hidden />
@@ -60,7 +60,7 @@ export default function AdminDashboardPage() {
           </Card>
         </Link>
         <Link href={ADMIN_SETTINGS} className="block">
-          <Card className="hover:bg-muted/50 h-full transition-colors">
+          <Card className="hover:bg-muted/50 duration-swept h-full transition-colors">
             <CardHeader className="flex flex-row items-center gap-3 space-y-0">
               <span className="bg-primary text-primary-foreground flex size-10 shrink-0 items-center justify-center rounded-lg">
                 <Settings className="size-5" aria-hidden />

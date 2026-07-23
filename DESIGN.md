@@ -29,7 +29,7 @@ Seminova separates **inherited structure** from **re-skinnable theme**. Products
 
 - Token **names** and groupings (`primary`, `muted-foreground`, `sidebar-border`, etc.)
 - `@theme inline` mappings in `globals.css` (Tailwind bridge)
-- Semantic utility convention (`bg-background`, `text-destructive`, `shadow-md`, `font-sans`)
+- Semantic utility convention (`bg-background`, `text-destructive`, `shadow-md`, `font-sans`, `duration-swept`, `duration-dwell`)
 - Dark-mode class strategy (`next-themes` + `.dark` selector)
 - Font wiring pattern: `next/font` CSS variables on `<html>`, `--font-*` chain in globals
 - Seminova-only radius extensions (`radius-2xl` through `radius-4xl`)
@@ -60,8 +60,8 @@ flowchart TB
   Root --> Theme --> Utils
 ```
 
-1. **Definition layer** — `:root` and `.dark` in [`src/app/globals.css`](src/app/globals.css) hold all token values (colors, fonts, shadows, radius base, spacing).
-2. **Tailwind bridge** — `@theme inline` maps `--color-*`, `--font-*`, `--shadow-*`, `--radius-*`, and `--spacing` to those CSS variables so Tailwind v4 utilities resolve correctly.
+1. **Definition layer** — `:root` and `.dark` in [`src/app/globals.css`](src/app/globals.css) hold all token values (colors, fonts, shadows, radius base, spacing). Duration tokens are declared once as literals in `@theme inline` (no light/dark variance).
+2. **Tailwind bridge** — `@theme inline` maps `--color-*`, `--font-*`, `--shadow-*`, `--radius-*`, `--spacing`, and `--duration-*` to those CSS variables so Tailwind v4 utilities resolve correctly.
 3. **Consumption layer** — Components use semantic classes (`bg-card`, `text-muted-foreground`, `ring-ring`) or `var(--token)` for third-party props. shadcn primitives in `src/components/ui/` are already token-aware.
 
 ---
@@ -134,6 +134,21 @@ Body uses `font-sans antialiased`. Mono stacks apply to code blocks and `font-mo
 | Token       | Role                                   |
 | ----------- | -------------------------------------- |
 | `--spacing` | Base spacing unit for the design scale |
+
+### Motion
+
+Duration follows **traversal rate** — how many elements the user sweeps across in a single gesture. See [Motion tier](LEXICON.md#motion-tier) in the lexicon.
+
+| Utility          | Tier  | Coverage                                                                 |
+| ---------------- | ----- | ------------------------------------------------------------------------ |
+| `duration-swept` | Swept | Bulk-swept surfaces — nav links, table rows, stat tiles, marketing links |
+| `duration-dwell` | Dwell | One-at-a-time surfaces — `MarketingDisplayCard` today                    |
+
+**Scope boundary:** motion tiers apply to **state transitions on persistent elements** (color, opacity, shadow) — not enter/exit animation, not layout animation (width, height, position). Layout transitions take an inline ESLint exemption rather than a tier; see `.cursor/rules/ui-styling.mdc`.
+
+**Enforcement:** `local/motion-tier` ESLint on `src/**` excluding `src/components/ui/` — vendored primitives are not continuously linted; `table.tsx` and `tabs.tsx` were hand-edited once for row and tab-indicator parity.
+
+Utility names only here; values live in `globals.css`.
 
 ---
 

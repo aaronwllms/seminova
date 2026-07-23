@@ -6,7 +6,7 @@
 
 **Discipline:** Entries are short — a sentence or two of meaning, plus a pointer to the canonical home (a rule, `DESIGN.md`, [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints), an ADR) where the authoritative detail and any values live. Do not duplicate token values, rule wording, or schema here; point to the source of truth instead.
 
-**Last updated:** 2026-07-19
+**Last updated:** 2026-07-23
 
 ---
 
@@ -34,6 +34,7 @@
   - [Avatar cache bust](#avatar-cache-bust)
   - [Canonical data table](#canonical-data-table)
   - [Tiered freshness](#tiered-freshness)
+  - [Motion tier](#motion-tier)
 - [Domain terms](#domain-terms)
 
 ---
@@ -153,6 +154,10 @@ Public avatar URLs are versioned with a `?v=` query param so browsers fetch the 
 ### Canonical data table
 
 The reference pattern for admin tables: `DataTableShell` with single-column search, server-side Next/Previous pagination with a selectable page size (10 / 15 / 25 / 50; default 15) via shared `DataTablePaginationControls`, and skeleton loading via column meta. Per-column width and alignment use `columnDef.meta.cellClassName` on header and body cells; loading skeletons use `columnDef.meta.skeletonClassName`. See [`src/components/data-table-shell.tsx`](src/components/data-table-shell.tsx) and the users table as the production reference; the [`/reference`](src/app/(marketing)/reference/_components/reference-table-section.tsx) fixture demo is the sanctioned client-side pagination exception. New admin list views should follow this pattern before reaching for a custom table.
+
+### Motion tier
+
+Transition duration keyed to **traversal rate** — Swept for cursor-swept surfaces, Dwell for one-at-a-time surfaces. Canonical detail (coverage, scope boundary, enforcement) in [DESIGN.md § Motion](DESIGN.md#motion); no values here.
 
 ### Tiered freshness
 

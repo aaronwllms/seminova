@@ -13,7 +13,7 @@ type SiteNavLinksProps = {
 }
 
 const linkBaseStyles =
-  'rounded-md transition-colors focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none'
+  'rounded-md transition-colors duration-swept focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none'
 const inactiveLinkStyles = 'text-muted-foreground hover:text-foreground'
 const activeLinkStyles = 'text-foreground font-medium'
 

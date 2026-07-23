@@ -36,7 +36,7 @@ export const LandingFeatures = () => {
         <div className="mt-10 flex justify-center md:mt-12">
           <Link
             href={featureHighlights.cta.href}
-            className="text-foreground hover:text-primary focus-visible:ring-ring inline-flex min-h-11 items-center gap-1 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none md:min-h-0"
+            className="text-foreground hover:text-primary focus-visible:ring-ring duration-swept inline-flex min-h-11 items-center gap-1 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none md:min-h-0"
           >
             {featureHighlights.cta.label}
             <ArrowRight className="size-4" aria-hidden />

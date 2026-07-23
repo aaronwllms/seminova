@@ -68,6 +68,28 @@ const getNoRawConsoleBlock = (): Linter.Config => {
   return block
 }
 
+const isMotionTierRuleBlock = (block: Linter.Config): boolean =>
+  block.rules?.['local/motion-tier'] === 'error'
+
+const getMotionTierBlock = (): Linter.Config => {
+  const configs = eslintConfig as Linter.Config[]
+  const pluginBlock = configs.find(
+    (block) => block.plugins?.local?.rules?.['motion-tier'],
+  )
+  const ruleBlock = configs.find(isMotionTierRuleBlock)
+
+  if (!pluginBlock?.plugins || !ruleBlock?.rules?.['local/motion-tier']) {
+    throw new Error('Expected local/motion-tier block in eslint.config.mjs')
+  }
+
+  return {
+    files: ruleBlock.files,
+    ignores: ruleBlock.ignores,
+    plugins: pluginBlock.plugins,
+    rules: ruleBlock.rules,
+  }
+}
+
 describe('eslint server-only import boundary', () => {
   it('should report no-restricted-imports on the boundary fixture', async () => {
     const eslint = new ESLint({
@@ -130,5 +152,81 @@ describe('eslint no-raw-console guardrail', () => {
     )
 
     expect(noConsoleMessages).toEqual([])
+  })
+})
+
+describe('eslint local/motion-tier rule', () => {
+  const motionTierBlock = getMotionTierBlock()
+
+  const createMotionTierEslint = (filePath: string) =>
+    new ESLint({
+      cwd: process.cwd(),
+      overrideConfigFile: true,
+      overrideConfig: [
+        {
+          files: [filePath],
+          ignores: motionTierBlock.ignores,
+          languageOptions: {
+            parserOptions: {
+              ecmaFeatures: { jsx: true },
+            },
+          },
+          plugins: motionTierBlock.plugins,
+          rules: motionTierBlock.rules,
+        },
+      ],
+    })
+
+  it('should report local/motion-tier on bare transition-colors outside ui/', async () => {
+    const eslint = createMotionTierEslint('src/components/motion-tier-fail.tsx')
+
+    const results = await eslint.lintText(
+      "export const X = () => <div className='transition-colors' />",
+      { filePath: 'src/components/motion-tier-fail.tsx' },
+    )
+
+    const motionTierMessages = results.flatMap((result) =>
+      result.messages.filter(
+        (message) => message.ruleId === 'local/motion-tier',
+      ),
+    )
+
+    expect(motionTierMessages.length).toBeGreaterThan(0)
+  })
+
+  it('should not report local/motion-tier inside src/components/ui/', async () => {
+    const eslint = createMotionTierEslint(
+      'src/components/ui/motion-tier-ignored.tsx',
+    )
+
+    const results = await eslint.lintText(
+      "export const X = () => <div className='transition-colors' />",
+      { filePath: 'src/components/ui/motion-tier-ignored.tsx' },
+    )
+
+    const motionTierMessages = results.flatMap((result) =>
+      result.messages.filter(
+        (message) => message.ruleId === 'local/motion-tier',
+      ),
+    )
+
+    expect(motionTierMessages).toEqual([])
+  })
+
+  it('should pass local/motion-tier when duration-swept is paired', async () => {
+    const eslint = createMotionTierEslint('src/components/motion-tier-pass.tsx')
+
+    const results = await eslint.lintText(
+      "export const X = () => <div className='transition-colors duration-swept' />",
+      { filePath: 'src/components/motion-tier-pass.tsx' },
+    )
+
+    const motionTierMessages = results.flatMap((result) =>
+      result.messages.filter(
+        (message) => message.ruleId === 'local/motion-tier',
+      ),
+    )
+
+    expect(motionTierMessages).toEqual([])
   })
 })

@@ -104,7 +104,7 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
       <div
         aria-busy={isFetching}
         className={cn(
-          'transition-opacity',
+          'duration-swept transition-opacity',
           isFetching && rows.length > 0 && 'opacity-60',
         )}
       >

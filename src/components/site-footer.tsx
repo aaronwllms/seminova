@@ -48,7 +48,7 @@ export const SiteFooter = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={social.label}
-                className="text-muted-foreground hover:text-foreground focus-visible:ring-ring rounded-md transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                className="text-muted-foreground hover:text-foreground focus-visible:ring-ring duration-swept rounded-md transition-colors focus-visible:ring-2 focus-visible:outline-none"
               >
                 <Icon className="size-5" aria-hidden />
               </a>
@@ -68,7 +68,7 @@ export const SiteFooter = ({
               <Link
                 key={item.label}
                 href={item.href}
-                className="text-muted-foreground hover:text-foreground focus-visible:ring-ring rounded-md transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                className="text-muted-foreground hover:text-foreground focus-visible:ring-ring duration-swept rounded-md transition-colors focus-visible:ring-2 focus-visible:outline-none"
               >
                 {item.label}
               </Link>

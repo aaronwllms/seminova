@@ -65,7 +65,7 @@ Roadmap and active build scope: [ROADMAP.md](../../ROADMAP.md) and [docs/prds/](
 | `typescript.mdc` | Auto attached | `src/**`, `scripts/**` | Strict TS, named exports, shared types |
 | `ui-accessibility.mdc` | Auto attached | `components/**`, `app/**` | WCAG 2.1 AA patterns |
 | `ui-shadcn.mdc` | Auto attached | `components/**`, `app/**` | shadcn/ui composition and customization |
-| `ui-styling.mdc` | Auto attached | `components/**`, `app/**` | Tailwind, semantic tokens, `cn()` |
+| `ui-styling.mdc` | Auto attached | `components/**`, `app/**` | Tailwind, semantic tokens, motion tiers, `cn()` |
 
 Per-rule detail (topics and cross-references):
 

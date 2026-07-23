@@ -1,6 +1,7 @@
 import { defineConfig, globalIgnores } from 'eslint/config'
 import nextVitals from 'eslint-config-next/core-web-vitals'
 import vitest from '@vitest/eslint-plugin'
+import motionTierRule from './eslint-rules/motion-tier.mjs'
 import noUnquarantinedSkipsRule from './eslint-rules/no-unquarantined-skips.mjs'
 import semanticTokensRule from './eslint-rules/semantic-tokens.mjs'
 import testScopeNamingRule from './eslint-rules/test-scope-naming.mjs'
@@ -52,16 +53,27 @@ const eslintConfig = defineConfig([
   },
   {
     files: ['src/**/*.{ts,tsx}'],
-    ignores: ['src/components/ui/**'],
     plugins: {
       local: {
         rules: {
           'semantic-tokens': semanticTokensRule,
+          'motion-tier': motionTierRule,
         },
       },
     },
+  },
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/components/ui/**'],
     rules: {
       'local/semantic-tokens': 'error',
+    },
+  },
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/components/ui/**'],
+    rules: {
+      'local/motion-tier': 'error',
     },
   },
   {
