@@ -24,7 +24,7 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 | 12 | Observability & App Settings | `Shipped` | [Phase 12 PRD](docs/prds/archive/phase-12-observability-app-settings.prd.md) |
 | 13 | Realtime Logs & Session Refresh | `Shipped` | [Phase 13 PRD](docs/prds/archive/phase-13-realtime-logs-session-refresh.prd.md) |
 | 14 | Tech Debt Hardening | `Shipped` | [Phase 14 PRD](docs/prds/archive/phase-14-tech-debt-hardening.prd.md) |
-| 15 | Features Page & Landing Refresh | `Draft` | — |
+| 15 | Features Page & Landing Refresh | `Active` | [Phase 15 PRD](docs/prds/phase-15-features-page-landing-refresh.prd.md) |
 | 16 | Magic Link Auth | `Draft` | — |
 | 17 | Blog Page | `Draft` | — |
 | 18 | Pricing Page | `Draft` | — |
@@ -37,9 +37,6 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 ## Upcoming phases
 
 Thin stubs for anticipated phases — intent and shape only; decomposition into epics happens at phase-planning time. This section is kept even when empty, so the next phase always has a home.
-
-### 15 — Features Page & Landing Refresh
-Add a standalone `/features` page (scannable, categorized) covering the full capability set, and refresh the home page feature grid to a curated set of highlights linking out to it. Includes folding loose-end #19 (admin-shell card copy) into this work rather than doing it separately.
 
 ### 16 — Magic Link Auth
 Add magic-link (passwordless email) sign-in, toggleable from admin settings. Open question: alongside password auth (user chooses) or eventual replacement — undecided, resolve at phase-planning.
