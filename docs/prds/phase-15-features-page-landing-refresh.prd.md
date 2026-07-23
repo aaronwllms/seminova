@@ -1,7 +1,7 @@
 # PRD — Phase 15: Features Page & Landing Refresh
 
 **Status:** `Active`
-**Last updated:** 2026-07-22
+**Last updated:** 2026-07-23
 
 ---
 
@@ -30,7 +30,7 @@ Add a standalone public `/features` page presenting the full capability set as c
 
 ## Epics & stories
 
-### Epic 1: Features content source & `/features` page
+### Epic 1: Features content source & `/features` page `Complete`
 
 - **1.1 A single source defines the features taxonomy.** Introduce one structured content source describing the capability inventory: categories, and within each, capabilities carrying a name, a one-line "what you get" blurb, an icon, and — where a live demo exists — the reference anchor it links to. The six home-reel highlights are marked as a flagged subset of this same source, so the home grid and `/features` never drift out of sync. Reference-demo links reuse the existing `/reference` section anchors rather than defining new ones.
 
