@@ -22,6 +22,7 @@ globs:
 - Canonical detail: [`DESIGN.md` § Motion](../../DESIGN.md#motion); architectural term: [LEXICON.md § Motion tier](../../LEXICON.md#motion-tier)
 - `src/components/ui/` is ESLint-excluded — vendored primitives are not continuously linted; `table.tsx` and `tabs.tsx` were hand-edited once for row/tab-indicator parity
 - **Layout transitions** (width, height, position) are out of scope — take an inline exemption instead of a tier. Reference: [`admin-shell.tsx`](../../src/app/admin/_components/admin-shell.tsx) header uses `eslint-disable-next-line local/motion-tier` with a comment naming the reason
+- **Focus indicators** must appear instantly — never place the ring/outline on an animated property list (drop `box-shadow` / `outline-color`, or use `transition-colors`). Tabs exception: keep `transition-all` for active elevation; use `focus-visible:transition-none` so the ring snaps on. This guidance is advisory for `src/components/ui/`, which `local/motion-tier` does not lint
 
 ## Theming
 - Dark mode via `next-themes` in [`src/app/layout.tsx`](../../src/app/layout.tsx)
