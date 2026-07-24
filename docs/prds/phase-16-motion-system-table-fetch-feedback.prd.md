@@ -45,7 +45,7 @@ The organizing principle: **duration follows traversal rate** — how many of a 
 - `pnpm lint` passes repo-wide, which is itself the proof that every call site was migrated.
 - `pnpm pre-push` is green.
 
-### Epic 2: Table refetch dim feedback
+### Epic 2: Table refetch dim feedback `Complete`
 
 - **2.1 The refetch dim always completes a full cycle.** The duplicated fetch-dim wrapper logic in the logs and users admin tables moves into one shared piece. Once a fetch triggers the dim, it stays dimmed for at least the transition's full duration before un-dimming, even when the fetch resolves sooner — so a fast response no longer reverses a fade mid-flight. Fetched rows render as soon as they arrive, dimmed, and fade up; nothing delays the data itself. `aria-busy` continues to reflect the actual fetch state rather than the visual hold, so assistive technology is never told content is pending after it is final.
 
