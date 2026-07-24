@@ -1,8 +1,8 @@
 # AGENTS.md — Repo truth for coding agents
 
-**Purpose:** What exists in this repo today — hard-constraint governance, implemented features, routes, data model, and where to look. For planning and roadmap, see [ROADMAP.md](ROADMAP.md) and the per-phase PRDs in [docs/prds/](docs/prds/). For human setup, see [README.md](README.md). For how to write code, see [.cursor/rules/](.cursor/rules/) (not duplicated here).
+**Purpose:** What exists in this repo today — hard-constraint governance, implemented features, routes, data model, and where to look. For planning and roadmap, see [ROADMAP.md](ROADMAP.md), [BACKLOG.md](BACKLOG.md), and the per-phase PRDs in [docs/prds/](docs/prds/). For human setup, see [README.md](README.md). For how to write code, see [.cursor/rules/](.cursor/rules/) (not duplicated here).
 
-**Last updated:** 2026-07-23
+**Last updated:** 2026-07-24
 
 Document roles and the doc-maintenance procedure are authoritative in [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
@@ -128,7 +128,7 @@ Grouped by feature area. History of which phase/epic shipped what lives in git a
 
 ### Foundation & tooling
 
-Starter tutorial/demo scaffolding removed; pnpm-only; Vitest 3 / Vite 6 / Next 16.2.x. `.cursor/rules/` stack-accurate and project-agnostic. Pre-push hook mirrors CI (`pnpm pre-push`: type-check → hard-constraint checks including `check:a11y-structure`, `check:a11y-contrast`, and `check:no-raw-console` → lint → format-check → `test:ci`); 80% Vitest coverage thresholds; `.prettierignore` / lint-staged audit (agent-authored docs remain Prettier-ignored). Planning layer is `ROADMAP.md` + per-phase PRDs in `docs/prds/`; doc roles in `docs/DOC_RULES.md`; hard constraints in this file (enforced via `check:*` scripts); architectural vocabulary in `LEXICON.md`; ADR process in `docs/adr/`.
+Starter tutorial/demo scaffolding removed; pnpm-only; Vitest 3 / Vite 6 / Next 16.2.x. `.cursor/rules/` stack-accurate and project-agnostic. Pre-push hook mirrors CI (`pnpm pre-push`: type-check → hard-constraint checks including `check:a11y-structure`, `check:a11y-contrast`, and `check:no-raw-console` → lint → format-check → `test:ci`); 80% Vitest coverage thresholds; `.prettierignore` / lint-staged audit (agent-authored docs remain Prettier-ignored). Planning layer is `ROADMAP.md` + `BACKLOG.md` + per-phase PRDs in `docs/prds/`; doc roles in `docs/DOC_RULES.md`; hard constraints in this file (enforced via `check:*` scripts); architectural vocabulary in `LEXICON.md`; ADR process in `docs/adr/`.
 
 ### Auth & session
 
@@ -222,6 +222,7 @@ Directory-level map. File-level detail lives in the [Implemented now](#implement
 | `supabase/migrations/` | SQL migrations (list in [Data model](#data-model-summary)) |
 | `supabase/config.toml` | Supabase CLI project config |
 | `ROADMAP.md` | Phase status and planning horizon stubs |
+| `BACKLOG.md` | Uncommitted product ideas awaiting promotion to a phase |
 | `LEXICON.md` | Architectural vocabulary |
 | `docs/DOC_RULES.md` | Doc roles and maintenance procedure |
 | `docs/prds/` | Per-phase PRDs (`docs/prds/archive/` when shipped) |
@@ -256,7 +257,7 @@ Log level, tagging, and wrapper usage: [.cursor/rules/logging.mdc](.cursor/rules
 | ----------- | ------ |
 | Hard constraints | Decided in PM/Claude chat with PM approval. Changing a hard constraint means changing its enforcement (check script, lint rule, or test) and the AGENTS.md [Hard constraints](#hard-constraints) list together — never the list alone. |
 | Implemented features, routes, data model | Update AGENTS.md via `/sync-repo-docs` |
-| Planning / roadmap | Update [ROADMAP.md](ROADMAP.md) and the active PRD in [docs/prds/](docs/prds/) |
+| Planning / roadmap | Update [ROADMAP.md](ROADMAP.md) and the active PRD in [docs/prds/](docs/prds/); uncommitted ideas go to [BACKLOG.md](BACKLOG.md) |
 | Coding standards | Update `.cursor/rules/` — not AGENTS.md |
 
 Sync skills never initiate hard-constraint changes — they mirror changes already made through this protocol.

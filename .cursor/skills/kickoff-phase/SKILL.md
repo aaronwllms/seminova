@@ -23,6 +23,7 @@ The target is the phase whose PRD carries `` `Ready` `` status.
 
 - A phase is already `` `Active` ``: **halt** — report it; kickoff has already run.
 - No PRD is `` `Ready` ``: **halt** and ask the user which phase to kick off.
+- The target phase still has a stub in ROADMAP's **Upcoming phases** section (a `### {N} — …` block): **halt** — `phase-planning` removes it at the `Ready` flip ([DOC_RULES.md](../../../docs/DOC_RULES.md) rule 2), so a surviving stub means that flip didn't finish. Report it and ask the user to complete it there; do not remove it here.
 
 ## Branch setup
 
@@ -71,10 +72,6 @@ Request `git_write` for any checkout/create/delete above. Report which branch wa
 ## Flip status to Active
 
 ([DOC_RULES.md](../../../docs/DOC_RULES.md) rule 2.) Update the target PRD's `**Status:**` line and its ROADMAP row (Status table + any "Active phase" line) from `` `Ready` `` to `` `Active` ``. Confirm both files read `` `Active` `` before proceeding.
-
-## Remove the phase stub
-
-In the same ROADMAP pass, delete this phase's stub from the **Upcoming phases** section — the entire `### Phase {N} — …` block, through the line before the next `###` heading (or the section's end). Remove only this phase's block; leave every other phase's stub intact.
 
 ## Commit
 

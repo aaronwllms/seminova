@@ -17,7 +17,7 @@ Before touching anything, verify all three of `src/config/site.ts`, `README.md`,
 
 ## Idempotency
 
-Before scrubbing, check all nine of this skill's outputs for whether they're already done:
+Before scrubbing, check every one of this skill's outputs for whether it's already done:
 
 - **`LICENSE`** — has a line matching `Copyright (c) <any year> <owner name from site.ts>`
 - **`AGENTS.md`** — no remaining Seminova name references
@@ -29,10 +29,10 @@ Before scrubbing, check all nine of this skill's outputs for whether they're alr
 - **`docs/research/`** — active dir contains only `README.md` (no `RESEARCH-*.md`); `docs/research/archive/` has no `RESEARCH-*.md` (`.gitkeep` alone is OK)
 - **`CONTRIBUTING.md`** — absent (the file ships with every template clone; its absence means the scrub deleted it)
 
-Bucket on agreement across all nine:
+Bucket on agreement across all of them:
 
-- **All nine done** → skip the run, report it's already initialized.
-- **All nine not done** → proceed with the run.
+- **All done** → skip the run, report it's already initialized.
+- **None done** → proceed with the run.
 - **Mixed** → halt. Report exactly which outputs are done and which aren't — this is a partial or interrupted prior run, not something to guess past. Do not pick one signal as authoritative over the others; any single check can be coincidentally true (an empty archive) or simply unwritten (LICENSE never touched) without reflecting the real state of the others.
 
 ## What it reads
@@ -78,7 +78,7 @@ These are the only sources of truth for identity. Do not ask the user for any of
 
 ## What it never touches
 
-`ROADMAP.md`, `LEXICON.md`, `src/config/site.ts`, `README.md` — `project-kickoff` already wrote these correctly; touching them again risks clobbering grill output.
+`ROADMAP.md`, `BACKLOG.md`, `LEXICON.md`, `src/config/site.ts`, `README.md` — `project-kickoff` already wrote these correctly; touching them again risks clobbering grill output.
 
 `.cursor/rules/`, `.cursor/skills/`, `DESIGN.md` — inherited unchanged. Hard constraints inherit via AGENTS.md and `check:*` enforcement. These are the template's value; every spinoff keeps them as-is.
 

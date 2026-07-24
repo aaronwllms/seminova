@@ -6,7 +6,7 @@
 
 **How to use it.** Each entry is a deferred decision with its reason for deferral and the signal that should bring it back. Pull an item out when its trigger fires; delete it when it's resolved (record the resolution as an [ADR](adr/README.md) if it qualifies).
 
-**Last updated:** 2026-07-12 (`absorb-skill-feedback` item added)
+**Last updated:** 2026-07-24 (theme-regeneration item relocated from ROADMAP)
 
 ---
 
@@ -32,6 +32,7 @@
   - [Move mechanically-checkable rules to lint (starting with import-direction boundaries)](#move-mechanically-checkable-rules-to-lint-starting-with-import-direction-boundaries)
   - [`check:auth-boundary` runs only incidentally under `test:ci`](#checkauth-boundary-runs-only-incidentally-under-testci)
   - [Build the `absorb-skill-feedback` skill](#build-the-absorb-skill-feedback-skill)
+  - [Theme regeneration as skill vs mode](#theme-regeneration-as-skill-vs-mode)
   - [~~Deterministic scripts in agent skills~~](#deterministic-scripts-in-agent-skills) *(resolved)*
 
 ---
@@ -249,6 +250,14 @@
 **Revisit when:** `docs/skill-feedback/code-review.md` has accumulated several audit runs' worth of entries — enough that recurring gaps are visible — or the first time you want to revise `code-review` off its feedback history rather than off a single run.
 
 **Relationship to other items:** Completes the loop started by `collect-skill-feedback` and `code-review-review`; a specialization of `skill-authoring` (log-driven revision rather than interview-driven authoring).
+
+### Theme regeneration as skill vs mode
+
+**What:** The "put a new spin on the design for this project" capability should regenerate theme values only — never structure. Decide whether that ships as a separate, theme-only skill distinct from the structure-establishing design-system skill, or as a mode within it.
+
+**Why deferred:** Unscoped — the skill ships independently of any phase, and the mode-vs-skill call doesn't block anything today. Relocated here from ROADMAP's open questions (2026-07-24): it's a decision about the skill system, not product scope.
+
+**Revisit when:** A dedicated workflow-improvement session, or the next time a spinoff needs re-skinning and the current [DESIGN.md](../DESIGN.md) re-skin workflow proves too manual.
 
 ### ~~Deterministic scripts in agent skills~~
 

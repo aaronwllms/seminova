@@ -2,7 +2,7 @@
 
 **Purpose:** Invariant doc-maintenance procedure governing the planning docs ([ROADMAP.md](../ROADMAP.md), the PRDs in [prds/](prds/), and the frozen [archive/](archive/)). This is not project state — it applies to every product built from this template. Governs the planning skills (`phase-planning`, `kickoff-phase`, `plan-next-epic`, `mark-epic-complete`, `ship-phase`), the research skills (`research`, `archive-research`), and the repo-sync skill (`sync-repo-docs`).
 
-**Last updated:** 2026-07-23
+**Last updated:** 2026-07-24
 
 ---
 
@@ -13,7 +13,8 @@ This table is authoritative. [AGENTS.md](../AGENTS.md) carries a one-line pointe
 | Document | Audience | Owns |
 | -------- | -------- | ---- |
 | **[README.md](../README.md)** | Humans cloning + external | Project pitch and positioning; setup, scripts, env |
-| **[ROADMAP.md](../ROADMAP.md)** | PM / planning chats | Planning horizon: thin phase stubs, phase status, PRD links, open questions |
+| **[ROADMAP.md](../ROADMAP.md)** | PM / planning chats | Planning horizon: thin phase stubs, phase status, PRD links, and any open questions attached to a stub |
+| **[BACKLOG.md](../BACKLOG.md)** | PM / planning chats | Unscheduled, uncommitted product ideas — not numbered, not ordered, no PRD |
 | **[prds/](prds/)** | PM / agents | Per-phase forward intent (problem, goal, scope); epics + stories while a phase is Active. Lifecycle in [prds/README.md](prds/README.md) |
 | **[AGENTS.md](../AGENTS.md)** | Cursor / coding agents | Repo truth: implemented features, routes, data model, hard-constraint change protocol, agent workflow |
 | **[LEXICON.md](../LEXICON.md)** | PM / agents | Architectural vocabulary |
@@ -34,7 +35,7 @@ This table is authoritative. [AGENTS.md](../AGENTS.md) carries a one-line pointe
 
 Agent guidance lives in `.cursor/` (rules and skills), never duplicated into product code.
 
-**Sync order when both the planning docs and repo truth may be stale:** gather evidence once → update AGENTS.md (`/sync-repo-docs`) for shipped truth → update ROADMAP status and the active PRD from AGENTS.md → update ROADMAP open-questions from the PM conversation.
+**Sync order when both the planning docs and repo truth may be stale:** gather evidence once → update AGENTS.md (`/sync-repo-docs`) for shipped truth → update ROADMAP status and the active PRD from AGENTS.md → update stub-attached open questions from the PM conversation.
 
 ---
 
@@ -60,7 +61,7 @@ These rules apply to anyone updating the planning docs — PM or coding agent.
 
 1. **The active phase's PRD is the source of truth for what is planned but not yet shipped.** The docs must never contradict the repo.
 
-2. **PRD creation and promotion are split by lifecycle stage.** `phase-planning` (Claude-side planning skill) creates the PRD at `Planning` and flips it to `Ready` on PM sign-off, decomposing it into numbered epics and vertical-slice stories at that point. `kickoff-phase` (Cursor-side) flips it to `Active`, creating the phase branch in the same pass — the flip precedes any epic planning, so every plan and plan review sees an `Active` phase. Each skill updates the ROADMAP row to match at its transition. On the same kickoff pass, `kickoff-phase` removes the phase's stub from ROADMAP's **Upcoming phases** section — an `Active` phase's PRD owns its scope, so the stub would drift.
+2. **PRD creation and promotion are split by lifecycle stage.** `phase-planning` (Claude-side planning skill) creates the PRD at `Planning` and flips it to `Ready` on PM sign-off, decomposing it into numbered epics and vertical-slice stories at that point. On that same `Ready` flip, `phase-planning` removes the phase's stub from ROADMAP's **Upcoming phases** section — a locked PRD owns the phase's scope, so a surviving stub would drift. `kickoff-phase` (Cursor-side) then flips the PRD to `Active`, creating the phase branch in the same pass — the flip precedes any epic planning, so every plan and plan review sees an `Active` phase. Each skill updates the ROADMAP row to match at its transition.
 
 > [!IMPORTANT]
 > **`mark-epic-complete` must never promote** — if an epic is marked `Complete` while its PRD or ROADMAP row reads `Draft`, `Planning`, or `Ready`, halt and report the inconsistency; do not auto-correct.
@@ -75,7 +76,7 @@ These rules apply to anyone updating the planning docs — PM or coding agent.
 
 6. **When a phase ships,** flip its PRD status to `Shipped`, move the file to [prds/archive/](prds/archive/), and mark the phase `Shipped` on ROADMAP in the same pass — update the ROADMAP PRD column to the archived path. Never move shipped PRDs into [archive/](archive/) — see rule 8. The **[ship-phase](../.cursor/skills/ship-phase/SKILL.md)** skill owns this flip, archive move, push, and PR open; merge to `main` is a separate human step. Procedure detail lives in [prds/README.md](prds/README.md).
 
-7. **Resolved open questions leave ROADMAP.** The resolution is carried by whatever artifact it changed (a PRD, a rule, the schema, or ROADMAP itself). If a decision is hard to reverse and worth a permanent record, write an ADR (see [adr/README.md](adr/README.md) for the three-part bar). There is no standing decisions log.
+7. **Open questions attach to a phase stub; `phase-planning` consumes them.** A deferred decision that belongs to a specific upcoming phase is written into that phase's ROADMAP stub, and `phase-planning` resolves it during decomposition — the resolution lands in the PRD, and the stub goes away at the `Ready` flip (rule 2). ROADMAP carries no standalone open-questions section. A deferral with no phase to attach to routes by kind: product ideas and product-level deferrals to [BACKLOG.md](../BACKLOG.md) (rule 14), decisions about the workflow/skills/docs system to [WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md) (rule 13), and deferred technical work with a concrete trigger to a `// debt:` marker at the code site, where the audit skills pick it up. If a decision is hard to reverse and worth a permanent record, write an ADR (see [adr/README.md](adr/README.md) for the three-part bar). There is no standing decisions log.
 
 8. **[archive/](archive/) holds frozen pre-restructure history only.**
 
@@ -93,6 +94,8 @@ These rules apply to anyone updating the planning docs — PM or coding agent.
 
 11. **Research briefs:** active briefs live in [research/](research/). When a brief has served its purpose, the PM archives it via **[archive-research](../.cursor/skills/archive-research/SKILL.md)** — @-attach the brief(s) in the same invocation. Move to [research/archive/](research/archive/); briefs there are frozen. Procedure in [research/README.md](research/README.md).
 
-12. **Stub sections and files are intentional.** Empty-by-design structure (e.g. ROADMAP phase stubs, the LEXICON domain-terms stub) is kept so the shape is inherited by every product built from this template. Do not delete stubs. Exception: an individual phase's stub is removed when the phase goes `Active` (rule 2); the **Upcoming phases** section itself always stays.
+12. **Stub sections and files are intentional.** Empty-by-design structure (e.g. ROADMAP phase stubs, the LEXICON domain-terms stub) is kept so the shape is inherited by every product built from this template. Do not delete stubs. Exception: an individual phase's stub is removed when its PRD is locked at `Ready` (rule 2); the **Upcoming phases** section itself always stays.
 
-13. **Propose WORKFLOW_BACKLOG.md entries when they surface.** When a planning conversation deliberately defers a decision about the workflow/skills/docs system itself — not product scope — propose adding it to [WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md) using its existing entry format (What / Why deferred / Revisit when). Product-roadmap items don't belong here — those go to [ROADMAP.md](../ROADMAP.md) open questions instead.
+13. **Propose WORKFLOW_BACKLOG.md entries when they surface.** When a planning conversation deliberately defers a decision about the workflow/skills/docs system itself — not product scope — propose adding it to [WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md) using its existing entry format (What / Why deferred / Revisit when). Product deferrals don't belong here — those route per rule 7.
+
+14. **BACKLOG.md holds uncommitted product ideas; promotion requires explicit PM sign-off.** An idea moves from [BACKLOG.md](../BACKLOG.md) to a numbered ROADMAP.md phase stub only when the PM explicitly commits it in a planning conversation — never inferred or auto-promoted. When that happens, remove the entry from BACKLOG.md in the same pass the ROADMAP stub is added.
