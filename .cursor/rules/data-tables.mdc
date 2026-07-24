@@ -47,7 +47,7 @@ While a fetch is in flight and the table body is empty, show skeleton rows — n
 - Skeleton rows render via `DataTableSkeletonBody` using the `Skeleton` primitive (`src/components/ui/skeleton.tsx`).
 - Per-column skeleton shape via `columnDef.meta.skeletonClassName` (see users columns for reference) — shape only; width and alignment come from `cellClassName` (see [Column sizing](#column-sizing)).
 - Default skeleton row count: 8 — intentionally fewer than page size (15). Enough to signal loading without flooding the viewport or implying a specific result count.
-- When stale rows are already on screen (pagination/search refetch), keep showing stale data with light table dimming while `isFetching`; disable controls via `isPending` — do not flash skeleton over existing rows.
+- When stale rows are already on screen (pagination/search refetch), keep showing stale data with light table dimming while `isFetching`; disable controls via `isPending` — do not flash skeleton over existing rows. Visual dim uses [`TableFetchDimWrapper`](../../src/components/table-fetch-dim-wrapper.tsx) with a minimum hold matching `duration-swept` so fast refetches complete a full fade cycle; `aria-busy` reflects actual fetch state only.
 - `emptyMessage` is for the zero-results state only.
 
 **Why:** placeholder text in a single merged cell reads as an empty state, not a loading state; skeleton rows preserve column structure and match the design-system loading convention.

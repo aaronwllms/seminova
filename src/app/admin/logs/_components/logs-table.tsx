@@ -3,6 +3,7 @@
 import { AppErrorSurface } from '@/components/app-error-surface'
 import { DataTableShell } from '@/components/data-table-shell'
 import { DataTablePaginationControls } from '@/components/data-table-pagination-controls'
+import { TableFetchDimWrapper } from '@/components/table-fetch-dim-wrapper'
 import { cn } from '@/utils/tailwind'
 
 import { formatLogTimestampDisplay } from '../_lib/format-log-timestamp-display'
@@ -110,12 +111,9 @@ export const LogsTable = () => {
 
       <AppErrorSurface error={mutationAppError} />
 
-      <div
-        aria-busy={isFetching}
-        className={cn(
-          'duration-swept transition-opacity',
-          isFetching && rows.length > 0 && 'opacity-60',
-        )}
+      <TableFetchDimWrapper
+        isFetching={isFetching}
+        hasStaleRows={rows.length > 0}
       >
         <DataTableShell
           table={table}
@@ -140,7 +138,7 @@ export const LogsTable = () => {
             `${row.isUnread ? 'Unread log' : 'Read log'}: ${formatLogTimestampDisplay(row.createdAt)}, ${row.level}, ${row.tag}, ${row.message}`
           }
         />
-      </div>
+      </TableFetchDimWrapper>
 
       <DataTablePaginationControls
         page={page}
