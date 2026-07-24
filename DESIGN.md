@@ -146,7 +146,9 @@ Duration follows **traversal rate** — how many elements the user sweeps across
 
 **Scope boundary:** motion tiers apply to **state transitions on persistent elements** (color, opacity, shadow) — not enter/exit animation, not layout animation (width, height, position). Layout transitions take an inline ESLint exemption rather than a tier; see `.cursor/rules/ui-styling.mdc`.
 
-**Enforcement:** `local/motion-tier` ESLint on `src/**` excluding `src/components/ui/` — vendored primitives are not continuously linted; `table.tsx` and `tabs.tsx` were hand-edited once for row and tab-indicator parity.
+**Focus indicators:** must appear instantly. Never put the focus ring (or outline) on an animated property list — drop `box-shadow` / `outline-color` from the transition, or use `transition-colors` when the ring is the only shadow. Exception: tabs keep `transition-all` for active elevation on the same `box-shadow` channel and use `focus-visible:transition-none` so the ring still snaps on; blur may still animate (accepted trade-off).
+
+**Enforcement:** `local/motion-tier` ESLint on `src/**` excluding `src/components/ui/` — vendored primitives are not continuously linted; `table.tsx` and `tabs.tsx` were hand-edited once for row and tab-indicator parity. The focus carve-out above is advisory for `src/components/ui/` (not linted by `local/motion-tier`).
 
 Utility names only here; values live in `globals.css`.
 
