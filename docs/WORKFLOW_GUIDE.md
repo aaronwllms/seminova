@@ -2,7 +2,7 @@
 
 **Purpose:** How phases move from idea to shipped code — the tools, the documents, and the workflow. For write discipline and doc-maintenance rules, see [DOC_RULES.md](DOC_RULES.md).
 
-**Last updated:** 2026-07-08
+**Last updated:** 2026-07-24
 
 ---
 
@@ -47,7 +47,8 @@ Full roles table and write discipline are authoritative in [DOC_RULES.md](DOC_RU
 
 | Document | What it is |
 | -------- | ---------- |
-| `ROADMAP.md` | Thin phase stubs — the planning horizon. One row per phase with status and a PRD link. |
+| `ROADMAP.md` | Thin phase stubs — the planning horizon of confirmed phases. One row per phase with status and a PRD link. |
+| `BACKLOG.md` | Uncommitted product ideas — unordered, unnumbered, no PRD. Promoted to a ROADMAP stub only on explicit sign-off. |
 | `docs/prds/` | One PRD per phase — forward intent, epics, and stories. Moves to `docs/prds/archive/` on ship. |
 | `AGENTS.md` | Repo truth — implemented features, routes, schema, agent workflow, hard constraints. Cursor's primary reference. |
 | `LEXICON.md` | Shared architectural vocabulary. Inherited by every spinoff; spinoffs add domain terms on top. |
@@ -77,6 +78,7 @@ The session must collect before writing anything:
 
 Outputs written by project kickoff:
 - `ROADMAP.md` — populated with real phase stubs
+- `BACKLOG.md` — uncommitted ideas surfaced in the session that aren't confirmed phases; Seminova's entries cleared, stub structure kept
 - `src/config/site.ts` — name, description, GitHub URL
 - `README.md` — pitch, audience, what-it-is/is-not (Seminova framing replaced)
 - `LEXICON.md` — new domain terms appended (architectural terms stay unchanged)
@@ -113,14 +115,14 @@ After `initialize-project` completes, the repo is a real project, not a template
 Once the project is initialized, the phase-by-phase loop begins — one phase planned, built, and shipped before the next gets a deep pass.
 
 **Step 4 — Plan the phase** *(Claude-side skill: `phase-planning`)*
-Claude reads ROADMAP, AGENTS.md (hard constraints), and the phase's ROADMAP stub, then works with you to decompose the target phase into numbered epics and vertical-slice stories. Each story carries a success condition — the observable behavior that proves it's done, in product terms. The decomposition is shaped in chat during `Planning` and written into the PRD at the `Ready` flip; Claude writes the PRD only when you ask.
+Claude reads ROADMAP, AGENTS.md (hard constraints), and the phase's ROADMAP stub — including any open questions attached to it — then works with you to decompose the target phase into numbered epics and vertical-slice stories. Each story carries a success condition — the observable behavior that proves it's done, in product terms. The decomposition is shaped in chat during `Planning` and written into the PRD at the `Ready` flip; Claude writes the PRD only when you ask. The `Ready` flip also removes the phase's stub from ROADMAP — the locked PRD owns the scope from that point on.
 
-Phase status moves: `Draft → Planning` (PRD created, scope being shaped) → `Ready` (locked, approved to build). The `Active` flip happens later — `plan-next-epic` performs it when generating the phase's first epic plan.
+Phase status moves: `Draft → Planning` (PRD created, scope being shaped) → `Ready` (locked, approved to build). The `Active` flip happens later — `kickoff-phase` performs it in Cursor before any epic is planned.
 
 **Step 5 — Plan and review the epic** *(Cursor: `plan-next-epic` ↔ Claude: `plan-review`)*
 This step is a subloop — plan and review go back and forth until Claude signs off, which can take one pass or several:
 
-- **5a.** You invoke `plan-next-epic` in Cursor with **plan mode** active. This generates an implementation plan for the next unbuilt epic in the active PRD. On the phase's first epic it also creates the phase branch and flips the PRD and ROADMAP row to `Active`. Plans are always written sequentially; if an epic has clearly independent tracks, the plan notes it as a Build-in-Parallel candidate for you to act on.
+- **5a.** You invoke `plan-next-epic` in Cursor with **plan mode** active. This generates an implementation plan for the next unbuilt epic in the active PRD. Plans are always written sequentially; if an epic has clearly independent tracks, the plan notes it as a Build-in-Parallel candidate for you to act on.
 - **5b.** Select **Markdown view** from the plan's ellipsis (`⋯`) menu, copy the markdown, and paste it into Claude, invoking `plan-review`.
 - **5c.** If Claude flags issues: discuss and settle the feedback in chat (this can take a few exchanges), then ask Claude for a standalone copy-block prompt summarizing the agreed change.
 - **5d.** Paste that prompt into the same Cursor plan-mode session; Cursor updates the plan.

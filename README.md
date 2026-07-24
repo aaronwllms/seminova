@@ -247,6 +247,7 @@ The template ships an **unauthenticated write path** into `app_logs` at `/api/cl
 | Document | Audience | Purpose |
 | -------- | -------- | ------- |
 | [ROADMAP.md](ROADMAP.md) | PM + agents | Phase status, planning horizon stubs |
+| [BACKLOG.md](BACKLOG.md) | PM + agents | Uncommitted product ideas awaiting promotion to a phase |
 | [docs/prds/](docs/prds/) | PM + agents | Per-phase epics/stories while Active |
 | [docs/DOC_RULES.md](docs/DOC_RULES.md) | PM + agents | Doc maintenance — write discipline, doc roles, archive policy |
 | [docs/WORKFLOW_GUIDE.md](docs/WORKFLOW_GUIDE.md) | PM + agents | Primary planning and build workflow |

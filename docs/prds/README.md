@@ -20,7 +20,9 @@ is in flight, the file lives in `docs/prds/`.
 1. **Planning** — `phase-planning` creates the PRD; the ROADMAP row flips from
    `Draft` to `Planning`. Epics and stories are not yet written in.
 2. **Ready** — PM sign-off flips `Planning` to `Ready`; `phase-planning` writes
-   the numbered epics and vertical-slice stories in at this flip.
+   the numbered epics and vertical-slice stories in at this flip, and removes the
+   phase's stub from ROADMAP's **Upcoming phases** section in the same pass (the
+   locked PRD now owns the phase's scope).
 3. **Active** — `kickoff-phase` flips `Ready` to `Active` and creates the phase
    branch in the same pass, before any epic is planned. Only
    one phase should be `Active` at a time in practice.
@@ -55,7 +57,10 @@ Two valid approaches — the skill supports both:
 [ROADMAP.md](../../ROADMAP.md) holds **thin** phase stubs — the planning horizon. A phase is
 grilled into a PRD only **when it's its turn** (or when deliberately planning
 ahead). Grilling is most accurate close to the work, so PRDs should not be
-front-loaded speculatively.
+front-loaded speculatively. A stub may carry open questions specific to that
+phase; `phase-planning` resolves them during decomposition and the resolutions
+land in the PRD. Ideas that aren't committed to a phase at all live in
+[BACKLOG.md](../../BACKLOG.md), not ROADMAP.
 
 ## Naming & filenames
 

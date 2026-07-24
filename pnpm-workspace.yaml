@@ -9,7 +9,9 @@ overrides:
   brace-expansion@1: 1.1.16
   brace-expansion@2: 2.1.2
   brace-expansion@5: 5.0.7
-  # Temporary until a stable Next.js release ships sharp >=0.35 (see ROADMAP open question).
+  # Temporary: stable Next.js still declares optional sharp@^0.34.5, which carries a libvips advisory.
+  # Remove this override once a stable Next.js release depends on sharp >=0.35 — then bump next,
+  # re-run `pnpm install` / `pnpm audit`, and smoke-check /icon, OG image routes, and next/image.
   sharp: ^0.35.3
   ws: '>=8.21.0'
   form-data: '>=4.0.6'
