@@ -25,7 +25,7 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Ship
 | 13 | Realtime Logs & Session Refresh | `Shipped` | [Phase 13 PRD](docs/prds/archive/phase-13-realtime-logs-session-refresh.prd.md) |
 | 14 | Tech Debt Hardening | `Shipped` | [Phase 14 PRD](docs/prds/archive/phase-14-tech-debt-hardening.prd.md) |
 | 15 | Features Page & Landing Refresh | `Shipped` | [Phase 15 PRD](docs/prds/archive/phase-15-features-page-landing-refresh.prd.md) |
-| 16 | Motion System & Table Fetch Feedback | `Active` | [Phase 16 PRD](docs/prds/phase-16-motion-system-table-fetch-feedback.prd.md) |
+| 16 | Motion System & Table Fetch Feedback | `Shipped` | [Phase 16 PRD](docs/prds/archive/phase-16-motion-system-table-fetch-feedback.prd.md) |
 | 17 | Magic Link Auth | `Draft` | — |
 | 18 | Blog Page | `Draft` | — |
 | 19 | Pricing Page | `Draft` | — |

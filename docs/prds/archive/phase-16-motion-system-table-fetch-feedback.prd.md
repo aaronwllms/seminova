@@ -1,6 +1,6 @@
 # PRD — Phase 16: Motion System & Table Fetch Feedback
 
-**Status:** `Active`
+**Status:** `Shipped`
 **Last updated:** 2026-07-23
 
 ---
