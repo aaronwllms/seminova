@@ -12,6 +12,7 @@ import {
   useDataTableShell,
 } from '@/components/data-table-shell'
 import { DataTablePaginationControls } from '@/components/data-table-pagination-controls'
+import { TableFetchDimWrapper } from '@/components/table-fetch-dim-wrapper'
 import {
   DATA_TABLE_DEFAULT_PAGE_SIZE,
   DATA_TABLE_PAGE_SIZE_OPTIONS,
@@ -167,7 +168,10 @@ export const ReferenceTableDemo = () => {
           onClearAll={handleResetFilters}
         />
 
-        <div aria-busy={isFetching}>
+        <TableFetchDimWrapper
+          isFetching={isFetching}
+          hasStaleRows={rows.length > 0}
+        >
           <DataTableShell
             table={table}
             columns={referenceShipmentsColumns}
@@ -186,7 +190,7 @@ export const ReferenceTableDemo = () => {
               ) : undefined
             }
           />
-        </div>
+        </TableFetchDimWrapper>
 
         <DataTablePaginationControls
           page={page}

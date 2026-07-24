@@ -4,25 +4,25 @@ overview: Extract the duplicated admin-table refetch dim into a shared hook + wr
 todos:
   - id: shared-hook
     content: Add useTableFetchDim hook with TABLE_FETCH_DIM_MIN_MS=150 and min-hold release logic
-    status: pending
+    status: completed
   - id: shared-wrapper
     content: Add TableFetchDimWrapper component (aria-busy on isFetching, opacity on isDimmed)
-    status: pending
+    status: completed
   - id: wire-tables
     content: Replace inline dim div in logs-table.tsx and users-table.tsx with TableFetchDimWrapper
-    status: pending
+    status: completed
   - id: unit-tests
     content: Hook fake-timer tests (fast/slow fetch) + wrapper aria-busy decoupling test
-    status: pending
+    status: completed
   - id: data-tables-rule
     content: Document min-hold dim behavior in data-tables.mdc Loading Pattern
-    status: pending
+    status: completed
   - id: quality-gate
     content: Run pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci
-    status: pending
+    status: completed
   - id: commit-epic
     content: "Conventional commit with Epic: 16.2 trailer"
-    status: pending
+    status: completed
 isProject: false
 ---
 
