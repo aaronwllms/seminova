@@ -56,7 +56,6 @@ export const siteConfig: SiteConfig = {
     { label: 'Features', href: FEATURES_PATH },
     { label: 'Reference', href: REFERENCE_PATH },
     { label: 'Workflow', href: WORKFLOW_PATH },
-    { label: 'GitHub', href: GITHUB_URL, external: true },
   ],
   social: [{ label: 'GitHub', href: GITHUB_URL, icon: 'github' }],
   legal: [

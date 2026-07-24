@@ -3,13 +3,13 @@
 import { AppErrorSurface } from '@/components/app-error-surface'
 import { DataTableShell } from '@/components/data-table-shell'
 import { DataTablePaginationControls } from '@/components/data-table-pagination-controls'
+import { TableFetchDimWrapper } from '@/components/table-fetch-dim-wrapper'
 import { cn } from '@/utils/tailwind'
 
 import { formatLogTimestampDisplay } from '../_lib/format-log-timestamp-display'
 import { hasActiveLogListFilters } from '../_lib/log-list-filters'
 import { useAdminLogsTableState } from '../_lib/use-admin-logs-table-state'
 import { LogDetailDialog } from './log-detail-dialog'
-import { LogsActiveFilters } from './logs-active-filters'
 import { LogsFilteredEmptyState } from './logs-filtered-empty-state'
 import { LogsStatTiles } from './logs-stat-tiles'
 import { LogsToolbar } from './logs-toolbar'
@@ -82,6 +82,9 @@ export const LogsTable = () => {
         <LogsToolbar
           searchInput={searchInput}
           onSearchInputChange={handleSearchInputChange}
+          filters={filters}
+          onRemoveFilter={handleRemoveFilterChip}
+          onClearAllFilters={handleResetFilters}
           selectedTag={selectedTag}
           onTagChange={handleTagChange}
           tags={tags}
@@ -96,12 +99,6 @@ export const LogsTable = () => {
           markAllTooltip={markAllTooltip}
           isMarkAllPending={isMarkAllPending}
         />
-
-        <LogsActiveFilters
-          filters={filters}
-          onRemove={handleRemoveFilterChip}
-          onClearAll={handleResetFilters}
-        />
       </div>
 
       {statsError ? <AppErrorSurface error={statsError} /> : null}
@@ -110,12 +107,9 @@ export const LogsTable = () => {
 
       <AppErrorSurface error={mutationAppError} />
 
-      <div
-        aria-busy={isFetching}
-        className={cn(
-          'transition-opacity',
-          isFetching && rows.length > 0 && 'opacity-60',
-        )}
+      <TableFetchDimWrapper
+        isFetching={isFetching}
+        hasStaleRows={rows.length > 0}
       >
         <DataTableShell
           table={table}
@@ -140,7 +134,7 @@ export const LogsTable = () => {
             `${row.isUnread ? 'Unread log' : 'Read log'}: ${formatLogTimestampDisplay(row.createdAt)}, ${row.level}, ${row.tag}, ${row.message}`
           }
         />
-      </div>
+      </TableFetchDimWrapper>
 
       <DataTablePaginationControls
         page={page}

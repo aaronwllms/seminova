@@ -16,6 +16,13 @@ globs:
 - Token architecture and re-skin workflow: [`DESIGN.md`](../../DESIGN.md)
 - Never hardcode theme colors (raw hex or numeric Tailwind color scales for themeable color)
 
+## Motion tiers
+- Duration follows traversal rate — pair every `transition` / `transition-*` utility outside `src/components/ui/` with `duration-swept` or `duration-dwell`
+- **Swept** — bulk-swept surfaces (nav, rows, tiles, links); **Dwell** — one-at-a-time surfaces (`MarketingDisplayCard`)
+- Canonical detail: [`DESIGN.md` § Motion](../../DESIGN.md#motion); architectural term: [LEXICON.md § Motion tier](../../LEXICON.md#motion-tier)
+- `src/components/ui/` is ESLint-excluded — vendored primitives are not continuously linted; `table.tsx` and `tabs.tsx` were hand-edited once for row/tab-indicator parity
+- **Layout transitions** (width, height, position) are out of scope — take an inline exemption instead of a tier. Reference: [`admin-shell.tsx`](../../src/app/admin/_components/admin-shell.tsx) header uses `eslint-disable-next-line local/motion-tier` with a comment naming the reason
+
 ## Theming
 - Dark mode via `next-themes` in [`src/app/layout.tsx`](../../src/app/layout.tsx)
 - shadcn/ui uses **CSS variables** for theming (configured in `components.json`)

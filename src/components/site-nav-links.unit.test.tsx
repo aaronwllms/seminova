@@ -67,13 +67,4 @@ describe('SiteNavLinks', () => {
       'aria-current',
     )
   })
-
-  it('should never set aria-current on the external GitHub link', () => {
-    mockPathname.mockReturnValue('/')
-    render(<SiteNavLinks />)
-
-    expect(screen.getByRole('link', { name: 'GitHub' })).not.toHaveAttribute(
-      'aria-current',
-    )
-  })
 })

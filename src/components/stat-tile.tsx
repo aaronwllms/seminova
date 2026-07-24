@@ -11,7 +11,7 @@ import {
 import { cn } from '@/utils/tailwind'
 
 const statTileVariants = cva(
-  'cursor-pointer rounded-xl px-3 py-2.5 text-left transition-colors focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+  'cursor-pointer rounded-xl px-3 py-2.5 text-left transition-colors duration-swept focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
   {
     variants: {
       role: {

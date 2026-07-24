@@ -24,9 +24,10 @@ export const FeatureCapabilityCard = ({
         {capability.blurb}
       </p>
       {capability.referenceAnchor ? (
+        // debt: swept-tier CTA link class bundle duplicated in landing-features.tsx; a tier/focus-ring change here can be missed there.
         <Link
           href={`${REFERENCE_PATH}#${capability.referenceAnchor}`}
-          className="text-foreground hover:text-primary focus-visible:ring-ring mt-1 inline-flex min-h-11 items-center gap-1 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none md:min-h-0"
+          className="text-foreground hover:text-primary focus-visible:ring-ring duration-swept mt-1 inline-flex min-h-11 items-center gap-1 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none md:min-h-0"
         >
           See it live
           <ArrowRight className="size-4" aria-hidden />

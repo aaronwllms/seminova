@@ -3,14 +3,13 @@
 import { AppErrorSurface } from '@/components/app-error-surface'
 import { DataTableShell } from '@/components/data-table-shell'
 import { DataTablePaginationControls } from '@/components/data-table-pagination-controls'
-import { cn } from '@/utils/tailwind'
+import { TableFetchDimWrapper } from '@/components/table-fetch-dim-wrapper'
 
 import { useAdminUsersTableState } from '../_lib/use-admin-users-table-state'
 import { hasActiveUserListFilters } from '../_lib/user-list-filters'
 import { BanUserDialog } from './ban-user-dialog'
 import { PromoteDemoteDialog } from './promote-demote-dialog'
 import { UnbanUserDialog } from './unban-user-dialog'
-import { UsersActiveFilters } from './users-active-filters'
 import { UsersFilteredEmptyState } from './users-filtered-empty-state'
 import { UsersStatTiles } from './users-stat-tiles'
 import { UsersToolbar } from './users-toolbar'
@@ -82,17 +81,14 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
         <UsersToolbar
           searchInput={searchInput}
           onSearchInputChange={setSearchInput}
+          filters={filters}
+          onRemoveFilter={handleRemoveFilterChip}
+          onClearAllFilters={handleResetFilters}
           onRefresh={() => {
             void refresh()
           }}
           isRefreshing={isRefreshing}
           isFetching={isFetching}
-        />
-
-        <UsersActiveFilters
-          filters={filters}
-          onRemove={handleRemoveFilterChip}
-          onClearAll={handleResetFilters}
         />
       </div>
 
@@ -101,12 +97,9 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
 
       <AppErrorSurface error={mutationAppError} />
 
-      <div
-        aria-busy={isFetching}
-        className={cn(
-          'transition-opacity',
-          isFetching && rows.length > 0 && 'opacity-60',
-        )}
+      <TableFetchDimWrapper
+        isFetching={isFetching}
+        hasStaleRows={rows.length > 0}
       >
         <DataTableShell
           table={table}
@@ -126,7 +119,7 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
             ) : undefined
           }
         />
-      </div>
+      </TableFetchDimWrapper>
 
       <DataTablePaginationControls
         page={page}
