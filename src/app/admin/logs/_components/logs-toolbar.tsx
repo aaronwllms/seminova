@@ -10,12 +10,17 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 
+import type { LogListFilters } from '../_lib/log-list-filters'
+import { LogsActiveFilters } from './logs-active-filters'
 import { LogsLiveToggle } from './logs-live-toggle'
 import { LogsTagCombobox } from './logs-tag-combobox'
 
 interface LogsToolbarProps {
   searchInput: string
   onSearchInputChange: (value: string) => void
+  filters: LogListFilters
+  onRemoveFilter: (id: string) => void
+  onClearAllFilters: () => void
   selectedTag: string | null
   onTagChange: (tag: string | null) => void
   tags: string[]
@@ -34,6 +39,9 @@ interface LogsToolbarProps {
 export const LogsToolbar = ({
   searchInput,
   onSearchInputChange,
+  filters,
+  onRemoveFilter,
+  onClearAllFilters,
   selectedTag,
   onTagChange,
   tags,
@@ -51,7 +59,7 @@ export const LogsToolbar = ({
   const showRefreshSpinner = isRefreshing || isFetching
 
   return (
-    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
       <div className="relative min-w-0 flex-1">
         <Search
           className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
@@ -67,6 +75,12 @@ export const LogsToolbar = ({
         />
       </div>
 
+      <LogsActiveFilters
+        filters={filters}
+        onRemove={onRemoveFilter}
+        onClearAll={onClearAllFilters}
+      />
+
       <LogsTagCombobox
         tags={tags}
         selectedTag={selectedTag}
@@ -74,7 +88,7 @@ export const LogsToolbar = ({
         disabled={tagsDisabled}
       />
 
-      <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
+      <div className="flex shrink-0 flex-wrap items-center gap-2">
         <LogsLiveToggle
           liveEnabled={liveEnabled}
           onLiveEnabledChange={onLiveEnabledChange}

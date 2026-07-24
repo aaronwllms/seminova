@@ -30,7 +30,6 @@ import { useReferenceShipmentStats } from '../_lib/use-reference-shipment-stats'
 import { useReferenceShipmentsRefresh } from '../_lib/use-reference-shipments-refresh'
 import { useReferenceShipments } from '../_lib/use-reference-shipments'
 
-import { ReferenceActiveFilters } from './reference-active-filters'
 import { ReferenceFilteredEmptyState } from './reference-filtered-empty-state'
 import { referenceShipmentsColumns } from './reference-shipments-columns'
 import { ReferenceStatTiles } from './reference-stat-tiles'
@@ -156,16 +155,13 @@ export const ReferenceTableDemo = () => {
         <ReferenceToolbar
           searchInput={searchInput}
           onSearchInputChange={setSearchInput}
+          filters={filters}
+          onRemoveFilter={handleRemoveFilterChip}
+          onClearAllFilters={handleResetFilters}
           onRefresh={() => {
             void refresh()
           }}
           isRefreshing={isRefreshing}
-        />
-
-        <ReferenceActiveFilters
-          filters={filters}
-          onRemove={handleRemoveFilterChip}
-          onClearAll={handleResetFilters}
         />
 
         <TableFetchDimWrapper

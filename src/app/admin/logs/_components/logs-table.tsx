@@ -10,7 +10,6 @@ import { formatLogTimestampDisplay } from '../_lib/format-log-timestamp-display'
 import { hasActiveLogListFilters } from '../_lib/log-list-filters'
 import { useAdminLogsTableState } from '../_lib/use-admin-logs-table-state'
 import { LogDetailDialog } from './log-detail-dialog'
-import { LogsActiveFilters } from './logs-active-filters'
 import { LogsFilteredEmptyState } from './logs-filtered-empty-state'
 import { LogsStatTiles } from './logs-stat-tiles'
 import { LogsToolbar } from './logs-toolbar'
@@ -83,6 +82,9 @@ export const LogsTable = () => {
         <LogsToolbar
           searchInput={searchInput}
           onSearchInputChange={handleSearchInputChange}
+          filters={filters}
+          onRemoveFilter={handleRemoveFilterChip}
+          onClearAllFilters={handleResetFilters}
           selectedTag={selectedTag}
           onTagChange={handleTagChange}
           tags={tags}
@@ -96,12 +98,6 @@ export const LogsTable = () => {
           markAllDisabled={filteredUnreadCount === 0}
           markAllTooltip={markAllTooltip}
           isMarkAllPending={isMarkAllPending}
-        />
-
-        <LogsActiveFilters
-          filters={filters}
-          onRemove={handleRemoveFilterChip}
-          onClearAll={handleResetFilters}
         />
       </div>
 

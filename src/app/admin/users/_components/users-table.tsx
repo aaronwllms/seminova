@@ -10,7 +10,6 @@ import { hasActiveUserListFilters } from '../_lib/user-list-filters'
 import { BanUserDialog } from './ban-user-dialog'
 import { PromoteDemoteDialog } from './promote-demote-dialog'
 import { UnbanUserDialog } from './unban-user-dialog'
-import { UsersActiveFilters } from './users-active-filters'
 import { UsersFilteredEmptyState } from './users-filtered-empty-state'
 import { UsersStatTiles } from './users-stat-tiles'
 import { UsersToolbar } from './users-toolbar'
@@ -82,17 +81,14 @@ export const UsersTable = ({ currentAdminUserId }: UsersTableProps) => {
         <UsersToolbar
           searchInput={searchInput}
           onSearchInputChange={setSearchInput}
+          filters={filters}
+          onRemoveFilter={handleRemoveFilterChip}
+          onClearAllFilters={handleResetFilters}
           onRefresh={() => {
             void refresh()
           }}
           isRefreshing={isRefreshing}
           isFetching={isFetching}
-        />
-
-        <UsersActiveFilters
-          filters={filters}
-          onRemove={handleRemoveFilterChip}
-          onClearAll={handleResetFilters}
         />
       </div>
 

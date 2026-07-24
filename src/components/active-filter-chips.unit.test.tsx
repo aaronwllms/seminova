@@ -16,7 +16,9 @@ describe('ActiveFilterChips', () => {
       <ActiveFilterChips chips={[]} onRemove={vi.fn()} onClearAll={vi.fn()} />,
     )
 
-    expect(screen.queryByText('Active filters:')).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('group', { name: /active filters/i }),
+    ).not.toBeInTheDocument()
   })
 
   it('should show chips and wire remove and clear-all actions', async () => {
@@ -32,7 +34,9 @@ describe('ActiveFilterChips', () => {
       />,
     )
 
-    expect(screen.getByText('Active filters:')).toBeInTheDocument()
+    expect(
+      screen.getByRole('group', { name: /active filters/i }),
+    ).toBeInTheDocument()
     expect(screen.getByText('Banned')).toBeInTheDocument()
     expect(screen.getByText('Search: admin')).toBeInTheDocument()
 

@@ -26,8 +26,11 @@ export const ActiveFilterChips = ({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <span className="text-muted-foreground text-sm">Active filters:</span>
+    <div
+      role="group"
+      aria-label="Active filters"
+      className="flex shrink-0 flex-wrap items-center gap-2"
+    >
       {chips.map((chip) => (
         <Badge key={chip.id} variant="secondary" className="gap-1 pr-1.5 pl-3">
           {chip.label}
