@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Initialize Project
 
-Turn a freshly-grilled template clone into a real project repo. This is a deterministic scrub, not a planning or synthesis task — every judgment call (name, pitch, phases) was already made in `project-kickoff`; this skill propagates those facts and clears the template's own build history.
+Turn a freshly-grilled template clone into a real project repo. This is a deterministic scrub, not a planning or synthesis task — every judgment call (name, pitch, phases) was already made in `project-kickoff`; this skill propagates those facts and clears the template's own authorship record.
 
 Anything this skill can't resolve mechanically, it **surfaces** rather than guesses at.
 
@@ -35,7 +35,7 @@ Every write below is safe to redo on a partially-completed run — each one no-o
 
 `site.ts` and `README.md` are the only sources of truth for identity. Do not ask the user for any of this — if something needed is missing from both files, halt and report the gap rather than inventing it.
 
-## What it purges — the template's build history
+## What it purges — the template's authorship record
 
 The spinoff inherits each **mechanism** below, not its **content**. Where a directory has a README or an `archive/` subfolder, that structure is part of the mechanism: keep it, empty.
 
@@ -45,13 +45,13 @@ The spinoff inherits each **mechanism** below, not its **content**. Where a dire
 - **`docs/archive/`** — purge contents (removes `CONTEXT_ARCHIVE.md`).
 - **`docs/research/`** — delete all `RESEARCH-*.md` in the active directory; purge `docs/research/archive/` (keep it, `.gitkeep` is fine); preserve `README.md` unchanged.
 - **`docs/skill-feedback/`** — purge per-skill feedback logs, keep the directory and any README.
-- **`TEST_AUDIT.md`, `RULE_AUDIT.md`, `SECURITY_AUDIT.md`, `TECH_DEBT_AUDIT.md`** (repo root) — delete. Each describes the template's code at a moment in time and is wrong on arrival; the `audit-*` skills regenerate them on demand.
+- **`TEST_AUDIT.md`, `RULE_AUDIT.md`, `SECURITY_AUDIT.md`, `TECH_DEBT_AUDIT.md`** (repo root) — delete. The `audit-*` skills regenerate them on demand.
 - **`docs/WORKFLOW_BACKLOG.md`** — clear the "Deferred items" section, replacing it with a placeholder line (e.g. `_None yet — entries get added here as workflow decisions are deliberately parked._`). Preserve the header ("What this is" / "Why it exists" / "How to use it") and structure unchanged.
-- **`CONTRIBUTING.md`** — delete. Scope guidance, issue links, and framing specific to the public template; a product that later opens to contributions writes its own. (`project-kickoff`'s README rewrite removes references to it, so no dead links remain.)
+- **`CONTRIBUTING.md`** — delete. (`project-kickoff`'s README rewrite removes references to it, so no dead links remain.)
 
 > **Delete `CONTRIBUTING.md` last.** The "has this already run?" check above depends on its absence being the final act of a completed run. Do not reorder it.
 
-After purging, grep the repo for links to any purged path and **report** what you find. Do not edit the referencing files — several are never-touch. A broken inbound link is an upstream template bug to fix in the template, not here.
+After purging, grep the repo for links to any purged path. Do not edit the referencing files — several are never-touch. A broken inbound link is a template bug to fix upstream; report it under **surfaced**.
 
 ## What it writes
 
@@ -78,10 +78,10 @@ Allowlist — correct as-is, never flag:
 
 **Inherited unchanged** — this is the template's value; every spinoff keeps it as-is: `.cursor/rules/`, `.cursor/skills/`, `DESIGN.md`, `LEXICON.md`, `docs/adr/`, `docs/WORKFLOW_GUIDE.md`, `docs/WORKFLOW_SETUP.md`.
 
-On `docs/adr/`: keep every ADR, including ones describing systems an early phase will delete. An ADR's job is to record why a decision was made; when a phase removes the system, that phase marks the ADR superseded. Deleting one destroys the reason the surrounding code looks the way it does.
+On `docs/adr/`: keep every ADR, including ones describing systems an early phase will delete. Deleting one destroys the record of why the surrounding code looks the way it does.
 
 **Owned by a later phase** — leave alone; check `ROADMAP.md` for which: page copy on surfaces a phase deletes or rewrites (e.g. `/admin`, `/workflow`, `/reference`). Stubbing these now does the work twice and opens a window where the page is wrong.
 
 ## Completion
 
-Report in three parts: what was purged, what was written, and what was surfaced. If a precondition halted the run, that report replaces the scrub — do not partially scrub and then report the halt.
+Report in three parts: purged, written, surfaced. Account for **every** item in each list by name, including ones that were already done and no-opped — a list shorter than the skill's is an incomplete run, not a clean one. If a precondition halted the run, that report replaces the scrub — do not partially scrub and then report the halt.
