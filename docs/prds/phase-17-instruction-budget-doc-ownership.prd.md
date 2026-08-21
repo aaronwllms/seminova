@@ -65,7 +65,7 @@ Order matters: generators are rewired before a line is deleted. Slimming first w
 - Both new markers appear in an `audit-tech-debt` declared-debt harvest.
 - No duplicate record of the auth-boundary gap survives in `docs/WORKFLOW_BACKLOG.md`.
 
-### Epic 3: Deletion pass and why-harvest
+### Epic 3: Deletion pass and why-harvest `Complete`
 
 - **3.1 `AGENTS.md` is cut to the charter.** The audit's enumerated deletions (AG002 through AG020) are applied: the skills tables, the command table and prerequisites, every § Implemented now subsection, § Data model, § Where things live, and § Logging convention. The purpose line stops advertising the file as a feature catalog. AG022 is resolved — the charter is settled input, not a gate — so the deletions proceed without re-opening the decision.
 
