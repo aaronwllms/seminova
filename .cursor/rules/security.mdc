@@ -1,11 +1,6 @@
 ---
 description: Security patterns and vulnerability prevention for Next.js + Supabase
-globs:
-  - 'src/**/*.ts'
-  - 'src/**/*.tsx'
-  - 'src/supabase/proxy.ts'
-  - 'src/app/api/**/*.ts'
-  - 'supabase/migrations/**/*.sql'
+globs: src/**/*.ts, src/**/*.tsx, src/supabase/proxy.ts, src/app/api/**/*.ts, supabase/migrations/**/*.sql
 ---
 
 # Security Guidelines

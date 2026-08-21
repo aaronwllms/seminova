@@ -1,10 +1,10 @@
 ---
-# Auto-attaches on migration SQL edits — project deltas only; general Postgres/Supabase patterns live in docs.
 description: Project-specific Postgres SQL conventions for Supabase migrations — style, RLS, and functions (deltas only)
-globs:
-  - 'supabase/migrations/**/*.sql'
+globs: supabase/migrations/**/*.sql
 alwaysApply: false
 ---
+
+<!-- Auto-attaches on migration SQL edits — project deltas only; general Postgres/Supabase patterns live in docs. -->
 
 # Supabase Migration SQL (project deltas)
 

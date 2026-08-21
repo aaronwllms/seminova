@@ -45,13 +45,13 @@ Roadmap and active build scope: [ROADMAP.md](../../ROADMAP.md) and [docs/prds/](
 | `general-conventions.mdc` | Always on | — | Dates, migration timestamps, environment awareness |
 | `pm-collaboration.mdc` | Always on | — | PM + AI partnership mode |
 | `project-standards.mdc` | Agent requested | — | File layout, module depth heuristic, utils placement |
+| `git-workflow.mdc` | Agent requested | — | Conventional commits, hooks, PR format |
 | `api-development.mdc` | Auto attached | `src/app/api/**` | REST paths, validation, DTOs, error envelopes |
 | `data-tables.mdc` | Auto attached | `*table*.tsx` | Canonical data table pattern (search column, pagination) |
 | `do-migrations-agent.mdc` | Auto attached | `migrations/**`, `*.plan.md` | Agent migration protocol; no auto-push |
 | `documentation.mdc` | Auto attached | `docs/**` | `docs/` layout and archiving guardrail |
 | `error-handling.mdc` | Auto attached | `api/**`, `actions.ts`, `error.tsx` | Error taxonomy, envelopes, InlineError / ErrorPanel |
 | `forms.mdc` | Auto attached | form-shaped paths | react-hook-form + zod, save models, autocomplete |
-| `git-workflow.mdc` | Auto + Agent requested | `.husky/**`, `.github/workflows/**` | Conventional commits, hooks, PR format |
 | `logging.mdc` | Auto attached | `src/**`, `scripts/**` | `appLog`/`cliLog`/`clientLog` wrappers, levels, tagging, server-only ESLint boundary, `check:no-raw-console` guardrail |
 | `nextjs.mdc` | Auto attached | `src/app/**`, `src/components/**` | App Router, RSC patterns, Next 16 conventions |
 | `notifications.mdc` | Auto attached | feedback surfaces | Toast vs inline routing; success taxonomy |
@@ -219,7 +219,7 @@ Per-rule detail (topics and cross-references):
 
 ### `git-workflow.mdc`
 
-**Applies to:** `.husky/**`, `.github/workflows/**` (auto-attached); Agent Requested for commit/branch/PR work
+**Applies to:** Agent Requested via description — commit, branch, PR, and edits under `.husky/` or `.github/workflows/`
 
 - Conventional commits, Husky hooks, PR format
 
@@ -244,6 +244,7 @@ Per-rule detail (topics and cross-references):
 ### Agent Requested (no globs)
 
 - `project-standards.mdc` — file layout, Ousterhout depth heuristic, utils placement; use when creating new files or restructuring modules
+- `git-workflow.mdc` — conventional commits, branch naming, Husky hooks, CI workflow files, GitHub CLI PR format; use when committing, branching, opening/reviewing PRs, or editing `.husky/` or `.github/workflows/`
 
 ### Pointer stubs (auto-attached on matching paths)
 
@@ -253,12 +254,12 @@ Per-rule detail (topics and cross-references):
 
 ## How it works
 
-Cursor loads rules based on frontmatter — only three keys are real: `description`, `globs`, `alwaysApply`. Any other key is silently ignored. See the rule authoring standard in the opening paragraph for the full activation-mode taxonomy.
+Cursor loads rules based on frontmatter — only three keys are real: `description`, `globs`, `alwaysApply`. Any other key is silently ignored. Each rule resolves to **exactly one** activation path. See the rule authoring standard in the opening paragraph for the full taxonomy.
 
 1. **`alwaysApply: true`** — loaded in every session (four rules; see table)
-2. **`globs` set** — attached when you work on matching files (Auto Attached)
+2. **`globs` set** — Auto Attached when a matching file **enters agent context** (agent read, edit, or @-mention), not from editor focus alone. When `globs` is set, the description is **not** used for agent-side relevance selection — there is no dual "Auto + Agent requested" mode.
 3. **No globs, `alwaysApply: false`, specific `description`** — agent decides at runtime whether it's relevant (Agent Requested)
-4. **On-demand** — database/SQL rules and skills (e.g. `/create-migration`) pull in guidance when needed
+4. **On-demand** — skills (e.g. `/create-migration`) pull in guidance when invoked
 
 ## Updating rules
 
@@ -269,7 +270,7 @@ Cursor loads rules based on frontmatter — only three keys are real: `descripti
 
 ## Reference
 
-- [Cursor Rules Documentation](https://docs.cursor.com/context/rules)
+- [Cursor Rules Documentation](https://cursor.com/docs/rules)
 - [`.cursor/README.md`](../README.md) — skills, agents, planning layout
 - Rule authoring standard — see opening paragraph
 - [ROADMAP.md](../../ROADMAP.md) — roadmap and phase status

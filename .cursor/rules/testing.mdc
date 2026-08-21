@@ -1,13 +1,6 @@
 ---
 description: Testing conventions with Vitest, React Testing Library, and MSW v2
-globs:
-  - '**/*.test.ts'
-  - '**/*.test.tsx'
-  - '**/*.unit.test.ts'
-  - '**/*.unit.test.tsx'
-  - '**/*.integration.test.ts'
-  - '**/*.integration.test.tsx'
-  - 'src/test/**/*.tsx'
+globs: **/*.test.ts, **/*.test.tsx, **/*.unit.test.ts, **/*.unit.test.tsx, **/*.integration.test.ts, **/*.integration.test.tsx, src/test/**/*.tsx
 alwaysApply: false
 ---
 

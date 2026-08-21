@@ -1,9 +1,6 @@
 ---
 description: TanStack Query v5 patterns for client-side data fetching
-globs:
-  - 'src/hooks/**/*.ts'
-  - 'src/components/**/*.tsx'
-  - 'src/providers/ReactQueryProvider.tsx'
+globs: src/hooks/**/*.ts, src/components/**/*.tsx, src/providers/ReactQueryProvider.tsx
 ---
 
 # TanStack Query v5 (React Query) Patterns

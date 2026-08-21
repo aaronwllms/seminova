@@ -56,3 +56,36 @@ we're doing.
 agriculture firms.
 
 ---
+
+## Slim AGENTS.md (instruction budget)
+
+**What:** Cut AGENTS.md down to content that earns every-request load — hard constraints,
+agent workflow gates, merge checklist, change protocol — and stop the doc system from
+refilling it. Findings and per-section verdicts are in [AGENTS_AUDIT.md](AGENTS_AUDIT.md)
+(first full pass 2026-08-06: 24 open findings; ~0.9% staleness, so this is a budget
+problem, not a drift problem). Decision made: slim-AGENTS (AG022 option A).
+
+**Why backlog, not ROADMAP:** Decided but not scheduled; sizing is an open question — the
+generator fix is small and the deletions are large but mechanical, so this may be one
+phase or a phase plus a slice.
+
+**Notes:**
+
+- **Ordering constraint:** fix the generator before deleting anything. `sync-repo-docs` is
+  the one skill that auto-invokes, and it is currently instructed to write shipped
+  features, routes, and schema back into AGENTS.md. Deleting first just loops.
+- **Scope, four files:** `docs/DOC_RULES.md` (roles table AGENTS.md row, rule 3 schema
+  authority, sync-order line, audit-artifacts row) → `.cursor/skills/sync-repo-docs/SKILL.md`
+  (Step 3 ownership row, three Step 2 drift patterns, Step 4 migration count, Step 1
+  evidence row, one anti-pattern) → `.cursor/skills/sync-repo-docs/reference.md` (four
+  AGENTS.md section-map rows, four audit-checklist entries, examples A and B) → AGENTS.md
+  itself (change-protocol row, then the AG deletions).
+- **Dependency not in AGENTS_AUDIT.md:** DOC*RULES' sync-order line has ROADMAP and PRD
+  status updates reading shipped truth \_out of* AGENTS.md. That chain breaks unless those
+  updates are repointed at code and git in the same pass.
+- **No new home needed for the deleted content.** The code is the agent-facing reference;
+  whys already live in ADRs, `.cursor/rules/`, and LEXICON; the human-facing feature list
+  already exists as `src/config/features-content.ts` rendered at `/features`.
+- Audit skill is `/audit-agents-md` (`.cursor/skills/audit-agents-md/`), added 2026-08-06.
+
+---

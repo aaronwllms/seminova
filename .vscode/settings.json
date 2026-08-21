@@ -1,0 +1,15 @@
+{
+  "window.titleBarStyle": "custom",
+  "workbench.colorCustomizations": {
+    "titleBar.activeBackground": "#1E293B",
+    "titleBar.activeForeground": "#818CF8",
+    "titleBar.inactiveBackground": "#152032",
+    "titleBar.inactiveForeground": "#9CA3AF",
+    "statusBar.background": "#152032",
+    "statusBar.foreground": "#818CF8",
+    "statusBar.noFolderBackground": "#152032",
+    "activityBar.background": "#1E293B",
+    "activityBar.foreground": "#E2E8F0",
+    "activityBar.activeBorder": "#6264EF"
+  }
+}

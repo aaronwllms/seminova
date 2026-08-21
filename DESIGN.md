@@ -2,7 +2,7 @@
 
 **Purpose:** Document the token architecture, the structure-vs-theme split, and how to re-skin the template for a new product. For agents: read this for design-system conventions. For repo truth and hard constraints, see [AGENTS.md](AGENTS.md). For roadmap, see [ROADMAP.md](ROADMAP.md); for active-phase design scope, see [docs/prds/](docs/prds/).
 
-**Last updated:** 2026-07-22
+**Last updated:** 2026-07-24
 
 ---
 

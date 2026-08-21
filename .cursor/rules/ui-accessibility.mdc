@@ -1,8 +1,6 @@
 ---
 description: Accessibility (a11y) patterns and WCAG compliance guidelines
-globs:
-  - 'src/components/**/*.tsx'
-  - 'src/app/**/*.tsx'
+globs: src/components/**/*.tsx, src/app/**/*.tsx
 ---
 
 # Accessibility (a11y) Best Practices

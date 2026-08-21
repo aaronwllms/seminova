@@ -1,12 +1,10 @@
 ---
 description: Project-specific TypeScript conventions — named exports, Supabase types, shared-type placement
-# Globs: app + admin-script TypeScript only — excludes Vitest/config, Husky, migrations, .cursor/, and test files
-globs:
-  - 'src/**/*.ts'
-  - 'src/**/*.tsx'
-  - 'scripts/**/*.ts'
+globs: src/**/*.ts, src/**/*.tsx, scripts/**/*.ts
 alwaysApply: false
 ---
+
+<!-- Globs: app + admin-script TypeScript only — excludes Vitest/config, Husky, migrations, .cursor/, and test files -->
 
 # TypeScript Standards
 

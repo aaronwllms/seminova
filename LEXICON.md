@@ -6,7 +6,7 @@
 
 **Discipline:** Entries are short — a sentence or two of meaning, plus a pointer to the canonical home (a rule, `DESIGN.md`, [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints), an ADR) where the authoritative detail and any values live. Do not duplicate token values, rule wording, or schema here; point to the source of truth instead.
 
-**Last updated:** 2026-07-23
+**Last updated:** 2026-08-21
 
 ---
 
@@ -35,6 +35,7 @@
   - [Canonical data table](#canonical-data-table)
   - [Tiered freshness](#tiered-freshness)
   - [Motion tier](#motion-tier)
+  - [Instruction budget](#instruction-budget)
 - [Domain terms](#domain-terms)
 
 ---
@@ -162,6 +163,10 @@ Transition duration keyed to **traversal rate** — Swept for cursor-swept surfa
 ### Tiered freshness
 
 Matching a data-freshness mechanism to a surface's actual needs rather than applying one everywhere. A monitoring/triage surface with ongoing inserts where stale data would drive a wrong decision gets Realtime (live push); a low-churn, single-actor surface gets a lighter signal — refetch-on-focus, or a save-confirmation toast. A table earns Realtime only against fixed criteria, evaluated per surface, not added by precedent. This is a template-level pattern every spinoff inherits and applies to its own tables. Criteria and trade-offs in [docs/adr/ADR-0008-realtime-scoped-to-logs-tiered-freshness.md](docs/adr/ADR-0008-realtime-scoped-to-logs-tiered-freshness.md).
+
+### Instruction budget
+
+The finite attention an always-loaded instruction file spends on **every** request. [AGENTS.md](AGENTS.md) and the always-apply rules in [`.cursor/rules/`](.cursor/rules/) are read whether or not they are relevant to the task, so anything placed there is paid for on every run — which makes deletion, not addition, the default answer to "should this go in AGENTS.md?" The response is _progressive disclosure_: keep the always-loaded layer to what any change can trip (hard constraints, workflow gates, governance), and push everything else behind a glob (a scoped rule), an invocation (a skill), or a link (an ADR, [DESIGN.md](DESIGN.md), this file). Content that is derivable from the code — route lists, migration inventories, directory maps — is not disclosed progressively; it is deleted, because the agent can read the code. Decision and trade-off in [docs/adr/ADR-0010-agents-md-governance-not-repo-truth.md](docs/adr/ADR-0010-agents-md-governance-not-repo-truth.md); the audit standard in [`.cursor/skills/audit-agents-md/SKILL.md`](.cursor/skills/audit-agents-md/SKILL.md).
 
 ---
 

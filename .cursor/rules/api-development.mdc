@@ -1,9 +1,7 @@
 ---
 description: API development standards for Next.js App Router routes
 alwaysApply: false
-globs:
-  - 'src/app/api/**/*.ts'
-  - 'src/app/api/**/*.tsx'
+globs: src/app/api/**/*.ts, src/app/api/**/*.tsx
 ---
 
 # API Development Guidelines

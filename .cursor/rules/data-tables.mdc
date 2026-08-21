@@ -1,8 +1,6 @@
 ---
 description: Conventions for shadcn/TanStack Table data tables across the app
-globs:
-  - 'src/components/**/*table*.tsx'
-  - 'src/app/**/*table*.tsx'
+globs: src/components/**/*table*.tsx, src/app/**/*table*.tsx
 ---
 
 # Data Table Conventions

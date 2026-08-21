@@ -1,10 +1,7 @@
 ---
 description: Error taxonomy, response envelopes, and error UI surfaces (InlineError / ErrorPanel)
 alwaysApply: false
-globs:
-  - 'src/app/api/**/*.ts'
-  - 'src/app/**/actions.ts'
-  - 'src/app/**/error.tsx'
+globs: src/app/api/**/*.ts, src/app/**/actions.ts, src/app/**/error.tsx
 ---
 
 # Error Handling Standards
