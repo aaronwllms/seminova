@@ -36,9 +36,8 @@ Read the actual referenced files and actual other rule files before flagging any
 
 1. Read `rule-authoring` in full.
 2. Read `AGENTS.md` § Hard constraints at the repo root.
-3. Skim `AGENTS.md` § Implemented now and `docs/DOC_RULES.md` document-roles
-   table — enough to detect repo-truth duplication in rules, not a full
-   inventory pass.
+3. Skim `docs/DOC_RULES.md` document-roles table — enough to detect
+   repo-truth duplication in rules, not a full inventory pass.
 4. List every file in `.cursor/rules/*.mdc`.
 
 ## Phase 2: Audit

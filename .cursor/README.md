@@ -31,7 +31,7 @@ A small set of **always-on** rules applies in every session (minimalism, PM coll
 
 ## Skills
 
-Full catalog with when-to-use guidance: [AGENTS.md § Agent skills](../AGENTS.md#agent-skills-cursorskills). Per-skill detail: [`skills/`](skills/) (`SKILL.md` in each folder). Skills with `disable-model-invocation: true` run only when you explicitly invoke them.
+Per-skill detail: [`skills/`](skills/) (`SKILL.md` in each folder). Skills with `disable-model-invocation: true` run only when you explicitly invoke them.
 
 ## Database migrations
 

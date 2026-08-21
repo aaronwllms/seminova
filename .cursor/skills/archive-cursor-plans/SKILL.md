@@ -38,7 +38,7 @@ Determine mode from the user's request:
 **Selective sources** (use the smallest set that matches intent):
 
 1. Explicit filenames or plan titles from the user
-2. Plans whose names match a shipped phase/epic in `ROADMAP.md` (shipped phases) + `docs/prds/` (Active/Shipped PRDs) + `AGENTS.md` "Implemented now"
+2. Plans whose names match a shipped phase/epic in `ROADMAP.md` (shipped phases) + `docs/prds/` (Active/Shipped PRDs)
 3. Ask the user to confirm the list before moving if ambiguous
 
 If **bulk** and the user might still have in-progress work, list root plans and confirm before moving unless they already said "move all".
