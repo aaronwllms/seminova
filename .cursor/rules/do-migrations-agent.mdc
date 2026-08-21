@@ -1,8 +1,6 @@
 ---
 description: Agent constraints for database migrations - prevents duplicates and auto-push
-globs:
-  - 'supabase/migrations/**/*.sql'
-  - '**/*.plan.md'
+globs: supabase/migrations/**/*.sql, **/*.plan.md
 alwaysApply: false
 ---
 

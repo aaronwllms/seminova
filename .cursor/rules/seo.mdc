@@ -1,17 +1,6 @@
 ---
 description: SEO metadata wire-up, crawler surface, social previews, and content standards for App Router routes
-globs:
-  - 'src/app/**/*.ts'
-  - 'src/app/**/*.tsx'
-  - 'src/config/site.ts'
-  - 'src/utils/site-url.ts'
-  - 'src/utils/robots-policy.ts'
-  - 'src/utils/sitemap-routes.ts'
-  - 'src/utils/structured-data.ts'
-  - 'src/utils/og-image.tsx'
-  - 'src/utils/brand-mark-image.tsx'
-  - 'src/utils/discover-app-routes.ts'
-  - 'src/utils/proxy-matcher.ts'
+globs: src/app/**/*.ts, src/app/**/*.tsx, src/config/site.ts, src/utils/site-url.ts, src/utils/robots-policy.ts, src/utils/sitemap-routes.ts, src/utils/structured-data.ts, src/utils/og-image.tsx, src/utils/brand-mark-image.tsx, src/utils/discover-app-routes.ts, src/utils/proxy-matcher.ts
 alwaysApply: false
 ---
 

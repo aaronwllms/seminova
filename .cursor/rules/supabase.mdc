@@ -1,10 +1,6 @@
 ---
 description: Supabase integration patterns using @supabase/ssr
-globs:
-  - 'src/**/*.ts'
-  - 'src/**/*.tsx'
-  - 'src/supabase/**/*.ts'
-  - 'supabase/migrations/**/*.sql'
+globs: src/**/*.ts, src/**/*.tsx, src/supabase/**/*.ts, supabase/migrations/**/*.sql
 ---
 
 # Supabase Integration (@supabase/ssr)
