@@ -1,14 +1,9 @@
 ---
-# Globs scoped to git-infrastructure files only; otherwise Agent Requested for commit/branch/PR work.
-description: >-
-  Git workflow, conventional commits, and PR creation standards. Use when
-  committing, branching, opening or reviewing pull requests, or editing Husky
-  hooks and CI workflow files.
+description: Conventional commits, branch naming, Husky pre-commit/pre-push hooks, CI workflow files, and GitHub CLI PR format. Use when committing, creating branches, opening or reviewing pull requests, or editing .husky/ or .github/workflows/ files.
 alwaysApply: false
-globs:
-  - '.husky/**'
-  - '.github/workflows/**'
 ---
+
+<!-- Agent Requested only — no globs; description is the sole activation trigger. -->
 
 # Git Workflow & Conventional Commits
 

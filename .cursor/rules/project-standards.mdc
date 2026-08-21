@@ -1,8 +1,5 @@
 ---
-description: >-
-  Project-wide code organization conventions — file layout, module depth
-  heuristic, utils placement. Use when creating new files or restructuring
-  modules.
+description: Project-wide code organization conventions — file layout, module depth heuristic, utils placement. Use when creating new files or restructuring modules.
 alwaysApply: false
 ---
 
