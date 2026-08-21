@@ -2,7 +2,7 @@
 
 **Purpose:** What exists in this repo today — hard-constraint governance, implemented features, routes, data model, and where to look. For planning and roadmap, see [ROADMAP.md](ROADMAP.md), [BACKLOG.md](BACKLOG.md), and the per-phase PRDs in [docs/prds/](docs/prds/). For human setup, see [README.md](README.md). For how to write code, see [.cursor/rules/](.cursor/rules/) (not duplicated here).
 
-**Last updated:** 2026-07-24
+**Last updated:** 2026-08-21
 
 Document roles and the doc-maintenance procedure are authoritative in [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
@@ -43,6 +43,8 @@ For the planning-loop skills (`kickoff-phase`, `plan-next-epic`, `mark-epic-comp
 | `audit-tests` | Test suite health check — full pass or sync → `TEST_AUDIT.md` |
 | `audit-rules` | Rules health check — full pass or sync → `RULE_AUDIT.md` |
 | `audit-security` | Before launch, after auth/RLS changes, or periodic hygiene — full pass or sync → `SECURITY_AUDIT.md` |
+| `audit-agents-md` | Instruction-budget audit of AGENTS.md — full pass or sync → `AGENTS_AUDIT.md` |
+| `audit-seo` | SEO surface audit against `seo.mdc` — full pass or sync → `SEO_AUDIT.md` |
 
 ### Design & copy
 
@@ -60,6 +62,7 @@ For the planning-loop skills (`kickoff-phase`, `plan-next-epic`, `mark-epic-comp
 | `archive-cursor-plans` | After a phase ships, or before a planning push — moves completed plans from `.cursor/plans/` to `.cursor/plans/archive/` |
 | `research` | Exploratory investigation (product, technical, competitive, codebase) → `docs/research/` brief or chat-only |
 | `archive-research` | Retires served research briefs to `docs/research/archive/` — @-attach brief(s) in the same invocation |
+| `initialize-project` | Spinoff scrub — replaces remaining template artifacts after `project-kickoff` updates site config, README, and ROADMAP |
 
 All skills are read-only or scoped-write as documented in their own `SKILL.md` — see `.cursor/skills/<name>/SKILL.md` for full workflow detail. None auto-invoke except `sync-repo-docs`.
 
