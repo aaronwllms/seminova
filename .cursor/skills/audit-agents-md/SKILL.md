@@ -165,8 +165,9 @@ Use `TodoWrite` to publish a plan so the user can see progress through the
 phases.
 
 1. Read the three files under § Read first.
-2. Record the budget: total lines, approximate tokens, and share of the file
-   per top-level section.
+2. Record the budget: total **characters** (`wc -m AGENTS.md`), approximate
+   tokens, and share of the file per top-level section by character count — not
+   lines.
 3. List the owners available today: `docs/adr/`, `.cursor/rules/*.mdc` (with
    activation modes), `LEXICON.md`, `.cursor/skills/*/`.
 
@@ -211,7 +212,7 @@ unless the waiver criteria are met — then document the waiver in the ledger.
 
 | Trigger | Category | Default severity | Finding unless |
 | ------- | -------- | ---------------- | -------------- |
-| Total file over **200 lines** | `Budget` | High | — (always a finding; severity scales with excess) |
+| Total file over **10,000 characters** | `Budget` | High | — (always a finding; severity scales with excess) |
 | Any section failing Test 1 | `Budget` | Medium | Section is `§ Hard constraints` |
 | **3+ concrete file paths** in one section | `Drift risk` | Medium | Paths are the subject of a hard constraint |
 | Inventory of routes, migrations, tables, commands, or directories | `Derivable` | Medium | The inventory *is* a hard constraint |
@@ -233,7 +234,7 @@ staleness rate is a number.
 Write or update `AGENTS_AUDIT.md` at the repo root per the Output template
 below.
 
-- **Executive summary** — lead with two numbers: budget (lines / tokens) and
+- **Executive summary** — lead with two numbers: budget (characters / tokens) and
   staleness rate (broken references / total checked). Then rank findings by
   what would most mislead the agent if left unfixed.
 - **Severity** calibrated by misdirection, not size — a broken path outranks a
@@ -258,7 +259,7 @@ below.
 
 Before finishing:
 
-- [ ] Budget recorded as a number; staleness recorded as a ratio
+- [ ] Budget recorded as a character count; staleness recorded as a ratio
 - [ ] Every top-level section has a ledger row with both test results
 - [ ] Long sections audited at paragraph granularity, not one verdict each
 - [ ] Every finding has a stable ID, category, severity,
@@ -289,7 +290,7 @@ Scope: AGENTS.md at repo root, against the instruction-budget standard
 
 ## Executive summary
 
-- Budget: <N> lines / ~<N>k tokens, loaded on every request
+- Budget: <N> characters / ~<N>k tokens, loaded on every request
 - Staleness: <N> broken references of <N> checked
 - (max 10 bullets, ranked by what would most mislead the agent if left unfixed)
 

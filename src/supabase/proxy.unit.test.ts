@@ -1,3 +1,8 @@
+// debt: check:auth-boundary is not a pre-push or CI named step — these
+// discovered-route proxy tests pass only because test:ci runs this file;
+// upgrade path: add pnpm check:auth-boundary as a named step in package.json
+// pre-push and .github/workflows/pull-request.yaml when the union-vs-subset
+// contract for check:* scripts is stated.
 /**
  * @vitest-environment node
  */

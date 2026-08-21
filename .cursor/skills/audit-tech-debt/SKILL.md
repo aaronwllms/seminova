@@ -89,7 +89,13 @@ Use `rg` (Grep tool), shell commands, and language-native tooling to find concre
 
 9. **Documentation drift** — README or AGENTS.md claims that don't match reality, comments that contradict adjacent code, public APIs without docstrings.
 
-10. **Declared debt** — harvest the deliberate shortcuts the author flagged inline per `code-minimalism.mdc`: `rg -n "// debt:" src/`. Each marker names a known ceiling and upgrade path (e.g. `// debt: in-memory cache, swap for Redis if multi-instance`). These are **pre-classified, uncontested** findings — the author already declared them debt, so do not re-litigate whether they belong. Record under category **Declared debt**, citing the marker's `startLine:endLine:filepath`, using the marker's stated upgrade path as the Recommendation, and setting Severity/Effort from the nature of the ceiling. Place ceiling-gated markers whose trigger has not fired in **Accepted**; place markers whose upgrade is actively queued or deferred to a named phase in **Open**. A marker whose shortcut is no longer present (upgraded already) is not a finding.
+10. **Declared debt** — harvest the deliberate shortcuts the author flagged inline per `code-minimalism.mdc`:
+
+```bash
+rg -n "// debt:" --hidden --glob "*.{ts,tsx,js,mjs,cjs}" --glob "!.git/**" --glob "!node_modules/**" --glob "!.next/**" --glob "!coverage/**"
+```
+
+Each marker names a known ceiling and upgrade path (e.g. `// debt: in-memory cache, swap for Redis if multi-instance`). These are **pre-classified, uncontested** findings — the author already declared them debt, so do not re-litigate whether they belong. Record under category **Declared debt**, citing the marker's `startLine:endLine:filepath`, using the marker's stated upgrade path as the Recommendation, and setting Severity/Effort from the nature of the ceiling. Place ceiling-gated markers whose trigger has not fired in **Accepted**; place markers whose upgrade is actively queued or deferred to a named phase in **Open**. A marker whose shortcut is no longer present (upgraded already) is not a finding.
 
 ## Phase 3: Deliverable
 
