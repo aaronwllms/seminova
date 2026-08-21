@@ -1,6 +1,6 @@
 # PRD — Phase 17: Instruction Budget & Doc Ownership
 
-**Status:** `Active`
+**Status:** `Shipped`
 **Last updated:** 2026-08-21
 
 ---
