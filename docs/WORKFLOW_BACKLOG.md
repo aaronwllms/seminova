@@ -80,11 +80,26 @@
 
 ### Workflow Guide visual overview: Mermaid vs. image tradeoff
 
-**What:** [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md)'s Visual overview now uses the same `public/images/workflow-dark.svg` / `workflow-light.svg` picture-tag pattern as [README.md](../README.md), replacing a jumbled Mermaid flowchart. Mermaid renders in both Cursor and GitHub's markdown previews; the image only renders in GitHub's. Revisit once Mermaid's swimlane feature is stable enough to redo the diagram cleanly in Mermaid — evaluate whether it should replace the image or sit alongside it so Cursor viewers get a rendered diagram too.
+**What:** [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md)'s Visual overview uses the same `public/images/workflow-dark.svg` / `workflow-light.svg` picture-tag pattern as [README.md](../README.md), because an earlier Mermaid flowchart was jumbled. The image renders on GitHub; Cursor's markdown preview shows a broken image icon. Mermaid swimlanes (`swimlane-beta`, shipped in Mermaid 11.16.0) would answer "who owns each step" cleanly — two lanes (Claude and Cursor), You as labeled handoff arrows, replacing the SVG in both files rather than keeping two diagrams.
 
-**Why deferred:** Swimlane support isn't broadly available yet; not worth hand-rolling a workaround now.
+**Decision (2026-08-21):** Hold until Cursor's markdown preview renders swimlanes. Do not push to GitHub just to confirm GitHub's Mermaid version. When Cursor preview works, GitHub can be checked as a follow-on, not as the gate.
 
-**Revisit when:** Mermaid's swimlane feature is confirmed stable and widely available.
+**Why deferred:** Cursor preview still shows an error block for `swimlane-beta` (checked 2026-08-21). Replacing the SVG now would make the docs diagram unreadable in the editor we actually use.
+
+**Revisit when:** The demo block below renders as a diagram in this file's Cursor markdown preview — not an error. Then replace the SVGs in WORKFLOW_GUIDE and README with a two-lane swimlane of the current nine-step loop, and drop this item.
+
+**Cursor support check** — open this file in markdown preview. Diagram = supported; error block = still wait.
+
+```mermaid
+swimlane-beta LR
+  subgraph Claude
+    A[Plan phase]
+  end
+  subgraph Cursor
+    B[Plan epic]
+  end
+  A --> B
+```
 
 ### Ad hoc planning workflow (between phases)
 
