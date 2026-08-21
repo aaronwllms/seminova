@@ -21,7 +21,27 @@ const ringRectCount = (step: HTMLElement) =>
 const stepsWithRing = () =>
   screen.getAllByRole('button').filter((step) => ringRectCount(step) === 2)
 
+const ENVIRONMENT_LABEL = {
+  claude: 'Claude',
+  cursor: 'Cursor',
+} as const
+
 describe('WorkflowDiagram', () => {
+  it('should expose accessible names with title, skill when present, and environment for every node', () => {
+    render(<WorkflowDiagram ariaLabelledBy="plan-review-build" />)
+
+    for (const node of WORKFLOW_LOOP_NODES) {
+      const environmentName = ENVIRONMENT_LABEL[node.environment]
+      const expectedName = node.skill
+        ? new RegExp(`${node.label}.*${node.skill}.*${environmentName}`, 'i')
+        : new RegExp(`${node.label}.*${environmentName}`, 'i')
+
+      expect(
+        screen.getByRole('button', { name: expectedName }),
+      ).toBeInTheDocument()
+    }
+  })
+
   it('should reveal step detail on keyboard focus and keep it when tabbing between steps', async () => {
     const user = userEvent.setup({ delay: null })
     const firstNode = WORKFLOW_LOOP_NODES[0]

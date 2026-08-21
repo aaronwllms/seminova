@@ -120,7 +120,7 @@ export const WORKFLOW_LOOP_NODES = [
     environment: 'claude',
     detail:
       'One-time setup when a spinoff is cloned from the template. Claude, project-kickoff.',
-    geometry: { x: 260, y: 40, width: 150, height: 68, layout: 'three-line' },
+    geometry: { x: 190, y: 30, width: 140, height: 68, layout: 'three-line' },
   },
   {
     id: 'initialize-project',
@@ -129,7 +129,7 @@ export const WORKFLOW_LOOP_NODES = [
     environment: 'cursor',
     detail:
       'Cursor scaffolds the spinoff repo from the template. Cursor, initialize-project.',
-    geometry: { x: 436, y: 40, width: 170, height: 68, layout: 'three-line' },
+    geometry: { x: 356, y: 30, width: 150, height: 68, layout: 'three-line' },
   },
   {
     id: 'phase-planning',
@@ -138,7 +138,16 @@ export const WORKFLOW_LOOP_NODES = [
     environment: 'claude',
     detail:
       'Requirements and success criteria lock in before any epic starts. Claude, phase-planning.',
-    geometry: { x: 60, y: 186, width: 130, height: 68, layout: 'three-line' },
+    geometry: { x: 188, y: 166, width: 140, height: 68, layout: 'three-line' },
+  },
+  {
+    id: 'kickoff-phase',
+    label: 'Kickoff phase',
+    skill: 'kickoff-phase',
+    environment: 'cursor',
+    detail:
+      'Creates the phase branch, flips the phase to Active, commits the planning-doc updates.',
+    geometry: { x: 352, y: 166, width: 140, height: 68, layout: 'three-line' },
   },
   {
     id: 'plan-next-epic',
@@ -147,7 +156,7 @@ export const WORKFLOW_LOOP_NODES = [
     environment: 'cursor',
     detail:
       'Cursor drafts an implementation plan for the next epic. Cursor, plan-next-epic.',
-    geometry: { x: 232, y: 186, width: 130, height: 68, layout: 'three-line' },
+    geometry: { x: 62, y: 278, width: 130, height: 68, layout: 'three-line' },
   },
   {
     id: 'plan-review',
@@ -156,7 +165,7 @@ export const WORKFLOW_LOOP_NODES = [
     environment: 'claude',
     detail:
       'Claude checks the plan against the code and hard constraints before any code lands. Claude, plan-review.',
-    geometry: { x: 388, y: 186, width: 130, height: 68, layout: 'three-line' },
+    geometry: { x: 210, y: 278, width: 130, height: 68, layout: 'three-line' },
   },
   {
     id: 'build',
@@ -164,7 +173,16 @@ export const WORKFLOW_LOOP_NODES = [
     skill: null,
     environment: 'cursor',
     detail: 'Cursor implements the approved plan and runs code review.',
-    geometry: { x: 544, y: 186, width: 90, height: 68, layout: 'two-line' },
+    geometry: { x: 358, y: 278, width: 90, height: 68, layout: 'two-line' },
+  },
+  {
+    id: 'mark-epic-complete',
+    label: 'Mark epic complete',
+    skill: 'mark-epic-complete',
+    environment: 'cursor',
+    detail:
+      'Closes the epic out: updates the PRD and commits the epic with its trailer.',
+    geometry: { x: 464, y: 278, width: 155, height: 68, layout: 'three-line' },
   },
   {
     id: 'ship-phase',
@@ -173,7 +191,7 @@ export const WORKFLOW_LOOP_NODES = [
     environment: 'cursor',
     detail:
       "Once every epic ships, the phase closes and the next planning pass starts from what's actually in the repo. Cursor, ship-phase.",
-    geometry: { x: 676, y: 186, width: 130, height: 68, layout: 'three-line' },
+    geometry: { x: 269, y: 390, width: 140, height: 68, layout: 'three-line' },
   },
 ] as const satisfies ReadonlyArray<{
   id: string

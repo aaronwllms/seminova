@@ -191,7 +191,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
     <div onBlur={handleDiagramBlur}>
       <svg
         width="100%"
-        viewBox="0 0 860 320"
+        viewBox="0 0 680 496"
         role="group"
         aria-labelledby={ariaLabelledBy}
         aria-describedby="workflow-diagram-detail"
@@ -200,12 +200,13 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
         onMouseLeave={() => setHoveredNodeId(null)}
       >
         <desc>
-          Project kickoff and initialize project feed into a phase loop
-          containing plan phase and a nested epic loop of plan epic, review
-          plan, build, then out to ship phase, with a dashed revise arrow back
-          from review plan to plan epic.
+          Project kickoff and initialize project feed into a phase loop of three
+          centered rows: plan phase and kickoff phase, an epic loop of plan
+          epic, review plan, build, and mark epic complete, then ship phase.
+          Connectors enter and leave the epic loop at its container edges, with
+          a dashed revise arrow back from review plan to plan epic.
         </desc>
-        <rect x="0" y="0" width="860" height="320" rx="12" fill="var(--card)" />
+        <rect x="0" y="0" width="680" height="496" rx="12" fill="var(--card)" />
         <defs>
           <marker
             id="workflow-arrow"
@@ -228,17 +229,17 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
         </defs>
 
         <line
-          x1="410"
-          y1="74"
-          x2="434"
-          y2="74"
+          x1="330"
+          y1="64"
+          x2="354"
+          y2="64"
           stroke="var(--border)"
           strokeWidth="1.5"
           markerEnd="url(#workflow-arrow)"
         />
 
         <path
-          d="M521 108 V140 H125 V184"
+          d="M431 98 V150 H258 V166"
           fill="none"
           stroke="var(--border)"
           strokeWidth="1.5"
@@ -246,10 +247,10 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
         />
 
         <rect
-          x="40"
-          y="150"
-          width="786"
-          height="140"
+          x="30"
+          y="130"
+          width="620"
+          height="346"
           rx="12"
           fill="none"
           stroke="var(--border)"
@@ -257,8 +258,8 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
           strokeDasharray="6 4"
         />
         <text
-          x="806"
-          y="166"
+          x="638"
+          y="147"
           textAnchor="end"
           fontSize="11"
           fill="var(--muted-foreground)"
@@ -268,20 +269,28 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
         </text>
 
         <line
-          x1="190"
-          y1="220"
-          x2="214"
-          y2="220"
+          x1="328"
+          y1="200"
+          x2="352"
+          y2="200"
+          stroke="var(--border)"
+          strokeWidth="1.5"
+          markerEnd="url(#workflow-arrow)"
+        />
+
+        <path
+          d="M422 234 V246 H339 V252"
+          fill="none"
           stroke="var(--border)"
           strokeWidth="1.5"
           markerEnd="url(#workflow-arrow)"
         />
 
         <rect
-          x="216"
-          y="170"
-          width="434"
-          height="100"
+          x="46"
+          y="252"
+          width="586"
+          height="114"
           rx="12"
           fill="none"
           stroke="var(--border)"
@@ -289,9 +298,9 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
           strokeDasharray="6 4"
         />
         <text
-          x="228"
-          y="184"
-          fontSize="10"
+          x="58"
+          y="268"
+          fontSize="11"
           fill="var(--muted-foreground)"
           fontFamily="sans-serif"
         >
@@ -299,27 +308,37 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
         </text>
 
         <line
-          x1="362"
-          y1="220"
-          x2="386"
-          y2="220"
+          x1="192"
+          y1="312"
+          x2="208"
+          y2="312"
           stroke="var(--border)"
           strokeWidth="1.5"
           markerEnd="url(#workflow-arrow)"
         />
 
         <line
-          x1="518"
-          y1="220"
-          x2="542"
-          y2="220"
+          x1="340"
+          y1="312"
+          x2="356"
+          y2="312"
+          stroke="var(--border)"
+          strokeWidth="1.5"
+          markerEnd="url(#workflow-arrow)"
+        />
+
+        <line
+          x1="448"
+          y1="312"
+          x2="464"
+          y2="312"
           stroke="var(--border)"
           strokeWidth="1.5"
           markerEnd="url(#workflow-arrow)"
         />
 
         <path
-          d="M453 254 L453 264 L297 264 L297 256"
+          d="M275 346 L275 360 L127 360 L127 348"
           fill="none"
           stroke="var(--muted-foreground)"
           strokeWidth="1"
@@ -327,21 +346,19 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
           markerEnd="url(#workflow-arrow)"
         />
         <text
-          x="375"
-          y="263"
+          x="201"
+          y="357"
           textAnchor="middle"
-          fontSize="9"
+          fontSize="11"
           fill="var(--muted-foreground)"
           fontFamily="sans-serif"
         >
           revise
         </text>
 
-        <line
-          x1="650"
-          y1="220"
-          x2="674"
-          y2="220"
+        <path
+          d="M339 366 V390"
+          fill="none"
           stroke="var(--border)"
           strokeWidth="1.5"
           markerEnd="url(#workflow-arrow)"
