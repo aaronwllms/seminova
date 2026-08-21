@@ -52,7 +52,7 @@ Order matters: generators are rewired before a line is deleted. Slimming first w
 - The finish-work command in § Agent workflow is the same command the pre-push hook runs.
 - `pnpm pre-push` is green.
 
-### Epic 2: Audit tooling and enforcement markers
+### Epic 2: Audit tooling and enforcement markers `Complete`
 
 - **2.1 The budget audit measures the right unit.** `audit-agents-md` records budget in characters rather than lines, and its mechanical trigger threshold moves with it. The file's prose sections run one line per paragraph, so a line count under-reads the real spend by roughly half — the metric that was supposed to catch the bloat was itself reporting it as smaller than it was.
 
