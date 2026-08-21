@@ -62,5 +62,5 @@ alwaysApply: false
 
 - Error handling → `error-handling.mdc`
 - Security → `security.mdc`
-- Quality bar before merge → `AGENTS.md` (`pnpm type-check`, `pnpm lint`, `pnpm format-check`, `pnpm test:ci`)
+- Quality bar before merge → `AGENTS.md` § Agent workflow step 3 (`pnpm pre-push`)
 - TypeScript and App Router conventions → `typescript.mdc`, `nextjs.mdc`

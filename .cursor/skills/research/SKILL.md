@@ -25,7 +25,7 @@ not run file writes in Ask mode.
 - **`plan-next-epic`** — implementation planning from an active PRD
 - **`archive-research`** — retires served briefs to `docs/research/archive/`
   (PM @-attached files only; frozen)
-- **`sync-repo-docs`** — mirrors shipped code into AGENTS.md / README
+- **`sync-repo-docs`** — syncs README, DESIGN.md, and the rules index
 
 ---
 
@@ -61,7 +61,7 @@ are both resolved — no research before that.
 
 When the question touches the current build phase:
 
-1. Read [`AGENTS.md`](../../../AGENTS.md) for repo truth and hard constraints
+1. Read [`AGENTS.md`](../../../AGENTS.md) for hard constraints
 2. Read the active PRD in [`docs/prds/`](../../../docs/prds/) (discover via
    [DOC_RULES.md document roles](../../../docs/DOC_RULES.md#document-roles))
 

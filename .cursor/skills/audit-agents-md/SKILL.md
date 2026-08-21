@@ -18,8 +18,8 @@ Audits `AGENTS.md` against the instruction-budget standard below and produces
 
 **Not the same as:**
 
-- **`sync-repo-docs`** — keeps `AGENTS.md` current against the code; this skill
-  asks whether the content belongs there at all
+- **`sync-repo-docs`** — syncs README, DESIGN.md, and the rules index; this skill
+  asks whether AGENTS.md content belongs there at all
 - **`audit-rules`** — audits `.cursor/rules/*.mdc`; it reads `AGENTS.md`
   § Hard constraints as a source of truth rather than auditing it
 - **`audit-tech-debt`** — its documentation-drift dimension catches AGENTS.md

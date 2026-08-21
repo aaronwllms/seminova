@@ -16,7 +16,7 @@ This table is authoritative. [AGENTS.md](../AGENTS.md) carries a one-line pointe
 | **[ROADMAP.md](../ROADMAP.md)** | PM / planning chats | Planning horizon: thin phase stubs, phase status, PRD links, and any open questions attached to a stub |
 | **[BACKLOG.md](../BACKLOG.md)** | PM / planning chats | Unscheduled, uncommitted product ideas — not numbered, not ordered, no PRD |
 | **[prds/](prds/)** | PM / agents | Per-phase forward intent (problem, goal, scope); epics + stories while a phase is Active. Lifecycle in [prds/README.md](prds/README.md) |
-| **[AGENTS.md](../AGENTS.md)** | Cursor / coding agents | Repo truth: implemented features, routes, data model, hard-constraint change protocol, agent workflow |
+| **[AGENTS.md](../AGENTS.md)** | Cursor / coding agents | Hard constraints, agent workflow gates, merge checklist, and change protocol |
 | **[LEXICON.md](../LEXICON.md)** | PM / agents | Architectural vocabulary |
 | **[DESIGN.md](../DESIGN.md)** | PM / agents | Token architecture, structure-vs-theme split, re-skin workflow |
 | **[adr/](adr/)** | PM / agents | Architecture Decision Records — immutable decision history; rules in [adr/README.md](adr/README.md) |
@@ -35,7 +35,7 @@ This table is authoritative. [AGENTS.md](../AGENTS.md) carries a one-line pointe
 
 Agent guidance lives in `.cursor/` (rules and skills), never duplicated into product code.
 
-**Sync order when both the planning docs and repo truth may be stale:** gather evidence once → update AGENTS.md (`/sync-repo-docs`) for shipped truth → update ROADMAP status and the active PRD from AGENTS.md → update stub-attached open questions from the PM conversation.
+**Sync order when both the planning docs and human-facing docs may be stale:** shipped truth is the code and migrations. When README, DESIGN.md, or the rules index drifted, run `/sync-repo-docs`. ROADMAP status and the active PRD update from the planning conversation, not from AGENTS.md. Stub-attached open questions update from the PM conversation.
 
 ---
 
@@ -68,7 +68,7 @@ These rules apply to anyone updating the planning docs — PM or coding agent.
 
    PRD lifecycle detail lives in [prds/README.md](prds/README.md).
 
-3. **Authoritative schema and the build-time agent workflow live in [AGENTS.md](../AGENTS.md).** Do not duplicate per-table schema or Cursor rules/skills detail in PRDs or ROADMAP.
+3. **Authoritative schema lives in `supabase/migrations/`** (and generated types). Do not duplicate per-table schema or Cursor rules/skills detail in PRDs or ROADMAP. AGENTS.md is not a schema or feature catalog.
 
 4. **Hard constraints are canonical in [AGENTS.md — Hard constraints](../AGENTS.md#hard-constraints)** and enforced by `check:*` scripts, lint rules, and tests in the repo.
 

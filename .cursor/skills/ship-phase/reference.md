@@ -89,7 +89,7 @@ LOW/MEDIUM/HIGH — [brief rationale]
 
 Human or separate agent turns before invoking `ship-phase`:
 
-- [ ] `sync-repo-docs` — AGENTS.md reflects shipped behavior
+- [ ] `sync-repo-docs` — README / DESIGN / rules index reflect shipped setup and theming
 - [ ] `pre-release-review` or `pnpm pre-push` — quality gates pass
 - [ ] All epics tagged `` `Complete` `` via `mark-epic-complete`
 - [ ] On the correct `phase-{N}/…` branch

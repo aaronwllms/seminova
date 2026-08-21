@@ -1,16 +1,14 @@
 ---
 name: mark-epic-complete
 description: >-
-  Epic close-out — syncs repo docs to the code, then marks one epic Complete in
-  the active phase's PRD.
+  Epic close-out — marks one epic Complete in the active phase's PRD, then
+  commits the PRD update.
 disable-model-invocation: true
 ---
 
 # Mark Epic Complete
 
-Epic close-out. Chains `sync-repo-docs`, then marks one epic `` `Complete` `` in the active phase's PRD (`docs/prds/`). Both sets of edits ride in a single `docs:` commit.
-
-Docs must match the code before an epic is stamped complete. `AGENTS.md` is the agent's standing instruction, read on every epic — a stale one misleads every later build in the phase.
+Epic close-out. Marks one epic `` `Complete` `` in the active phase's PRD (`docs/prds/`) and commits the PRD update. README, DESIGN.md, and rules-index drift waits for `ship-phase` (which chains `sync-repo-docs`).
 
 Does not verify shipped state against the codebase. Does not touch `docs/archive/`.
 
@@ -38,41 +36,36 @@ Copy and track:
 
 ```
 Epic close-out progress:
-- [ ] Step 1: Run sync-repo-docs skill
-- [ ] Step 2: Tag the epic Complete in the PRD
-- [ ] Step 3: Update Last updated
-- [ ] Step 4: Commit
-- [ ] Step 5: Report
+- [ ] Step 1: Tag the epic Complete in the PRD
+- [ ] Step 2: Update Last updated
+- [ ] Step 3: Commit
+- [ ] Step 4: Report
 ```
 
-### Step 1 — Sync repo docs
-
-Run the `sync-repo-docs` skill in full, including its propose→apply gate. Its edits are committed in Step 4, not separately.
-
-### Step 2 — Tag the epic
+### Step 1 — Tag the epic
 
 Append `` `Complete` `` to the epic heading: `### Epic N: Name` → ``### Epic N: Name `Complete` ``.
 
-### Step 3 — Last updated
+### Step 2 — Last updated
 
 If the PRD carries a **Last updated** line, set it to today's date (ISO `YYYY-MM-DD`).
 
-### Step 4 — Commit
+### Step 3 — Commit
 
-Stage the PRD plus any files `sync-repo-docs` edited, and commit as a `docs:` commit (request `git_write`). Stage nothing else.
+Stage the PRD only, and commit as a `docs:` commit (request `git_write`). Stage nothing else.
 
 ```
-docs: complete epic {N} — {epic name} (docs synced)
+docs: complete epic {N} — {epic name}
 ```
 
-### Step 5 — Report
+### Step 4 — Report
 
-Report which epic was marked complete, and what `sync-repo-docs` changed — or "no doc drift" if it changed nothing.
+Report which epic was marked complete.
 
 ## Explicitly out of scope
 
 - Do not mark a phase `Shipped` — phase-ship is a separate step at phase end (see [DOC_RULES.md](../../../docs/DOC_RULES.md) rule 6).
 - Do not edit `docs/archive/`.
-- Do not edit `.cursor/rules/*.mdc` rule bodies — `sync-repo-docs` touches the rule *index* only.
+- Do not chain `sync-repo-docs` — README / DESIGN / rules-index sync waits for `ship-phase`.
 - Do not infer "complete" from code inspection — resolve the epic from the PRD's `` `Complete` `` tags, never from the state of the codebase.
 - Do not promote a phase (flip `Ready` → `Active`) — that is owned by `plan-next-epic`; halt and report if status is inconsistent (precondition 3).

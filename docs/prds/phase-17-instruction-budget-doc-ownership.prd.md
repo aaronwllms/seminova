@@ -73,6 +73,8 @@ Order matters: generators are rewired before a line is deleted. Slimming first w
 
 - **3.3 The slimmed file points somewhere and defends itself.** Directory-level prose breadcrumbs replace the deleted directory map — where coding standards, decision history, and vocabulary live, at directory granularity rather than file paths that rot. A note at the top of the file points at ADR-0010 before anyone adds to it, placed where the temptation occurs rather than in a governance doc nobody opens mid-edit.
 
+- **3.4 `archive-cursor-plans` selective matcher.** When § Implemented now is deleted in 3.1, replace the plan-matching heuristic that currently reads `AGENTS.md` "Implemented now" — until then the heuristic still works; Epic 1 leaves it unchanged.
+
 *Success:*
 - No route list, migration inventory, data-model table, directory map, skills table, or shipped-feature prose remains in `AGENTS.md`.
 - § Hard constraints is unchanged, character for character.

@@ -7,7 +7,7 @@ disable-model-invocation: true
 # GitHub Docs Authoring
 
 Write or review **markdown destined for GitHub** — README, workflow docs, PRDs,
-ADRs, AGENTS.md, audit artifacts. **Do not edit files** unless the user asks to
+ADRs, AGENTS.md (review only — not a default write destination), audit artifacts. **Do not edit files** unless the user asks to
 implement recommendations. English only unless the user asks.
 
 **Out of scope** — point elsewhere instead of duplicating:
@@ -124,8 +124,8 @@ one pass.
 
 ## Related workflow
 
-- After substantive doc edits that change repo truth, remind the user to run
-  `/sync-repo-docs` when README or AGENTS content may be stale — this skill
-  does not verify factual accuracy.
+- After substantive doc edits that change factual content, remind the user to run
+  `/sync-repo-docs` when README, DESIGN.md, or the rules index may be stale — this skill
+  does not verify factual accuracy and does not sync AGENTS.md.
 - PR bodies and issue comments: same GFM conventions apply; task lists and
   autolinked `#issue` / `@user` references are appropriate there.

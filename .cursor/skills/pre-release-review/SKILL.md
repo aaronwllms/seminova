@@ -157,7 +157,7 @@ Use this format. Keep it concise — PM-readable.
 
 ### Docs
 
-- [ ] AGENTS.md / README may need sync — yes/no + why
+- [ ] README may need sync — yes/no + why
 - [ ] Active PRD may need sync — yes/no + why
 
 If repo docs may be stale, suggest running the **sync-repo-docs** skill.
@@ -170,4 +170,4 @@ Deferred findings must not die with this report: append each Defer item to `TECH
 - **Tests pass ≠ feature works** — code review catches logic; manual checklist catches UX
 - **Scope to the feature** — whole-repo security work belongs to **`audit-security`**
 - **Deeper diff review belongs to `code-review`** — Standards + Spec two-axis review against a PRD story/epic
-- **Project truth lives in AGENTS.md** — not in this skill file
+- **Project governance lives in AGENTS.md** — hard constraints and change protocol, not in this skill file

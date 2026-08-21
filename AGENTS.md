@@ -19,11 +19,11 @@ Document roles and the doc-maintenance procedure are authoritative in [docs/DOC_
 3. **Quality bar** before finishing work:
 
 ```bash
-pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci
+pnpm pre-push
 ```
 
-4. **Doc sync** after behavior, routes, schema, or env changes:
-   - `/sync-repo-docs` — AGENTS.md, README.md, DESIGN.md, `.cursor/rules/README.md`
+4. **Doc sync** after env, scripts, token, or rule-file changes:
+   - `/sync-repo-docs` — README.md, DESIGN.md, `.cursor/rules/README.md`
 
 ---
 
@@ -248,8 +248,9 @@ Log level, tagging, and wrapper usage: [.cursor/rules/logging.mdc](.cursor/rules
 
 - [ ] Quality bar passes ([Agent workflow](#agent-workflow) step 3)
 - [ ] New routes align with the auth boundary ([Hard constraints](#hard-constraints))
+- [ ] New or changed **public** route updates the § Hard constraints auth-boundary route list in the same change
 - [ ] New tables have RLS (when migrations exist)
-- [ ] AGENTS.md / README updated if routes, schema, env, or scripts changed
+- [ ] README updated if env or scripts changed
 - [ ] Human runs `pnpm db:push` after migrations (agents do not)
 
 ---
@@ -259,7 +260,7 @@ Log level, tagging, and wrapper usage: [.cursor/rules/logging.mdc](.cursor/rules
 | Change type | Action |
 | ----------- | ------ |
 | Hard constraints | Decided in PM/Claude chat with PM approval. Changing a hard constraint means changing its enforcement (check script, lint rule, or test) and the AGENTS.md [Hard constraints](#hard-constraints) list together — never the list alone. |
-| Implemented features, routes, data model | Update AGENTS.md via `/sync-repo-docs` |
+| Implemented features, routes, data model | What exists lives in the code (`src/`, `supabase/migrations/`). Whys live in ADRs, scoped rules, or [LEXICON.md](LEXICON.md) — not in AGENTS.md. |
 | Planning / roadmap | Update [ROADMAP.md](ROADMAP.md) and the active PRD in [docs/prds/](docs/prds/); uncommitted ideas go to [BACKLOG.md](BACKLOG.md) |
 | Coding standards | Update `.cursor/rules/` — not AGENTS.md |
 
