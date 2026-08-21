@@ -82,7 +82,7 @@ Order matters: generators are rewired before a line is deleted. Slimming first w
 - Every breadcrumb resolves to a directory that exists.
 - `pnpm pre-push` is green.
 
-### Epic 4: Downstream surfaces and re-baseline
+### Epic 4: Downstream surfaces and re-baseline `Complete`
 
 - **4.1 The public workflow page stops describing a workflow the repo no longer runs.** The `/workflow` documents table's `AGENTS.md` row corrects its writer and its purpose, and the Cursor environment card drops repo-truth sync from what Cursor owns. The co-located content test moves with it. The page's whole claim is that the documented workflow is the real one; a stale row there is the exact failure it exists to disprove.
 
