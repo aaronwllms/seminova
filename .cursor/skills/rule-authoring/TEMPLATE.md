@@ -4,11 +4,12 @@ Use this shape when creating a new `.cursor/rules/*.mdc` file.
 
 ```markdown
 ---
-description: [One sentence - what guidance this provides]
-globs:
-  - '[Specific file patterns this applies to]'
-alwaysApply: [true only if needed for ALL contexts]
+description: [One sentence — what guidance this provides]
+globs: [pattern1, pattern2]
+alwaysApply: false
 ---
+
+<!-- Why these globs / this mode. -->
 
 # [Rule Title with Version if Applicable]
 
@@ -37,3 +38,5 @@ alwaysApply: [true only if needed for ALL contexts]
 ## Quick Reference / Checklist
 - Actionable bullets for the agent
 ```
+
+For **Agent Requested** rules, omit `globs` entirely — the description is the sole activation trigger.

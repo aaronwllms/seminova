@@ -6,7 +6,7 @@ Portable AI workflow for this repo. **Skills-first** — use `/skill-name` in ch
 
 ## What Cursor auto-loads
 
-A small set of **always-on** rules applies in every session (minimalism, PM collaboration, conventions, migration pointer). Other rules **attach by path** when you edit matching files — see [rules/README.md](rules/README.md) for the per-file index. **AGENTS.md** is treated as repo truth by convention; it lives at the repo root, not under `.cursor/`. **Skills** run only when you invoke them (`/plan-next-epic`, `/sync-repo-docs`, etc.). Everything else (WORKFLOW_GUIDE, PRDs, audit artifacts) is read on demand via links or search — not auto-loaded.
+A small set of **always-on** rules applies in every session (minimalism, PM collaboration, conventions, migration pointer). Other rules **attach by path** when a matching file enters agent context (read, edit, or @-mention) — see [rules/README.md](rules/README.md) for the per-file index. **AGENTS.md** is treated as repo truth by convention; it lives at the repo root, not under `.cursor/`. **Skills** run only when you invoke them (`/plan-next-epic`, `/sync-repo-docs`, etc.). Everything else (WORKFLOW_GUIDE, PRDs, audit artifacts) is read on demand via links or search — not auto-loaded.
 
 ## Layout
 

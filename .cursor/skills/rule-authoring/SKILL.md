@@ -152,22 +152,47 @@ Frontmatter has exactly three real keys: `description`, `globs`,
 rule still resolves from these three alone. A rule using an invalid key
 needs auditing against its actual field values to find its real mode.
 
-- **Always Apply** — `alwaysApply: true`. Loads every request.
-- **Auto Attached** — `alwaysApply: false` + globs set. Loads when an
-  open/edited file matches a glob. Use a YAML list, not brace expansion —
-  `src/**/*.{ts,tsx}` can fail to match silently; write `.ts` and `.tsx` as
-  separate list entries.
-- **Agent Requested** — `alwaysApply: false`, no globs, a specific detailed
-  `description`. The agent decides at runtime whether it's relevant. This is
-  a normal working mode, not degraded — third-party linters routinely
+**Frontmatter shape**
+
+- Only those three keys belong in frontmatter. Rationale comments go **below**
+  the closing `---` as an HTML comment, before the rule heading — not inside
+  frontmatter (unparsed territory in Cursor's non-YAML reader).
+- `description` must be a **single-line string**. Folded scalars (`>-` plus
+  indented continuation lines) are dropped by Cursor's reader and render as
+  the literal two characters `>-` — the actual sentence never reaches the
+  model.
+
+Each rule resolves to **exactly one** activation path:
+
+- **Always Apply** — `alwaysApply: true`. Loads every request. Globs and
+  description are ignored.
+- **Auto Attached** — `alwaysApply: false` + `globs` set. Loads when a
+  matching file **enters agent context** (agent Read, edit, or @-mention).
+  Editor focus alone does not attach; mid-session focus switches do not
+  re-run glob attachment. The description is decoration — it is **not** used
+  for agent-side relevance selection when `globs` is set.
+- **Agent Requested** — `alwaysApply: false`, **no** `globs`, a specific
+  detailed `description`. The agent decides at runtime whether it's relevant.
+  This is a normal working mode, not degraded — third-party linters routinely
   misflag these as "unreachable"; they're only actually broken if the
   description is missing or too vague to match on ("helpful guidelines for
   X" is effectively unreachable — write what it's actually for).
 - **Manual** — no globs, no meaningful description. Loads only via explicit
   `@rule-name`.
 
-In each rule's frontmatter, document *why* its globs trigger it — helps
-future maintainers judge applicability at a glance.
+**Glob syntax**
+
+Use one unquoted comma-separated line — comma + space between patterns.
+Example: `docs/**/*.md, docs/**/*.mdx`. Do not use brace expansion —
+`src/**/*.{ts,tsx}` can fail to match silently; write `.ts` and `.tsx` as
+separate patterns on the same line. See [Cursor rules docs](https://cursor.com/docs/rules).
+
+**Verifying Auto Attached rules**
+
+A turn-1 self-report may show only always-on + Agent Requested until a
+matching file is read. Glob rules then appear in the "relevant to files you
+just read" injection. Do not treat editor focus or turn-1 attachment as the
+check — read a matching file in a fresh session instead.
 
 ## Rule hierarchy
 
