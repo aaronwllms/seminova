@@ -80,8 +80,8 @@ phase or a phase plus a slice.
   evidence row, one anti-pattern) → `.cursor/skills/sync-repo-docs/reference.md` (four
   AGENTS.md section-map rows, four audit-checklist entries, examples A and B) → AGENTS.md
   itself (change-protocol row, then the AG deletions).
-- **Dependency not in AGENTS_AUDIT.md:** DOC_RULES' sync-order line has ROADMAP and PRD
-  status updates reading shipped truth _out of_ AGENTS.md. That chain breaks unless those
+- **Dependency not in AGENTS_AUDIT.md:** DOC*RULES' sync-order line has ROADMAP and PRD
+  status updates reading shipped truth \_out of* AGENTS.md. That chain breaks unless those
   updates are repointed at code and git in the same pass.
 - **No new home needed for the deleted content.** The code is the agent-facing reference;
   whys already live in ADRs, `.cursor/rules/`, and LEXICON; the human-facing feature list
