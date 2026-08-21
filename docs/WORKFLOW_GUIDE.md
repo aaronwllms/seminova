@@ -2,7 +2,7 @@
 
 **Purpose:** How phases move from idea to shipped code — the tools, the documents, and the workflow. For write discipline and doc-maintenance rules, see [DOC_RULES.md](DOC_RULES.md).
 
-**Last updated:** 2026-07-24
+**Last updated:** 2026-08-21
 
 ---
 
@@ -158,7 +158,7 @@ Repeat Steps 4–7 for each phase.
 </picture>
 
 > [!NOTE]
-> **This diagram renders on GitHub; Cursor's built-in preview shows a broken image icon.** That's expected — Cursor doesn't currently render images in markdown preview. See [WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md) for the plan to revisit this once Mermaid's swimlane support matures.
+> **This picture is a snapshot and can lag the live loop.** After you start the app, the Workflow page (`/workflow`) has the current interactive diagram. The picture renders on GitHub; Cursor's built-in preview shows a broken image icon — that's expected. See [WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md) for the plan to replace both pictures with a Mermaid swimlane once Cursor's preview can render it.
 
 ---
 

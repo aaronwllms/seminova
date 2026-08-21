@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Workflow loop — stepped phase loop (approved mockup)</title>
+<!--
+  APPROVED MOCKUP — workflow marketing page, "Plan, review, build loop" section.
+
+  Supersedes: docs/mockups/archive/workflow_loop_exact_recreation_interactive.html
+
+  What changed vs. the shipped diagram:
+  - Adds "Kickoff phase" (Cursor, kickoff-phase) to the PHASE loop, between
+    Plan phase and the epic loop.
+  - Adds "Mark epic complete" (Cursor, mark-epic-complete) to the EPIC loop,
+    after Build.
+  - Phase loop is now three stacked rows instead of one, so nodes stay
+    full-size inside the page's single content column:
+      row 1  Plan phase -> Kickoff phase   (centered)
+      row 2  Epic loop container           (full width)
+      row 3  Ship phase                    (centered)
+  - The connectors into and out of the epic loop attach to the epic loop
+    CONTAINER edge, not to individual nodes inside it.
+  - The dashed "revise" return arrow (Review plan -> Plan epic) is unchanged.
+
+  BUILD NOTES:
+  - Colors here are hardcoded light-mode hex, matching the current SVG asset.
+    The built version needs light/dark handling. The existing asset does this
+    with two separate SVG source files; a component version should use
+    semantic tokens instead.
+  - Hover-to-reveal detail line replaces the prose that previously described
+    the loop in words. Detail copy for each node is in the data-detail
+    attributes below.
+  - Coordinates are illustrative, not normative — match the layout and
+    connector routing, not the exact numbers.
+-->
+<style>
+  body {
+    margin: 0;
+    padding: 32px 24px;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: #ffffff;
+    color: #1f2328;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  .detail {
+    margin: 12px 0 0;
+    font-size: 13px;
+    color: #57606a;
+    min-height: 36px;
+  }
+  .node { cursor: default; transition: opacity 120ms ease; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<svg width="100%" viewBox="0 0 680 496" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title>Seminova workflow with a centered three-row phase loop</title>
+  <desc>Project kickoff and initialize project feed into a phase loop of three centered rows: plan phase and kickoff phase, an epic loop of plan epic, review plan, build and mark epic complete, then ship phase. Connectors enter and leave the epic loop at its container edges.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#6e7681" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- one-time setup, outside the phase loop -->
+  <g class="node" data-detail="One-time setup when a spinoff is cloned from the template. Claude, project-kickoff.">
+    <rect x="190" y="30" width="140" height="64" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="1"/>
+    <text x="260" y="48" text-anchor="middle" dominant-baseline="central" font-weight="600" font-size="13" fill="#26215C" font-family="sans-serif">Project kickoff</text>
+    <text x="260" y="66" text-anchor="middle" dominant-baseline="central" font-size="11" font-style="italic" fill="#534AB7" font-family="sans-serif">project-kickoff</text>
+    <text x="260" y="83" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#534AB7" font-family="sans-serif">Claude</text>
+  </g>
+  <line x1="330" y1="62" x2="354" y2="62" stroke="#6e7681" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <g class="node" data-detail="Cursor scaffolds the spinoff repo from the template. Cursor, initialize-project.">
+    <rect x="356" y="30" width="150" height="64" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+    <text x="431" y="48" text-anchor="middle" dominant-baseline="central" font-weight="600" font-size="13" fill="#04342C" font-family="sans-serif">Initialize project</text>
+    <text x="431" y="66" text-anchor="middle" dominant-baseline="central" font-size="11" font-style="italic" fill="#0F6E56" font-family="sans-serif">initialize-project</text>
+    <text x="431" y="83" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#0F6E56" font-family="sans-serif">Cursor</text>
+  </g>
+
+  <!-- setup drops into the phase loop, entering at Plan phase -->
+  <path d="M431 94 V150 H258 V164" fill="none" stroke="#6e7681" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- PHASE LOOP container -->
+  <rect x="30" y="130" width="620" height="346" rx="12" fill="none" stroke="#9ca3af" stroke-width="1" stroke-dasharray="6 4"/>
+  <text x="638" y="147" text-anchor="end" font-size="11" fill="#57606a" font-family="sans-serif">↻ Phase loop</text>
+
+  <!-- phase loop row 1: centered -->
+  <g class="node" data-detail="Requirements and success criteria lock in before any epic starts. Claude, phase-planning.">
+    <rect x="188" y="166" width="140" height="64" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="1"/>
+    <text x="258" y="184" text-anchor="middle" dominant-baseline="central" font-weight="600" font-size="13" fill="#26215C" font-family="sans-serif">Plan phase</text>
+    <text x="258" y="202" text-anchor="middle" dominant-baseline="central" font-size="11" font-style="italic" fill="#534AB7" font-family="sans-serif">phase-planning</text>
+    <text x="258" y="219" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#534AB7" font-family="sans-serif">Claude</text>
+  </g>
+  <line x1="328" y1="198" x2="352" y2="198" stroke="#6e7681" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <g class="node" data-detail="Creates the phase branch, flips the phase to Active, commits the planning-doc updates. Cursor, kickoff-phase.">
+    <rect x="352" y="166" width="140" height="64" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+    <text x="422" y="184" text-anchor="middle" dominant-baseline="central" font-weight="600" font-size="13" fill="#04342C" font-family="sans-serif">Kickoff phase</text>
+    <text x="422" y="202" text-anchor="middle" dominant-baseline="central" font-size="11" font-style="italic" fill="#0F6E56" font-family="sans-serif">kickoff-phase</text>
+    <text x="422" y="219" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#0F6E56" font-family="sans-serif">Cursor</text>
+  </g>
+
+  <!-- into the EPIC LOOP container (not into a node inside it) -->
+  <path d="M422 230 V242 H339 V250" fill="none" stroke="#6e7681" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- EPIC LOOP container -->
+  <rect x="46" y="252" width="586" height="114" rx="12" fill="none" stroke="#9ca3af" stroke-width="1" stroke-dasharray="6 4"/>
+  <text x="58" y="268" font-size="11" fill="#57606a" font-family="sans-serif">↻ Epic loop</text>
+
+  <g class="node" data-detail="Cursor drafts an implementation plan for the next epic. Cursor, plan-next-epic.">
+    <rect x="62" y="278" width="130" height="64" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+    <text x="127" y="296" text-anchor="middle" dominant-baseline="central" font-weight="600" font-size="13" fill="#04342C" font-family="sans-serif">Plan epic</text>
+    <text x="127" y="314" text-anchor="middle" dominant-baseline="central" font-size="11" font-style="italic" fill="#0F6E56" font-family="sans-serif">plan-next-epic</text>
+    <text x="127" y="331" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#0F6E56" font-family="sans-serif">Cursor</text>
+  </g>
+  <line x1="192" y1="310" x2="208" y2="310" stroke="#6e7681" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <g class="node" data-detail="Claude checks the plan against repo truth and hard constraints before any code lands. Claude, plan-review.">
+    <rect x="210" y="278" width="130" height="64" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="1"/>
+    <text x="275" y="296" text-anchor="middle" dominant-baseline="central" font-weight="600" font-size="13" fill="#26215C" font-family="sans-serif">Review plan</text>
+    <text x="275" y="314" text-anchor="middle" dominant-baseline="central" font-size="11" font-style="italic" fill="#534AB7" font-family="sans-serif">plan-review</text>
+    <text x="275" y="331" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#534AB7" font-family="sans-serif">Claude</text>
+  </g>
+  <line x1="340" y1="310" x2="356" y2="310" stroke="#6e7681" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <g class="node" data-detail="Cursor implements the approved plan and runs code review.">
+    <rect x="358" y="278" width="85" height="64" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+    <text x="400" y="302" text-anchor="middle" dominant-baseline="central" font-weight="600" font-size="13" fill="#04342C" font-family="sans-serif">Build</text>
+    <text x="400" y="322" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#0F6E56" font-family="sans-serif">Cursor</text>
+  </g>
+  <line x1="443" y1="310" x2="459" y2="310" stroke="#6e7681" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <g class="node" data-detail="Closes the epic out: updates the PRD and commits the epic with its trailer. Cursor, mark-epic-complete.">
+    <rect x="461" y="278" width="155" height="64" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+    <text x="538" y="296" text-anchor="middle" dominant-baseline="central" font-weight="600" font-size="13" fill="#04342C" font-family="sans-serif">Mark epic complete</text>
+    <text x="538" y="314" text-anchor="middle" dominant-baseline="central" font-size="11" font-style="italic" fill="#0F6E56" font-family="sans-serif">mark-epic-complete</text>
+    <text x="538" y="331" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#0F6E56" font-family="sans-serif">Cursor</text>
+  </g>
+
+  <!-- dashed return arrow: Review plan -> Plan epic -->
+  <path d="M275 342 L275 356 L127 356 L127 344" fill="none" stroke="#9ca3af" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+  <text x="201" y="353" text-anchor="middle" font-size="11" fill="#57606a" font-family="sans-serif">revise</text>
+
+  <!-- out of the EPIC LOOP container into Ship phase -->
+  <path d="M339 366 V388" fill="none" stroke="#6e7681" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- phase loop row 3: centered -->
+  <g class="node" data-detail="Once every epic ships, the phase closes and the next planning pass starts from what's actually in the repo. Cursor, ship-phase.">
+    <rect x="269" y="390" width="140" height="64" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+    <text x="339" y="408" text-anchor="middle" dominant-baseline="central" font-weight="600" font-size="13" fill="#04342C" font-family="sans-serif">Ship phase</text>
+    <text x="339" y="426" text-anchor="middle" dominant-baseline="central" font-size="11" font-style="italic" fill="#0F6E56" font-family="sans-serif">ship-phase</text>
+    <text x="339" y="443" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#0F6E56" font-family="sans-serif">Cursor</text>
+  </g>
+</svg>
+
+<p id="detail-out" class="detail">Hover a step to see what happens there.</p>
+
+</div>
+<script>
+  document.querySelectorAll('.node').forEach(function (el) {
+    el.addEventListener('mouseenter', function () {
+      document.getElementById('detail-out').textContent = el.getAttribute('data-detail');
+      el.style.opacity = '0.75';
+    });
+    el.addEventListener('mouseleave', function () {
+      el.style.opacity = '1';
+    });
+  });
+</script>
+</body>
+</html>

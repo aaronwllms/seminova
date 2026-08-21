@@ -35,9 +35,9 @@ Seminova ships with a two-environment planning system: **Claude** owns planning,
 </picture>
 
 > [!NOTE]
-> **This diagram renders on GitHub; Cursor's built-in preview shows a broken image icon.** That's expected — Cursor doesn't currently render images in markdown preview. See [docs/WORKFLOW_GUIDE.md](docs/WORKFLOW_GUIDE.md#the-full-workflow) for the annotated version, or [docs/WORKFLOW_BACKLOG.md](docs/WORKFLOW_BACKLOG.md) for the plan to revisit this once Mermaid's swimlane support matures.
+> **This picture is a snapshot and can lag the live loop.** After you start the app, the Workflow page (`/workflow`) has the current interactive diagram. The picture renders on GitHub; Cursor's built-in preview shows a broken image icon — that's expected.
 
-The full workflow — every step, skill, and document explained, plus the detailed diagram — lives in [docs/WORKFLOW_GUIDE.md](docs/WORKFLOW_GUIDE.md). One-time setup (connecting Claude Desktop, installing the skills) is in [docs/WORKFLOW_SETUP.md](docs/WORKFLOW_SETUP.md).
+The full workflow — every step, skill, and document explained — lives in [docs/WORKFLOW_GUIDE.md](docs/WORKFLOW_GUIDE.md). One-time setup (connecting Claude Desktop, installing the skills) is in [docs/WORKFLOW_SETUP.md](docs/WORKFLOW_SETUP.md).
 
 ---
 
