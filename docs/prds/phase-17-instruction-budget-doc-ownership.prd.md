@@ -38,7 +38,7 @@ Order matters: generators are rewired before a line is deleted. Slimming first w
 
 ## Epics & stories
 
-### Epic 1: Charter rewiring
+### Epic 1: Charter rewiring `Complete`
 
 - **1.1 The documented quality bar matches what the hook enforces.** § Agent workflow's finish-work command becomes `pnpm pre-push` rather than the four-command chain, so an agent following it cannot pass the documented bar and then fail on a hard-constraint check. The human-only migration gate stays a separate step. *(AG025)*
 
