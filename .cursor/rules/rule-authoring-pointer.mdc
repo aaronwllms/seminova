@@ -1,8 +1,6 @@
 ---
 description: Points to the rule-authoring skill before any .cursor/rules/*.mdc file is created or edited.
-globs:
-  - '.cursor/rules/**/*.mdc'
-  - '.cursor/rules/**/*.md'
+globs: .cursor/rules/**/*.mdc, .cursor/rules/**/*.md
 alwaysApply: false
 ---
 
