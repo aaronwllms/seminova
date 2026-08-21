@@ -6,7 +6,7 @@
 
 **How to use it.** Each entry is a deferred decision with its reason for deferral and the signal that should bring it back. Pull an item out when its trigger fires; delete it when it's resolved (record the resolution as an [ADR](adr/README.md) if it qualifies).
 
-**Last updated:** 2026-07-24 (theme-regeneration item relocated from ROADMAP)
+**Last updated:** 2026-08-21
 
 ---
 
@@ -30,7 +30,6 @@
   - [Skill naming convention alignment (Cursor + Claude)](#skill-naming-convention-alignment-cursor--claude)
   - [code-review: per-rule fan-out to fix recall variance](#code-review-per-rule-fan-out-to-fix-recall-variance)
   - [Move mechanically-checkable rules to lint (starting with import-direction boundaries)](#move-mechanically-checkable-rules-to-lint-starting-with-import-direction-boundaries)
-  - [`check:auth-boundary` runs only incidentally under `test:ci`](#checkauth-boundary-runs-only-incidentally-under-testci)
   - [Build the `absorb-skill-feedback` skill](#build-the-absorb-skill-feedback-skill)
   - [Theme regeneration as skill vs mode](#theme-regeneration-as-skill-vs-mode)
   - [~~Deterministic scripts in agent skills~~](#deterministic-scripts-in-agent-skills) *(resolved)*
@@ -97,7 +96,7 @@
 
 ### Integrate quality skills into the documented workflow
 
-**What:** Consider adding the quality/review skills (`pre-release-review`, `code-review`, `audit-tech-debt`, `audit-tests`, `audit-security`, `audit-rules`, etc.) into the workflow as described in [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md) — currently they're only cataloged in [AGENTS.md › Agent skills](../AGENTS.md#agent-skills-cursorskills) and deliberately left out of the numbered phase loop. Extend to [WORKFLOW_SETUP.md](WORKFLOW_SETUP.md) as needed if any setup step is implied.
+**What:** Consider adding the quality/review skills (`pre-release-review`, `code-review`, `audit-tech-debt`, `audit-tests`, `audit-security`, `audit-rules`, etc.) into the workflow as described in [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md) — currently they live in [`.cursor/skills/`](../.cursor/skills/) and are deliberately left out of the numbered phase loop. Extend to [WORKFLOW_SETUP.md](WORKFLOW_SETUP.md) as needed if any setup step is implied.
 
 **Partially addressed (2026-07-08):** `code-review` is now a named manual follow-up after epic commit in [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md) Step 6. Other audit skills (`pre-release-review`, `audit-tech-debt`, `audit-tests`, `audit-security`, `audit-rules`, etc.) remain situational — cataloged in AGENTS.md, invoked by name when needed.
 
@@ -232,14 +231,6 @@
 **Why deferred:** Surfaced as a side finding during the `code-review` reliability deep-dive (2026-07-09), not yet scoped as its own task — needs an inventory pass across `.cursor/rules/*.mdc` for which rules are genuinely mechanical vs. which need judgment, then the actual eslint config change and a check that it doesn't fight existing lint setup.
 
 **Revisit when:** Doing the `code-review` fan-out item above (natural place to also ask "should this rule even be in the reviewer's scope, or should it be lint instead"), or the next time a `code-review` run misses an import-direction or similarly mechanical violation that a prior run caught.
-
-### `check:auth-boundary` runs only incidentally under `test:ci`
-
-**What:** `check:auth-boundary` is a named `package.json` script (`vitest run src/supabase/proxy.unit.test.ts`) that enforces one of the template's hard constraints — which routes are reachable without a session. It is **not** a step in `pnpm pre-push`. It passes today only because `test:ci` happens to run the whole Vitest suite, that test file included. Nothing pins that relationship: narrow `test:ci`'s scope, move the test file, or add a coverage-driven exclude, and the auth-boundary gate silently stops running while `pre-push` stays green. Surfaced during Phase 10 planning (Epic 5 widens the allowlist a second time) and recorded in that PRD's out-of-scope list, which is deleted when the phase ships — hence this entry.
-
-**Why deferred:** The fix is likely one line in `pre-push`, but it isn't obviously *only* that. Adding a named step raises the same question the other `check:*` scripts answer implicitly — is `pre-push` the union of every check, or a fast subset with the rest at CI? That contract is worth stating once for all `check:*` scripts rather than patching one in. Phase 10 is mid-build and this is not blocking it.
-
-**Revisit when:** A dedicated workflow-improvement session, before forking the template (a spinoff inherits an unenforced hard-constraint gate), the next time a `check:*` script is added and its `pre-push` placement is unclear, or immediately if `test:ci`'s scope is ever narrowed.
 
 ### Build the `absorb-skill-feedback` skill
 

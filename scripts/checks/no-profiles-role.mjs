@@ -1,3 +1,7 @@
+// debt: this migration scanner runs in pre-push only — CI never invokes this
+// file (the Vitest half of check:admin-gate already rides test:ci); upgrade
+// path: add pnpm check:admin-gate as a named step in
+// .github/workflows/pull-request.yaml, mirroring pre-push.
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'

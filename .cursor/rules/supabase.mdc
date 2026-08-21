@@ -7,7 +7,7 @@ globs: src/**/*.ts, src/**/*.tsx, src/supabase/**/*.ts, supabase/migrations/**/*
 
 ## Migration Safety Protocol
 
-**Shipped schema:** see [AGENTS.md § Data model](../../AGENTS.md#data-model-summary) for the authoritative migration list and per-table detail. Additional migrations live in `supabase/migrations/`; humans apply them via Supabase CLI; agents write SQL files only.
+**Shipped schema:** authoritative in `supabase/migrations/` (and generated types in [`src/types/database.types.ts`](../../src/types/database.types.ts)); humans apply migrations via Supabase CLI; agents write SQL files only.
 
 **Agents** — see `do-migrations-agent.mdc`, `supabase-sql.mdc`, and `.cursor/skills/create-migration/SKILL.md`:
 

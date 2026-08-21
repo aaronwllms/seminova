@@ -42,11 +42,10 @@ After move, correct path is `.cursor/plans/archive/foo_abc123.plan.md`.
 
 When matching plans to a shipped phase without an explicit list:
 
-| Signal            | Example                                                 |
-| ----------------- | ------------------------------------------------------- |
-| Filename prefix   | `phase_11_epic_*` for Phase 11 epics                    |
-| AGENTS.md section | "Phase 11 Epic N" shipped → archive matching plan files |
-| User list         | Exact basenames or slug without hash                    |
+| Signal          | Example                              |
+| --------------- | ------------------------------------ |
+| Filename prefix | `phase_11_epic_*` for Phase 11 epics |
+| User list       | Exact basenames or slug without hash |
 
 When unsure, show the candidate list and wait for confirmation.
 

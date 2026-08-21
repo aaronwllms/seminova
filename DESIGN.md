@@ -1,6 +1,6 @@
 # Seminova — Design System
 
-**Purpose:** Document the token architecture, the structure-vs-theme split, and how to re-skin the template for a new product. For agents: read this for design-system conventions. For repo truth and hard constraints, see [AGENTS.md](AGENTS.md). For roadmap, see [ROADMAP.md](ROADMAP.md); for active-phase design scope, see [docs/prds/](docs/prds/).
+**Purpose:** Document the token architecture, the structure-vs-theme split, and how to re-skin the template for a new product. For agents: read this for design-system conventions. For hard constraints, see [AGENTS.md](AGENTS.md). For roadmap, see [ROADMAP.md](ROADMAP.md); for active-phase design scope, see [docs/prds/](docs/prds/).
 
 **Last updated:** 2026-07-24
 
@@ -237,7 +237,7 @@ Phase 7 will add a dedicated theme-regeneration skill; until then, this manual w
 
 ## Related documentation
 
-- [AGENTS.md](AGENTS.md) — hard constraints, implemented features, agent workflow
+- [AGENTS.md](AGENTS.md) — hard constraints, agent workflow gates, merge checklist, and change protocol
 - [`.cursor/rules/ui-styling.mdc`](.cursor/rules/ui-styling.mdc) — Tailwind and theming conventions
 - [`.cursor/rules/ui-shadcn.mdc`](.cursor/rules/ui-shadcn.mdc) — shadcn primitive patterns
 - [`.cursor/rules/ui-accessibility.mdc`](.cursor/rules/ui-accessibility.mdc) — contrast, focus, form errors

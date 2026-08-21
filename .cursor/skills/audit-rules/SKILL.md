@@ -36,9 +36,8 @@ Read the actual referenced files and actual other rule files before flagging any
 
 1. Read `rule-authoring` in full.
 2. Read `AGENTS.md` § Hard constraints at the repo root.
-3. Skim `AGENTS.md` § Implemented now and `docs/DOC_RULES.md` document-roles
-   table — enough to detect repo-truth duplication in rules, not a full
-   inventory pass.
+3. Skim `docs/DOC_RULES.md` document-roles table — enough to detect
+   repo-truth duplication in rules, not a full inventory pass.
 4. List every file in `.cursor/rules/*.mdc`.
 
 ## Phase 2: Audit
@@ -54,7 +53,7 @@ Audit-specific judgment the skill doesn't carry:
 - **Repo-truth boundary** — per DOC_RULES, `.cursor/rules/` owns how to write
   code, not product truth. Flag catalogs of shipped features (route lists,
   migration inventories, "shipped flow" walkthroughs, test-file lists, every
-  production table) that duplicate AGENTS.md or are grep-able. Exception:
+  production table) that are grep-able from the code. Exception:
   one canonical reference per pattern; security-contextual route lists when
   the list *is* the rule.
 - **Reference density** — flag rules with 3+ file pointers to the same concern,
@@ -73,9 +72,6 @@ Audit-specific judgment the skill doesn't carry:
   hook contract). Category: `Canonical shape`. Severity: Low–Medium based on
   repeat-mistake risk. Recommendation: add a ≤15-line inline shape, not a file
   catalog.
-- **AGENTS.md prose overlap** — beyond § Hard constraints, flag rules that
-  restate implemented-features prose from AGENTS.md without adding a how-to
-  decision. Category: `Repo-truth duplication`.
 
 ### Mechanical triggers
 

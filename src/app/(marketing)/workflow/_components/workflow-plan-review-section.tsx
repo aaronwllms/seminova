@@ -19,7 +19,7 @@ export const WorkflowPlanReviewSection = () => (
         </p>
         <p>
           Adversarial review before build is the guardrail — implementation
-          plans are checked against repo truth and hard constraints so surprises
+          plans are checked against the code and hard constraints so surprises
           surface in chat, not in a diff.
         </p>
       </div>

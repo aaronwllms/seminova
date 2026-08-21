@@ -12,7 +12,7 @@ Plan Mode only.
 
 ## Read first
 
-1. **[AGENTS.md](../../../AGENTS.md)** — repo truth, hard constraints, what's implemented
+1. **[AGENTS.md](../../../AGENTS.md)** — hard constraints
 2. **Planning docs** — [ROADMAP.md](../../../ROADMAP.md) for phase status and the planning horizon; the active phase's PRD in [docs/prds/](../../../docs/prds/) for its epics and stories. Shipped phase detail: the shipped PRD in `docs/prds/`; `docs/archive/` for pre-restructure history
 
 If these don't exist, ask the user where the product roadmap / phase scope lives before planning.
@@ -73,7 +73,7 @@ After the story-level todos, always append these two entries. Do **not** include
 
 | Todo id | Purpose |
 |---------|---------|
-| `quality-gate` | Run `pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci` |
+| `quality-gate` | Run `pnpm pre-push` |
 | `commit-epic` | Conventional commit for this epic's changes |
 
 ## Generated plan closing sections (body)
@@ -82,10 +82,10 @@ Always append these three sections at the end of every generated plan, in order:
 
 ### Verification
 
-Quality bar — same commands as [WORKFLOW_GUIDE Step 5 exit condition](../../../docs/WORKFLOW_GUIDE.md). Stop on failure:
+Quality bar — [AGENTS.md § Agent workflow](../../../AGENTS.md#agent-workflow) step 3. Stop on failure:
 
 ```bash
-pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci
+pnpm pre-push
 ```
 
 ### Commit epic

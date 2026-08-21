@@ -13,7 +13,7 @@ Modular Cursor AI rules (`.mdc` format) for the Seminova template: an opinionate
 > [!IMPORTANT]
 > Hard constraints live in [AGENTS.md — Hard constraints](../../AGENTS.md#hard-constraints). Agents **write migration SQL only** — humans run `pnpm db:push` and `pnpm db:types`.
 
-Roadmap and active build scope: [ROADMAP.md](../../ROADMAP.md) and [docs/prds/](../../docs/prds/). Repo truth for agents: [AGENTS.md](../../AGENTS.md).
+Roadmap and active build scope: [ROADMAP.md](../../ROADMAP.md) and [docs/prds/](../../docs/prds/). Hard constraints and agent workflow gates: [AGENTS.md](../../AGENTS.md).
 
 ## What we adopted
 
@@ -274,6 +274,6 @@ Cursor loads rules based on frontmatter — only three keys are real: `descripti
 - [`.cursor/README.md`](../README.md) — skills, agents, planning layout
 - Rule authoring standard — see opening paragraph
 - [ROADMAP.md](../../ROADMAP.md) — roadmap and phase status
-- [AGENTS.md](../../AGENTS.md) — hard constraints, implemented features, routes, data model
+- [AGENTS.md](../../AGENTS.md) — hard constraints, workflow gates, merge checklist, and change protocol
 - [docs/DOC_RULES.md](../../docs/DOC_RULES.md) — doc maintenance procedure
 - [DESIGN.md](../../DESIGN.md) — token architecture and re-skin workflow

@@ -265,7 +265,7 @@ export const featuresContent = {
         {
           name: 'Locked rules',
           blurb:
-            'AGENTS.md as repo truth — hard constraints, implemented features, and a change protocol.',
+            'AGENTS.md holds hard constraints, workflow gates, the merge checklist, and a change protocol.',
           icon: KeyRound,
           homeHighlight: true,
         },

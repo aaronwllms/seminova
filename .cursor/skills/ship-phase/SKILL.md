@@ -52,7 +52,7 @@ Run the `archive-cursor-plans` skill in full. Its moves within `.cursor/plans/` 
 
 ### Step 2 — Sync repo docs
 
-Run the `sync-repo-docs` skill in full. Any `AGENTS.md` / `README.md` edits it applies are committed in Step 6, not separately.
+Run the `sync-repo-docs` skill in full. Any README.md / DESIGN.md / rules-index edits it applies are committed in Step 6, not separately.
 
 ### Step 3 — Flip PRD status
 
@@ -82,15 +82,15 @@ In [ROADMAP.md](../../../ROADMAP.md):
 
 ### Step 6 — Commit
 
-Stage all close-out changes: the archived PRD move (already staged if Step 4 used `git mv`), `ROADMAP.md`, plan moves under `.cursor/plans/`, and any `AGENTS.md` / `README.md` edits from Step 2:
+Stage all close-out changes: the archived PRD move (already staged if Step 4 used `git mv`), `ROADMAP.md`, plan moves under `.cursor/plans/`, and any README.md / DESIGN.md / rules-index edits from Step 2:
 
 ```bash
-git add ROADMAP.md AGENTS.md README.md .cursor/plans/
+git add ROADMAP.md README.md DESIGN.md .cursor/rules/README.md .cursor/plans/
 git commit -m "$(cat <<'EOF'
 docs: ship phase {N} — close-out (PRD/ROADMAP Shipped, plans archived, docs synced)
 
 Phase close-out per DOC_RULES rule 6; PRD moved to docs/prds/archive/;
-cursor plans archived; AGENTS.md/README.md synced to repo truth.
+cursor plans archived; README/DESIGN/rules index synced where drifted.
 EOF
 )"
 ```
@@ -119,7 +119,7 @@ Phase {N} is complete; this PR merges the phase branch to main.
 - Active PRD status flipped to Shipped and moved to docs/prds/archive/
 - ROADMAP phase row marked Shipped (PRD column path updated)
 - Cursor plans for the phase archived to .cursor/plans/archive/
-- AGENTS.md / README.md synced to repo truth
+- README / DESIGN.md / rules index synced where drifted
 
 ## Testing
 - pnpm pre-push passed on the phase branch

@@ -13,7 +13,7 @@ Move **live** Cursor plan files from [`.cursor/plans/`](../../plans/) into [`.cu
 **Not the same as:**
 
 - **`ship-phase`** — flips active PRD `Active→Shipped` and marks ROADMAP shipped per [docs/DOC_RULES.md rule 6](../../../docs/DOC_RULES.md); does not write to `docs/archive/CONTEXT_ARCHIVE.md` (frozen)
-- **`sync-repo-docs`** — updates `AGENTS.md` / `README.md` from shipped code
+- **`sync-repo-docs`** — updates README.md, DESIGN.md, and the rules index from shipped code
 - **`plan-next-epic`** — creates new plans (Plan Mode); does not move old ones
 
 Plans are **repo-specific planning history** — not shipped truth. See AGENTS.md and `.cursor/README.md`.
@@ -38,7 +38,7 @@ Determine mode from the user's request:
 **Selective sources** (use the smallest set that matches intent):
 
 1. Explicit filenames or plan titles from the user
-2. Plans whose names match a shipped phase/epic in `ROADMAP.md` (shipped phases) + `docs/prds/` (Active/Shipped PRDs) + `AGENTS.md` "Implemented now"
+2. Plans whose names match a shipped phase/epic in `ROADMAP.md` (shipped phases) + `docs/prds/` (Active/Shipped PRDs)
 3. Ask the user to confirm the list before moving if ambiguous
 
 If **bulk** and the user might still have in-progress work, list root plans and confirm before moving unless they already said "move all".
@@ -128,7 +128,7 @@ Cross-plan links between moved files remain valid relative to each other once al
 
 - Start next epic: `/plan-next-epic` (Plan Mode)
 - Planning docs stale: `/ship-phase` or manual ROADMAP/PRD updates per docs/DOC_RULES.md
-- Repo truth stale: `/sync-repo-docs`
+- Human-facing docs stale: `/sync-repo-docs`
 ```
 
 Do **not** commit unless the user asks.
@@ -136,14 +136,14 @@ Do **not** commit unless the user asks.
 ## Typical phase-close sequence
 
 1. `/ship-phase` — flip PRD Active→Shipped, mark ROADMAP shipped (rule 6)
-2. `/sync-repo-docs` — if AGENTS.md / README drifted
+2. `/sync-repo-docs` — if README / DESIGN / rules index drifted
 3. **`/archive-cursor-plans`** — clear active plans folder
 
 ## Anti-patterns
 
 - Do not move files already under `.cursor/plans/archive/`
 - Do not overwrite an existing archive file — use `-2` suffix
-- Do not treat plans as shipped truth when updating AGENTS.md or README
+- Do not treat plans as shipped truth when updating README or other sync targets
 - Do not bulk-move without user intent when selective criteria were given
 - Do not rewrite `.cursor/plans/archive/` history or delete plans — archive only
 

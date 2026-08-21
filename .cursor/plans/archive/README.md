@@ -1,6 +1,6 @@
 # Archived Cursor plans
 
-Historical Cursor implementation plans — not shipped repo truth. Part of the [Cursor configuration layout](../../README.md). For current routes, auth, and patterns, see [AGENTS.md](../../../AGENTS.md).
+Historical Cursor implementation plans — not shipped product truth. Part of the [Cursor configuration layout](../../README.md). For current routes, auth, and patterns, see the code ([LEXICON.md](../../../LEXICON.md) and [AGENTS.md](../../../AGENTS.md) § Hard constraints as needed).
 
 **Cursor indexing:** this directory is in [`.cursorindexingignore`](../../../.cursorindexingignore) — excluded from @Codebase search, still readable via @-mention. See [`.cursor/README.md` › Ignore files](../../README.md#ignore-files-repo-root).
 
@@ -22,4 +22,4 @@ Migration record: [phase_8_epic_7_types_eb5ab925.plan.md](phase_8_epic_7_types_e
 ## Do not bulk-edit archived plan bodies
 
 > [!IMPORTANT]
-> Paths and filenames in these files reflect planning-time layout. Current truth: [AGENTS.md](../../../AGENTS.md) and [`src/constants/admin-paths.ts`](../../../src/constants/admin-paths.ts).
+> Paths and filenames in these files reflect planning-time layout. Current truth: the code and [`src/constants/admin-paths.ts`](../../../src/constants/admin-paths.ts).

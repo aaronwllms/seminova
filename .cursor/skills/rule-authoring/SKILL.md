@@ -68,11 +68,6 @@ rule when the pattern is project-specific and easy to get wrong.
 (hook wiring, component composition, test layout). Prefer utilities and shared
 primitives over feature-specific paths.
 
-**Repo-truth catalogs** — lists of what is shipped (routes, forms, migrations,
-test files, production tables) belong in **AGENTS.md**, not rules. A rule may
-cite **at most one** canonical reference per pattern; do not inventory every
-consumer.
-
 **The grep test** — if the agent could discover the same information with one
 grep, do not catalog it in a rule.
 
@@ -236,8 +231,7 @@ through this checklist:
       branch), is the shape inline here or explicitly delegated to an owner that
       has it?
 - [ ] File references: at most one per pattern? Stable path? No test-file inventory?
-- [ ] Does any sentence answer "what did we build?" — if yes, move to AGENTS.md
-      or delete.
+- [ ] Does any sentence answer "what did we build?" — if yes, delete it.
 
 **Before adding a code example:** is the pattern unique to this project?
 Could a file reference replace it? Does showing code add value over

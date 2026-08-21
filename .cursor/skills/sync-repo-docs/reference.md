@@ -4,19 +4,6 @@
 
 See [DOC_RULES.md](../../../docs/DOC_RULES.md) for the canonical document-roles table.
 
-## AGENTS.md section map (typical — adapt to each repo)
-
-| Section                        | Update when…                                              |
-| ------------------------------ | --------------------------------------------------------- |
-| Doc-roles pointer (was: map)   | AGENTS.md only points to docs/DOC_RULES.md; register new top-level docs there, not here |
-| Setup and quality commands     | New/changed quality or install commands in `package.json` |
-| Hard constraints (each bullet) | Mirror a hard-constraint change already made via change protocol (enforcement + AGENTS list together) — never initiate |
-| Implemented / shipped          | Shipped user-facing features, product routes, nav         |
-| Data model (summary)           | New tables/columns, ownership changes                     |
-| Where things live              | New top-level `src/` directories or major relocations     |
-| Checklist before merging       | New merge gate tied to product rules (rare)               |
-| Change protocol                | Rare — only if the governance process itself changes      |
-
 ## README.md section map
 
 | Section                | Update when…                                            |
@@ -53,42 +40,35 @@ See [DOC_RULES.md](../../../docs/DOC_RULES.md) for the canonical document-roles 
 
 ### New product route
 
-- [ ] AGENTS.md → implemented → product routes
-- [ ] AGENTS.md → hard constraints → auth (if public/protected boundary changed)
 - [ ] README opening paragraph if it names primary sections
 - [ ] Verify auth middleware/proxy matches documented boundary
+- [ ] Report if public/protected boundary changed but AGENTS.md hard-constraint list was not updated in the same change
 
 ### Database migration
 
-- [ ] AGENTS.md → migration count
-- [ ] AGENTS.md → data model table (new table, column, or ownership)
-- [ ] AGENTS.md → hard constraints / RLS guidance if policies added/changed
 - [ ] Do not claim migration is applied — user runs `pnpm db:push`
 
 ### New env variable
 
 - [ ] README → Environment section
 - [ ] `.env.example` if the repo maintains one
-- [ ] AGENTS.md only if the var affects agent behavior (rare)
 
 ### New npm/pnpm script
 
 - [ ] README → Scripts table
-- [ ] AGENTS.md → Setup and quality commands (if it's a standard pre-finish command)
 
 ### Shipped feature (UI/behavior)
 
-- [ ] AGENTS.md → implemented → feature bullets (concise, user-facing)
 - [ ] README opening paragraph only if it changes the core loop description
 
 ### Auth or default route change
 
-- [ ] Mirror hard-constraint change via AGENTS.md change protocol if auth boundary changed (never initiate)
+- [ ] Report auth-boundary drift if AGENTS.md hard-constraint list not updated with enforcement change
 - [ ] Verify redirect logic in auth middleware/proxy
 
 ### Hard constraint change (any domain)
 
-- [ ] Mirror a hard-constraint change already made via AGENTS.md change protocol (enforcement + list together) — never initiate
+- [ ] Report-only — list updates ride with enforcement per AGENTS.md change protocol; this skill does not edit AGENTS.md
 
 ### New or reclassified Cursor rule
 
@@ -126,8 +106,6 @@ For unstaged work only: `git diff` and `git status`.
 
 **Updates:**
 
-- AGENTS.md → add route to product routes
-- AGENTS.md → feature bullet if new capability
 - README → only if opening paragraph lists primary nav sections
 
 **Skip:** Hard constraints (no auth boundary change).
@@ -136,11 +114,7 @@ For unstaged work only: `git diff` and `git status`.
 
 **Evidence:** New file in `supabase/migrations/`
 
-**Updates:**
-
-- AGENTS.md → bump migration count
-- AGENTS.md → data model row with ownership
-- AGENTS.md → hard constraints / RLS if ownership model is novel
+**Updates:** None for this skill's targets.
 
 **Skip:** README (no human setup change).
 
@@ -148,4 +122,4 @@ For unstaged work only: `git diff` and `git status`.
 
 **Evidence:** Extract hook from component; no route/schema/env change.
 
-**Updates:** None. Report "Left unchanged — internal refactor, no repo-truth drift."
+**Updates:** None. Report "Left unchanged — internal refactor, no doc drift."

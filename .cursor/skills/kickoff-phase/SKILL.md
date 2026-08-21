@@ -12,7 +12,7 @@ Normal agent mode — this skill writes files and runs git. Do not run in Plan M
 
 ## Read first
 
-1. **[AGENTS.md](../../../AGENTS.md)** — repo truth, hard constraints
+1. **[AGENTS.md](../../../AGENTS.md)** — hard constraints
 2. **[ROADMAP.md](../../../ROADMAP.md)** — phase statuses; the target phase's PRD in [docs/prds/](../../../docs/prds/)
 
 If these don't exist, ask the user where the product roadmap / phase scope lives.

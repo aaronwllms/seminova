@@ -50,12 +50,12 @@ Full roles table and write discipline are authoritative in [DOC_RULES.md](DOC_RU
 | `ROADMAP.md` | Thin phase stubs — the planning horizon of confirmed phases. One row per phase with status and a PRD link. |
 | `BACKLOG.md` | Uncommitted product ideas — unordered, unnumbered, no PRD. Promoted to a ROADMAP stub only on explicit sign-off. |
 | `docs/prds/` | One PRD per phase — forward intent, epics, and stories. Moves to `docs/prds/archive/` on ship. |
-| `AGENTS.md` | Repo truth — implemented features, routes, schema, agent workflow, hard constraints. Cursor's primary reference. |
+| `AGENTS.md` | Hard constraints, agent workflow gates, merge checklist, and change protocol. Cursor's primary governance reference. |
 | `LEXICON.md` | Shared architectural vocabulary. Inherited by every spinoff; spinoffs add domain terms on top. |
 | `docs/DOC_RULES.md` | How the planning docs are maintained — authoritative roles, write discipline, lifecycle rules. |
 
 > [!NOTE]
-> **PRDs describe what you're planning to build; AGENTS describes what's actually in the repo today.** Cursor builds from the PRD and checks plans against AGENTS — don't treat them as interchangeable.
+> **PRDs describe what you're planning to build; the code and migrations describe what's actually in the repo today.** Cursor builds from the PRD and checks plans against the code plus AGENTS.md hard constraints — don't treat them as interchangeable.
 
 ---
 
@@ -89,19 +89,22 @@ These lists are a summary — the skill itself is the source of truth on conflic
 Cursor reads `site.ts` and `README.md` for project identity and does the mechanical scrub pass — replacing Seminova-specific content with the new project's details across the repo. Runs once, immediately after project kickoff.
 
 What `initialize-project` touches:
-- `AGENTS.md` — replaces Seminova name references; resets "Implemented now" to baseline template state
+- `package.json` — sets `name` from `site.ts` (kebab-case) and replaces the template keyword
 - `src/config/landing-content.ts` — stubs hero copy and features with placeholders
 - `.cursor/plans/archive/` — purges Seminova's planning history
+- `docs/prds/archive/` — purges shipped-PRD archive contents; keeps the directory
 - `LICENSE` — appends a new copyright line for the project owner; preserves the existing Troya and Williams attributions (MIT requirement)
 - `docs/WORKFLOW_BACKLOG.md` — clears Seminova's deferred workflow items, keeps the stub structure
 - `docs/mockups/` — purges Seminova's design mockups
 - `docs/archive/` — purges the frozen pre-restructure archive
 - `docs/research/` — deletes Seminova's active `RESEARCH-*.md` briefs; purges `docs/research/archive/`; keeps `README.md`
+- `docs/skill-feedback/` — purges per-skill logs; keeps the directory
+- Root audit artifacts (`TEST_AUDIT.md`, `RULE_AUDIT.md`, `SECURITY_AUDIT.md`, `TECH_DEBT_AUDIT.md`) — deletes; audit skills regenerate them on demand
 - `CONTRIBUTING.md` — deletes the file; the template's contribution guide doesn't apply to a spinoff product
 
 What it does not touch:
 - `ROADMAP.md`, `LEXICON.md`, `site.ts`, `README.md` — project kickoff already wrote these correctly
-- `.cursor/rules/`, `.cursor/skills/` — inherited unchanged; hard constraints inherit via AGENTS.md and `check:*` enforcement
+- `.cursor/rules/`, `.cursor/skills/`, `AGENTS.md` — inherited unchanged; hard constraints inherit via AGENTS.md and `check:*` enforcement
 - `DESIGN.md` — inherited unchanged
 
 These lists are a summary — the skill itself is the source of truth on conflict.
@@ -127,7 +130,7 @@ This step is a subloop — plan and review go back and forth until Claude signs 
 - **5c.** If Claude flags issues: discuss and settle the feedback in chat (this can take a few exchanges), then ask Claude for a standalone copy-block prompt summarizing the agreed change.
 - **5d.** Paste that prompt into the same Cursor plan-mode session; Cursor updates the plan.
 - **5e.** Copy the updated plan's markdown and paste it back to Claude for re-review. Repeat 5c–5e until clean — occasionally a revision introduces a new issue, which just runs another lap of the loop.
-- **Exit condition:** Claude confirms the plan is good to build. A solid plan includes: (1) a quality gate (`pnpm type-check && pnpm lint && pnpm format-check && pnpm test:ci`), (2) a **Commit epic** step authorized by the approved plan, and (3) a closing handoff instructing the user to run `/code-review` in a new agent window, including the epic baseline SHA and epic identifier.
+- **Exit condition:** Claude confirms the plan is good to build. A solid plan includes: (1) a quality gate (`pnpm pre-push`), (2) a **Commit epic** step authorized by the approved plan, and (3) a closing handoff instructing the user to run `/code-review` in a new agent window, including the epic baseline SHA and epic identifier.
 
 **Step 6 — Build and follow-up**
 Press the build button on the approved plan in Cursor. The build window implements the epic end to end, runs the quality gate, and commits the epic. It ends with a handoff to run `/code-review` in a **new agent window**, passing the baseline SHA and epic id from the plan.
@@ -171,7 +174,7 @@ Not part of the numbered loop above, but operate on the planning docs rather tha
 
 **`archive-research`** *(Cursor-side)* — retires served briefs to `docs/research/archive/` when the PM @-attaches one or more active `RESEARCH-*.md` files in the same invocation. @-mention is required. Archived briefs are frozen. Invoke with `/archive-research`.
 
-For repo-maintenance and quality skills (security audits, tech-debt audits, design/copy review, etc.) not specific to the planning system, see [AGENTS.md › Agent skills](../AGENTS.md#agent-skills-cursorskills).
+For repo-maintenance and quality skills (security audits, tech-debt audits, design/copy review, etc.) not specific to the planning system, see [`.cursor/skills/`](../.cursor/skills/).
 
 ---
 
@@ -208,7 +211,7 @@ Cursor's Fast vs. Standard tiers are a speed/cost choice, not a capability one �
 
 Claude-side skill installation (account-wide, one-time) is covered in [WORKFLOW_SETUP.md](WORKFLOW_SETUP.md).
 
-**Cursor-side skills** live in `.cursor/skills/` and are invoked with `/skill-name` in Cursor chat. See [AGENTS.md › Agent skills](../AGENTS.md#agent-skills-cursorskills) for the full repo-maintenance catalog.
+**Cursor-side skills** live in [`.cursor/skills/`](../.cursor/skills/) and are invoked with `/skill-name` in Cursor chat.
 
 ---
 

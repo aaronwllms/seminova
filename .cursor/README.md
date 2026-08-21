@@ -2,11 +2,11 @@
 
 Portable AI workflow for this repo. **Skills-first** — use `/skill-name` in chat.
 
-**What lives here vs elsewhere.** `.cursor/` holds portable Cursor config (rules, skills, subagents, ephemeral plans) — copy or inherit on spinoff. [AGENTS.md](../AGENTS.md) is repo truth (what's implemented, hard constraints, data model). Planning procedure and the full document map live in [docs/DOC_RULES.md](../docs/DOC_RULES.md) — authoritative; not duplicated here. Agent guidance in `.cursor/` is never copied into product code (`src/`).
+**What lives here vs elsewhere.** `.cursor/` holds portable Cursor config (rules, skills, subagents, ephemeral plans) — copy or inherit on spinoff. [AGENTS.md](../AGENTS.md) holds hard constraints, agent workflow gates, the merge checklist, and the change protocol — not a feature or schema catalog. What exists lives in the code and `supabase/migrations/`. Planning procedure and the full document map live in [docs/DOC_RULES.md](../docs/DOC_RULES.md) — authoritative; not duplicated here. Agent guidance in `.cursor/` is never copied into product code (`src/`).
 
 ## What Cursor auto-loads
 
-A small set of **always-on** rules applies in every session (minimalism, PM collaboration, conventions, migration pointer). Other rules **attach by path** when a matching file enters agent context (read, edit, or @-mention) — see [rules/README.md](rules/README.md) for the per-file index. **AGENTS.md** is treated as repo truth by convention; it lives at the repo root, not under `.cursor/`. **Skills** run only when you invoke them (`/plan-next-epic`, `/sync-repo-docs`, etc.). Everything else (WORKFLOW_GUIDE, PRDs, audit artifacts) is read on demand via links or search — not auto-loaded.
+A small set of **always-on** rules applies in every session (minimalism, PM collaboration, conventions, migration pointer). Other rules **attach by path** when a matching file enters agent context (read, edit, or @-mention) — see [rules/README.md](rules/README.md) for the per-file index. **AGENTS.md** is the hard-constraints / governance file by convention; it lives at the repo root, not under `.cursor/`. **Skills** run only when you invoke them (`/plan-next-epic`, `/sync-repo-docs`, etc.). Everything else (WORKFLOW_GUIDE, PRDs, audit artifacts) is read on demand via links or search — not auto-loaded.
 
 ## Layout
 
@@ -23,15 +23,16 @@ A small set of **always-on** rules applies in every session (minimalism, PM coll
 | Need | Go to |
 | ---- | ----- |
 | Full document map (all roles) | [docs/DOC_RULES.md](../docs/DOC_RULES.md) |
-| Repo truth, hard constraints, skills catalog | [AGENTS.md](../AGENTS.md) |
+| Hard constraints, workflow gates, change protocol | [AGENTS.md](../AGENTS.md) |
+| Skills catalog | [`skills/`](skills/) |
 | Phase loop, handoffs, planning skills | [docs/WORKFLOW_GUIDE.md](../docs/WORKFLOW_GUIDE.md) |
 | Human clone/setup guide | [README.md](../README.md) |
 
-**Sync after shipping:** `/sync-repo-docs` (AGENTS.md + README)
+**Sync after shipping:** `/sync-repo-docs` (README.md, DESIGN.md, `.cursor/rules/README.md`)
 
 ## Skills
 
-Full catalog with when-to-use guidance: [AGENTS.md § Agent skills](../AGENTS.md#agent-skills-cursorskills). Per-skill detail: [`skills/`](skills/) (`SKILL.md` in each folder). Skills with `disable-model-invocation: true` run only when you explicitly invoke them.
+Per-skill detail: [`skills/`](skills/) (`SKILL.md` in each folder). Skills with `disable-model-invocation: true` run only when you explicitly invoke them.
 
 ## Database migrations
 

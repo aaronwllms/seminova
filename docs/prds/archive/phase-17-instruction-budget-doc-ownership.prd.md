@@ -1,6 +1,6 @@
 # PRD — Phase 17: Instruction Budget & Doc Ownership
 
-**Status:** `Ready`
+**Status:** `Shipped`
 **Last updated:** 2026-08-21
 
 ---
@@ -38,7 +38,7 @@ Order matters: generators are rewired before a line is deleted. Slimming first w
 
 ## Epics & stories
 
-### Epic 1: Charter rewiring
+### Epic 1: Charter rewiring `Complete`
 
 - **1.1 The documented quality bar matches what the hook enforces.** § Agent workflow's finish-work command becomes `pnpm pre-push` rather than the four-command chain, so an agent following it cannot pass the documented bar and then fail on a hard-constraint check. The human-only migration gate stays a separate step. *(AG025)*
 
@@ -52,7 +52,7 @@ Order matters: generators are rewired before a line is deleted. Slimming first w
 - The finish-work command in § Agent workflow is the same command the pre-push hook runs.
 - `pnpm pre-push` is green.
 
-### Epic 2: Audit tooling and enforcement markers
+### Epic 2: Audit tooling and enforcement markers `Complete`
 
 - **2.1 The budget audit measures the right unit.** `audit-agents-md` records budget in characters rather than lines, and its mechanical trigger threshold moves with it. The file's prose sections run one line per paragraph, so a line count under-reads the real spend by roughly half — the metric that was supposed to catch the bloat was itself reporting it as smaller than it was.
 
@@ -65,13 +65,15 @@ Order matters: generators are rewired before a line is deleted. Slimming first w
 - Both new markers appear in an `audit-tech-debt` declared-debt harvest.
 - No duplicate record of the auth-boundary gap survives in `docs/WORKFLOW_BACKLOG.md`.
 
-### Epic 3: Deletion pass and why-harvest
+### Epic 3: Deletion pass and why-harvest `Complete`
 
 - **3.1 `AGENTS.md` is cut to the charter.** The audit's enumerated deletions (AG002 through AG020) are applied: the skills tables, the command table and prerequisites, every § Implemented now subsection, § Data model, § Where things live, and § Logging convention. The purpose line stops advertising the file as a feature catalog. AG022 is resolved — the charter is settled input, not a gate — so the deletions proceed without re-opening the decision.
 
 - **3.2 Deleted sections are harvested for whys before they go.** Each section is checked for a claim that is both non-derivable from code and not already held by an ADR, a rule, or `LEXICON.md`. Survivors route to the owner that fits; a rule file accepts a claim only when it changes what an agent does in that domain, not when it merely explains why code looks as it does. The audit's why-hunt found none, so an empty harvest is the expected and acceptable result — anything found is reported rather than dropped.
 
 - **3.3 The slimmed file points somewhere and defends itself.** Directory-level prose breadcrumbs replace the deleted directory map — where coding standards, decision history, and vocabulary live, at directory granularity rather than file paths that rot. A note at the top of the file points at ADR-0010 before anyone adds to it, placed where the temptation occurs rather than in a governance doc nobody opens mid-edit.
+
+- **3.4 `archive-cursor-plans` selective matcher.** When § Implemented now is deleted in 3.1, replace the plan-matching heuristic that currently reads `AGENTS.md` "Implemented now" — until then the heuristic still works; Epic 1 leaves it unchanged.
 
 *Success:*
 - No route list, migration inventory, data-model table, directory map, skills table, or shipped-feature prose remains in `AGENTS.md`.
@@ -80,7 +82,7 @@ Order matters: generators are rewired before a line is deleted. Slimming first w
 - Every breadcrumb resolves to a directory that exists.
 - `pnpm pre-push` is green.
 
-### Epic 4: Downstream surfaces and re-baseline
+### Epic 4: Downstream surfaces and re-baseline `Complete`
 
 - **4.1 The public workflow page stops describing a workflow the repo no longer runs.** The `/workflow` documents table's `AGENTS.md` row corrects its writer and its purpose, and the Cursor environment card drops repo-truth sync from what Cursor owns. The co-located content test moves with it. The page's whole claim is that the documented workflow is the real one; a stale row there is the exact failure it exists to disprove.
 
