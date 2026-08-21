@@ -16,9 +16,9 @@ at the repo root with cited findings.
 
 ## Operating principles
 
-`rule-authoring` is the standard — read it in full each run. This skill
-carries no copy of its criteria; if the rule changes, the audit changes with
-it.
+The standard is `writing-for-agents` plus `rule-authoring` — read both in
+full each run. This skill carries no copy of their criteria; if either
+changes, the audit changes with it.
 
 Read the actual referenced files and actual other rule files before flagging anything; a plausible-sounding finding that doesn't hold up on inspection is worse than no finding. No sycophancy — but **do not waive a mechanical trigger without documenting the waiver** in Rules that are fine (see Phase 3). Rationalizing density or shape issues away in prose without a waiver line is an audit failure.
 
@@ -34,7 +34,8 @@ Read the actual referenced files and actual other rule files before flagging any
 
 ## Phase 1: Orient
 
-1. Read `rule-authoring` in full.
+1. Read [`writing-for-agents`](../writing-for-agents/SKILL.md) and
+   [`rule-authoring`](../rule-authoring/SKILL.md) in full.
 2. Read `AGENTS.md` § Hard constraints at the repo root.
 3. Skim `docs/DOC_RULES.md` document-roles table — enough to detect
    repo-truth duplication in rules, not a full inventory pass.
@@ -42,7 +43,7 @@ Read the actual referenced files and actual other rule files before flagging any
 
 ## Phase 2: Audit
 
-Apply every principle and checklist item in `rule-authoring` to every rule file. Where a principle requires cross-file knowledge (overlap, contradiction, ownership), check each rule against all others plus `AGENTS.md` § Hard constraints, not just its neighbors.
+Apply every principle in `writing-for-agents` and every principle and checklist item in `rule-authoring` to every rule file. Where a principle requires cross-file knowledge (overlap, contradiction, ownership), check each rule against all others plus `AGENTS.md` § Hard constraints, not just its neighbors.
 
 Audit-specific judgment the skill doesn't carry:
 
