@@ -1,6 +1,6 @@
 # Seminova — Roadmap
 
-The planning horizon: anticipated phases as thin stubs, plus living status. Uncommitted product ideas live in [BACKLOG.md](BACKLOG.md) until explicitly promoted to a phase here. Shipped phase detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md); build-time workflow and authoritative schema in [AGENTS.md](AGENTS.md). Phase status vocabulary and PRD lifecycle in [docs/DOC_RULES.md](docs/DOC_RULES.md).
+The planning horizon: anticipated phases as thin stubs, plus living status. Uncommitted product ideas live in [BACKLOG.md](BACKLOG.md) until explicitly promoted to a phase here. Shipped phase detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md); workflow gates and hard constraints in [AGENTS.md](AGENTS.md); schema in `supabase/migrations/`. Phase status vocabulary and PRD lifecycle in [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
 **Last updated:** 2026-08-21
 

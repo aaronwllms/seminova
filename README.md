@@ -256,7 +256,7 @@ The template ships an **unauthenticated write path** into `app_logs` at `/api/cl
 | [LEXICON.md](LEXICON.md) | PM + agents | Architectural vocabulary |
 | [docs/adr/](docs/adr/) | PM + agents | Architecture Decision Records |
 | [docs/research/](docs/research/) | PM + agents | Exploratory research briefs (`docs/research/archive/` when retired) |
-| [AGENTS.md](AGENTS.md) | Agents | Repo truth — routes, hard constraints, data model |
+| [AGENTS.md](AGENTS.md) | Agents | Hard constraints, workflow gates, merge checklist, and change protocol |
 | [DESIGN.md](DESIGN.md) | PM + contributors | Token architecture and re-skin workflow |
 | [.cursor/rules/](.cursor/rules/) | Agents | Coding standards and conventions |
 | [.cursor/skills/](.cursor/skills/) | Agents | Workflows (`/sync-repo-docs`, `/create-migration`, etc.) |

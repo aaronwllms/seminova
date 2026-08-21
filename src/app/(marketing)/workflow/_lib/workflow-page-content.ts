@@ -52,7 +52,7 @@ export const WORKFLOW_ENVIRONMENTS = [
       'Initializing spinoffs from the template',
       'Epic implementation plans',
       'Building and shipping code',
-      'Repo truth sync after behavior changes',
+      'Doc sync after env, scripts, token, or rule-file changes (`/sync-repo-docs` → README, DESIGN.md, `.cursor/rules/README.md`)',
     ],
   },
 ] as const
@@ -79,10 +79,10 @@ export const WORKFLOW_DOCUMENTS = [
     name: 'AGENTS.md',
     repoPath: 'AGENTS.md',
     url: workflowRepoUrl('blob', 'AGENTS.md'),
-    writtenBy: 'Cursor',
+    writtenBy: 'Both',
     readBy: 'Both',
     purpose:
-      'Repo truth — implemented features, routes, schema, and hard constraints.',
+      'Hard constraints, agent workflow gates, merge checklist, and change protocol.',
   },
   {
     name: 'LEXICON.md',
@@ -155,7 +155,7 @@ export const WORKFLOW_LOOP_NODES = [
     skill: 'plan-review',
     environment: 'claude',
     detail:
-      'Claude checks the plan against repo truth and hard constraints before any code lands. Claude, plan-review.',
+      'Claude checks the plan against the code and hard constraints before any code lands. Claude, plan-review.',
     geometry: { x: 388, y: 186, width: 130, height: 68, layout: 'three-line' },
   },
   {

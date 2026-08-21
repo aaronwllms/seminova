@@ -52,7 +52,7 @@ Husky enforces most of this automatically:
 
 The repo's standards live in the repo, not in this file:
 
-- [AGENTS.md](AGENTS.md) — repo truth and **hard constraints** (non-negotiable, enforced by `check:*` scripts and CI)
+- [AGENTS.md](AGENTS.md) — **hard constraints** (non-negotiable, enforced by `check:*` scripts and CI), workflow gates, merge checklist, and change protocol
 - [.cursor/rules/](.cursor/rules/) — coding standards and conventions
 - [DESIGN.md](DESIGN.md) — token architecture and design-system rules
 - [docs/DOC_RULES.md](docs/DOC_RULES.md) — document roles and maintenance procedure, if your change touches them

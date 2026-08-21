@@ -128,7 +128,7 @@ Cross-plan links between moved files remain valid relative to each other once al
 
 - Start next epic: `/plan-next-epic` (Plan Mode)
 - Planning docs stale: `/ship-phase` or manual ROADMAP/PRD updates per docs/DOC_RULES.md
-- Repo truth stale: `/sync-repo-docs`
+- Human-facing docs stale: `/sync-repo-docs`
 ```
 
 Do **not** commit unless the user asks.

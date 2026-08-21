@@ -30,4 +30,12 @@ describe('workflow-page-content', () => {
       `${siteConfig.links.github}/blob/main/AGENTS.md`,
     )
   })
+
+  it('should describe the AGENTS.md row by the charter, not as a catalog', () => {
+    const agentsDoc = WORKFLOW_DOCUMENTS.find((doc) => doc.name === 'AGENTS.md')
+
+    expect(agentsDoc?.purpose).toBe(
+      'Hard constraints, agent workflow gates, merge checklist, and change protocol.',
+    )
+  })
 })

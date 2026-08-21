@@ -27,7 +27,7 @@ If the artifact or its stage (exploration / refinement / final) is unclear, ask 
 When checking consistency, read only what applies — **never assume token values or UI patterns from this skill file**:
 
 1. **[DESIGN.md](../../../DESIGN.md)** — token architecture, structure-vs-theme split, re-skin workflow
-2. **[AGENTS.md](../../../AGENTS.md)** — shipped UI patterns, routes, shells, shared components
+2. **Shipped UI** — live layouts and `src/components/` for patterns, routes, and shells
 3. **Planning brief** — [ROADMAP.md](../../../ROADMAP.md) + relevant phase PRD in [docs/prds/](../../../docs/prds/); shipped history in [docs/archive/CONTEXT_ARCHIVE.md](../../../docs/archive/CONTEXT_ARCHIVE.md) (if present)
 4. **Token values** — [`src/app/globals.css`](../../../src/app/globals.css): authoritative source for colors, typography, radius, shadows, spacing (read `:root` and `.dark`; do not copy hex/oklch into critique prose unless comparing a mockup to the live system)
 5. **Styling rules** — [`.cursor/rules/ui-styling.mdc`](../../rules/ui-styling.mdc), [`.cursor/rules/ui-shadcn.mdc`](../../rules/ui-shadcn.mdc): semantic tokens, mobile-first, shadcn primitives
@@ -70,11 +70,11 @@ Use this lens — separate **token** drift from **component** or **pattern** bre
 | -------------- | ------------------------------------------- | ------------------------------------------ |
 | **Tokens**     | `globals.css`, DESIGN.md                    | Wrong color, spacing, radius, or type?     |
 | **Components** | `src/components/ui/`, shared app components   | Wrong variant, missing state, off-pattern? |
-| **Patterns**   | AGENTS.md, route `_components/`, active PRD | Breaks established layout or flow grammar? |
+| **Patterns**   | live layouts, route `_components/`, active PRD | Breaks established layout or flow grammar? |
 
 After reading project sources, check the artifact against what is actually shipped:
 
-- **Shell & navigation** — app/marketing/admin chrome, nav labels, breadcrumbs (per AGENTS.md and live layouts)
+- **Shell & navigation** — app/marketing/admin chrome, nav labels, breadcrumbs (per live layouts)
 - **Lists & tables** — row density, actions, loading skeletons (per data-table and route patterns if applicable)
 - **Status & feedback** — semantic colors (`primary`, `destructive`, `muted`, etc.), inline errors, toasts, empty states
 - **Dialogs & sheets** — width, header/body/footer structure, button order, destructive placement

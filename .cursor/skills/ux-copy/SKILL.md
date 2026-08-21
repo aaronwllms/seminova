@@ -19,12 +19,13 @@ If the request doesn't name the screen/flow or say whether to write new copy or 
 
 When writing or reviewing, read only what applies — **do not invent a voice guide; discover it from the project**:
 
-1. **[AGENTS.md](../../../AGENTS.md)** — product terms, routes, feature behavior, error UI patterns
-2. **Planning brief** — [ROADMAP.md](../../../ROADMAP.md) + relevant phase PRD in [docs/prds/](../../../docs/prds/) for in-flight vocabulary and UX intent
-3. **Shipped copy in the same flow** — read nearby components under `src/app/` and `src/components/` for labels, buttons, empty states, and dialog wording already in production
+1. **Shipped copy in the same flow** — read nearby components under `src/app/` and `src/components/` for labels, buttons, empty states, and dialog wording already in production
+2. **[LEXICON.md](../../../LEXICON.md)** — shared product and architectural terms
+3. **Planning brief** — [ROADMAP.md](../../../ROADMAP.md) + relevant phase PRD in [docs/prds/](../../../docs/prds/) for in-flight vocabulary and UX intent
 4. **Shared message constants** — search `src/utils/` and route `_lib/` for user-facing strings reused across flows (e.g. validation messages, auth errors)
-5. **Errors** — [`.cursor/rules/error-handling.mdc`](../../rules/error-handling.mdc): clear, actionable, no internals; operational vs fault copy
-6. **Notifications** — [`.cursor/rules/notifications.mdc`](../../rules/notifications.mdc) if toasts or success confirmations apply
+5. **[AGENTS.md](../../../AGENTS.md)** — § Hard constraints, if the copy would trip one
+6. **Errors** — [`.cursor/rules/error-handling.mdc`](../../rules/error-handling.mdc): clear, actionable, no internals; operational vs fault copy
+7. **Notifications** — [`.cursor/rules/notifications.mdc`](../../rules/notifications.mdc) if toasts or success confirmations apply
 
 If the project adds a dedicated copy or content guide later, read that too — this skill does not duplicate one.
 
@@ -33,7 +34,7 @@ If the project adds a dedicated copy or content guide later, read that too — t
 **Derive from shipped UI**, not from this file:
 
 - Read 2–3 screens in the same flow (or sibling routes) and note: sentence length, button casing, level of formality, use of questions in titles, acknowledgment labels
-- Pull product-specific terms from AGENTS.md and the active PRD — use the same nouns and verbs users already see elsewhere
+- Pull product-specific terms from shipped UI, [LEXICON.md](../../../LEXICON.md), and the active PRD — use the same nouns and verbs users already see elsewhere
 - Flag **drift** when proposed copy conflicts with a neighbor screen or planning doc
 
 **Structural habits** (template-level, not product voice):

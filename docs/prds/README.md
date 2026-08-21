@@ -36,7 +36,7 @@ is in flight, the file lives in `docs/prds/`.
   outcome that proves the phase worked.
 - **No file paths, no code snippets.** They go stale fast and turn a forward spec
   into a brittle as-built record — the exact lifecycle-mixing this restructure
-  exists to kill. As-built truth lives in [AGENTS.md](../../AGENTS.md); history lives in the
+  exists to kill. As-built truth lives in the code and `supabase/migrations/`; history lives in the
   frozen archive.
 - Epics and stories are added by `phase-planning` when the PRD goes `Ready` —
   that skill owns their shape (vertical-slice stories carrying a deliverable,

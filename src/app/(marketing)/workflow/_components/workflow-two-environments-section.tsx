@@ -20,8 +20,8 @@ export const WorkflowTwoEnvironmentsSection = () => (
       <p className="text-muted-foreground mt-4 max-w-prose text-[15px] leading-relaxed">
         Seminova&apos;s planning system runs across two tools with a hard
         boundary between them. Requirements flow from planning to
-        implementation; repo truth flows back so the next pass starts from what
-        is actually shipped.
+        implementation; shipped code flows back so the next pass starts from
+        what is actually in the repo.
       </p>
     </div>
 
