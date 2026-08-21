@@ -203,8 +203,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
           Project kickoff and initialize project feed into a phase loop of three
           centered rows: plan phase and kickoff phase, an epic loop of plan
           epic, review plan, build, and mark epic complete, then ship phase.
-          Connectors enter and leave the epic loop at its container edges, with
-          a dashed revise arrow back from review plan to plan epic.
+          Connectors enter and leave the epic loop at its container edges.
         </desc>
         <rect x="0" y="0" width="680" height="496" rx="12" fill="var(--card)" />
         <defs>
@@ -336,25 +335,6 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
           strokeWidth="1.5"
           markerEnd="url(#workflow-arrow)"
         />
-
-        <path
-          d="M275 346 L275 360 L127 360 L127 348"
-          fill="none"
-          stroke="var(--muted-foreground)"
-          strokeWidth="1"
-          strokeDasharray="4 3"
-          markerEnd="url(#workflow-arrow)"
-        />
-        <text
-          x="201"
-          y="357"
-          textAnchor="middle"
-          fontSize="11"
-          fill="var(--muted-foreground)"
-          fontFamily="sans-serif"
-        >
-          revise
-        </text>
 
         <path
           d="M339 366 V390"
