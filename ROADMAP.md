@@ -26,7 +26,7 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Unco
 | 14 | Tech Debt Hardening | `Shipped` | [Phase 14 PRD](docs/prds/archive/phase-14-tech-debt-hardening.prd.md) |
 | 15 | Features Page & Landing Refresh | `Shipped` | [Phase 15 PRD](docs/prds/archive/phase-15-features-page-landing-refresh.prd.md) |
 | 16 | Motion System & Table Fetch Feedback | `Shipped` | [Phase 16 PRD](docs/prds/archive/phase-16-motion-system-table-fetch-feedback.prd.md) |
-| 17 | Instruction Budget & Doc Ownership | `Ready` | [Phase 17 PRD](docs/prds/phase-17-instruction-budget-doc-ownership.prd.md) |
+| 17 | Instruction Budget & Doc Ownership | `Active` | [Phase 17 PRD](docs/prds/phase-17-instruction-budget-doc-ownership.prd.md) |
 | 18 | Magic Link Auth | `Draft` | — |
 
 > [!NOTE]
