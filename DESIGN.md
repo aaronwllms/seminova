@@ -87,6 +87,7 @@ Token **names** below. Values: see `globals.css` only.
 | `warning`, `warning-foreground`         | `bg-warning`, `text-warning`, `text-warning-foreground`             |
 | `info`, `info-foreground`               | `bg-info`, `text-info`, `text-info-foreground`                      |
 | `border`                                | `border-border`                                                     |
+| elevated surface border                 | `surface-elevated` (rebinds `--border` on card / popover / sidebar) |
 | `input`                                 | `border-input`                                                      |
 | `ring`                                  | `ring-ring`                                                         |
 
@@ -222,7 +223,7 @@ When forking Seminova for a new product, change **theme values only** — preser
 
    Fix violations to semantic tokens.
 
-7. **Smoke test** light and dark modes: primary actions, destructive states, borders, focus rings, typography.
+7. **Smoke test** light and dark modes: primary actions, destructive states, borders (check card, popover, and sidebar borders in dark mode), focus rings, typography.
 
 This manual workflow is the canonical re-skin path. There is no theme-regeneration skill.
 

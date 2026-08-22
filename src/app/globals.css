@@ -85,6 +85,15 @@
   --animate-accordion-up: accordion-up 0.2s ease-out;
 }
 
+/* 88/12 vs --card reproduces the page-level lightness delta (light ~0.087,
+   dark ~0.078). Derived from --card; --popover and --sidebar match --card
+   today — a re-skin that diverges them needs a second utility. */
+@utility surface-elevated {
+  --border: color-mix(in oklch, var(--card) 88%, var(--foreground));
+  --input: color-mix(in oklch, var(--card) 88%, var(--foreground));
+  --sidebar-border: color-mix(in oklch, var(--card) 88%, var(--foreground));
+}
+
 :root,
 .light {
   --background: oklch(0.9842 0.0034 247.8575);

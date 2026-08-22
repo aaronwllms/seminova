@@ -13,7 +13,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={theme as ToasterProps['theme']}
       position="top-right"
       expand
-      className="toaster group"
+      className="toaster group surface-elevated"
       icons={createSonnerToastIcons()}
       style={
         {

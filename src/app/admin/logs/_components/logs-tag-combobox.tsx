@@ -90,7 +90,7 @@ export const LogsTagCombobox = ({
       </Button>
 
       {open ? (
-        <div className="bg-popover text-popover-foreground border-border absolute z-20 mt-1 w-full rounded-md border shadow-md">
+        <div className="bg-popover text-popover-foreground surface-elevated border-border absolute z-20 mt-1 w-full rounded-md border shadow-md">
           <div className="border-border border-b p-2">
             <Input
               type="search"
