@@ -16,7 +16,7 @@ Conducts a deliberate, opinionated audit of an entire codebase and produces `TEC
 
 - **`pre-release-review`** — scoped to changed files before a PR; quality gates + manual checklist
 - **`audit-security`** — security-focused; full pass or sync → `SECURITY_AUDIT.md` at repo root
-- **`sync-repo-docs`** / **`sync-context-md`** — doc drift only, narrow window
+- **`sync-repo-docs`** — doc drift only, narrow window
 
 ---
 
