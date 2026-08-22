@@ -43,7 +43,7 @@ The organizing principle: **persistence follows severity, not surface.** A banne
 - The public banner's dismissal behavior is unchanged.
 - `pnpm pre-push` is green.
 
-### Epic 2: Persistence as a banner setting
+### Epic 2: Persistence as a banner setting `Complete`
 
 - **2.1 An admin chooses each banner's persistence.** The banner settings form gains a persistence control alongside the existing variant and icon controls, with help copy stating that persistent banners stay in view and cannot be dismissed, and are for messages a user can't afford to miss. The setting saves and reloads like every other banner field. Banner settings already stored without this field must continue to load — the field resolves to `dismissible` when absent, with no data migration and no backfill, because the template is cloned into databases that will never run one. The `/features` inventory's banners-admin entry names persistence among what an admin can configure.
 
