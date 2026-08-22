@@ -31,7 +31,7 @@ export const LandingAuthButtons = ({
       <Button
         asChild
         size="sm"
-        variant="outline"
+        variant="ghost"
         className={cn(isStacked && 'w-full')}
       >
         <Link href="/auth/login">Sign in</Link>

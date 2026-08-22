@@ -20,10 +20,5 @@ const mobileNav = (
 )
 
 export const LandingHeader = () => (
-  <SiteHeader
-    logoHref="/"
-    rightSlot={desktopAuthSlot}
-    mobileNav={mobileNav}
-    sticky={false}
-  />
+  <SiteHeader logoHref="/" rightSlot={desktopAuthSlot} mobileNav={mobileNav} />
 )

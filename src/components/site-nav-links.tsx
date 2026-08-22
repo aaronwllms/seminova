@@ -14,9 +14,9 @@ type SiteNavLinksProps = {
 
 // debt: motion-tier lint does not resolve identifiers passed to cn() back to their declaration; a future removal of duration-swept from this constant won't be caught. Upgrade path: extend local/motion-tier to scan top-level string constants.
 const linkBaseStyles =
-  'rounded-md transition-colors duration-swept focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none'
-const inactiveLinkStyles = 'text-muted-foreground hover:text-foreground'
-const activeLinkStyles = 'text-foreground font-medium'
+  'rounded-md px-3 py-1.5 transition-colors duration-swept focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none'
+const inactiveLinkStyles = 'text-muted-foreground hover:bg-muted'
+const activeLinkStyles = 'bg-muted text-foreground'
 
 /**
  * v1 active matching: pathname only; in-page anchors (hash hrefs) never match.
@@ -44,7 +44,7 @@ export const SiteNavLinks = ({
   return (
     <nav
       aria-label="Main"
-      className={cn('flex items-center gap-6 text-sm', className)}
+      className={cn('flex items-center gap-1 text-sm', className)}
     >
       {siteConfig.nav.map((item) => {
         const isActive = isSiteNavLinkActive(item.href, pathname, item.external)
