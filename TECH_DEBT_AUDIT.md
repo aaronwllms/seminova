@@ -75,7 +75,6 @@ Deliberately not doing now. Not a todo list.
 - **Admin state hooks (~375–385 LOC)** — Complexity moved out of table components by design (Epics 2–3); hooks own one surface's state with a narrow table interface.
 - **Coverage exclusions for `page.tsx` / `layout.tsx` / UI primitives / static workflow sections** — Thin shells, vendored shadcn, or static marketing prose; interactive `workflow-diagram.tsx` is measured.
 - **No `src/services/` layer** — Two tables + RPCs; premature per code-minimalism.
-- **Authenticated banner in-memory dismissal** — Product spec (AGENTS.md § Banners); cookie dismissal is marketing-only for SSR correctness.
 - **knip unused sidebar / table / Toggle exports** — shadcn primitive surface area kept for composition; not dead product code.
 
 ## Open questions

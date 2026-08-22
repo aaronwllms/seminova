@@ -1,58 +1,82 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 import { AuthenticatedBannerSlot } from '@/components/authenticated-banner-slot'
-import { BANNER_DISMISSED_PUBLIC_COOKIE } from '@/constants/banner-cookies'
+import {
+  BANNER_DISMISSED_AUTHENTICATED_COOKIE,
+  BANNER_DISMISSED_PUBLIC_COOKIE,
+} from '@/constants/banner-cookies'
 import { DEFAULT_BANNER_SETTING } from '@/types/banner'
 import { readBannerDismissCookieValue } from '@/utils/banner-dismiss-cookie'
+import { buildBannerDismissKey } from '@/utils/banner-dismiss-hash'
 import { render, screen, userEvent } from '@/test/test-utils'
 
 describe('AuthenticatedBannerSlot', () => {
-  it('should render nothing when initialDismissed is true', () => {
-    const config = {
-      ...DEFAULT_BANNER_SETTING,
-      mode: 'on' as const,
-      headline: 'Authenticated notice',
-    }
-
-    render(<AuthenticatedBannerSlot config={config} initialDismissed />)
-
-    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+  beforeEach(() => {
+    document.cookie = `${BANNER_DISMISSED_AUTHENTICATED_COOKIE}=; path=/; max-age=0`
   })
 
-  it('should hide on dismiss without writing a dismiss cookie', async () => {
+  it('should persist dismissal to the authenticated dismiss cookie keyed by headline and detail', async () => {
     const user = userEvent.setup({ delay: null })
     const config = {
       ...DEFAULT_BANNER_SETTING,
       mode: 'on' as const,
       headline: 'Authenticated notice',
+      detail: 'Details here',
     }
+    const dismissKey = buildBannerDismissKey(config.headline, config.detail)
 
-    render(<AuthenticatedBannerSlot config={config} />)
+    render(<AuthenticatedBannerSlot config={config} dismissKey={dismissKey} />)
 
     await user.click(screen.getByRole('button', { name: 'Dismiss banner' }))
 
+    expect(
+      readBannerDismissCookieValue(BANNER_DISMISSED_AUTHENTICATED_COOKIE),
+    ).toBe(dismissKey)
     expect(readBannerDismissCookieValue(BANNER_DISMISSED_PUBLIC_COOKIE)).toBe(
       undefined,
     )
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
   })
 
-  it('should reappear after remount following an in-session dismiss', async () => {
+  it('should show the banner again when headline or detail changes', async () => {
     const user = userEvent.setup({ delay: null })
-    const config = {
+    const initialConfig = {
       ...DEFAULT_BANNER_SETTING,
       mode: 'on' as const,
-      headline: 'Returns on reload',
+      headline: 'Version one',
+      detail: 'First detail',
     }
+    const initialDismissKey = buildBannerDismissKey(
+      initialConfig.headline,
+      initialConfig.detail,
+    )
 
-    const { unmount } = render(<AuthenticatedBannerSlot config={config} />)
+    const { rerender } = render(
+      <AuthenticatedBannerSlot
+        config={initialConfig}
+        dismissKey={initialDismissKey}
+      />,
+    )
 
     await user.click(screen.getByRole('button', { name: 'Dismiss banner' }))
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
 
-    unmount()
-    render(<AuthenticatedBannerSlot config={config} />)
+    const nextConfig = {
+      ...initialConfig,
+      headline: 'Version two',
+    }
 
-    expect(screen.getByRole('status')).toHaveTextContent('Returns on reload')
+    rerender(
+      <AuthenticatedBannerSlot
+        key={buildBannerDismissKey(nextConfig.headline, nextConfig.detail)}
+        config={nextConfig}
+        dismissKey={buildBannerDismissKey(
+          nextConfig.headline,
+          nextConfig.detail,
+        )}
+      />,
+    )
+
+    expect(screen.getByRole('status')).toHaveTextContent('Version two')
   })
 })
