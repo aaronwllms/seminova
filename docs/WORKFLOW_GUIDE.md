@@ -15,9 +15,9 @@
   - [Building phase by phase](#building-phase-by-phase)
   - [Visual overview](#visual-overview)
 - [Other planning-system skills](#other-planning-system-skills)
+- [Experimental — not part of the workflow](#experimental--not-part-of-the-workflow)
 - [Tips](#tips)
 - [Model guidance](#model-guidance)
-- [Where the skills live](#where-the-skills-live)
 - [FAQ — Why this workflow looks this way](#faq--why-this-workflow-looks-this-way)
 
 ---
@@ -35,7 +35,9 @@ Seminova's planning system runs across two tools with a hard boundary between th
 The primary handoff artifacts between them:
 
 - **PRD** (`docs/prds/`) — Claude writes it; Cursor builds from it.
-- **Implementation plan** — Cursor generates it (in `.cursor/plans/`); you select **Markdown view** from the plan's ellipsis (`⋯`) menu, copy the contents, and paste it into Claude while invoking `plan-review`.
+- **Implementation plan** — Cursor generates it as a file in `.cursor/plans/`; you give Claude the file path while invoking `plan-review`, and Claude revises that file in place.
+
+**Where the skills live:** Claude-side skills are installed account-wide once — see [WORKFLOW_SETUP.md](WORKFLOW_SETUP.md). Cursor-side skills live in [`.cursor/skills/`](../.cursor/skills/) and are invoked with `/skill-name` in Cursor chat.
 
 **Why this way?** [Why split across two tools?](#why-split-tools-instead-of-doing-everything-in-one) · [Why MCP instead of Cowork?](#why-mcp-instead-of-cowork)
 
@@ -82,6 +84,7 @@ Outputs written by project kickoff:
 - `src/config/site.ts` — name, description, GitHub URL
 - `README.md` — pitch, audience, what-it-is/is-not (Seminova framing replaced)
 - `LEXICON.md` — new domain terms appended (architectural terms stay unchanged)
+- **Project instructions block** (chat output, not a file) — a block you paste into the Claude Project's custom instructions; the skill closes with the paste steps and the handoff to `initialize-project`
 
 These lists are a summary — the skill itself is the source of truth on conflict.
 
@@ -107,6 +110,8 @@ What it does not touch:
 - `.cursor/rules/`, `.cursor/skills/`, `AGENTS.md` — inherited unchanged; hard constraints inherit via AGENTS.md and `check:*` enforcement
 - `DESIGN.md` — inherited unchanged
 
+What it surfaces (reports, changes nothing): `supabase/config.toml`'s `project_id` still points at the template's Supabase project, and any residual template-name hits outside the attribution allowlist.
+
 These lists are a summary — the skill itself is the source of truth on conflict.
 
 After `initialize-project` completes, the repo is a real project, not a template copy.
@@ -120,32 +125,34 @@ Once the project is initialized, the phase-by-phase loop begins — one phase pl
 **Step 4 — Plan the phase** *(Claude-side skill: `phase-planning`)*
 Claude reads ROADMAP, AGENTS.md (hard constraints), and the phase's ROADMAP stub — including any open questions attached to it — then works with you to decompose the target phase into numbered epics and vertical-slice stories. Each story carries a success condition — the observable behavior that proves it's done, in product terms. The decomposition is shaped in chat during `Planning` and written into the PRD at the `Ready` flip; Claude writes the PRD only when you ask. The `Ready` flip also removes the phase's stub from ROADMAP — the locked PRD owns the scope from that point on.
 
-Phase status moves: `Draft → Planning` (PRD created, scope being shaped) → `Ready` (locked, approved to build). The `Active` flip happens later — `kickoff-phase` performs it in Cursor before any epic is planned.
+Phase status moves: `Draft → Planning` (PRD created, scope being shaped) → `Ready` (locked, approved to build). The `Active` flip is Step 5.
 
-**Step 5 — Plan and review the epic** *(Cursor: `plan-next-epic` ↔ Claude: `plan-review`)*
+**Step 5 — Kick off the phase** *(Cursor-side skill: `kickoff-phase`)*
+Run in a normal agent window — **not** Plan Mode. Creates the `phase-{N}/{slug}` branch, flips the PRD and its ROADMAP row from `Ready` to `Active`, and commits the planning-doc edits. Runs once per phase, before the first epic is planned; `plan-next-epic` halts if it hasn't.
+
+**Step 6 — Plan and review the epic** *(Cursor: `plan-next-epic` ↔ Claude: `plan-review`)*
 This step is a subloop — plan and review go back and forth until Claude signs off, which can take one pass or several:
 
-- **5a.** You invoke `plan-next-epic` in Cursor with **plan mode** active. This generates an implementation plan for the next unbuilt epic in the active PRD. Plans are always written sequentially; if an epic has clearly independent tracks, the plan notes it as a Build-in-Parallel candidate for you to act on.
-- **5b.** Select **Markdown view** from the plan's ellipsis (`⋯`) menu, copy the markdown, and paste it into Claude, invoking `plan-review`.
-- **5c.** If Claude flags issues: discuss and settle the feedback in chat (this can take a few exchanges), then ask Claude for a standalone copy-block prompt summarizing the agreed change.
-- **5d.** Paste that prompt into the same Cursor plan-mode session; Cursor updates the plan.
-- **5e.** Copy the updated plan's markdown and paste it back to Claude for re-review. Repeat 5c–5e until clean — occasionally a revision introduces a new issue, which just runs another lap of the loop.
-- **Exit condition:** Claude confirms the plan is good to build. A solid plan includes: (1) a quality gate (`pnpm pre-push`), (2) a **Commit epic** step authorized by the approved plan, and (3) a closing handoff instructing the user to run `/code-review` in a new agent window, including the epic baseline SHA and epic identifier.
+- **6a.** You invoke `plan-next-epic` in Cursor with **plan mode** active. This generates an implementation plan file in `.cursor/plans/` for the next unbuilt epic in the active PRD. Plans are always written sequentially; if an epic has clearly independent tracks, the plan notes it as a Build-in-Parallel candidate for you to act on.
+- **6b.** Give Claude the plan's file path, invoking `plan-review`. Claude reads the file and reviews it against AGENTS.md hard constraints and the PRD's intent.
+- **6c.** Before reporting, Claude may need two kinds of input: decisions only you hold (posed as numbered choices — answer with the number), and codebase facts the plan doesn't show (Claude hands you a standalone verification prompt to paste into Cursor; paste Cursor's answer back).
+- **6d.** Claude reports findings, then revises the plan file directly — one describe-and-ask, your yes, the edit lands. If Cursor's verification answer or your decisions change the picture, Claude re-reviews and revises again.
+- **Exit condition:** Claude confirms the plan is good to build. A solid plan includes: (1) a quality gate (`pnpm pre-push`), (2) a **Commit epic** step authorized by the approved plan, and (3) a closing handoff telling you to run `/code-review` in a new agent window.
 
-**Step 6 — Build and follow-up**
-Press the build button on the approved plan in Cursor. The build window implements the epic end to end, runs the quality gate, and commits the epic. It ends with a handoff to run `/code-review` in a **new agent window**, passing the baseline SHA and epic id from the plan.
+**Step 7 — Build and follow-up**
+Press the build button on the approved plan in Cursor. The build window implements the epic end to end, runs the quality gate, and commits the epic with an `Epic:` git trailer. It ends with a handoff to run `/code-review` in a **new agent window**.
 
-After build, each follow-up runs in its own fresh agent window:
+After build, each follow-up runs in its own fresh agent window and takes no arguments — each resolves the epic from the PRD and the `Epic:` trailer:
 
-1. **`/code-review`** — pass the baseline SHA and epic id from the build handoff. Apply and commit any fixes if needed.
-2. **`/mark-epic-complete for Epic <id>`** — epic id from the code-review breadcrumb; commits the PRD `` `Complete` `` tag.
+1. **`/code-review`** — two-axis (Standards + Spec) review of the epic commit. Apply and commit any fixes if needed.
+2. **`/mark-epic-complete`** — commits the PRD `` `Complete` `` tag.
 
-If the phase has more unbuilt epics, return to **Step 5** to plan and review the next one. Once every epic in the phase is built, move to Step 7.
+If the phase has more unbuilt epics, return to **Step 6** to plan and review the next one. Once every epic in the phase is built, move to Step 8.
 
-**Step 7 — Ship the phase** *(Cursor-side skill: `ship-phase`)*
-Flips the PRD to `Shipped`, moves it to `docs/prds/archive/`, updates ROADMAP, commits, pushes, and opens a PR. Merge to main is a separate human step.
+**Step 8 — Ship the phase** *(Cursor-side skill: `ship-phase`)*
+Chains `archive-cursor-plans` and `sync-repo-docs`, flips the PRD to `Shipped`, moves it to `docs/prds/archive/`, updates ROADMAP, commits, pushes, and opens a PR. Merge to main is a separate human step.
 
-Repeat Steps 4–7 for each phase.
+Repeat Steps 4–8 for each phase.
 
 **Why this way?** See [Why phase by phase?](#why-phase-by-phase).
 
@@ -166,7 +173,9 @@ Repeat Steps 4–7 for each phase.
 
 Not part of the numbered loop above, but operate on the planning docs rather than repo code:
 
-**`lexicon-audit`** *(Cursor-side)* — scans the codebase for LEXICON.md candidate terms and drift between the lexicon and actual usage. Read-only, chat output only — does not write to LEXICON.md. Run when you want a health check on the lexicon or suspect terminology drift. To act on findings, use the Claude-side `lexicon-update` skill.
+**`lexicon-audit`** *(Cursor-side)* — scans the codebase for LEXICON.md candidate terms and drift between the lexicon and actual usage. Read-only, chat output only — does not write to LEXICON.md. Run when you want a health check on the lexicon or suspect terminology drift. To act on findings, use `lexicon-update`.
+
+**`lexicon-update`** *(Claude-side)* — writes or sharpens a `LEXICON.md` entry: when a new concept crystallizes during `phase-planning`, a term is being used inconsistently, or a `lexicon-audit` finding needs acting on. The active counterpart to `lexicon-audit`'s read-only scan.
 
 **`create-mockup`** *(Claude-side)* — builds a static UI mockup as an inline widget, iterates on your feedback, and saves the approved version to `docs/mockups/`. Invoked ad hoc ("mock up this screen") or by `phase-planning` when a story's UI is worth seeing before build, with the file path written into the story. The static-only rule (mockups, not clickable prototypes) is defined in the skill itself.
 
@@ -174,7 +183,26 @@ Not part of the numbered loop above, but operate on the planning docs rather tha
 
 **`archive-research`** *(Cursor-side)* — retires served briefs to `docs/research/archive/` when the PM @-attaches one or more active `RESEARCH-*.md` files in the same invocation. @-mention is required. Archived briefs are frozen. Invoke with `/archive-research`.
 
+**Workflow-system authoring** — skills that operate on the workflow itself (skills, rules, instructions, repo docs), not on product code:
+
+- **`writing-for-agents`** *(both sides)* — the reference standard for any document an agent reads. Never invoked directly; `skill-authoring`, `instructions-authoring`, and `rule-authoring` read it first. Two copies exist (`.cursor/skills/` and the installed Claude skill) — keep their bodies identical.
+- **`skill-authoring`** *(Claude-side)* — create, edit, or audit a skill, Claude- or Cursor-side. Packages Claude-side output as a `.skill` bundle for `docs/claude-skills/`.
+- **`instructions-authoring`** *(Claude-side)* — write or audit the Claude Project instructions field or the account-wide profile instructions.
+- **`rule-authoring`** *(Cursor-side)* — the standard for `.cursor/rules/*.mdc`: size budgets, single ownership, activation modes. `audit-rules` grades against it.
+- **`github-docs-authoring`** *(Cursor-side)* — review or write repo markdown for GitHub rendering. `project-kickoff` reads its `reference.md` for conventions.
+- **`audit-agents-md`** *(Cursor-side)* — instruction-budget audit of `AGENTS.md`; writes `AGENTS_AUDIT.md` at the repo root.
+
 For repo-maintenance and quality skills (security audits, tech-debt audits, design/copy review, etc.) not specific to the planning system, see [`.cursor/skills/`](../.cursor/skills/).
+
+---
+
+## Experimental — not part of the workflow
+
+These ship in the repo and are usable, but are not documented steps. Step 7's `/code-review` → `/mark-epic-complete` is the workflow; these sit beside it while they're being proven or retired.
+
+- **`pre-release-review`** *(Cursor-side)* — scoped static review before a PR: automated gates, security pass, hard constraints, manual test checklist. Overlaps `code-review` and the build plan's quality gate; whether it earns a named step is a [WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md) item.
+- **`code-review-review`** *(Claude-side)* — adversarial audit of a `/code-review` report: re-derives each severity against `grading.md`, checks citations, routes code-truth questions back to Cursor, ends in a fix prompt.
+- **`collect-skill-feedback`** *(Claude-side)* — appends a settled audit's findings to `docs/skill-feedback/<skill>.md`, gap/slip-tagged. The read side (`absorb-skill-feedback`) is a [WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md) item.
 
 ---
 
@@ -184,9 +212,9 @@ A few practical habits that make this workflow smoother.
 
 1. **Token budget status in Claude.** Click your profile (bottom-left) → Settings → Usage. You'll see two windows: your current five-hour session (usage so far, time remaining) and your weekly limit (which resets separately for Opus vs. all other models). See [How do usage and length limits work?](https://support.claude.com/en/articles/11647753-how-do-usage-and-length-limits-work)
 
-2. **Batch file edits, then write once.** MCP's `filesystem:write_file` does whole-file rewrites — there's no patch/diff capability. Every write re-reads and re-emits the entire file's contents, so several small sequential edits cost more than deciding all the changes first and writing once at the end.
+2. **Settle all edits, then write once.** MCP has two write tools: `filesystem:edit_file` for targeted old/new text replacements, `filesystem:write_file` for new files and full rewrites. Either way Claude re-reads the file before writing, so several small sequential writes cost more than deciding every change first and landing them in one call.
 
-3. **When running low on Claude token budget.** Consider drafting instead of writing directly. Rather than having Claude write through MCP, ask it to produce the content as a copy block in chat, then paste it into the file yourself. This skips the token cost of the write call itself. The tradeoff: Claude normally re-reads a file immediately before writing to guard against drift since its last read — if you draft-and-paste instead, you're the one vouching the file hasn't changed.
+3. **When running low on Claude token budget.** Consider drafting instead of writing directly. Rather than having Claude write through MCP, ask it to produce the content as a copy block in chat, then paste it into the file yourself. This skips the token cost of the read-before-write and the write itself. The tradeoff: that re-read is what guards against drift since Claude's last look at the file — if you draft-and-paste instead, you're the one vouching the file hasn't changed.
 
 4. **Refresh `seo.mdc` before running `audit-seo`.** SEO practice is shifting fast as AI-driven discovery evolves, and the audit checks code against the rule as written — a stale rule means a stale audit. Do a quick review of the rule against current practice first.
 
@@ -204,14 +232,6 @@ Pick model and effort level by task characteristics *and* how much budget headro
 | **Cursor execution** | Composer 2.5 Standard | Composer 2.5 Fast |
 
 Cursor's Fast vs. Standard tiers are a speed/cost choice, not a capability one — same intelligence either way; Fast just runs on faster hardware at a higher per-token cost.
-
----
-
-## Where the skills live
-
-Claude-side skill installation (account-wide, one-time) is covered in [WORKFLOW_SETUP.md](WORKFLOW_SETUP.md).
-
-**Cursor-side skills** live in [`.cursor/skills/`](../.cursor/skills/) and are invoked with `/skill-name` in Cursor chat.
 
 ---
 

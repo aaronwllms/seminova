@@ -17,7 +17,6 @@
   - [TDD-first as the plan's verification loop](#tdd-first-as-the-plans-verification-loop)
   - [Phase 7 decomposition fork](#phase-7-decomposition-fork)
   - [plan-review thinning + automated review](#plan-review-thinning-automated-review)
-  - [Promote "batch edits, write once" from tip to standing rule](#promote-batch-edits-write-once-from-tip-to-standing-rule)
   - [Workflow Guide visual overview: Mermaid vs. image tradeoff](#workflow-guide-visual-overview-mermaid-vs-image-tradeoff)
   - [Ad hoc planning workflow (between phases)](#ad-hoc-planning-workflow-between-phases)
   - [Integrate quality skills into the documented workflow](#integrate-quality-skills-into-the-documented-workflow)
@@ -70,14 +69,6 @@
 
 **Revisit when:** Confidence is high that grilling → constrained plans rarely surface architectural errors at review time.
 
-### Promote "batch edits, write once" from tip to standing rule
-
-**What:** [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md) currently lists "batch file edits, then write once" as a Tips-section suggestion. Given `filesystem:write_file` always does whole-file rewrites (no patch/diff), this may actually be a standing rule rather than a situational tip — worth moving into project instructions alongside the existing "read-before-write discipline" and "whole-file rewrites only" patterns.
-
-**Why deferred:** Don't want to update it in multiple places right now.
-
-**Revisit when:** Doing a broader pass on project instructions, or next time multiple sequential small edits in one session cause noticeable token bloat.
-
 ### Workflow Guide visual overview: Mermaid vs. image tradeoff
 
 **What:** [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md)'s Visual overview uses the same `public/images/workflow-dark.svg` / `workflow-light.svg` picture-tag pattern as [README.md](../README.md), because an earlier Mermaid flowchart was jumbled. The image renders on GitHub; Cursor's markdown preview shows a broken image icon. Mermaid swimlanes (`swimlane-beta`, shipped in Mermaid 11.16.0) would answer "who owns each step" cleanly — two lanes (Claude and Cursor), You as labeled handoff arrows, replacing the SVG in both files rather than keeping two diagrams.
@@ -113,7 +104,7 @@ swimlane-beta LR
 
 **What:** Consider adding the quality/review skills (`pre-release-review`, `code-review`, `audit-tech-debt`, `audit-tests`, `audit-security`, `audit-rules`, etc.) into the workflow as described in [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md) — currently they live in [`.cursor/skills/`](../.cursor/skills/) and are deliberately left out of the numbered phase loop. Extend to [WORKFLOW_SETUP.md](WORKFLOW_SETUP.md) as needed if any setup step is implied.
 
-**Partially addressed (2026-07-08):** `code-review` is now a named manual follow-up after epic commit in [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md) Step 6. Other audit skills (`pre-release-review`, `audit-tech-debt`, `audit-tests`, `audit-security`, `audit-rules`, etc.) remain situational — cataloged in AGENTS.md, invoked by name when needed.
+**Partially addressed (2026-07-08, 2026-08-21):** `code-review` is now a named manual follow-up after epic commit in [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md) Step 7. `pre-release-review` is listed under the guide's [Experimental](WORKFLOW_GUIDE.md#experimental--not-part-of-the-workflow) section pending the [value audit](#pre-release-review-value-audit) below. The audit skills (`audit-tech-debt`, `audit-tests`, `audit-security`, `audit-rules`, etc.) remain situational — discoverable in [`.cursor/skills/`](../.cursor/skills/), invoked by name when needed.
 
 **Why still deferred:** Deciding whether the remaining quality skills should become first-class loop steps (e.g. before Step 7 Ship) or stay situational needs more practice runs — `code-review` integration is the first data point, not the full answer.
 

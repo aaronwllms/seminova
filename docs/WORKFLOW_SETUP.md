@@ -2,7 +2,7 @@
 
 **Purpose:** One-time setup for a freshly cloned Seminova template — connecting Claude Desktop to the repo via MCP, installing the Claude-side skills this workflow depends on, and verifying it all works. For day-to-day usage once setup is complete, see [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md).
 
-**Last updated:** 2026-07-07
+**Last updated:** 2026-08-21
 
 **Audience:** Anyone setting up a project cloned from this template — no prior context assumed.
 
@@ -37,7 +37,7 @@ Creating the Project has no prerequisites — make it empty for now. From here o
 1. Click **Projects** in the sidebar.
 2. Click **New project**.
 
-Name the Project after your product or repo (e.g. `Seminova`) so it's easy to find later. Leave custom instructions blank for now — `project-kickoff` will generate and paste them as its final step.
+Name the Project after your product or repo (e.g. `Seminova`) so it's easy to find later. Leave custom instructions blank for now — `project-kickoff` will output a block for you to paste there as its final step.
 
 ---
 
@@ -74,14 +74,30 @@ This workflow depends on a set of Claude-side skills. They are global to your Cl
 
 ### Skill inventory
 
-| Skill | Required? | Purpose | Used in |
-|---|---|---|---|
-| `project-kickoff` | Required | One-time grill that populates `ROADMAP.md`, `site.ts`, `README.md`, `LEXICON.md` for a new project | Setup, before phase work begins |
-| `phase-planning` | Required | Aligns on terminology/decisions, then decomposes a phase into epics/stories and writes the PRD | Steady-state loop |
-| `plan-review` | Required | Reviews Cursor's implementation plan before build | Steady-state loop |
-| `lexicon-update` | Required | Writes or sharpens a LEXICON.md entry when a new term surfaces (often during `phase-planning`) | Steady-state loop, ad hoc trigger |
-| `create-mockup` | Required | Static UI mockups as reviewable inline widgets, saved to `docs/mockups/` for PRD stories to reference (invoked by `phase-planning` or ad hoc) | Steady-state loop, ad hoc trigger |
-| `skill-authoring` | Optional | Create, edit, or audit a skill. Applies the quality standard (invocation choices, information hierarchy, pruning, failure modes) while running an interview, draft, eval, iterate loop | Template extension work |
+**Required — the workflow loop**
+
+| Skill | Purpose | Used in |
+|---|---|---|
+| `project-kickoff` | One-time grill that populates `ROADMAP.md`, `BACKLOG.md`, `site.ts`, `README.md`, `LEXICON.md` for a new project, then outputs the Project instructions block | Setup, before phase work begins |
+| `phase-planning` | Aligns on terminology/decisions, then decomposes a phase into epics/stories and writes the PRD | Steady-state loop |
+| `plan-review` | Reviews Cursor's implementation plan before build and revises the plan file in place | Steady-state loop |
+| `lexicon-update` | Writes or sharpens a LEXICON.md entry when a new term surfaces (often during `phase-planning`) | Steady-state loop, ad hoc trigger |
+| `create-mockup` | Static UI mockups as reviewable inline widgets, saved to `docs/mockups/` for PRD stories to reference (invoked by `phase-planning` or ad hoc) | Steady-state loop, ad hoc trigger |
+
+**Optional — authoring**
+
+| Skill | Purpose | Used in |
+|---|---|---|
+| `skill-authoring` | Create, edit, or audit a skill (Claude- or Cursor-side); packages Claude-side output as a `.skill` bundle | Template extension work |
+| `instructions-authoring` | Write or audit the Claude Project instructions field or the account-wide profile instructions | Template extension work |
+| `writing-for-agents` | Reference standard the authoring skills read first. Never invoked directly — install it if you install either of the two above. A second copy lives in `.cursor/skills/`; keep their bodies identical | Read by `skill-authoring`, `instructions-authoring` |
+
+**Optional — experimental, not part of the workflow** (see [WORKFLOW_GUIDE.md › Experimental](WORKFLOW_GUIDE.md#experimental--not-part-of-the-workflow))
+
+| Skill | Purpose | Used in |
+|---|---|---|
+| `code-review-review` | Adversarial audit of a `/code-review` report — re-grades severities against `grading.md`, checks citations, ends in a fix prompt | Beside Step 7, while being proven |
+| `collect-skill-feedback` | Appends a settled audit's findings to `docs/skill-feedback/<skill>.md`, gap/slip-tagged | After `code-review-review` |
 
 ### Where skill files live
 
@@ -93,7 +109,7 @@ Each skill ships in this repo as a ready-to-upload skill file at `docs/claude-sk
 2. Click **"Add,"** then **"Upload a skill."**
 3. Select the corresponding `.skill` file from [docs/claude-skills/](claude-skills/) in your local repo clone.
 4. Confirm the skill appears in your skills list, then toggle it on.
-5. Repeat for each skill in the Required list above (and any Optional ones you want).
+5. Repeat for each skill in the Required table above (and any Optional ones you want).
 
 ---
 
@@ -102,6 +118,6 @@ Each skill ships in this repo as a ready-to-upload skill file at `docs/claude-sk
 Once the Project exists, MCP is connected, and skills are installed, confirm setup succeeded before starting real work:
 
 1. Ask Claude to list the contents of [AGENTS.md](../AGENTS.md) (or read its first few lines). This confirms MCP filesystem access is working. (Not [ROADMAP.md](../ROADMAP.md) — at this point in setup, before `project-kickoff` has run, ROADMAP.md won't have real project content yet.)
-2. Ask Claude to invoke `project-kickoff` (or another installed required skill) and confirm it triggers correctly.
+2. Confirm each installed skill appears under **Customize > Skills**, then ask Claude "what does the `project-kickoff` skill do?" — a correct summary confirms the skill is loaded without starting the kickoff session.
 
 If both succeed, setup is complete. Move to [Starting a new project](WORKFLOW_GUIDE.md#starting-a-new-project) in [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md) to begin project kickoff.
