@@ -32,7 +32,7 @@ The organizing principle: **persistence follows severity, not surface.** A banne
 
 ## Epics & stories
 
-### Epic 1: Durable authenticated dismissal
+### Epic 1: Durable authenticated dismissal `Complete`
 
 - **1.1 Dismissing the authenticated banner makes it stay dismissed.** A signed-in user who closes the authenticated banner does not see it again after a reload, and sees it again when an admin publishes new banner copy. This mirrors the mechanism already proven on the public banner — a dismissal cookie keyed to a content hash of the banner's headline and detail — rather than inventing a second approach. The public banner's behavior is unchanged.
 
