@@ -19,6 +19,17 @@ const mobileNav = (
   </Suspense>
 )
 
-export const LandingHeader = () => (
-  <SiteHeader logoHref="/" rightSlot={desktopAuthSlot} mobileNav={mobileNav} />
+type LandingHeaderProps = {
+  banner: React.ReactNode | null
+  pin: boolean
+}
+
+export const LandingHeader = ({ banner, pin }: LandingHeaderProps) => (
+  <SiteHeader
+    logoHref="/"
+    rightSlot={desktopAuthSlot}
+    mobileNav={mobileNav}
+    banner={banner ?? undefined}
+    {...(pin ? { pin: true as const } : {})}
+  />
 )

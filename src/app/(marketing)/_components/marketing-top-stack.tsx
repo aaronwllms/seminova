@@ -1,14 +1,9 @@
-import { Suspense } from 'react'
-
-import { PublicBannerSlotEntry } from '@/components/public-banner-slot-entry'
+import { loadPublicBannerSlot } from '@/components/public-banner-slot-entry'
 
 import { LandingHeader } from './landing-header'
 
-export const MarketingTopStack = () => (
-  <>
-    <Suspense fallback={null}>
-      <PublicBannerSlotEntry />
-    </Suspense>
-    <LandingHeader />
-  </>
-)
+export const MarketingTopStack = async () => {
+  const { banner, pin } = await loadPublicBannerSlot()
+
+  return <LandingHeader banner={banner} pin={pin} />
+}

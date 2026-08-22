@@ -5,7 +5,12 @@ import { BANNER_DISMISSED_PUBLIC_COOKIE } from '@/constants/banner-cookies'
 import { getResolvedAppSettings } from '@/utils/app-settings'
 import { resolveLiveBannerSlot } from '@/utils/banner-dismiss-cookie'
 
-export const PublicBannerSlotEntry = async () => {
+export type BannerSlotLoadResult = {
+  banner: React.ReactNode | null
+  pin: boolean
+}
+
+export const loadPublicBannerSlot = async (): Promise<BannerSlotLoadResult> => {
   const settings = await getResolvedAppSettings()
   const cookieStore = await cookies()
   const publicBanner = resolveLiveBannerSlot(
@@ -14,14 +19,17 @@ export const PublicBannerSlotEntry = async () => {
   )
 
   if (!publicBanner) {
-    return null
+    return { banner: null, pin: false }
   }
 
-  return (
-    <PublicBannerSlot
-      key={publicBanner.dismissKey}
-      config={publicBanner.config}
-      dismissKey={publicBanner.dismissKey}
-    />
-  )
+  return {
+    banner: (
+      <PublicBannerSlot
+        key={publicBanner.dismissKey}
+        config={publicBanner.config}
+        dismissKey={publicBanner.dismissKey}
+      />
+    ),
+    pin: publicBanner.config.persistence === 'persistent',
+  }
 }
