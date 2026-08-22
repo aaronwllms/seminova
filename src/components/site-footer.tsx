@@ -104,31 +104,33 @@ export const SiteFooter = ({ variant = 'marketing' }: SiteFooterProps) => {
 
   return (
     <footer className="bg-background border-t">
-      <SiteContainer className="py-12">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))]">
-          <div className="col-span-2 md:col-span-1">
+      <SiteContainer className="py-16">
+        <div className="grid gap-12 md:grid-cols-2">
+          <div className="max-w-sm">
             <SeminovaLogo href="/" className="text-foreground min-w-0" />
-            <p className="text-muted-foreground mt-3 max-w-[34ch] text-sm">
+            <p className="text-muted-foreground mt-6 text-base">
               {siteConfig.description}
             </p>
-            <SocialLinks className="mt-4" />
+            <SocialLinks className="mt-6" />
           </div>
-          {siteConfig.footer.map((column) => (
-            <div key={column.heading}>
-              <h2 className="text-foreground text-xs font-medium">
-                {column.heading}
-              </h2>
-              <ul className="mt-3 flex flex-col gap-2 text-sm">
-                {column.links.map((link) => (
-                  <li key={link.label}>
-                    <FooterLink link={link} />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
+            {siteConfig.footer.map((column) => (
+              <div key={column.heading}>
+                <h2 className="text-foreground text-base font-semibold">
+                  {column.heading}
+                </h2>
+                <ul className="mt-6 flex flex-col gap-4 text-base">
+                  {column.links.map((link) => (
+                    <li key={link.label}>
+                      <FooterLink link={link} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="text-muted-foreground mt-10 flex flex-col gap-3 border-t pt-6 text-xs sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-muted-foreground mt-16 flex flex-col gap-3 border-t pt-8 text-sm sm:flex-row sm:items-center sm:justify-between">
           <Copyright />
           <LegalLinks />
         </div>
