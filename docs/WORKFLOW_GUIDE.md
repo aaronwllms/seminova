@@ -2,7 +2,7 @@
 
 **Purpose:** How phases move from idea to shipped code — the tools, the documents, and the workflow. For write discipline and doc-maintenance rules, see [DOC_RULES.md](DOC_RULES.md).
 
-**Last updated:** 2026-08-21
+**Last updated:** 2026-08-22
 
 ---
 
@@ -50,7 +50,7 @@ Full roles table and write discipline are authoritative in [DOC_RULES.md](DOC_RU
 | Document | What it is |
 | -------- | ---------- |
 | `ROADMAP.md` | Thin phase stubs — the planning horizon of confirmed phases. One row per phase with status and a PRD link. |
-| `BACKLOG.md` | Uncommitted product ideas — unordered, unnumbered, no PRD. Promoted to a ROADMAP stub only on explicit sign-off. |
+| `BACKLOG.md` | Uncommitted product ideas — unordered, unnumbered, no PRD. Promoted to a numbered ROADMAP stub only on explicit sign-off, via `promote-backlog-item`. |
 | `docs/prds/` | One PRD per phase — forward intent, epics, and stories. Moves to `docs/prds/archive/` on ship. |
 | `AGENTS.md` | Hard constraints, agent workflow gates, merge checklist, and change protocol. Cursor's primary governance reference. |
 | `LEXICON.md` | Shared architectural vocabulary. Inherited by every spinoff; spinoffs add domain terms on top. |
@@ -172,6 +172,8 @@ Repeat Steps 4–8 for each phase.
 ## Other planning-system skills
 
 Not part of the numbered loop above, but operate on the planning docs rather than repo code:
+
+**`promote-backlog-item`** *(Claude-side)* — moves one `BACKLOG.md` idea to a numbered `ROADMAP.md` phase stub: renumbers the Draft phases around it, harvests the entry's constraints and prerequisites into open questions on the stub, and deletes the entry. Enacts [DOC_RULES.md](DOC_RULES.md) rule 14 — promotion requires your explicit sign-off, never inferred. Stops at the stub; `phase-planning` decomposes it later.
 
 **`lexicon-audit`** *(Cursor-side)* — scans the codebase for LEXICON.md candidate terms and drift between the lexicon and actual usage. Read-only, chat output only — does not write to LEXICON.md. Run when you want a health check on the lexicon or suspect terminology drift. To act on findings, use `lexicon-update`.
 

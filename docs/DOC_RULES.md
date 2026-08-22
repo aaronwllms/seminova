@@ -1,8 +1,8 @@
 # DOC_RULES — File Management Rules
 
-**Purpose:** Invariant doc-maintenance procedure governing the planning docs ([ROADMAP.md](../ROADMAP.md), the PRDs in [prds/](prds/), and the frozen [archive/](archive/)). This is not project state — it applies to every product built from this template. Governs the planning skills (`phase-planning`, `kickoff-phase`, `plan-next-epic`, `mark-epic-complete`, `ship-phase`), the research skills (`research`, `archive-research`), and the repo-sync skill (`sync-repo-docs`).
+**Purpose:** Invariant doc-maintenance procedure governing the planning docs ([ROADMAP.md](../ROADMAP.md), the PRDs in [prds/](prds/), and the frozen [archive/](archive/)). This is not project state — it applies to every product built from this template. Governs the planning skills (`promote-backlog-item`, `phase-planning`, `kickoff-phase`, `plan-next-epic`, `mark-epic-complete`, `ship-phase`), the research skills (`research`, `archive-research`), and the repo-sync skill (`sync-repo-docs`).
 
-**Last updated:** 2026-08-21
+**Last updated:** 2026-08-22
 
 ---
 
@@ -98,4 +98,4 @@ These rules apply to anyone updating the planning docs — PM or coding agent.
 
 13. **Propose WORKFLOW_BACKLOG.md entries when they surface.** When a planning conversation deliberately defers a decision about the workflow/skills/docs system itself — not product scope — propose adding it to [WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md) using its existing entry format (What / Why deferred / Revisit when). Product deferrals don't belong here — those route per rule 7.
 
-14. **BACKLOG.md holds uncommitted product ideas; promotion requires explicit PM sign-off.** An idea moves from [BACKLOG.md](../BACKLOG.md) to a numbered ROADMAP.md phase stub only when the PM explicitly commits it in a planning conversation — never inferred or auto-promoted. When that happens, remove the entry from BACKLOG.md in the same pass the ROADMAP stub is added.
+14. **BACKLOG.md holds uncommitted product ideas; promotion requires explicit PM sign-off.** An idea moves from [BACKLOG.md](../BACKLOG.md) to a numbered ROADMAP.md phase stub only when the PM explicitly commits it in a planning conversation — never inferred or auto-promoted. When that happens, remove the entry from BACKLOG.md in the same pass the ROADMAP stub is added. The **`promote-backlog-item`** (Claude-side) skill is the procedure that enacts this rule — it renumbers the surrounding `Draft` phases and carries the entry's open questions onto the stub for `phase-planning` to consume per rule 7. This rule governs; where the skill disagrees, the skill is wrong.

@@ -2,7 +2,7 @@
 
 **Purpose:** One-time setup for a freshly cloned Seminova template — connecting Claude Desktop to the repo via MCP, installing the Claude-side skills this workflow depends on, and verifying it all works. For day-to-day usage once setup is complete, see [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md).
 
-**Last updated:** 2026-08-21
+**Last updated:** 2026-08-22
 
 **Audience:** Anyone setting up a project cloned from this template — no prior context assumed.
 
@@ -76,6 +76,7 @@ This workflow depends on a set of Claude-side skills. They are global to your Cl
 | Skill | Purpose | Used in |
 |---|---|---|
 | `project-kickoff` | One-time grill that populates `ROADMAP.md`, `BACKLOG.md`, `site.ts`, `README.md`, `LEXICON.md` for a new project, then outputs the Project instructions block | Setup, before phase work begins |
+| `promote-backlog-item` | Promotes a `BACKLOG.md` idea to a numbered `ROADMAP.md` phase stub, renumbering Draft phases and carrying the entry's open questions onto the stub | Steady-state loop, ad hoc trigger |
 | `phase-planning` | Aligns on terminology/decisions, then decomposes a phase into epics/stories and writes the PRD | Steady-state loop |
 | `plan-review` | Reviews Cursor's implementation plan before build and revises the plan file in place | Steady-state loop |
 | `lexicon-update` | Writes or sharpens a LEXICON.md entry when a new term surfaces (often during `phase-planning`) | Steady-state loop, ad hoc trigger |
