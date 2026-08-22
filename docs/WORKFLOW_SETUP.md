@@ -6,7 +6,7 @@
 
 **Audience:** Anyone setting up a project cloned from this template — no prior context assumed.
 
-**Prerequisite:** Complete [README.md](../README.md)'s [Quick start](../README.md#quick-start) and [Initial setup](../README.md#initial-setup) first — dev environment, Supabase, and the repo running locally. Also requires Claude Desktop (not claude.ai web) — MCP filesystem server configuration is a Desktop-only feature.
+**Prerequisite:** Complete [README.md](../README.md)'s [Quick start](../README.md#quick-start) and [Initial setup](../README.md#initial-setup) first — dev environment, Supabase, and the repo running locally. Also requires Claude Desktop (not claude.ai web) — the filesystem connector is a desktop extension that runs locally.
 
 ---
 
@@ -41,30 +41,27 @@ Name the Project after your product or repo (e.g. `Seminova`) so it's easy to fi
 
 ---
 
-## 3. MCP filesystem — configure
+## 3. MCP filesystem — connect
 
-**Prerequisites:**
-- Claude Desktop installed.
-- Your local repo's absolute path (e.g. `/Users/you/projects/myproject`) — the install agent will ask for it to point the config at the repo root.
+**Prerequisite:** Claude Desktop installed.
 
-Connecting Claude to the repo's files is a manual, one-time config step — Claude cannot edit its own MCP configuration. The fastest way through it is to start a conversation and let Claude walk you through it interactively.
+Connecting Claude to the repo's files is a one-time setup done entirely in Claude Desktop's UI — Claude cannot configure this for you.
 
-Config file location and exact steps differ between Mac and Windows; Claude will walk you through the specifics for your platform as part of the conversation below.
+1. Click **Customize** in the left-hand menu.
+2. Click **Connectors** in the left-hand menu of that screen.
+3. Find **Filesystem** in your connectors list and click **Connect**. If it isn't there yet, click the **"+"** next to **Connectors** to open the directory, then find and install it.
+4. Add the absolute path to your project's directory — e.g. `/Users/you/projects/my-project` — then save.
+5. In a chat, click the **"+"** in the lower-left of the message box, hover **Connectors**, and toggle **Filesystem** on. This is per-conversation — do it in each new chat where Claude needs repo access.
 
-**Predefined setup prompt** — paste this into a fresh chat (inside your Project from Section 2), with your repo path filled in at the bottom:
+Add one path per project in step 4. This connector is account-wide, not per-project: when you clone another repo later, come back here and add its path to the same list rather than connecting a second time.
 
-```text
-I need to set up the filesystem MCP server in Claude Desktop so you can
-read and write files in my local repo. Walk me through how to do this
-step by step, including where the config file lives, what to add to it,
-and how to restart Desktop to pick up the change. I'll tell you when I've
-done each step — help me verify it worked at the end, and help me
-troubleshoot if it doesn't connect.
+> [!CAUTION]
+> The filesystem server runs with your user account's permissions — it can do anything to these directories that you can do manually. Only add paths you're comfortable with Claude reading and modifying.
 
-My repo is at: [REPO_PATH]
-```
+> [!NOTE]
+> **Filesystem is a desktop extension, not a web connector.** It runs locally, so it's available in Claude Desktop only — not claude.ai on the web or mobile.
 
-Work through the conversation with Claude until it confirms it can read a file in your repo (e.g. by listing the repo's root directory).
+Confirm it worked in [Section 5](#5-verify-it-worked) below.
 
 ---
 
@@ -117,7 +114,7 @@ Each skill ships in this repo as a ready-to-upload skill file at `docs/claude-sk
 
 Once the Project exists, MCP is connected, and skills are installed, confirm setup succeeded before starting real work:
 
-1. Ask Claude to list the contents of [AGENTS.md](../AGENTS.md) (or read its first few lines). This confirms MCP filesystem access is working. (Not [ROADMAP.md](../ROADMAP.md) — at this point in setup, before `project-kickoff` has run, ROADMAP.md won't have real project content yet.)
+1. Ask Claude to list the contents of [AGENTS.md](../AGENTS.md) (or read its first few lines). This confirms MCP filesystem access is working. (Not [ROADMAP.md](../ROADMAP.md) — at this point in setup, before `project-kickoff` has run, ROADMAP.md won't have real project content yet.) If Claude can't see the file, confirm Filesystem is toggled on for this conversation, then restart Claude Desktop to refresh the extension registry.
 2. Confirm each installed skill appears under **Customize > Skills**, then ask Claude "what does the `project-kickoff` skill do?" — a correct summary confirms the skill is loaded without starting the kickoff session.
 
 If both succeed, setup is complete. Move to [Starting a new project](WORKFLOW_GUIDE.md#starting-a-new-project) in [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md) to begin project kickoff.
