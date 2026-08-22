@@ -134,7 +134,7 @@ Run in a normal agent window — **not** Plan Mode. Creates the `phase-{N}/{slug
 This step is a subloop — plan and review go back and forth until Claude signs off, which can take one pass or several:
 
 - **6a.** You invoke `plan-next-epic` in Cursor with **plan mode** active. This generates an implementation plan file in `.cursor/plans/` for the next unbuilt epic in the active PRD. Plans are always written sequentially; if an epic has clearly independent tracks, the plan notes it as a Build-in-Parallel candidate for you to act on.
-- **6b.** Give Claude the plan's file path, invoking `plan-review`. Claude reads the file and reviews it against AGENTS.md hard constraints and the PRD's intent.
+- **6b.** Give Claude the plan's file path, invoking `plan-review`. Claude reads the file and reviews it against AGENTS.md hard constraints and the PRD's intent, then runs a second pass against `.cursor/rules/` — violations only, not a walk of the corpus.
 - **6c.** Before reporting, Claude may need two kinds of input: decisions only you hold (posed as numbered choices — answer with the number), and codebase facts the plan doesn't show (Claude hands you a standalone verification prompt to paste into Cursor; paste Cursor's answer back).
 - **6d.** Claude reports findings, then revises the plan file directly — one describe-and-ask, your yes, the edit lands. If Cursor's verification answer or your decisions change the picture, Claude re-reviews and revises again.
 - **Exit condition:** Claude confirms the plan is good to build. A solid plan includes: (1) a quality gate (`pnpm pre-push`), (2) a **Commit epic** step authorized by the approved plan, and (3) a closing handoff telling you to run `/code-review` in a new agent window.
