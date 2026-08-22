@@ -110,9 +110,17 @@ export const BannerSettingRow = ({
   const [previewThemeOverride, setPreviewThemeOverride] = useState<
     'light' | 'dark' | null
   >(null)
+  const [mounted, setMounted] = useState(false)
   const { resolvedTheme } = useTheme()
-  const previewTheme =
-    previewThemeOverride ?? (resolvedTheme === 'dark' ? 'dark' : 'light')
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration guard for next-themes
+    setMounted(true)
+  }, [])
+
+  const resolvedPreviewTheme =
+    mounted && resolvedTheme === 'dark' ? 'dark' : 'light'
+  const previewTheme = previewThemeOverride ?? resolvedPreviewTheme
 
   const statusBadge = formatBannerStatusBadge(savedValue)
 
@@ -443,8 +451,7 @@ export const BannerSettingRow = ({
                   size="sm"
                   onClick={() =>
                     setPreviewThemeOverride((current) => {
-                      const activeTheme =
-                        current ?? (resolvedTheme === 'dark' ? 'dark' : 'light')
+                      const activeTheme = current ?? resolvedPreviewTheme
 
                       return activeTheme === 'light' ? 'dark' : 'light'
                     })
