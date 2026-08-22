@@ -66,6 +66,24 @@ if (typeof window !== 'undefined') {
       dispatchEvent: () => false,
     }),
   })
+
+  class IntersectionObserverStub {
+    constructor(_callback: IntersectionObserverCallback) {}
+
+    observe = () => {}
+    disconnect = () => {}
+    unobserve = () => {}
+    takeRecords = () => []
+    readonly root = null
+    readonly rootMargin = ''
+    readonly thresholds = [0]
+  }
+
+  Object.defineProperty(window, 'IntersectionObserver', {
+    writable: true,
+    configurable: true,
+    value: IntersectionObserverStub,
+  })
 }
 
 const queryCache = new QueryCache()

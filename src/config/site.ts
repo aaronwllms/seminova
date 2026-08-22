@@ -28,6 +28,11 @@ export interface SiteLegalLink {
   href: string
 }
 
+export interface SiteFooterColumn {
+  heading: string
+  links: SiteNavLink[]
+}
+
 export interface SiteConfig {
   name: string
   description: string
@@ -38,7 +43,10 @@ export interface SiteConfig {
   links: {
     github: string
   }
+  // Header nav only. The footer intentionally keeps a separate, broader list —
+  // do not derive one from the other.
   nav: SiteNavLink[]
+  footer: SiteFooterColumn[]
   social: SiteSocialLink[]
   legal: SiteLegalLink[]
 }
@@ -56,6 +64,27 @@ export const siteConfig: SiteConfig = {
     { label: 'Features', href: FEATURES_PATH },
     { label: 'Reference', href: REFERENCE_PATH },
     { label: 'Workflow', href: WORKFLOW_PATH },
+  ],
+  footer: [
+    {
+      heading: 'Product',
+      links: [{ label: 'Features', href: FEATURES_PATH }],
+    },
+    {
+      heading: 'Docs',
+      links: [
+        { label: 'Reference', href: REFERENCE_PATH },
+        { label: 'Workflow', href: WORKFLOW_PATH },
+      ],
+    },
+    {
+      heading: 'Project',
+      links: [
+        { label: 'GitHub', href: GITHUB_URL, external: true },
+        { label: 'Issues', href: `${GITHUB_URL}/issues`, external: true },
+        { label: 'Releases', href: `${GITHUB_URL}/releases`, external: true },
+      ],
+    },
   ],
   social: [{ label: 'GitHub', href: GITHUB_URL, icon: 'github' }],
   legal: [

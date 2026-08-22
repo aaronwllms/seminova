@@ -35,8 +35,7 @@ export const ThemeDropdownMenuItems = () => {
         <DropdownMenuItem
           key={value}
           aria-checked={theme === value}
-          onSelect={(event) => {
-            event.preventDefault()
+          onSelect={() => {
             setTheme(value)
           }}
         >

@@ -5,78 +5,136 @@ import { Suspense } from 'react'
 import { SeminovaLogo } from '@/components/seminova-logo'
 import { SiteContainer } from '@/components/site-container'
 import { SiteCopyright } from '@/components/site-copyright'
-import { SiteNavLinks } from '@/components/site-nav-links'
-import { siteConfig, type SiteSocialLink } from '@/config/site'
+import {
+  siteConfig,
+  type SiteNavLink,
+  type SiteSocialLink,
+} from '@/config/site'
 import { cn } from '@/utils/tailwind'
 
 const socialIcons = {
   github: Github,
 } satisfies Record<SiteSocialLink['icon'], LucideIcon>
 
+// debt: motion-tier lint does not resolve identifiers passed to cn() back to their declaration; a future removal of duration-swept from this constant won't be caught. Upgrade path: extend local/motion-tier to scan top-level string constants. (Same gap as site-nav-links.tsx linkBaseStyles.)
+const footerLinkStyles =
+  'text-muted-foreground hover:text-foreground focus-visible:ring-ring duration-swept rounded-md transition-colors focus-visible:ring-2 focus-visible:outline-none'
+
 type SiteFooterProps = {
-  logoHref?: string
-  showNav?: boolean
-  showTopBorder?: boolean
+  variant?: 'marketing' | 'app'
 }
 
-export const SiteFooter = ({
-  logoHref = '/',
-  showNav = true,
-  showTopBorder = true,
-}: SiteFooterProps) => (
-  <footer className={cn('bg-background', showTopBorder && 'border-t')}>
-    <SiteContainer className="py-6">
-      <div
-        className={cn(
-          // Intentionally shares the same grid class string inline with site-header.tsx — F060 constant extraction is deferred.
-          'flex flex-col gap-6 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center',
-        )}
-      >
-        <SeminovaLogo
-          href={logoHref}
-          className="text-foreground min-w-0 justify-self-start"
-        />
-        {showNav ? <SiteNavLinks className="justify-self-center" /> : null}
-        <div className="flex gap-3 justify-self-end md:col-start-3">
-          {siteConfig.social.map((social) => {
-            const Icon = socialIcons[social.icon]
+const FooterLink = ({ link }: { link: SiteNavLink }) =>
+  link.external ? (
+    <a
+      href={link.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={footerLinkStyles}
+    >
+      {link.label}
+    </a>
+  ) : (
+    <Link href={link.href} className={footerLinkStyles}>
+      {link.label}
+    </Link>
+  )
 
-            return (
-              <a
-                key={social.label}
-                href={social.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={social.label}
-                // debt: swept-tier footer link class bundle duplicated for legal links below; a tier/focus-ring change here can be missed there (same pattern as site-nav-links.tsx linkBaseStyles).
-                className="text-muted-foreground hover:text-foreground focus-visible:ring-ring duration-swept rounded-md transition-colors focus-visible:ring-2 focus-visible:outline-none"
-              >
-                <Icon className="size-5" aria-hidden />
-              </a>
-            )
-          })}
-        </div>
-      </div>
-      <div className="text-muted-foreground mt-4 flex flex-col gap-4 border-t pt-4 text-xs sm:flex-row sm:items-center sm:justify-between">
-        <Suspense
-          fallback={<span>© {siteConfig.name}. All rights reserved.</span>}
+const SocialLinks = ({ className }: { className?: string }) => (
+  <div className={cn('flex gap-3', className)}>
+    {siteConfig.social.map((social) => {
+      const Icon = socialIcons[social.icon]
+
+      return (
+        <a
+          key={social.label}
+          href={social.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={social.label}
+          className={footerLinkStyles}
         >
-          <SiteCopyright />
-        </Suspense>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-          <div className="flex gap-4">
-            {siteConfig.legal.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="text-muted-foreground hover:text-foreground focus-visible:ring-ring duration-swept rounded-md transition-colors focus-visible:ring-2 focus-visible:outline-none"
-              >
-                {item.label}
-              </Link>
+          <Icon className="size-5" aria-hidden />
+        </a>
+      )
+    })}
+  </div>
+)
+
+const LegalLinks = () => (
+  <div className="flex gap-4">
+    {siteConfig.legal.map((item) => (
+      <Link key={item.label} href={item.href} className={footerLinkStyles}>
+        {item.label}
+      </Link>
+    ))}
+  </div>
+)
+
+const Copyright = () => (
+  <Suspense fallback={<span>© {siteConfig.name}. All rights reserved.</span>}>
+    <SiteCopyright />
+  </Suspense>
+)
+
+/**
+ * Marketing: brand column plus grouped link columns, driven entirely by
+ * siteConfig.footer — adding a column or link is a config edit, not a layout
+ * change.
+ *
+ * App: a single utility line. Authenticated users don't need re-marketing;
+ * the app footer exists for legal reachability and to stay out of the way.
+ */
+export const SiteFooter = ({ variant = 'marketing' }: SiteFooterProps) => {
+  if (variant === 'app') {
+    return (
+      <footer className="bg-background border-t">
+        <SiteContainer className="py-4">
+          <div className="text-muted-foreground flex flex-col gap-3 text-xs sm:flex-row sm:items-center sm:justify-between">
+            <Copyright />
+            <div className="flex items-center gap-4">
+              <LegalLinks />
+              <SocialLinks />
+            </div>
+          </div>
+        </SiteContainer>
+      </footer>
+    )
+  }
+
+  return (
+    <footer className="bg-background border-t">
+      <SiteContainer className="py-16">
+        <div className="grid gap-12 md:grid-cols-2">
+          <div className="max-w-sm">
+            <SeminovaLogo href="/" className="text-foreground min-w-0" />
+            <p className="text-muted-foreground mt-6 text-base">
+              {siteConfig.description}
+            </p>
+            <SocialLinks className="mt-6" />
+          </div>
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
+            {siteConfig.footer.map((column) => (
+              <div key={column.heading}>
+                <h2 className="text-foreground text-base font-semibold">
+                  {column.heading}
+                </h2>
+                <ul className="mt-6 flex flex-col gap-4 text-base">
+                  {column.links.map((link) => (
+                    <li key={link.label}>
+                      <FooterLink link={link} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
           </div>
         </div>
-      </div>
-    </SiteContainer>
-  </footer>
-)
+        <div className="text-muted-foreground mt-16 flex flex-col gap-3 border-t pt-8 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <Copyright />
+          <LegalLinks />
+        </div>
+      </SiteContainer>
+    </footer>
+  )
+}

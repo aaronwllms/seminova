@@ -1,7 +1,6 @@
 import { SiteFooter } from '@/components/site-footer'
 
-import { MarketingFooterBorder } from './_components/marketing-footer-border'
-import { MarketingStickyChrome } from './_components/marketing-sticky-chrome'
+import { MarketingTopStack } from './_components/marketing-top-stack'
 
 type MarketingLayoutProps = {
   children: React.ReactNode
@@ -10,11 +9,9 @@ type MarketingLayoutProps = {
 export default function MarketingLayout({ children }: MarketingLayoutProps) {
   return (
     <>
-      <MarketingStickyChrome />
+      <MarketingTopStack />
       {children}
-      <MarketingFooterBorder>
-        <SiteFooter logoHref="/" showTopBorder={false} />
-      </MarketingFooterBorder>
+      <SiteFooter variant="marketing" />
     </>
   )
 }

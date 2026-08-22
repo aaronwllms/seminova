@@ -28,5 +28,7 @@ describe('SiteHeader', () => {
       'href',
       '/auth/login',
     )
+
+    expect(screen.getByRole('banner')).toBeInTheDocument()
   })
 })

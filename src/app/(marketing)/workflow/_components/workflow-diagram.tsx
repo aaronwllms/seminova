@@ -232,7 +232,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
           y1="64"
           x2="354"
           y2="64"
-          stroke="var(--border)"
+          stroke="var(--muted-foreground)"
           strokeWidth="1.5"
           markerEnd="url(#workflow-arrow)"
         />
@@ -240,7 +240,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
         <path
           d="M431 98 V150 H258 V166"
           fill="none"
-          stroke="var(--border)"
+          stroke="var(--muted-foreground)"
           strokeWidth="1.5"
           markerEnd="url(#workflow-arrow)"
         />
@@ -252,7 +252,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
           height="346"
           rx="12"
           fill="none"
-          stroke="var(--border)"
+          stroke="var(--muted-foreground)"
           strokeWidth="1"
           strokeDasharray="6 4"
         />
@@ -272,7 +272,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
           y1="200"
           x2="352"
           y2="200"
-          stroke="var(--border)"
+          stroke="var(--muted-foreground)"
           strokeWidth="1.5"
           markerEnd="url(#workflow-arrow)"
         />
@@ -280,7 +280,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
         <path
           d="M422 234 V246 H339 V252"
           fill="none"
-          stroke="var(--border)"
+          stroke="var(--muted-foreground)"
           strokeWidth="1.5"
           markerEnd="url(#workflow-arrow)"
         />
@@ -292,7 +292,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
           height="114"
           rx="12"
           fill="none"
-          stroke="var(--border)"
+          stroke="var(--muted-foreground)"
           strokeWidth="1"
           strokeDasharray="6 4"
         />
@@ -311,7 +311,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
           y1="312"
           x2="208"
           y2="312"
-          stroke="var(--border)"
+          stroke="var(--muted-foreground)"
           strokeWidth="1.5"
           markerEnd="url(#workflow-arrow)"
         />
@@ -321,7 +321,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
           y1="312"
           x2="356"
           y2="312"
-          stroke="var(--border)"
+          stroke="var(--muted-foreground)"
           strokeWidth="1.5"
           markerEnd="url(#workflow-arrow)"
         />
@@ -331,7 +331,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
           y1="312"
           x2="464"
           y2="312"
-          stroke="var(--border)"
+          stroke="var(--muted-foreground)"
           strokeWidth="1.5"
           markerEnd="url(#workflow-arrow)"
         />
@@ -339,7 +339,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
         <path
           d="M339 366 V390"
           fill="none"
-          stroke="var(--border)"
+          stroke="var(--muted-foreground)"
           strokeWidth="1.5"
           markerEnd="url(#workflow-arrow)"
         />

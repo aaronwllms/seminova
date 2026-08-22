@@ -1,7 +1,7 @@
 import { SeminovaLogo } from '@/components/seminova-logo'
 import { SiteContainer } from '@/components/site-container'
+import { SiteHeaderChrome } from '@/components/site-header-chrome'
 import { SiteNavLinks } from '@/components/site-nav-links'
-import { cn } from '@/utils/tailwind'
 
 type SiteHeaderProps = {
   logoHref?: string
@@ -18,14 +18,9 @@ export const SiteHeader = ({
   mobileNav,
   sticky = true,
 }: SiteHeaderProps) => (
-  <header
-    className={cn(
-      'bg-background/95 border-b backdrop-blur',
-      sticky && 'sticky top-0 z-50',
-    )}
-  >
+  <SiteHeaderChrome sticky={sticky}>
     <SiteContainer>
-      <div className="flex h-16 items-center justify-between gap-4 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center">
+      <div className="flex h-14 items-center justify-between gap-4 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center">
         {/* Intentionally shares the same grid class string inline with site-footer.tsx — F060 constant extraction is deferred. */}
         <SeminovaLogo
           href={logoHref}
@@ -44,5 +39,5 @@ export const SiteHeader = ({
         {mobileNav ? <div className="md:hidden">{mobileNav}</div> : null}
       </div>
     </SiteContainer>
-  </header>
+  </SiteHeaderChrome>
 )

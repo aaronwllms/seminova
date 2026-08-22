@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { render, screen } from '@/test/test-utils'
+import { render, screen, waitFor } from '@/test/test-utils'
 
 import { ThemeDropdownMenuItems } from './theme-dropdown-menu-items'
 
@@ -25,7 +25,7 @@ describe('ThemeDropdownMenuItems', () => {
     mockSetTheme.mockReset()
   })
 
-  it('should render theme options with a checkmark on the active theme', async () => {
+  it('should apply theme selection and close the menu', async () => {
     const user = userEvent.setup({ delay: null })
 
     render(
@@ -56,7 +56,8 @@ describe('ThemeDropdownMenuItems', () => {
     await user.click(screen.getByRole('menuitem', { name: /dark/i }))
 
     expect(mockSetTheme).toHaveBeenCalledWith('dark')
-    expect(screen.getByRole('menu')).toBeInTheDocument()
-    expect(screen.getByRole('menuitem', { name: /light/i })).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    })
   })
 })
