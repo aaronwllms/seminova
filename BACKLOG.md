@@ -1,6 +1,6 @@
 # BACKLOG.md — Product Idea Backlog
 
-Unscheduled product ideas — not committed, not ordered, no PRD.
+Product ideas — not ordered, no PRD.
 Distinct from [ROADMAP.md](ROADMAP.md) (confirmed, numbered, sequenced phases) and
 [docs/WORKFLOW_BACKLOG.md](docs/WORKFLOW_BACKLOG.md) (deferred decisions about the
 workflow system itself, not product scope).
@@ -9,6 +9,12 @@ workflow system itself, not product scope).
 explicitly commits it in a planning conversation — no automatic trigger. (Mental filter
 for deciding: would I build this in the next 2-3 phases if nothing else changed? Yes →
 propose promoting it. No/unsure → leave it here.)
+
+**Promoted entries stay here.** A promoted idea keeps its entry, marked
+`**Promoted:** Roadmap phase "Name"`, and is deleted when that phase's PRD locks at
+`Ready`. Its ROADMAP stub points here rather than copying the contents, so the
+constraints, rejected options, and research an entry carries survive into phase planning.
+An entry without that marker is uncommitted.
 
 ---
 
