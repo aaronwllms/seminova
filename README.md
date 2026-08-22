@@ -47,6 +47,7 @@ The full workflow — every step, skill, and document explained — lives in [do
 - [pnpm](https://pnpm.io/) 11
 - A [Supabase](https://supabase.com) project
 - [Cursor](https://cursor.com) — the IDE this template is built with
+- [Claude Desktop](https://claude.ai/download) — the planning side of the workflow; setup in [docs/WORKFLOW_SETUP.md](docs/WORKFLOW_SETUP.md)
 - [GitHub CLI](https://cli.github.com) (`gh`) — install via `brew install gh` (Mac) or see [cli.github.com](https://cli.github.com) for other platforms, then authenticate once with `gh auth login`
 
 ---
@@ -157,7 +158,7 @@ Companion CLI commands (bootstrap / automation): `pnpm demote-admin <email>`, `p
 > **Don't hand-edit Seminova's identity out of the repo.** Once the template runs locally, turn it into *your* project through the workflow below — find-and-replace skips files the scrub pass handles and misses ones it doesn't.
 
 1. **Set up the workflow** (one-time): [docs/WORKFLOW_SETUP.md](docs/WORKFLOW_SETUP.md) connects Claude Desktop to the repo and installs the planning skills.
-2. **Run project kickoff** (Claude, `project-kickoff`): a structured session that captures your project's identity and roadmap, then writes `ROADMAP.md`, `site.ts`, this README, and `LEXICON.md`.
+2. **Run project kickoff** (Claude, `project-kickoff`): a structured session that captures your project's identity and roadmap, then writes `ROADMAP.md`, `BACKLOG.md`, `site.ts`, this README, and `LEXICON.md` — and outputs a Project-instructions block for you to paste into the Claude Project.
 3. **Initialize the project** (Cursor, `/initialize-project`): the mechanical scrub pass that replaces remaining Seminova-specific content across the repo.
 
 After that, the repo is a real project, not a template copy — and the phase-by-phase build loop in [docs/WORKFLOW_GUIDE.md](docs/WORKFLOW_GUIDE.md) takes over.
@@ -256,10 +257,15 @@ The template ships an **unauthenticated write path** into `app_logs` at `/api/cl
 | [LEXICON.md](LEXICON.md) | PM + agents | Architectural vocabulary |
 | [docs/adr/](docs/adr/) | PM + agents | Architecture Decision Records |
 | [docs/research/](docs/research/) | PM + agents | Exploratory research briefs (`docs/research/archive/` when retired) |
+| [docs/mockups/](docs/mockups/) | PM + design | HTML mockup explorations referenced from PRD stories |
+| [docs/claude-skills/](docs/claude-skills/) | PM | Uploadable `.skill` bundles for the Claude-side skills |
+| [docs/skill-feedback/](docs/skill-feedback/) | PM + agents | Per-skill feedback logs, append-only |
 | [AGENTS.md](AGENTS.md) | Agents | Hard constraints, workflow gates, merge checklist, and change protocol |
 | [DESIGN.md](DESIGN.md) | PM + contributors | Token architecture and re-skin workflow |
+| [.cursor/README.md](.cursor/README.md) | PM + agents | Router for the `.cursor/` folder — what auto-loads, layout, ignore files |
 | [.cursor/rules/](.cursor/rules/) | Agents | Coding standards and conventions |
 | [.cursor/skills/](.cursor/skills/) | Agents | Workflows (`/sync-repo-docs`, `/create-migration`, etc.) |
+| [.cursor/agents/](.cursor/agents/) | Agents | Readonly subagents dispatched by skills (e.g. `/code-review`) — never invoked directly |
 
 ---
 
