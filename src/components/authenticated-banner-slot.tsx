@@ -28,5 +28,5 @@ export const AuthenticatedBannerSlot = ({
     setDismissed(true)
   }
 
-  return <AppBanner config={config} dismissible onDismiss={handleDismiss} />
+  return <AppBanner config={config} onDismiss={handleDismiss} />
 }

@@ -123,7 +123,7 @@ describe('BannerSettingRow', () => {
 
     await user.click(screen.getByRole('button', { name: /Public banner/i }))
 
-    expect(screen.getByRole('radiogroup')).toBeInTheDocument()
+    expect(screen.getAllByRole('radiogroup')).toHaveLength(2)
     expect(screen.getByLabelText('Headline')).toBeInTheDocument()
   })
 
@@ -358,5 +358,44 @@ describe('BannerSettingRow', () => {
     expect(
       screen.getByRole('button', { name: 'Preview dark' }),
     ).toBeInTheDocument()
+  })
+
+  it('should hide preview dismiss and save persistence when Persistent is chosen', async () => {
+    const user = userEvent.setup({ delay: null })
+    const savedValue = {
+      ...DEFAULT_BANNER_SETTING,
+      mode: 'on' as const,
+      headline: 'Saved headline',
+    }
+
+    saveAppSettingActionMock.mockResolvedValue({
+      success: true,
+      data: {
+        key: 'banner_public',
+        value: { ...savedValue, persistence: 'persistent' },
+      },
+    })
+
+    renderRow(savedValue)
+
+    await user.click(screen.getByRole('button', { name: /Public banner/i }))
+
+    expect(
+      screen.getByText(
+        "Persistent banners stay in view and cannot be dismissed. Use them for messages a user can't afford to miss.",
+      ),
+    ).toBeInTheDocument()
+    expect(document.querySelector('[aria-label="Dismiss banner"]')).toBeTruthy()
+
+    await user.click(screen.getByRole('radio', { name: 'Persistent' }))
+
+    expect(document.querySelector('[aria-label="Dismiss banner"]')).toBeNull()
+
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+
+    expect(saveAppSettingActionMock).toHaveBeenCalledWith({
+      key: 'banner_public',
+      value: expect.objectContaining({ persistence: 'persistent' }),
+    })
   })
 })

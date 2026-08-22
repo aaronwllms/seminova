@@ -53,7 +53,10 @@ export const resolveLiveBannerSlot = (
 
   const dismissKey = buildBannerDismissKey(config.headline, config.detail)
 
-  if (isBannerDismissedByCookie(dismissedCookieValue, dismissKey)) {
+  if (
+    config.persistence === 'dismissible' &&
+    isBannerDismissedByCookie(dismissedCookieValue, dismissKey)
+  ) {
     return null
   }
 

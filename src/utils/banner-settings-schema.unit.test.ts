@@ -68,4 +68,36 @@ describe('banner-settings-schema', () => {
 
     expect(parsed.success).toBe(true)
   })
+
+  it('should default missing persistence to dismissible', () => {
+    const { persistence: _omitted, ...withoutPersistence } =
+      DEFAULT_BANNER_SETTING
+    const parsed = parseBannerSettingValue(withoutPersistence)
+
+    expect(parsed.success).toBe(true)
+    if (parsed.success) {
+      expect(parsed.data.persistence).toBe('dismissible')
+    }
+  })
+
+  it('should accept persistent persistence', () => {
+    const parsed = parseBannerSettingValue({
+      ...DEFAULT_BANNER_SETTING,
+      persistence: 'persistent',
+    })
+
+    expect(parsed.success).toBe(true)
+    if (parsed.success) {
+      expect(parsed.data.persistence).toBe('persistent')
+    }
+  })
+
+  it('should reject an invalid persistence value', () => {
+    const parsed = parseBannerSettingValue({
+      ...DEFAULT_BANNER_SETTING,
+      persistence: 'sticky',
+    })
+
+    expect(parsed.success).toBe(false)
+  })
 })

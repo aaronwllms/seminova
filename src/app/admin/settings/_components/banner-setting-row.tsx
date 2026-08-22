@@ -36,8 +36,16 @@ import {
 } from '@/components/ui/select'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import type { AppSettingRegistryEntry } from '@/types/app-settings'
-import type { BannerSettingValue, BannerVariant } from '@/types/banner'
-import { BANNER_MODES, BANNER_VARIANTS } from '@/types/banner'
+import type {
+  BannerPersistence,
+  BannerSettingValue,
+  BannerVariant,
+} from '@/types/banner'
+import {
+  BANNER_MODES,
+  BANNER_PERSISTENCES,
+  BANNER_VARIANTS,
+} from '@/types/banner'
 import type { AppError } from '@/types/app-error'
 import { showSuccessToast } from '@/utils/app-toast'
 import {
@@ -73,6 +81,14 @@ const MODE_LABELS: Record<(typeof BANNER_MODES)[number], string> = {
   on: 'On',
   scheduled: 'Scheduled',
 }
+
+const PERSISTENCE_LABELS: Record<BannerPersistence, string> = {
+  dismissible: 'Dismissible',
+  persistent: 'Persistent',
+}
+
+const PERSISTENCE_HELP =
+  "Persistent banners stay in view and cannot be dismissed. Use them for messages a user can't afford to miss."
 
 const formatVariantLabel = (variant: BannerVariant): string =>
   variant.charAt(0).toUpperCase() + variant.slice(1)
@@ -377,6 +393,46 @@ export const BannerSettingRow = ({
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="persistence"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Persistence</FormLabel>
+                  <FormControl>
+                    <ToggleGroup
+                      type="single"
+                      variant="outline"
+                      value={field.value}
+                      onValueChange={(value) => {
+                        if (value) {
+                          field.onChange(value)
+                          setError(null)
+                        }
+                      }}
+                      className="w-full"
+                      disabled={isSaving}
+                    >
+                      {BANNER_PERSISTENCES.map((persistence) => (
+                        <ToggleGroupItem
+                          key={persistence}
+                          value={persistence}
+                          aria-label={PERSISTENCE_LABELS[persistence]}
+                          className="data-[state=on]:bg-accent data-[state=on]:text-accent-foreground flex-1"
+                        >
+                          {PERSISTENCE_LABELS[persistence]}
+                        </ToggleGroupItem>
+                      ))}
+                    </ToggleGroup>
+                  </FormControl>
+                  <p className="text-muted-foreground text-xs">
+                    {PERSISTENCE_HELP}
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {showPreview ? (
               <div className="flex items-center justify-between gap-3">

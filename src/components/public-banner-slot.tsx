@@ -30,5 +30,5 @@ export const PublicBannerSlot = ({
     setDismissed(true)
   }
 
-  return <AppBanner config={config} dismissible onDismiss={handleDismiss} />
+  return <AppBanner config={config} onDismiss={handleDismiss} />
 }

@@ -132,7 +132,7 @@ export const featuresContent = {
         {
           name: 'Banners admin',
           blurb:
-            'Configure public and authenticated banners with schedule, preview, and status badges.',
+            'Configure public and authenticated banners with schedule, persistence, preview, and status badges.',
           icon: Flag,
         },
         {
