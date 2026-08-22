@@ -18,8 +18,6 @@ Orchestrates phase close-out. Directly touches the active phase's PRD (`docs/prd
 
 Only when the user explicitly invokes `ship-phase` (or `/ship-phase`) after the phase's epics are implemented. Do not infer from conversation or run at epic boundaries — epic close-out is `mark-epic-complete`.
 
-Prerequisite: run `pre-release-review` **before** `ship-phase`. It is a quality gate that can fail and spawn fix-work; it stays outside this skill. Ship-phase assumes the gate has already passed.
-
 ## Pre-flight (halt if any fail)
 
 1. **Active PRD** — exactly one file in `docs/prds/` with status `Active`, excluding `docs/prds/archive/` (see [reference.md](reference.md) for how status appears). If zero or multiple, halt and report.

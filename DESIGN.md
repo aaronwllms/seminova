@@ -2,7 +2,7 @@
 
 **Purpose:** Document the token architecture, the structure-vs-theme split, and how to re-skin the template for a new product. For agents: read this for design-system conventions. For hard constraints, see [AGENTS.md](AGENTS.md). For roadmap, see [ROADMAP.md](ROADMAP.md); for active-phase design scope, see [docs/prds/](docs/prds/).
 
-**Last updated:** 2026-07-24
+**Last updated:** 2026-08-21
 
 ---
 
@@ -224,7 +224,7 @@ When forking Seminova for a new product, change **theme values only** — preser
 
 7. **Smoke test** light and dark modes: primary actions, destructive states, borders, focus rings, typography.
 
-Phase 7 will add a dedicated theme-regeneration skill; until then, this manual workflow is canonical.
+This manual workflow is the canonical re-skin path. There is no theme-regeneration skill.
 
 ---
 

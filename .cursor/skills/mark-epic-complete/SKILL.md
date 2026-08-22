@@ -26,7 +26,7 @@ The user may override by naming one explicitly, e.g. `/mark-epic-complete for Ep
 
 1. **Clean tree** — `git status --porcelain --untracked-files=no` is empty. If dirty, halt and ask the user to commit outstanding work first. (Untracked files, e.g. the active plan file, are not a halt.)
 2. **Epic resolves** — at least one `### Epic N: Name` heading in the active phase's PRD lacks a `` `Complete` `` tag; take the first. If every epic is already tagged, halt — the phase is done, and `/ship-phase` is the next step. On the override path, the named heading must exist.
-3. **Status consistent** — neither the PRD's status nor its ROADMAP row reads `` `Draft` ``, `` `Planning` ``, or `` `Ready` ``. If either does, halt and report the inconsistency — do not change tags. Phase promotion (Ready→Active) is owned by `plan-next-epic` (see [DOC_RULES.md](../../../docs/DOC_RULES.md) rule 2).
+3. **Status consistent** — neither the PRD's status nor its ROADMAP row reads `` `Draft` ``, `` `Planning` ``, or `` `Ready` ``. If either does, halt and report the inconsistency — do not change tags. Phase promotion (Ready→Active) is owned by `kickoff-phase` (see [DOC_RULES.md](../../../docs/DOC_RULES.md) rule 2).
 
 Check all three before editing anything, so a halt never leaves a dirty tree behind.
 
@@ -68,4 +68,4 @@ Report which epic was marked complete.
 - Do not edit `docs/archive/`.
 - Do not chain `sync-repo-docs` — README / DESIGN / rules-index sync waits for `ship-phase`.
 - Do not infer "complete" from code inspection — resolve the epic from the PRD's `` `Complete` `` tags, never from the state of the codebase.
-- Do not promote a phase (flip `Ready` → `Active`) — that is owned by `plan-next-epic`; halt and report if status is inconsistent (precondition 3).
+- Do not promote a phase (flip `Ready` → `Active`) — that is owned by `kickoff-phase`; halt and report if status is inconsistent (precondition 3).
