@@ -1,6 +1,5 @@
 import { SiteFooter } from '@/components/site-footer'
 
-import { MarketingFooterBorder } from './_components/marketing-footer-border'
 import { MarketingStickyChrome } from './_components/marketing-sticky-chrome'
 
 type MarketingLayoutProps = {
@@ -12,9 +11,7 @@ export default function MarketingLayout({ children }: MarketingLayoutProps) {
     <>
       <MarketingStickyChrome />
       {children}
-      <MarketingFooterBorder>
-        <SiteFooter logoHref="/" showTopBorder={false} />
-      </MarketingFooterBorder>
+      <SiteFooter variant="marketing" />
     </>
   )
 }

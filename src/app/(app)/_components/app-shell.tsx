@@ -18,6 +18,6 @@ export const AppShell = ({ children }: AppShellProps) => (
     <main id="main-content" className="flex-1 py-8">
       <SiteContainer>{children}</SiteContainer>
     </main>
-    <SiteFooter showNav={false} />
+    <SiteFooter variant="app" />
   </>
 )

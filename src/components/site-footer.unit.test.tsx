@@ -1,10 +1,6 @@
 import { Suspense } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('next/navigation', () => ({
-  usePathname: () => '/',
-}))
-
 vi.mock('next/server', () => ({
   connection: vi.fn().mockResolvedValue(undefined),
 }))
@@ -28,7 +24,7 @@ const renderFooter = (props: React.ComponentProps<typeof SiteFooter>) =>
 
 describe('SiteFooter', () => {
   it('should render copyright, legal links, and GitHub social link', async () => {
-    renderFooter({ logoHref: '/' })
+    renderFooter({ variant: 'marketing' })
 
     expect(await screen.findByText(/all rights reserved/i)).toHaveTextContent(
       siteConfig.name,
@@ -49,15 +45,41 @@ describe('SiteFooter', () => {
     ).toBe(true)
   })
 
-  it('should omit section nav when showNav is false', async () => {
-    renderFooter({ logoHref: '/profile', showNav: false })
+  it('should render every configured footer column and link in the marketing variant', async () => {
+    renderFooter({ variant: 'marketing' })
 
     expect(await screen.findByText(/all rights reserved/i)).toBeInTheDocument()
 
-    for (const item of siteConfig.nav.filter((navItem) => !navItem.external)) {
+    for (const column of siteConfig.footer) {
       expect(
-        screen.queryByRole('link', { name: item.label }),
+        screen.getByRole('heading', { name: column.heading }),
+      ).toBeInTheDocument()
+
+      for (const link of column.links) {
+        const matches = screen.getAllByRole('link', { name: link.label })
+        expect(
+          matches.some((match) => match.getAttribute('href') === link.href),
+        ).toBe(true)
+      }
+    }
+  })
+
+  it('should omit footer columns in the app variant', async () => {
+    renderFooter({ variant: 'app' })
+
+    expect(await screen.findByText(/all rights reserved/i)).toBeInTheDocument()
+
+    for (const column of siteConfig.footer) {
+      expect(
+        screen.queryByRole('heading', { name: column.heading }),
       ).not.toBeInTheDocument()
+    }
+
+    for (const item of siteConfig.legal) {
+      expect(screen.getByRole('link', { name: item.label })).toHaveAttribute(
+        'href',
+        item.href,
+      )
     }
   })
 })
