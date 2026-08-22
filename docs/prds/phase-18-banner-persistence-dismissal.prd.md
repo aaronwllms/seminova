@@ -57,7 +57,7 @@ The organizing principle: **persistence follows severity, not surface.** A banne
 - A user who dismissed a banner sees it again once it is switched to `persistent`, and does not see it again when it is switched back.
 - `pnpm pre-push` is green.
 
-### Epic 3: Pinned rendering
+### Epic 3: Pinned rendering `Complete`
 
 - **3.1 A persistent banner stays in view while the page scrolls.** On both the marketing and authenticated surfaces, a banner set to `persistent` remains visible as the user scrolls, together with the header, rather than scrolling away above it. A `dismissible` banner scrolls away exactly as it does today.
 
