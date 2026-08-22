@@ -6,7 +6,7 @@
 
 **How to use it.** Each entry is a deferred decision with its reason for deferral and the signal that should bring it back. Pull an item out when its trigger fires; delete it when it's resolved (record the resolution as an [ADR](adr/README.md) if it qualifies).
 
-**Last updated:** 2026-08-21
+**Last updated:** 2026-08-22
 
 ---
 
@@ -22,6 +22,7 @@
   - [Integrate quality skills into the documented workflow](#integrate-quality-skills-into-the-documented-workflow)
   - [Cursor capability utilization audit](#cursor-capability-utilization-audit)
   - [Documentation surface area & context-bloat audit](#documentation-surface-area--context-bloat-audit)
+  - [Audit glob breadth on typical UI files](#audit-glob-breadth-on-typical-ui-files)
   - [Workflow skill next-step breadcrumb audit](#workflow-skill-next-step-breadcrumb-audit)
   - [Pre-release review value audit](#pre-release-review-value-audit)
   - [Rename LEXICON.md to CONTEXT.md; separate glossary from as-built pointers](#rename-lexiconmd-to-contextmd-separate-glossary-from-as-built-pointers)
@@ -129,6 +130,16 @@ swimlane-beta LR
 **Why deferred:** RESEARCH-0001 addressed the highest-volume indexing noise (archived plans, frozen docs). The remaining concern is qualitative — overlapping README routers, AGENTS.md growth, and rules that may have expanded beyond their attach globs — and needs a deliberate comparison pass across the doc stack, not ad hoc trims during a build.
 
 **Revisit when:** Between phases with a half-day budget, before forking the template (spinoffs inherit the full doc stack), when @Codebase or always-on rules start surfacing stale or contradictory guidance in build sessions, or after AGENTS.md or `.cursor/rules/README.md` grow meaningfully again.
+
+### Audit glob breadth on typical UI files
+
+**What:** Measure how much rule text actually loads when a typical App Router TSX file enters agent context, then decide whether to narrow the overlapping globs. Today four rules match all `src` TypeScript (`security`, `supabase`, `logging`, `typescript`) and five more match `src/app` plus `src/components` (`nextjs`, `ui-shadcn`, `ui-styling`, `ui-accessibility`, `seo`) — about nine rules on a typical page. The authoring skill budgets the always-apply set at ~800 words; auto-attached rules sit outside that budget, so UI work can exceed it without tripping the check.
+
+**Why deferred:** The 2026-08 rules-glob pass fixed confirmed breakage (folded descriptions, glob syntax, attach mechanics) and deliberately left breadth as a separate pass. Pattern tidying without numbers would guess at the cost.
+
+**Revisit when:** Between phases with a short workflow-improvement window, or when UI work starts feeling instruction-heavy.
+
+**Relationship to other items:** Complements [Documentation surface area & context-bloat audit](#documentation-surface-area--context-bloat-audit) (redundant prose and indexing) — this item is specifically about **attached-rule load on a typical file**, not doc duplication.
 
 ### Workflow skill next-step breadcrumb audit
 
