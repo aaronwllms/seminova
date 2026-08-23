@@ -137,15 +137,18 @@ This step is a subloop — plan and review go back and forth until Claude signs 
 - **6b.** Give Claude the plan's file path, invoking `plan-review`. Claude reads the file and reviews it against AGENTS.md hard constraints and the PRD's intent, then runs a second pass against `.cursor/rules/` — violations only, not a walk of the corpus.
 - **6c.** Before reporting, Claude may need two kinds of input: decisions only you hold (posed as numbered choices — answer with the number), and codebase facts the plan doesn't show (Claude hands you a standalone verification prompt to paste into Cursor; paste Cursor's answer back).
 - **6d.** Claude reports findings, then revises the plan file directly — one describe-and-ask, your yes, the edit lands. If Cursor's verification answer or your decisions change the picture, Claude re-reviews and revises again.
-- **Exit condition:** Claude confirms the plan is good to build. A solid plan includes: (1) a quality gate (`pnpm pre-push`), (2) a **Commit epic** step authorized by the approved plan, and (3) a closing handoff telling you to run `/code-review` in a new agent window.
+- **Exit condition:** Claude confirms the plan is good to build. A solid plan includes: (1) a quality gate (`pnpm pre-push`), (2) a **Commit epic** step authorized by the approved plan, and (3) manual verification steps you can work through after the build.
 
-**Step 7 — Build and follow-up**
-Press the build button on the approved plan in Cursor. The build window implements the epic end to end, runs the quality gate, and commits the epic with an `Epic:` git trailer. It ends with a handoff to run `/code-review` in a **new agent window**.
+**Step 7 — Build, verify, and complete**
+Build in a **fresh agent window**, not the plan window. At the bottom of the approved plan, the *Referenced by N agents* line has a **+ New** button — click it, then prompt `implement as described`. The new window picks up the plan file as its reference on a clean context window.
 
-After build, each follow-up runs in its own fresh agent window and takes no arguments — each resolves the epic from the PRD and the `Epic:` trailer:
+By the time `plan-next-epic` and the `plan-review` loop are done, the plan window's context is deep into its budget — and the build is the longest, most detail-sensitive run in the loop.
 
-1. **`/code-review`** — two-axis (Standards + Spec) review of the epic commit. Apply and commit any fixes if needed.
-2. **`/mark-epic-complete`** — commits the PRD `` `Complete` `` tag.
+The build window implements the epic end to end, runs the quality gate, and commits the epic with an `Epic:` git trailer.
+
+Then work the plan's manual verification steps yourself. If something's broken, fix and commit it before moving on — that's why completion is a separate act and not the last line of the build plan. A build that ran clean isn't the same as an epic that works.
+
+**`/mark-epic-complete`** commits the PRD `` `Complete` `` tag. It takes no arguments and resolves the epic from the PRD and the `Epic:` trailer, so it runs fine in a fresh window or the one you're already in — it's a short mechanical command either way.
 
 If the phase has more unbuilt epics, return to **Step 6** to plan and review the next one. Once every epic in the phase is built, move to Step 8.
 
@@ -200,8 +203,9 @@ For repo-maintenance and quality skills (security audits, tech-debt audits, desi
 
 ## Experimental — not part of the workflow
 
-These ship in the repo and are usable, but are not documented steps. Step 7's `/code-review` → `/mark-epic-complete` is the workflow; these sit beside it while they're being proven or retired.
+These ship in the repo and are usable, but are not documented steps. Step 7 ends at `/mark-epic-complete`; these sit beside it while they're being proven or retired.
 
+- **`code-review`** *(Cursor-side)* — two-axis (Standards + Spec) review of an epic commit. Takes no arguments; resolves the epic from the PRD and the `Epic:` trailer. Genuinely useful, but its severity grading and citation accuracy still need refinement before it earns a numbered step — `code-review-review` exists because of that.
 - **`pre-release-review`** *(Cursor-side)* — scoped static review before a PR: automated gates, security pass, hard constraints, manual test checklist. Overlaps `code-review` and the build plan's quality gate; whether it earns a named step is a [WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md) item.
 - **`code-review-review`** *(Claude-side)* — adversarial audit of a `/code-review` report: re-derives each severity against `grading.md`, checks citations, routes code-truth questions back to Cursor, ends in a fix prompt.
 - **`collect-skill-feedback`** *(Claude-side)* — appends a settled audit's findings to `docs/skill-feedback/<skill>.md`, gap/slip-tagged. The read side (`absorb-skill-feedback`) is a [WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md) item.
@@ -245,6 +249,7 @@ Pick model and effort by what the skill actually does *and* how much budget head
 |---|---|---|
 | `plan-next-epic` | Grok 4.6, high | Grok 4.6, high, Fast |
 | `/code-review` | Grok 4.6, high | Grok 4.6, high, Fast |
+| `pre-release-review` | Grok 4.6, high | Grok 4.6, high, Fast |
 | Build | Composer 2.5 Standard | Composer 2.5 Fast |
 | Mechanical steps (`kickoff-phase`, `mark-epic-complete`, `ship-phase`) | Composer 2.5 Standard | Composer 2.5 Fast |
 
