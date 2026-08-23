@@ -95,3 +95,63 @@ phase or a phase plus a slice.
 - Audit skill is `/audit-agents-md` (`.cursor/skills/audit-agents-md/`), added 2026-08-06.
 
 ---
+
+## Design-system surface coherence
+
+**What:** Replace `surface-elevated` with per-surface utility bundles that derive their own
+border, name the contrast constant behind them, and enforce it so borders can't be
+hand-tuned at call sites.
+
+**Why backlog, not ROADMAP:** Decided, not scheduled. Core is small — one CSS file plus
+~6 className edits — but the enforcement rule and a both-themes verification pass push it
+past a single prompt. Likely one phase, ~3 epics. Do not fold into an unrelated active
+phase: the Spec axis of code review would have nothing to check it against.
+
+**Notes:**
+
+- **Problem.** `surface-elevated` rebinds `--border`/`--input` via
+  `color-mix(--card 88%, --foreground 12%)`, hardcoding `--card` as its reference surface.
+  That holds only because `--card`, `--popover`, and `--sidebar` share a value today —
+  globals.css's own comment admits it. On any other surface, the border derives from a
+  surface the element isn't painted on.
+- **How it surfaced.** `profile-modal-content.tsx` carries `bg-border/40` on two
+  `<Separator>`s — a hand-tuned opacity reached for because the real rule wasn't
+  discoverable. `sidebar-shell.tsx` correctly pairs `bg-sidebar` + `surface-elevated`;
+  dialog and profile-modal didn't. **Pairing-by-hand is the defect**, not any one call site.
+- **The invariant, stated:** a border sits ~0.07–0.09 lightness from *its own* surface
+  (light 0.087, dark 0.078 — the page-level delta). `surface-elevated` is a misnomer; it's
+  contrast preservation, not elevation. This theme doesn't encode elevation as lightness at
+  all — light-mode `--sidebar` (0.967) is *darker* than `--background` (0.9842).
+- **Shape:** `surface-card` / `surface-popover` / `surface-sidebar`, each setting
+  background + foreground + its own derived `--border`/`--input` (sidebar also
+  `--sidebar-border`). One class, impossible to apply half of it. Retire `surface-elevated`.
+  Migrate 6 call sites: `sidebar-shell.tsx` (3), `dropdown-menu.tsx` (2), `select.tsx` (1).
+  Name the constant `--border-contrast-mix: 88%` — currently a magic number recorded only
+  in a comment and repeated per surface.
+- **No `surface-background`.** Base tokens are already calibrated for the page surface; a
+  utility that changes nothing is a no-op rule.
+- **Enforcement, not abstraction.** Lint rule banning opacity modifiers on
+  `border`/`bg-border` (same shape as existing `local/motion-tier`). *Rejected:* a semantic
+  `<SectionDivider>` wrapper — a className passes straight through it, so it prevents
+  nothing, and it wraps a primitive that already behaves correctly.
+- **Dialogs stay on `--background`.** shadcn assigns `--popover` to floating menu layers
+  and `--background` to dialog/alert-dialog/sheet. Moving them to `--popover` was
+  considered and *rejected*: once surfaces self-derive, both are correct, so it's taste —
+  and it would restyle every modal for no systems gain.
+- **Gotcha — one real visual change.** Light-mode `--sidebar` (0.967) currently wears a
+  `--card`-derived border only 0.054 from its surface; self-deriving moves it to 0.082, so
+  the light-mode sidebar border gets slightly more visible. Correct, but verify rather than
+  be surprised. Dark mode unaffected (sidebar and card share a value there).
+- **Separate rule, same work — separator inset.** `DropdownMenuSeparator` and
+  `SelectSeparator` both carry `-mx-1`, going full-bleed against the popover's `p-1`. The
+  content column is 12px across every item variant (items are `px-2` inside `p-1`;
+  checkbox/radio indicators sit at `left-2`), so `mx-2` aligns to it. Every other separator
+  in the app already respects container padding — these are the outliers, and only because
+  shadcn shipped them that way. Keep this distinct from the surface decision.
+- **Loose findings from the same sweep:** `AccordionTrigger`'s `px-2` pushes "Change
+  Password" 8px out of the profile modal's content column (fix: `-mx-2 px-2`); the Bio
+  textarea shows a resize grabber despite the 160-char cap. All of the above were found by
+  walking past them, not by auditing — a real design-system coherence audit is a separate,
+  unbounded scope.
+
+---
