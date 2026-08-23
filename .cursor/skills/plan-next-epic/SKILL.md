@@ -108,6 +108,13 @@ Authorized by this approved plan:
 
 ### Handoff
 
-Report the epic is committed, then ask the user: *"Mark this epic complete?"*
+Report the epic is committed, then list what's left for the user.
+
+When the epic added a migration, that runs first — humans run `pnpm db:push` and `pnpm db:types`; nothing verifies against un-pushed schema. Then, always:
+
+1. Work through the plan's manual verification steps.
+2. Fix and commit anything broken.
+
+Then ask: *"Mark this epic complete?"*
 
 On confirmation, read `.cursor/skills/mark-epic-complete/SKILL.md` and follow it in full, preconditions included — it is user-invoked, so reading the file is this run's only route to it. Without confirmation, end the run; the user can type `/mark-epic-complete` later.
