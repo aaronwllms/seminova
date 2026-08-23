@@ -15,6 +15,10 @@ export const writeBannerDismissCookie = (
   document.cookie = `${cookieName}=${encodeURIComponent(dismissKey)}; path=/; max-age=${BANNER_DISMISS_COOKIE_MAX_AGE}; SameSite=Lax`
 }
 
+export const clearBannerDismissCookie = (cookieName: string): void => {
+  document.cookie = `${cookieName}=; path=/; max-age=0`
+}
+
 export const readBannerDismissCookieValue = (
   cookieName: string,
 ): string | undefined => {
@@ -49,7 +53,10 @@ export const resolveLiveBannerSlot = (
 
   const dismissKey = buildBannerDismissKey(config.headline, config.detail)
 
-  if (isBannerDismissedByCookie(dismissedCookieValue, dismissKey)) {
+  if (
+    config.persistence === 'dismissible' &&
+    isBannerDismissedByCookie(dismissedCookieValue, dismissKey)
+  ) {
     return null
   }
 

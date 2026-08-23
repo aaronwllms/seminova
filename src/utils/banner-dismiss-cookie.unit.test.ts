@@ -46,6 +46,22 @@ describe('banner dismiss cookie helpers', () => {
     expect(resolveLiveBannerSlot(liveConfig, dismissKey)).toBeNull()
   })
 
+  it('should still resolve a persistent banner when the cookie matches', () => {
+    const persistentConfig = {
+      ...liveConfig,
+      persistence: 'persistent' as const,
+    }
+    const dismissKey = buildBannerDismissKey(
+      persistentConfig.headline,
+      persistentConfig.detail,
+    )
+
+    expect(resolveLiveBannerSlot(persistentConfig, dismissKey)).toEqual({
+      config: persistentConfig,
+      dismissKey,
+    })
+  })
+
   it('should return null when config is missing or not live', () => {
     expect(resolveLiveBannerSlot(undefined, undefined)).toBeNull()
     expect(

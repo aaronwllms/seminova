@@ -68,18 +68,18 @@ const getNoRawConsoleBlock = (): Linter.Config => {
   return block
 }
 
-const isMotionTierRuleBlock = (block: Linter.Config): boolean =>
-  block.rules?.['local/motion-tier'] === 'error'
-
-const getMotionTierBlock = (): Linter.Config => {
+const getLocalRuleBlock = (
+  pluginName: 'motion-tier' | 'surface-elevated',
+  ruleId: 'local/motion-tier' | 'local/surface-elevated',
+): Linter.Config => {
   const configs = eslintConfig as Linter.Config[]
   const pluginBlock = configs.find(
-    (block) => block.plugins?.local?.rules?.['motion-tier'],
+    (block) => block.plugins?.local?.rules?.[pluginName],
   )
-  const ruleBlock = configs.find(isMotionTierRuleBlock)
+  const ruleBlock = configs.find((block) => block.rules?.[ruleId] === 'error')
 
-  if (!pluginBlock?.plugins || !ruleBlock?.rules?.['local/motion-tier']) {
-    throw new Error('Expected local/motion-tier block in eslint.config.mjs')
+  if (!pluginBlock?.plugins || !ruleBlock?.rules?.[ruleId]) {
+    throw new Error(`Expected ${ruleId} block in eslint.config.mjs`)
   }
 
   return {
@@ -89,6 +89,12 @@ const getMotionTierBlock = (): Linter.Config => {
     rules: ruleBlock.rules,
   }
 }
+
+const getMotionTierBlock = (): Linter.Config =>
+  getLocalRuleBlock('motion-tier', 'local/motion-tier')
+
+const getSurfaceElevatedBlock = (): Linter.Config =>
+  getLocalRuleBlock('surface-elevated', 'local/surface-elevated')
 
 describe('eslint server-only import boundary', () => {
   it('should report no-restricted-imports on the boundary fixture', async () => {
@@ -228,5 +234,85 @@ describe('eslint local/motion-tier rule', () => {
     )
 
     expect(motionTierMessages).toEqual([])
+  })
+})
+
+describe('eslint local/surface-elevated rule', () => {
+  const surfaceElevatedBlock = getSurfaceElevatedBlock()
+
+  const createSurfaceElevatedEslint = (filePath: string) =>
+    new ESLint({
+      cwd: process.cwd(),
+      overrideConfigFile: true,
+      overrideConfig: [
+        {
+          files: [filePath],
+          ignores: surfaceElevatedBlock.ignores,
+          languageOptions: {
+            parserOptions: {
+              ecmaFeatures: { jsx: true },
+            },
+          },
+          plugins: surfaceElevatedBlock.plugins,
+          rules: surfaceElevatedBlock.rules,
+        },
+      ],
+    })
+
+  it('should report local/surface-elevated on bg-card without the utility', async () => {
+    const eslint = createSurfaceElevatedEslint(
+      'src/components/surface-elevated-fail.tsx',
+    )
+
+    const results = await eslint.lintText(
+      "export const X = () => <div className='bg-card rounded-xl border' />",
+      { filePath: 'src/components/surface-elevated-fail.tsx' },
+    )
+
+    const surfaceElevatedMessages = results.flatMap((result) =>
+      result.messages.filter(
+        (message) => message.ruleId === 'local/surface-elevated',
+      ),
+    )
+
+    expect(surfaceElevatedMessages.length).toBeGreaterThan(0)
+  })
+
+  it('should not report local/surface-elevated inside src/components/ui/', async () => {
+    const eslint = createSurfaceElevatedEslint(
+      'src/components/ui/surface-elevated-ignored.tsx',
+    )
+
+    const results = await eslint.lintText(
+      "export const X = () => <div className='bg-card rounded-xl border' />",
+      { filePath: 'src/components/ui/surface-elevated-ignored.tsx' },
+    )
+
+    const surfaceElevatedMessages = results.flatMap((result) =>
+      result.messages.filter(
+        (message) => message.ruleId === 'local/surface-elevated',
+      ),
+    )
+
+    expect(surfaceElevatedMessages).toEqual([])
+  })
+
+  it('should pass local/surface-elevated when the utility is paired', async () => {
+    const eslint = createSurfaceElevatedEslint(
+      'src/components/surface-elevated-pass.tsx',
+    )
+
+    const results = await eslint.lintText(
+      "export const X = () => <div className='bg-card surface-elevated rounded-xl border' />",
+      { filePath: 'src/components/surface-elevated-pass.tsx' },
+    )
+
+    const surfaceElevatedMessages = results.flatMap((result) =>
+      result.messages.filter(
+        (message) => message.ruleId === 'local/surface-elevated',
+      ),
+    )
+
+    expect(surfaceElevatedMessages).toEqual([])
   })
 })

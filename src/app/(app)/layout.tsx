@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
-import { Suspense } from 'react'
 
-import { AuthenticatedBannerSlotEntry } from '@/components/authenticated-banner-slot-entry'
+import { loadAuthenticatedBannerSlot } from '@/components/authenticated-banner-slot-entry'
 
 import { AppShell } from './_components/app-shell'
 
@@ -13,13 +12,12 @@ type AppLayoutProps = {
   children: React.ReactNode
 }
 
-export default function AppLayout({ children }: AppLayoutProps) {
+export default async function AppLayout({ children }: AppLayoutProps) {
+  const { banner, pin } = await loadAuthenticatedBannerSlot()
+
   return (
-    <>
-      <Suspense fallback={null}>
-        <AuthenticatedBannerSlotEntry />
-      </Suspense>
-      <AppShell>{children}</AppShell>
-    </>
+    <AppShell banner={banner} pin={pin}>
+      {children}
+    </AppShell>
   )
 }

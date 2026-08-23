@@ -61,6 +61,24 @@ describe('app-settings', () => {
     })
   })
 
+  it('should default a stored banner that omits persistence to dismissible', async () => {
+    const { persistence: _omitted, ...storedBannerWithoutPersistence } =
+      DEFAULT_BANNER_SETTING
+
+    selectMock.mockResolvedValue({
+      data: [{ key: 'banner_public', value: storedBannerWithoutPersistence }],
+      error: null,
+    })
+
+    const { resolveAppSettings } = await import('./app-settings')
+    const settings = await resolveAppSettings()
+
+    expect(settings.banner_public).toEqual({
+      ...storedBannerWithoutPersistence,
+      persistence: 'dismissible',
+    })
+  })
+
   it('should support heterogeneous value types in one resolved snapshot', async () => {
     selectMock.mockResolvedValue({
       data: [{ key: 'min_log_level', value: 'debug' }],

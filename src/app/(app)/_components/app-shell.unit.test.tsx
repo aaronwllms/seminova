@@ -31,7 +31,11 @@ import { AppShell } from './app-shell'
 
 describe('AppShell', () => {
   it('should render header, main content, and footer without a shell-level profile provider', () => {
-    render(<AppShell>{<p>Profile content</p>}</AppShell>)
+    render(
+      <AppShell banner={null} pin={false}>
+        {<p>Profile content</p>}
+      </AppShell>,
+    )
 
     expect(screen.getByTestId('site-header')).toBeInTheDocument()
     expect(screen.getAllByTestId('app-header-account-nav-slot')).toHaveLength(2)

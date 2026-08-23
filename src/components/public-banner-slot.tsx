@@ -6,7 +6,6 @@ import { AppBanner } from '@/components/app-banner'
 import { BANNER_DISMISSED_PUBLIC_COOKIE } from '@/constants/banner-cookies'
 import type { BannerSettingValue } from '@/types/banner'
 import { writeBannerDismissCookie } from '@/utils/banner-dismiss-cookie'
-import { isBannerLive } from '@/utils/banner-status'
 
 interface PublicBannerSlotProps {
   config: BannerSettingValue
@@ -21,7 +20,7 @@ export const PublicBannerSlot = ({
 }: PublicBannerSlotProps) => {
   const [dismissed, setDismissed] = useState(initialDismissed)
 
-  if (!isBannerLive(config) || dismissed) {
+  if (dismissed) {
     return null
   }
 
@@ -30,5 +29,5 @@ export const PublicBannerSlot = ({
     setDismissed(true)
   }
 
-  return <AppBanner config={config} dismissible onDismiss={handleDismiss} />
+  return <AppBanner config={config} onDismiss={handleDismiss} />
 }

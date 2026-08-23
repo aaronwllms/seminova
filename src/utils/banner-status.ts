@@ -2,7 +2,7 @@ import type { BannerComputedStatus, BannerSettingValue } from '@/types/banner'
 
 export const computeBannerStatus = (
   config: BannerSettingValue,
-  now: Date = new Date(),
+  now?: Date,
 ): BannerComputedStatus => {
   if (config.mode === 'off') {
     return 'off'
@@ -16,16 +16,17 @@ export const computeBannerStatus = (
     return 'off'
   }
 
+  const current = now ?? new Date()
   const expiresAt = new Date(config.expires_at)
 
-  if (expiresAt <= now) {
+  if (expiresAt <= current) {
     return 'off'
   }
 
   if (config.starts_at) {
     const startsAt = new Date(config.starts_at)
 
-    if (startsAt > now) {
+    if (startsAt > current) {
       return 'scheduled'
     }
   }

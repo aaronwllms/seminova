@@ -12,6 +12,10 @@ export const BANNER_VARIANTS = [
 
 export type BannerVariant = (typeof BANNER_VARIANTS)[number]
 
+export const BANNER_PERSISTENCES = ['dismissible', 'persistent'] as const
+
+export type BannerPersistence = (typeof BANNER_PERSISTENCES)[number]
+
 export const BANNER_COMPUTED_STATUSES = ['off', 'scheduled', 'live'] as const
 
 export type BannerComputedStatus = (typeof BANNER_COMPUTED_STATUSES)[number]
@@ -24,6 +28,7 @@ export interface BannerSettingValue {
   detail: string | null
   variant: BannerVariant
   show_icon: boolean
+  persistence: BannerPersistence
 }
 
 export const DEFAULT_BANNER_SETTING: BannerSettingValue = {
@@ -34,4 +39,5 @@ export const DEFAULT_BANNER_SETTING: BannerSettingValue = {
   detail: null,
   variant: 'primary',
   show_icon: true,
+  persistence: 'dismissible',
 }

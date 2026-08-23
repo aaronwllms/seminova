@@ -91,4 +91,23 @@ describe('PublicBannerSlot', () => {
 
     expect(screen.getByRole('status')).toHaveTextContent('Version two')
   })
+
+  it('should render a persistent banner without a dismiss button', () => {
+    const config = {
+      ...DEFAULT_BANNER_SETTING,
+      mode: 'on' as const,
+      persistence: 'persistent' as const,
+      headline: 'Must read',
+    }
+
+    render(
+      <PublicBannerSlot
+        config={config}
+        dismissKey={buildBannerDismissKey(config.headline, config.detail)}
+      />,
+    )
+
+    expect(screen.getByRole('status')).toHaveTextContent('Must read')
+    expect(document.querySelector('[aria-label="Dismiss banner"]')).toBeNull()
+  })
 })

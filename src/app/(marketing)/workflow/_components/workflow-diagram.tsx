@@ -195,7 +195,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
         role="group"
         aria-labelledby={ariaLabelledBy}
         aria-describedby="workflow-diagram-detail"
-        className="rounded-xl border"
+        className="surface-elevated rounded-xl border"
         onMouseOver={handleDiagramMouseOver}
         onMouseLeave={() => setHoveredNodeId(null)}
       >
@@ -252,7 +252,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
           height="346"
           rx="12"
           fill="none"
-          stroke="var(--muted-foreground)"
+          stroke="var(--border)"
           strokeWidth="1"
           strokeDasharray="6 4"
         />
@@ -292,7 +292,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
           height="114"
           rx="12"
           fill="none"
-          stroke="var(--muted-foreground)"
+          stroke="var(--border)"
           strokeWidth="1"
           strokeDasharray="6 4"
         />

@@ -3,27 +3,29 @@
 import { useState } from 'react'
 
 import { AppBanner } from '@/components/app-banner'
+import { BANNER_DISMISSED_AUTHENTICATED_COOKIE } from '@/constants/banner-cookies'
 import type { BannerSettingValue } from '@/types/banner'
-import { isBannerLive } from '@/utils/banner-status'
+import { writeBannerDismissCookie } from '@/utils/banner-dismiss-cookie'
 
 interface AuthenticatedBannerSlotProps {
   config: BannerSettingValue
-  initialDismissed?: boolean
+  dismissKey: string
 }
 
 export const AuthenticatedBannerSlot = ({
   config,
-  initialDismissed = false,
+  dismissKey,
 }: AuthenticatedBannerSlotProps) => {
-  const [dismissed, setDismissed] = useState(initialDismissed)
+  const [dismissed, setDismissed] = useState(false)
 
-  if (!isBannerLive(config) || dismissed) {
+  if (dismissed) {
     return null
   }
 
   const handleDismiss = () => {
+    writeBannerDismissCookie(BANNER_DISMISSED_AUTHENTICATED_COOKIE, dismissKey)
     setDismissed(true)
   }
 
-  return <AppBanner config={config} dismissible onDismiss={handleDismiss} />
+  return <AppBanner config={config} onDismiss={handleDismiss} />
 }

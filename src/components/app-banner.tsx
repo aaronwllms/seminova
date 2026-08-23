@@ -14,12 +14,10 @@ import { BannerMessage } from '@/components/banner-message'
 import { SiteContainer } from '@/components/site-container'
 import { Button } from '@/components/ui/button'
 import type { BannerSettingValue, BannerVariant } from '@/types/banner'
-import { computeBannerStatus } from '@/utils/banner-status'
 import { cn } from '@/utils/tailwind'
 
 interface AppBannerProps {
   config: BannerSettingValue
-  dismissible?: boolean
   onDismiss?: () => void
   preview?: boolean
 }
@@ -59,16 +57,16 @@ const VARIANT_ICONS: Record<BannerVariant, LucideIcon> = {
 
 export const AppBanner = ({
   config,
-  dismissible = false,
   onDismiss,
   preview = false,
 }: AppBannerProps) => {
-  if (!preview && computeBannerStatus(config) !== 'live') {
+  if (!preview && config.mode === 'off') {
     return null
   }
 
   const Icon = VARIANT_ICONS[config.variant]
-  const showDismiss = !preview && dismissible && Boolean(onDismiss)
+  const showDismiss =
+    config.persistence === 'dismissible' && (preview || Boolean(onDismiss))
 
   return (
     <div
@@ -114,9 +112,12 @@ export const AppBanner = ({
               className={cn(
                 'text-muted-foreground shrink-0',
                 VARIANT_DISMISS_BUTTON_CLASSES[config.variant],
+                preview && 'pointer-events-none',
               )}
               aria-label="Dismiss banner"
-              onClick={onDismiss}
+              aria-hidden={preview || undefined}
+              tabIndex={preview ? -1 : undefined}
+              onClick={preview ? undefined : onDismiss}
             >
               <X aria-hidden />
             </Button>

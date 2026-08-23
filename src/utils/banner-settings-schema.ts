@@ -1,6 +1,10 @@
 import { z } from 'zod'
 
-import { BANNER_MODES, BANNER_VARIANTS } from '@/types/banner'
+import {
+  BANNER_MODES,
+  BANNER_PERSISTENCES,
+  BANNER_VARIANTS,
+} from '@/types/banner'
 import type { BannerSettingValue } from '@/types/banner'
 import {
   datetimeLocalToIso,
@@ -23,6 +27,7 @@ export const bannerSettingValueSchema = z
       .nullable(),
     variant: z.enum(BANNER_VARIANTS),
     show_icon: z.boolean(),
+    persistence: z.enum(BANNER_PERSISTENCES).default('dismissible'),
   })
   .superRefine((value, ctx) => {
     if (value.mode === 'scheduled' && !value.expires_at) {
@@ -46,6 +51,7 @@ export const bannerSettingFormSchema = z
     detail: z.string().max(100, 'Detail must be 100 characters or fewer'),
     variant: z.enum(BANNER_VARIANTS),
     show_icon: z.boolean(),
+    persistence: z.enum(BANNER_PERSISTENCES),
   })
   .superRefine((value, ctx) => {
     if (value.mode === 'scheduled' && !value.expires_at_local.trim()) {
@@ -69,6 +75,7 @@ export const bannerValueToFormValues = (
   detail: value.detail ?? '',
   variant: value.variant,
   show_icon: value.show_icon,
+  persistence: value.persistence,
 })
 
 export const formValuesToBannerValue = (
@@ -84,6 +91,7 @@ export const formValuesToBannerValue = (
     detail: form.detail.trim() ? form.detail : null,
     variant: form.variant,
     show_icon: form.show_icon,
+    persistence: form.persistence,
   }
 }
 
@@ -97,4 +105,5 @@ export const bannerSettingValuesEqual = (
   left.headline === right.headline &&
   left.detail === right.detail &&
   left.variant === right.variant &&
-  left.show_icon === right.show_icon
+  left.show_icon === right.show_icon &&
+  left.persistence === right.persistence

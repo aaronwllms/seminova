@@ -10,7 +10,7 @@ export const MarketingDisplayCard = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      'bg-card text-card-foreground hover:bg-muted/30 duration-dwell rounded-xl border p-5 transition-colors',
+      'bg-card text-card-foreground surface-elevated hover:bg-muted/30 duration-dwell rounded-xl border p-5 transition-colors',
       className,
     )}
     {...props}

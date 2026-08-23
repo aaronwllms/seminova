@@ -26,7 +26,7 @@ export const WorkflowDocumentsSection = () => (
     </div>
 
     <div className="mx-auto mt-6 max-w-6xl overflow-x-auto px-4 sm:px-0">
-      <div className="bg-card overflow-hidden rounded-xl border">
+      <div className="bg-card surface-elevated overflow-hidden rounded-xl border">
         <Table>
           <TableHeader>
             <TableRow>

@@ -96,41 +96,62 @@ phase or a phase plus a slice.
 
 ---
 
-## Banner persistence setting
+## Design-system surface coherence
 
-**What:** Add a persistence field to each banner setting (`banner_public`, `banner_authenticated`)
-controlling whether a live banner pins or scrolls away, and whether it can be dismissed.
-`persistent` stays in view while scrolling and shows no dismiss control; `dismissible` scrolls
-with page content and shows the X. Today both behaviors are hardcoded per shell rather than
-configured: the public banner is pinned and dismissible, the authenticated banner scrolls away
-and is not dismissible in any durable sense.
+**What:** Replace `surface-elevated` with per-surface utility bundles that derive their own
+border, name the contrast constant behind them, and enforce it so borders can't be
+hand-tuned at call sites.
 
-**Why backlog, not ROADMAP:** Settings-schema change plus a migration and admin UI work — well
-outside the header-polish epic that surfaced it. Not confirmed as something we're building next.
+**Why backlog, not ROADMAP:** Decided, not scheduled. Core is small — one CSS file plus
+~6 className edits — but the enforcement rule and a both-themes verification pass push it
+past a single prompt. Likely one phase, ~3 epics. Do not fold into an unrelated active
+phase: the Spec axis of code review would have nothing to check it against.
 
 **Notes:**
 
-- **Don't derive persistence from `variant`.** Considered and rejected: `variant` means tone,
-  persistence means whether the user can afford to miss the message, and the two come apart
-  (a red "maintenance finished, re-sync your data" needn't pin; a blue "action required by
-  Friday" should). Atlassian's own announcement-banner admin ships a color control and a
-  separate dismissible toggle for this reason. Use `variant` as the *default* instead —
-  destructive and warning default to `persistent`, primary/success/info default to
-  `dismissible` — and keep it overridable.
-- **Pattern research (2026-08-22):** stickiness tracks severity, not shell. Carbon states
-  banners are not sticky and scroll with page content, placing system-wide messages below the
-  main header. Atlassian reserves the pinned top-of-screen banner for critical system-level
-  messaging about loss of data or functionality. Polaris: dismissible unless the banner carries
-  critical information or a required step.
-- **Current state is inverted against that pattern.** The public banner (feature announcements,
-  dismissible) pins; the authenticated banner (warning-shaped, non-dismissible) scrolls away.
-- **Prerequisite:** `AuthenticatedBannerSlot` passes `dismissible` but never writes a cookie, so
-  authenticated dismissal doesn't survive a reload. Making persistence configurable requires real
-  dismissal plumbing there, mirroring `BANNER_DISMISSED_PUBLIC_COOKIE`.
-- **Placement question, related but separable:** both shells render the banner above the header.
-  That's the right convention for a marketing announcement bar; it's arguably wrong for an
-  authenticated system message, which Carbon would place below the nav.
-- Surfaced while planning the header-polish epic, which made the public banner scroll away —
-  correct for an announcement bar, but it hardcodes what should be a setting.
+- **Problem.** `surface-elevated` rebinds `--border`/`--input` via
+  `color-mix(--card 88%, --foreground 12%)`, hardcoding `--card` as its reference surface.
+  That holds only because `--card`, `--popover`, and `--sidebar` share a value today —
+  globals.css's own comment admits it. On any other surface, the border derives from a
+  surface the element isn't painted on.
+- **How it surfaced.** `profile-modal-content.tsx` carries `bg-border/40` on two
+  `<Separator>`s — a hand-tuned opacity reached for because the real rule wasn't
+  discoverable. `sidebar-shell.tsx` correctly pairs `bg-sidebar` + `surface-elevated`;
+  dialog and profile-modal didn't. **Pairing-by-hand is the defect**, not any one call site.
+- **The invariant, stated:** a border sits ~0.07–0.09 lightness from *its own* surface
+  (light 0.087, dark 0.078 — the page-level delta). `surface-elevated` is a misnomer; it's
+  contrast preservation, not elevation. This theme doesn't encode elevation as lightness at
+  all — light-mode `--sidebar` (0.967) is *darker* than `--background` (0.9842).
+- **Shape:** `surface-card` / `surface-popover` / `surface-sidebar`, each setting
+  background + foreground + its own derived `--border`/`--input` (sidebar also
+  `--sidebar-border`). One class, impossible to apply half of it. Retire `surface-elevated`.
+  Migrate 6 call sites: `sidebar-shell.tsx` (3), `dropdown-menu.tsx` (2), `select.tsx` (1).
+  Name the constant `--border-contrast-mix: 88%` — currently a magic number recorded only
+  in a comment and repeated per surface.
+- **No `surface-background`.** Base tokens are already calibrated for the page surface; a
+  utility that changes nothing is a no-op rule.
+- **Enforcement, not abstraction.** Lint rule banning opacity modifiers on
+  `border`/`bg-border` (same shape as existing `local/motion-tier`). *Rejected:* a semantic
+  `<SectionDivider>` wrapper — a className passes straight through it, so it prevents
+  nothing, and it wraps a primitive that already behaves correctly.
+- **Dialogs stay on `--background`.** shadcn assigns `--popover` to floating menu layers
+  and `--background` to dialog/alert-dialog/sheet. Moving them to `--popover` was
+  considered and *rejected*: once surfaces self-derive, both are correct, so it's taste —
+  and it would restyle every modal for no systems gain.
+- **Gotcha — one real visual change.** Light-mode `--sidebar` (0.967) currently wears a
+  `--card`-derived border only 0.054 from its surface; self-deriving moves it to 0.082, so
+  the light-mode sidebar border gets slightly more visible. Correct, but verify rather than
+  be surprised. Dark mode unaffected (sidebar and card share a value there).
+- **Separate rule, same work — separator inset.** `DropdownMenuSeparator` and
+  `SelectSeparator` both carry `-mx-1`, going full-bleed against the popover's `p-1`. The
+  content column is 12px across every item variant (items are `px-2` inside `p-1`;
+  checkbox/radio indicators sit at `left-2`), so `mx-2` aligns to it. Every other separator
+  in the app already respects container padding — these are the outliers, and only because
+  shadcn shipped them that way. Keep this distinct from the surface decision.
+- **Loose findings from the same sweep:** `AccordionTrigger`'s `px-2` pushes "Change
+  Password" 8px out of the profile modal's content column (fix: `-mx-2 px-2`); the Bio
+  textarea shows a resize grabber despite the 160-char cap. All of the above were found by
+  walking past them, not by auditing — a real design-system coherence audit is a separate,
+  unbounded scope.
 
 ---

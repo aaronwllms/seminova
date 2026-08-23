@@ -46,7 +46,6 @@ describe('AppBanner', () => {
           mode: 'on',
           headline: 'Dismiss me',
         }}
-        dismissible
         onDismiss={onDismiss}
       />,
     )
@@ -85,7 +84,7 @@ describe('AppBanner', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Preview while off')
   })
 
-  it('should not render dismiss chrome in preview mode', () => {
+  it('should show an inert dismiss button in preview when dismissible', () => {
     render(
       <AppBanner
         preview
@@ -94,13 +93,42 @@ describe('AppBanner', () => {
           mode: 'on',
           headline: 'Preview banner',
         }}
-        dismissible
+      />,
+    )
+
+    expect(document.querySelector('[aria-label="Dismiss banner"]')).toBeTruthy()
+  })
+
+  it('should hide the dismiss button in preview when persistent', () => {
+    render(
+      <AppBanner
+        preview
+        config={{
+          ...DEFAULT_BANNER_SETTING,
+          mode: 'on',
+          headline: 'Preview banner',
+          persistence: 'persistent',
+        }}
+      />,
+    )
+
+    expect(document.querySelector('[aria-label="Dismiss banner"]')).toBeNull()
+  })
+
+  it('should hide the dismiss button when live and persistent even if onDismiss is passed', () => {
+    render(
+      <AppBanner
+        config={{
+          ...DEFAULT_BANNER_SETTING,
+          mode: 'on',
+          headline: 'Must read',
+          persistence: 'persistent',
+        }}
         onDismiss={vi.fn()}
       />,
     )
 
-    expect(
-      screen.queryByRole('button', { name: 'Dismiss banner' }),
-    ).not.toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('Must read')
+    expect(document.querySelector('[aria-label="Dismiss banner"]')).toBeNull()
   })
 })

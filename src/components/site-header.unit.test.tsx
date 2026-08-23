@@ -31,4 +31,47 @@ describe('SiteHeader', () => {
 
     expect(screen.getByRole('banner')).toBeInTheDocument()
   })
+
+  it('should render a passed banner node ahead of the header landmark', () => {
+    render(
+      <SiteHeader
+        logoHref="/"
+        banner={<p>Maintenance notice</p>}
+        rightSlot={<a href="/auth/login">Sign in</a>}
+      />,
+    )
+
+    expect(screen.getByText('Maintenance notice')).toBeInTheDocument()
+    expect(screen.getByRole('banner')).toBeInTheDocument()
+
+    const bannerCopy = screen.getByText('Maintenance notice')
+    const header = screen.getByRole('banner')
+
+    expect(
+      bannerCopy.compareDocumentPosition(header) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+  })
+
+  it('should compose a persistent banner and header as one unit when pin is true', () => {
+    render(
+      <SiteHeader
+        logoHref="/"
+        pin
+        banner={<p>Persistent notice</p>}
+        rightSlot={<a href="/auth/login">Sign in</a>}
+      />,
+    )
+
+    expect(screen.getByText('Persistent notice')).toBeInTheDocument()
+    expect(screen.getByRole('banner')).toBeInTheDocument()
+
+    const bannerCopy = screen.getByText('Persistent notice')
+    const header = screen.getByRole('banner')
+
+    expect(
+      bannerCopy.compareDocumentPosition(header) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+  })
 })

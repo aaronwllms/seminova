@@ -45,7 +45,10 @@ export const ErrorPanel = ({
   return (
     <div
       role="alert"
-      className={cn('bg-card flex flex-col rounded-md border p-4', className)}
+      className={cn(
+        'bg-card surface-elevated flex flex-col rounded-md border p-4',
+        className,
+      )}
     >
       {title ? (
         <>
