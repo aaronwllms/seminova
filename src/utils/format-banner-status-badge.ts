@@ -29,7 +29,7 @@ const formatBannerDate = (iso: string): string => {
 
 export const formatBannerStatusBadge = (
   config: BannerSettingValue,
-  now: Date = new Date(),
+  now?: Date,
 ): { label: string; tone: BannerStatusBadgeTone } => {
   const status = computeBannerStatus(config, now)
 

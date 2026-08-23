@@ -14,7 +14,6 @@ import { BannerMessage } from '@/components/banner-message'
 import { SiteContainer } from '@/components/site-container'
 import { Button } from '@/components/ui/button'
 import type { BannerSettingValue, BannerVariant } from '@/types/banner'
-import { computeBannerStatus } from '@/utils/banner-status'
 import { cn } from '@/utils/tailwind'
 
 interface AppBannerProps {
@@ -61,7 +60,7 @@ export const AppBanner = ({
   onDismiss,
   preview = false,
 }: AppBannerProps) => {
-  if (!preview && computeBannerStatus(config) !== 'live') {
+  if (!preview && config.mode === 'off') {
     return null
   }
 
