@@ -43,7 +43,7 @@ The alpha values themselves are set **by eye in both themes**, not derived. That
 
 ## Epics & stories
 
-### Epic 1: Composited border tokens and `surface-elevated` retirement
+### Epic 1: Composited border tokens and `surface-elevated` retirement `Complete`
 
 - **1.1 Border tokens composite against whatever surface they are painted on.** `--border`, `--input` and `--sidebar-border` become semi-transparent neutrals in both themes — black-alpha in light, white-alpha in dark — at starting values of roughly 0.09 and 0.10 respectively. All three take the **same value per theme**; they are not independently tuned, which keeps the tuning space to one number per theme and preserves the fill-role analysis in Notes. `--border-muted` is added alongside as the one separately-tuned value, deliberately lighter, with a matching bridge entry in the `@theme inline` block — without it there is no utility to consume the token.
 
