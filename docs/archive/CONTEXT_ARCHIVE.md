@@ -1,8 +1,8 @@
 # CONTEXT_ARCHIVE.md — Shipped phase detail
 
-**Append-only.** When a phase ships in full, move its epic/story detail here from [CONTEXT.md](CONTEXT.md). Never edit existing archive entries.
+**Closed.** A frozen record of phase detail from `CONTEXT.md`, the planning brief that preceded the ROADMAP + PRD structure. Shipped phase detail now lives in each phase's PRD in [docs/prds/](../prds/). Never edit entries here.
 
-**Resolved decisions** from the planning brief also append here under `## Resolved decisions`.
+**Resolved decisions** from that planning brief are recorded under `## Resolved decisions`.
 
 **Path note (post–Phase 6):** Entries for Phases 3–5 describe routes as shipped at the time. The admin console moved from the invisible `(admin)` route group + `/users` to `src/app/admin/` + `/admin/*` in Phase 6 Epic 2. Non-admin post-login landing moved from `/protected` to `/profile` in Phase 6 Epic 5. Current truth: [AGENTS.md](../../AGENTS.md).
 
