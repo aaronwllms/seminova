@@ -10,7 +10,7 @@ description: >-
 
 # Sync repo docs
 
-Keep the repo's **human- and design-facing docs** aligned with what the code actually does — [README.md](../../README.md) (human onboarding), [DESIGN.md](../../DESIGN.md) (token architecture ↔ `globals.css`), and [`.cursor/rules/README.md`](../../.cursor/rules/README.md) (rule-file index ↔ `.cursor/rules/*.mdc`). Do not duplicate `.cursor/rules/` guidance content. Do not edit [AGENTS.md](../../AGENTS.md) — hard-constraint list updates ride with enforcement changes per AGENTS.md change protocol, not via this skill.
+Keep the repo's **human- and design-facing docs** aligned with what the code actually does — [README.md](../../../README.md) (human onboarding), [DESIGN.md](../../../DESIGN.md) (token architecture ↔ `globals.css`), and [`.cursor/rules/README.md`](../../rules/README.md) (rule-file index ↔ `.cursor/rules/*.mdc`). Do not duplicate `.cursor/rules/` guidance content. Do not edit [AGENTS.md](../../../AGENTS.md) — hard-constraint list updates ride with enforcement changes per AGENTS.md change protocol, not via this skill.
 
 ## When to run
 

@@ -148,7 +148,7 @@ The build window implements the epic end to end, runs the quality gate, and comm
 
 Then work the plan's manual verification steps yourself. If something's broken, fix and commit it before moving on — that's why completion is a separate act and not the last line of the build plan. A build that ran clean isn't the same as an epic that works.
 
-The build window closes by listing what's left and asking whether to mark the epic complete. Answer it once you've actually verified — the prompt is a reminder, not a check. **`/mark-epic-complete`** takes no arguments and resolves the epic from the PRD and the `Epic:` trailer, so it runs equally well from that prompt, a fresh window, or the one you're already in.
+The build window closes by listing what's left and asking whether to mark the epic complete. Answer it once you've actually verified — the prompt is a reminder, not a check. **`/mark-epic-complete`** takes no arguments and resolves the epic from the PRD, so it runs equally well from that prompt, a fresh window, or the one you're already in.
 
 If the phase has more unbuilt epics, return to **Step 6** to plan and review the next one. Once every epic in the phase is built, move to Step 8.
 

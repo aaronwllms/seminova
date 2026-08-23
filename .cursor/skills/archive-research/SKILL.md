@@ -121,7 +121,7 @@ For each validated file:
 ### Reminders
 
 - Global `RESEARCH-NNNN` numbering still counts archived IDs — never reuse
-- Archived briefs are in [`.cursorindexingignore`](../../../.cursorindexingignore) — excluded from @Codebase search, still readable via @-mention ([`.cursor/README.md` › Ignore files](../../../.cursor/README.md#ignore-files-repo-root))
+- Archived briefs are in `.cursorindexingignore` — excluded from @Codebase search, still readable via @-mention (see `.cursor/README.md` › Ignore files)
 ```
 
 Do **not** commit unless the user asks.

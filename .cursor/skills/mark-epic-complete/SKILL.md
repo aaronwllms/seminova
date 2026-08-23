@@ -18,7 +18,7 @@ Epic numbering and `` `Complete` `` tag rules: [DOC_RULES.md](../../../docs/DOC_
 
 Run once an epic's work is committed — typed directly, or on confirmation at the end of a `plan-next-epic` build run.
 
-Takes **no arguments**. The epic to mark is the **first `### Epic` heading in the active phase's PRD without a `` `Complete` `` tag** — the same lookup `plan-next-epic` and `code-review` use. Never infer it from code inspection.
+Takes **no arguments**. The epic to mark is the **first `### Epic` heading in the active phase's PRD without a `` `Complete` `` tag** — the same lookup `plan-next-epic` uses. Never infer it from code inspection.
 
 The user may override by naming one explicitly, e.g. `/mark-epic-complete for Epic 3`.
 
