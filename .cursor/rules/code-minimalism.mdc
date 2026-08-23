@@ -31,6 +31,10 @@ project — when two rungs both work, take the higher one and move on.
   up as efficiency.
 - **Fix root cause, once.** A bug report names a symptom. Fix the shared function
   there — one guard in the shared path beats one per caller.
+- **Show the rung.** Before writing custom code for a problem the ecosystem likely
+  solves, name the stdlib feature, native platform capability, or installed dependency
+  you evaluated and why it doesn't hold. If you can't name one, you haven't climbed —
+  go back to rung 3.
 - **No unrequested abstractions.** No interface with one implementation, no factory
   for one product, no config for a value that never changes, no scaffolding "for
   later." Deletion over addition.
