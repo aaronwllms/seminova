@@ -1,6 +1,6 @@
 # PRD — Phase 18: Banner Persistence & Dismissal
 
-**Status:** `Active`
+**Status:** `Shipped`
 **Last updated:** 2026-08-22
 
 ---

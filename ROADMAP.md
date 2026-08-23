@@ -27,7 +27,7 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Unco
 | 15 | Features Page & Landing Refresh | `Shipped` | [Phase 15 PRD](docs/prds/archive/phase-15-features-page-landing-refresh.prd.md) |
 | 16 | Motion System & Table Fetch Feedback | `Shipped` | [Phase 16 PRD](docs/prds/archive/phase-16-motion-system-table-fetch-feedback.prd.md) |
 | 17 | Instruction Budget & Doc Ownership | `Shipped` | [Phase 17 PRD](docs/prds/archive/phase-17-instruction-budget-doc-ownership.prd.md) |
-| 18 | Banner Persistence & Dismissal | `Active` | [Phase 18 PRD](docs/prds/phase-18-banner-persistence-dismissal.prd.md) |
+| 18 | Banner Persistence & Dismissal | `Shipped` | [Phase 18 PRD](docs/prds/archive/phase-18-banner-persistence-dismissal.prd.md) |
 | 19 | Magic Link Auth | `Draft` | — |
 
 > [!NOTE]
