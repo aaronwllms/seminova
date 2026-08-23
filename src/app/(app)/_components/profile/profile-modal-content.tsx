@@ -39,7 +39,7 @@ export const ProfileModalContent = ({
         defaultValues={defaultValues}
       />
 
-      <Separator className="bg-border/40" />
+      <Separator />
 
       <section className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
@@ -51,7 +51,7 @@ export const ProfileModalContent = ({
         <ProfileThemeSegment />
       </section>
 
-      <Separator className="bg-border/40" />
+      <Separator />
 
       <Accordion
         type="single"
@@ -63,6 +63,7 @@ export const ProfileModalContent = ({
             value={PASSWORD_ACCORDION_VALUE}
             className="border-none"
           >
+            {/* debt: drop px-2 when the trigger is restyled — extra horizontal padding breaks the modal content column */}
             <AccordionTrigger className="hover:bg-muted px-2 hover:no-underline">
               Change Password
             </AccordionTrigger>

@@ -16,7 +16,7 @@ const statTileVariants = cva(
     variants: {
       role: {
         total:
-          'bg-card text-muted-foreground surface-elevated border-[0.5px] border-border hover:bg-muted/80',
+          'bg-card text-muted-foreground border-[0.5px] border-border hover:bg-muted/80',
         debug:
           'bg-muted/50 text-muted-foreground border-[0.5px] border-border hover:bg-muted',
         info: 'bg-info/15 text-info border-[0.5px] border-info hover:bg-info/25',

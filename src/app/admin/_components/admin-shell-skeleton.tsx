@@ -4,7 +4,7 @@ export const AdminShellSkeleton = () => (
   <div className="flex min-h-screen w-full">
     <aside
       aria-hidden
-      className="bg-sidebar surface-elevated hidden w-64 shrink-0 border-r md:block"
+      className="bg-sidebar hidden w-64 shrink-0 border-r md:block"
     >
       <div className="flex flex-col gap-6 p-4">
         <Skeleton className="h-8 w-32" />

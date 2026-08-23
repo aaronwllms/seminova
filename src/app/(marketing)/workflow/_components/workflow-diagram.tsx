@@ -195,7 +195,7 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
         role="group"
         aria-labelledby={ariaLabelledBy}
         aria-describedby="workflow-diagram-detail"
-        className="surface-elevated rounded-xl border"
+        className="rounded-xl border"
         onMouseOver={handleDiagramMouseOver}
         onMouseLeave={() => setHoveredNodeId(null)}
       >

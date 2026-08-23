@@ -60,7 +60,7 @@ const ReferenceToastPreviewCard = ({
   return (
     <div
       aria-hidden
-      className="bg-popover text-popover-foreground surface-elevated flex min-h-11 flex-1 items-center gap-3 rounded-lg border px-4 py-3 shadow-sm"
+      className="bg-popover text-popover-foreground flex min-h-11 flex-1 items-center gap-3 rounded-lg border px-4 py-3 shadow-sm"
     >
       <Icon className={cn('size-4 shrink-0', iconClassName)} />
       <span className="text-sm">{message}</span>
