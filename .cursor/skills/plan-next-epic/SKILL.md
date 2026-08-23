@@ -12,8 +12,7 @@ Plan Mode only.
 
 ## Read first
 
-1. **[AGENTS.md](../../../AGENTS.md)** — hard constraints
-2. **Planning docs** — [ROADMAP.md](../../../ROADMAP.md) for phase status and the planning horizon; the active phase's PRD in [docs/prds/](../../../docs/prds/) for its epics and stories. Shipped phase detail: the shipped PRD in `docs/prds/`; `docs/archive/` for pre-restructure history
+1. **Planning docs** — [ROADMAP.md](../../../ROADMAP.md) for phase status and the planning horizon; the active phase's PRD in [docs/prds/](../../../docs/prds/) for its epics and stories.
 
 If these don't exist, ask the user where the product roadmap / phase scope lives before planning.
 
@@ -69,7 +68,7 @@ Every generated plan must also include this precondition near the top of the bod
 
 ## Generated plan todos (frontmatter)
 
-After the story-level todos, always append these two entries. Do **not** include `code-review` or `mark-epic-complete` todos — those are manual follow-ups in fresh agent windows.
+After the story-level todos, always append these two entries. The list ends there — epic close-out is prompted in the Handoff section rather than tracked as a todo.
 
 | Todo id | Purpose |
 |---------|---------|
@@ -82,7 +81,7 @@ Always append these three sections at the end of every generated plan, in order:
 
 ### Verification
 
-Quality bar — [AGENTS.md § Agent workflow](../../../AGENTS.md#agent-workflow) step 3. Stop on failure:
+Quality bar. Stop on failure:
 
 ```bash
 pnpm pre-push
@@ -109,8 +108,6 @@ Authorized by this approved plan:
 
 ### Handoff
 
-End the run by telling the user:
+Report the epic is committed, then ask the user: *"Mark this epic complete?"*
 
-*"Epic committed. Next: open a new agent window and run `/code-review`."*
-
-Pass nothing else. `code-review` resolves the epic, its commit, and the baseline from the PRD and git.
+On confirmation, read `.cursor/skills/mark-epic-complete/SKILL.md` and follow it in full, preconditions included — it is user-invoked, so reading the file is this run's only route to it. Without confirmation, end the run; the user can type `/mark-epic-complete` later.
