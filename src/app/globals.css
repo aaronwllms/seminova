@@ -52,6 +52,7 @@
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
   --color-border: var(--border);
+  --color-border-muted: var(--border-muted);
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-chart-1: var(--chart-1);
@@ -85,15 +86,6 @@
   --animate-accordion-up: accordion-up 0.2s ease-out;
 }
 
-/* 88/12 vs --card reproduces the page-level lightness delta (light ~0.087,
-   dark ~0.078). Derived from --card; --popover and --sidebar match --card
-   today — a re-skin that diverges them needs a second utility. */
-@utility surface-elevated {
-  --border: color-mix(in oklch, var(--card) 88%, var(--foreground));
-  --input: color-mix(in oklch, var(--card) 88%, var(--foreground));
-  --sidebar-border: color-mix(in oklch, var(--card) 88%, var(--foreground));
-}
-
 :root,
 .light {
   --background: oklch(0.9842 0.0034 247.8575);
@@ -118,8 +110,9 @@
   --warning-foreground: oklch(1 0 0);
   --info: oklch(0.53 0.175 246);
   --info-foreground: oklch(1 0 0);
-  --border: oklch(0.92 0.006 258);
-  --input: oklch(0.92 0.006 258);
+  --border: oklch(0 0 0 / 0.14);
+  --border-muted: oklch(0 0 0 / 0.105);
+  --input: oklch(0 0 0 / 0.14);
   --ring: oklch(0.5854 0.2041 277.1173);
   --chart-1: oklch(0.5854 0.2041 277.1173);
   --chart-2: oklch(0.5106 0.2301 276.9656);
@@ -132,7 +125,7 @@
   --sidebar-primary-foreground: oklch(1 0 0);
   --sidebar-accent: oklch(0.9299 0.0334 272.7879);
   --sidebar-accent-foreground: oklch(0.3729 0.0306 259.7328);
-  --sidebar-border: oklch(0.92 0.006 258);
+  --sidebar-border: oklch(0 0 0 / 0.14);
   --sidebar-ring: oklch(0.5854 0.2041 277.1173);
   --font-sans: var(--font-inter), sans-serif;
   --font-serif: var(--font-merriweather), serif;
@@ -184,8 +177,9 @@
   --warning-foreground: oklch(0.2077 0.0398 265.7549);
   --info: oklch(0.74 0.15 246);
   --info-foreground: oklch(0.2077 0.0398 265.7549);
-  --border: oklch(0.3 0.02 257);
-  --input: oklch(0.3 0.02 257);
+  --border: oklch(1 0 0 / 0.17);
+  --border-muted: oklch(1 0 0 / 0.13);
+  --input: oklch(1 0 0 / 0.17);
   --ring: oklch(0.6801 0.1583 276.9349);
   --chart-1: oklch(0.6801 0.1583 276.9349);
   --chart-2: oklch(0.5854 0.2041 277.1173);
@@ -198,7 +192,7 @@
   --sidebar-primary-foreground: oklch(0.2077 0.0398 265.7549);
   --sidebar-accent: oklch(0.3729 0.0306 259.7328);
   --sidebar-accent-foreground: oklch(0.8717 0.0093 258.3382);
-  --sidebar-border: oklch(0.3 0.02 257);
+  --sidebar-border: oklch(1 0 0 / 0.17);
   --sidebar-ring: oklch(0.6801 0.1583 276.9349);
   --font-sans: var(--font-inter), sans-serif;
   --font-serif: var(--font-merriweather), serif;

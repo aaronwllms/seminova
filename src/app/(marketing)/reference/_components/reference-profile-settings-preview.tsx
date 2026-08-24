@@ -246,7 +246,7 @@ export const ReferenceProfileSettingsPreview = () => {
             </div>
           </Form>
 
-          <Separator className="bg-border/40" />
+          <Separator />
 
           <section className="flex flex-col gap-3">
             <div className="flex flex-col gap-1">
@@ -258,7 +258,7 @@ export const ReferenceProfileSettingsPreview = () => {
             <ProfileThemeSegment />
           </section>
 
-          <Separator className="bg-border/40" />
+          <Separator />
 
           <Accordion
             type="single"

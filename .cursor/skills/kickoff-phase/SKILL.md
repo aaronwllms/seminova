@@ -75,7 +75,22 @@ Request `git_write` for any checkout/create/delete above. Report which branch wa
 
 ## Commit
 
-Commit the planning-doc edits as a `docs:` commit (request `git_write`). Stage only the PRD and ROADMAP edits from this skill. The skill never leaves its own edits uncommitted.
+Commit the planning-doc set as a `docs:` commit (request `git_write`). The planning session that produced this phase ran in Claude and left its writes uncommitted — the PRD and ROADMAP edits, plus everything else it touched on the way. All of it lands here.
+
+Run `git status --porcelain`, then stage everything modified or untracked under:
+
+- `docs/prds/` (the target PRD)
+- `ROADMAP.md`
+- `BACKLOG.md`
+- `LEXICON.md`
+- `docs/adr/`
+- `docs/research/`
+- `docs/mockups/`
+- `docs/WORKFLOW_BACKLOG.md`
+
+Anything changed outside that set is code or unrelated work — leave it unstaged and name it in the handoff so the user knows it's still there.
+
+The skill never leaves planning-doc edits uncommitted.
 
 **Do not push** — publishing the branch is separate (build work or `ship-phase`).
 

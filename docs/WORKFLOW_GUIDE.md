@@ -2,7 +2,7 @@
 
 **Purpose:** How phases move from idea to shipped code — the tools, the documents, and the workflow. For write discipline and doc-maintenance rules, see [DOC_RULES.md](DOC_RULES.md).
 
-**Last updated:** 2026-08-22
+**Last updated:** 2026-08-23
 
 ---
 
@@ -137,15 +137,18 @@ This step is a subloop — plan and review go back and forth until Claude signs 
 - **6b.** Give Claude the plan's file path, invoking `plan-review`. Claude reads the file and reviews it against AGENTS.md hard constraints and the PRD's intent, then runs a second pass against `.cursor/rules/` — violations only, not a walk of the corpus.
 - **6c.** Before reporting, Claude may need two kinds of input: decisions only you hold (posed as numbered choices — answer with the number), and codebase facts the plan doesn't show (Claude hands you a standalone verification prompt to paste into Cursor; paste Cursor's answer back).
 - **6d.** Claude reports findings, then revises the plan file directly — one describe-and-ask, your yes, the edit lands. If Cursor's verification answer or your decisions change the picture, Claude re-reviews and revises again.
-- **Exit condition:** Claude confirms the plan is good to build. A solid plan includes: (1) a quality gate (`pnpm pre-push`), (2) a **Commit epic** step authorized by the approved plan, and (3) a closing handoff telling you to run `/code-review` in a new agent window.
+- **Exit condition:** Claude confirms the plan is good to build. A solid plan includes: (1) a quality gate (`pnpm pre-push`), (2) a **Commit epic** step authorized by the approved plan, and (3) manual verification steps you can work through after the build.
 
-**Step 7 — Build and follow-up**
-Press the build button on the approved plan in Cursor. The build window implements the epic end to end, runs the quality gate, and commits the epic with an `Epic:` git trailer. It ends with a handoff to run `/code-review` in a **new agent window**.
+**Step 7 — Build, verify, and complete**
+Build in a **fresh agent window**, not the plan window. At the bottom of the approved plan, the *Referenced by N agents* line has a **+ New** button — click it, then prompt `implement as described`. The new window picks up the plan file as its reference on a clean context window.
 
-After build, each follow-up runs in its own fresh agent window and takes no arguments — each resolves the epic from the PRD and the `Epic:` trailer:
+By the time `plan-next-epic` and the `plan-review` loop are done, the plan window's context is deep into its budget — and the build is the longest, most detail-sensitive run in the loop.
 
-1. **`/code-review`** — two-axis (Standards + Spec) review of the epic commit. Apply and commit any fixes if needed.
-2. **`/mark-epic-complete`** — commits the PRD `` `Complete` `` tag.
+The build window implements the epic end to end, runs the quality gate, and commits the epic with an `Epic:` git trailer.
+
+Then work the plan's manual verification steps yourself. If something's broken, fix and commit it before moving on — that's why completion is a separate act and not the last line of the build plan. A build that ran clean isn't the same as an epic that works.
+
+The build window closes by listing what's left and asking whether to mark the epic complete. Answer it once you've actually verified — the prompt is a reminder, not a check. **`/mark-epic-complete`** takes no arguments and resolves the epic from the PRD, so it runs equally well from that prompt, a fresh window, or the one you're already in.
 
 If the phase has more unbuilt epics, return to **Step 6** to plan and review the next one. Once every epic in the phase is built, move to Step 8.
 
@@ -200,8 +203,9 @@ For repo-maintenance and quality skills (security audits, tech-debt audits, desi
 
 ## Experimental — not part of the workflow
 
-These ship in the repo and are usable, but are not documented steps. Step 7's `/code-review` → `/mark-epic-complete` is the workflow; these sit beside it while they're being proven or retired.
+These ship in the repo and are usable, but are not documented steps. Step 7 ends at `/mark-epic-complete`; these sit beside it while they're being proven or retired.
 
+- **`code-review`** *(Cursor-side)* — two-axis (Standards + Spec) review of an epic commit. Takes no arguments; resolves the epic from the PRD and the `Epic:` trailer. Genuinely useful, but its severity grading and citation accuracy still need refinement before it earns a numbered step — `code-review-review` exists because of that.
 - **`pre-release-review`** *(Cursor-side)* — scoped static review before a PR: automated gates, security pass, hard constraints, manual test checklist. Overlaps `code-review` and the build plan's quality gate; whether it earns a named step is a [WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md) item.
 - **`code-review-review`** *(Claude-side)* — adversarial audit of a `/code-review` report: re-derives each severity against `grading.md`, checks citations, routes code-truth questions back to Cursor, ends in a fix prompt.
 - **`collect-skill-feedback`** *(Claude-side)* — appends a settled audit's findings to `docs/skill-feedback/<skill>.md`, gap/slip-tagged. The read side (`absorb-skill-feedback`) is a [WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md) item.
@@ -224,16 +228,44 @@ A few practical habits that make this workflow smoother.
 
 ## Model guidance
 
-Pick model and effort level by task characteristics *and* how much budget headroom you have. Model names are current-generation examples — the categories are what should stay stable as models change.
+Pick model and effort by what the skill actually does *and* how much budget headroom you have. Model names are current-generation examples — the skill rows and the effort levels are what should stay stable as models change.
 
-| Task type | Budget-conscious | Standard |
+> [!NOTE]
+> **Written 2026-08-23.** Model lineups and price/capability tiers move fast. Treat the specific model names as a snapshot and re-check them against current docs before leaning on this table; the task-to-effort mapping is the durable part.
+
+| Claude-side skill | Budget-conscious | Standard |
 |---|---|---|
-| **Judgment-heavy** (`phase-planning`, `plan-review`, `project-kickoff`) | Sonnet 5, high effort | Opus 4.8, high effort |
-| **Hardest calls** (ADR-worthy decisions, low-confidence plan-review verdicts) | Opus 4.8, high effort | Fable 5, high effort |
-| **Mechanical / lighter tasks** | Sonnet 5, low effort | Sonnet 5, medium effort |
-| **Cursor execution** | Composer 2.5 Standard | Composer 2.5 Fast |
+| `plan-review` | Sonnet 5, xhigh | **Opus 5, xhigh** |
+| `code-review-review` | Sonnet 5, high | Opus 5, high |
+| `phase-planning` | Sonnet 5, high | Opus 5, high |
+| `orchestrator` — planning chat | Sonnet 5, high | Opus 5, high |
+| `orchestrator` — executor chats | Haiku 4.5, low | Sonnet 5, medium |
+| `project-kickoff` | Sonnet 5, medium | Sonnet 5, high |
+| `promote-backlog-item` | Sonnet 5, low | Sonnet 5, medium |
+| `create-mockup` | Sonnet 5, low | Sonnet 5, medium |
+| `grill-me`, `lexicon-update` | — | inherit the session |
 
-Cursor's Fast vs. Standard tiers are a speed/cost choice, not a capability one — same intelligence either way; Fast just runs on faster hardware at a higher per-token cost.
+| Cursor step | Budget-conscious | Standard |
+|---|---|---|
+| `plan-next-epic` | Grok 4.6, high | Grok 4.6, high, Fast |
+| `/code-review` | Grok 4.6, high | Grok 4.6, high, Fast |
+| `pre-release-review` | Grok 4.6, high | Grok 4.6, high, Fast |
+| Build | Composer 2.5 Standard | Composer 2.5 Fast |
+| Mechanical steps (`kickoff-phase`, `mark-epic-complete`, `ship-phase`) | Composer 2.5 Standard | Composer 2.5 Fast |
+
+**Fast is a speed tier, not a capability tier** — same intelligence either way, roughly double the price for lower latency. That makes it the right budget lever for `plan-next-epic` and `/code-review`: both hand their output to Claude for audit, so you're not watching the stream. Build is where you sit and watch, so Fast earns its keep. Don't mix tiers within a run — pick one and stay there.
+
+**Why Grok 4.6 for planning and review, Composer for build.** Grok 4.6 benchmarks stronger on knowledge work and weaker on software engineering. `plan-next-epic` and `/code-review` are knowledge-work shaped — read, reason, write a document. Build is execution.
+
+**`xhigh` on `plan-next-epic` is a per-epic escalation, not the default.** Reach for it on migrations, anything touching the auth boundary, or cross-cutting refactors. Higher effort tends to produce *more* plan, and over-engineering is one of `plan-review`'s named failure categories — a longer plan also costs more on the expensive side of the loop.
+
+**Why `plan-review` gets the highest effort.** It's the only skill running two full passes in one turn: independent engineering judgment across five failure categories, then a sweep of ~23 rule files (~26k tokens) with severity derived per-rule. Effort is the direct lever on the attention dilution that creates. `xhigh` rather than `max` because it runs every epic.
+
+**Why `project-kickoff` isn't judgment-heavy.** It's capped at wide-but-shallow by design — no epic decomposition — so its value is elicitation quality, not reasoning depth. Sonnet handles it. Bump to Opus only if you'd rather not re-do a roadmap.
+
+**Effort and extended thinking are separate settings.** Effort controls how hard Claude works; the thinking toggle controls whether you see it. Extended thinking can't be disabled on Opus 5.
+
+**Skip Fable 5 for planning work.** It's double Opus 5 on both meters, and none of these skills is a benchmarked case where Opus falls short.
 
 ---
 

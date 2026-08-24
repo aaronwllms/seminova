@@ -2,7 +2,7 @@
 
 **Purpose:** Document the token architecture, the structure-vs-theme split, and how to re-skin the template for a new product. For agents: read this for design-system conventions. For hard constraints, see [AGENTS.md](AGENTS.md). For roadmap, see [ROADMAP.md](ROADMAP.md); for active-phase design scope, see [docs/prds/](docs/prds/).
 
-**Last updated:** 2026-08-21
+**Last updated:** 2026-08-24
 
 ---
 
@@ -33,6 +33,7 @@ Seminova separates **inherited structure** from **re-skinnable theme**. Products
 - Dark-mode class strategy (`next-themes` + `.dark` selector)
 - Font wiring pattern: `next/font` CSS variables on `<html>`, `--font-*` chain in globals
 - Seminova-only radius extensions (`radius-2xl` through `radius-4xl`)
+- Alpha channel on `--border`, `--input`, `--sidebar-border`, and `--border-muted` (compositing borders — hue and lightness on those tokens remain re-skinnable theme)
 
 ### Re-skinnable theme (replace per product)
 
@@ -87,7 +88,7 @@ Token **names** below. Values: see `globals.css` only.
 | `warning`, `warning-foreground`         | `bg-warning`, `text-warning`, `text-warning-foreground`             |
 | `info`, `info-foreground`               | `bg-info`, `text-info`, `text-info-foreground`                      |
 | `border`                                | `border-border`                                                     |
-| elevated surface border                 | `surface-elevated` (rebinds `--border` on card / popover / sidebar) |
+| `border-muted`                          | `bg-border-muted`, `border-border-muted` (dividers)                 |
 | `input`                                 | `border-input`                                                      |
 | `ring`                                  | `ring-ring`                                                         |
 
@@ -211,6 +212,7 @@ When forking Seminova for a new product, change **theme values only** — preser
 3. **Diff-apply values** into `:root` and `.dark` in `src/app/globals.css`:
    - Replace color, font, shadow, radius, and spacing **values**.
    - **Preserve** the `@theme inline` block structure and Seminova-only tokens (`radius-2xl`–`radius-4xl`).
+   - **Preserve the alpha channel** on `--border`, `--input`, `--sidebar-border`, and `--border-muted` — tweakcn exports ship opaque borders; replace hue/lightness only, keep the existing alpha channel.
    - Do not duplicate `@import`, `@custom-variant`, or `@layer base` from the export.
 4. **Update fonts** in `src/app/layout.tsx` if families change — wire new `next/font` loaders and update `--font-*` references in globals. Replace [`src/assets/fonts/Inter-SemiBold.ttf`](src/assets/fonts/Inter-SemiBold.ttf) if social preview images should match the new typeface (see [`src/utils/og-image.tsx`](src/utils/og-image.tsx)).
 5. **Update `components.json`** `baseColor` if the neutral hue family changes (slate vs neutral vs zinc, etc.).
@@ -219,11 +221,12 @@ When forking Seminova for a new product, change **theme values only** — preser
    ```bash
    rg '#[0-9a-fA-F]{3,8}' src/
    rg 'text-(red|green|blue|gray|slate|zinc)-\d+' src/
+   rg '--(border|input|sidebar-border|border-muted):.*oklch\([^/]+\)' src/app/globals.css
    ```
 
    Fix violations to semantic tokens.
 
-7. **Smoke test** light and dark modes: primary actions, destructive states, borders (check card, popover, and sidebar borders in dark mode), focus rings, typography.
+7. **Smoke test** light and dark modes: primary actions, destructive states, borders (check card, popover, and sidebar borders in both themes), focus rings, typography. In dark mode, also check field-fill composites: a field on the page background vs the same field on a card or in the profile modal, at rest and on hover.
 
 This manual workflow is the canonical re-skin path. There is no theme-regeneration skill.
 

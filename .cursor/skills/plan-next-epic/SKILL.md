@@ -12,8 +12,7 @@ Plan Mode only.
 
 ## Read first
 
-1. **[AGENTS.md](../../../AGENTS.md)** — hard constraints
-2. **Planning docs** — [ROADMAP.md](../../../ROADMAP.md) for phase status and the planning horizon; the active phase's PRD in [docs/prds/](../../../docs/prds/) for its epics and stories. Shipped phase detail: the shipped PRD in `docs/prds/`; `docs/archive/` for pre-restructure history
+1. **Planning docs** — [ROADMAP.md](../../../ROADMAP.md) for phase status and the planning horizon; the active phase's PRD in [docs/prds/](../../../docs/prds/) for its epics and stories.
 
 If these don't exist, ask the user where the product roadmap / phase scope lives before planning.
 
@@ -65,11 +64,11 @@ On a **first epic**, open the generated plan with a branch precondition — a ve
 
 Every generated plan must also include this precondition near the top of the body (after the tracking line and any branch precondition):
 
-> **Precondition:** `git status --porcelain` must be empty before the first implementation edit. If dirty, halt and ask the user to commit or stash. The epic must land as a single commit containing only this epic's work — `code-review` derives its range from that commit.
+> **Precondition:** `git status --porcelain --untracked-files=no` must be empty before the first implementation edit. If dirty, halt and ask the user to commit or stash. (Untracked files, e.g. the active plan file in `.cursor/plans/`, are not a halt.) The epic must land as a single commit containing only this epic's work — `code-review` derives its range from that commit.
 
 ## Generated plan todos (frontmatter)
 
-After the story-level todos, always append these two entries. Do **not** include `code-review` or `mark-epic-complete` todos — those are manual follow-ups in fresh agent windows.
+After the story-level todos, always append these two entries. The list ends there — epic close-out is prompted in the Handoff section rather than tracked as a todo.
 
 | Todo id | Purpose |
 |---------|---------|
@@ -82,7 +81,7 @@ Always append these three sections at the end of every generated plan, in order:
 
 ### Verification
 
-Quality bar — [AGENTS.md § Agent workflow](../../../AGENTS.md#agent-workflow) step 3. Stop on failure:
+Quality bar. Stop on failure:
 
 ```bash
 pnpm pre-push
@@ -103,14 +102,19 @@ Authorized by this approved plan:
 
    Format is `Epic: {phase}.{id}` — phase number as written in ROADMAP (decimals OK: `7.5`), epic id as written (`1`, `1A`). Blank line before the trailer, nothing after it. Exactly one commit in the repo may carry a given `Epic:` value.
 3. Commit (request `git_write`). Pre-commit hook runs automatically — if it fails, **fix and retry the commit** (a failed pre-commit hook aborts the commit, so there is nothing to amend).
-4. Verify `git status --porcelain` is empty after commit.
+4. Verify `git status --porcelain --untracked-files=no` is empty after commit.
 
 **Do not push** — push remains `ship-phase`.
 
 ### Handoff
 
-End the run by telling the user:
+Report the epic is committed, then list what's left for the user.
 
-*"Epic committed. Next: open a new agent window and run `/code-review`."*
+When the epic added a migration, that runs first — humans run `pnpm db:push` and `pnpm db:types`; nothing verifies against un-pushed schema. Then, always:
 
-Pass nothing else. `code-review` resolves the epic, its commit, and the baseline from the PRD and git.
+1. Work through the plan's manual verification steps.
+2. Fix and commit anything broken.
+
+Then ask: *"Mark this epic complete?"*
+
+On confirmation, read `.cursor/skills/mark-epic-complete/SKILL.md` and follow it in full, preconditions included — it is user-invoked, so reading the file is this run's only route to it. Without confirmation, end the run; the user can type `/mark-epic-complete` later.

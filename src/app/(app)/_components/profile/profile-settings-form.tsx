@@ -157,6 +157,7 @@ export const ProfileSettingsForm = ({
           </div>
         </div>
 
+        {/* debt: resize-none on the textarea primitive or this call site — native resize grabber */}
         <BlurSaveTextField
           control={form.control}
           name="bio"

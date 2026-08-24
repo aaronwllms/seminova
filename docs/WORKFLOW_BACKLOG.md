@@ -6,7 +6,7 @@
 
 **How to use it.** Each entry is a deferred decision with its reason for deferral and the signal that should bring it back. Pull an item out when its trigger fires; delete it when it's resolved (record the resolution as an [ADR](adr/README.md) if it qualifies).
 
-**Last updated:** 2026-08-22
+**Last updated:** 2026-08-23
 
 ---
 
@@ -32,6 +32,7 @@
   - [Move mechanically-checkable rules to lint (starting with import-direction boundaries)](#move-mechanically-checkable-rules-to-lint-starting-with-import-direction-boundaries)
   - [Build the `absorb-skill-feedback` skill](#build-the-absorb-skill-feedback-skill)
   - [Theme regeneration as skill vs mode](#theme-regeneration-as-skill-vs-mode)
+  - [Retire `docs/archive/`](#retire-docsarchive)
   - [~~Deterministic scripts in agent skills~~](#deterministic-scripts-in-agent-skills) *(resolved)*
 
 ---
@@ -266,6 +267,22 @@ swimlane-beta LR
 **Why deferred:** Unscoped — the skill ships independently of any phase, and the mode-vs-skill call doesn't block anything today. Relocated here from ROADMAP's open questions (2026-07-24): it's a decision about the skill system, not product scope.
 
 **Revisit when:** A dedicated workflow-improvement session, or the next time a spinoff needs re-skinning and the current [DESIGN.md](../DESIGN.md) re-skin workflow proves too manual.
+
+### Retire `docs/archive/`
+
+**What:** Delete `docs/archive/` and its only occupant, `CONTEXT_ARCHIVE.md` (Phases 1–7 epic/story detail carried over from the pre-restructure `CONTEXT.md` planning brief), then remove the guidance governing it. `plan-next-epic` held the last live pointer and it was cut 2026-08-23 — nothing reads the file now. Remaining references: [DOC_RULES.md](DOC_RULES.md) (purpose line, the `archive/` role-table row, rule 6's "never move shipped PRDs into `archive/`" clause, and rule 8 entirely), [`.cursor/rules/documentation.mdc`](../.cursor/rules/documentation.mdc) (layout block, and the first sentence of § Archiving — the rest covers `prds/archive/` and `research/archive/` and stays), [prds/README.md](prds/README.md) ("history lives in the frozen archive"), [`initialize-project`](../.cursor/skills/initialize-project/SKILL.md) (purge bullet), and [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md) (the same bullet in the `initialize-project` touch list).
+
+**Why it matters — inheritance.** `initialize-project` purges the archive's contents in every spinoff. So every product built from this template inherits rule 8, the role-table row, and `documentation.mdc`'s archiving paragraph, all governing an empty directory — guidance that can never fire. A no-op rule propagated to every downstream project, which is the opposite of what the template is for.
+
+**Open question — rule citation brittleness.** Deleting rule 8 renumbers rules 9–14, and those numbers are cited from outside the file (`mark-epic-complete` cites rule 9; WORKFLOW_GUIDE and `promote-backlog-item` cite rule 14; DOC_RULES cites 2, 7, and 14 internally). Three paths: renumber and sweep every citation; delete rule 8's content but keep the slot so 9–14 hold; or stop citing rules by number and cite by name, killing this class of breakage permanently. The third is broader than this item and may deserve its own entry.
+
+**What's lost:** `docs/prds/archive/` starts at phase 8, so `CONTEXT_ARCHIVE.md` is the only product-shaped record of Phases 1–7. Git history keeps the file, and spinoffs never had it, so the loss is Seminova-only.
+
+**Also on record:** the file's header was edited 2026-08-23 to fix a dead link to the deleted `CONTEXT.md` and to correct a stale "append-only" instruction. Rule 8 says never edit the archive; this was a deliberate, approved exception, not tampering.
+
+**Why deferred:** The delete is cheap; the citation sweep across four-plus files is where it goes silently wrong. Surfaced mid-session while trimming `plan-next-epic`, with no deadline forcing it.
+
+**Revisit when:** A dedicated workflow-improvement session, before forking the template (so spinoffs stop inheriting the dead rule), or alongside any other DOC_RULES restructuring where renumbering is already on the table.
 
 ### ~~Deterministic scripts in agent skills~~
 

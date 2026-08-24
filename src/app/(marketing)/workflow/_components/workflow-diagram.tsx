@@ -189,227 +189,258 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
 
   return (
     <div onBlur={handleDiagramBlur}>
-      <svg
-        width="100%"
-        viewBox="0 0 680 496"
-        role="group"
-        aria-labelledby={ariaLabelledBy}
-        aria-describedby="workflow-diagram-detail"
-        className="surface-elevated rounded-xl border"
-        onMouseOver={handleDiagramMouseOver}
-        onMouseLeave={() => setHoveredNodeId(null)}
-      >
-        <desc>
-          Project kickoff and initialize project feed into a phase loop of three
-          centered rows: plan phase and kickoff phase, an epic loop of plan
-          epic, review plan, build, and mark epic complete, then ship phase.
-          Connectors enter and leave the epic loop at its container edges.
-        </desc>
-        <rect x="0" y="0" width="680" height="496" rx="12" fill="var(--card)" />
-        <defs>
-          <marker
-            id="workflow-arrow"
-            viewBox="0 0 10 10"
-            refX="8"
-            refY="5"
-            markerWidth="6"
-            markerHeight="6"
-            orient="auto-start-reverse"
-          >
-            <path
-              d="M2 1L8 5L2 9"
-              fill="none"
-              stroke="var(--muted-foreground)"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </marker>
-        </defs>
-
-        <line
-          x1="330"
-          y1="64"
-          x2="354"
-          y2="64"
-          stroke="var(--muted-foreground)"
-          strokeWidth="1.5"
-          markerEnd="url(#workflow-arrow)"
-        />
-
-        <path
-          d="M431 98 V150 H258 V166"
-          fill="none"
-          stroke="var(--muted-foreground)"
-          strokeWidth="1.5"
-          markerEnd="url(#workflow-arrow)"
-        />
-
-        <rect
-          x="30"
-          y="130"
-          width="620"
-          height="346"
-          rx="12"
-          fill="none"
-          stroke="var(--border)"
-          strokeWidth="1"
-          strokeDasharray="6 4"
-        />
-        <text
-          x="638"
-          y="147"
-          textAnchor="end"
-          fontSize="11"
-          fill="var(--muted-foreground)"
-          fontFamily="sans-serif"
+      <div className="bg-card overflow-hidden rounded-xl border">
+        <svg
+          width="100%"
+          viewBox="0 0 680 496"
+          role="group"
+          aria-labelledby={ariaLabelledBy}
+          aria-describedby="workflow-diagram-detail"
+          onMouseOver={handleDiagramMouseOver}
+          onMouseLeave={() => setHoveredNodeId(null)}
         >
-          ↻ Phase loop
-        </text>
-
-        <line
-          x1="328"
-          y1="200"
-          x2="352"
-          y2="200"
-          stroke="var(--muted-foreground)"
-          strokeWidth="1.5"
-          markerEnd="url(#workflow-arrow)"
-        />
-
-        <path
-          d="M422 234 V246 H339 V252"
-          fill="none"
-          stroke="var(--muted-foreground)"
-          strokeWidth="1.5"
-          markerEnd="url(#workflow-arrow)"
-        />
-
-        <rect
-          x="46"
-          y="252"
-          width="586"
-          height="114"
-          rx="12"
-          fill="none"
-          stroke="var(--border)"
-          strokeWidth="1"
-          strokeDasharray="6 4"
-        />
-        <text
-          x="58"
-          y="268"
-          fontSize="11"
-          fill="var(--muted-foreground)"
-          fontFamily="sans-serif"
-        >
-          ↻ Epic loop
-        </text>
-
-        <line
-          x1="192"
-          y1="312"
-          x2="208"
-          y2="312"
-          stroke="var(--muted-foreground)"
-          strokeWidth="1.5"
-          markerEnd="url(#workflow-arrow)"
-        />
-
-        <line
-          x1="340"
-          y1="312"
-          x2="356"
-          y2="312"
-          stroke="var(--muted-foreground)"
-          strokeWidth="1.5"
-          markerEnd="url(#workflow-arrow)"
-        />
-
-        <line
-          x1="448"
-          y1="312"
-          x2="464"
-          y2="312"
-          stroke="var(--muted-foreground)"
-          strokeWidth="1.5"
-          markerEnd="url(#workflow-arrow)"
-        />
-
-        <path
-          d="M339 366 V390"
-          fill="none"
-          stroke="var(--muted-foreground)"
-          strokeWidth="1.5"
-          markerEnd="url(#workflow-arrow)"
-        />
-
-        {WORKFLOW_LOOP_NODES.map((node) => {
-          const { geometry } = node
-          const centerX = geometry.x + geometry.width / 2
-          const isSpotlightActive = activeNodeId === node.id
-          const isSpotlightDimmed =
-            activeNodeId != null && activeNodeId !== node.id
-          const showRing = ringNodeId === node.id
-          const nodeColors = getNodeColors(node.environment, isSpotlightActive)
-          const environmentName = ENVIRONMENT_LABEL[node.environment]
-          const ariaLabel = node.skill
-            ? `${node.label}, ${node.skill}, ${environmentName}`
-            : `${node.label}, ${environmentName}`
-          const modelLineY =
-            geometry.layout === 'three-line'
-              ? geometry.y + (node.skill ? 54 : 36)
-              : geometry.y + 44
-          const logoWidth = getModelLineLogoWidth(node.environment)
-          const modelUnitWidth =
-            logoWidth +
-            MODEL_LINE_LOGO_GAP +
-            estimateModelLabelWidth(environmentName)
-          const modelUnitLeft = centerX - modelUnitWidth / 2
-
-          return (
-            <g
-              key={node.id}
-              data-node-id={node.id}
-              role="button"
-              tabIndex={0}
-              aria-label={ariaLabel}
-              style={{
-                cursor: 'default',
-                opacity: isSpotlightDimmed ? 0.75 : 1,
-              }}
-              onClick={() => setSelectedNodeId(node.id)}
-              onFocus={() => setFocusedNodeId(node.id)}
-              onKeyDown={handleNodeKeyDown(node.id)}
+          <desc>
+            Project kickoff and initialize project feed into a phase loop of
+            three centered rows: plan phase and kickoff phase, an epic loop of
+            plan epic, review plan, build, and mark epic complete, then ship
+            phase. Connectors enter and leave the epic loop at its container
+            edges.
+          </desc>
+          <defs>
+            <marker
+              id="workflow-arrow"
+              viewBox="0 0 10 10"
+              refX="8"
+              refY="5"
+              markerWidth="6"
+              markerHeight="6"
+              orient="auto-start-reverse"
             >
-              {showRing ? (
-                <rect
-                  x={geometry.x - 3}
-                  y={geometry.y - 3}
-                  width={geometry.width + 6}
-                  height={geometry.height + 6}
-                  rx="10"
-                  fill="none"
-                  stroke={nodeColors.ring}
-                  strokeWidth="2"
-                  pointerEvents="none"
-                />
-              ) : null}
-              <rect
-                x={geometry.x}
-                y={geometry.y}
-                width={geometry.width}
-                height={geometry.height}
-                rx="8"
-                fill={nodeColors.fill}
-                stroke={nodeColors.stroke}
-                strokeWidth={isSpotlightActive ? 1.5 : 1}
+              <path
+                d="M2 1L8 5L2 9"
+                fill="none"
+                stroke="var(--muted-foreground)"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
-              {geometry.layout === 'three-line' ? (
-                <>
+            </marker>
+          </defs>
+
+          <line
+            x1="330"
+            y1="64"
+            x2="354"
+            y2="64"
+            stroke="var(--muted-foreground)"
+            strokeWidth="1.5"
+            markerEnd="url(#workflow-arrow)"
+          />
+
+          <path
+            d="M431 98 V150 H258 V166"
+            fill="none"
+            stroke="var(--muted-foreground)"
+            strokeWidth="1.5"
+            markerEnd="url(#workflow-arrow)"
+          />
+
+          <rect
+            x="30"
+            y="130"
+            width="620"
+            height="346"
+            rx="12"
+            fill="none"
+            stroke="var(--border)"
+            strokeWidth="1"
+            strokeDasharray="6 4"
+          />
+          <text
+            x="638"
+            y="147"
+            textAnchor="end"
+            fontSize="11"
+            fill="var(--muted-foreground)"
+            fontFamily="sans-serif"
+          >
+            ↻ Phase loop
+          </text>
+
+          <line
+            x1="328"
+            y1="200"
+            x2="352"
+            y2="200"
+            stroke="var(--muted-foreground)"
+            strokeWidth="1.5"
+            markerEnd="url(#workflow-arrow)"
+          />
+
+          <path
+            d="M422 234 V246 H339 V252"
+            fill="none"
+            stroke="var(--muted-foreground)"
+            strokeWidth="1.5"
+            markerEnd="url(#workflow-arrow)"
+          />
+
+          <rect
+            x="46"
+            y="252"
+            width="586"
+            height="114"
+            rx="12"
+            fill="none"
+            stroke="var(--border)"
+            strokeWidth="1"
+            strokeDasharray="6 4"
+          />
+          <text
+            x="58"
+            y="268"
+            fontSize="11"
+            fill="var(--muted-foreground)"
+            fontFamily="sans-serif"
+          >
+            ↻ Epic loop
+          </text>
+
+          <line
+            x1="192"
+            y1="312"
+            x2="208"
+            y2="312"
+            stroke="var(--muted-foreground)"
+            strokeWidth="1.5"
+            markerEnd="url(#workflow-arrow)"
+          />
+
+          <line
+            x1="340"
+            y1="312"
+            x2="356"
+            y2="312"
+            stroke="var(--muted-foreground)"
+            strokeWidth="1.5"
+            markerEnd="url(#workflow-arrow)"
+          />
+
+          <line
+            x1="448"
+            y1="312"
+            x2="464"
+            y2="312"
+            stroke="var(--muted-foreground)"
+            strokeWidth="1.5"
+            markerEnd="url(#workflow-arrow)"
+          />
+
+          <path
+            d="M339 366 V390"
+            fill="none"
+            stroke="var(--muted-foreground)"
+            strokeWidth="1.5"
+            markerEnd="url(#workflow-arrow)"
+          />
+
+          {WORKFLOW_LOOP_NODES.map((node) => {
+            const { geometry } = node
+            const centerX = geometry.x + geometry.width / 2
+            const isSpotlightActive = activeNodeId === node.id
+            const isSpotlightDimmed =
+              activeNodeId != null && activeNodeId !== node.id
+            const showRing = ringNodeId === node.id
+            const nodeColors = getNodeColors(
+              node.environment,
+              isSpotlightActive,
+            )
+            const environmentName = ENVIRONMENT_LABEL[node.environment]
+            const ariaLabel = node.skill
+              ? `${node.label}, ${node.skill}, ${environmentName}`
+              : `${node.label}, ${environmentName}`
+            const modelLineY =
+              geometry.layout === 'three-line'
+                ? geometry.y + (node.skill ? 54 : 36)
+                : geometry.y + 44
+            const logoWidth = getModelLineLogoWidth(node.environment)
+            const modelUnitWidth =
+              logoWidth +
+              MODEL_LINE_LOGO_GAP +
+              estimateModelLabelWidth(environmentName)
+            const modelUnitLeft = centerX - modelUnitWidth / 2
+
+            return (
+              <g
+                key={node.id}
+                data-node-id={node.id}
+                role="button"
+                tabIndex={0}
+                aria-label={ariaLabel}
+                style={{
+                  cursor: 'default',
+                  opacity: isSpotlightDimmed ? 0.75 : 1,
+                }}
+                onClick={() => setSelectedNodeId(node.id)}
+                onFocus={() => setFocusedNodeId(node.id)}
+                onKeyDown={handleNodeKeyDown(node.id)}
+              >
+                {showRing ? (
+                  <rect
+                    x={geometry.x - 3}
+                    y={geometry.y - 3}
+                    width={geometry.width + 6}
+                    height={geometry.height + 6}
+                    rx="10"
+                    fill="none"
+                    stroke={nodeColors.ring}
+                    strokeWidth="2"
+                    pointerEvents="none"
+                  />
+                ) : null}
+                <rect
+                  x={geometry.x}
+                  y={geometry.y}
+                  width={geometry.width}
+                  height={geometry.height}
+                  rx="8"
+                  fill={nodeColors.fill}
+                  stroke={nodeColors.stroke}
+                  strokeWidth={isSpotlightActive ? 1.5 : 1}
+                />
+                {geometry.layout === 'three-line' ? (
+                  <>
+                    <text
+                      x={centerX}
+                      y={geometry.y + 18}
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      fontWeight="600"
+                      fontSize="13"
+                      fill={nodeColors.text}
+                      fontFamily="sans-serif"
+                    >
+                      {node.label}
+                    </text>
+                    {node.skill ? (
+                      <text
+                        x={centerX}
+                        y={geometry.y + 36}
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                        fontSize="11"
+                        fontStyle="italic"
+                        fill={nodeColors.text}
+                        fontFamily="sans-serif"
+                      >
+                        {node.skill}
+                      </text>
+                    ) : null}
+                  </>
+                ) : (
                   <text
                     x={centerX}
-                    y={geometry.y + 18}
+                    y={geometry.y + 24}
                     textAnchor="middle"
                     dominantBaseline="central"
                     fontWeight="600"
@@ -419,46 +450,19 @@ export const WorkflowDiagram = ({ ariaLabelledBy }: WorkflowDiagramProps) => {
                   >
                     {node.label}
                   </text>
-                  {node.skill ? (
-                    <text
-                      x={centerX}
-                      y={geometry.y + 36}
-                      textAnchor="middle"
-                      dominantBaseline="central"
-                      fontSize="11"
-                      fontStyle="italic"
-                      fill={nodeColors.text}
-                      fontFamily="sans-serif"
-                    >
-                      {node.skill}
-                    </text>
-                  ) : null}
-                </>
-              ) : (
-                <text
-                  x={centerX}
-                  y={geometry.y + 24}
-                  textAnchor="middle"
-                  dominantBaseline="central"
-                  fontWeight="600"
-                  fontSize="13"
-                  fill={nodeColors.text}
-                  fontFamily="sans-serif"
-                >
-                  {node.label}
-                </text>
-              )}
-              <WorkflowNodeModelLine
-                environment={node.environment}
-                environmentName={environmentName}
-                unitLeft={modelUnitLeft}
-                y={modelLineY}
-                textFill={nodeColors.modelText}
-              />
-            </g>
-          )
-        })}
-      </svg>
+                )}
+                <WorkflowNodeModelLine
+                  environment={node.environment}
+                  environmentName={environmentName}
+                  unitLeft={modelUnitLeft}
+                  y={modelLineY}
+                  textFill={nodeColors.modelText}
+                />
+              </g>
+            )
+          })}
+        </svg>
+      </div>
 
       <Alert
         id="workflow-diagram-detail"
