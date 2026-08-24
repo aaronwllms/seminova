@@ -1,7 +1,7 @@
 # PRD — Phase 19: Surface Coherence & Border Tokens
 
 **Status:** `Active`
-**Last updated:** 2026-08-23
+**Last updated:** 2026-08-24
 
 ---
 
@@ -27,7 +27,7 @@ Token **names** are unchanged, so every vendored shadcn primitive keeps working 
 
 Add `--border-muted` for dividers. The justification is perceptual, not historical: a border encloses, a divider separates *within* an enclosure, and a divider at the same weight as its container's border makes the boundary ambiguous. This is why systems that split, split — Material's `outline` vs `outline-variant`, Primer's `borderColor.default` vs `.muted`. The name is role-based rather than component-based so a table rule or an inset list can reach for the same weight without borrowing a token called "separator," and `border-muted` encodes the weight relationship, which is itself defence against the pairing-by-hand failure mode.
 
-The alpha values themselves are set **by eye in both themes**, not derived. That pass is the phase's only verification and gets its own epic.
+The alpha values themselves are set **by eye in both themes**, not derived. That pass is the phase's only verification and runs as a PM-executed gate between the two epics.
 
 ## Out of scope
 
@@ -37,6 +37,7 @@ The alpha values themselves are set **by eye in both themes**, not derived. That
 - **Moving dialogs to `--popover`.** shadcn assigns `--popover` to floating menu layers and `--background` to dialog / alert-dialog / sheet. Under compositing both are correct, so this is taste — and it would restyle every modal for no systems gain.
 - **Border coverage in the contrast check.** See Notes; the parked debt marker has a stated trigger and this phase does not meet it, and building a compositing resolver is larger than the phase itself.
 - **The two loose findings from the same sweep** — the accordion trigger's horizontal padding breaking the profile modal's content column, and the bio textarea's resize grabber. Both are known fix, known site, no product decision, so they route to `// debt:` markers per DOC_RULES rule 7 rather than into this phase. Neither passes the inclusion test the separator inset passes (see Notes).
+- **A calibration route.** Epic 2 originally built an authenticated route rendering every composite on one screen, on the premise that the pass was not otherwise performable. Once Epic 1 shipped, that premise fell away: every composite is already live on real surfaces, a menu's divider is judged against that menu's own border inside one open menu, and `/admin` puts a sidebar and cards on one screen. The one thing a matrix adds is same-screen sensitivity to small deltas — which this PRD has already ruled out of scope, since any delta the sRGB approximation could flip is not worth acting on. Against that it carried real cost: a mid-epic halt holding uncommitted work across a possible session boundary, a fourth workshop surface for every spinoff to delete, and a coverage-exclusion decision. Recorded here so it is not re-proposed.
 - **A design-system coherence audit.** Everything here was found by walking past it. A real audit is separate and unbounded.
 
 ---
@@ -62,38 +63,44 @@ The alpha values themselves are set **by eye in both themes**, not derived. That
 - The custom rule appears nowhere in the ESLint config, and neither shared union type in `eslint.config.unit.test.ts` retains a member naming it.
 - All four border tokens carry an alpha channel in both `:root` and `.dark`, and the muted token has a bridge entry in `@theme inline`.
 
-### Epic 2: Calibration surface and the by-eye pass
+### Gate: Border weights are set by eye
 
-- **2.1 Anyone re-skinning the template can see every border composite on one screen.** An authenticated route under the app route group renders each cell of the verification matrix in the current theme. This exists because the pass is not otherwise performable: menus and dialogs are both transient overlays and cannot be open simultaneously, and the sidebar and cards do not co-occur on any real screen — so several of the criteria below have no surface to be judged on without it. The route uses live semantic utilities only; it is a **verification** surface, not a comparison grid.
+**Owner: PM. Run manually against the running app, outside any agent session.** Not an epic — it has no plan, no commit, and no code review, and its `Complete` state is not something `mark-epic-complete` can assert. Epic 1 shipped composited tokens at provisional values, so every composite is already painted on a real surface; the pass is a walk through those surfaces, not a build. Values are trialled live by editing the token on `:root` or `.dark` in DevTools, which repaints every consumer at once.
 
-- **2.2 Border and divider weights are set by eye rather than by arithmetic.** Final alpha values are returned from the pass and applied. Every number traded during planning is an approximation (see Notes) — the pass is the actual measurement.
+**Output:** four alpha values — border and muted, one of each per theme — or an explicit *keep provisional*. Epic 2 is not planned until the gate has produced one or the other.
 
-- **2.3 A spinoff's kickoff knows to delete this surface.** The `initialize-project` skill's workshop-surface list names this route explicitly. That list is currently a parenthetical example, and naming the route is the difference between the removal path covering it by convention and covering it by name.
-
-- **2.4 The decision survives as a record.** An ADR scoped narrowly to *borders derive from their surface by compositing, not by per-surface derivation — one value, no surface-token proliferation*, with one sentence on why not derivation, since that is the intuitive approach and someone will re-propose it. Not a rejected-alternatives section: the alternatives are preserved in this PRD. A short LEXICON entry for **composited border** points at it, so "why is there no `surface-card`?" is answerable in one lookup. **Depends on 2.2** — the divider verdict is a live structural outcome of the pass, and an ADR is immutable once accepted.
-
-*Constraints this epic cannot infer:*
-- **No arbitrary or raw values on the route.** Sequential A/B is done by editing the border token on `:root` in DevTools, which repaints every cell live — close enough to simultaneous that a comparison grid should not be reached for.
-- **Inline `style` to evade the semantic-token rule is prohibited outright.** Evading a lint rule's implementation while violating its intent is worse than taking an exemption, precisely because it leaves no trace — a sanctioned exemption is visible in review, an inline style isn't. If simultaneous comparison proves genuinely necessary, it is an exemption in `ui-styling.mdc`, in the open.
-- **The epic halts after 2.1 for a human pass and does not self-certify.** The gate may cross a session boundary. "Verified in both themes" is not a thing this epic may assert on its own.
-- **If a single muted-border value fails in either the dense-menu or the content-divider context, halt and report. Do not introduce a second token.** That would reverse a settled decision, which is a PM call, not something discovered and implemented mid-epic. Same shape as the never-promote rule on `mark-epic-complete`.
-
-*Success:*
-- `pnpm pre-push` is green.
-- The semantic-token check is clean on the new route, and the route's rendered classNames contain no arbitrary values and no inline style colors.
-- The ADR exists in `docs/adr/` and LEXICON.md carries a **composited border** entry pointing at it.
-- In both themes, a border is visible against page, card, popover and sidebar surfaces without any one of them reading heavier than the others on the same screen.
+*What the pass checks:*
+- In both themes, a border is visible against page, card, popover and sidebar surfaces without any one of them reading heavier than the others.
 - In light mode, the sidebar border is visible against the sidebar surface without reading heavier than the card border beside it.
-- In dark mode, field fill is present and equivalent whether a field sits on the page or inside the profile modal, at both the resting and hover opacities — the hover cell is judged by hovering the avatar "Change" button, which is an outline button and always rendered, against an outline button on the calibration route.
+- In dark mode, field fill is present and equivalent whether a field sits on the page or inside the profile modal, at both the resting and hover opacities — the hover case is judged on an outline button, which is always rendered.
 - A divider inside a dropdown reads lighter than that menu's own border, and a divider in the profile modal reads lighter than the modal's border, at the same muted-border value.
 - The toast border is visible against the toast's own fill in both themes.
 - Any delta small enough that it could be an artifact of the approximation described in Notes is left alone rather than tuned.
+
+*Constraints:*
+- `--border`, `--input` and `--sidebar-border` stay at **one shared value per theme**. Only `--border-muted` is tuned separately, which keeps the tuning space to two numbers per theme and preserves the fill-role analysis in Notes.
+- **If a single muted-border value fails in either the dense-menu or the content-divider context, stop. Do not introduce a second token.** That reverses a settled decision, which is a PM call to make before Epic 2 is planned rather than something resolved inside the pass.
+
+### Epic 2: Chosen weights and the composited-border record
+
+- **2.1 The values the phase chose are the values the app ships.** The alphas returned by the gate are written into `:root` and `.dark` in `globals.css`. Values only — no token renames, no changes to the `@theme inline` bridges, no new tokens.
+
+- **2.2 The decision survives as a record.** An ADR scoped narrowly to *borders derive from their surface by compositing, not by per-surface derivation — one value, no surface-token proliferation*, with one sentence on why not derivation, since that is the intuitive approach and someone will re-propose it. Not a rejected-alternatives section: the alternatives are preserved in this PRD. A short LEXICON entry for **composited border** points at it, so "why is there no `surface-card`?" is answerable in one lookup.
+
+*Constraints this epic cannot infer:*
+- **This epic carries no visual judgment.** It starts with values already in hand and does not evaluate them. "Verified in both themes" is the gate's assertion, not this epic's, and there is no halt inside it.
+- **The muted-token question is closed on entry.** Whatever the gate returned is the decision; proposing a second divider token here is out of scope.
+
+*Success:*
+- `pnpm pre-push` is green.
+- All four border tokens carry an alpha channel in both `:root` and `.dark`, and `--border`, `--input` and `--sidebar-border` still share one value per theme.
+- The ADR exists in `docs/adr/` and LEXICON.md carries a **composited border** entry pointing at it.
 
 ---
 
 ## Notes
 
-- **Epic order is fixed.** Epic 2 depends on Epic 1. They belong on the same phase branch — Epic 1 ships provisional values, so there is a window in which the borders have not been looked at by anyone.
+- **Order is fixed: Epic 1 → gate → Epic 2.** Both epics belong on the same phase branch. Epic 1 ships provisional values, so between it and the gate there is a window in which the borders have not been looked at by anyone — that window is why the gate exists and why the phase does not ship out of it.
 
 - **The retirement must be one atomic commit, in order.** Removing the utility first turns every elevated fill outside the vendored primitives into a lint error; removing the rule first leaves the sites carrying a meaningless utility but green. Rule, both config registrations, test surgery, utility, and all call sites land together. The natural instinct is to do the "safe" half first; don't.
 
@@ -115,6 +122,6 @@ The alpha values themselves are set **by eye in both themes**, not derived. That
 
 - **The separator inset rides along; the other sweep findings don't.** The inclusion test is that the work is the *same keystroke* — the menu separators' weight and their inset are the same edit to the same attribute in the same className string, which is being rewritten regardless. Same-file proximity is explicitly not the test: the accordion finding is in a file this phase already touches and still does not qualify, because it is a different element and a different attribute, and "the trigger's text aligns to the modal's content column" is not gradeable against surface coherence. It would land as an orphan criterion, which is the same failure the phase avoided by not folding itself into an unrelated phase.
 
-- **The calibration route is template-scoped, not temporary.** It persists, under the app route group rather than the public one — a public route would need an auth-boundary allowlist edit plus its enforcement, then a revert, which is a hard-constraint round trip for a workshop surface. The template already has a category for surfaces that live here and get deleted by a phase in the spinoff's own roadmap; this is a fourth member of that set, not a new problem. Whether it should eventually graduate to the public reference page as a demo is genuinely open and unjudgeable until the pass has been run once — that goes to BACKLOG.md afterward, not into this phase.
+- **`--sidebar-border`'s scope is settled — no action, and not a defect.** shadcn scopes the token to borders *internal* to the sidebar — headers, groups, dividers — while the sidebar's outer edge is a layout divider between two regions and is owned by `--border`. That is why the vendored shell paints the edge with a bare `border-r`, which resolves through the base layer to `--border`: correct by the namespace's own logic, not an oversight. Consequence for the gate: judge the sidebar edge as a `--border` surface, and note that the only `--sidebar-border` visible in the admin shell is on outline menu buttons in the nav.
 
-- **`check:a11y-structure` applies to the new route** — one `<h1>`, no skipped heading levels. Cheap to satisfy, easy to forget on a bare token grid.
+- **The compositing decision has upstream precedent.** shadcn's own default theme ships `--border` and `--sidebar-border` at identical values, and its dark `--border` is `oklch(1 0 0 / 10%)` — the same shape and very nearly the same number Epic 1 arrived at independently. Worth one sentence in the ADR: this is alignment with the ecosystem, not a local invention.
