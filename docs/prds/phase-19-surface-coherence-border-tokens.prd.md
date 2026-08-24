@@ -88,7 +88,7 @@ The single-muted-value test passed: one value serves both the dense-menu and con
 - `--border`, `--input` and `--sidebar-border` stay at **one shared value per theme**. Only `--border-muted` is tuned separately, which keeps the tuning space to two numbers per theme and preserves the fill-role analysis in Notes.
 - **If a single muted-border value fails in either the dense-menu or the content-divider context, stop. Do not introduce a second token.** That reverses a settled decision, which is a PM call to make before Epic 2 is planned rather than something resolved inside the pass.
 
-### Epic 2: Chosen weights and the composited-border record
+### Epic 2: Chosen weights and the composited-border record `Complete`
 
 - **2.1 The values the phase chose are the values the app ships.** The alphas the gate settled — light `0.14` / `0.105`, dark `0.17` / `0.13` — are written into `:root` and `.dark` in `globals.css`, replacing Epic 1's provisional `0.09` / `0.05` and `0.10` / `0.06`. Values only: no token renames, no changes to the `@theme inline` bridges, no new tokens, and `--border`, `--input` and `--sidebar-border` continue to share one value per theme.
 
