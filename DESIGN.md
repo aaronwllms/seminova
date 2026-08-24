@@ -2,7 +2,7 @@
 
 **Purpose:** Document the token architecture, the structure-vs-theme split, and how to re-skin the template for a new product. For agents: read this for design-system conventions. For hard constraints, see [AGENTS.md](AGENTS.md). For roadmap, see [ROADMAP.md](ROADMAP.md); for active-phase design scope, see [docs/prds/](docs/prds/).
 
-**Last updated:** 2026-08-23
+**Last updated:** 2026-08-24
 
 ---
 
@@ -212,7 +212,7 @@ When forking Seminova for a new product, change **theme values only** — preser
 3. **Diff-apply values** into `:root` and `.dark` in `src/app/globals.css`:
    - Replace color, font, shadow, radius, and spacing **values**.
    - **Preserve** the `@theme inline` block structure and Seminova-only tokens (`radius-2xl`–`radius-4xl`).
-   - **Preserve the alpha channel** on `--border`, `--input`, `--sidebar-border`, and `--border-muted` — tweakcn exports ship opaque borders; replace hue/lightness only, keep the `/ 0.0N` compositing channel.
+   - **Preserve the alpha channel** on `--border`, `--input`, `--sidebar-border`, and `--border-muted` — tweakcn exports ship opaque borders; replace hue/lightness only, keep the existing alpha channel.
    - Do not duplicate `@import`, `@custom-variant`, or `@layer base` from the export.
 4. **Update fonts** in `src/app/layout.tsx` if families change — wire new `next/font` loaders and update `--font-*` references in globals. Replace [`src/assets/fonts/Inter-SemiBold.ttf`](src/assets/fonts/Inter-SemiBold.ttf) if social preview images should match the new typeface (see [`src/utils/og-image.tsx`](src/utils/og-image.tsx)).
 5. **Update `components.json`** `baseColor` if the neutral hue family changes (slate vs neutral vs zinc, etc.).

@@ -6,7 +6,7 @@
 
 **Discipline:** Entries are short — a sentence or two of meaning, plus a pointer to the canonical home (a rule, `DESIGN.md`, [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints), an ADR) where the authoritative detail and any values live. Do not duplicate token values, rule wording, or schema here; point to the source of truth instead.
 
-**Last updated:** 2026-08-21
+**Last updated:** 2026-08-24
 
 ---
 
@@ -16,6 +16,7 @@
   - [Primitive-first](#primitive-first)
   - [Semantic token](#semantic-token)
   - [Structure vs theme](#structure-vs-theme)
+  - [Composited border](#composited-border)
   - [Auth boundary](#auth-boundary)
   - [Admin gate](#admin-gate)
   - [Defense in depth (admin)](#defense-in-depth-admin)
@@ -53,6 +54,10 @@ A design value referred to by _role_, not by raw value — `primary`, `muted-for
 ### Structure vs theme
 
 The split that makes Seminova re-skinnable. _Structure_ — token names, component primitives, the `@theme inline` bridge, the agent workflow — is fixed and inherited by every spinoff. _Theme_ — color/font/radius/shadow values — is replaced per product. Guidance in [`.cursor/rules/ui-styling.mdc`](.cursor/rules/ui-styling.mdc). See [DESIGN.md › Structure vs theme](DESIGN.md#structure-vs-theme).
+
+### Composited border
+
+Border tokens use a semi-transparent neutral — black-alpha in light, white-alpha in dark — so the border derives its contrast from whatever surface it is painted on, without per-surface utilities like `surface-card`. There is no `surface-*` pairing to remember; compositing is the derivation. See [ADR-0011](docs/adr/ADR-0011-composited-borders-not-per-surface-derivation.md).
 
 ### Auth boundary
 
