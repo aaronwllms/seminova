@@ -64,7 +64,7 @@ On a **first epic**, open the generated plan with a branch precondition — a ve
 
 Every generated plan must also include this precondition near the top of the body (after the tracking line and any branch precondition):
 
-> **Precondition:** `git status --porcelain` must be empty before the first implementation edit. If dirty, halt and ask the user to commit or stash. The epic must land as a single commit containing only this epic's work — `code-review` derives its range from that commit.
+> **Precondition:** `git status --porcelain --untracked-files=no` must be empty before the first implementation edit. If dirty, halt and ask the user to commit or stash. (Untracked files, e.g. the active plan file in `.cursor/plans/`, are not a halt.) The epic must land as a single commit containing only this epic's work — `code-review` derives its range from that commit.
 
 ## Generated plan todos (frontmatter)
 
@@ -102,7 +102,7 @@ Authorized by this approved plan:
 
    Format is `Epic: {phase}.{id}` — phase number as written in ROADMAP (decimals OK: `7.5`), epic id as written (`1`, `1A`). Blank line before the trailer, nothing after it. Exactly one commit in the repo may carry a given `Epic:` value.
 3. Commit (request `git_write`). Pre-commit hook runs automatically — if it fails, **fix and retry the commit** (a failed pre-commit hook aborts the commit, so there is nothing to amend).
-4. Verify `git status --porcelain` is empty after commit.
+4. Verify `git status --porcelain --untracked-files=no` is empty after commit.
 
 **Do not push** — push remains `ship-phase`.
 
