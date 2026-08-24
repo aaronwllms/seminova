@@ -1,6 +1,6 @@
 # PRD — Phase 19: Surface Coherence & Border Tokens
 
-**Status:** `Active`
+**Status:** `Shipped`
 **Last updated:** 2026-08-24
 
 ---

@@ -2,7 +2,7 @@
 
 The planning horizon: anticipated phases as thin stubs, plus living status. Uncommitted product ideas live in [BACKLOG.md](BACKLOG.md) until explicitly promoted to a phase here. Shipped phase detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md); workflow gates and hard constraints in [AGENTS.md](AGENTS.md); schema in `supabase/migrations/`. Phase status vocabulary and PRD lifecycle in [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
-**Last updated:** 2026-08-23
+**Last updated:** 2026-08-24
 
 ---
 
@@ -28,7 +28,7 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Unco
 | 16 | Motion System & Table Fetch Feedback | `Shipped` | [Phase 16 PRD](docs/prds/archive/phase-16-motion-system-table-fetch-feedback.prd.md) |
 | 17 | Instruction Budget & Doc Ownership | `Shipped` | [Phase 17 PRD](docs/prds/archive/phase-17-instruction-budget-doc-ownership.prd.md) |
 | 18 | Banner Persistence & Dismissal | `Shipped` | [Phase 18 PRD](docs/prds/archive/phase-18-banner-persistence-dismissal.prd.md) |
-| 19 | Surface Coherence & Border Tokens | `Active` | [Phase 19 PRD](docs/prds/phase-19-surface-coherence-border-tokens.prd.md) |
+| 19 | Surface Coherence & Border Tokens | `Shipped` | [Phase 19 PRD](docs/prds/archive/phase-19-surface-coherence-border-tokens.prd.md) |
 | 20 | Magic Link Auth | `Draft` | — |
 
 > [!NOTE]
