@@ -67,7 +67,14 @@ The alpha values themselves are set **by eye in both themes**, not derived. That
 
 **Owner: PM. Run manually against the running app, outside any agent session.** Not an epic — it has no plan, no commit, and no code review, and its `Complete` state is not something `mark-epic-complete` can assert. Epic 1 shipped composited tokens at provisional values, so every composite is already painted on a real surface; the pass is a walk through those surfaces, not a build. Values are trialled live by editing the token on `:root` or `.dark` in DevTools, which repaints every consumer at once.
 
-**Output:** four alpha values — border and muted, one of each per theme — or an explicit *keep provisional*. Epic 2 is not planned until the gate has produced one or the other.
+**Output — settled 2026-08-24.** The pass was run against the shipped surfaces in both themes: cards and sections on `/workflow` and `/reference`, the avatar dropdown, the profile modal, and the admin sidebar. Values trialled live via DevTools against the running app.
+
+| | `--border` / `--input` / `--sidebar-border` | `--border-muted` |
+| --- | --- | --- |
+| light (black-alpha) | **0.14** | **0.105** |
+| dark (white-alpha) | **0.17** | **0.13** |
+
+The single-muted-value test passed: one value serves both the dense-menu and content-divider contexts in both themes, so the escape hatch below did not fire and no second divider token is needed.
 
 *What the pass checks:*
 - In both themes, a border is visible against page, card, popover and sidebar surfaces without any one of them reading heavier than the others.
@@ -83,7 +90,7 @@ The alpha values themselves are set **by eye in both themes**, not derived. That
 
 ### Epic 2: Chosen weights and the composited-border record
 
-- **2.1 The values the phase chose are the values the app ships.** The alphas returned by the gate are written into `:root` and `.dark` in `globals.css`. Values only — no token renames, no changes to the `@theme inline` bridges, no new tokens.
+- **2.1 The values the phase chose are the values the app ships.** The alphas the gate settled — light `0.14` / `0.105`, dark `0.17` / `0.13` — are written into `:root` and `.dark` in `globals.css`, replacing Epic 1's provisional `0.09` / `0.05` and `0.10` / `0.06`. Values only: no token renames, no changes to the `@theme inline` bridges, no new tokens, and `--border`, `--input` and `--sidebar-border` continue to share one value per theme.
 
 - **2.2 The decision survives as a record.** An ADR scoped narrowly to *borders derive from their surface by compositing, not by per-surface derivation — one value, no surface-token proliferation*, with one sentence on why not derivation, since that is the intuitive approach and someone will re-propose it. Not a rejected-alternatives section: the alternatives are preserved in this PRD. A short LEXICON entry for **composited border** points at it, so "why is there no `surface-card`?" is answerable in one lookup.
 
@@ -123,5 +130,7 @@ The alpha values themselves are set **by eye in both themes**, not derived. That
 - **The separator inset rides along; the other sweep findings don't.** The inclusion test is that the work is the *same keystroke* — the menu separators' weight and their inset are the same edit to the same attribute in the same className string, which is being rewritten regardless. Same-file proximity is explicitly not the test: the accordion finding is in a file this phase already touches and still does not qualify, because it is a different element and a different attribute, and "the trigger's text aligns to the modal's content column" is not gradeable against surface coherence. It would land as an orphan criterion, which is the same failure the phase avoided by not folding itself into an unrelated phase.
 
 - **`--sidebar-border`'s scope is settled — no action, and not a defect.** shadcn scopes the token to borders *internal* to the sidebar — headers, groups, dividers — while the sidebar's outer edge is a layout divider between two regions and is owned by `--border`. That is why the vendored shell paints the edge with a bare `border-r`, which resolves through the base layer to `--border`: correct by the namespace's own logic, not an oversight. Consequence for the gate: judge the sidebar edge as a `--border` surface, and note that the only `--sidebar-border` visible in the admin shell is on outline menu buttons in the nav.
+
+- **The chosen values sit inside the range shipped by comparable systems.** Two relationships were checked against real token sets rather than reasoned about abstractly. **Muted-to-border ratio:** 0.75 here; Radix Colors ships 0.75–0.78 (gray `a6`/`a7`, consistent across both themes) and Primer ships exactly 0.70, implemented as `--borderColor-muted: #d1d9e0b3` — the default border color at 70% opacity. **Dark-to-light multiplier:** 1.21 here; Radix is 1.20, Primer 1.40, shadcn 1.00. There is no single convention on the multiplier — three systems, three answers — but all three place dark at or above light, never below. The ratio and the multiplier are independent decisions and can be revisited separately.
 
 - **The compositing decision has upstream precedent.** shadcn's own default theme ships `--border` and `--sidebar-border` at identical values, and its dark `--border` is `oklch(1 0 0 / 10%)` — the same shape and very nearly the same number Epic 1 arrived at independently. Worth one sentence in the ADR: this is alignment with the ecosystem, not a local invention.
