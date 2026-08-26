@@ -108,5 +108,37 @@ describe('UserAvatar', () => {
         expect(image).toHaveAttribute('src', avatarUrl)
       })
     })
+
+    it('should omit avatar image for unsafe avatarUrl schemes', () => {
+      const { container } = render(
+        <UserAvatar
+          displayName="Alice Smith"
+          email="alice@example.com"
+          avatarUrl="javascript:alert(1)"
+        />,
+      )
+
+      expect(container.querySelector('[data-slot="avatar-image"]')).toBeNull()
+      expect(screen.getByText('AS')).toBeInTheDocument()
+    })
+
+    it('should render previewSrc and prefer it over avatarUrl', async () => {
+      const previewSrc = 'blob:preview.webp'
+
+      const { container } = render(
+        <UserAvatar
+          displayName="Alice Smith"
+          email="alice@example.com"
+          avatarUrl={avatarUrl}
+          previewSrc={previewSrc}
+        />,
+      )
+
+      await waitFor(() => {
+        const image = container.querySelector('[data-slot="avatar-image"]')
+        expect(image).not.toBeNull()
+        expect(image).toHaveAttribute('src', previewSrc)
+      })
+    })
   })
 })

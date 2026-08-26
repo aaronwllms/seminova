@@ -42,7 +42,7 @@ Defense-in-depth on top of the auth proxy — a route accidentally made public c
 
 ## Structured data
 
-[`src/utils/structured-data.ts`](../../src/utils/structured-data.ts) — `Organization` + `WebSite` JSON-LD on the landing page ([`src/app/(marketing)/page.tsx`](../../src/app/(marketing)/page.tsx)). Extend the helper for new schema types; do not inline JSON-LD on pages.
+[`src/utils/structured-data.ts`](../../src/utils/structured-data.ts) — `Organization` + `WebSite` JSON-LD on the landing page ([`src/app/(marketing)/page.tsx`](../../src/app/(marketing)/page.tsx)). `getOrganizationWebSiteJsonLdScript` returns the escaped script body (`<` → `\u003c`), already serialized; pages inject it directly into `dangerouslySetInnerHTML` without stringifying. Extend the helper for new schema types; do not inline JSON-LD on pages.
 
 ## Social preview images
 

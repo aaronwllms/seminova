@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 
-import { getOrganizationWebSiteJsonLd } from '@/utils/structured-data'
+import { getOrganizationWebSiteJsonLdScript } from '@/utils/structured-data'
 import { getSiteUrl } from '@/utils/site-url'
 
 import { LandingFeatures } from './_components/landing-features'
@@ -15,13 +15,13 @@ export const metadata: Metadata = {
 }
 
 export default function Home() {
-  const jsonLd = getOrganizationWebSiteJsonLd(getSiteUrl())
+  const jsonLdScript = getOrganizationWebSiteJsonLdScript(getSiteUrl())
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript }}
       />
       <main id="main-content" className="bg-background">
         <LandingHero />
