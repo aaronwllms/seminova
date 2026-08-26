@@ -145,4 +145,25 @@ describe('ProfileAvatarField', () => {
       screen.queryByRole('button', { name: /^remove$/i }),
     ).not.toBeInTheDocument()
   })
+
+  it('should still offer Remove for an invalid persisted avatar URL', () => {
+    const { container } = render(
+      <ProfileAvatarField
+        avatarUrl="javascript:alert(1)"
+        displayName="Alex"
+        email="alex@example.com"
+        saveState="idle"
+        onSavedComplete={vi.fn()}
+        onUpload={vi.fn()}
+        onRemove={vi.fn()}
+        fileError={null}
+        onFileError={vi.fn()}
+      />,
+    )
+
+    expect(container.querySelector('[data-slot="avatar-image"]')).toBeNull()
+    expect(
+      screen.getByRole('button', { name: /^remove$/i }),
+    ).toBeInTheDocument()
+  })
 })

@@ -8,12 +8,16 @@ interface JsonLdGraphNode {
   sameAs?: string[]
 }
 
-export interface OrganizationWebSiteJsonLd {
+interface OrganizationWebSiteJsonLd {
   '@context': 'https://schema.org'
   '@graph': JsonLdGraphNode[]
 }
 
-export const getOrganizationWebSiteJsonLd = (
+// Unicode-escape `<` so JSON-LD cannot break out of a script tag — not HTML sanitization.
+const serializeJsonLd = (value: OrganizationWebSiteJsonLd): string =>
+  JSON.stringify(value).replace(/</g, '\\u003c')
+
+const buildOrganizationWebSiteJsonLd = (
   siteUrl: URL,
 ): OrganizationWebSiteJsonLd => ({
   '@context': 'https://schema.org',
@@ -32,3 +36,6 @@ export const getOrganizationWebSiteJsonLd = (
     },
   ],
 })
+
+export const getOrganizationWebSiteJsonLdScript = (siteUrl: URL): string =>
+  serializeJsonLd(buildOrganizationWebSiteJsonLd(siteUrl))

@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  isValidBannerLinkHref,
-  parseBannerMessage,
-} from './parse-banner-message'
+import { parseBannerMessage } from './parse-banner-message'
 
 describe('parse-banner-message', () => {
   it('should parse bold segments', () => {
@@ -43,7 +40,6 @@ describe('parse-banner-message', () => {
   })
 
   it('should reject protocol-relative URLs as links', () => {
-    expect(isValidBannerLinkHref('//evil.example')).toBe(false)
     expect(parseBannerMessage('[bad](//evil.example)')).toEqual([
       { type: 'text', content: '[bad](//evil.example)' },
     ])

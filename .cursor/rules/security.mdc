@@ -41,7 +41,8 @@ Use zod at the server boundary per [`forms.mdc`](forms.mdc):
 - ✅ Supabase parameterizes queries automatically
 - ❌ NEVER use raw SQL string concatenation
 - ✅ React escapes JSX automatically
-- ⚠️ Only use `dangerouslySetInnerHTML` with DOMPurify sanitization
+- ❌ NEVER use `dangerouslySetInnerHTML` for HTML; JSON-LD is the one shipped exception and is unicode-escaped by its builder — see `seo.mdc` § Structured data
+- ✅ Render untrusted strings as text; React escapes them. Real HTML rendering is a PM decision — adopt a sanitizer (none installed today) and update this bullet together
 
 ## Supabase Row Level Security (RLS)
 
@@ -85,6 +86,8 @@ Session refresh and auth gating live in `src/proxy.ts` → `src/supabase/proxy.t
 ### Open Redirect Prevention
 
 Use the shipped util `src/utils/is-safe-redirect.ts` — never re-implement redirect validation inline. See the `/auth/confirm` route for usage.
+
+For render-time scheme checks on DB-sourced URLs (avatars, banner links), use `src/utils/is-safe-url-scheme.ts` — allows absolute `http:`/`https:` to any host and same-origin paths; not for login `next` redirects (those require same-origin via `is-safe-redirect.ts`).
 
 ### Security Headers
 

@@ -1,3 +1,5 @@
+import { isSafeUrlScheme } from '@/utils/is-safe-url-scheme'
+
 export type BannerMessageSegment =
   | { type: 'text'; content: string }
   | { type: 'bold'; content: string }
@@ -5,19 +7,6 @@ export type BannerMessageSegment =
 
 const BANNER_MESSAGE_TOKEN_PATTERN =
   /\*\*[^*]+\*\*|\[[^\]]+\]\((?:[^()]|\([^()]*\))*\)/g
-
-export const isValidBannerLinkHref = (href: string): boolean => {
-  if (href.startsWith('/') && !href.startsWith('//')) {
-    return true
-  }
-
-  try {
-    const url = new URL(href)
-    return url.protocol === 'http:' || url.protocol === 'https:'
-  } catch {
-    return false
-  }
-}
 
 export const parseBannerMessage = (message: string): BannerMessageSegment[] => {
   if (message.length === 0) {
@@ -46,7 +35,7 @@ export const parseBannerMessage = (message: string): BannerMessageSegment[] => {
     } else {
       const linkMatch = /^\[([^\]]+)\]\(((?:[^()]|\([^()]*\))*)\)$/.exec(token)
 
-      if (linkMatch && isValidBannerLinkHref(linkMatch[2])) {
+      if (linkMatch && isSafeUrlScheme(linkMatch[2])) {
         segments.push({
           type: 'link',
           content: linkMatch[1],
