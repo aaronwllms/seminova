@@ -18,11 +18,13 @@ file moves. The ROADMAP row mirrors the PRD status at all times; while a phase
 is in flight, the file lives in `docs/prds/`.
 
 1. **Planning** — `phase-planning` creates the PRD; the ROADMAP row flips from
-   `Draft` to `Planning`. Epics and stories are not yet written in.
-2. **Ready** — PM sign-off flips `Planning` to `Ready`; `phase-planning` writes
-   the numbered epics and vertical-slice stories in at this flip, and removes the
-   phase's stub from ROADMAP's **Upcoming phases** section in the same pass (the
-   locked PRD now owns the phase's scope).
+   `Draft` to `Planning`. The file holds whatever has settled so far — epics
+   and stories included, as far as they've been shaped — so a session can end
+   without losing work. Nothing in it is locked.
+2. **Ready** — PM sign-off flips `Planning` to `Ready`; `phase-planning`
+   removes the phase's stub from ROADMAP's **Upcoming phases** section in the
+   same pass (the locked PRD now owns the phase's scope). Every epic carries
+   success criteria and every story a deliverable; no open questions remain.
 3. **Active** — `kickoff-phase` flips `Ready` to `Active` and creates the phase
    branch in the same pass, before any epic is planned. Only
    one phase should be `Active` at a time in practice.
@@ -30,17 +32,66 @@ is in flight, the file lives in `docs/prds/`.
    same pass, **moves the file to [archive/](archive/)**, and updates the
    ROADMAP PRD column to the archived path.
 
+## Sections
+
+Every PRD carries this header and these sections:
+
+```markdown
+# PRD — Phase N: <Name>
+
+**Status:** Planning | Ready | Active | Shipped
+**Last updated:** YYYY-MM-DD
+
+---
+
+## Problem
+## Goal
+## Success
+## Out of scope
+
+---
+
+## Epics & stories
+
+---
+
+## Notes
+```
+
+- **Problem** — what's wrong today, in product terms, and who it's wrong for. A
+  phase promoted from an idea that carried a brief folds that brief's *Problem*,
+  *Who it's for*, and *Why now* into this section, as one statement rather than
+  three.
+- **Goal** — what this phase does about it, and the organizing principle behind
+  the approach.
+- **Success** — the observable outcome that proves the phase worked, at phase
+  level. Distinct from the epic-level success criteria under **Epics &
+  stories**, which are each epic's done bar: every epic's criteria can pass while
+  the phase still misses its outcome.
+- **Out of scope** — what was considered and deliberately excluded, with the
+  reason. A rejected option recorded here is one nobody re-proposes. Options
+  a brief rejected under its *Decided* section land here, one line each; the
+  product-shape decisions it confirmed land in the story each one constrains.
+- **Epics & stories** — written in by `phase-planning`; partial while the PRD
+  is at `Planning`, complete at `Ready`.
+- **Notes** — sequencing constraints between epics, ADR candidates, and anything
+  that fits no other section.
+
+> [!NOTE]
+> PRDs archived before Phase 20 predate the **Success** section and don't carry
+> one. They're frozen records of intent — left as shipped, never retrofitted to a
+> template written after them.
+
 ## What a PRD is — and isn't
 
-- **Forward intent**, in product terms. The problem, the goal, the observable
-  outcome that proves the phase worked.
+- **Forward intent**, in product terms — where the phase is going, not what was
+  built.
 - **No file paths, no code snippets.** They go stale fast and turn a forward spec
   into a brittle as-built record — the exact lifecycle-mixing this restructure
   exists to kill. As-built truth lives in the code and `supabase/migrations/`; history lives in the
   frozen archive.
-- Epics and stories are added by `phase-planning` when the PRD goes `Ready` —
-  that skill owns their shape (vertical-slice stories carrying a deliverable,
-  epic-level success criteria, and epic sizing).
+- **`phase-planning` owns the shape of epics and stories** — vertical-slice
+  stories carrying a deliverable, epic-level success criteria, and epic sizing.
 
 ## Planning models
 

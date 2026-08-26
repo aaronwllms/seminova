@@ -118,3 +118,11 @@ When the epic added a migration, that runs first — humans run `pnpm db:push` a
 Then ask: *"Mark this epic complete?"*
 
 On confirmation, read `.cursor/skills/mark-epic-complete/SKILL.md` and follow it in full, preconditions included — it is user-invoked, so reading the file is this run's only route to it. Without confirmation, end the run; the user can type `/mark-epic-complete` later.
+
+## Report to the user (this run, not the generated plan)
+
+After the plan is written, close the run by telling the user how to get it into the repo — the plan exists only in the editor panel until they do:
+
+1. Click the **⋯** to the right of the **Build** button and choose **Save to workspace** (last item). The file lands in `.cursor/plans/`.
+2. Right-click the plan's editor tab and choose **Copy Path**.
+3. Hand that path to Claude with `plan-review` before building.
