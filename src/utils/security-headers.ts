@@ -1,4 +1,4 @@
-// debt: template-default CSP ships report-only. Enforcing it (CSP_ENFORCE=true) requires nonce-based script handling — a per-request nonce generated in middleware and threaded into both the CSP script-src and Next.js's inline scripts. `script-src 'self'` alone will block Next.js inline bootstrap/streaming scripts under enforcement. Tighten directives AND add the nonce strategy per product surface before setting CSP_ENFORCE=true.
+// debt: script-src cannot be enforced strictly — nonce-based CSP requires dynamic rendering and is incompatible with cacheComponents (https://github.com/vercel/next.js/issues/89754); the enforced script-src is deliberately permissive. Revisit when that issue closes. See docs/research/RESEARCH-0006-csp-enforcement-nextjs-cache-components.md
 
 import { getSupabaseOrigin } from './env'
 
@@ -22,7 +22,7 @@ export const buildCspDirectives = (): string => {
 
   const directives = [
     "default-src 'self'",
-    `script-src 'self' ${VERCEL_ANALYTICS_ORIGIN}`,
+    `script-src 'self' 'unsafe-inline' ${VERCEL_ANALYTICS_ORIGIN}`,
     "style-src 'self' 'unsafe-inline'",
     `img-src ${imgSrc.join(' ')}`,
     "font-src 'self'",
@@ -36,13 +36,8 @@ export const buildCspDirectives = (): string => {
   return directives.join('; ')
 }
 
-const getCspHeaderKey = (): string =>
-  process.env.CSP_ENFORCE === 'true'
-    ? 'Content-Security-Policy'
-    : 'Content-Security-Policy-Report-Only'
-
 export const getSecurityHeaders = (): SecurityHeader[] => [
-  { key: getCspHeaderKey(), value: buildCspDirectives() },
+  { key: 'Content-Security-Policy', value: buildCspDirectives() },
   { key: 'X-Frame-Options', value: 'DENY' },
   {
     key: 'Strict-Transport-Security',

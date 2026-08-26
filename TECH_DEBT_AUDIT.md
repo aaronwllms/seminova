@@ -1,13 +1,13 @@
 # Tech Debt Audit — Seminova
 
 Last full audit: 2026-07-21
-Last synced: 2026-07-22 (sync — verified Open F053/F082/F095; Accepted markers unchanged; tooling counts refreshed)
-Scope: Sync pass — no Open findings resolved; no full-repo rescan.
+Last synced: 2026-08-26 (sync — F053 remaining gap is strict `script-src`, not report-only; F095 styles now enforced with `'unsafe-inline'`; F082/F081 unchanged)
+Scope: Sync pass — CSP enforcement shipped as Option D; no full-repo rescan.
 
 ## Executive summary
 
 - **Phase 14 cleared the actionable audit clusters** — shared debounce/query/unwrap helpers (Epic 1), admin table decomposition into thin components + state hooks (Epics 2–3), settings-registry type derivation and logs filter typing without production casts (Epic 4), actions-layer barrels and split tests (Epic 5), dependency/test/reference hygiene (Epic 6), sharp CVE override (Epic 7). Twenty-six findings moved to Resolved; F066 reclassified as a deep module; F081 reclassified Open/Deferred (advisory cleared, override removal still outstanding).
-- **Open backlog is short** — client-log rate limit before production scale (F082), CSP enforcement + style CSP (F053 / F095) deferred to a future security phase, and removal of the temporary sharp override once stable Next.js catches up (F081).
+- **Open backlog is short** — client-log rate limit before production scale (F082), strict `script-src` + style `'unsafe-inline'` (F053 / F095) deferred until [vercel/next.js#89754](https://github.com/vercel/next.js/issues/89754) closes, and removal of the temporary sharp override once stable Next.js catches up (F081).
 - **Accepted rows are not todos** — intentional design, ceiling-gated markers, and template-scale risks live under **Accepted** with reopen triggers.
 - **Three declared `// debt:` markers in application code** — CSP (F053, Open/Deferred), duplicate profile providers (F061, Accepted), settings row dispatch switch (F062, Accepted).
 - **Quality gates green** — `type-check`, `lint`, and `test:ci` pass (697 tests / 142 files). Coverage thresholds met. No circular deps (`madge src`).
@@ -20,7 +20,7 @@ Data access splits three ways: browser client (RLS), server session client, and 
 
 **Hot paths:** `src/proxy.ts`, `require-auth.ts`, admin users/logs state hooks and their TanStack Query layers, `persistAppLogRow`, profile blur-save, avatar upload.
 
-**Cold corners:** CSP nonce strategy (F053), MSW infrastructure (F072 — Accepted), rate limiting on `/api/client-logs` (F082 — Open/Deferred).
+**Cold corners:** Strict nonce-based `script-src` (F053, blocked by `cacheComponents` / #89754), MSW infrastructure (F072 — Accepted), rate limiting on `/api/client-logs` (F082 — Open/Deferred).
 
 **Largest source files (LOC, excluding tests):** `workflow-diagram.tsx` (485), `banner-setting-row.tsx` (429), `reference-profile-settings-preview.tsx` (~340), `use-admin-users-table-state.ts` (385), `use-admin-logs-table-state.ts` (375).
 
@@ -35,8 +35,8 @@ Actionable backlog only. `Status`: `Do next` | `Deferred` | `Needs decision`.
 | ID   | Status   | Category            | File:Line                                                             | Severity | Description                                                                                                                                                                          | Recommendation                                                                                                               | Effort |
 | ---- | -------- | ------------------- | --------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- | ------ |
 | F082 | Deferred | Security hygiene    | `docs/adr/ADR-0007-client-log-relay-unauthenticated.md:7`             | Low      | Client log relay intentionally ships without rate limiting — public POST surface bounded by closed registry + same-origin check only.                                                | Add path-based rate limit (CDN or middleware) before production scale; ADR documents the seam. Home: pre-production gate.    | M      |
-| F053 | Deferred | Declared debt       | `src/utils/security-headers.ts:1`                                     | Medium   | Template-default CSP ships report-only. Enforcing requires per-request nonce for Next.js inline scripts.                                                                             | Implement nonce in middleware before `CSP_ENFORCE=true`; tighten directives per surface. Home: future security phase.        | L      |
-| F095 | Deferred | Security hygiene    | `src/utils/security-headers.ts:26`                                    | Low      | `style-src 'unsafe-inline'` required for Tailwind — not separately marked with `// debt:`; pairs with F053 enforcement work.                                                         | Revisit when CSP moves to enforcing; may need nonce/hash strategy for styles too. Home: same security phase as F053.         | L      |
+| F053 | Deferred | Declared debt       | `src/utils/security-headers.ts:1`                                     | Medium   | Enforced CSP uses a deliberately permissive `script-src` (`'unsafe-inline'`). Strict nonce-based `script-src` is incompatible with `cacheComponents` ([vercel/next.js#89754](https://github.com/vercel/next.js/issues/89754)). | Revisit when #89754 closes. Home: future security phase.                                                                     | L      |
+| F095 | Deferred | Security hygiene    | `src/utils/security-headers.ts:26`                                    | Low      | `style-src 'unsafe-inline'` required for Tailwind — styles are now enforced with this exception; not separately marked with `// debt:`; pairs with F053.                             | Revisit when strict `script-src` is possible; may need nonce/hash strategy for styles too. Home: same security phase as F053. | L      |
 | F081 | Deferred | Dependency & config | `pnpm-workspace.yaml:12`                                              | Low      | Temporary `sharp: ^0.35.3` override (Phase 14 Epic 7) cleared the libvips advisory; stable Next.js still declares optional `sharp@^0.34.5`, so the override is still load-bearing.   | Remove the override when a stable Next.js release depends on sharp ≥0.35; bump `next`, re-run `pnpm install` / `pnpm audit`, smoke-check `/icon`, OG routes, `next/image`. | S      |
 
 ## Accepted
@@ -58,9 +58,9 @@ Deliberately not doing now. Not a todo list.
 
 ## Top 5
 
-1. **F053 — CSP enforcement** — Largest security ceiling. Middleware nonce before `CSP_ENFORCE=true`. Deferred to a future security phase (Open/Deferred with F095).
+1. **F053 — Strict `script-src`** — Largest security ceiling. Nonce-based CSP blocked by `cacheComponents` ([vercel/next.js#89754](https://github.com/vercel/next.js/issues/89754)). Deferred with F095.
 2. **F082 — Client-log rate limit** — ADR-0007 seam; add before production scale (Open/Deferred).
-3. **F095 + F053 — Style CSP when enforcing** — Plan `unsafe-inline` for Tailwind with the script nonce work.
+3. **F095 + F053 — Style CSP** — `style-src 'unsafe-inline'` still required for Tailwind; styles are enforced with this exception.
 
 ## Quick wins
 

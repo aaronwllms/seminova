@@ -1,13 +1,13 @@
 # Security Audit — seminova
 
 Last full audit: 2026-07-22
-Last synced: 2026-07-22
+Last synced: 2026-08-26
 Scope: Full repo (W1–W7)
 
 ## Executive summary
 
 - **No Critical, High, or open Medium findings.** Prior remediations (S001–S003, S005) remain verified in code.
-- **Open/Deferred — CSP report-only (S004, W6):** Content-Security-Policy ships as report-only unless `CSP_ENFORCE=true`. Home: future security phase (nonce strategy).
+- **Open/Deferred — permissive `script-src` (S004, W6):** CSP is a single enforced header; `script-src` is deliberately permissive (`'unsafe-inline'`) because nonce-based CSP is incompatible with `cacheComponents` ([vercel/next.js#89754](https://github.com/vercel/next.js/issues/89754)). Home: revisit when that issue closes.
 - **Accepted transport gaps (W6):** Unauthenticated `POST /api/client-logs` without app-level rate limit (ADR-0007), `style-src 'unsafe-inline'` for Tailwind, and related template-scale risks live under **Accepted**.
 - **W7 — Dependencies:** `pnpm audit` reports no known vulnerabilities; Next.js 16.2.x, React 19.2.x, and `@supabase/*` 2.x are current at audit time.
 - **Verified sound (W1–W5):** Dual admin gate, owner-scoped `profiles` RLS, admin-gated settings/logs RLS, owner-folder storage RLS, server-only secret key, open-redirect guard, avatar origin check, sanitized auth errors, fail-closed proxy in production, SECURITY DEFINER RPCs with in-function admin gates.
@@ -33,7 +33,7 @@ Actionable backlog only. `Status`: `Do next` | `Deferred` | `Needs decision`.
 
 | ID   | Status   | Category | File:Line                                  | Severity | Description                                                                                                                             | Recommendation                                                                                     | Scenario                                                                                                                                              |
 | ---- | -------- | -------- | ------------------------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| S004 | Deferred | W6       | `src/utils/security-headers.ts:1`, `39-42` | Low      | CSP is emitted as `Content-Security-Policy-Report-Only` unless `CSP_ENFORCE=true`. Inline script protections are not actively enforced. | Nonce-based `script-src` before flipping to enforcing CSP. Home: future security phase (ROADMAP). | Attacker who achieves XSS would not be blocked by CSP today; other layers (React escaping, no user-controlled `dangerouslySetInnerHTML`) are primary mitigations. |
+| S004 | Deferred | W6       | `src/utils/security-headers.ts:1`          | Low      | Enforced CSP uses a deliberately permissive `script-src` (`'self' 'unsafe-inline'` plus Vercel Analytics). External scripts from unlisted origins are blocked; inline injection is not. | Strict nonce-based `script-src` when [vercel/next.js#89754](https://github.com/vercel/next.js/issues/89754) closes. Home: future security phase. | Attacker who achieves XSS via inline injection would not be blocked by CSP `script-src` today; other layers (React escaping, no user-controlled `dangerouslySetInnerHTML`) are primary mitigations. |
 
 ## Accepted
 
@@ -41,7 +41,7 @@ Deliberately not doing now. Not a todo list.
 
 - **Client log relay abuse (ADR-0007):** Unauthenticated, same-origin `POST /api/client-logs` can persist rows at/above `min_log_level` via service client. Bounded by closed key registry, tag namespace, payload caps, retention purge, and threshold — not by request count. **Why accepted:** template scope per ADR. **Reopen when:** production scale or abuse observed — rate-limit at WAF/CDN or in-app (see tech-debt F082).
 - **App-level rate limiting:** Supabase Auth enforces rate limits on sign-in, OTP, and email-send endpoints. Server actions and the client-log relay have no app-level throttle. **Why accepted:** current scope. **Reopen when:** abuse is observed or custom API routes expand.
-- **`style-src 'unsafe-inline'`:** Required for Tailwind inline styles. **Why accepted:** standard Next.js compatibility. **Reopen when:** CSP moves to enforcing mode (pairs with S004 / tech-debt F095).
+- **`style-src 'unsafe-inline'`:** Required for Tailwind inline styles; styles are enforced with this exception. **Why accepted:** standard Next.js compatibility. **Reopen when:** a nonce/hash strategy for styles is viable (pairs with S004 / tech-debt F095).
 - **Client-side avatar resize/validation:** Upload path validates MIME and size in the browser before Supabase upload; bucket-level limits and RLS provide server-side enforcement. **Why accepted:** authenticated users limited to own folder. **Reopen when:** threat model requires server-side image re-encoding.
 - **Admin-configured banner links:** `parseBannerMessage` / `BannerMessage` render admin-set headline/detail with React text nodes and validated http/https or relative hrefs — no raw HTML. **Why accepted:** expected admin trust model. **Reopen when:** non-admin authors can set banner copy.
 
@@ -52,7 +52,7 @@ Deliberately not doing now. Not a todo list.
 - **W3 — Server surface:** All server actions authenticate before mutation — profile via `getUser()` + zod + `.eq('id', user.id)`; admin via `assertAdminCaller()` before session or service client use. Admin role/ban mutations block self-demotion and self-ban. `POST /api/client-logs` validates same-origin (`isSameOriginRelayRequest`), closed key registry, zod schema, and payload caps before forwarding to `appLog`. Auth confirm errors use whitelisted `source` params and fixed copy; auth forms use fallback-first `extractAuthFormError`. No IDOR on profile rows (user id from session, not client-supplied owner id). Landing JSON-LD uses server-built `JSON.stringify` from site config only — not user-controlled HTML.
 - **W4 — Storage:** `avatars` bucket intentionally public-read. Write policies scope to owner folder via `(storage.foldername(name))[1] = auth.uid()`. Bucket `file_size_limit` and `allowed_mime_types` mirror client constants. Client upload verifies session user matches `userId`; `isOwnedAvatarStorageUrl` requires Supabase project origin plus owned path suffix before profile persist.
 - **W5 — Secrets & exposure:** `SUPABASE_SECRET_KEY` referenced only in `src/supabase/service.ts`, `src/utils/env.ts`, and `scripts/admin/` — never in client bundles or `NEXT_PUBLIC_*`. Service client used for admin auth mutations, log persistence, and uncached settings reads — all server/CLI contexts. Admin user list DTO maps RPC rows to id, email, verification/sign-in labels, admin flag, and ban status — not raw `app_metadata`. Admin log rows return explicit column list including `context` jsonb (admin-only surface behind dual gate).
-- **W6 — Transport & abuse hardening:** Security headers applied globally via `next.config.ts` → `getSecurityHeaders()` on `/:path*`. CSP includes `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`; companion `X-Frame-Options: DENY` and HSTS. `script-src` is `'self'` plus Vercel Analytics — no `'unsafe-inline'` or `'unsafe-eval'`. Mutations primarily use `'use server'` actions (Next.js origin verification). `POST /api/client-logs` re-implements origin verification explicitly (ADR-0007). GET `/auth/confirm` is token-bound OTP verification from email links. Unit tests cover CSP header mode and core directives (`security-headers.unit.test.ts`); client-log relay covered by integration tests.
+- **W6 — Transport & abuse hardening:** Security headers applied globally via `next.config.ts` → `getSecurityHeaders()` on `/:path*`. A single enforced `Content-Security-Policy` includes `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`; companion `X-Frame-Options: DENY` and HSTS. `script-src` is `'self' 'unsafe-inline'` plus Vercel Analytics — `'unsafe-inline'` is deliberate (Next hydration; [vercel/next.js#89754](https://github.com/vercel/next.js/issues/89754)); no `'unsafe-eval'`. Remaining gap is strict `script-src` (S004). Mutations primarily use `'use server'` actions (Next.js origin verification). `POST /api/client-logs` re-implements origin verification explicitly (ADR-0007). GET `/auth/confirm` is token-bound OTP verification from email links. Unit tests cover the single enforced CSP header and core directives (`security-headers.unit.test.ts`); client-log relay covered by integration tests.
 - **W7 — Dependency & framework currency:** `pnpm audit` (2026-07-22) reports no known vulnerabilities. Auth-critical packages resolve from the lockfile at patched versions: Next.js 16.2.x, React 19.2.x, `@supabase/ssr` 0.8.x, `@supabase/supabase-js` 2.105.x. No floating semver on security-relevant packages.
 
 ## Human / tooling follow-ups
@@ -63,7 +63,7 @@ Deliberately not doing now. Not a todo list.
 - Manual client-log relay test: cross-origin POST without matching Origin/Referer returns 403; forged tag key outside registry returns 400; verify rows appear only at/above configured `min_log_level`.
 - Manual Realtime test: non-admin authenticated client subscribes to `app_logs` INSERT channel — confirm no row payloads received.
 - Regression: avatar URL with matching path suffix on external host should not persist; stale confirm link shows generic copy only; self-demotion and self-ban blocked.
-- W6: Verify response headers in browser DevTools (CSP-Report-Only, X-Frame-Options, HSTS) on a deployed preview.
+- W6: Verify response headers in browser DevTools (`Content-Security-Policy`, X-Frame-Options, HSTS) on a deployed preview; `Content-Security-Policy-Report-Only` must be absent.
 - W7: Re-run `pnpm audit` before release or after dependency bumps.
 
 ## Open questions
