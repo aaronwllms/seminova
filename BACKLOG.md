@@ -111,6 +111,10 @@ email templates) from the repo instead of the dashboard.
 - **Unverified:** whether `additional_redirect_urls` replaces the whole array or merges.
   A raw PATCH also bypasses the CLI's schema validation.
 
+- **Revisit when:** Supabase ships a usable partial-update path. Blocked on the
+  vendor, not on a decision here — today's CLI is all-or-nothing and the
+  Management API route is unvalidated.
+
 ---
 
 ## Gravatar fallback avatar
