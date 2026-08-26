@@ -15,7 +15,7 @@ redirect. Mutations still call `getUser()` at the trust boundary.
 The original three-authority refresh race (browser + proxy + RSC reads) is
 resolved: RSC refresh was removed; the app now uses Supabase's documented
 two-authority model (browser + proxy), mitigated by refresh-token reuse
-interval and LockManager. See [RESEARCH-0004 §6](../research/RESEARCH-0004-supabase-realtime-session-refresh-nextjs.md).
+interval and LockManager. See [RESEARCH-0004 §6](../research/archive/RESEARCH-0004-supabase-realtime-session-refresh-nextjs.md).
 
 Trade-offs accepted: (1) client soft-navigation may briefly show stale
 authenticated UI until the next server touch — proxy refreshes or redirects on

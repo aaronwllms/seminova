@@ -1,5 +1,9 @@
 # RESEARCH-0004: Supabase session refresh + long-lived Realtime in Next.js App Router
 
+**Archived:** 2026-08-26
+
+**Archived because:** Findings landed in ADR-0005 and ADR-0008; Phase 13 shipped the recommended two-authority refresh model.
+
 **Researched:** 2026-07-19
 
 **Type:** technical
