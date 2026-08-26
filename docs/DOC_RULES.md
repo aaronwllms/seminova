@@ -1,8 +1,8 @@
 # DOC_RULES — File Management Rules
 
-**Purpose:** Invariant doc-maintenance procedure governing the planning docs ([ROADMAP.md](../ROADMAP.md), the PRDs in [prds/](prds/), and the frozen [archive/](archive/)). This is not project state — it applies to every product built from this template. Governs the planning skills (`promote-backlog-item`, `phase-planning`, `kickoff-phase`, `plan-next-epic`, `mark-epic-complete`, `ship-phase`), the research skills (`research`, `archive-research`), and the repo-sync skill (`sync-repo-docs`).
+**Purpose:** Invariant doc-maintenance procedure governing the planning docs ([ROADMAP.md](../ROADMAP.md), the PRDs in [prds/](prds/), and the frozen [archive/](archive/)). This is not project state — it applies to every product built from this template. Governs the planning skills (`write-product-brief`, `promote-backlog-item`, `phase-planning`, `kickoff-phase`, `plan-next-epic`, `mark-epic-complete`, `ship-phase`), the research skills (`research`, `archive-research`), and the repo-sync skill (`sync-repo-docs`).
 
-**Last updated:** 2026-08-22
+**Last updated:** 2026-08-25
 
 ---
 
@@ -16,6 +16,7 @@ This table is authoritative. [AGENTS.md](../AGENTS.md) carries a one-line pointe
 | **[ROADMAP.md](../ROADMAP.md)** | PM / planning chats | Planning horizon: thin phase stubs, phase status, PRD links, and any open questions attached to a stub |
 | **[BACKLOG.md](../BACKLOG.md)** | PM / planning chats | Product ideas — not numbered, not ordered, no PRD; a promoted entry stays until its PRD locks at `Ready` (rule 14) |
 | **[prds/](prds/)** | PM / agents | Per-phase forward intent (problem, goal, scope); epics + stories while a phase is Active. Lifecycle in [prds/README.md](prds/README.md) |
+| **[briefs/](briefs/)** | PM / planning chats | Product briefs — an uncommitted idea's justification (problem, who it's for, why now, what's decided, what success looks like); the substance of a BACKLOG entry once written; consumed and deleted by `phase-planning` at `Ready`; rules in [briefs/README.md](briefs/README.md) |
 | **[AGENTS.md](../AGENTS.md)** | Cursor / coding agents | Hard constraints, agent workflow gates, merge checklist, and change protocol |
 | **[LEXICON.md](../LEXICON.md)** | PM / agents | Architectural vocabulary |
 | **[DESIGN.md](../DESIGN.md)** | PM / agents | Token architecture, structure-vs-theme split, re-skin workflow |
@@ -99,3 +100,5 @@ These rules apply to anyone updating the planning docs — PM or coding agent.
 13. **Propose WORKFLOW_BACKLOG.md entries when they surface.** When a planning conversation deliberately defers a decision about the workflow/skills/docs system itself — not product scope — propose adding it to [WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md) using its existing entry format (What / Why deferred / Revisit when). Product deferrals don't belong here — those route per rule 7.
 
 14. **BACKLOG.md holds uncommitted product ideas; promotion requires explicit PM sign-off.** An idea moves from [BACKLOG.md](../BACKLOG.md) to a numbered ROADMAP.md phase stub only when the PM explicitly commits it in a planning conversation — never inferred or auto-promoted. **The entry survives promotion.** It stays in BACKLOG.md marked `**Promoted:** Roadmap phase "Name"` — by name, not number, since `Draft` numbers renumber — and is deleted at the `Ready` flip per rule 2. The stub carries a pointer to the entry, not a copy of its contents: the constraints, rejected options, and research an entry holds stay in one place until a locked PRD replaces them. The **`promote-backlog-item`** (Claude-side) skill is the procedure that enacts this rule — it renumbers the surrounding `Draft` phases and writes the stub. Promotion requires an existing entry; an idea committed in conversation is written to BACKLOG.md first, then promoted. This rule governs; where the skill disagrees, the skill is wrong.
+
+15. **Product briefs are consumed, not archived.** An idea being explored may carry a brief in [briefs/](briefs/) — its problem, who it's for, why now, what's decided, and what success looks like. `write-product-brief` (Claude-side) creates it, anchored to the idea's [BACKLOG.md](../BACKLOG.md) entry (never a ROADMAP stub — `Draft` numbers renumber), writing the entry first if none exists. An entry carries Notes or a `**Brief:**` pointer, never both: writing the brief absorbs the Notes. `phase-planning` reads the brief into the PRD and deletes it at the `Ready` flip, in the same pass as the stub and entry (rule 2) — a brief that outlives a locked PRD is a second copy of its context, free to drift, while a brief that outlives a `Planning` PRD is still the home for the idea's open questions. Briefs are keyed by idea slug, never by phase number. An idea abandoned before ingestion takes its brief with it: deleting an entry with a `**Brief:**` line deletes the brief in the same edit. Unlike research briefs (rule 11), product briefs are never archived.

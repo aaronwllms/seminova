@@ -6,7 +6,7 @@
 
 **How to use it.** Each entry is a deferred decision with its reason for deferral and the signal that should bring it back. Pull an item out when its trigger fires; delete it when it's resolved (record the resolution as an [ADR](adr/README.md) if it qualifies).
 
-**Last updated:** 2026-08-23
+**Last updated:** 2026-08-25
 
 ---
 
@@ -33,6 +33,7 @@
   - [Build the `absorb-skill-feedback` skill](#build-the-absorb-skill-feedback-skill)
   - [Theme regeneration as skill vs mode](#theme-regeneration-as-skill-vs-mode)
   - [Retire `docs/archive/`](#retire-docsarchive)
+  - [Pre-launch checklist for spinoffs](#pre-launch-checklist-for-spinoffs)
   - [~~Deterministic scripts in agent skills~~](#deterministic-scripts-in-agent-skills) *(resolved)*
 
 ---
@@ -283,6 +284,18 @@ swimlane-beta LR
 **Why deferred:** The delete is cheap; the citation sweep across four-plus files is where it goes silently wrong. Surfaced mid-session while trimming `plan-next-epic`, with no deadline forcing it.
 
 **Revisit when:** A dedicated workflow-improvement session, before forking the template (so spinoffs stop inheriting the dead rule), or alongside any other DOC_RULES restructuring where renumbering is already on the table.
+
+### Pre-launch checklist for spinoffs
+
+**What:** A single pre-launch checklist — everything a project spun off from this template must do before its first real launch — so the steps aren't scattered across skills, rules, and doc prose where a spinoff has to already know they exist. Confirmed items so far: run and remediate [`audit-security`](../.cursor/skills/audit-security/SKILL.md); run and remediate [`audit-tech-debt`](../.cursor/skills/audit-tech-debt/SKILL.md); replace the placeholder support email address in the Supabase email templates. Candidates to confirm when the item is picked up: replace the `/privacy` and `/terms` placeholder pages with real content, set the production `site_url` + redirect allowlist and the SEO base URL, and run the remaining audits (`audit-tests`, `audit-rules`, `audit-seo`).
+
+**Open question — where it lives.** [README.md](../README.md) is the stable pitch; a long operational checklist may not belong in it. Alternative: the checklist lives in `docs/` and README carries a one-line pointer. Settle placement before writing, and confirm the choice against [DOC_RULES.md › Document roles](DOC_RULES.md#document-roles).
+
+**Open question — scope boundary.** The checklist and [`initialize-project`](../.cursor/skills/initialize-project/SKILL.md) both cover "things a spinoff must do," at opposite ends of the lifecycle. Decide what belongs to each so the two don't duplicate, and whether any confirmed item is better enforced as a `check:*` script than as a prose checkbox.
+
+**Why deferred:** The item list isn't complete — the three confirmed entries are the ones that surfaced in conversation, not the result of a pass over the repo. Writing it now would ship a partial checklist that reads as authoritative. Nothing is launching yet, so there's no forcing function.
+
+**Revisit when:** The first spinoff approaches production, or during a workflow-improvement session with budget to sweep the repo for the full item set.
 
 ### ~~Deterministic scripts in agent skills~~
 

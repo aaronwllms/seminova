@@ -2,7 +2,7 @@
 
 **Purpose:** How phases move from idea to shipped code — the tools, the documents, and the workflow. For write discipline and doc-maintenance rules, see [DOC_RULES.md](DOC_RULES.md).
 
-**Last updated:** 2026-08-23
+**Last updated:** 2026-08-25
 
 ---
 
@@ -35,9 +35,11 @@ Seminova's planning system runs across two tools with a hard boundary between th
 The primary handoff artifacts between them:
 
 - **PRD** (`docs/prds/`) — Claude writes it; Cursor builds from it.
-- **Implementation plan** — Cursor generates it as a file in `.cursor/plans/`; you give Claude the file path while invoking `plan-review`, and Claude revises that file in place.
+- **Implementation plan** — Cursor generates it in Plan Mode; you save it into `.cursor/plans/`, give Claude the file path while invoking `plan-review`, and Claude revises that file in place.
 
-**Where the skills live:** Claude-side skills are installed account-wide once — see [WORKFLOW_SETUP.md](WORKFLOW_SETUP.md). Cursor-side skills live in [`.cursor/skills/`](../.cursor/skills/) and are invoked with `/skill-name` in Cursor chat.
+**Where the skills live, and how they fire:** Claude-side skills are installed account-wide once — see [WORKFLOW_SETUP.md](WORKFLOW_SETUP.md). Cursor-side skills live in [`.cursor/skills/`](../.cursor/skills/).
+
+Either side can be invoked explicitly by typing `/skill-name`. The difference is what happens when you don't: Claude-side skills also fire on their own when a request matches what they describe — asking Claude to review a plan invokes `plan-review` without the slash. Most Cursor-side skills in this workflow are deliberately explicit-only, so `/plan-next-epic` and `/kickoff-phase` never start themselves. Steps below that name a slash command mean it.
 
 **Why this way?** [Why split across two tools?](#why-split-tools-instead-of-doing-everything-in-one) · [Why MCP instead of Cowork?](#why-mcp-instead-of-cowork)
 
@@ -133,8 +135,10 @@ Run in a normal agent window — **not** Plan Mode. Creates the `phase-{N}/{slug
 **Step 6 — Plan and review the epic** *(Cursor: `plan-next-epic` ↔ Claude: `plan-review`)*
 This step is a subloop — plan and review go back and forth until Claude signs off, which can take one pass or several:
 
-- **6a.** You invoke `plan-next-epic` in Cursor with **plan mode** active. This generates an implementation plan file in `.cursor/plans/` for the next unbuilt epic in the active PRD. Plans are always written sequentially; if an epic has clearly independent tracks, the plan notes it as a Build-in-Parallel candidate for you to act on.
-- **6b.** Give Claude the plan's file path, invoking `plan-review`. Claude reads the file and reviews it against AGENTS.md hard constraints and the PRD's intent, then runs a second pass against `.cursor/rules/` — violations only, not a walk of the corpus.
+- **6a.** You invoke `plan-next-epic` in Cursor with **plan mode** active. This generates an implementation plan for the next unbuilt epic in the active PRD. Plans are always written sequentially; if an epic has clearly independent tracks, the plan notes it as a Build-in-Parallel candidate for you to act on.
+
+  The plan opens in an editor panel but isn't in the repo yet. Click the **⋯** to the right of the **Build** button and choose **Save to workspace** — the last item in the menu. The file lands in `.cursor/plans/`. Then right-click the plan's editor tab and choose **Copy Path**.
+- **6b.** Give Claude that path, invoking `plan-review`. Claude reads the file and reviews it against AGENTS.md hard constraints and the PRD's intent, then runs a second pass against `.cursor/rules/` — violations only, not a walk of the corpus.
 - **6c.** Before reporting, Claude may need two kinds of input: decisions only you hold (posed as numbered choices — answer with the number), and codebase facts the plan doesn't show (Claude hands you a standalone verification prompt to paste into Cursor; paste Cursor's answer back).
 - **6d.** Claude reports findings, then revises the plan file directly — one describe-and-ask, your yes, the edit lands. If Cursor's verification answer or your decisions change the picture, Claude re-reviews and revises again.
 - **Exit condition:** Claude confirms the plan is good to build. A solid plan includes: (1) a quality gate (`pnpm pre-push`), (2) a **Commit epic** step authorized by the approved plan, and (3) manual verification steps you can work through after the build.
