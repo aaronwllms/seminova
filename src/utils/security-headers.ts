@@ -1,4 +1,4 @@
-// debt: script-src cannot be enforced strictly — nonce-based CSP requires dynamic rendering and is incompatible with cacheComponents (https://github.com/vercel/next.js/issues/89754); the enforced script-src is deliberately permissive. Revisit when that issue closes. See docs/research/RESEARCH-0006-csp-enforcement-nextjs-cache-components.md
+// debt: script-src cannot be enforced strictly — nonce-based CSP requires dynamic rendering and is incompatible with cacheComponents (https://github.com/vercel/next.js/issues/89754); the enforced script-src is deliberately permissive. Revisit when that issue closes. See docs/research/archive/RESEARCH-0006-csp-enforcement-nextjs-cache-components.md
 
 import { getSupabaseOrigin } from './env'
 
