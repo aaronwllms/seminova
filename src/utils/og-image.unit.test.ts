@@ -8,16 +8,9 @@ import { siteConfig } from '@/config/site'
 
 import {
   createOgImageResponse,
-  formatOgPageTitle,
   OG_CONTENT_TYPE,
   OG_IMAGE_SIZE,
 } from '@/utils/og-image'
-
-describe('formatOgPageTitle', () => {
-  it('should apply the site metadata title template', () => {
-    expect(formatOgPageTitle('Login')).toBe(`Login | ${siteConfig.name}`)
-  })
-})
 
 describe('og-image constants', () => {
   it('should export the standard OG image dimensions and content type', () => {

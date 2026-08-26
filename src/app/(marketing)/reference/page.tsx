@@ -1,6 +1,4 @@
-import type { Metadata } from 'next'
-
-import { REFERENCE_PATH } from '@/constants/app-paths'
+import { getPageMetadata } from '@/config/site'
 import { Badge } from '@/components/ui/badge'
 
 import { SiteContainer } from '@/components/site-container'
@@ -11,14 +9,9 @@ import { ReferenceSectionNav } from './_components/reference-section-nav'
 import { ReferenceTableSection } from './_components/reference-table-section'
 import { ReferenceToastSection } from './_components/reference-toast-section'
 
-export const metadata: Metadata = {
-  title: 'Pattern Reference',
-  description:
-    'Live demos of shipped form save models, error surfaces, toast variants, canonical data table, and design tokens your spinoff inherits from Seminova.',
-  alternates: {
-    canonical: REFERENCE_PATH,
-  },
-}
+import { reference } from '../_lib/page-meta'
+
+export const metadata = getPageMetadata(reference)
 
 export default function ReferencePage() {
   return (

@@ -1,18 +1,11 @@
-import type { Metadata } from 'next'
-
-import { TERMS_PATH } from '@/constants/app-paths'
+import { getPageMetadata } from '@/config/site'
 
 import { SiteContainer } from '@/components/site-container'
 import { LegalPlaceholder } from '../_components/legal-placeholder'
 
-export const metadata: Metadata = {
-  title: 'Terms of Service',
-  description:
-    'Placeholder Terms of Service for the Seminova template. Replace with your own policy when you spin off.',
-  alternates: {
-    canonical: TERMS_PATH,
-  },
-}
+import { terms } from '../_lib/page-meta'
+
+export const metadata = getPageMetadata(terms)
 
 export default function TermsPage() {
   return (

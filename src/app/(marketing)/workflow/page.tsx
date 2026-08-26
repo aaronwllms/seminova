@@ -1,6 +1,4 @@
-import type { Metadata } from 'next'
-
-import { WORKFLOW_PATH } from '@/constants/app-paths'
+import { getPageMetadata } from '@/config/site'
 import { Badge } from '@/components/ui/badge'
 
 import { SiteContainer } from '@/components/site-container'
@@ -11,14 +9,9 @@ import { WorkflowPlanReviewSection } from './_components/workflow-plan-review-se
 import { WorkflowSectionNav } from './_components/workflow-section-nav'
 import { WorkflowTwoEnvironmentsSection } from './_components/workflow-two-environments-section'
 
-export const metadata: Metadata = {
-  title: 'PM + Agent Workflow',
-  description:
-    'How Seminova splits planning and implementation across two environments, which documents each side owns, and the plan-review-build loop your spinoff inherits.',
-  alternates: {
-    canonical: WORKFLOW_PATH,
-  },
-}
+import { workflow } from '../_lib/page-meta'
+
+export const metadata = getPageMetadata(workflow)
 
 export default function WorkflowPage() {
   return (
