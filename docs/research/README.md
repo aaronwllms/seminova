@@ -37,7 +37,8 @@ active `RESEARCH-*.md` files in the same message. @-mention is required; typed
 paths are not accepted.
 
 Archived briefs live in [archive/](archive/) and are **frozen** — never
-refreshed by `/research`. Archive-only metadata:
+refreshed by `/research`. The one sanctioned edit to a frozen brief is a link
+repath, when archiving another brief it references. Archive-only metadata:
 
 **Cursor indexing:** `docs/research/archive/` is in [`.cursorindexingignore`](../../.cursorindexingignore) — excluded from @Codebase search, still readable via @-mention. See [`.cursor/README.md` › Ignore files](../../.cursor/README.md#ignore-files-repo-root).
 
@@ -47,8 +48,9 @@ refreshed by `/research`. Archive-only metadata:
 **Archived because:** optional — why this brief was retired
 ```
 
-Check inbound links before archiving; the skill reports references but does not
-rewrite them unless you ask.
+The skill repaths links itself — both references elsewhere in the repo pointing
+at the brief, and relative links inside the brief that the move pushes one
+directory deeper. It reports what it rewrote.
 
 ## Format
 

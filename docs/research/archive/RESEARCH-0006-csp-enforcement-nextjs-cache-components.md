@@ -1,5 +1,7 @@
 # RESEARCH-0006: CSP enforcement vs. Cache Components in Next.js 16
 
+**Archived:** 2026-08-26
+
 **Researched:** 2026-08-26
 
 **Type:** technical
@@ -236,30 +238,63 @@ template default.
 
 1. **Whether to collect enforced violation reports.** Not "where does report-only
    noise go" — that channel is gone (§7). The live question is whether to learn
-   when enforcement blocks something for a *real user* in production, which is
-   otherwise invisible. `report-uri` is deprecated in favor of
-   `report-to`/Reporting API; Vercel provides no collector; a self-hosted route
-   handler on a public template is an unauthenticated write endpoint needing rate
-   limiting, payload validation, storage, and retention — all inherited by every
-   spinoff. **Current lean: do not build it.** `app_logs` and the admin logs
-   surface already exist, so routing violations there later is a small addition
-   rather than a new subsystem. Recorded, not scheduled.
-2. **Policy not yet tested.** The single enforced policy has not been run. Test
-   against a **production build locally** (dev mode uses `eval`, producing
-   refusals production would not): `pnpm build && pnpm start`. `headers()` in
-   `next.config.ts` is evaluated at build time and baked into the routes
-   manifest, so a running dev server will not pick it up. Walk: a marketing page
-   (fonts/styles), login (Supabase `connect-src`), admin logs with live toggle on
-   (websockets), a profile with an avatar (`img-src` against Supabase storage).
-   With no report-only header, **every** refusal is a real break.
+   when enforcement blocks something for a *real user* on a browser we don't
+   have, which is otherwise invisible.
+
+   **Not a new subsystem.** [ADR-0007](../adr/ADR-0007-client-log-relay-unauthenticated.md)
+   already built and accepted the shape this needs: a public route handler at a
+   stable path, payload validation, size-capped context, a server-constructed tag
+   the caller cannot forge, threshold gating, scheduled retention purge, and an
+   explicit decision to ship **no** template rate limit — documented exposure, WAF
+   rule on the path for spinoffs that want a hard limit. A CSP collector is a
+   second handler beside `POST /api/client-logs`, not a second subsystem. Earlier
+   drafts of this brief priced it as new work; that was wrong.
+
+   **Two design questions that do not transfer, and must be answered before
+   building:**
+
+   - **Origin check.** `client-logs` gates on `isSameOriginRelayRequest`. CSP
+     reports are emitted by the browser's reporting infrastructure, not by our
+     `fetch` — `report-to` posts `application/reports+json` on its own schedule,
+     batched. Whether a usable `Origin` arrives is unverified. If it does not, the
+     relay's one integrity control is absent and something else has to bound the
+     endpoint.
+   - **Volume.** `client-logs` is bounded because its call sites are a closed set
+     declared in [`client-log-registry.ts`](../../src/config/client-log-registry.ts).
+     CSP reports fire whenever a browser decides a directive was violated — one
+     row per page load per user if a directive is wrong. That is §7's "permanent
+     noise buries signal" failure returning, now costing rows instead of console
+     lines, and ADR-0007's accepted "anyone can insert at any rate" gains a
+     second, browser-triggered amplifier.
+
+   **Deferred on production traffic, not on cost.** The policy is now verified
+   (#2), so the earlier blocker is gone. What remains is that there are no
+   production users yet — a collector with no traffic collects nothing. Reopen at
+   production scale, alongside the client-log rate limit (`TECH_DEBT_AUDIT.md`
+   F082), which shares the endpoint class and the trigger.
+
+   **Living home:** [BACKLOG.md](../../BACKLOG.md) § CSP violation report
+   collector. Recorded here, tracked there.
+2. **Policy tested — verified 2026-08-26.** The single enforced policy was run
+   against a **production build locally** (`pnpm build && pnpm start`) and the
+   walk completed with no refusals: a marketing page (fonts/styles), login
+   (Supabase `connect-src`), admin logs with live toggle on (websockets), and a
+   profile with an avatar (`img-src` against Supabase storage). Dev mode was not
+   used for this, since it emits `eval` refusals production would not, and
+   `headers()` in `next.config.ts` is baked into the routes manifest at build
+   time. Resolved.
 3. **Revisit trigger.** #89754 closing, or a Next release adding nonce access that
    does not require `headers()` in the layout. `next@16.3` shipped as a minor with
    no breaking changes (Instant Navigations, Partial Prefetching, dev-server
    performance) and did **not** touch this.
 
-4. **OG/canonical URLs unverified.** `NEXT_PUBLIC_SITE_URL` feeds `getSiteUrl()`
-   → metadata and the `check:seo-base-url` gate. Confirm production emits
-   `https://seminova.dev` and not a `.vercel.app` URL. Deferred by PM.
+4. **OG/canonical URLs — verified 2026-08-26.** Production emits
+   `https://seminova.dev`, not a `.vercel.app` URL: `og:image` resolves against
+   `metadataBase` to the `seminova.dev` origin, confirming `NEXT_PUBLIC_SITE_URL`
+   is correct in the deployed environment. Two OG problems surfaced during that
+   check and were fixed separately — an `ENOENT` crash in OG image generation
+   (font not traced into the serverless bundle) and missing `og:url` /
+   `og:site_name` tags. Neither was this question. Resolved.
 
 5. **Installed Next version — confirmed `16.2.9`** (`pnpm list next`, 2026-08-26).
    The dependency update applied that day did not bump Next. Resolved.
@@ -276,7 +311,8 @@ template default.
 
 ### Repo facts confirmed (not ADRs)
 
-- `src/utils/security-headers.ts` — CSP construction; stale `// debt:` comment
+- `src/utils/security-headers.ts` — CSP construction; `// debt:` comment naming the
+  permissive `script-src` ceiling
 - `next.config.ts` — `cacheComponents: true`; `headers()` attaches CSP
 - `src/app/layout.tsx` — `next-themes` `ThemeProvider`, `suppressHydrationWarning`
 - `src/proxy.ts` — exists already, Supabase session refresh + matcher
@@ -289,12 +325,11 @@ template default.
 
 ## Related
 
-- `SECURITY_AUDIT.md` S004 — to be updated by the implementing change; the
+- `SECURITY_AUDIT.md` S004 — updated 2026-08-26 by the implementing change; the
   remaining gap is a permissive `script-src`, not "CSP is report-only"
-- `.cursor/plans/enforce_single_csp_header_3fcd572d.plan.md` — the implementing plan
+- `.cursor/plans/archive/enforce_single_csp_header_3fcd572d.plan.md` — the implementing plan
 - **No ADR.** Rationale in Recommendation. If #89754 closes and the decision
   becomes "enforce `script-src` with a nonce and give up `cacheComponents`,"
   *that* would clear the ADR bar — hard to reverse, surprising, and a real
   trade-off.
-- The `// debt:` marker in `src/utils/security-headers.ts` points at this brief.
-  **If this brief is archived, that pointer must be updated to the archive path.**
+- The `// debt:` marker in `src/utils/security-headers.ts` points at this brief at its archive path.

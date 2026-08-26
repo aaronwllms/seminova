@@ -2,7 +2,7 @@
 
 **Purpose:** How phases move from idea to shipped code — the tools, the documents, and the workflow. For write discipline and doc-maintenance rules, see [DOC_RULES.md](DOC_RULES.md).
 
-**Last updated:** 2026-08-25
+**Last updated:** 2026-08-26
 
 ---
 
@@ -53,6 +53,7 @@ Full roles table and write discipline are authoritative in [DOC_RULES.md](DOC_RU
 | -------- | ---------- |
 | `ROADMAP.md` | Thin phase stubs — the planning horizon of confirmed phases. One row per phase with status and a PRD link. |
 | `BACKLOG.md` | Uncommitted product ideas — unordered, unnumbered, no PRD. Promoted to a numbered ROADMAP stub only on explicit sign-off, via `promote-backlog-item`. |
+| `docs/briefs/` | One brief per uncommitted idea — the problem, who it's for, why now, what's decided. Anchored to a `BACKLOG.md` entry; read into the PRD and deleted at the `Ready` flip. Consumed, never archived. |
 | `docs/prds/` | One PRD per phase — forward intent, epics, and stories. Moves to `docs/prds/archive/` on ship. |
 | `AGENTS.md` | Hard constraints, agent workflow gates, merge checklist, and change protocol. Cursor's primary governance reference. |
 | `LEXICON.md` | Shared architectural vocabulary. Inherited by every spinoff; spinoffs add domain terms on top. |
@@ -125,7 +126,11 @@ After `initialize-project` completes, the repo is a real project, not a template
 Once the project is initialized, the phase-by-phase loop begins — one phase planned, built, and shipped before the next gets a deep pass.
 
 **Step 4 — Plan the phase** *(Claude-side skill: `phase-planning`)*
-Claude reads ROADMAP, AGENTS.md (hard constraints), and the phase's ROADMAP stub — including any open questions attached to it — then works with you to decompose the target phase into numbered epics and vertical-slice stories. Each story carries a success condition — the observable behavior that proves it's done, in product terms. The decomposition is shaped in chat during `Planning` and written into the PRD at the `Ready` flip; Claude writes the PRD only when you ask. The `Ready` flip also removes the phase's stub from ROADMAP — the locked PRD owns the scope from that point on.
+Claude reads ROADMAP, AGENTS.md (hard constraints), and the phase's ROADMAP stub — including any open questions attached to it — then works with you to decompose the target phase into numbered epics and vertical-slice stories.
+
+If the stub carries a `Source:` line, Claude follows it to the `BACKLOG.md` entry and to that entry's brief in `docs/briefs/` — the idea's settled problem, constraints, and rejected options, so the phase grill opens on what's already decided rather than rediscovering it. A brief still marked `Exploring` is a question for you before planning proceeds, not material to ingest as settled.
+
+Each story carries a success condition — the observable behavior that proves it's done, in product terms. The decomposition is shaped in chat during `Planning` and written into the PRD at the `Ready` flip; Claude writes the PRD only when you ask. The `Ready` flip also clears the phase's inputs — the ROADMAP stub, the source `BACKLOG.md` entry, and its brief all go, after a last read to confirm anything still worth keeping made it into the PRD. The locked PRD owns the scope from that point on.
 
 Phase status moves: `Draft → Planning` (PRD created, scope being shaped) → `Ready` (locked, approved to build). The `Active` flip is Step 5.
 
@@ -180,13 +185,17 @@ Repeat Steps 4–8 for each phase.
 
 Not part of the numbered loop above, but operate on the planning docs rather than repo code:
 
-**`promote-backlog-item`** *(Claude-side)* — moves one `BACKLOG.md` idea to a numbered `ROADMAP.md` phase stub: renumbers the Draft phases around it, harvests the entry's constraints and prerequisites into open questions on the stub, and deletes the entry. Enacts [DOC_RULES.md](DOC_RULES.md) rule 14 — promotion requires your explicit sign-off, never inferred. Stops at the stub; `phase-planning` decomposes it later.
+**`write-product-brief`** *(Claude-side)* — captures an uncommitted idea's justification — the problem, who it's for, why now, what's decided, and what success looks like — as a brief in `docs/briefs/`, anchored to a `BACKLOG.md` entry and writing that entry first if none exists. Grills the four sections no other planning document asks for. Enacts [DOC_RULES.md](DOC_RULES.md) rule 15: `phase-planning` reads the brief into the PRD and deletes it at the `Ready` flip — product briefs are consumed, never archived.
+
+**`promote-backlog-item`** *(Claude-side)* — moves one `BACKLOG.md` idea to a numbered `ROADMAP.md` phase stub: renumbers the Draft phases around it and writes a three-part stub — heading, a fresh line of intent, and a `Source:` pointer back to the entry. The entry itself survives promotion, unedited, marked `**Promoted:** Roadmap phase "Name"` (by name, since Draft numbers renumber); `phase-planning` reads it in full and deletes it — with its brief, if it has one — at the `Ready` flip. Enacts [DOC_RULES.md](DOC_RULES.md) rule 14 — promotion requires your explicit sign-off, never inferred. Stops at the stub; `phase-planning` decomposes it later.
 
 **`lexicon-audit`** *(Cursor-side)* — scans the codebase for LEXICON.md candidate terms and drift between the lexicon and actual usage. Read-only, chat output only — does not write to LEXICON.md. Run when you want a health check on the lexicon or suspect terminology drift. To act on findings, use `lexicon-update`.
 
 **`lexicon-update`** *(Claude-side)* — writes or sharpens a `LEXICON.md` entry: when a new concept crystallizes during `phase-planning`, a term is being used inconsistently, or a `lexicon-audit` finding needs acting on. The active counterpart to `lexicon-audit`'s read-only scan.
 
 **`create-mockup`** *(Claude-side)* — builds a static UI mockup as an inline widget, iterates on your feedback, and saves the approved version to `docs/mockups/`. Invoked ad hoc ("mock up this screen") or by `phase-planning` when a story's UI is worth seeing before build, with the file path written into the story. The static-only rule (mockups, not clickable prototypes) is defined in the skill itself.
+
+**`grill-me`** *(Claude-side)* — a bounded interview that stress-tests a design until each topic settles. Usable ad hoc ("grill me on this"), but in this workflow it's a dependency rather than a step: `project-kickoff`, `phase-planning`, and `write-product-brief` each invoke it scoped to their own set of questions. Install it if you install any of the three.
 
 **`research`** *(Cursor-side)* — investigates a product, technical, competitive, or codebase question; persists findings to `docs/research/` (Document mode, default) or delivers in chat only (Chat mode). Docs-only — never edits product code. Invoke with `/research`.
 
@@ -209,7 +218,7 @@ For repo-maintenance and quality skills (security audits, tech-debt audits, desi
 
 These ship in the repo and are usable, but are not documented steps. Step 7 ends at `/mark-epic-complete`; these sit beside it while they're being proven or retired.
 
-- **`code-review`** *(Cursor-side)* — two-axis (Standards + Spec) review of an epic commit. Takes no arguments; resolves the epic from the PRD and the `Epic:` trailer. Genuinely useful, but its severity grading and citation accuracy still need refinement before it earns a numbered step — `code-review-review` exists because of that.
+- **`code-review`** *(Cursor-side)* — two-axis (Standards + Spec) review of an epic commit. Takes no arguments; resolves the epic from the PRD and the `Epic:` trailer. The two axes run as parallel readonly subagents defined in [`.cursor/agents/`](../.cursor/agents/), so neither pollutes the other's context; the skill dispatches them, and they're never invoked directly or automatically. Genuinely useful, but its severity grading and citation accuracy still need refinement before it earns a numbered step — `code-review-review` exists because of that.
 - **`pre-release-review`** *(Cursor-side)* — scoped static review before a PR: automated gates, security pass, hard constraints, manual test checklist. Overlaps `code-review` and the build plan's quality gate; whether it earns a named step is a [WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md) item.
 - **`code-review-review`** *(Claude-side)* — adversarial audit of a `/code-review` report: re-derives each severity against `grading.md`, checks citations, routes code-truth questions back to Cursor, ends in a fix prompt.
 - **`collect-skill-feedback`** *(Claude-side)* — appends a settled audit's findings to `docs/skill-feedback/<skill>.md`, gap/slip-tagged. The read side (`absorb-skill-feedback`) is a [WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md) item.
@@ -242,9 +251,8 @@ Pick model and effort by what the skill actually does *and* how much budget head
 | `plan-review` | Sonnet 5, xhigh | **Opus 5, xhigh** |
 | `code-review-review` | Sonnet 5, high | Opus 5, high |
 | `phase-planning` | Sonnet 5, high | Opus 5, high |
-| `orchestrator` — planning chat | Sonnet 5, high | Opus 5, high |
-| `orchestrator` — executor chats | Haiku 4.5, low | Sonnet 5, medium |
 | `project-kickoff` | Sonnet 5, medium | Sonnet 5, high |
+| `write-product-brief` | Sonnet 5, medium | Sonnet 5, high |
 | `promote-backlog-item` | Sonnet 5, low | Sonnet 5, medium |
 | `create-mockup` | Sonnet 5, low | Sonnet 5, medium |
 | `grill-me`, `lexicon-update` | — | inherit the session |
@@ -265,7 +273,7 @@ Pick model and effort by what the skill actually does *and* how much budget head
 
 **Why `plan-review` gets the highest effort.** It's the only skill running two full passes in one turn: independent engineering judgment across five failure categories, then a sweep of ~23 rule files (~26k tokens) with severity derived per-rule. Effort is the direct lever on the attention dilution that creates. `xhigh` rather than `max` because it runs every epic.
 
-**Why `project-kickoff` isn't judgment-heavy.** It's capped at wide-but-shallow by design — no epic decomposition — so its value is elicitation quality, not reasoning depth. Sonnet handles it. Bump to Opus only if you'd rather not re-do a roadmap.
+**Why the elicitation skills aren't judgment-heavy.** `project-kickoff` is capped at wide-but-shallow by design — no epic decomposition — and `write-product-brief` grills four bounded sections and leaves the solution shape to `phase-planning`. Both are valued on elicitation quality, not reasoning depth, and Sonnet handles that. Bump to Opus only if you'd rather not re-do a roadmap, or if the brief is seeding a phase you're confident about.
 
 **Effort and extended thinking are separate settings.** Effort controls how hard Claude works; the thinking toggle controls whether you see it. Extended thinking can't be disabled on Opus 5.
 

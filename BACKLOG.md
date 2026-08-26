@@ -111,6 +111,10 @@ email templates) from the repo instead of the dashboard.
 - **Unverified:** whether `additional_redirect_urls` replaces the whole array or merges.
   A raw PATCH also bypasses the CLI's schema validation.
 
+- **Revisit when:** Supabase ships a usable partial-update path. Blocked on the
+  vendor, not on a decision here — today's CLI is all-or-nothing and the
+  Management API route is unvalidated.
+
 ---
 
 ## Gravatar fallback avatar
@@ -137,3 +141,28 @@ of initials.
 
 **What:** Let a signed-in user change their account email from the profile modal,
 alongside the existing display name, bio, avatar, and password fields.
+
+---
+
+## CSP violation report collector
+
+**What:** Collect enforced Content-Security-Policy violation reports from real
+browsers and route them into `app_logs`, surfaced on the existing admin logs page.
+
+**Notes:**
+
+- **Not a new subsystem:** ADR-0007 already ships the shape — public route handler,
+  payload validation, size caps, server-constructed tag, retention purge, no rate limit.
+
+- **Deferred on traffic, not cost:** the enforced policy was verified locally
+  2026-08-26; with no production users there is nothing yet to collect.
+
+- **Open — origin check:** `client-logs` gates on `isSameOriginRelayRequest`. Reports
+  arrive from the browser's reporting infrastructure, batched — unverified whether a
+  usable `Origin` comes with them.
+
+- **Open — volume:** `client-logs` is bounded by a closed registry of call sites. The
+  browser decides when to send a report, so a wrong directive costs a row per page load
+  per user.
+
+- **Research:** [RESEARCH-0006](docs/research/archive/RESEARCH-0006-csp-enforcement-nextjs-cache-components.md)

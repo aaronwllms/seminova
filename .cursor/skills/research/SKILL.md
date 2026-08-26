@@ -3,7 +3,7 @@ name: research
 description: >-
   Investigates a product, technical, competitive, or codebase question;
   persists findings to docs/research/ (Document mode) or delivers in chat
-  (Chat mode). Invoke with /research.
+  (Chat mode).
 disable-model-invocation: true
 ---
 
@@ -24,7 +24,7 @@ not run file writes in Ask mode.
   artifacts at repo root, not exploratory briefs
 - **`plan-next-epic`** — implementation planning from an active PRD
 - **`archive-research`** — retires served briefs to `docs/research/archive/`
-  (PM @-attached files only; frozen)
+  (user @-attached files only; frozen)
 - **`sync-repo-docs`** — syncs README, DESIGN.md, and the rules index
 
 ---

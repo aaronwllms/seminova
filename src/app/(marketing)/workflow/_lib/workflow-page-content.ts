@@ -68,6 +68,23 @@ export const WORKFLOW_DOCUMENTS = [
       'Thin phase stubs — the planning horizon with status and PRD links.',
   },
   {
+    name: 'BACKLOG.md',
+    repoPath: 'BACKLOG.md',
+    url: workflowRepoUrl('blob', 'BACKLOG.md'),
+    writtenBy: 'Claude Desktop',
+    readBy: 'Claude Desktop',
+    purpose: 'Uncommitted product ideas — no order, no numbers, no PRD.',
+  },
+  {
+    name: 'docs/briefs/',
+    repoPath: 'docs/briefs',
+    url: workflowRepoUrl('tree', 'docs/briefs'),
+    writtenBy: 'Claude Desktop',
+    readBy: 'Claude Desktop',
+    purpose:
+      'Per-idea justification — the problem, the audience, and what is already decided.',
+  },
+  {
     name: 'docs/prds/',
     repoPath: 'docs/prds',
     url: workflowRepoUrl('tree', 'docs/prds'),

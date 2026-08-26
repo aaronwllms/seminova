@@ -20,13 +20,17 @@ describe('workflow-page-content', () => {
   })
 
   it('should point document paths at the repo on GitHub', () => {
-    expect(WORKFLOW_DOCUMENTS[0]?.url).toBe(
+    const roadmapDoc = WORKFLOW_DOCUMENTS.find(
+      (doc) => doc.name === 'ROADMAP.md',
+    )
+    const prdsDoc = WORKFLOW_DOCUMENTS.find((doc) => doc.name === 'docs/prds/')
+    const agentsDoc = WORKFLOW_DOCUMENTS.find((doc) => doc.name === 'AGENTS.md')
+
+    expect(roadmapDoc?.url).toBe(
       `${siteConfig.links.github}/blob/main/ROADMAP.md`,
     )
-    expect(WORKFLOW_DOCUMENTS[1]?.url).toBe(
-      `${siteConfig.links.github}/tree/main/docs/prds`,
-    )
-    expect(WORKFLOW_DOCUMENTS[2]?.url).toBe(
+    expect(prdsDoc?.url).toBe(`${siteConfig.links.github}/tree/main/docs/prds`)
+    expect(agentsDoc?.url).toBe(
       `${siteConfig.links.github}/blob/main/AGENTS.md`,
     )
   })

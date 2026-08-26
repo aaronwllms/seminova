@@ -2,7 +2,7 @@
 
 **Purpose:** One-time setup for a freshly cloned Seminova template — connecting Claude Desktop to the repo via MCP, installing the Claude-side skills this workflow depends on, and verifying it all works. For day-to-day usage once setup is complete, see [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md).
 
-**Last updated:** 2026-08-22
+**Last updated:** 2026-08-26
 
 **Audience:** Anyone setting up a project cloned from this template — no prior context assumed.
 
@@ -76,11 +76,13 @@ This workflow depends on a set of Claude-side skills. They are global to your Cl
 | Skill | Purpose | Used in |
 |---|---|---|
 | `project-kickoff` | One-time grill that populates `ROADMAP.md`, `BACKLOG.md`, `site.ts`, `README.md`, `LEXICON.md` for a new project, then outputs the Project instructions block | Setup, before phase work begins |
-| `promote-backlog-item` | Promotes a `BACKLOG.md` idea to a numbered `ROADMAP.md` phase stub, renumbering Draft phases and carrying the entry's open questions onto the stub | Steady-state loop, ad hoc trigger |
+| `write-product-brief` | Captures an uncommitted idea's justification as a brief in `docs/briefs/`, anchored to a `BACKLOG.md` entry; `phase-planning` reads it into the PRD and deletes it at the `Ready` flip | Steady-state loop, ad hoc trigger |
+| `promote-backlog-item` | Promotes a `BACKLOG.md` idea to a numbered `ROADMAP.md` phase stub, renumbering Draft phases; the stub points back at the entry rather than copying it, and the entry survives until `phase-planning` deletes it at the `Ready` flip | Steady-state loop, ad hoc trigger |
 | `phase-planning` | Aligns on terminology/decisions, then decomposes a phase into epics/stories and writes the PRD | Steady-state loop |
 | `plan-review` | Reviews Cursor's implementation plan before build and revises the plan file in place | Steady-state loop |
 | `lexicon-update` | Writes or sharpens a LEXICON.md entry when a new term surfaces (often during `phase-planning`) | Steady-state loop, ad hoc trigger |
 | `create-mockup` | Static UI mockups as reviewable inline widgets, saved to `docs/mockups/` for PRD stories to reference (invoked by `phase-planning` or ad hoc) | Steady-state loop, ad hoc trigger |
+| `grill-me` | Bounded interview that stress-tests a design until each topic settles. Not invoked directly in this workflow — `project-kickoff`, `phase-planning`, and `write-product-brief` each call it with their own scope | Dependency of the three skills above |
 
 **Optional — authoring**
 
@@ -89,6 +91,12 @@ This workflow depends on a set of Claude-side skills. They are global to your Cl
 | `skill-authoring` | Create, edit, or audit a skill (Claude- or Cursor-side); packages Claude-side output as a `.skill` bundle | Template extension work |
 | `instructions-authoring` | Write or audit the Claude Project instructions field or the account-wide profile instructions | Template extension work |
 | `writing-for-agents` | Reference standard the authoring skills read first. Never invoked directly — install it if you install either of the two above. A second copy lives in `.cursor/skills/`; keep their bodies identical | Read by `skill-authoring`, `instructions-authoring` |
+
+**Optional — session utilities**
+
+| Skill | Purpose | Used in |
+|---|---|---|
+| `wait-what` | Asks Claude to re-pitch an explanation that didn't land — shorter, in Simplified Technical English, using `LEXICON.md`'s vocabulary | Any chat, ad hoc trigger |
 
 **Optional — experimental, not part of the workflow** (see [WORKFLOW_GUIDE.md › Experimental](WORKFLOW_GUIDE.md#experimental--not-part-of-the-workflow))
 

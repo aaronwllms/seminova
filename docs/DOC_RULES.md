@@ -2,7 +2,7 @@
 
 **Purpose:** Invariant doc-maintenance procedure governing the planning docs ([ROADMAP.md](../ROADMAP.md), the PRDs in [prds/](prds/), and the frozen [archive/](archive/)). This is not project state — it applies to every product built from this template. Governs the planning skills (`write-product-brief`, `promote-backlog-item`, `phase-planning`, `kickoff-phase`, `plan-next-epic`, `mark-epic-complete`, `ship-phase`), the research skills (`research`, `archive-research`), and the repo-sync skill (`sync-repo-docs`).
 
-**Last updated:** 2026-08-25
+**Last updated:** 2026-08-26
 
 ---
 
@@ -15,7 +15,7 @@ This table is authoritative. [AGENTS.md](../AGENTS.md) carries a one-line pointe
 | **[README.md](../README.md)** | Humans cloning + external | Project pitch and positioning; setup, scripts, env |
 | **[ROADMAP.md](../ROADMAP.md)** | PM / planning chats | Planning horizon: thin phase stubs, phase status, PRD links, and any open questions attached to a stub |
 | **[BACKLOG.md](../BACKLOG.md)** | PM / planning chats | Product ideas — not numbered, not ordered, no PRD; a promoted entry stays until its PRD locks at `Ready` (rule 14) |
-| **[prds/](prds/)** | PM / agents | Per-phase forward intent (problem, goal, scope); epics + stories while a phase is Active. Lifecycle in [prds/README.md](prds/README.md) |
+| **[prds/](prds/)** | PM / agents | Per-phase forward intent (problem, goal, scope); epics + stories, accumulating from `Planning` and complete at `Ready`. Lifecycle in [prds/README.md](prds/README.md) |
 | **[briefs/](briefs/)** | PM / planning chats | Product briefs — an uncommitted idea's justification (problem, who it's for, why now, what's decided, what success looks like); the substance of a BACKLOG entry once written; consumed and deleted by `phase-planning` at `Ready`; rules in [briefs/README.md](briefs/README.md) |
 | **[AGENTS.md](../AGENTS.md)** | Cursor / coding agents | Hard constraints, agent workflow gates, merge checklist, and change protocol |
 | **[LEXICON.md](../LEXICON.md)** | PM / agents | Architectural vocabulary |
@@ -62,7 +62,7 @@ These rules apply to anyone updating the planning docs — PM or coding agent.
 
 1. **The active phase's PRD is the source of truth for what is planned but not yet shipped.** The docs must never contradict the repo.
 
-2. **PRD creation and promotion are split by lifecycle stage.** `phase-planning` (Claude-side planning skill) creates the PRD at `Planning` and flips it to `Ready` on PM sign-off, decomposing it into numbered epics and vertical-slice stories at that point. On that same `Ready` flip, `phase-planning` removes the phase's stub from ROADMAP's **Upcoming phases** section — a locked PRD owns the phase's scope, so a surviving stub would drift. If the phase was promoted from [BACKLOG.md](../BACKLOG.md), its entry is deleted in the same pass, for the same reason (rule 14). `kickoff-phase` (Cursor-side) then flips the PRD to `Active`, creating the phase branch in the same pass — the flip precedes any epic planning, so every plan and plan review sees an `Active` phase. Each skill updates the ROADMAP row to match at its transition.
+2. **PRD creation and promotion are split by lifecycle stage.** `phase-planning` (Claude-side planning skill) creates the PRD at `Planning` and flips it to `Ready` on PM sign-off. Decomposition into numbered epics and vertical-slice stories accumulates across sessions while the PRD sits at `Planning` — whatever has been shaped is written in, so a long conversation can be saved and resumed without discarding it — and is complete at the `Ready` flip. On that same `Ready` flip, `phase-planning` removes the phase's stub from ROADMAP's **Upcoming phases** section — a locked PRD owns the phase's scope, so a surviving stub would drift. If the phase was promoted from [BACKLOG.md](../BACKLOG.md), its entry is deleted in the same pass, for the same reason (rule 14). `kickoff-phase` (Cursor-side) then flips the PRD to `Active`, creating the phase branch in the same pass — the flip precedes any epic planning, so every plan and plan review sees an `Active` phase. Each skill updates the ROADMAP row to match at its transition.
 
 > [!IMPORTANT]
 > **`mark-epic-complete` must never promote** — if an epic is marked `Complete` while its PRD or ROADMAP row reads `Draft`, `Planning`, or `Ready`, halt and report the inconsistency; do not auto-correct.
