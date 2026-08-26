@@ -12,9 +12,10 @@ Metadata defaults, crawler policy, structured data, and social-preview patterns 
 
 ## Metadata source of truth
 
-- Site-wide defaults: [`src/config/site.ts`](../../src/config/site.ts) (`getSiteMetadata`) — name, title template, description, root Open Graph defaults.
+- Site-wide defaults: [`src/config/site.ts`](../../src/config/site.ts) (`getSiteMetadata`) — name, title template, description, root Open Graph defaults including `siteName`.
 - Root wire-up: [`src/app/layout.tsx`](../../src/app/layout.tsx) calls `getSiteMetadata(getSiteUrl())`.
-- Per-page overrides: export `metadata` or `generateMetadata` on the page/layout; inherit the title template from root.
+- Per-page marketing metadata: `getPageMetadata` in [`src/config/site.ts`](../../src/config/site.ts) — sole source of `og:url` on indexable marketing routes; shared copy lives in [`src/app/(marketing)/_lib/page-meta.ts`](../../src/app/(marketing)/_lib/page-meta.ts).
+- Other per-page overrides: export `metadata` or `generateMetadata` on the page/layout; inherit the title template from root.
 
 ## Base URL
 
@@ -47,7 +48,7 @@ Defense-in-depth on top of the auth proxy — a route accidentally made public c
 ## Social preview images
 
 - Shared template: [`src/utils/og-image.tsx`](../../src/utils/og-image.tsx) (`createOgImageResponse`).
-- Per-route segment files: `opengraph-image.tsx` (e.g. root + [`src/app/auth/login/opengraph-image.tsx`](../../src/app/auth/login/opengraph-image.tsx)). New public routes add their own segment file; title/description come from page metadata + site config.
+- Per-route segment files: `opengraph-image.tsx` (e.g. root + [`src/app/auth/login/opengraph-image.tsx`](../../src/app/auth/login/opengraph-image.tsx)). New public marketing routes add their own segment file; title, description, and `alt` come from the same object in [`page-meta.ts`](../../src/app/(marketing)/_lib/page-meta.ts) (or site config for root).
 - OG/twitter image paths bypass auth via [`src/utils/proxy-matcher.ts`](../../src/utils/proxy-matcher.ts) — keep in sync with [`src/proxy.ts`](../../src/proxy.ts). Include `/icon` and nested `*/icon` alongside `/opengraph-image`, `/twitter-image`, and their nested variants.
 
 ## Favicon
@@ -75,9 +76,9 @@ Defense-in-depth on top of the auth proxy — a route accidentally made public c
 
 ## New public page checklist
 
-- [ ] `metadata` export with intentional title and description
+- [ ] Add a `page-meta.ts` entry and wire `export const metadata = getPageMetadata(...)` on the page
 - [ ] Route group correct for indexing (`(marketing)` = indexable; others inherit `noindex` from layout)
-- [ ] `opengraph-image.tsx` if the page is public marketing surface
+- [ ] `opengraph-image.tsx` reading the same page-meta object for title, description, and `alt`
 - [ ] Sitemap auto-includes new `(marketing)` routes via discovery — no manual sitemap edit unless discovery rules change
 - [ ] JSON-LD only at landing level unless extending `structured-data.ts` for a new schema type
 

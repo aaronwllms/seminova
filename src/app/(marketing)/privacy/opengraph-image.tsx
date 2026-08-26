@@ -1,18 +1,18 @@
-import { siteConfig } from '@/config/site'
 import {
   createOgImageResponse,
-  formatOgPageTitle,
   OG_CONTENT_TYPE,
   OG_IMAGE_SIZE,
 } from '@/utils/og-image'
 
-export const alt = 'Privacy Policy'
+import { privacy } from '../_lib/page-meta'
+
+export const alt = privacy.title
 export const size = OG_IMAGE_SIZE
 export const contentType = OG_CONTENT_TYPE
 
 export default async function Image() {
   return createOgImageResponse({
-    title: formatOgPageTitle('Privacy Policy'),
-    description: siteConfig.description,
+    title: privacy.title,
+    description: privacy.description,
   })
 }

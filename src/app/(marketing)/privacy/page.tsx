@@ -1,18 +1,11 @@
-import type { Metadata } from 'next'
-
-import { PRIVACY_PATH } from '@/constants/app-paths'
+import { getPageMetadata } from '@/config/site'
 
 import { SiteContainer } from '@/components/site-container'
 import { LegalPlaceholder } from '../_components/legal-placeholder'
 
-export const metadata: Metadata = {
-  title: 'Privacy Policy',
-  description:
-    'Placeholder Privacy Policy for the Seminova template. Replace with your own policy when you spin off.',
-  alternates: {
-    canonical: PRIVACY_PATH,
-  },
-}
+import { privacy } from '../_lib/page-meta'
+
+export const metadata = getPageMetadata(privacy)
 
 export default function PrivacyPage() {
   return (

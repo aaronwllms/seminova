@@ -20,9 +20,15 @@ export const buildCspDirectives = (): string => {
     connectSrc.push(supabaseOrigin, 'wss://*.supabase.co')
   }
 
+  const scriptSrc = ["'self'", "'unsafe-inline'"]
+  // debt: 'unsafe-eval' is development-only so React/Turbopack can reconstruct callstacks; React never uses eval() in production. Drop this branch if React stops requiring eval() in next dev.
+  if (process.env.NODE_ENV === 'development') {
+    scriptSrc.push("'unsafe-eval'")
+  }
+
   const directives = [
     "default-src 'self'",
-    `script-src 'self' 'unsafe-inline' ${VERCEL_ANALYTICS_ORIGIN}`,
+    `script-src ${scriptSrc.join(' ')} ${VERCEL_ANALYTICS_ORIGIN}`,
     "style-src 'self' 'unsafe-inline'",
     `img-src ${imgSrc.join(' ')}`,
     "font-src 'self'",

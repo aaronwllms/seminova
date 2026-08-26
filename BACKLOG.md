@@ -88,20 +88,6 @@ scan as separate blocks, not a paragraph.
 
 ---
 
-## Name / domain finalization
-
-**What:** Claim `seminova.dev` (or similar); carry keywords in the repo description and
-topics rather than in the name.
-
-**Notes:**
-
-- **Priority:** low, opportunistic.
-
-- **Name is Seminova.** The `.com` is contested by out-of-lane semiconductor and
-  agriculture firms.
-
----
-
 ## Supabase auth config as code
 
 **What:** Manage the remote project's auth settings (redirect allowlist, `site_url`,

@@ -93,6 +93,30 @@ export const siteConfig: SiteConfig = {
   ],
 }
 
+export interface PageMetadataInput {
+  title: string
+  description: string
+  path: string
+}
+
+export const getPageMetadata = ({
+  title,
+  description,
+  path,
+}: PageMetadataInput): Metadata => ({
+  title,
+  description,
+  alternates: {
+    canonical: path,
+  },
+  openGraph: {
+    title,
+    description,
+    url: path,
+    siteName: siteConfig.name,
+  },
+})
+
 export const getSiteMetadata = (metadataBase: URL): Metadata => ({
   metadataBase,
   title: {
@@ -103,5 +127,6 @@ export const getSiteMetadata = (metadataBase: URL): Metadata => ({
   openGraph: {
     title: siteConfig.name,
     description: siteConfig.description,
+    siteName: siteConfig.name,
   },
 })

@@ -1,19 +1,12 @@
-import type { Metadata } from 'next'
-
-import { FEATURES_PATH } from '@/constants/app-paths'
+import { getPageMetadata } from '@/config/site'
 import { featuresContent } from '@/config/features-content'
 import { SiteContainer } from '@/components/site-container'
 
 import { FeaturesCategorySection } from './_components/features-category-section'
 
-export const metadata: Metadata = {
-  title: 'Features',
-  description:
-    'A full inventory of what ships with the template — auth, admin console, design system, observability, SEO, and the agent workflow that builds it.',
-  alternates: {
-    canonical: FEATURES_PATH,
-  },
-}
+import { features } from '../_lib/page-meta'
+
+export const metadata = getPageMetadata(features)
 
 export default function FeaturesPage() {
   return (

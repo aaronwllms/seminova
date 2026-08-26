@@ -37,10 +37,6 @@ function loadInterSemiBold(): Promise<ArrayBuffer> {
   return interSemiBoldPromise
 }
 
-export function formatOgPageTitle(pageTitle: string): string {
-  return `${pageTitle} | ${siteConfig.name}`
-}
-
 export interface CreateOgImageResponseInput {
   title: string
   description: string
