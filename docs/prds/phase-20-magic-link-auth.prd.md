@@ -1,7 +1,7 @@
 # PRD — Phase 20: Magic Link Auth
 
-**Status:** Planning
-**Last updated:** 2026-08-25
+**Status:** Ready
+**Last updated:** 2026-08-26
 
 ---
 
@@ -113,22 +113,27 @@ Considered and deliberately excluded. Recorded so they aren't re-proposed.
 receive it, follow it, and arrive signed in at the correct destination — the
 application home, the admin console if they are an administrator, or the
 protected page they were originally bounced from. An address with no existing
-account creates one this way and arrives signed in. The dashboard configuration
-questions listed under Notes are answered and recorded.
+account creates one this way and arrives signed in, and an account created with a
+password can use this path too — the two methods are interchangeable on the same
+account.
 
-- Confirm the outstanding dashboard configuration values and record them, so
-  later stories build against fact rather than assumption
-- Establish shared authentication constants — code length, code lifetime, resend
-  interval — in one place, noting that the dashboard is authoritative and the
-  constants mirror it
+- Establish shared authentication constants in one place — a six-character code,
+  a fifteen-minute lifetime, a thirty-second minimum between sends — noting that
+  the dashboard is authoritative and the constants mirror it
 - Add a screen for requesting a sign-in link, matching the shape of the existing
   password-recovery request screen
 - Add a secondary call to action on the login screen, carrying any pending
   destination through to the request screen
 - Request the sign-in link such that an unrecognized address creates an account,
   and name the address directly in the confirmation copy
-- Configure the sign-in email template in the dashboard, commit a reference copy
-  to the repository, and document the setup step
+- Handle both arrival paths a passwordless request can produce — a known address
+  receives a sign-in email and verifies as a sign-in, an unknown one receives a
+  signup-confirmation email and verifies as a signup — so both land signed in at
+  the right destination
+- Configure both the sign-in and signup-confirmation email templates in the
+  dashboard, pointing them at the same verification route the shipped templates
+  already use, commit reference copies to the repository, and document the setup
+  step
 - Cover the shared verification route with tests for this path, which has never
   been exercised
 
@@ -136,22 +141,25 @@ questions listed under Notes are answered and recorded.
 
 **Success criteria:** A person who requested a sign-in link can type or paste the
 code from that email into the same screen and sign in without ever following the
-link. Incorrect, expired, and rate-limited codes each produce distinct and
-actionable messaging. Requesting a new code works, respects the platform's
-minimum interval between sends, and invalidates the previous code.
+link — whether the address was already known or is signing up for the first time.
+Incorrect, expired, and rate-limited codes each produce distinct and actionable
+messaging. Requesting a new code works, respects the platform's minimum interval
+between sends, and invalidates the previous code.
 
 - Adopt a code-entry primitive that presents as separate character slots while
   remaining a single field, and own it alongside the other interface primitives
-- Build the code-entry experience: verification, failure messaging distinguishing
-  wrong from expired from rate-limited, cleared and refocused input after a
-  failure, and focus on arrival so the operating system can offer the code
+- Build the code-entry experience: verification against whichever of the two
+  arrival paths applies, failure messaging distinguishing wrong from expired from
+  rate-limited, cleared and refocused input after a failure, and focus on arrival
+  so the operating system can offer the code
 - Add resend with a visible countdown, clearing any partially entered code, and
   surfacing server rejection as a real message rather than a silent no-op
 - Place code entry directly in the sign-in request screen's confirmation state
-- Add the code to the sign-in email template, formatted for automatic detection —
-  code in the subject line, unbroken digits, no competing numbers nearby
-- Set code length and lifetime in the dashboard to match the shared constants,
-  and document both settings
+- Add the code to both the sign-in and signup-confirmation email templates,
+  formatted for automatic detection — code in the subject line, unbroken digits,
+  no competing numbers nearby
+- Document the code length, lifetime, and resend-interval settings as setup steps
+  a spinoff must perform
 
 ### Epic 3: Code entry for password recovery
 
@@ -174,9 +182,9 @@ with an account — same screen, same messages, nothing disclosed.
 their profile and afterwards sign in with it. A person who already has a password
 still gets the flow requiring their current one.
 
-- Determine how to reliably detect that an account has no password and record the
-  finding — or, if no reliable detection exists, record the fallback of accepting
-  the attempt and letting the server reject it
+- Record on the profile whether the account has a password, set when the app sets
+  one and backfilled true for every account existing before this phase, so the
+  profile screen can tell the two cases apart
 - Present a first-password variant of the profile password controls — new and
   confirmation only, no current-password field, and a heading matching what the
   person is actually doing
@@ -205,16 +213,27 @@ gap it closes can be observed — it can move earlier to retire its unknown soon
 Epic 5 is deliberately last, because both of its stories describe the shipped
 state.
 
-**Dashboard values to confirm before building.** These live outside the
-repository and cannot be read from it. Each was assumed at least once during
-planning and should not be assumed again:
+**Configuration confirmed before build.** Verified directly against the dashboard
+and a live test account on 2026-08-26. These are facts, not assumptions, and the
+stories below are built on them:
 
-- The current code lifetime, and whether it is a single setting shared across
-  sign-in, recovery, and signup confirmation, or separately configurable
-- Whether signup currently requires email confirmation, which determines what a
-  passwordless signup arrives in
-- The type identifier the sign-in link uses, and whether it differs from the one
-  the code path uses for the same flow
+- **Code length is six characters; lifetime is fifteen minutes.** Both were
+  changed from what the project was running (eight characters, one hour), neither
+  of which had been chosen deliberately. Lifetime is a single project-wide
+  setting shared across sign-in, recovery, and signup confirmation.
+- **Minimum interval between sends is thirty seconds**, changed from the platform
+  default of sixty. It governs every auth email the project sends, not only
+  passwordless.
+- **Signup requires email confirmation**, so the signup-confirmation template is
+  a live flow and worth version-controlling.
+- **A passwordless signup stores a password hash indistinguishable from a real
+  one.** Confirmed by creating an account through the sign-in endpoint and
+  reading the column directly — the platform generates one internally. There is
+  therefore no readable ground truth for "has a password," which is why Epic 4
+  records it on the profile instead.
+
+Pasting the templates into the dashboard is still outstanding, but belongs to
+Epics 1–3 rather than here — the repository copies have to exist first.
 
 **Configuration is authoritative outside the repository.** Code length, code
 lifetime, email templates, and redirect permissions all live in the dashboard.
@@ -225,6 +244,16 @@ check against the platform's management interface was considered and rejected as
 credential-management overhead defending against a change nobody is expected to
 make. If a fourth instance of this pattern appears in a later phase, that is the
 point to reconsider.
+
+**A passwordless request produces one of two flows, not one.** An address the
+project already knows receives the sign-in email and verifies as a sign-in. An
+address it does not receives the signup-confirmation email instead, and verifies
+as a signup. The requesting screen cannot know which in advance, so it has to
+handle both — and the signup-confirmation template needs the typed code just as
+much as the sign-in one, since first contact is the flow where being stranded
+with a link that opens in the wrong browser costs the most. This was discovered
+late in planning by inspecting a real send; it is the third time this phase
+grew.
 
 **Operating-system code autofill is a bonus, not a requirement.** On some
 platforms the code can be offered automatically from the email. It is
@@ -247,6 +276,15 @@ Adding typed codes roughly doubled it; extending those codes to password recover
 grew it again. Both were the right calls, but the phase is substantially larger
 than its original stub implied and should be scheduled accordingly.
 
+**Password strength settings break passwordless signup.** The platform generates
+a password internally when a passwordless signup creates an account, and that
+generated value is validated against the project's password requirements — so a
+project with strict character requirements rejects passwordless account creation
+outright, complaining about a password the person never typed. This project has
+no character requirements set, so it is unaffected. A spinoff that tightens them
+will silently lose passwordless signup, which is worth saying in the setup
+documentation.
+
 **One planning-time correction worth carrying forward.** The stub describes the
 shared verification route as unreachable. It is not — the setup documentation
 already directs the signup and recovery templates through it, so it has been the
@@ -254,9 +292,3 @@ live path all along for any correctly configured project. The error came from
 inferring configuration from repository contents when configuration lives in the
 dashboard. It remains true that the route has never been exercised by real
 traffic, which is why Epic 1 covers it with tests.
-
-**Process deviation.** This PRD carries its epics and stories while at
-`Planning`, which the documented lifecycle places at the `Ready` flip. Decided
-deliberately, to avoid discarding decomposition already agreed in the planning
-conversation. Whether the rule should accommodate this is a workflow question,
-not a product one.
