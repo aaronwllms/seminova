@@ -42,6 +42,7 @@ Use zod at the server boundary per [`forms.mdc`](forms.mdc):
 - ❌ NEVER use raw SQL string concatenation
 - ✅ React escapes JSX automatically
 - ❌ NEVER use `dangerouslySetInnerHTML` for HTML; JSON-LD is the one shipped exception and is unicode-escaped by its builder — see `seo.mdc` § Structured data
+- ✅ Render untrusted strings as text; React escapes them. Real HTML rendering is a PM decision — adopt a sanitizer (none installed today) and update this bullet together
 
 ## Supabase Row Level Security (RLS)
 
