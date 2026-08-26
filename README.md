@@ -76,7 +76,6 @@ The full workflow — every step, skill, and document explained — lives in [do
    | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable (anon) key — **required for `pnpm build`** |
    | `SUPABASE_SECRET_KEY` | Secret key (server/CLI only — see [Initial setup](#initial-setup)) |
    | `NEXT_PUBLIC_SITE_URL` | Optional — canonical site URL for Open Graph and metadata (include `https://`); falls back to `VERCEL_URL` on Vercel, then `http://localhost:3000` locally |
-   | `CSP_ENFORCE` | Optional — set to `true` for enforcing CSP instead of report-only (see [AGENTS.md](AGENTS.md); requires nonce strategy before production use) |
    | `VERCEL_URL` | Optional — auto-set on Vercel deploys; used as metadata base when `NEXT_PUBLIC_SITE_URL` is unset (do not set locally) |
 
 > [!WARNING]

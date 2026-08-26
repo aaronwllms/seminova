@@ -15,7 +15,9 @@ describe('buildCspDirectives', () => {
     const csp = buildCspDirectives()
 
     expect(csp).toContain("default-src 'self'")
-    expect(csp).toContain("script-src 'self' https://va.vercel-scripts.com")
+    expect(csp).toContain(
+      "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
+    )
     expect(csp).toContain("style-src 'self' 'unsafe-inline'")
     expect(csp).toContain("frame-ancestors 'none'")
   })
@@ -33,39 +35,20 @@ describe('buildCspDirectives', () => {
 })
 
 describe('getSecurityHeaders', () => {
-  beforeEach(() => {
-    vi.unstubAllEnvs()
-  })
-
-  afterEach(() => {
-    vi.unstubAllEnvs()
-  })
-
-  it('should emit report-only CSP by default with frame and HSTS headers', () => {
+  it('should emit a single enforced CSP header with frame and HSTS headers', () => {
     const headers = getSecurityHeaders()
-    const cspHeader = headers.find(
-      (header) =>
-        header.key === 'Content-Security-Policy-Report-Only' ||
-        header.key === 'Content-Security-Policy',
+    const cspHeaders = headers.filter((header) =>
+      header.key.startsWith('Content-Security-Policy'),
     )
 
-    expect(cspHeader?.key).toBe('Content-Security-Policy-Report-Only')
-    expect(cspHeader?.value).toContain("default-src 'self'")
+    expect(cspHeaders).toHaveLength(1)
+    expect(cspHeaders[0]?.key).toBe('Content-Security-Policy')
+    expect(cspHeaders[0]?.value).toContain('script-src')
+    expect(cspHeaders[0]?.value).toContain("frame-ancestors 'none'")
     expect(headers).toContainEqual({ key: 'X-Frame-Options', value: 'DENY' })
     expect(headers).toContainEqual({
       key: 'Strict-Transport-Security',
       value: 'max-age=31536000; includeSubDomains',
     })
-  })
-
-  it('should switch to enforcing CSP header when CSP_ENFORCE is true', () => {
-    vi.stubEnv('CSP_ENFORCE', 'true')
-
-    const headers = getSecurityHeaders()
-    const cspHeader = headers.find((header) =>
-      header.key.startsWith('Content-Security-Policy'),
-    )
-
-    expect(cspHeader?.key).toBe('Content-Security-Policy')
   })
 })

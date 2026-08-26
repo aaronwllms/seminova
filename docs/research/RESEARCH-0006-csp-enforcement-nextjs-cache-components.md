@@ -138,13 +138,23 @@ are now closed** (see §8):
 
 Banner links were admin-authored and already scheme-validated at render.
 
-### 7. Report-only was not collecting anything
+### 7. Report-only was collecting nothing — and could not
 
-The report-only policy carries no `report-uri` or `report-to`, so violations only
-reach the browser console. Separately, **`frame-ancestors` is ignored in
-report-only mode by spec** — clickjacking protection currently rests entirely on
-the `X-Frame-Options: DENY` header, which is enforced. Not an exposure; an
-undecided dependency.
+The report-only policy carried no `report-uri` or `report-to`, so violations only
+reached the browser console. Separately, **`frame-ancestors` is ignored in
+report-only mode by spec** — clickjacking protection rested entirely on the
+`X-Frame-Options: DENY` header, which is enforced.
+
+A later finding closed this rather than fixing it: a strict report-only
+`script-src` would be violated by Next's hydration bootstrap on **every page
+load**, permanently. Expected noise on every request buries any real violation
+instead of surfacing it, which is the opposite of what report-only is for. The
+adopted policy therefore emits **no** report-only header at all.
+
+Note that dropping it does not remove the need for a collector. Enforced
+directives emit violation reports too — `report-to` is not a report-only feature
+— and those reports would be genuinely useful precisely because an enforced
+violation means something actually broke. See Open questions.
 
 ### 8. Residual fixes — shipped 2026-08-26
 
@@ -177,26 +187,38 @@ but genuinely different job.
 | **A. Report-only everything** (pre-deploy status quo) | None | None | Weak — a wrong policy decays silently |
 | **B. Full enforcement, no nonce** (what broke) | N/A — site is inert | N/A | Broken |
 | **C. Nonce + drop `cacheComponents`** | Full | Every page dynamic, forever | Poor — Next has signalled `cacheComponents` becomes default in a future major |
-| **D. Partial enforcement** — enforce all directives except `script-src`, which stays report-only | None (unchanged) | **None** | **Strongest** — violations surface loudly in spinoffs |
-| **E. `'unsafe-inline'` in an enforced `script-src`** | None, and misleadingly labeled enforced | None | Rejected — worse than D, same protection |
+| **D. Partial enforcement** — enforce all directives, with a deliberately permissive `script-src` | Blocks external scripts from unlisted origins; cannot stop inline injection | **None** | **Strongest** — violations surface loudly in spinoffs |
+| **E. Dual header** — D plus a strict report-only `script-src` | Same as D | None | Rejected — fires on every page load with no collector; permanent noise buries real signal |
 
 ## Recommendation
 
 **Adopt Option D — partial enforcement — and keep `cacheComponents`.**
 
-1. **Enforce every directive except `script-src`.** `connect-src` (caps
-   exfiltration destinations), `form-action 'self'`, `base-uri 'self'`,
-   `object-src 'none'`, `img-src`, `font-src`, `default-src` all enforce with no
-   rendering cost. `frame-ancestors` starts working once enforced.
-2. **Keep `script-src` report-only** until #89754 resolves. Justified by §6: the
-   audit found no XSS sink for it to catch.
-3. **Enforcement is the better template default.** A spinoff adding Stripe or
+1. **Enforce every directive, in a single `Content-Security-Policy` header.**
+   `connect-src` (caps exfiltration destinations), `form-action 'self'`,
+   `base-uri 'self'`, `object-src 'none'`, `img-src`, `font-src`, `default-src`
+   all enforce with no rendering cost. `frame-ancestors` starts working once
+   enforced.
+2. **Make `script-src` deliberately permissive** — `'self' 'unsafe-inline'` plus
+   the analytics origin — until #89754 resolves. It must be named explicitly:
+   omitting it would fall back to `default-src 'self'` and block Next's inline
+   hydration bootstrap. This is not theater — it still blocks external scripts
+   from unlisted origins. Justified by §6: the audit found no inline-injection
+   sink for a strict policy to catch.
+3. **No report-only header.** See §7.
+4. **Enforcement is the better template default.** A spinoff adding Stripe or
    PostHog hits a violation immediately and knowingly. Report-only means a policy
    can be silently wrong for a year.
-4. **Do not adopt Option C.** Paying per-request rendering on marketing pages —
+5. **Do not adopt Option C.** Paying per-request rendering on marketing pages —
    the pages most worth caching, and the template's shop window — to close a hole
    with no known sink is a bad trade, and it runs against where the framework is
    heading.
+
+**No ADR.** Assessed against `docs/adr/README.md`: the decision fails the
+"hard to reverse" test (enforcing `script-src` later is one file plus proxy
+work), and its revisit trigger makes it mutable state rather than history, which
+an immutable ADR cannot hold. It lives here and in a `// debt:` marker — the
+correct instrument for a consciously accepted ceiling.
 
 ### Follow-on fixes — shipped
 
@@ -212,18 +234,24 @@ template default.
 
 ## Open questions
 
-1. **Where CSP violation reports go.** `report-uri` is deprecated in favor of
+1. **Whether to collect enforced violation reports.** Not "where does report-only
+   noise go" — that channel is gone (§7). The live question is whether to learn
+   when enforcement blocks something for a *real user* in production, which is
+   otherwise invisible. `report-uri` is deprecated in favor of
    `report-to`/Reporting API; Vercel provides no collector; a self-hosted route
-   handler on a public template is an unauthenticated write endpoint. Unresolved
-   — needs its own look before anything is built.
-2. **Partial policy not yet tested.** The enforce-everything-but-`script-src`
-   policy has not been run. Test against a **production build locally** (dev mode
-   needs `'unsafe-eval'` because React uses `eval` in development, producing
-   violations production would not): `CSP_ENFORCE=true pnpm build && CSP_ENFORCE=true pnpm start`.
-   Set on both — `headers()` in `next.config.ts` is evaluated at build time and
-   baked into the routes manifest. Walk: a marketing page (fonts/styles), login
-   (Supabase `connect-src`), admin logs with live toggle on (websockets), a
-   profile with an avatar (`img-src` against Supabase storage).
+   handler on a public template is an unauthenticated write endpoint needing rate
+   limiting, payload validation, storage, and retention — all inherited by every
+   spinoff. **Current lean: do not build it.** `app_logs` and the admin logs
+   surface already exist, so routing violations there later is a small addition
+   rather than a new subsystem. Recorded, not scheduled.
+2. **Policy not yet tested.** The single enforced policy has not been run. Test
+   against a **production build locally** (dev mode uses `eval`, producing
+   refusals production would not): `pnpm build && pnpm start`. `headers()` in
+   `next.config.ts` is evaluated at build time and baked into the routes
+   manifest, so a running dev server will not pick it up. Walk: a marketing page
+   (fonts/styles), login (Supabase `connect-src`), admin logs with live toggle on
+   (websockets), a profile with an avatar (`img-src` against Supabase storage).
+   With no report-only header, **every** refusal is a real break.
 3. **Revisit trigger.** #89754 closing, or a Next release adding nonce access that
    does not require `headers()` in the layout. `next@16.3` shipped as a minor with
    no breaking changes (Instant Navigations, Partial Prefetching, dev-server
@@ -233,10 +261,8 @@ template default.
    → metadata and the `check:seo-base-url` gate. Confirm production emits
    `https://seminova.dev` and not a `.vercel.app` URL. Deferred by PM.
 
-5. **Installed Next version unconfirmed.** `package.json` still declares
-   `next@^16.2.9`, but the caret permits 16.3.x to be installed. A dependency
-   update was applied on 2026-08-26 without a manifest bump. Confirm with
-   `pnpm list next` before the ADR cites a version.
+5. **Installed Next version — confirmed `16.2.9`** (`pnpm list next`, 2026-08-26).
+   The dependency update applied that day did not bump Next. Resolved.
 
 ## Sources
 
@@ -263,9 +289,12 @@ template default.
 
 ## Related
 
-- `SECURITY_AUDIT.md` S004 — CSP report-only unless `CSP_ENFORCE` is set
-- **ADR to be written from this brief**: "CSP enforced except `script-src`;
-  `cacheComponents` retained" — a hard-to-reverse decision with a real trade-off,
-  recording the incompatibility, options weighed, and the #89754 revisit trigger.
-- Once that ADR exists, replace the stale `// debt:` in `security-headers.ts`
-  with a short pointer to it — pointer, not copy.
+- `SECURITY_AUDIT.md` S004 — to be updated by the implementing change; the
+  remaining gap is a permissive `script-src`, not "CSP is report-only"
+- `.cursor/plans/enforce_single_csp_header_3fcd572d.plan.md` — the implementing plan
+- **No ADR.** Rationale in Recommendation. If #89754 closes and the decision
+  becomes "enforce `script-src` with a nonce and give up `cacheComponents`,"
+  *that* would clear the ADR bar — hard to reverse, surprising, and a real
+  trade-off.
+- The `// debt:` marker in `src/utils/security-headers.ts` points at this brief.
+  **If this brief is archived, that pointer must be updated to the archive path.**
