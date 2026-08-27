@@ -58,7 +58,7 @@ describe('ForgotPasswordForm', () => {
 
     expect(screen.getByLabelText(/email/i)).toHaveAttribute(
       'autocomplete',
-      'username',
+      'email',
     )
   })
 

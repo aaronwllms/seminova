@@ -59,7 +59,7 @@ describe('SignInLinkForm', () => {
 
     expect(screen.getByLabelText(/email/i)).toHaveAttribute(
       'autocomplete',
-      'username',
+      'email',
     )
   })
 

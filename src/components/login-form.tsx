@@ -33,8 +33,16 @@ export function LoginForm({ next, className, ...props }: LoginFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    // Password managers write to the DOM and often auto-submit without React
+    // onChange. Read the live fields so we don't send empty/stale state.
+    const formData = new FormData(e.currentTarget)
+    const submittedEmail = String(formData.get('username') ?? '')
+    const submittedPassword = String(formData.get('password') ?? '')
+    setEmail(submittedEmail)
+    setPassword(submittedPassword)
+
     const supabase = createClient()
     setIsLoading(true)
     setFormError(null)
@@ -44,8 +52,8 @@ export function LoginForm({ next, className, ...props }: LoginFormProps) {
       await supabase.auth.signOut({ scope: 'local' })
 
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: submittedEmail,
+        password: submittedPassword,
       })
       if (error) throw error
       router.refresh()
@@ -55,7 +63,7 @@ export function LoginForm({ next, className, ...props }: LoginFormProps) {
           : getPostAuthRedirectPath(data.user?.app_metadata)
       router.push(destination)
     } catch (caught: unknown) {
-      setFormError(extractAuthFormError(caught, { email }))
+      setFormError(extractAuthFormError(caught, { email: submittedEmail }))
     } finally {
       setIsLoading(false)
     }
@@ -79,12 +87,14 @@ export function LoginForm({ next, className, ...props }: LoginFormProps) {
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
+                  name="username"
                   type="email"
                   autoComplete="username"
                   placeholder="m@example.com"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  suppressHydrationWarning
                 />
               </div>
               <div className="grid gap-2">
@@ -92,6 +102,7 @@ export function LoginForm({ next, className, ...props }: LoginFormProps) {
                   <Label htmlFor="password">Password</Label>
                   <Link
                     href="/auth/forgot-password"
+                    prefetch={false}
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                   >
                     Forgot your password?
@@ -99,11 +110,13 @@ export function LoginForm({ next, className, ...props }: LoginFormProps) {
                 </div>
                 <Input
                   id="password"
+                  name="password"
                   type="password"
                   autoComplete="current-password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  suppressHydrationWarning
                 />
               </div>
               <AppErrorSurface error={formError} />
@@ -117,6 +130,7 @@ export function LoginForm({ next, className, ...props }: LoginFormProps) {
                       ? `/auth/sign-in-link?${new URLSearchParams({ next }).toString()}`
                       : '/auth/sign-in-link'
                   }
+                  prefetch={false}
                   className="underline underline-offset-4"
                 >
                   Email me a sign-in link
@@ -127,6 +141,7 @@ export function LoginForm({ next, className, ...props }: LoginFormProps) {
               Don&apos;t have an account?{' '}
               <Link
                 href="/auth/sign-up"
+                prefetch={false}
                 className="underline underline-offset-4"
               >
                 Sign up

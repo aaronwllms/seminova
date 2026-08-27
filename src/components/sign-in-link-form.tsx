@@ -250,7 +250,7 @@ export function SignInLinkForm({
                   <Input
                     id="email"
                     type="email"
-                    autoComplete="username"
+                    autoComplete="email"
                     placeholder="m@example.com"
                     required
                     value={email}
@@ -264,7 +264,11 @@ export function SignInLinkForm({
               </div>
               <div className="mt-4 text-center text-sm">
                 Prefer password sign-in?{' '}
-                <Link href={loginHref} className="underline underline-offset-4">
+                <Link
+                  href={loginHref}
+                  prefetch={false}
+                  className="underline underline-offset-4"
+                >
                   Login
                 </Link>
               </div>

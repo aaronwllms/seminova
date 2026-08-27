@@ -38,10 +38,37 @@ describe('LoginForm', () => {
       'autocomplete',
       'username',
     )
+    expect(screen.getByLabelText(/email/i)).toHaveAttribute('name', 'username')
     expect(screen.getByLabelText(/^password$/i)).toHaveAttribute(
       'autocomplete',
       'current-password',
     )
+  })
+
+  it('should sign in with values a password manager wrote to the DOM', async () => {
+    mockSignInWithPassword.mockResolvedValue({
+      error: null,
+      data: { user: { app_metadata: {} } },
+    })
+    const user = userEvent.setup({ delay: null })
+
+    render(<LoginForm />)
+
+    const nativeValue = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      'value',
+    )?.set
+    nativeValue?.call(screen.getByLabelText(/email/i), 'keeper@example.com')
+    nativeValue?.call(screen.getByLabelText(/^password$/i), 'keeper-password')
+
+    await user.click(screen.getByRole('button', { name: /^login$/i }))
+
+    await waitFor(() => {
+      expect(mockSignInWithPassword).toHaveBeenCalledWith({
+        email: 'keeper@example.com',
+        password: 'keeper-password',
+      })
+    })
   })
 
   it('should link to the sign-in-link request screen', () => {

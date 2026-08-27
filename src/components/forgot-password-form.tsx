@@ -222,7 +222,7 @@ export function ForgotPasswordForm({
                   <Input
                     id="email"
                     type="email"
-                    autoComplete="username"
+                    autoComplete="email"
                     placeholder="m@example.com"
                     required
                     value={email}
@@ -238,6 +238,7 @@ export function ForgotPasswordForm({
                 Already have an account?{' '}
                 <Link
                   href="/auth/login"
+                  prefetch={false}
                   className="underline underline-offset-4"
                 >
                   Login
