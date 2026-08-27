@@ -137,7 +137,7 @@ account.
 - Cover the shared verification route with tests for this path, which has never
   been exercised
 
-### Epic 2: Code entry for magic link sign-in
+### Epic 2: Code entry for magic link sign-in `Complete`
 
 **Success criteria:** A person who requested a sign-in link can type or paste the
 code from that email into the same screen and sign in without ever following the
