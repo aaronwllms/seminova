@@ -116,8 +116,9 @@ In the [Supabase Dashboard](https://app.supabase.com) for your linked project:
   - **Confirm signup subject:** `{{ .Token }} is your Seminova sign-in code`
   - **Magic Link body:** `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}`
   - **Magic Link subject:** `{{ .Token }} is your Seminova sign-in code`
-  - **Reset Password:** `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next={{ .RedirectTo }}`
-- **OTP settings** — Authentication → Providers → Email. Code length, lifetime, and minimum send interval must match [`src/constants/auth.ts`](src/constants/auth.ts) (6 characters, 15 minutes, 30 seconds). The sign-in-link code-entry UI reads those constants for slot count, expiry messaging, and resend countdown — drift shows up as a wrong slot count or mismatched countdown. Seminova is configured this way as of 2026-08-26; spinoffs must set them in the dashboard.
+  - **Reset Password body:** `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next={{ .RedirectTo }}`
+  - **Reset Password subject:** `{{ .Token }} is your Seminova password reset code`
+- **OTP settings** — Authentication → Providers → Email. Code length, lifetime, and minimum send interval must match [`src/constants/auth.ts`](src/constants/auth.ts) (6 characters, 15 minutes, 30 seconds). The sign-in-link and password-recovery code-entry UIs read those constants for slot count, expiry messaging, and resend countdown — drift shows up as a wrong slot count or mismatched countdown. Seminova is configured this way as of 2026-08-26; spinoffs must set them in the dashboard.
 - **Redirect URLs** — Authentication → URL Configuration → Redirect URLs. Add the patterns below (trailing glob matches any path under that origin):
 
 ```text
