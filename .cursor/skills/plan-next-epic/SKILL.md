@@ -68,24 +68,15 @@ Every generated plan must also include this precondition near the top of the bod
 
 ## Generated plan todos (frontmatter)
 
-After the story-level todos, always append these two entries. The list ends there — epic close-out is prompted in the Handoff section rather than tracked as a todo.
+After the story-level todos, always append this entry. The list ends there — epic close-out is prompted in the Handoff section rather than tracked as a todo.
 
 | Todo id | Purpose |
 |---------|---------|
-| `quality-gate` | Run `pnpm pre-push` |
 | `commit-epic` | Conventional commit for this epic's changes |
 
 ## Generated plan closing sections (body)
 
-Always append these three sections at the end of every generated plan, in order:
-
-### Verification
-
-Quality bar. Stop on failure:
-
-```bash
-pnpm pre-push
-```
+Always append these two sections at the end of every generated plan, in order:
 
 ### Commit epic
 
