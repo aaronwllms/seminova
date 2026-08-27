@@ -61,6 +61,33 @@ describe('GET /auth/confirm', () => {
     expect(redirectMock).toHaveBeenCalledWith('/home')
   })
 
+  it('should fall back to post-auth path when next is the site root', async () => {
+    mockVerifyOtp.mockResolvedValue({ error: null })
+
+    const request = new NextRequest(
+      'http://localhost/auth/confirm?token_hash=abc&type=email&next=/',
+    )
+
+    await expect(GET(request)).rejects.toThrow('NEXT_REDIRECT')
+
+    expect(redirectMock).toHaveBeenCalledWith(APP_HOME)
+  })
+
+  it('should fall back to admin home when next is origin-only', async () => {
+    mockVerifyOtp.mockResolvedValue({ error: null })
+    mockGetUser.mockResolvedValue({
+      data: { user: { app_metadata: { role: ADMIN_ROLE } } },
+    })
+
+    const request = new NextRequest(
+      'http://localhost/auth/confirm?token_hash=abc&type=email&next=http://localhost',
+    )
+
+    await expect(GET(request)).rejects.toThrow('NEXT_REDIRECT')
+
+    expect(redirectMock).toHaveBeenCalledWith(ADMIN_HOME)
+  })
+
   it('should reject off-origin next and fall back to post-auth path', async () => {
     mockVerifyOtp.mockResolvedValue({ error: null })
 

@@ -110,6 +110,18 @@ export function LoginForm({ next, className, ...props }: LoginFormProps) {
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Logging in...' : 'Login'}
               </Button>
+              <div className="text-center text-sm">
+                <Link
+                  href={
+                    next
+                      ? `/auth/sign-in-link?${new URLSearchParams({ next }).toString()}`
+                      : '/auth/sign-in-link'
+                  }
+                  className="underline underline-offset-4"
+                >
+                  Email me a sign-in link
+                </Link>
+              </div>
             </div>
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{' '}

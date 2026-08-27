@@ -111,9 +111,11 @@ After Quick start, grant yourself admin access so you can use the admin shell:
 
 In the [Supabase Dashboard](https://app.supabase.com) for your linked project:
 
-- **Email templates** — Authentication → Email Templates. Replace the default verify link in each template so confirmation routes through this app:
+- **Email templates** — Authentication → Email Templates. Paste-ready reference HTML lives in [`supabase/templates/`](supabase/templates/). Replace the default verify link in each template so confirmation routes through this app:
   - **Confirm signup:** `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}`
+  - **Magic Link:** `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}`
   - **Reset Password:** `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next={{ .RedirectTo }}`
+- **OTP settings** — Authentication → Providers → Email. Code length, lifetime, and minimum send interval must match [`src/constants/auth.ts`](src/constants/auth.ts) (6 characters, 15 minutes, 30 seconds). Seminova is configured this way as of 2026-08-26; spinoffs must set them in the dashboard.
 - **Redirect URLs** — Authentication → URL Configuration → Redirect URLs. Add the patterns below (trailing glob matches any path under that origin):
 
 ```text
@@ -124,6 +126,9 @@ https://yourapp.com/**
 Replace `yourapp.com` with your deployed domain when you ship.
 
 If these are skipped, email confirmation links may fail silently or log `Missing access token on protected route` in the server console.
+
+> [!WARNING]
+> Tightening password strength rules in the Supabase dashboard silently breaks passwordless account creation. Magic-link sign-in creates accounts with an internally generated password; if your dashboard enforces character requirements this project does not use, those signups fail. Seminova has no character requirements today.
 
 ### Grant admin access
 

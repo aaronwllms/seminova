@@ -1,7 +1,7 @@
 import { createClient } from '@/supabase/server'
 import { getPostAuthRedirectPath } from '@/utils/admin'
 import { appLog } from '@/utils/app-logger'
-import { isSafeRedirect } from '@/utils/is-safe-redirect'
+import { isUsableRedirectNext } from '@/utils/is-safe-redirect'
 import { type EmailOtpType } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
 import { type NextRequest } from 'next/server'
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
       } = await supabase.auth.getUser()
       const fallback = getPostAuthRedirectPath(user?.app_metadata)
       const destination =
-        next && isSafeRedirect(next, request.url) ? next : fallback
+        next && isUsableRedirectNext(next, request.url) ? next : fallback
       redirect(destination)
     } else {
       appLog.error('auth-confirm', 'OTP verification failed', {

@@ -44,6 +44,22 @@ describe('LoginForm', () => {
     )
   })
 
+  it('should link to the sign-in-link request screen', () => {
+    render(<LoginForm />)
+
+    expect(
+      screen.getByRole('link', { name: /email me a sign-in link/i }),
+    ).toHaveAttribute('href', '/auth/sign-in-link')
+  })
+
+  it('should carry next on the sign-in-link CTA when provided', () => {
+    render(<LoginForm next="/admin/users" />)
+
+    expect(
+      screen.getByRole('link', { name: /email me a sign-in link/i }),
+    ).toHaveAttribute('href', '/auth/sign-in-link?next=%2Fadmin%2Fusers')
+  })
+
   it('should sign in and navigate to safe next when provided', async () => {
     mockSignInWithPassword.mockResolvedValue({
       error: null,
