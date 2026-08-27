@@ -19,6 +19,7 @@ import { useEffect, useState } from 'react'
 import { getPostAuthRedirectPath } from '@/utils/admin'
 import { extractAuthFormError } from '@/utils/extract-auth-form-error'
 import type { AppError } from '@/types/app-error'
+import { markHasPasswordAction } from '@/app/(app)/_lib/profile/actions'
 
 export function UpdatePasswordForm({
   className,
@@ -46,6 +47,7 @@ export function UpdatePasswordForm({
     try {
       const { data, error } = await supabase.auth.updateUser({ password })
       if (error) throw error
+      void markHasPasswordAction()
       router.refresh()
       router.push(getPostAuthRedirectPath(data.user?.app_metadata))
     } catch (caught: unknown) {

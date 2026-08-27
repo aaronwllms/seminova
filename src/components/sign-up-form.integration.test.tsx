@@ -52,7 +52,13 @@ describe('SignUpForm', () => {
     await user.click(screen.getByRole('button', { name: /^sign up$/i }))
 
     await waitFor(() => {
-      expect(mockSignUp).toHaveBeenCalled()
+      expect(mockSignUp).toHaveBeenCalledWith(
+        expect.objectContaining({
+          options: expect.objectContaining({
+            data: { has_password: true },
+          }),
+        }),
+      )
       expect(mockPush).toHaveBeenCalledWith('/auth/sign-up-success')
     })
   })

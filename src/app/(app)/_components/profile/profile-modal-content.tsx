@@ -1,5 +1,8 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
+import { useCallback, useState } from 'react'
+
 import {
   Accordion,
   AccordionContent,
@@ -20,16 +23,25 @@ const PASSWORD_ACCORDION_VALUE = 'password'
 type ProfileModalContentProps = {
   userId: string
   email: string
+  hasPassword: boolean
   defaultValues: ProfileFormValues
 }
 
 export const ProfileModalContent = ({
   userId,
   email,
+  hasPassword: initialHasPassword,
   defaultValues,
 }: ProfileModalContentProps) => {
+  const router = useRouter()
+  const [hasPassword, setHasPassword] = useState(initialHasPassword)
   const { passwordSectionRef, handleAccordionValueChange } =
     usePasswordAccordionScroll()
+
+  const handleFirstPasswordSet = useCallback(() => {
+    setHasPassword(true)
+    router.refresh()
+  }, [router])
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -65,10 +77,14 @@ export const ProfileModalContent = ({
           >
             {/* debt: drop px-2 when the trigger is restyled — extra horizontal padding breaks the modal content column */}
             <AccordionTrigger className="hover:bg-muted px-2 hover:no-underline">
-              Change Password
+              {hasPassword ? 'Change Password' : 'Set Password'}
             </AccordionTrigger>
             <AccordionContent className="pt-4">
-              <ProfilePasswordSection email={email} />
+              <ProfilePasswordSection
+                email={email}
+                hasPassword={hasPassword}
+                onFirstPasswordSet={handleFirstPasswordSet}
+              />
             </AccordionContent>
           </AccordionItem>
         </div>

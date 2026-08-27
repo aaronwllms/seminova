@@ -18,6 +18,7 @@ type ProfileSettingsDialogProps = {
   onOpenChange: (open: boolean) => void
   userId: string
   email: string
+  hasPassword: boolean
   profileLoadFailed: boolean
   defaultValues: ProfileFormValues
 }
@@ -27,6 +28,7 @@ export const ProfileSettingsDialog = ({
   onOpenChange,
   userId,
   email,
+  hasPassword,
   profileLoadFailed,
   defaultValues,
 }: ProfileSettingsDialogProps) => {
@@ -43,6 +45,7 @@ export const ProfileSettingsDialog = ({
         <ProfileModalContent
           userId={userId}
           email={email}
+          hasPassword={hasPassword}
           defaultValues={defaultValues}
         />
       </DialogContent>

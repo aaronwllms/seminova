@@ -12,6 +12,7 @@ const mockSetTheme = vi.fn()
 
 vi.mock('@/app/(app)/_lib/profile/actions', () => ({
   updateProfileAction: (...args: unknown[]) => mockUpdateProfileAction(...args),
+  setFirstPasswordAction: vi.fn(),
 }))
 
 vi.mock('next/navigation', () => ({
@@ -49,6 +50,7 @@ vi.mock('@/utils/avatar-storage', async (importOriginal) => {
 const defaultProps = {
   userId: 'user-1',
   email: 'test@example.com',
+  hasPassword: true,
   defaultValues: {
     displayName: 'Alex',
     bio: 'Builder',
@@ -98,5 +100,20 @@ describe('ProfileModalContent', () => {
     await user.click(screen.getByRole('button', { name: /change password/i }))
 
     expect(screen.getByLabelText(/current password/i)).toBeInTheDocument()
+  })
+
+  it('should show Set Password and no current field when hasPassword is false', async () => {
+    const user = userEvent.setup({ delay: null })
+
+    render(<ProfileModalContent {...defaultProps} hasPassword={false} />)
+
+    expect(
+      screen.getByRole('button', { name: /set password/i }),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /set password/i }))
+
+    expect(screen.queryByLabelText(/current password/i)).not.toBeInTheDocument()
+    expect(screen.getByLabelText(/^password$/i)).toBeInTheDocument()
   })
 })

@@ -53,6 +53,7 @@ export function SignUpForm({
         password,
         options: {
           emailRedirectTo: `${window.location.origin}${APP_HOME}`,
+          data: { has_password: true },
         },
       })
       if (error) throw error

@@ -16,6 +16,7 @@ import { ProfileSettingsDialog } from './profile-settings-dialog'
 type ProfileDialogProfile = {
   userId: string
   email: string
+  hasPassword: boolean
   profileLoadFailed: boolean
   defaultValues: ProfileFormValues
 }
@@ -48,6 +49,7 @@ export const ProfileDialogProvider = ({
   children,
   userId,
   email,
+  hasPassword,
   profileLoadFailed,
   defaultValues,
 }: ProfileDialogProviderProps) => {
@@ -63,6 +65,7 @@ export const ProfileDialogProvider = ({
         onOpenChange={setOpen}
         userId={userId}
         email={email}
+        hasPassword={hasPassword}
         profileLoadFailed={profileLoadFailed}
         defaultValues={defaultValues}
       />
