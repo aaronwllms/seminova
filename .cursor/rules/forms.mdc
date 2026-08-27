@@ -1,6 +1,6 @@
 ---
 description: Canonical form stack (react-hook-form + zod), the save-model rule (blur vs explicit submit vs upload completion vs per-row/per-section admin save), and password-field autofill conventions
-globs: src/**/*form*,src/**/actions.ts,src/**/*password-section*,src/**/*avatar-field*,src/hooks/use-blur-save-field.ts,src/components/blur-save-text-field.tsx,src/components/field-save-indicator.tsx
+globs: src/**/*form*,src/**/actions.ts,src/**/*password-section*,src/**/*avatar-field*,src/hooks/use-blur-save-field.ts,src/components/blur-save-text-field.tsx,src/components/field-save-indicator.tsx,src/components/email-otp-request-card.tsx
 alwaysApply: false
 ---
 <!-- Form-shaped paths only — actions, *form* components, password dialogs, avatar upload. New form components must match these globs or be added to them. -->
