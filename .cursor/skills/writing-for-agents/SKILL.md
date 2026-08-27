@@ -7,7 +7,9 @@ description: Reference for writing any document an agent reads — skills, rules
 <!-- Vendored verbatim from mattpocock/skills (mattpocock-skills v1.2.3, fetched 2026-08-21).
      Source: https://github.com/mattpocock/skills/tree/main/skills/productivity/writing-for-agents
      Two copies exist: .cursor/skills/writing-for-agents/ (Cursor) and the installed Claude skill.
-     Keep bodies identical; only frontmatter differs. -->
+     Keep bodies identical; only frontmatter differs.
+     Locally amended: SKILL-MECHANICS.md carries platform notes in § Invocation and
+     § Router skills that are absent upstream. Reapply after any re-vendor. -->
 
 Reference for writing any document an agent consumes: a skill, an `AGENTS.md` / `CLAUDE.md`, a doc reached by a pointer. The packaging differs; the writing does not: the same levers make each one predictable, since the agent takes the same _process_ every run rather than producing the same output.
 
