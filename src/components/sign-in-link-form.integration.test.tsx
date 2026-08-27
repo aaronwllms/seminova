@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@/test/test-utils'
+import { Activity } from 'react'
 import userEvent from '@testing-library/user-event'
 import { AuthApiError } from '@supabase/supabase-js'
 import { ADMIN_HOME } from '@/constants/admin-paths'
@@ -375,5 +376,35 @@ describe('SignInLinkForm', () => {
     expect(
       screen.getByRole('button', { name: /send sign-in link/i }),
     ).toBeInTheDocument()
+  })
+
+  it('should reset to an empty email field after the screen is hidden and shown again', async () => {
+    mockSignInWithOtp.mockResolvedValue({ error: null })
+    mockVerifyOtp.mockResolvedValue({
+      error: null,
+      data: { user: { app_metadata: {} } },
+    })
+
+    const VisibilityHarness = ({ visible }: { visible: boolean }) => (
+      <Activity mode={visible ? 'visible' : 'hidden'}>
+        <SignInLinkForm />
+      </Activity>
+    )
+
+    const { rerender } = render(<VisibilityHarness visible />)
+    const user = await submitEmail()
+    await enterOtpCode(user, '123456')
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/home')
+    })
+    expect(screen.getByText(/complete sign-in/i)).toBeInTheDocument()
+
+    rerender(<VisibilityHarness visible={false} />)
+    rerender(<VisibilityHarness visible />)
+
+    expect(screen.getByText(/sign in with email/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/email/i)).toHaveValue('')
+    expect(screen.queryByText(/complete sign-in/i)).not.toBeInTheDocument()
   })
 })
