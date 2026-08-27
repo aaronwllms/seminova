@@ -193,7 +193,7 @@ export function SignInLinkForm({
           <CardDescription>
             {success
               ? 'Use the link or code from your email'
-              : "Enter your email and we'll send you a link to sign in"}
+              : "Enter your email and we'll send you a sign in link"}
           </CardDescription>
         </CardHeader>
         <CardContent>
