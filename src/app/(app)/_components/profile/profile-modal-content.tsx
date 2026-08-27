@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 
 import {
   Accordion,
@@ -35,13 +35,23 @@ export const ProfileModalContent = ({
 }: ProfileModalContentProps) => {
   const router = useRouter()
   const [hasPassword, setHasPassword] = useState(initialHasPassword)
+  const [accordionValue, setAccordionValue] = useState('')
   const { passwordSectionRef, handleAccordionValueChange } =
     usePasswordAccordionScroll()
 
-  const handleFirstPasswordSet = useCallback(() => {
-    setHasPassword(true)
-    router.refresh()
-  }, [router])
+  const handleAccordionChange = (value: string) => {
+    setAccordionValue(value)
+    handleAccordionValueChange(value)
+  }
+
+  const handlePasswordSuccess = () => {
+    setAccordionValue('')
+    handleAccordionValueChange('')
+    if (!hasPassword) {
+      setHasPassword(true)
+      router.refresh()
+    }
+  }
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -68,7 +78,8 @@ export const ProfileModalContent = ({
       <Accordion
         type="single"
         collapsible
-        onValueChange={handleAccordionValueChange}
+        value={accordionValue}
+        onValueChange={handleAccordionChange}
       >
         <div ref={passwordSectionRef}>
           <AccordionItem
@@ -83,7 +94,7 @@ export const ProfileModalContent = ({
               <ProfilePasswordSection
                 email={email}
                 hasPassword={hasPassword}
-                onFirstPasswordSet={handleFirstPasswordSet}
+                onSuccess={handlePasswordSuccess}
               />
             </AccordionContent>
           </AccordionItem>

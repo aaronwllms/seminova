@@ -17,13 +17,13 @@ import { extractAuthFormError } from '@/utils/extract-auth-form-error'
 type ProfilePasswordSectionProps = {
   email: string
   hasPassword: boolean
-  onFirstPasswordSet?: () => void
+  onSuccess?: () => void
 }
 
 export const ProfilePasswordSection = ({
   email,
   hasPassword,
-  onFirstPasswordSet,
+  onSuccess,
 }: ProfilePasswordSectionProps) => {
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -80,6 +80,7 @@ export const ProfilePasswordSection = ({
 
       showSuccessToast('Password updated')
       resetForm()
+      onSuccess?.()
     } catch (caught: unknown) {
       setFormError(extractAuthFormError(caught))
     } finally {
@@ -108,7 +109,7 @@ export const ProfilePasswordSection = ({
 
       showSuccessToast('Password set')
       resetForm()
-      onFirstPasswordSet?.()
+      onSuccess?.()
     } catch (caught: unknown) {
       setFormError(extractAuthFormError(caught))
     } finally {

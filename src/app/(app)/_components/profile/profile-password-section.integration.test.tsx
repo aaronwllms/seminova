@@ -63,10 +63,15 @@ describe('ProfilePasswordSection', () => {
 
   it('should update password with current_password and show toast', async () => {
     mockUpdateUser.mockResolvedValue({ error: null })
+    const onSuccess = vi.fn()
     const user = userEvent.setup({ delay: null })
 
     render(
-      <ProfilePasswordSection email="test@example.com" hasPassword={true} />,
+      <ProfilePasswordSection
+        email="test@example.com"
+        hasPassword={true}
+        onSuccess={onSuccess}
+      />,
     )
 
     await user.type(screen.getByLabelText(/current password/i), 'old-password')
@@ -83,15 +88,21 @@ describe('ProfilePasswordSection', () => {
         current_password: 'old-password',
       })
       expect(mockShowSuccessToast).toHaveBeenCalledWith('Password updated')
+      expect(onSuccess).toHaveBeenCalled()
     })
   })
 
   it('should set first password without current field and show toast', async () => {
     mockSetFirstPasswordAction.mockResolvedValue({ success: true })
+    const onSuccess = vi.fn()
     const user = userEvent.setup({ delay: null })
 
     render(
-      <ProfilePasswordSection email="test@example.com" hasPassword={false} />,
+      <ProfilePasswordSection
+        email="test@example.com"
+        hasPassword={false}
+        onSuccess={onSuccess}
+      />,
     )
 
     expect(screen.queryByLabelText(/current password/i)).not.toBeInTheDocument()
@@ -106,6 +117,7 @@ describe('ProfilePasswordSection', () => {
       })
       expect(mockUpdateUser).not.toHaveBeenCalled()
       expect(mockShowSuccessToast).toHaveBeenCalledWith('Password set')
+      expect(onSuccess).toHaveBeenCalled()
     })
   })
 })
