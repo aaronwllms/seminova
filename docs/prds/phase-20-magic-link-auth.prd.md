@@ -166,7 +166,7 @@ between sends, and invalidates the previous code.
 - Document the code length, lifetime, and resend-interval settings as setup steps
   a spinoff must perform
 
-### Epic 3: Code entry for password recovery
+### Epic 3: Code entry for password recovery `Complete`
 
 **Success criteria:** A person resetting a forgotten password can complete
 verification by code without following the link, arriving at the screen where
