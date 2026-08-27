@@ -155,6 +155,11 @@ between sends, and invalidates the previous code.
 - Add resend with a visible countdown, clearing any partially entered code, and
   surfacing server rejection as a real message rather than a silent no-op
 - Place code entry directly in the sign-in request screen's confirmation state
+- Reset the request screen to its email field on arrival, so returning to it by
+  client-side navigation never shows a previous request's confirmation state —
+  including the address that request was sent to
+- Offer a way back to the email field from the confirmation state, so a mistyped
+  address is not a dead end
 - Add the code to both the sign-in and signup-confirmation email templates,
   formatted for automatic detection — code in the subject line, unbroken digits,
   no competing numbers nearby
@@ -173,6 +178,9 @@ with an account — same screen, same messages, nothing disclosed.
   screen
 - Preserve the existing non-committal confirmation copy, and confirm the screen
   behaves identically for an address with no account
+- Apply the same arrival reset and way-back-to-the-email-field behaviour to the
+  password-recovery request screen, which has the identical confirmation-state
+  defect today
 - Add the code to the password-recovery email template, matching the sign-in
   template's formatting, and commit the reference copy
 
