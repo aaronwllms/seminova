@@ -2,7 +2,7 @@
 
 **Purpose:** How phases move from idea to shipped code — the tools, the documents, and the workflow. For write discipline and doc-maintenance rules, see [DOC_RULES.md](DOC_RULES.md).
 
-**Last updated:** 2026-08-26
+**Last updated:** 2026-08-27
 
 ---
 
@@ -52,8 +52,8 @@ Full roles table and write discipline are authoritative in [DOC_RULES.md](DOC_RU
 | Document | What it is |
 | -------- | ---------- |
 | `ROADMAP.md` | Thin phase stubs — the planning horizon of confirmed phases. One row per phase with status and a PRD link. |
-| `BACKLOG.md` | Uncommitted product ideas — unordered, unnumbered, no PRD. Promoted to a numbered ROADMAP stub only on explicit sign-off, via `promote-backlog-item`. |
-| `docs/briefs/` | One brief per uncommitted idea — the problem, who it's for, why now, what's decided. Anchored to a `BACKLOG.md` entry; read into the PRD and deleted at the `Ready` flip. Consumed, never archived. |
+| `BACKLOG.md` | One entry per product idea — unordered, unnumbered, no PRD. An entry is uncommitted until it carries a `**Promoted:**` marker, added by `promote-backlog-item` on explicit sign-off or written directly by `project-kickoff` for the phases defined at kickoff. |
+| `docs/briefs/` | One brief per idea — the problem, who it's for, why now, what's decided. Anchored to a `BACKLOG.md` entry, committed or not; read into the PRD and deleted at the `Ready` flip. Consumed, never archived. |
 | `docs/prds/` | One PRD per phase — forward intent, epics, and stories. Moves to `docs/prds/archive/` on ship. |
 | `AGENTS.md` | Hard constraints, agent workflow gates, merge checklist, and change protocol. Cursor's primary governance reference. |
 | `LEXICON.md` | Shared architectural vocabulary. Inherited by every spinoff; spinoffs add domain terms on top. |
@@ -82,12 +82,12 @@ The session must collect before writing anything:
 - Phase stubs — the shape of the product's roadmap
 
 Outputs written by project kickoff:
-- `ROADMAP.md` — populated with real phase stubs
-- `BACKLOG.md` — uncommitted ideas surfaced in the session that aren't confirmed phases; Seminova's entries cleared, stub structure kept
+- `ROADMAP.md` — populated with real phase stubs, each carrying a `Source:` pointer to its `BACKLOG.md` entry
+- `BACKLOG.md` — one entry per phase above, carrying the sequencing and dependency notes the session collected under a `**Promoted:**` marker, plus one entry per uncommitted idea; Seminova's entries cleared, stub structure kept
 - `src/config/site.ts` — name, description, GitHub URL
 - `README.md` — pitch, audience, what-it-is/is-not (Seminova framing replaced)
 - `LEXICON.md` — new domain terms appended (architectural terms stay unchanged)
-- **Project instructions block** (chat output, not a file) — a block you paste into the Claude Project's custom instructions; the skill closes with the paste steps and the handoff to `initialize-project`
+- **Project instructions block** (chat output, not a file) — a block you paste into the Claude Project's custom instructions; the skill closes with the paste steps and the handoff to `initialize-project`, then `write-product-brief` on the first phase's entry
 
 These lists are a summary — the skill itself is the source of truth on conflict.
 
@@ -109,7 +109,7 @@ What `initialize-project` touches:
 - `CONTRIBUTING.md` — deletes the file; the template's contribution guide doesn't apply to a spinoff product
 
 What it does not touch:
-- `ROADMAP.md`, `LEXICON.md`, `site.ts`, `README.md` — project kickoff already wrote these correctly
+- `ROADMAP.md`, `BACKLOG.md`, `LEXICON.md`, `site.ts`, `README.md` — project kickoff already wrote these correctly
 - `.cursor/rules/`, `.cursor/skills/`, `AGENTS.md` — inherited unchanged; hard constraints inherit via AGENTS.md and `check:*` enforcement
 - `DESIGN.md` — inherited unchanged
 
@@ -125,30 +125,37 @@ After `initialize-project` completes, the repo is a real project, not a template
 
 Once the project is initialized, the phase-by-phase loop begins — one phase planned, built, and shipped before the next gets a deep pass.
 
-**Step 4 — Plan the phase** *(Claude-side skill: `phase-planning`)*
+**Step 4 — Write the phase's brief** *(Claude-side skill: `write-product-brief`)*
+Captures the phase's justification — the problem, who it's for, why now, what's decided, and what success looks like — as a brief in `docs/briefs/`, anchored to the phase's `BACKLOG.md` entry. It grills the four sections no other planning document asks for, so `phase-planning` opens on a settled problem instead of rediscovering it.
+
+Write it just before planning the phase, not at kickoff — a brief written months ahead of its turn goes stale, and `phase-planning` has to re-litigate it. Skip it when the phase is small enough that the PRD is the first thing worth writing: a copy fix, a one-epic cleanup.
+
+Enacts [DOC_RULES.md](DOC_RULES.md) rule 15 — `phase-planning` reads the brief into the PRD and deletes it at the `Ready` flip. Product briefs are consumed, never archived.
+
+**Step 5 — Plan the phase** *(Claude-side skill: `phase-planning`)*
 Claude reads ROADMAP, AGENTS.md (hard constraints), and the phase's ROADMAP stub — including any open questions attached to it — then works with you to decompose the target phase into numbered epics and vertical-slice stories.
 
 If the stub carries a `Source:` line, Claude follows it to the `BACKLOG.md` entry and to that entry's brief in `docs/briefs/` — the idea's settled problem, constraints, and rejected options, so the phase grill opens on what's already decided rather than rediscovering it. A brief still marked `Exploring` is a question for you before planning proceeds, not material to ingest as settled.
 
 Each story carries a success condition — the observable behavior that proves it's done, in product terms. The decomposition is shaped in chat during `Planning` and written into the PRD at the `Ready` flip; Claude writes the PRD only when you ask. The `Ready` flip also clears the phase's inputs — the ROADMAP stub, the source `BACKLOG.md` entry, and its brief all go, after a last read to confirm anything still worth keeping made it into the PRD. The locked PRD owns the scope from that point on.
 
-Phase status moves: `Draft → Planning` (PRD created, scope being shaped) → `Ready` (locked, approved to build). The `Active` flip is Step 5.
+Phase status moves: `Draft → Planning` (PRD created, scope being shaped) → `Ready` (locked, approved to build). The `Active` flip is Step 6.
 
-**Step 5 — Kick off the phase** *(Cursor-side skill: `kickoff-phase`)*
+**Step 6 — Kick off the phase** *(Cursor-side skill: `kickoff-phase`)*
 Run in a normal agent window — **not** Plan Mode. Creates the `phase-{N}/{slug}` branch, flips the PRD and its ROADMAP row from `Ready` to `Active`, and commits the planning-doc edits. Runs once per phase, before the first epic is planned; `plan-next-epic` halts if it hasn't.
 
-**Step 6 — Plan and review the epic** *(Cursor: `plan-next-epic` ↔ Claude: `plan-review`)*
+**Step 7 — Plan and review the epic** *(Cursor: `plan-next-epic` ↔ Claude: `plan-review`)*
 This step is a subloop — plan and review go back and forth until Claude signs off, which can take one pass or several:
 
-- **6a.** You invoke `plan-next-epic` in Cursor with **plan mode** active. This generates an implementation plan for the next unbuilt epic in the active PRD. Plans are always written sequentially; if an epic has clearly independent tracks, the plan notes it as a Build-in-Parallel candidate for you to act on.
+- **7a.** You invoke `plan-next-epic` in Cursor with **plan mode** active. This generates an implementation plan for the next unbuilt epic in the active PRD. Plans are always written sequentially; if an epic has clearly independent tracks, the plan notes it as a Build-in-Parallel candidate for you to act on.
 
   The plan opens in an editor panel but isn't in the repo yet. Click the **⋯** to the right of the **Build** button and choose **Save to workspace** — the last item in the menu. The file lands in `.cursor/plans/`. Then right-click the plan's editor tab and choose **Copy Path**.
-- **6b.** Give Claude that path, invoking `plan-review`. Claude reads the file and reviews it against AGENTS.md hard constraints and the PRD's intent, then runs a second pass against `.cursor/rules/` — violations only, not a walk of the corpus.
-- **6c.** Before reporting, Claude may need two kinds of input: decisions only you hold (posed as numbered choices — answer with the number), and codebase facts the plan doesn't show (Claude hands you a standalone verification prompt to paste into Cursor; paste Cursor's answer back).
-- **6d.** Claude reports findings, then revises the plan file directly — one describe-and-ask, your yes, the edit lands. If Cursor's verification answer or your decisions change the picture, Claude re-reviews and revises again.
+- **7b.** Give Claude that path, invoking `plan-review`. Claude reads the file and reviews it against AGENTS.md hard constraints and the PRD's intent, then runs a second pass against `.cursor/rules/` — violations only, not a walk of the corpus.
+- **7c.** Before reporting, Claude may need two kinds of input: decisions only you hold (posed as numbered choices — answer with the number), and codebase facts the plan doesn't show (Claude hands you a standalone verification prompt to paste into Cursor; paste Cursor's answer back).
+- **7d.** Claude reports findings, then revises the plan file directly — one describe-and-ask, your yes, the edit lands. If Cursor's verification answer or your decisions change the picture, Claude re-reviews and revises again.
 - **Exit condition:** Claude confirms the plan is good to build. A solid plan includes: (1) a quality gate (`pnpm pre-push`), (2) a **Commit epic** step authorized by the approved plan, and (3) manual verification steps you can work through after the build.
 
-**Step 7 — Build, verify, and complete**
+**Step 8 — Build, verify, and complete**
 Build in a **fresh agent window**, not the plan window. At the bottom of the approved plan, the *Referenced by N agents* line has a **+ New** button — click it, then prompt `implement as described`. The new window picks up the plan file as its reference on a clean context window.
 
 By the time `plan-next-epic` and the `plan-review` loop are done, the plan window's context is deep into its budget — and the build is the longest, most detail-sensitive run in the loop.
@@ -159,12 +166,12 @@ Then work the plan's manual verification steps yourself. If something's broken, 
 
 The build window closes by listing what's left and asking whether to mark the epic complete. Answer it once you've actually verified — the prompt is a reminder, not a check. **`/mark-epic-complete`** takes no arguments and resolves the epic from the PRD, so it runs equally well from that prompt, a fresh window, or the one you're already in.
 
-If the phase has more unbuilt epics, return to **Step 6** to plan and review the next one. Once every epic in the phase is built, move to Step 8.
+If the phase has more unbuilt epics, return to **Step 7** to plan and review the next one. Once every epic in the phase is built, move to Step 9.
 
-**Step 8 — Ship the phase** *(Cursor-side skill: `ship-phase`)*
+**Step 9 — Ship the phase** *(Cursor-side skill: `ship-phase`)*
 Chains `archive-cursor-plans` and `sync-repo-docs`, flips the PRD to `Shipped`, moves it to `docs/prds/archive/`, updates ROADMAP, commits, pushes, and opens a PR. Merge to main is a separate human step.
 
-Repeat Steps 4–8 for each phase.
+Repeat Steps 4–9 for each phase.
 
 **Why this way?** See [Why phase by phase?](#why-phase-by-phase).
 
@@ -184,8 +191,6 @@ Repeat Steps 4–8 for each phase.
 ## Other planning-system skills
 
 Not part of the numbered loop above, but operate on the planning docs rather than repo code:
-
-**`write-product-brief`** *(Claude-side)* — captures an uncommitted idea's justification — the problem, who it's for, why now, what's decided, and what success looks like — as a brief in `docs/briefs/`, anchored to a `BACKLOG.md` entry and writing that entry first if none exists. Grills the four sections no other planning document asks for. Enacts [DOC_RULES.md](DOC_RULES.md) rule 15: `phase-planning` reads the brief into the PRD and deletes it at the `Ready` flip — product briefs are consumed, never archived.
 
 **`promote-backlog-item`** *(Claude-side)* — moves one `BACKLOG.md` idea to a numbered `ROADMAP.md` phase stub: renumbers the Draft phases around it and writes a three-part stub — heading, a fresh line of intent, and a `Source:` pointer back to the entry. The entry itself survives promotion, unedited, marked `**Promoted:** Roadmap phase "Name"` (by name, since Draft numbers renumber); `phase-planning` reads it in full and deletes it — with its brief, if it has one — at the `Ready` flip. Enacts [DOC_RULES.md](DOC_RULES.md) rule 14 — promotion requires your explicit sign-off, never inferred. Stops at the stub; `phase-planning` decomposes it later.
 
@@ -216,7 +221,7 @@ For repo-maintenance and quality skills (security audits, tech-debt audits, desi
 
 ## Experimental — not part of the workflow
 
-These ship in the repo and are usable, but are not documented steps. Step 7 ends at `/mark-epic-complete`; these sit beside it while they're being proven or retired.
+These ship in the repo and are usable, but are not documented steps. Step 8 ends at `/mark-epic-complete`; these sit beside it while they're being proven or retired.
 
 - **`code-review`** *(Cursor-side)* — two-axis (Standards + Spec) review of an epic commit. Takes no arguments; resolves the epic from the PRD and the `Epic:` trailer. The two axes run as parallel readonly subagents defined in [`.cursor/agents/`](../.cursor/agents/), so neither pollutes the other's context; the skill dispatches them, and they're never invoked directly or automatically. Genuinely useful, but its severity grading and citation accuracy still need refinement before it earns a numbered step — `code-review-review` exists because of that.
 - **`pre-release-review`** *(Cursor-side)* — scoped static review before a PR: automated gates, security pass, hard constraints, manual test checklist. Overlaps `code-review` and the build plan's quality gate; whether it earns a named step is a [WORKFLOW_BACKLOG.md](WORKFLOW_BACKLOG.md) item.
