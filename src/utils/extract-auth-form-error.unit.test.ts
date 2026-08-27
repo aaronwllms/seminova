@@ -63,20 +63,37 @@ describe('extractAuthFormError', () => {
     })
   })
 
-  it('should fall back for unmapped auth codes and log supabaseCode', () => {
-    const error = new AuthApiError('OTP has expired', 400, 'otp_expired')
+  it('should map otp_expired to mismatch copy when otpExpired is false', () => {
+    const error = new AuthApiError('OTP has expired', 403, 'otp_expired')
 
-    expect(extractAuthFormError(error, { email: 'user@example.com' })).toEqual({
-      message: AUTH_ERROR_FALLBACK_MESSAGE,
+    expect(extractAuthFormError(error, { otpExpired: false })).toEqual({
+      message: "That code didn't match. Please try again.",
       code: 'SUPABASE_AUTH_ERROR',
       kind: 'operational',
     })
-    expect(error.message).not.toEqual(AUTH_ERROR_FALLBACK_MESSAGE)
-    expect(mockClientLogError).toHaveBeenCalledWith(
-      'auth-form-error',
-      'Supabase auth error',
-      { email: 'user@example.com', supabaseCode: 'otp_expired' },
-    )
+    expect(mockClientLogError).not.toHaveBeenCalled()
+  })
+
+  it('should map otp_expired to expired copy when otpExpired is true', () => {
+    const error = new AuthApiError('OTP has expired', 403, 'otp_expired')
+
+    expect(extractAuthFormError(error, { otpExpired: true })).toEqual({
+      message: 'That code has expired. Please request a new one.',
+      code: 'SUPABASE_AUTH_ERROR',
+      kind: 'operational',
+    })
+    expect(mockClientLogError).not.toHaveBeenCalled()
+  })
+
+  it('should default otp_expired to mismatch copy when otpExpired is absent', () => {
+    const error = new AuthApiError('OTP has expired', 403, 'otp_expired')
+
+    expect(extractAuthFormError(error, { email: 'user@example.com' })).toEqual({
+      message: "That code didn't match. Please try again.",
+      code: 'SUPABASE_AUTH_ERROR',
+      kind: 'operational',
+    })
+    expect(mockClientLogError).not.toHaveBeenCalled()
   })
 
   it('should map user_banned to suspension copy without logging', () => {
