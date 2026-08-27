@@ -1,7 +1,7 @@
 # PRD — Phase 20: Magic Link Auth
 
 **Status:** Active
-**Last updated:** 2026-08-26
+**Last updated:** 2026-08-27
 
 ---
 
@@ -107,7 +107,7 @@ Considered and deliberately excluded. Recorded so they aren't re-proposed.
 
 ## Epics & stories
 
-### Epic 1: Magic link sign-in via link
+### Epic 1: Magic link sign-in via link `Complete`
 
 **Success criteria:** A person can request a sign-in link from the login screen,
 receive it, follow it, and arrive signed in at the correct destination — the
