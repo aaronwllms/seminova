@@ -184,7 +184,7 @@ with an account — same screen, same messages, nothing disclosed.
 - Add the code to the password-recovery email template, matching the sign-in
   template's formatting, and commit the reference copy
 
-### Epic 4: Setting a first password
+### Epic 4: Setting a first password `Complete`
 
 **Success criteria:** A person who signed up without a password can set one from
 their profile and afterwards sign in with it. A person who already has a password
