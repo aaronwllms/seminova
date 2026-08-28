@@ -1,6 +1,6 @@
 # PRD — Phase 20: Magic Link Auth
 
-**Status:** Active
+**Status:** Shipped
 **Last updated:** 2026-08-27
 
 ---

@@ -157,10 +157,10 @@ Per-rule detail (topics and cross-references):
 
 ### `forms.mdc`
 
-**Applies to:** Form-shaped paths (`*form*`, `actions.ts`, password/avatar components)
+**Applies to:** Form-shaped paths (`*form*`, `actions.ts`, password/avatar components, email OTP request card)
 
 - Canonical form stack (`react-hook-form` + zod), save-model routing (blur-save vs explicit submit vs upload-on-complete)
-- Password-field `autocomplete` conventions
+- Credential-field `autocomplete` conventions (login username, email-only request, one-time code, current/new password)
 - Cross-reference: `error-handling.mdc` owns error envelopes and `InlineError` / `ErrorPanel`; `notifications.mdc` owns toast vs inline-indicator success feedback
 
 ### `notifications.mdc`
