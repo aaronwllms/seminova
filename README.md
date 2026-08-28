@@ -111,9 +111,14 @@ After Quick start, grant yourself admin access so you can use the admin shell:
 
 In the [Supabase Dashboard](https://app.supabase.com) for your linked project:
 
-- **Email templates** — Authentication → Email Templates. Replace the default verify link in each template so confirmation routes through this app:
-  - **Confirm signup:** `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}`
-  - **Reset Password:** `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next={{ .RedirectTo }}`
+- **Email templates** — Authentication → Email Templates. Paste-ready reference HTML lives in [`supabase/templates/`](supabase/templates/). Replace the default verify link in each template so confirmation routes through this app. Bodies include `{{ .Token }}` for typed code entry alongside the link.
+  - **Confirm signup body:** `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}`
+  - **Confirm signup subject:** `{{ .Token }} is your Seminova confirmation code`
+  - **Magic Link body:** `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}`
+  - **Magic Link subject:** `{{ .Token }} is your Seminova sign-in code`
+  - **Reset Password body:** `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next={{ .RedirectTo }}`
+  - **Reset Password subject:** `{{ .Token }} is your Seminova password reset code`
+- **OTP settings** — Authentication → Providers → Email. Code length, lifetime, and minimum send interval must match [`src/constants/auth.ts`](src/constants/auth.ts) (6 characters, 15 minutes, 30 seconds). The sign-in-link and password-recovery code-entry UIs read those constants for slot count, expiry messaging, and resend countdown — drift shows up as a wrong slot count or mismatched countdown. Seminova is configured this way as of 2026-08-26; spinoffs must set them in the dashboard.
 - **Redirect URLs** — Authentication → URL Configuration → Redirect URLs. Add the patterns below (trailing glob matches any path under that origin):
 
 ```text
@@ -124,6 +129,9 @@ https://yourapp.com/**
 Replace `yourapp.com` with your deployed domain when you ship.
 
 If these are skipped, email confirmation links may fail silently or log `Missing access token on protected route` in the server console.
+
+> [!WARNING]
+> Tightening password strength rules in the Supabase dashboard silently breaks passwordless account creation. Magic-link sign-in creates accounts with an internally generated password; if your dashboard enforces character requirements this project does not use, those signups fail. Seminova has no character requirements today.
 
 ### Grant admin access
 
@@ -202,11 +210,17 @@ After that, the repo is a real project, not a template copy — and the phase-by
 | `pnpm test:watch` | Vitest watch mode (local dev) |
 | `pnpm test:file` | Run one test file or pattern (`pnpm test:file -- <path>`) |
 | `pnpm test:ci` | Vitest run once with coverage gates (CI / agents) |
-| `pnpm pre-push` | Full local CI mirror (type-check → hard-constraint checks → lint → format-check → test:ci) |
+| `pnpm pre-push` | Full local CI mirror (type-check → lint → hard-constraint checks → format-check → test:ci) |
+| `pnpm check:pnpm-only` | pnpm as exclusive package manager (hard constraint) |
+| `pnpm check:checks-wired` | Every `check:*` script runs in pre-push and CI |
+| `pnpm check:no-shadcn-pkg` | Primitive-first UI, no shadcn npm package (hard constraint) |
+| `pnpm check:semantic-tokens` | Theming via semantic tokens only (hard constraint) |
+| `pnpm check:no-raw-console` | Application logging via wrappers (hard constraint) |
+| `pnpm check:auth-boundary` | Public/protected route boundary (hard constraint) |
+| `pnpm check:admin-gate` | Admin role on `auth.users`, never `profiles` (hard constraint) |
 | `pnpm check:seo-base-url` | SEO base-URL centralization (hard constraint) |
 | `pnpm check:a11y-structure` | Deterministic a11y structure (hard constraint) |
 | `pnpm check:a11y-contrast` | Deterministic a11y token contrast (hard constraint) |
-| `pnpm check:no-raw-console` | Application logging via wrappers (hard constraint) |
 | `pnpm test:ui` | Vitest UI |
 | `pnpm analyze` | Bundle analyzer |
 | `pnpm promote-admin <email>` | Grant admin role via CLI (requires secret key; bootstrap / automation) |
@@ -272,9 +286,11 @@ The template ships an **unauthenticated write path** into `app_logs` at `/api/cl
 
 **Pre-commit** (Husky): lint-staged on staged files — ESLint + Prettier for JS/TS; Prettier for markdown, JSON, YAML, and CSS (agent-authored docs in `.prettierignore` are skipped) — plus full-project type-check.
 
-**Pre-push** (Husky): `pnpm pre-push` — type-check → hard-constraint checks → lint → format-check → `test:ci` (with 80% coverage thresholds). Mirrors CI exactly.
+**Pre-push** (Husky): `pnpm pre-push` — type-check → lint → hard-constraint checks → format-check → `test:ci` (with 80% coverage thresholds). Mirrors CI exactly.
 
-**CI** (pull requests to `main`): same order as pre-push (`check:pnpm-only`, `check:no-shadcn-pkg`, `check:semantic-tokens`, `check:seo-base-url`, `check:a11y-structure`, `check:a11y-contrast`, `check:no-raw-console` before lint). See [.github/workflows/pull-request.yaml](.github/workflows/pull-request.yaml).
+**CI** (pull requests to `main`): same order as pre-push — `type-check`, `lint`, then `check:pnpm-only`, `check:checks-wired`, `check:no-shadcn-pkg`, `check:semantic-tokens`, `check:no-raw-console`, `check:auth-boundary`, `check:admin-gate`, `check:seo-base-url`, `check:a11y-structure`, `check:a11y-contrast`, then `format-check` and `test:ci`. See [.github/workflows/pull-request.yaml](.github/workflows/pull-request.yaml).
+
+The ESLint-backed checks run with `--cache` (stored in `node_modules/.cache/eslint/`). Repo-wide `lint` runs first and populates the cache, so the narrower per-constraint passes reuse it instead of re-parsing the same files.
 
 Before opening a PR, run locally:
 

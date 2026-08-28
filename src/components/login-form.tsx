@@ -3,6 +3,7 @@
 import { cn } from '@/utils/tailwind'
 import { createClient } from '@/supabase/client'
 import { AppErrorSurface } from '@/components/app-error-surface'
+import { OrDivider } from '@/components/or-divider'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -33,8 +34,16 @@ export function LoginForm({ next, className, ...props }: LoginFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    // Password managers write to the DOM and often auto-submit without React
+    // onChange. Read the live fields so we don't send empty/stale state.
+    const formData = new FormData(e.currentTarget)
+    const submittedEmail = String(formData.get('username') ?? '')
+    const submittedPassword = String(formData.get('password') ?? '')
+    setEmail(submittedEmail)
+    setPassword(submittedPassword)
+
     const supabase = createClient()
     setIsLoading(true)
     setFormError(null)
@@ -44,8 +53,8 @@ export function LoginForm({ next, className, ...props }: LoginFormProps) {
       await supabase.auth.signOut({ scope: 'local' })
 
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: submittedEmail,
+        password: submittedPassword,
       })
       if (error) throw error
       router.refresh()
@@ -55,7 +64,7 @@ export function LoginForm({ next, className, ...props }: LoginFormProps) {
           : getPostAuthRedirectPath(data.user?.app_metadata)
       router.push(destination)
     } catch (caught: unknown) {
-      setFormError(extractAuthFormError(caught, { email }))
+      setFormError(extractAuthFormError(caught, { email: submittedEmail }))
     } finally {
       setIsLoading(false)
     }
@@ -66,10 +75,10 @@ export function LoginForm({ next, className, ...props }: LoginFormProps) {
       <Card>
         <CardHeader>
           <CardTitle asChild>
-            <h1 className="text-2xl">Login</h1>
+            <h1 className="text-2xl">Sign in</h1>
           </CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Enter your email below to sign in to your account
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -79,12 +88,14 @@ export function LoginForm({ next, className, ...props }: LoginFormProps) {
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
+                  name="username"
                   type="email"
                   autoComplete="username"
-                  placeholder="m@example.com"
+                  placeholder="you@example.com"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  suppressHydrationWarning
                 />
               </div>
               <div className="grid gap-2">
@@ -92,29 +103,46 @@ export function LoginForm({ next, className, ...props }: LoginFormProps) {
                   <Label htmlFor="password">Password</Label>
                   <Link
                     href="/auth/forgot-password"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                    prefetch={false}
+                    className="ml-auto inline-block text-sm underline underline-offset-4"
                   >
                     Forgot your password?
                   </Link>
                 </div>
                 <Input
                   id="password"
+                  name="password"
                   type="password"
                   autoComplete="current-password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  suppressHydrationWarning
                 />
               </div>
               <AppErrorSurface error={formError} />
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Logging in...' : 'Login'}
+                {isLoading ? 'Signing in...' : 'Sign in'}
+              </Button>
+              <OrDivider />
+              <Button variant="outline" className="w-full" asChild>
+                <Link
+                  href={
+                    next
+                      ? `/auth/sign-in-link?${new URLSearchParams({ next }).toString()}`
+                      : '/auth/sign-in-link'
+                  }
+                  prefetch={false}
+                >
+                  Email me a link
+                </Link>
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{' '}
               <Link
                 href="/auth/sign-up"
+                prefetch={false}
                 className="underline underline-offset-4"
               >
                 Sign up

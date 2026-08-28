@@ -17,6 +17,7 @@ export const AppHeaderAccountNav = async ({
     <ProfileDialogProvider
       userId={profile.userId}
       email={profile.email}
+      hasPassword={profile.hasPassword}
       profileLoadFailed={profile.profileLoadFailed}
       defaultValues={{
         displayName: profile.displayName,

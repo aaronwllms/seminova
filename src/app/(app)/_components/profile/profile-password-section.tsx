@@ -2,24 +2,28 @@
 
 import { useState } from 'react'
 
+import { setFirstPasswordAction } from '@/app/(app)/_lib/profile/actions'
 import { AppErrorSurface } from '@/components/app-error-surface'
 import { InlineError } from '@/components/inline-error'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { MIN_PASSWORD_LENGTH } from '@/constants/auth'
 import { createClient } from '@/supabase/client'
 import type { AppError } from '@/types/app-error'
 import { showSuccessToast } from '@/utils/app-toast'
 import { extractAuthFormError } from '@/utils/extract-auth-form-error'
 
-const MIN_PASSWORD_LENGTH = 6
-
 type ProfilePasswordSectionProps = {
   email: string
+  hasPassword: boolean
+  onSuccess?: () => void
 }
 
 export const ProfilePasswordSection = ({
   email,
+  hasPassword,
+  onSuccess,
 }: ProfilePasswordSectionProps) => {
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -36,20 +40,28 @@ export const ProfilePasswordSection = ({
     setFormError(null)
   }
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
-    setValidationError(null)
-    setFormError(null)
-
+  const validatePasswordFields = (): boolean => {
     if (newPassword.length < MIN_PASSWORD_LENGTH) {
       setValidationError(
         `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
       )
-      return
+      return false
     }
 
     if (newPassword !== confirmPassword) {
       setValidationError('Passwords do not match.')
+      return false
+    }
+
+    return true
+  }
+
+  const handleChangePasswordSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
+    setValidationError(null)
+    setFormError(null)
+
+    if (!validatePasswordFields()) {
       return
     }
 
@@ -68,12 +80,46 @@ export const ProfilePasswordSection = ({
 
       showSuccessToast('Password updated')
       resetForm()
+      onSuccess?.()
     } catch (caught: unknown) {
       setFormError(extractAuthFormError(caught))
     } finally {
       setIsLoading(false)
     }
   }
+
+  const handleFirstPasswordSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
+    setValidationError(null)
+    setFormError(null)
+
+    if (!validatePasswordFields()) {
+      return
+    }
+
+    setIsLoading(true)
+
+    try {
+      const result = await setFirstPasswordAction({ password: newPassword })
+
+      if (!result.success) {
+        setFormError(result.error)
+        return
+      }
+
+      showSuccessToast('Password set')
+      resetForm()
+      onSuccess?.()
+    } catch (caught: unknown) {
+      setFormError(extractAuthFormError(caught))
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleSubmit = hasPassword
+    ? handleChangePasswordSubmit
+    : handleFirstPasswordSubmit
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -87,18 +133,22 @@ export const ProfilePasswordSection = ({
         aria-hidden
         className="sr-only"
       />
+      {hasPassword ? (
+        <div className="grid gap-2">
+          <Label htmlFor="current-password">Current password</Label>
+          <Input
+            id="current-password"
+            type="password"
+            autoComplete="current-password"
+            value={currentPassword}
+            onChange={(event) => setCurrentPassword(event.target.value)}
+          />
+        </div>
+      ) : null}
       <div className="grid gap-2">
-        <Label htmlFor="current-password">Current password</Label>
-        <Input
-          id="current-password"
-          type="password"
-          autoComplete="current-password"
-          value={currentPassword}
-          onChange={(event) => setCurrentPassword(event.target.value)}
-        />
-      </div>
-      <div className="grid gap-2">
-        <Label htmlFor="new-password">New password</Label>
+        <Label htmlFor="new-password">
+          {hasPassword ? 'New password' : 'Password'}
+        </Label>
         <Input
           id="new-password"
           type="password"
@@ -108,7 +158,9 @@ export const ProfilePasswordSection = ({
         />
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="confirm-password">Confirm new password</Label>
+        <Label htmlFor="confirm-password">
+          {hasPassword ? 'Confirm new password' : 'Confirm password'}
+        </Label>
         <Input
           id="confirm-password"
           type="password"
@@ -120,7 +172,13 @@ export const ProfilePasswordSection = ({
       {validationError ? <InlineError message={validationError} /> : null}
       <AppErrorSurface error={formError} />
       <Button type="submit" disabled={isLoading}>
-        {isLoading ? 'Updating…' : 'Update password'}
+        {isLoading
+          ? hasPassword
+            ? 'Updating…'
+            : 'Setting…'
+          : hasPassword
+            ? 'Update password'
+            : 'Set password'}
       </Button>
     </form>
   )

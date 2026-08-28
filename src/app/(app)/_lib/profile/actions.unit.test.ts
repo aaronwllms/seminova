@@ -11,13 +11,17 @@ const mockGetPublicUrl = vi.fn()
 const mockRemove = vi.fn()
 const mockAppLogDebug = vi.fn()
 const mockAppLogWarn = vi.fn()
+const mockAppLogError = vi.fn()
+const mockServiceUpdate = vi.fn()
+const mockServiceEq = vi.fn()
+const mockUpdateUserById = vi.fn()
 
 vi.mock('@/utils/app-logger', () => ({
   appLog: {
     debug: (...args: unknown[]) => mockAppLogDebug(...args),
     info: vi.fn(),
     warn: (...args: unknown[]) => mockAppLogWarn(...args),
-    error: vi.fn(),
+    error: (...args: unknown[]) => mockAppLogError(...args),
   },
 }))
 
@@ -35,8 +39,27 @@ vi.mock('@/supabase/server', () => ({
         remove: mockRemove,
       })),
     },
+    from: vi.fn((table: string) => {
+      if (table === 'profiles') {
+        return {
+          select: mockSelect,
+          update: mockUpdate,
+        }
+      }
+      return { update: mockUpdate }
+    }),
+  })),
+}))
+
+vi.mock('@/supabase/service', () => ({
+  createServiceClient: vi.fn(() => ({
+    auth: {
+      admin: {
+        updateUserById: mockUpdateUserById,
+      },
+    },
     from: vi.fn(() => ({
-      update: mockUpdate,
+      update: mockServiceUpdate,
     })),
   })),
 }))
@@ -50,7 +73,11 @@ vi.mock('next/cache', async (importOriginal) => {
   }
 })
 
-import { updateProfileAction } from './actions'
+import {
+  markHasPasswordAction,
+  setFirstPasswordAction,
+  updateProfileAction,
+} from './actions'
 
 describe('updateProfileAction', () => {
   beforeEach(() => {
@@ -64,8 +91,16 @@ describe('updateProfileAction', () => {
     mockRemove.mockReset()
     mockAppLogDebug.mockReset()
     mockAppLogWarn.mockReset()
+    mockAppLogError.mockReset()
+    mockServiceUpdate.mockReset()
+    mockServiceEq.mockReset()
+    mockUpdateUserById.mockReset()
 
-    mockRemove.mockResolvedValue({ data: [], error: null })
+    mockServiceUpdate.mockReturnValue({ eq: mockServiceEq })
+    mockServiceEq.mockResolvedValue({ error: null })
+    mockUpdateUserById.mockResolvedValue({ error: null })
+
+    mockSelect.mockReturnValue({ eq: mockEq })
 
     mockGetPublicUrl.mockReturnValue({
       data: { publicUrl: CANONICAL_PUBLIC_URL },
@@ -74,12 +109,16 @@ describe('updateProfileAction', () => {
     mockUpdate.mockReturnValue({
       eq: mockEq,
     })
-    mockEq.mockReturnValue({
+    mockEq.mockImplementation(() => ({
       select: mockSelect,
-    })
-    mockSelect.mockReturnValue({
       single: mockSingle,
-    })
+    }))
+    mockSelect.mockImplementation(() => ({
+      eq: mockEq,
+      single: mockSingle,
+    }))
+
+    mockRemove.mockResolvedValue({ data: [], error: null })
 
     mockGetUser.mockResolvedValue({
       data: { user: { id: USER_ID } },
@@ -339,5 +378,103 @@ describe('updateProfileAction', () => {
       success: false,
       error: { code: 'INTERNAL_ERROR', kind: 'fault' },
     })
+  })
+})
+
+describe('setFirstPasswordAction', () => {
+  beforeEach(() => {
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: USER_ID } },
+      error: null,
+    })
+    mockSingle.mockResolvedValue({
+      data: { has_password: false },
+      error: null,
+    })
+    mockServiceUpdate.mockClear()
+    mockServiceEq.mockClear()
+    mockUpdateUserById.mockClear()
+  })
+
+  it('should return operational error when unauthenticated', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: null }, error: null })
+
+    const result = await setFirstPasswordAction({ password: 'password123' })
+
+    expect(result).toMatchObject({
+      success: false,
+      error: { code: 'UNAUTHORIZED', kind: 'operational' },
+    })
+    expect(mockUpdateUserById).not.toHaveBeenCalled()
+  })
+
+  it('should reject when account already has a password', async () => {
+    mockSingle.mockResolvedValue({
+      data: { has_password: true },
+      error: null,
+    })
+
+    const result = await setFirstPasswordAction({ password: 'password123' })
+
+    expect(result).toMatchObject({
+      success: false,
+      error: { code: 'VALIDATION_ERROR', kind: 'operational' },
+    })
+    expect(mockServiceUpdate).not.toHaveBeenCalled()
+    expect(mockUpdateUserById).not.toHaveBeenCalled()
+  })
+
+  it('should set flag then update password on happy path', async () => {
+    const result = await setFirstPasswordAction({ password: 'password123' })
+
+    expect(mockServiceUpdate).toHaveBeenCalledWith({ has_password: true })
+    expect(mockUpdateUserById).toHaveBeenCalledWith(USER_ID, {
+      password: 'password123',
+    })
+    expect(result).toMatchObject({ success: true })
+  })
+
+  it('should return fault when password update fails after flag write', async () => {
+    mockUpdateUserById.mockResolvedValue({
+      error: { message: 'password update failed' },
+    })
+
+    const result = await setFirstPasswordAction({ password: 'password123' })
+
+    expect(mockServiceUpdate).toHaveBeenCalledWith({ has_password: true })
+    expect(result).toMatchObject({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', kind: 'fault' },
+    })
+  })
+})
+
+describe('markHasPasswordAction', () => {
+  beforeEach(() => {
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: USER_ID } },
+      error: null,
+    })
+    mockServiceUpdate.mockClear()
+    mockServiceEq.mockClear()
+  })
+
+  it('should return operational error when unauthenticated', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: null }, error: null })
+
+    const result = await markHasPasswordAction()
+
+    expect(result).toMatchObject({
+      success: false,
+      error: { code: 'UNAUTHORIZED', kind: 'operational' },
+    })
+    expect(mockServiceUpdate).not.toHaveBeenCalled()
+  })
+
+  it('should set has_password true on happy path', async () => {
+    const result = await markHasPasswordAction()
+
+    expect(mockServiceUpdate).toHaveBeenCalledWith({ has_password: true })
+    expect(result).toMatchObject({ success: true })
   })
 })

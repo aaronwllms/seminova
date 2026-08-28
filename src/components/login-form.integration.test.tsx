@@ -38,10 +38,53 @@ describe('LoginForm', () => {
       'autocomplete',
       'username',
     )
+    expect(screen.getByLabelText(/email/i)).toHaveAttribute('name', 'username')
     expect(screen.getByLabelText(/^password$/i)).toHaveAttribute(
       'autocomplete',
       'current-password',
     )
+  })
+
+  it('should sign in with values a password manager wrote to the DOM', async () => {
+    mockSignInWithPassword.mockResolvedValue({
+      error: null,
+      data: { user: { app_metadata: {} } },
+    })
+    const user = userEvent.setup({ delay: null })
+
+    render(<LoginForm />)
+
+    const nativeValue = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      'value',
+    )?.set
+    nativeValue?.call(screen.getByLabelText(/email/i), 'keeper@example.com')
+    nativeValue?.call(screen.getByLabelText(/^password$/i), 'keeper-password')
+
+    await user.click(screen.getByRole('button', { name: /^sign in$/i }))
+
+    await waitFor(() => {
+      expect(mockSignInWithPassword).toHaveBeenCalledWith({
+        email: 'keeper@example.com',
+        password: 'keeper-password',
+      })
+    })
+  })
+
+  it('should link to the sign-in-link request screen', () => {
+    render(<LoginForm />)
+
+    expect(
+      screen.getByRole('link', { name: /email me a link/i }),
+    ).toHaveAttribute('href', '/auth/sign-in-link')
+  })
+
+  it('should carry next on the sign-in-link CTA when provided', () => {
+    render(<LoginForm next="/admin/users" />)
+
+    expect(
+      screen.getByRole('link', { name: /email me a link/i }),
+    ).toHaveAttribute('href', '/auth/sign-in-link?next=%2Fadmin%2Fusers')
   })
 
   it('should sign in and navigate to safe next when provided', async () => {
@@ -55,7 +98,7 @@ describe('LoginForm', () => {
 
     await user.type(screen.getByLabelText(/email/i), 'test@example.com')
     await user.type(screen.getByLabelText(/^password$/i), 'password123')
-    await user.click(screen.getByRole('button', { name: /^login$/i }))
+    await user.click(screen.getByRole('button', { name: /^sign in$/i }))
 
     await waitFor(() => {
       expect(mockRefresh).toHaveBeenCalledOnce()
@@ -74,7 +117,7 @@ describe('LoginForm', () => {
 
     await user.type(screen.getByLabelText(/email/i), 'test@example.com')
     await user.type(screen.getByLabelText(/^password$/i), 'password123')
-    await user.click(screen.getByRole('button', { name: /^login$/i }))
+    await user.click(screen.getByRole('button', { name: /^sign in$/i }))
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/home')
@@ -92,7 +135,7 @@ describe('LoginForm', () => {
 
     await user.type(screen.getByLabelText(/email/i), 'test@example.com')
     await user.type(screen.getByLabelText(/^password$/i), 'password123')
-    await user.click(screen.getByRole('button', { name: /^login$/i }))
+    await user.click(screen.getByRole('button', { name: /^sign in$/i }))
 
     await waitFor(() => {
       expect(mockSignOut).toHaveBeenCalledWith({ scope: 'local' })
@@ -116,7 +159,7 @@ describe('LoginForm', () => {
 
     await user.type(screen.getByLabelText(/email/i), 'admin@example.com')
     await user.type(screen.getByLabelText(/^password$/i), 'password123')
-    await user.click(screen.getByRole('button', { name: /^login$/i }))
+    await user.click(screen.getByRole('button', { name: /^sign in$/i }))
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(ADMIN_HOME)
@@ -133,7 +176,7 @@ describe('LoginForm', () => {
 
     await user.type(screen.getByLabelText(/email/i), 'banned@example.com')
     await user.type(screen.getByLabelText(/^password$/i), 'password123')
-    await user.click(screen.getByRole('button', { name: /^login$/i }))
+    await user.click(screen.getByRole('button', { name: /^sign in$/i }))
 
     expect(
       await screen.findByText(/your account has been suspended/i),
@@ -155,7 +198,7 @@ describe('LoginForm', () => {
 
     await user.type(screen.getByLabelText(/email/i), 'test@example.com')
     await user.type(screen.getByLabelText(/^password$/i), 'wrong-password')
-    await user.click(screen.getByRole('button', { name: /^login$/i }))
+    await user.click(screen.getByRole('button', { name: /^sign in$/i }))
 
     expect(
       await screen.findByText(/invalid email or password/i),

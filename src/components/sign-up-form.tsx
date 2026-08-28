@@ -3,6 +3,7 @@
 import { cn } from '@/utils/tailwind'
 import { createClient } from '@/supabase/client'
 import { AppErrorSurface } from '@/components/app-error-surface'
+import { OrDivider } from '@/components/or-divider'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -53,6 +54,7 @@ export function SignUpForm({
         password,
         options: {
           emailRedirectTo: `${window.location.origin}${APP_HOME}`,
+          data: { has_password: true },
         },
       })
       if (error) throw error
@@ -80,9 +82,10 @@ export function SignUpForm({
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
+                  name="username"
                   type="email"
                   autoComplete="username"
-                  placeholder="m@example.com"
+                  placeholder="you@example.com"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -118,11 +121,21 @@ export function SignUpForm({
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Creating an account...' : 'Sign up'}
               </Button>
+              <OrDivider />
+              <Button variant="outline" className="w-full" asChild>
+                <Link href="/auth/sign-in-link" prefetch={false}>
+                  Email me a link
+                </Link>
+              </Button>
             </div>
             <div className="mt-4 text-center text-sm">
               Already have an account?{' '}
-              <Link href="/auth/login" className="underline underline-offset-4">
-                Login
+              <Link
+                href="/auth/login"
+                prefetch={false}
+                className="underline underline-offset-4"
+              >
+                Sign in
               </Link>
             </div>
           </form>

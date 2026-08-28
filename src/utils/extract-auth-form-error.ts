@@ -63,8 +63,22 @@ const AUTH_ERROR_OVERRIDES: Record<string, AppError> = {
   },
 }
 
+const OTP_EXPIRED_OVERRIDES = {
+  mismatch: {
+    message: "That code didn't match. Please try again.",
+    code: 'SUPABASE_AUTH_ERROR',
+    kind: 'operational',
+  },
+  expired: {
+    message: 'That code has expired. Please request a new one.',
+    code: 'SUPABASE_AUTH_ERROR',
+    kind: 'operational',
+  },
+} as const satisfies Record<string, AppError>
+
 export interface ExtractAuthFormErrorOptions {
   email?: string
+  otpExpired?: boolean
 }
 
 export const extractAuthFormError = (
@@ -74,6 +88,11 @@ export const extractAuthFormError = (
   const logContext = options?.email ? { email: options.email } : undefined
 
   if (isAuthError(caught) && typeof caught.code === 'string') {
+    if (caught.code === 'otp_expired') {
+      const variant = options?.otpExpired ? 'expired' : 'mismatch'
+      return { ...OTP_EXPIRED_OVERRIDES[variant] }
+    }
+
     const override = AUTH_ERROR_OVERRIDES[caught.code]
 
     if (override) {

@@ -74,9 +74,9 @@ Allowlist — correct as-is, never flag:
 
 ## What it never touches
 
-**Written by `project-kickoff`** — re-touching risks clobbering grill output: `ROADMAP.md`, `BACKLOG.md`, `src/config/site.ts`, `README.md`.
+**Written by `project-kickoff`** — re-touching risks clobbering grill output: `ROADMAP.md`, `BACKLOG.md`, `src/config/site.ts`, `README.md`, `LEXICON.md`.
 
-**Inherited unchanged** — this is the template's value; every spinoff keeps it as-is: `.cursor/rules/`, `.cursor/skills/`, `DESIGN.md`, `LEXICON.md`, `docs/adr/`, `docs/WORKFLOW_GUIDE.md`, `docs/WORKFLOW_SETUP.md`.
+**Inherited unchanged** — this is the template's value; every spinoff keeps it as-is: `.cursor/rules/`, `.cursor/skills/`, `DESIGN.md`, `docs/adr/`, `docs/WORKFLOW_GUIDE.md`, `docs/WORKFLOW_SETUP.md`.
 
 On `docs/adr/`: keep every ADR, including ones describing systems an early phase will delete. Deleting one destroys the record of why the surrounding code looks the way it does.
 
@@ -85,3 +85,5 @@ On `docs/adr/`: keep every ADR, including ones describing systems an early phase
 ## Completion
 
 Report in three parts: purged, written, surfaced. Account for **every** item in each list by name, including ones that were already done and no-opped — a list shorter than the skill's is an incomplete run, not a clean one. If a precondition halted the run, that report replaces the scrub — do not partially scrub and then report the halt.
+
+Close by sending the user back to Claude for `write-product-brief` on the first phase's `BACKLOG.md` entry, then `phase-planning`. Skip this when a precondition halted the run.

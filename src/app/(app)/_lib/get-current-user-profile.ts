@@ -14,6 +14,7 @@ export type CurrentUserProfile = ProfileFieldsView & {
   userId: string
   email: string
   isAdmin: boolean
+  hasPassword: boolean
   profileLoadFailed: boolean
 }
 
@@ -27,7 +28,7 @@ export const getCurrentUserProfile = cache(
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('display_name, avatar_url, bio')
+      .select('display_name, avatar_url, bio, has_password')
       .eq('id', claims.sub)
       .single()
 
@@ -40,6 +41,7 @@ export const getCurrentUserProfile = cache(
         bio: null,
         email,
         isAdmin: isAdminUser,
+        hasPassword: true,
         profileLoadFailed: true,
       }
     }
@@ -49,6 +51,7 @@ export const getCurrentUserProfile = cache(
       ...profileFieldsToView(profile as ProfileFields),
       email,
       isAdmin: isAdminUser,
+      hasPassword: profile.has_password,
       profileLoadFailed: false,
     }
   },

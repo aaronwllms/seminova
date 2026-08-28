@@ -1,0 +1,300 @@
+<!--
+  Seminova — Confirm signup email
+
+  Dashboard slot: Authentication > Emails > Confirm signup
+  Subject line:   {{ .Token }} is your Seminova confirmation code
+                  (paste the line above verbatim — the dashboard interpolates
+                  {{ .Token }} in the subject field, so it renders as e.g.
+                  "481920 is your Seminova confirmation code". Do not hardcode
+                  a literal code here. Subject lives in the dashboard, not in
+                  this file — the code must lead the subject, unbroken, for OS
+                  autofill to offer it)
+
+  This file is a REFERENCE COPY. The dashboard is authoritative; nothing detects
+  drift between the two. Paste this file whole, including this comment.
+
+  This template is a live passwordless path, not just a signup formality: a
+  sign-in request for an address with no account sends THIS email rather than
+  the magic link one. It needs the typed code just as much.
+
+  Token map — email cannot read CSS variables, so globals.css values are
+  transcribed to hex here. Re-skinning a spinoff means editing these by hand in
+  all three templates; DESIGN.md's re-skin audit only greps src/.
+
+    #6366F1  --primary                header band, button fill, fallback URL
+    #FFFFFF  --primary-foreground     wordmark, button label
+    #FFFFFF  --card                   email surface
+    #F8FAFC  --background             outer canvas
+    #1E293B  --foreground             headings, code digits
+    #334155  --secondary-foreground   (unused here; kept for parity)
+    #64748B  --muted-foreground       body copy
+    #F1F5F9  --muted                  code block fill
+    #E2E8F0  --border                 FLATTENED — the token is alpha
+                                      oklch(0 0 0 / 0.14), which email can't do
+    #94A3B8  (no token)               EMAIL-ONLY hint tier. The system has one
+                                      muted step; email needs a step below body
+                                      copy. Deliberate, not an oversight.
+
+  Notes for anyone editing:
+  - The code block copy names the signup explicitly. The typed code only works
+    in the tab the request was made from — request state is in-memory, so a
+    closed tab or a reload cannot accept it.
+  - "fifteen minutes" is spelled out, and sits below the code, so no competing
+    number lands near the digits and spoils autofill.
+  - Do not split, space, or hyphenate {{ .Token }}. letter-spacing is visual
+    only and keeps the six characters unbroken for paste and autofill.
+  - Outlook (Windows) drops border-radius; the button and card render square
+    there. Accepted rather than adding VML to every file.
+-->
+<table
+  role="presentation"
+  width="100%"
+  cellpadding="0"
+  cellspacing="0"
+  border="0"
+  style="margin: 0; padding: 0; background-color: #f8fafc"
+>
+  <tr>
+    <td align="center" style="padding: 24px 12px">
+      <div
+        style="
+          display: none;
+          max-height: 0;
+          overflow: hidden;
+          mso-hide: all;
+          font-size: 1px;
+          line-height: 1px;
+          color: #f8fafc;
+        "
+      >
+        Use the button below, or enter the code where you started.
+      </div>
+
+      <table
+        role="presentation"
+        width="600"
+        cellpadding="0"
+        cellspacing="0"
+        border="0"
+        style="
+          width: 100%;
+          max-width: 600px;
+          background-color: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+        "
+      >
+        <tr>
+          <td
+            style="
+              background-color: #6366f1;
+              padding: 20px 40px;
+              border-radius: 8px 8px 0 0;
+              font-family:
+                -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                Helvetica, Arial, sans-serif;
+              font-size: 16px;
+              font-weight: 500;
+              color: #ffffff;
+            "
+          >
+            Seminova
+          </td>
+        </tr>
+        <tr>
+          <td
+            style="
+              padding: 36px 40px 32px;
+              font-family:
+                -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                Helvetica, Arial, sans-serif;
+            "
+          >
+            <div
+              style="
+                font-size: 22px;
+                font-weight: 500;
+                color: #1e293b;
+                line-height: 1.3;
+                margin-bottom: 10px;
+              "
+            >
+              Confirm your email
+            </div>
+            <div
+              style="
+                font-size: 15px;
+                color: #64748b;
+                line-height: 1.6;
+                margin-bottom: 28px;
+              "
+            >
+              Click the button below to confirm your address and finish setting
+              up your account.
+            </div>
+
+            <table
+              role="presentation"
+              cellpadding="0"
+              cellspacing="0"
+              border="0"
+              style="margin-bottom: 16px"
+            >
+              <tr>
+                <td style="background-color: #6366f1; border-radius: 8px">
+                  <a
+                    href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}"
+                    style="
+                      display: inline-block;
+                      padding: 13px 28px;
+                      font-family:
+                        -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                        Helvetica, Arial, sans-serif;
+                      font-size: 15px;
+                      font-weight: 500;
+                      color: #ffffff;
+                      text-decoration: none;
+                    "
+                    >Confirm email</a
+                  >
+                </td>
+              </tr>
+            </table>
+
+            <div
+              style="
+                font-size: 13px;
+                color: #94a3b8;
+                line-height: 1.6;
+                margin-bottom: 32px;
+                word-break: break-all;
+              "
+            >
+              Button not working? Paste this into your browser:<br />
+              <span style="color: #6366f1"
+                >{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash
+                }}&type=email&next={{ .RedirectTo }}</span
+              >
+            </div>
+
+            <div
+              style="
+                height: 1px;
+                font-size: 0;
+                line-height: 1px;
+                background-color: #e2e8f0;
+                margin-bottom: 28px;
+              "
+            >
+              &nbsp;
+            </div>
+
+            <div
+              style="
+                font-size: 15px;
+                font-weight: 500;
+                color: #1e293b;
+                line-height: 1.5;
+                margin-bottom: 8px;
+              "
+            >
+              Or finish where you started
+            </div>
+            <div
+              style="
+                font-size: 14px;
+                color: #64748b;
+                line-height: 1.6;
+                margin-bottom: 16px;
+              "
+            >
+              Return to the tab where you signed up and enter the code below.
+            </div>
+
+            <table
+              role="presentation"
+              width="100%"
+              cellpadding="0"
+              cellspacing="0"
+              border="0"
+              style="margin-bottom: 14px"
+            >
+              <tr>
+                <td
+                  align="center"
+                  style="
+                    background-color: #f1f5f9;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 8px;
+                    padding: 18px;
+                    font-family:
+                      ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+                    font-size: 30px;
+                    font-weight: 500;
+                    letter-spacing: 6px;
+                    color: #1e293b;
+                  "
+                >
+                  {{ .Token }}
+                </td>
+              </tr>
+            </table>
+
+            <div
+              style="
+                font-size: 13px;
+                color: #94a3b8;
+                line-height: 1.6;
+                margin-bottom: 28px;
+              "
+            >
+              This link and code both expire in fifteen minutes.
+            </div>
+
+            <div
+              style="
+                height: 1px;
+                font-size: 0;
+                line-height: 1px;
+                background-color: #e2e8f0;
+                margin-bottom: 24px;
+              "
+            >
+              &nbsp;
+            </div>
+
+            <div style="font-size: 13px; color: #94a3b8; line-height: 1.6">
+              If you didn't create an account, you can ignore this email.
+              Someone may have typed your address by mistake.
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      <table
+        role="presentation"
+        width="600"
+        cellpadding="0"
+        cellspacing="0"
+        border="0"
+        style="width: 100%; max-width: 600px"
+      >
+        <tr>
+          <td
+            align="center"
+            style="
+              padding-top: 20px;
+              font-family:
+                -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                Helvetica, Arial, sans-serif;
+              font-size: 12px;
+              color: #94a3b8;
+            "
+          >
+            Seminova
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>

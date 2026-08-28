@@ -11,6 +11,7 @@ export const AdminSidebarNavUser = async () => {
     <ProfileDialogProvider
       userId={profile.userId}
       email={email}
+      hasPassword={profile.hasPassword}
       profileLoadFailed={profile.profileLoadFailed}
       defaultValues={{
         displayName: profile.displayName,

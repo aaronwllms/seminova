@@ -1,9 +1,8 @@
 ---
 description: API development standards for Next.js App Router routes
+globs: src/app/api/**/*.ts
 alwaysApply: false
-globs: src/app/api/**/*.ts, src/app/api/**/*.tsx
 ---
-
 # API Development Guidelines
 
 **Note:** For comprehensive error handling patterns, logging standards, and error codes, see `.cursor/rules/error-handling.mdc`

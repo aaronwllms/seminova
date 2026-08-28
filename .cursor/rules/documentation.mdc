@@ -1,6 +1,6 @@
 ---
 description: Structural guardrail for the docs/ directory — layout and where things go
-globs: docs/**/*.md, docs/**/*.txt
+globs: docs/**/*.md
 alwaysApply: false
 ---
 # docs/ Structure Guardrail

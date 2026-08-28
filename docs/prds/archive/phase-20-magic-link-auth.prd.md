@@ -1,7 +1,7 @@
 # PRD — Phase 20: Magic Link Auth
 
-**Status:** Ready
-**Last updated:** 2026-08-26
+**Status:** Shipped
+**Last updated:** 2026-08-27
 
 ---
 
@@ -107,7 +107,7 @@ Considered and deliberately excluded. Recorded so they aren't re-proposed.
 
 ## Epics & stories
 
-### Epic 1: Magic link sign-in via link
+### Epic 1: Magic link sign-in via link `Complete`
 
 **Success criteria:** A person can request a sign-in link from the login screen,
 receive it, follow it, and arrive signed in at the correct destination — the
@@ -137,7 +137,7 @@ account.
 - Cover the shared verification route with tests for this path, which has never
   been exercised
 
-### Epic 2: Code entry for magic link sign-in
+### Epic 2: Code entry for magic link sign-in `Complete`
 
 **Success criteria:** A person who requested a sign-in link can type or paste the
 code from that email into the same screen and sign in without ever following the
@@ -155,13 +155,18 @@ between sends, and invalidates the previous code.
 - Add resend with a visible countdown, clearing any partially entered code, and
   surfacing server rejection as a real message rather than a silent no-op
 - Place code entry directly in the sign-in request screen's confirmation state
+- Reset the request screen to its email field on arrival, so returning to it by
+  client-side navigation never shows a previous request's confirmation state —
+  including the address that request was sent to
+- Offer a way back to the email field from the confirmation state, so a mistyped
+  address is not a dead end
 - Add the code to both the sign-in and signup-confirmation email templates,
   formatted for automatic detection — code in the subject line, unbroken digits,
   no competing numbers nearby
 - Document the code length, lifetime, and resend-interval settings as setup steps
   a spinoff must perform
 
-### Epic 3: Code entry for password recovery
+### Epic 3: Code entry for password recovery `Complete`
 
 **Success criteria:** A person resetting a forgotten password can complete
 verification by code without following the link, arriving at the screen where
@@ -173,10 +178,13 @@ with an account — same screen, same messages, nothing disclosed.
   screen
 - Preserve the existing non-committal confirmation copy, and confirm the screen
   behaves identically for an address with no account
+- Apply the same arrival reset and way-back-to-the-email-field behaviour to the
+  password-recovery request screen, which has the identical confirmation-state
+  defect today
 - Add the code to the password-recovery email template, matching the sign-in
   template's formatting, and commit the reference copy
 
-### Epic 4: Setting a first password
+### Epic 4: Setting a first password `Complete`
 
 **Success criteria:** A person who signed up without a password can set one from
 their profile and afterwards sign in with it. A person who already has a password
@@ -190,7 +198,7 @@ still gets the flow requiring their current one.
   person is actually doing
 - Cover both variants with tests
 
-### Epic 5: Close-out
+### Epic 5: Close-out `Complete`
 
 **Success criteria:** The template's feature inventory reflects passwordless
 sign-in, and a decision is on record about whether the two email-request screens

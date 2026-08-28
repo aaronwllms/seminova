@@ -30,6 +30,7 @@ describe('SignUpForm', () => {
       'autocomplete',
       'username',
     )
+    expect(screen.getByLabelText(/email/i)).toHaveAttribute('name', 'username')
     expect(screen.getByLabelText(/^password$/i)).toHaveAttribute(
       'autocomplete',
       'new-password',
@@ -52,9 +53,23 @@ describe('SignUpForm', () => {
     await user.click(screen.getByRole('button', { name: /^sign up$/i }))
 
     await waitFor(() => {
-      expect(mockSignUp).toHaveBeenCalled()
+      expect(mockSignUp).toHaveBeenCalledWith(
+        expect.objectContaining({
+          options: expect.objectContaining({
+            data: { has_password: true },
+          }),
+        }),
+      )
       expect(mockPush).toHaveBeenCalledWith('/auth/sign-up-success')
     })
+  })
+
+  it('should link to the passwordless email request screen', () => {
+    render(<SignUpForm />)
+
+    expect(
+      screen.getByRole('link', { name: /email me a link/i }),
+    ).toHaveAttribute('href', '/auth/sign-in-link')
   })
 
   it('should show an error when passwords do not match', async () => {

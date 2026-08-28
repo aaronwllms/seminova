@@ -60,6 +60,7 @@ describe('getCurrentUserProfile', () => {
         display_name: 'Alex',
         avatar_url: 'https://example.test/avatar.webp?v=1',
         bio: 'Builder',
+        has_password: true,
       },
       error: null,
     })
@@ -71,6 +72,7 @@ describe('getCurrentUserProfile', () => {
       bio: 'Builder',
       email: 'alex@example.com',
       isAdmin: false,
+      hasPassword: true,
       profileLoadFailed: false,
     })
   })
@@ -93,6 +95,7 @@ describe('getCurrentUserProfile', () => {
       bio: null,
       email: 'alex@example.com',
       isAdmin: false,
+      hasPassword: true,
       profileLoadFailed: true,
     })
   })

@@ -1,107 +1,57 @@
 'use client'
 
-import { cn } from '@/utils/tailwind'
 import { createClient } from '@/supabase/client'
-import { AppErrorSurface } from '@/components/app-error-surface'
-import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { EmailOtpRequestCard } from '@/components/email-otp-request-card'
 import Link from 'next/link'
-import { useState } from 'react'
 
-import { extractAuthFormError } from '@/utils/extract-auth-form-error'
-import type { AppError } from '@/types/app-error'
-
-export function ForgotPasswordForm({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<'div'>) {
-  const [email, setEmail] = useState('')
-  const [formError, setFormError] = useState<AppError | null>(null)
-  const [success, setSuccess] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-
-  const handleForgotPassword = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const supabase = createClient()
-    setIsLoading(true)
-    setFormError(null)
-
-    try {
-      // The url which will be included in the email. This URL needs to be configured in your redirect URLs in the Supabase dashboard at https://supabase.com/dashboard/project/_/auth/url-configuration
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/update-password`,
-      })
-      if (error) throw error
-      setSuccess(true)
-    } catch (caught: unknown) {
-      setFormError(extractAuthFormError(caught, { email }))
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
+export function ForgotPasswordForm(
+  props: React.ComponentPropsWithoutRef<'div'>,
+) {
   return (
-    <div className={cn('flex flex-col gap-6', className)} {...props}>
-      <Card>
-        <CardHeader>
-          <CardTitle asChild>
-            <h1 className="text-2xl">
-              {success ? 'Check Your Email' : 'Reset Your Password'}
-            </h1>
-          </CardTitle>
-          <CardDescription>
-            {success
-              ? 'Password reset instructions sent'
-              : "Type in your email and we'll send you a link to reset your password"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {success ? (
-            <p className="text-muted-foreground text-sm">
-              If you registered using your email and password, you will receive
-              a password reset email.
-            </p>
-          ) : (
-            <form onSubmit={handleForgotPassword}>
-              <div className="flex flex-col gap-6">
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    autoComplete="username"
-                    placeholder="m@example.com"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <AppErrorSurface error={formError} />
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? 'Sending...' : 'Send reset email'}
-                </Button>
-              </div>
-              <div className="mt-4 text-center text-sm">
-                Already have an account?{' '}
-                <Link
-                  href="/auth/login"
-                  className="underline underline-offset-4"
-                >
-                  Login
-                </Link>
-              </div>
-            </form>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+    <EmailOtpRequestCard
+      send={async (email) => {
+        const supabase = createClient()
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/auth/update-password`,
+        })
+        if (error) throw error
+      }}
+      verify={async (email, token) => {
+        const supabase = createClient()
+        const { error } = await supabase.auth.verifyOtp({
+          email,
+          token,
+          type: 'recovery',
+        })
+        if (error) throw error
+
+        return '/auth/update-password'
+      }}
+      title="Reset Your Password"
+      successTitle="Complete password reset"
+      description="Type in your email and we'll send you a link to reset your password"
+      successDescription="Use the link or code from your email"
+      successBody={() => (
+        <p className="text-muted-foreground text-sm">
+          If you registered using your email and password, you will receive a
+          password reset email. If you received an email, enter the code below,
+          or follow the link instead.
+        </p>
+      )}
+      submitLabel="Send reset email"
+      footer={
+        <>
+          Already have an account?{' '}
+          <Link
+            href="/auth/login"
+            prefetch={false}
+            className="underline underline-offset-4"
+          >
+            Sign in
+          </Link>
+        </>
+      }
+      {...props}
+    />
   )
 }

@@ -2,7 +2,7 @@
 
 The planning horizon: anticipated phases as thin stubs, plus living status. Uncommitted product ideas live in [BACKLOG.md](BACKLOG.md) until explicitly promoted to a phase here. Shipped phase detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md); workflow gates and hard constraints in [AGENTS.md](AGENTS.md); schema in `supabase/migrations/`. Phase status vocabulary and PRD lifecycle in [docs/DOC_RULES.md](docs/DOC_RULES.md).
 
-**Last updated:** 2026-08-26
+**Last updated:** 2026-08-27
 
 ---
 
@@ -29,7 +29,7 @@ The planning horizon: anticipated phases as thin stubs, plus living status. Unco
 | 17 | Instruction Budget & Doc Ownership | `Shipped` | [Phase 17 PRD](docs/prds/archive/phase-17-instruction-budget-doc-ownership.prd.md) |
 | 18 | Banner Persistence & Dismissal | `Shipped` | [Phase 18 PRD](docs/prds/archive/phase-18-banner-persistence-dismissal.prd.md) |
 | 19 | Surface Coherence & Border Tokens | `Shipped` | [Phase 19 PRD](docs/prds/archive/phase-19-surface-coherence-border-tokens.prd.md) |
-| 20 | Magic Link Auth | `Ready` | [Phase 20 PRD](docs/prds/phase-20-magic-link-auth.prd.md) |
+| 20 | Magic Link Auth | `Shipped` | [Phase 20 PRD](docs/prds/archive/phase-20-magic-link-auth.prd.md) |
 
 > [!NOTE]
 > Phases 1–7 pre-date the per-phase PRD system, so their PRD column is empty; their shipped detail lives in [docs/archive/CONTEXT_ARCHIVE.md](docs/archive/CONTEXT_ARCHIVE.md). From Phase 8 on, shipped rows link the archived PRD per [docs/DOC_RULES.md](docs/DOC_RULES.md).

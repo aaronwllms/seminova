@@ -7,6 +7,7 @@ const mockUpdateUser = vi.fn()
 const mockGetUser = vi.fn()
 const mockPush = vi.fn()
 const mockRefresh = vi.fn()
+const mockMarkHasPasswordAction = vi.fn()
 
 vi.mock('@/supabase/client', () => ({
   createClient: () => ({
@@ -15,6 +16,10 @@ vi.mock('@/supabase/client', () => ({
       getUser: mockGetUser,
     },
   }),
+}))
+
+vi.mock('@/app/(app)/_lib/profile/actions', () => ({
+  markHasPasswordAction: () => mockMarkHasPasswordAction(),
 }))
 
 vi.mock('next/navigation', () => ({
@@ -27,6 +32,8 @@ describe('UpdatePasswordForm', () => {
     mockGetUser.mockReset()
     mockPush.mockReset()
     mockRefresh.mockReset()
+    mockMarkHasPasswordAction.mockReset()
+    mockMarkHasPasswordAction.mockResolvedValue({ success: true })
     mockGetUser.mockResolvedValue({
       data: { user: { email: 'recover@example.com' } },
       error: null,
@@ -65,6 +72,7 @@ describe('UpdatePasswordForm', () => {
       expect(mockUpdateUser).toHaveBeenCalledWith({
         password: 'new-password-123',
       })
+      expect(mockMarkHasPasswordAction).toHaveBeenCalledOnce()
       expect(mockRefresh).toHaveBeenCalledOnce()
       expect(mockPush).toHaveBeenCalledWith('/home')
     })

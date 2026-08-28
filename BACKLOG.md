@@ -166,3 +166,27 @@ browsers and route them into `app_logs`, surfaced on the existing admin logs pag
   per user.
 
 - **Research:** [RESEARCH-0006](docs/research/archive/RESEARCH-0006-csp-enforcement-nextjs-cache-components.md)
+
+---
+
+## Workflow diagram — brief step
+
+**What:** Update the `/workflow` page and the README workflow images to show
+`write-product-brief` as a numbered step in the phase loop.
+
+**Notes:**
+
+- **Three surfaces, one change:** the `/workflow` page's interactive loop diagram and
+  its documents table, plus `public/images/workflow-{light,dark}.svg`.
+  [WORKFLOW_GUIDE.md](docs/WORKFLOW_GUIDE.md) already numbers the brief as Step 4; all
+  three still show the old eight-step loop.
+
+- **Documents table gap:** the page's table carries no `docs/briefs/` row at all —
+  briefs post-date it.
+
+- **Open — consolidate or keep both:** [WORKFLOW_BACKLOG.md](docs/WORKFLOW_BACKLOG.md)
+  carries a Mermaid-swimlane replacement for the SVG pair, blocked on Cursor preview
+  rendering. If that lands, this is one diagram to update rather than three surfaces.
+
+- **Sequencing:** cheap to fold into any phase already touching `/workflow`; not worth
+  a phase of its own.

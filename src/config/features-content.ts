@@ -68,9 +68,9 @@ export const featuresContent = {
       icon: Lock,
       capabilities: [
         {
-          name: 'Email and password auth',
+          name: 'Password and magic-link auth',
           blurb:
-            'Sign-up, login, forgot password, and update-password flows under the shared auth layout.',
+            'Password sign-up and sign-in, plus a sign-in link or typed code that can create an account on its own.',
           icon: Mail,
         },
         {
@@ -88,7 +88,7 @@ export const featuresContent = {
         {
           name: 'Email confirmation flow',
           blurb:
-            'Confirm and recovery routes with safe post-auth redirects and mapped auth error copy.',
+            'Confirm and recovery routes with safe redirects, mapped error copy, and code entry on the screen that requested the email.',
           icon: MailCheck,
         },
       ],

@@ -1,9 +1,8 @@
 ---
 description: Canonical form stack (react-hook-form + zod), the save-model rule (blur vs explicit submit vs upload completion vs per-row/per-section admin save), and password-field autofill conventions
-globs: src/**/*form*, src/**/actions.ts, src/**/*password-dialog*, src/**/*password-section*, src/**/*avatar-field*, src/hooks/use-blur-save-field.ts, src/components/blur-save-text-field.tsx, src/components/field-save-indicator.tsx
+globs: src/**/*form*,src/**/actions.ts,src/**/*password-section*,src/**/*avatar-field*,src/hooks/use-blur-save-field.ts,src/components/blur-save-text-field.tsx,src/components/field-save-indicator.tsx,src/components/email-otp-request-card.tsx
 alwaysApply: false
 ---
-
 <!-- Form-shaped paths only — actions, *form* components, password dialogs, avatar upload. New form components must match these globs or be added to them. -->
 
 # Forms (react-hook-form + zod)
@@ -46,7 +45,8 @@ Any form with credential fields carries the correct `autocomplete` tokens so pas
 managers and browsers behave correctly. **Applies to every form with credential fields,
 including the `useState` auth forms** — it is independent of the form library.
 
-- Account identifier (email) → `autocomplete="username"`.
+- Account identifier (email) → `autocomplete="username"`. Pair it with `name="username"` so managers map the field to the saved login, not a new email. Same pairing on email-only request forms (magic link, forgot password) — `autocomplete="email"` makes managers fill an Identity email instead of the Login username.
+- Email one-time code (magic-link / recovery confirmation) → `autocomplete="one-time-code"` so the OS can offer the code from Mail. Do **not** invite password managers onto that field (`data-1p-ignore`, `data-lpignore="true"`, and `pushPasswordManagerStrategy="none"`) — they do not have the emailed nonce, and a stored TOTP would be the wrong code. Reference: [`email-otp-request-card.tsx`](../../src/components/email-otp-request-card.tsx).
 - Existing password (sign-in; current-password in a change) → `autocomplete="current-password"`.
 - New password **and** its confirm field → `autocomplete="new-password"`. This token is what
   triggers the manager's generate-password offer and prevents the old password autofilling

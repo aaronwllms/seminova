@@ -216,7 +216,15 @@ When forking Seminova for a new product, change **theme values only** — preser
    - Do not duplicate `@import`, `@custom-variant`, or `@layer base` from the export.
 4. **Update fonts** in `src/app/layout.tsx` if families change — wire new `next/font` loaders and update `--font-*` references in globals. Replace [`src/assets/fonts/Inter-SemiBold.ttf`](src/assets/fonts/Inter-SemiBold.ttf) if social preview images should match the new typeface (see [`src/utils/og-image.tsx`](src/utils/og-image.tsx)).
 5. **Update `components.json`** `baseColor` if the neutral hue family changes (slate vs neutral vs zinc, etc.).
-6. **Audit `src/`** for hardcoded colors:
+6. **Update the auth email templates** in [`supabase/templates/`](supabase/templates/) — `magic-link.html`, `confirm-signup.html`, `reset-password.html`.
+
+   Email clients cannot read CSS custom properties, so these three files carry token values transcribed to **hex**. Each file's comment header holds a token map naming which token every hex mirrors — edit against that map, not by eye. Two entries need care: `--border` is flattened from an alpha value, and one hint-tier gray is deliberately email-only with no token behind it.
+
+   These files are **reference copies**. Paste each one into its dashboard slot (Authentication › Emails) afterwards, or the shipped emails keep the old palette. Subject lines live only in the dashboard; each comment header records the proposed string.
+
+   The `src/` audit in the next step does **not** reach this directory.
+
+7. **Audit `src/`** for hardcoded colors:
 
    ```bash
    rg '#[0-9a-fA-F]{3,8}' src/
@@ -226,7 +234,7 @@ When forking Seminova for a new product, change **theme values only** — preser
 
    Fix violations to semantic tokens.
 
-7. **Smoke test** light and dark modes: primary actions, destructive states, borders (check card, popover, and sidebar borders in both themes), focus rings, typography. In dark mode, also check field-fill composites: a field on the page background vs the same field on a card or in the profile modal, at rest and on hover.
+8. **Smoke test** light and dark modes: primary actions, destructive states, borders (check card, popover, and sidebar borders in both themes), focus rings, typography. In dark mode, also check field-fill composites: a field on the page background vs the same field on a card or in the profile modal, at rest and on hover.
 
 This manual workflow is the canonical re-skin path. There is no theme-regeneration skill.
 
