@@ -64,6 +64,14 @@ describe('SignUpForm', () => {
     })
   })
 
+  it('should link to the passwordless email request screen', () => {
+    render(<SignUpForm />)
+
+    expect(
+      screen.getByRole('link', { name: /email me a link/i }),
+    ).toHaveAttribute('href', '/auth/sign-in-link')
+  })
+
   it('should show an error when passwords do not match', async () => {
     const user = userEvent.setup({ delay: null })
 

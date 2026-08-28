@@ -52,29 +52,37 @@ export function SignInLinkForm({ next, ...props }: SignInLinkFormProps) {
           ? next
           : getPostAuthRedirectPath(data.user?.app_metadata)
       }}
-      title="Sign in with email"
-      successTitle="Complete sign-in"
-      description="Enter your email and we'll send you a sign-in link"
+      title="Continue with email"
+      successTitle="Check your email"
+      description="Enter your email and we'll send you a link and a code"
       successDescription="Use the link or code from your email"
       successBody={(email) => (
         <div className="flex flex-col gap-2">
           <p className="text-sm font-medium break-all">{email}</p>
           <p className="text-muted-foreground text-sm">
-            We sent you a sign-in email. Enter the code below, or follow the
-            link instead.
+            We sent you an email. Enter the code below, or follow the link
+            instead.
           </p>
         </div>
       )}
-      submitLabel="Send sign-in link"
+      submitLabel="Email me a link"
       footer={
         <>
-          Prefer password sign-in?{' '}
+          Prefer a password?{' '}
           <Link
             href={loginHref}
             prefetch={false}
             className="underline underline-offset-4"
           >
             Sign in
+          </Link>
+          {' or '}
+          <Link
+            href="/auth/sign-up"
+            prefetch={false}
+            className="underline underline-offset-4"
+          >
+            Sign up
           </Link>
         </>
       }

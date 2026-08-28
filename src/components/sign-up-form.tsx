@@ -3,6 +3,7 @@
 import { cn } from '@/utils/tailwind'
 import { createClient } from '@/supabase/client'
 import { AppErrorSurface } from '@/components/app-error-surface'
+import { OrDivider } from '@/components/or-divider'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -119,6 +120,12 @@ export function SignUpForm({
               <AppErrorSurface error={formError} />
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Creating an account...' : 'Sign up'}
+              </Button>
+              <OrDivider />
+              <Button variant="outline" className="w-full" asChild>
+                <Link href="/auth/sign-in-link" prefetch={false}>
+                  Email me a link
+                </Link>
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">

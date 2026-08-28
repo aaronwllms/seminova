@@ -4,7 +4,7 @@ import { Suspense } from 'react'
 import { SignInLinkForm } from '@/components/sign-in-link-form'
 
 export const metadata: Metadata = {
-  title: 'Sign in with email',
+  title: 'Continue with email',
 }
 
 type SignInLinkPageProps = {

@@ -30,7 +30,7 @@ vi.mock('next/navigation', () => ({
 const submitEmail = async (address = 'test@example.com') => {
   const user = userEvent.setup({ delay: null })
   await user.type(screen.getByLabelText(/email/i), address)
-  await user.click(screen.getByRole('button', { name: /send sign-in link/i }))
+  await user.click(screen.getByRole('button', { name: /email me a link/i }))
   return user
 }
 
@@ -76,7 +76,7 @@ describe('SignInLinkForm', () => {
     )?.set
     nativeValue?.call(screen.getByLabelText(/email/i), 'keeper@example.com')
 
-    await user.click(screen.getByRole('button', { name: /send sign-in link/i }))
+    await user.click(screen.getByRole('button', { name: /email me a link/i }))
 
     await waitFor(() => {
       expect(mockSignInWithOtp).toHaveBeenCalledWith({
@@ -104,11 +104,11 @@ describe('SignInLinkForm', () => {
     render(<SignInLinkForm />)
     await submitEmail()
 
-    expect(await screen.findByText(/complete sign-in/i)).toBeInTheDocument()
+    expect(await screen.findByText(/check your email/i)).toBeInTheDocument()
     expect(screen.getByText('test@example.com')).toBeInTheDocument()
     expect(
       screen.getByText(
-        /we sent you a sign-in email\. enter the code below, or follow the link instead/i,
+        /we sent you an email\. enter the code below, or follow the link instead/i,
       ),
     ).toBeInTheDocument()
   })
@@ -332,7 +332,7 @@ describe('SignInLinkForm', () => {
     fireEvent.change(screen.getByLabelText(/email/i), {
       target: { value: 'test@example.com' },
     })
-    fireEvent.click(screen.getByRole('button', { name: /send sign-in link/i }))
+    fireEvent.click(screen.getByRole('button', { name: /email me a link/i }))
 
     await waitFor(() => {
       expect(mockSignInWithOtp).toHaveBeenCalledOnce()
@@ -371,7 +371,7 @@ describe('SignInLinkForm', () => {
     fireEvent.change(screen.getByLabelText(/email/i), {
       target: { value: 'test@example.com' },
     })
-    fireEvent.click(screen.getByRole('button', { name: /send sign-in link/i }))
+    fireEvent.click(screen.getByRole('button', { name: /email me a link/i }))
 
     await waitFor(() => {
       expect(mockSignInWithOtp).toHaveBeenCalledOnce()
@@ -407,7 +407,7 @@ describe('SignInLinkForm', () => {
 
     expect(screen.getByLabelText(/email/i)).toHaveValue('test@example.com')
     expect(
-      screen.getByRole('button', { name: /send sign-in link/i }),
+      screen.getByRole('button', { name: /email me a link/i }),
     ).toBeInTheDocument()
   })
 
@@ -431,13 +431,13 @@ describe('SignInLinkForm', () => {
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/home')
     })
-    expect(screen.getByText(/complete sign-in/i)).toBeInTheDocument()
+    expect(screen.getByText(/check your email/i)).toBeInTheDocument()
 
     rerender(<VisibilityHarness visible={false} />)
     rerender(<VisibilityHarness visible />)
 
-    expect(screen.getByText(/sign in with email/i)).toBeInTheDocument()
+    expect(screen.getByText(/continue with email/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/email/i)).toHaveValue('')
-    expect(screen.queryByText(/complete sign-in/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/check your email/i)).not.toBeInTheDocument()
   })
 })

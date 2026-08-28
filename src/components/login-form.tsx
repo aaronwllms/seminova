@@ -3,6 +3,7 @@
 import { cn } from '@/utils/tailwind'
 import { createClient } from '@/supabase/client'
 import { AppErrorSurface } from '@/components/app-error-surface'
+import { OrDivider } from '@/components/or-divider'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -123,14 +124,7 @@ export function LoginForm({ next, className, ...props }: LoginFormProps) {
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Signing in...' : 'Sign in'}
               </Button>
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="bg-card text-muted-foreground px-2">or</span>
-                </div>
-              </div>
+              <OrDivider />
               <Button variant="outline" className="w-full" asChild>
                 <Link
                   href={
@@ -140,7 +134,7 @@ export function LoginForm({ next, className, ...props }: LoginFormProps) {
                   }
                   prefetch={false}
                 >
-                  Email me a sign-in link
+                  Email me a link
                 </Link>
               </Button>
             </div>

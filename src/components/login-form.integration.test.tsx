@@ -75,7 +75,7 @@ describe('LoginForm', () => {
     render(<LoginForm />)
 
     expect(
-      screen.getByRole('link', { name: /email me a sign-in link/i }),
+      screen.getByRole('link', { name: /email me a link/i }),
     ).toHaveAttribute('href', '/auth/sign-in-link')
   })
 
@@ -83,7 +83,7 @@ describe('LoginForm', () => {
     render(<LoginForm next="/admin/users" />)
 
     expect(
-      screen.getByRole('link', { name: /email me a sign-in link/i }),
+      screen.getByRole('link', { name: /email me a link/i }),
     ).toHaveAttribute('href', '/auth/sign-in-link?next=%2Fadmin%2Fusers')
   })
 
