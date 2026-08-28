@@ -116,7 +116,7 @@ export const useAdminUsersTableState = ({
     error: listError,
   } = useAdminUsersList({
     page,
-    emailFilter: debouncedSearch.trim() || undefined,
+    emailFilter: appliedSearch ?? undefined,
     sortColumn,
     sortDirection,
     perPage,

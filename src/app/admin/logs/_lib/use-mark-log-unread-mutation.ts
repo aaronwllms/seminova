@@ -14,7 +14,12 @@ export const useMarkLogUnreadMutation = () => {
     mutationFn: async (id: number) =>
       unwrapActionResult(await markLogUnreadAction({ id })),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: adminLogsQueryKeys.all })
+      void queryClient.invalidateQueries({
+        queryKey: adminLogsQueryKeys.lists(),
+      })
+      void queryClient.invalidateQueries({
+        queryKey: adminLogsQueryKeys.stats(),
+      })
     },
   })
 }

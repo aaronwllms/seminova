@@ -64,6 +64,7 @@ describe('LandingMobileHeaderChrome', () => {
 
     await user.click(screen.getByRole('button', { name: /open menu/i }))
 
+    expect(mockHasServerAuthSession).toHaveBeenCalledTimes(1)
     expect(screen.getByRole('link', { name: /sign in/i })).toHaveAttribute(
       'href',
       '/auth/login',
