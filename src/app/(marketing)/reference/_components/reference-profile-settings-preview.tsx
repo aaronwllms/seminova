@@ -53,7 +53,7 @@ const DEFAULT_VALUES: ReferenceDemoFormInputValues = {
 
 const DEMO_EMAIL = 'demo@example.com'
 const DEMO_AVATAR_URL = '/images/aw-avatar.jpg'
-const MIN_PASSWORD_LENGTH = 6
+const MIN_PASSWORD_LENGTH = 8
 const PASSWORD_ACCORDION_VALUE = 'password'
 
 type ReferenceLastSaved = {

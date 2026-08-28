@@ -255,6 +255,4 @@ between the Supabase dashboard and the repo.
   only check on that route.
 
 - **Per-project, not just code:** the dashboard is authoritative and lives outside the
-  repo, so a spinoff inherits none of this. Whatever baseline is settled needs a
-  `project-kickoff` step and a README setup line, plus a comment on the constant naming
-  the dashboard as source of truth.
+  repo, so a spinoff inherits none of this.

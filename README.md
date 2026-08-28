@@ -129,6 +129,7 @@ In the [Supabase Dashboard](https://app.supabase.com) for your linked project:
   - **Reset Password body:** `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next={{ .RedirectTo }}`
   - **Reset Password subject:** `{{ .Token }} is your Seminova password reset code`
 - **OTP settings** — Authentication → Providers → Email. Code length, lifetime, and minimum send interval must match [`src/constants/auth.ts`](src/constants/auth.ts) (6 characters, 15 minutes, 30 seconds). The sign-in-link and password-recovery code-entry UIs read those constants for slot count, expiry messaging, and resend countdown — drift shows up as a wrong slot count or mismatched countdown. Seminova is configured this way as of 2026-08-26; spinoffs must set them in the dashboard.
+- **Password minimum** — Authentication → Settings → Password Requirements. Must match `MIN_PASSWORD_LENGTH` in [`src/constants/auth.ts`](src/constants/auth.ts) (8). Seminova's dashboard is 8 as of 2026-08-28; spinoffs must set it. See the character-requirements warning below — composition rules break magic-link signup.
 - **Redirect URLs** — Authentication → URL Configuration → Redirect URLs. Add the patterns below (trailing glob matches any path under that origin):
 
 ```text
