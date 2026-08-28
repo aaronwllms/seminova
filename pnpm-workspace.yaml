@@ -6,6 +6,9 @@ allowBuilds:
 
 overrides:
   js-yaml@4: '>=4.3.1'
+  # Selector-scoped overrides need a CAPPED range (caret), not a bare floor.
+  # '>=1.1.18' resolves onto any later major — including 5.x — which defeats the
+  # @1 scoping and hands 1.x-API consumers (ESLint's minimatch@3) an incompatible module.
   brace-expansion@1: '^1.1.18'
   brace-expansion@2: '^2.1.4'
   brace-expansion@5: '^5.0.9'
