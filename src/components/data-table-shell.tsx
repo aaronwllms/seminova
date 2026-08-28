@@ -41,35 +41,44 @@ declare module '@tanstack/react-table' {
 const getColumnCellClassName = (meta: { cellClassName?: string } | undefined) =>
   cn('px-3', meta?.cellClassName)
 
-type UseDataTableShellOptions<TData> = {
+type UseDataTableShellBaseOptions<TData> = {
   data: Array<TData>
   columns: Array<ColumnDef<TData, unknown>>
   getRowId?: (row: TData) => string
-  initialSorting?: SortingState
   manualSorting?: boolean
-  sorting?: SortingState
-  onSortingChange?: OnChangeFn<SortingState>
 }
+
+type UseDataTableShellControlledOptions<TData> =
+  UseDataTableShellBaseOptions<TData> & {
+    sorting: SortingState
+    onSortingChange: OnChangeFn<SortingState>
+    initialSorting?: never
+  }
+
+type UseDataTableShellUncontrolledOptions<TData> =
+  UseDataTableShellBaseOptions<TData> & {
+    initialSorting?: SortingState
+    sorting?: never
+    onSortingChange?: never
+  }
+
+type UseDataTableShellOptions<TData> =
+  | UseDataTableShellControlledOptions<TData>
+  | UseDataTableShellUncontrolledOptions<TData>
 
 export const useDataTableShell = <TData,>(
   options: UseDataTableShellOptions<TData>,
 ) => {
-  const {
-    data,
-    columns,
-    getRowId,
-    initialSorting = [],
-    manualSorting = false,
-    sorting: controlledSorting,
-    onSortingChange: controlledOnSortingChange,
-  } = options
+  const { data, columns, getRowId, manualSorting = false } = options
 
+  const isControlled = options.sorting !== undefined
   const [uncontrolledSorting, setUncontrolledSorting] =
-    React.useState<SortingState>(initialSorting)
-  const isControlled = controlledSorting !== undefined
-  const sorting = isControlled ? controlledSorting : uncontrolledSorting
+    React.useState<SortingState>(
+      isControlled ? [] : (options.initialSorting ?? []),
+    )
+  const sorting = isControlled ? options.sorting : uncontrolledSorting
   const onSortingChange = isControlled
-    ? controlledOnSortingChange!
+    ? options.onSortingChange
     : setUncontrolledSorting
 
   const table = useReactTable({

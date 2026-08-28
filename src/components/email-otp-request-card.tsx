@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/input-otp'
 import { Label } from '@/components/ui/label'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import {
   AUTH_OTP_CODE_LENGTH,
@@ -79,21 +79,6 @@ export function EmailOtpRequestCard({
 
     return () => window.clearInterval(id)
   }, [countdown])
-
-  useLayoutEffect(() => {
-    return () => {
-      setEmail('')
-      setFormError(null)
-      setSuccess(false)
-      setIsLoading(false)
-      setIsVerifying(false)
-      setIsResending(false)
-      setOtpValue('')
-      setOtpInputKey((key) => key + 1)
-      setLastSentAt(null)
-      setCountdown(0)
-    }
-  }, [])
 
   const sendAndResetCountdown = async (targetEmail: string) => {
     await send(targetEmail)

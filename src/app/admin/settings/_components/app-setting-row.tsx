@@ -288,7 +288,7 @@ const SaveButton = ({ disabled, isSaving, onSave }: SaveButtonProps) => (
   </Button>
 )
 
-// debt: two-type switch in AppSettingRow, refactor to dispatch if a third valueType is added
+// debt: two-type switch in AppSettingRow, refactor to dispatch if a third non-banner valueType is added
 export const AppSettingRow = <K extends AppSettingKey>({
   entry,
   savedValue,

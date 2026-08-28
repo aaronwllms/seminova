@@ -18,6 +18,9 @@ export const metadata: Metadata = {
   title: 'Admin',
 }
 
+const ADMIN_DASHBOARD_CARD_CLASS =
+  'hover:bg-muted/50 duration-swept h-full transition-colors'
+
 export default function AdminDashboardPage() {
   return (
     <div className="flex flex-col gap-6">
@@ -30,8 +33,7 @@ export default function AdminDashboardPage() {
       </div>
       <div className="grid max-w-3xl gap-4 sm:grid-cols-2">
         <Link href={ADMIN_USERS} className="block">
-          {/* debt: dashboard card hover/tier class bundle triplicated across all three cards; a tier change on one can be missed on the others. */}
-          <Card className="hover:bg-muted/50 duration-swept h-full transition-colors">
+          <Card className={ADMIN_DASHBOARD_CARD_CLASS}>
             <CardHeader className="flex flex-row items-center gap-3 space-y-0">
               <span className="bg-primary text-primary-foreground flex size-10 shrink-0 items-center justify-center rounded-lg">
                 <Users className="size-5" aria-hidden />
@@ -46,7 +48,7 @@ export default function AdminDashboardPage() {
           </Card>
         </Link>
         <Link href={ADMIN_LOGS} className="block">
-          <Card className="hover:bg-muted/50 duration-swept h-full transition-colors">
+          <Card className={ADMIN_DASHBOARD_CARD_CLASS}>
             <CardHeader className="flex flex-row items-center gap-3 space-y-0">
               <span className="bg-primary text-primary-foreground flex size-10 shrink-0 items-center justify-center rounded-lg">
                 <ScrollText className="size-5" aria-hidden />
@@ -61,7 +63,7 @@ export default function AdminDashboardPage() {
           </Card>
         </Link>
         <Link href={ADMIN_SETTINGS} className="block">
-          <Card className="hover:bg-muted/50 duration-swept h-full transition-colors">
+          <Card className={ADMIN_DASHBOARD_CARD_CLASS}>
             <CardHeader className="flex flex-row items-center gap-3 space-y-0">
               <span className="bg-primary text-primary-foreground flex size-10 shrink-0 items-center justify-center rounded-lg">
                 <Settings className="size-5" aria-hidden />

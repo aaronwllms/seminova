@@ -1,5 +1,4 @@
 import { act, fireEvent, render, screen, waitFor } from '@/test/test-utils'
-import { Activity } from 'react'
 import userEvent from '@testing-library/user-event'
 import { AuthApiError } from '@supabase/supabase-js'
 import {
@@ -294,37 +293,6 @@ describe('ForgotPasswordForm', () => {
     expect(
       screen.getByRole('button', { name: /send reset email/i }),
     ).toBeInTheDocument()
-  })
-
-  it('should reset to an empty email field after the screen is hidden and shown again', async () => {
-    mockResetPasswordForEmail.mockResolvedValue({ error: null })
-    mockVerifyOtp.mockResolvedValue({ error: null, data: { user: {} } })
-
-    const VisibilityHarness = ({ visible }: { visible: boolean }) => (
-      <Activity mode={visible ? 'visible' : 'hidden'}>
-        <ForgotPasswordForm />
-      </Activity>
-    )
-
-    const { rerender } = render(<VisibilityHarness visible />)
-    const user = await submitEmail()
-    await enterOtpCode(user, '123456')
-
-    await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/auth/update-password')
-    })
-    expect(screen.getByText(/complete password reset/i)).toBeInTheDocument()
-
-    rerender(<VisibilityHarness visible={false} />)
-    rerender(<VisibilityHarness visible />)
-
-    expect(
-      screen.getByRole('heading', { name: /reset your password/i }),
-    ).toBeInTheDocument()
-    expect(screen.getByLabelText(/email/i)).toHaveValue('')
-    expect(
-      screen.queryByText(/complete password reset/i),
-    ).not.toBeInTheDocument()
   })
 
   it('should show the same verify-failure message for unknown and known addresses', async () => {
