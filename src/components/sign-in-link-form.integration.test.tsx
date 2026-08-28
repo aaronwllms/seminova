@@ -63,6 +63,18 @@ describe('SignInLinkForm', () => {
     )
   })
 
+  it('should offer OS code autofill without password-manager badges', async () => {
+    mockSignInWithOtp.mockResolvedValue({ error: null })
+
+    render(<SignInLinkForm />)
+    await submitEmail()
+
+    const otpInput = document.querySelector('[data-slot="input-otp"]')
+    expect(otpInput).toHaveAttribute('autocomplete', 'one-time-code')
+    expect(otpInput).toHaveAttribute('data-1p-ignore')
+    expect(otpInput).toHaveAttribute('data-lpignore', 'true')
+  })
+
   it('should show confirmation copy naming the submitted address', async () => {
     mockSignInWithOtp.mockResolvedValue({ error: null })
 

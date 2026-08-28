@@ -183,10 +183,18 @@ export function EmailOtpRequestCard({
                 disabled={isVerifying}
                 autoFocus
                 autoComplete="one-time-code"
+                data-1p-ignore
+                data-lpignore="true"
+                pushPasswordManagerStrategy="none"
+                containerClassName="w-fit self-center"
               >
                 <InputOTPGroup>
                   {Array.from({ length: AUTH_OTP_CODE_LENGTH }, (_, index) => (
-                    <InputOTPSlot key={index} index={index} />
+                    <InputOTPSlot
+                      key={index}
+                      index={index}
+                      className="size-10"
+                    />
                   ))}
                 </InputOTPGroup>
               </InputOTP>
