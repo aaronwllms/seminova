@@ -32,9 +32,17 @@ describe('SignUpForm', () => {
       'autocomplete',
       'new-password',
     )
+    expect(screen.getByLabelText(/^password$/i)).toHaveAttribute(
+      'name',
+      'password',
+    )
     expect(screen.getByLabelText(/repeat password/i)).toHaveAttribute(
       'autocomplete',
       'new-password',
+    )
+    expect(screen.getByLabelText(/repeat password/i)).toHaveAttribute(
+      'name',
+      'repeat-password',
     )
   })
 
@@ -64,6 +72,46 @@ describe('SignUpForm', () => {
     expect(
       screen.getByRole('link', { name: /email me a link/i }),
     ).toHaveAttribute('href', '/auth/sign-in-link')
+  })
+
+  it('should show a length error when passwords are too short', async () => {
+    const user = userEvent.setup({ delay: null })
+
+    render(<SignUpForm />)
+
+    await user.type(screen.getByLabelText(/email/i), 'new@example.com')
+    await user.type(screen.getByLabelText(/^password$/i), '1234567')
+    await user.type(screen.getByLabelText(/repeat password/i), '1234567')
+    await user.click(screen.getByRole('button', { name: /^sign up$/i }))
+
+    expect(
+      await screen.findByText(/password must be at least 8 characters/i),
+    ).toBeInTheDocument()
+    expect(mockSignUpWithPasswordAction).not.toHaveBeenCalled()
+  })
+
+  it('should submit password manager values read from FormData', async () => {
+    mockSignUpWithPasswordAction.mockResolvedValue({ success: true })
+
+    render(<SignUpForm />)
+
+    const emailInput = screen.getByLabelText(/email/i)
+    const passwordInput = screen.getByLabelText(/^password$/i)
+    const repeatInput = screen.getByLabelText(/repeat password/i)
+
+    emailInput.focus()
+    ;(emailInput as HTMLInputElement).value = 'manager@example.com'
+    ;(passwordInput as HTMLInputElement).value = 'generated-password-123'
+    ;(repeatInput as HTMLInputElement).value = 'generated-password-123'
+
+    screen.getByRole('button', { name: /^sign up$/i }).click()
+
+    await waitFor(() => {
+      expect(mockSignUpWithPasswordAction).toHaveBeenCalledWith({
+        email: 'manager@example.com',
+        password: 'generated-password-123',
+      })
+    })
   })
 
   it('should show an error when passwords do not match', async () => {

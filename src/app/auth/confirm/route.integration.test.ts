@@ -155,4 +155,15 @@ describe('GET /auth/confirm', () => {
     expect(redirectMock).toHaveBeenCalledWith('/auth/error?source=invalid_link')
     expect(mockVerifyOtp).not.toHaveBeenCalled()
   })
+
+  it('should redirect to error when type is not issued by this app', async () => {
+    const request = new NextRequest(
+      'http://localhost/auth/confirm?token_hash=abc&type=invite',
+    )
+
+    await expect(GET(request)).rejects.toThrow('NEXT_REDIRECT')
+
+    expect(redirectMock).toHaveBeenCalledWith('/auth/error?source=invalid_link')
+    expect(mockVerifyOtp).not.toHaveBeenCalled()
+  })
 })
