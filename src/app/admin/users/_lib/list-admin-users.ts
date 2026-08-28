@@ -53,11 +53,13 @@ export const listAdminUsersPage = async (
     throw error
   }
 
-  const rows = (data ?? []).map(mapUserToAdminRow)
+  const fetched = (data ?? []).map(mapUserToAdminRow)
+  const hasNextPage = fetched.length > perPage
+  const rows = hasNextPage ? fetched.slice(0, perPage) : fetched
 
   return {
     rows,
-    hasNextPage: rows.length === perPage,
+    hasNextPage,
     page,
   }
 }

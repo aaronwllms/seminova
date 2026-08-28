@@ -64,9 +64,10 @@ export async function POST(request: NextRequest) {
     const { key, level, message, context } = parsed.data
     const tag = toClientLogTag(key)
     const cappedMessage = truncateClientLogMessage(message)
-    const cappedContext = context
+    const cappedContextRaw = context
       ? truncateClientLogContext(context)
       : undefined
+    const { userId: _forgedUserId, ...callerContext } = cappedContextRaw ?? {}
 
     let userId: string | undefined
 
@@ -82,9 +83,9 @@ export async function POST(request: NextRequest) {
     }
 
     const contextInput =
-      cappedContext || userId
+      Object.keys(callerContext).length > 0 || userId
         ? {
-            ...cappedContext,
+            ...callerContext,
             ...(userId ? { userId } : {}),
           }
         : undefined

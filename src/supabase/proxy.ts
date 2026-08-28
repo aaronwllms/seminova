@@ -26,8 +26,8 @@ function redirectWithAuthCookies(
 ) {
   const redirectResponse = NextResponse.redirect(url)
 
-  for (const { name, value } of supabaseResponse.cookies.getAll()) {
-    redirectResponse.cookies.set(name, value)
+  for (const cookie of supabaseResponse.cookies.getAll()) {
+    redirectResponse.cookies.set(cookie)
   }
 
   return redirectResponse
@@ -164,7 +164,7 @@ export async function updateSession(request: NextRequest) {
   if (isAdminPath && sessionClaims && !isAdmin(sessionClaims)) {
     const url = request.nextUrl.clone()
     url.pathname = APP_HOME
-    return NextResponse.redirect(url)
+    return redirectWithAuthCookies(url, supabaseResponse)
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.

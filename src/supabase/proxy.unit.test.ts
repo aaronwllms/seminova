@@ -38,7 +38,13 @@ const mockSignOut = vi.fn()
 const mockAppLogDebug = vi.fn()
 const mockAppLogError = vi.fn()
 let mockSetAll:
-  | ((cookies: Array<{ name: string; value: string }>) => void)
+  | ((
+      cookies: Array<{
+        name: string
+        value: string
+        options?: Record<string, unknown>
+      }>,
+    ) => void)
   | null = null
 
 vi.mock('@/utils/env', () => ({
@@ -85,6 +91,23 @@ describe('updateSession', () => {
   })
 
   it('should redirect unauthenticated users from protected routes with next', async () => {
+    mockSignOut.mockImplementation(async () => {
+      mockSetAll?.([
+        {
+          name: 'sb-test-auth-token',
+          value: '',
+          options: {
+            httpOnly: true,
+            maxAge: 0,
+            path: '/',
+            sameSite: 'lax',
+            secure: true,
+          },
+        },
+      ])
+      return { error: null }
+    })
+
     const response = await updateSession(createRequest('/home'))
 
     expect(response.status).toBe(307)
@@ -92,6 +115,10 @@ describe('updateSession', () => {
     expect(location).toContain('/auth/login')
     expect(location).toContain('next=%2Fhome')
     expect(mockSignOut).toHaveBeenCalledWith({ scope: 'local' })
+
+    const setCookie = response.headers.get('set-cookie') ?? ''
+    expect(setCookie).toMatch(/HttpOnly/i)
+    expect(setCookie).toMatch(/Max-Age=0|Expires=/i)
   })
 
   it('should preserve search params in next on redirect', async () => {
@@ -252,14 +279,30 @@ describe('updateSession', () => {
   })
 
   it('should redirect non-admin authenticated users from /admin/users to /home', async () => {
-    mockGetClaims.mockResolvedValue({
-      data: { claims: { sub: 'user-1', app_metadata: {} } },
+    mockGetClaims.mockImplementation(async () => {
+      mockSetAll?.([
+        {
+          name: 'sb-test-auth-token',
+          value: 'refreshed-chunk',
+          options: {
+            httpOnly: true,
+            path: '/',
+            sameSite: 'lax',
+            secure: true,
+          },
+        },
+      ])
+      return { data: { claims: { sub: 'user-1', app_metadata: {} } } }
     })
 
     const response = await updateSession(createRequest('/admin/users'))
 
     expect(response.status).toBe(307)
     expect(response.headers.get('location')).toContain('/home')
+
+    const setCookie = response.headers.get('set-cookie') ?? ''
+    expect(setCookie).toContain('sb-test-auth-token=refreshed-chunk')
+    expect(setCookie).toMatch(/HttpOnly/i)
   })
 
   it('should allow admin users on /admin/users', async () => {
