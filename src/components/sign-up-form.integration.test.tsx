@@ -30,6 +30,7 @@ describe('SignUpForm', () => {
       'autocomplete',
       'username',
     )
+    expect(screen.getByLabelText(/email/i)).toHaveAttribute('name', 'username')
     expect(screen.getByLabelText(/^password$/i)).toHaveAttribute(
       'autocomplete',
       'new-password',

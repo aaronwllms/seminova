@@ -59,8 +59,31 @@ describe('SignInLinkForm', () => {
 
     expect(screen.getByLabelText(/email/i)).toHaveAttribute(
       'autocomplete',
-      'email',
+      'username',
     )
+    expect(screen.getByLabelText(/email/i)).toHaveAttribute('name', 'username')
+  })
+
+  it('should send a link with the email a password manager wrote to the DOM', async () => {
+    mockSignInWithOtp.mockResolvedValue({ error: null })
+    const user = userEvent.setup({ delay: null })
+
+    render(<SignInLinkForm />)
+
+    const nativeValue = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      'value',
+    )?.set
+    nativeValue?.call(screen.getByLabelText(/email/i), 'keeper@example.com')
+
+    await user.click(screen.getByRole('button', { name: /send sign-in link/i }))
+
+    await waitFor(() => {
+      expect(mockSignInWithOtp).toHaveBeenCalledWith({
+        email: 'keeper@example.com',
+        options: { shouldCreateUser: true },
+      })
+    })
   })
 
   it('should offer OS code autofill without password-manager badges', async () => {

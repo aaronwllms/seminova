@@ -58,8 +58,9 @@ describe('ForgotPasswordForm', () => {
 
     expect(screen.getByLabelText(/email/i)).toHaveAttribute(
       'autocomplete',
-      'email',
+      'username',
     )
+    expect(screen.getByLabelText(/email/i)).toHaveAttribute('name', 'username')
   })
 
   it('should show hedged dual-route confirmation copy without naming the address', async () => {

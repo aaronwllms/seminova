@@ -81,6 +81,7 @@ export function SignUpForm({
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
+                  name="username"
                   type="email"
                   autoComplete="username"
                   placeholder="m@example.com"

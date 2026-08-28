@@ -102,16 +102,20 @@ export function EmailOtpRequestCard({
     clearOtpInput()
   }
 
-  const handleRequest = async (e: React.FormEvent) => {
+  const handleRequest = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    // Password managers write to the DOM and often skip React onChange.
+    const formData = new FormData(e.currentTarget)
+    const submittedEmail = String(formData.get('username') ?? '')
+    setEmail(submittedEmail)
     setIsLoading(true)
     setFormError(null)
 
     try {
-      await sendAndResetCountdown(email)
+      await sendAndResetCountdown(submittedEmail)
       setSuccess(true)
     } catch (caught: unknown) {
-      setFormError(extractAuthFormError(caught, { email }))
+      setFormError(extractAuthFormError(caught, { email: submittedEmail }))
     } finally {
       setIsLoading(false)
     }
@@ -228,12 +232,14 @@ export function EmailOtpRequestCard({
                   <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
+                    name="username"
                     type="email"
-                    autoComplete="email"
+                    autoComplete="username"
                     placeholder="m@example.com"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    suppressHydrationWarning
                   />
                 </div>
                 <AppErrorSurface error={formError} />
