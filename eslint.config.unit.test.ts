@@ -68,9 +68,21 @@ const getNoRawConsoleBlock = (): Linter.Config => {
   return block
 }
 
+type LocalRulePluginName =
+  | 'motion-tier'
+  | 'semantic-tokens'
+  | 'no-unquarantined-skips'
+  | 'test-scope-naming'
+
+type LocalRuleId =
+  | 'local/motion-tier'
+  | 'local/semantic-tokens'
+  | 'seminova-test/no-unquarantined-skips'
+  | 'seminova-test/test-scope-naming'
+
 const getLocalRuleBlock = (
-  pluginName: 'motion-tier',
-  ruleId: 'local/motion-tier',
+  pluginName: LocalRulePluginName,
+  ruleId: LocalRuleId,
 ): Linter.Config => {
   const configs = eslintConfig as Linter.Config[]
   const pluginBlock = configs.find(
@@ -92,6 +104,28 @@ const getLocalRuleBlock = (
 
 const getMotionTierBlock = (): Linter.Config =>
   getLocalRuleBlock('motion-tier', 'local/motion-tier')
+
+const getSemanticTokensBlock = (): Linter.Config =>
+  getLocalRuleBlock('semantic-tokens', 'local/semantic-tokens')
+
+const createLocalRuleEslint = (block: Linter.Config, filePath: string) =>
+  new ESLint({
+    cwd: process.cwd(),
+    overrideConfigFile: true,
+    overrideConfig: [
+      {
+        files: [filePath],
+        ignores: block.ignores,
+        languageOptions: {
+          parserOptions: {
+            ecmaFeatures: { jsx: true },
+          },
+        },
+        plugins: block.plugins,
+        rules: block.rules,
+      },
+    ],
+  })
 
 describe('eslint server-only import boundary', () => {
   it('should report no-restricted-imports on the boundary fixture', async () => {
@@ -161,27 +195,11 @@ describe('eslint no-raw-console guardrail', () => {
 describe('eslint local/motion-tier rule', () => {
   const motionTierBlock = getMotionTierBlock()
 
-  const createMotionTierEslint = (filePath: string) =>
-    new ESLint({
-      cwd: process.cwd(),
-      overrideConfigFile: true,
-      overrideConfig: [
-        {
-          files: [filePath],
-          ignores: motionTierBlock.ignores,
-          languageOptions: {
-            parserOptions: {
-              ecmaFeatures: { jsx: true },
-            },
-          },
-          plugins: motionTierBlock.plugins,
-          rules: motionTierBlock.rules,
-        },
-      ],
-    })
-
   it('should report local/motion-tier on bare transition-colors outside ui/', async () => {
-    const eslint = createMotionTierEslint('src/components/motion-tier-fail.tsx')
+    const eslint = createLocalRuleEslint(
+      motionTierBlock,
+      'src/components/motion-tier-fail.tsx',
+    )
 
     const results = await eslint.lintText(
       "export const X = () => <div className='transition-colors' />",
@@ -198,7 +216,8 @@ describe('eslint local/motion-tier rule', () => {
   })
 
   it('should not report local/motion-tier inside src/components/ui/', async () => {
-    const eslint = createMotionTierEslint(
+    const eslint = createLocalRuleEslint(
+      motionTierBlock,
       'src/components/ui/motion-tier-ignored.tsx',
     )
 
@@ -217,7 +236,10 @@ describe('eslint local/motion-tier rule', () => {
   })
 
   it('should pass local/motion-tier when duration-swept is paired', async () => {
-    const eslint = createMotionTierEslint('src/components/motion-tier-pass.tsx')
+    const eslint = createLocalRuleEslint(
+      motionTierBlock,
+      'src/components/motion-tier-pass.tsx',
+    )
 
     const results = await eslint.lintText(
       "export const X = () => <div className='transition-colors duration-swept' />",
@@ -231,5 +253,87 @@ describe('eslint local/motion-tier rule', () => {
     )
 
     expect(motionTierMessages).toEqual([])
+  })
+})
+
+describe('eslint local/semantic-tokens rule', () => {
+  const semanticTokensBlock = getSemanticTokensBlock()
+
+  it('should report local/semantic-tokens on hex color in className', async () => {
+    const filePath = 'src/components/semantic-tokens-hex-fail.tsx'
+    const eslint = createLocalRuleEslint(semanticTokensBlock, filePath)
+
+    const results = await eslint.lintText(
+      "export const X = () => <div className='bg-[#ff0000]' />",
+      { filePath },
+    )
+
+    const semanticTokensMessages = results.flatMap((result) =>
+      result.messages.filter(
+        (message) => message.ruleId === 'local/semantic-tokens',
+      ),
+    )
+
+    expect(semanticTokensMessages.length).toBeGreaterThan(0)
+    expect(semanticTokensMessages[0]?.message).toContain('#ff0000')
+    expect(semanticTokensMessages[0]?.message).toContain('semantic tokens')
+  })
+
+  it('should report local/semantic-tokens on numeric scale inside cva variant', async () => {
+    const filePath = 'src/components/semantic-tokens-cva-fail.tsx'
+    const eslint = createLocalRuleEslint(semanticTokensBlock, filePath)
+
+    const results = await eslint.lintText(
+      "export const button = cva('text-foreground', { variants: { tone: { danger: 'bg-red-500' } } })",
+      { filePath },
+    )
+
+    const semanticTokensMessages = results.flatMap((result) =>
+      result.messages.filter(
+        (message) => message.ruleId === 'local/semantic-tokens',
+      ),
+    )
+
+    expect(semanticTokensMessages.length).toBeGreaterThan(0)
+    expect(semanticTokensMessages[0]?.message).toMatch(
+      /bg-red-500|Numeric Tailwind/,
+    )
+  })
+
+  it('should report local/semantic-tokens on numeric scale inside cn()', async () => {
+    const filePath = 'src/components/semantic-tokens-cn-fail.tsx'
+    const eslint = createLocalRuleEslint(semanticTokensBlock, filePath)
+
+    const results = await eslint.lintText(
+      "import { cn } from '@/utils/tailwind'\nexport const X = () => cn('bg-red-500')",
+      { filePath },
+    )
+
+    const semanticTokensMessages = results.flatMap((result) =>
+      result.messages.filter(
+        (message) => message.ruleId === 'local/semantic-tokens',
+      ),
+    )
+
+    expect(semanticTokensMessages.length).toBeGreaterThan(0)
+    expect(semanticTokensMessages[0]?.message).toContain('bg-red-500')
+  })
+
+  it('should pass local/semantic-tokens on clean semantic tokens', async () => {
+    const filePath = 'src/components/semantic-tokens-pass.tsx'
+    const eslint = createLocalRuleEslint(semanticTokensBlock, filePath)
+
+    const results = await eslint.lintText(
+      "export const X = () => <div className='bg-background text-foreground' />",
+      { filePath },
+    )
+
+    const semanticTokensMessages = results.flatMap((result) =>
+      result.messages.filter(
+        (message) => message.ruleId === 'local/semantic-tokens',
+      ),
+    )
+
+    expect(semanticTokensMessages).toEqual([])
   })
 })
