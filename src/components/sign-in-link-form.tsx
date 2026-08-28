@@ -57,10 +57,13 @@ export function SignInLinkForm({ next, ...props }: SignInLinkFormProps) {
       description="Enter your email and we'll send you a sign in link"
       successDescription="Use the link or code from your email"
       successBody={(email) => (
-        <p className="text-muted-foreground text-sm">
-          We sent a sign-in link to {email}. Enter the code from that email
-          below, or follow the link instead.
-        </p>
+        <div className="flex flex-col gap-2">
+          <p className="text-sm font-medium break-all">{email}</p>
+          <p className="text-muted-foreground text-sm">
+            We sent you a sign-in email. Enter the code below, or follow the
+            link instead.
+          </p>
+        </div>
       )}
       submitLabel="Send sign-in link"
       footer={

@@ -82,12 +82,10 @@ describe('SignInLinkForm', () => {
     await submitEmail()
 
     expect(await screen.findByText(/complete sign-in/i)).toBeInTheDocument()
-    expect(
-      screen.getByText(/we sent a sign-in link to test@example.com/i),
-    ).toBeInTheDocument()
+    expect(screen.getByText('test@example.com')).toBeInTheDocument()
     expect(
       screen.getByText(
-        /enter the code from that email below, or follow the link instead/i,
+        /we sent you a sign-in email\. enter the code below, or follow the link instead/i,
       ),
     ).toBeInTheDocument()
   })
