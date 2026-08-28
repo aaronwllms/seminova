@@ -2,9 +2,13 @@
   Seminova — Magic Link email
 
   Dashboard slot: Authentication > Emails > Magic Link
-  Subject line:   481920 is your Seminova sign-in code
-                  (subject lives in the dashboard, not in this file — the code
-                  must lead the subject, unbroken, for OS autofill to offer it)
+  Subject line:   {{ .Token }} is your Seminova sign-in code
+                  (paste the line above verbatim — the dashboard interpolates
+                  {{ .Token }} in the subject field, so it renders as e.g.
+                  "481920 is your Seminova sign-in code". Do not hardcode a
+                  literal code here. Subject lives in the dashboard, not in
+                  this file — the code must lead the subject, unbroken, for OS
+                  autofill to offer it)
 
   This file is a REFERENCE COPY. The dashboard is authoritative; nothing detects
   drift between the two. Paste this file whole, including this comment.

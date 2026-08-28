@@ -113,7 +113,7 @@ In the [Supabase Dashboard](https://app.supabase.com) for your linked project:
 
 - **Email templates** — Authentication → Email Templates. Paste-ready reference HTML lives in [`supabase/templates/`](supabase/templates/). Replace the default verify link in each template so confirmation routes through this app. Bodies include `{{ .Token }}` for typed code entry alongside the link.
   - **Confirm signup body:** `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}`
-  - **Confirm signup subject:** `{{ .Token }} is your Seminova sign-in code`
+  - **Confirm signup subject:** `{{ .Token }} is your Seminova confirmation code`
   - **Magic Link body:** `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}`
   - **Magic Link subject:** `{{ .Token }} is your Seminova sign-in code`
   - **Reset Password body:** `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next={{ .RedirectTo }}`
