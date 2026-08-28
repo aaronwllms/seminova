@@ -2,6 +2,8 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
+import { tryToParsePath } from 'next/dist/lib/try-to-parse-path'
+
 import { PROXY_MATCHER_PATTERN } from './proxy-matcher'
 
 const matcher = new RegExp(PROXY_MATCHER_PATTERN)
@@ -30,6 +32,11 @@ describe('PROXY_MATCHER_PATTERN', () => {
     expect(extractProxyMatcherFromSource(proxySource)).toBe(
       PROXY_MATCHER_PATTERN,
     )
+  })
+
+  it('should parse as a Next.js middleware matcher', () => {
+    const { error } = tryToParsePath(PROXY_MATCHER_PATTERN)
+    expect(error).toBeUndefined()
   })
 
   it('should exclude metadata image paths from the auth proxy', () => {
