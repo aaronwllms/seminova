@@ -3,23 +3,24 @@ import userEvent from '@testing-library/user-event'
 import { ADMIN_HOME } from '@/constants/admin-paths'
 import { UpdatePasswordForm } from './update-password-form'
 
-const mockUpdateUser = vi.fn()
 const mockGetUser = vi.fn()
 const mockPush = vi.fn()
 const mockRefresh = vi.fn()
-const mockMarkHasPasswordAction = vi.fn()
+const mockCompleteRecoveryPasswordAction = vi.fn()
+const mockUpdateUser = vi.fn()
 
 vi.mock('@/supabase/client', () => ({
   createClient: () => ({
     auth: {
-      updateUser: mockUpdateUser,
       getUser: mockGetUser,
+      updateUser: mockUpdateUser,
     },
   }),
 }))
 
 vi.mock('@/app/(app)/_lib/profile/actions', () => ({
-  markHasPasswordAction: () => mockMarkHasPasswordAction(),
+  completeRecoveryPasswordAction: (...args: unknown[]) =>
+    mockCompleteRecoveryPasswordAction(...args),
 }))
 
 vi.mock('next/navigation', () => ({
@@ -28,12 +29,11 @@ vi.mock('next/navigation', () => ({
 
 describe('UpdatePasswordForm', () => {
   beforeEach(() => {
-    mockUpdateUser.mockReset()
     mockGetUser.mockReset()
     mockPush.mockReset()
     mockRefresh.mockReset()
-    mockMarkHasPasswordAction.mockReset()
-    mockMarkHasPasswordAction.mockResolvedValue({ success: true })
+    mockCompleteRecoveryPasswordAction.mockReset()
+    mockUpdateUser.mockReset()
     mockGetUser.mockResolvedValue({
       data: { user: { email: 'recover@example.com' } },
       error: null,
@@ -56,10 +56,10 @@ describe('UpdatePasswordForm', () => {
     )
   })
 
-  it('should update password and redirect non-admins to /home', async () => {
-    mockUpdateUser.mockResolvedValue({
-      error: null,
-      data: { user: { app_metadata: {} } },
+  it('should await the recovery action and redirect from redirectTo', async () => {
+    mockCompleteRecoveryPasswordAction.mockResolvedValue({
+      success: true,
+      data: { redirectTo: '/home' },
     })
     const user = userEvent.setup({ delay: null })
 
@@ -69,19 +69,19 @@ describe('UpdatePasswordForm', () => {
     await user.click(screen.getByRole('button', { name: /save new password/i }))
 
     await waitFor(() => {
-      expect(mockUpdateUser).toHaveBeenCalledWith({
+      expect(mockCompleteRecoveryPasswordAction).toHaveBeenCalledWith({
         password: 'new-password-123',
       })
-      expect(mockMarkHasPasswordAction).toHaveBeenCalledOnce()
+      expect(mockUpdateUser).not.toHaveBeenCalled()
       expect(mockRefresh).toHaveBeenCalledOnce()
       expect(mockPush).toHaveBeenCalledWith('/home')
     })
   })
 
-  it('should update password and redirect admins to /admin', async () => {
-    mockUpdateUser.mockResolvedValue({
-      error: null,
-      data: { user: { app_metadata: { role: 'admin' } } },
+  it('should redirect admins using the action redirectTo', async () => {
+    mockCompleteRecoveryPasswordAction.mockResolvedValue({
+      success: true,
+      data: { redirectTo: ADMIN_HOME },
     })
     const user = userEvent.setup({ delay: null })
 
@@ -95,9 +95,15 @@ describe('UpdatePasswordForm', () => {
     })
   })
 
-  it('should show an error when password update fails', async () => {
-    mockUpdateUser.mockResolvedValue({
-      error: new Error('Password is too weak'),
+  it('should show AppErrorSurface and not push when the action fails', async () => {
+    mockCompleteRecoveryPasswordAction.mockResolvedValue({
+      success: false,
+      error: {
+        message:
+          "Your password doesn't meet the strength requirements. Please choose a stronger one.",
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
     })
     const user = userEvent.setup({ delay: null })
 
@@ -108,10 +114,10 @@ describe('UpdatePasswordForm', () => {
 
     expect(
       await screen.findByText(
-        /something went wrong on our end\. please try again, or contact support if it continues\./i,
+        /your password doesn't meet the strength requirements/i,
       ),
     ).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /^copy$/i })).toBeInTheDocument()
     expect(mockPush).not.toHaveBeenCalled()
+    expect(mockRefresh).not.toHaveBeenCalled()
   })
 })

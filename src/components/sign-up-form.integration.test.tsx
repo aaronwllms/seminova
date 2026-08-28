@@ -2,15 +2,12 @@ import { render, screen, waitFor } from '@/test/test-utils'
 import userEvent from '@testing-library/user-event'
 import { SignUpForm } from './sign-up-form'
 
-const mockSignUp = vi.fn()
+const mockSignUpWithPasswordAction = vi.fn()
 const mockPush = vi.fn()
 
-vi.mock('@/supabase/client', () => ({
-  createClient: () => ({
-    auth: {
-      signUp: mockSignUp,
-    },
-  }),
+vi.mock('@/app/auth/_lib/sign-up/actions', () => ({
+  signUpWithPasswordAction: (...args: unknown[]) =>
+    mockSignUpWithPasswordAction(...args),
 }))
 
 vi.mock('next/navigation', () => ({
@@ -19,7 +16,7 @@ vi.mock('next/navigation', () => ({
 
 describe('SignUpForm', () => {
   beforeEach(() => {
-    mockSignUp.mockReset()
+    mockSignUpWithPasswordAction.mockReset()
     mockPush.mockReset()
   })
 
@@ -41,8 +38,8 @@ describe('SignUpForm', () => {
     )
   })
 
-  it('should sign up and redirect on success', async () => {
-    mockSignUp.mockResolvedValue({ error: null })
+  it('should call the sign-up action and redirect on success', async () => {
+    mockSignUpWithPasswordAction.mockResolvedValue({ success: true })
     const user = userEvent.setup({ delay: null })
 
     render(<SignUpForm />)
@@ -53,13 +50,10 @@ describe('SignUpForm', () => {
     await user.click(screen.getByRole('button', { name: /^sign up$/i }))
 
     await waitFor(() => {
-      expect(mockSignUp).toHaveBeenCalledWith(
-        expect.objectContaining({
-          options: expect.objectContaining({
-            data: { has_password: true },
-          }),
-        }),
-      )
+      expect(mockSignUpWithPasswordAction).toHaveBeenCalledWith({
+        email: 'new@example.com',
+        password: 'password123',
+      })
       expect(mockPush).toHaveBeenCalledWith('/auth/sign-up-success')
     })
   })
@@ -88,6 +82,30 @@ describe('SignUpForm', () => {
     expect(
       screen.queryByRole('button', { name: /^copy$/i }),
     ).not.toBeInTheDocument()
-    expect(mockSignUp).not.toHaveBeenCalled()
+    expect(mockSignUpWithPasswordAction).not.toHaveBeenCalled()
+  })
+
+  it('should render the action envelope and not navigate on failure', async () => {
+    mockSignUpWithPasswordAction.mockResolvedValue({
+      success: false,
+      error: {
+        message: 'Could not create your account.',
+        code: 'INTERNAL_ERROR',
+        kind: 'fault',
+      },
+    })
+    const user = userEvent.setup({ delay: null })
+
+    render(<SignUpForm />)
+
+    await user.type(screen.getByLabelText(/email/i), 'new@example.com')
+    await user.type(screen.getByLabelText(/^password$/i), 'password123')
+    await user.type(screen.getByLabelText(/repeat password/i), 'password123')
+    await user.click(screen.getByRole('button', { name: /^sign up$/i }))
+
+    expect(
+      await screen.findByText(/could not create your account/i),
+    ).toBeInTheDocument()
+    expect(mockPush).not.toHaveBeenCalled()
   })
 })

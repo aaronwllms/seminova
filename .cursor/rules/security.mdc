@@ -53,7 +53,7 @@ Policy authoring patterns are owned by `supabase-sql.mdc`; migration workflow by
 ### Secret key (elevated access — EXTREME CAUTION)
 - ❌ NEVER use the Supabase secret key in client code
 - ✅ ONLY in secure server contexts (API routes, server actions, CLI scripts)
-- Use sparingly for admin role mutations (in-app server actions on `/admin/users` and CLI scripts) and first-password setup (`setFirstPasswordAction` in profile settings)
+- Use sparingly for admin role mutations (in-app server actions on `/admin/users` and CLI scripts), first-password setup (`setFirstPasswordAction` in profile settings), and the password sign-up `has_password` stamp (`signUpWithPasswordAction`). Recovery (`completeRecoveryPasswordAction`) writes the password through the session client, not the secret key.
 - Prefer `SUPABASE_SECRET_KEY` (`sb_secret_...` from Dashboard → API Keys); legacy `service_role` JWT still works during Supabase's migration period
 
 **Reference:** See `.cursor/rules/supabase.mdc` for detailed RLS patterns and migration safety

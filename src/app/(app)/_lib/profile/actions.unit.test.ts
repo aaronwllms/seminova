@@ -1,3 +1,4 @@
+import { AuthApiError } from '@supabase/supabase-js'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { buildAvatarStoragePath } from '@/constants/storage-paths'
@@ -15,6 +16,7 @@ const mockAppLogError = vi.fn()
 const mockServiceUpdate = vi.fn()
 const mockServiceEq = vi.fn()
 const mockUpdateUserById = vi.fn()
+const mockUpdateUser = vi.fn()
 
 vi.mock('@/utils/app-logger', () => ({
   appLog: {
@@ -32,6 +34,7 @@ vi.mock('@/supabase/server', () => ({
   createClient: vi.fn(async () => ({
     auth: {
       getUser: mockGetUser,
+      updateUser: mockUpdateUser,
     },
     storage: {
       from: vi.fn(() => ({
@@ -74,7 +77,7 @@ vi.mock('next/cache', async (importOriginal) => {
 })
 
 import {
-  markHasPasswordAction,
+  completeRecoveryPasswordAction,
   setFirstPasswordAction,
   updateProfileAction,
 } from './actions'
@@ -95,10 +98,12 @@ describe('updateProfileAction', () => {
     mockServiceUpdate.mockReset()
     mockServiceEq.mockReset()
     mockUpdateUserById.mockReset()
+    mockUpdateUser.mockReset()
 
     mockServiceUpdate.mockReturnValue({ eq: mockServiceEq })
     mockServiceEq.mockResolvedValue({ error: null })
     mockUpdateUserById.mockResolvedValue({ error: null })
+    mockUpdateUser.mockResolvedValue({ error: null })
 
     mockSelect.mockReturnValue({ eq: mockEq })
 
@@ -449,32 +454,95 @@ describe('setFirstPasswordAction', () => {
   })
 })
 
-describe('markHasPasswordAction', () => {
+describe('completeRecoveryPasswordAction', () => {
   beforeEach(() => {
     mockGetUser.mockResolvedValue({
-      data: { user: { id: USER_ID } },
+      data: { user: { id: USER_ID, app_metadata: {} } },
       error: null,
     })
     mockServiceUpdate.mockClear()
     mockServiceEq.mockClear()
+    mockUpdateUser.mockClear()
+    mockUpdateUserById.mockClear()
+    mockAppLogError.mockClear()
+    mockUpdateUser.mockResolvedValue({ error: null })
   })
 
   it('should return operational error when unauthenticated', async () => {
     mockGetUser.mockResolvedValue({ data: { user: null }, error: null })
 
-    const result = await markHasPasswordAction()
+    const result = await completeRecoveryPasswordAction({
+      password: 'password123',
+    })
 
     expect(result).toMatchObject({
       success: false,
       error: { code: 'UNAUTHORIZED', kind: 'operational' },
     })
     expect(mockServiceUpdate).not.toHaveBeenCalled()
+    expect(mockUpdateUser).not.toHaveBeenCalled()
   })
 
-  it('should set has_password true on happy path', async () => {
-    const result = await markHasPasswordAction()
+  it('should set flag then updateUser on the session client', async () => {
+    const callOrder: string[] = []
+
+    mockServiceUpdate.mockImplementation(() => {
+      callOrder.push('flag')
+      return { eq: mockServiceEq }
+    })
+    mockUpdateUser.mockImplementation(async () => {
+      callOrder.push('password')
+      return { error: null }
+    })
+
+    const result = await completeRecoveryPasswordAction({
+      password: 'password123',
+    })
 
     expect(mockServiceUpdate).toHaveBeenCalledWith({ has_password: true })
-    expect(result).toMatchObject({ success: true })
+    expect(mockUpdateUser).toHaveBeenCalledWith({ password: 'password123' })
+    expect(mockUpdateUserById).not.toHaveBeenCalled()
+    expect(callOrder).toEqual(['flag', 'password'])
+    expect(result).toMatchObject({
+      success: true,
+      data: { redirectTo: '/home' },
+    })
+  })
+
+  it('should not return success when password update fails after flag write', async () => {
+    mockUpdateUser.mockResolvedValue({
+      error: { message: 'password update failed' },
+    })
+
+    const result = await completeRecoveryPasswordAction({
+      password: 'password123',
+    })
+
+    expect(mockServiceUpdate).toHaveBeenCalledWith({ has_password: true })
+    expect(result).toMatchObject({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', kind: 'fault' },
+    })
+  })
+
+  it('should return an operational envelope for a mapped AuthError', async () => {
+    mockUpdateUser.mockResolvedValue({
+      error: new AuthApiError('Password too weak', 400, 'weak_password'),
+    })
+
+    const result = await completeRecoveryPasswordAction({
+      password: 'password123',
+    })
+
+    expect(result).toMatchObject({
+      success: false,
+      error: {
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+        message:
+          "Your password doesn't meet the strength requirements. Please choose a stronger one.",
+      },
+    })
+    expect(mockAppLogError).not.toHaveBeenCalled()
   })
 })

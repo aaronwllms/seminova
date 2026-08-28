@@ -27,10 +27,20 @@ the flag to false and skip reauth; a failed profile load fail-closes to `true`
 rather than exposing the no-current-password form; and the flag is written
 *before* the password, so a partial failure leaves the account showing Change
 Password with recovery-by-email intact rather than leaving the reauth-free path
-permanently open. The standing cost is drift: the flag is app-maintained truth
-about auth state, so any password-write path added later that forgets to stamp
-it leaves that account reachable without reauth. The service-client import
-allowlist in [`eslint.config.mjs`](../../eslint.config.mjs) makes a *new*
-elevated write path visible, but nothing catches a client-side
-`updateUser({ password })` — precisely the shape the recovery flow takes, which
-is why it carries an explicit `markHasPasswordAction` call.
+permanently open.
+
+The trigger always inserts `has_password = false` and ignores client metadata.
+Three in-app write paths stamp `true` on the same awaited server path that
+wrote the password: password sign-up (`signUpWithPasswordAction`), first
+password (`setFirstPasswordAction`), and recovery
+(`completeRecoveryPasswordAction`). Confirm-link stamping was rejected:
+`confirm-signup.html` uses `type=email`, the same template as the first-time
+magic-link path, so `auth.users` cannot distinguish a chosen password from the
+platform hash.
+
+Two residual costs remain. A direct-API `signUp` outside the app still leaves
+the column `false`. A stamp that fails after a successful in-app `signUp` needs
+manual repair — retrying sign-up hits GoTrue's empty-`identities`
+anti-enumeration payload and skips stamping by design, so the account
+self-heals only through Set Password. Do not add an automatic re-stamp on
+sign-in; that is a new write path and belongs to its own decision.

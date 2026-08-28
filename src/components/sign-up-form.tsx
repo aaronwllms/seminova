@@ -1,7 +1,6 @@
 'use client'
 
 import { cn } from '@/utils/tailwind'
-import { createClient } from '@/supabase/client'
 import { AppErrorSurface } from '@/components/app-error-surface'
 import { OrDivider } from '@/components/or-divider'
 import { Button } from '@/components/ui/button'
@@ -18,8 +17,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
-import { APP_HOME } from '@/constants/app-paths'
-import { extractAuthFormError } from '@/utils/extract-auth-form-error'
+import { signUpWithPasswordAction } from '@/app/auth/_lib/sign-up/actions'
 import type { AppError } from '@/types/app-error'
 
 export function SignUpForm({
@@ -35,7 +33,6 @@ export function SignUpForm({
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
-    const supabase = createClient()
     setIsLoading(true)
     setFormError(null)
 
@@ -49,18 +46,21 @@ export function SignUpForm({
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}${APP_HOME}`,
-          data: { has_password: true },
-        },
-      })
-      if (error) throw error
+      const result = await signUpWithPasswordAction({ email, password })
+
+      if (!result.success) {
+        setFormError(result.error)
+        return
+      }
+
       router.push('/auth/sign-up-success')
-    } catch (caught: unknown) {
-      setFormError(extractAuthFormError(caught, { email }))
+    } catch {
+      setFormError({
+        message:
+          'Something went wrong on our end. Please try again, or contact support if it continues.',
+        code: 'INTERNAL_ERROR',
+        kind: 'fault',
+      })
     } finally {
       setIsLoading(false)
     }
