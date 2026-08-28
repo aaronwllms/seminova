@@ -21,7 +21,11 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
-      include: ['src/**/*.{ts,tsx}'],
+      include: [
+        'src/**/*.{ts,tsx}',
+        'scripts/**/*.{ts,mjs}',
+        'eslint-rules/**/*.mjs',
+      ],
       exclude: [
         'src/components/ui/**',
         'src/mocks/**',
@@ -42,6 +46,14 @@ export default defineConfig({
         'src/supabase/server.ts',
         'src/proxy.ts',
         '**/*.d.ts',
+        // Admin CLI entry shims — logic lives in scripts/admin/lib/, which is measured
+        'scripts/admin/*.ts',
+        'scripts/admin/lib/env.ts',
+        'scripts/admin/lib/prompt.ts',
+        'scripts/admin/lib/service-client.ts',
+        'scripts/checks/vitest-file.mjs', // pnpm test:file spawn wrapper, not a check:* gate
+        'scripts/checks/checks-wired.mjs', // debt: no colocated test; add when F186 extracts wired-check comparison
+        'scripts/checks/pnpm-only.mjs', // debt: no colocated test; add when F186 writes the test
       ],
       thresholds: {
         lines: 80,

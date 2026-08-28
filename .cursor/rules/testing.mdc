@@ -145,7 +145,7 @@ Avoid many near-duplicate edge-case or validation micro-tests, or asserting impl
 
 **Enforced:** 80% minimum thresholds (lines, functions, branches, statements) via [`vitest.config.ts`](../../vitest.config.ts). `pnpm test:ci` runs `vitest run --coverage` — failures block CI and pre-push.
 
-**In scope:** app logic under `src/` (auth forms, hooks, utils, route handlers, `src/supabase/proxy.ts`). **Excluded from denominator:** shadcn UI primitives, mocks, test infra, page/layout shells, thin providers, Supabase client factories, `src/proxy.ts` delegate, static marketing section shells (named workflow sections; all `reference/_components/**` demo chrome — `reference/_lib/**` stays measured). See `vitest.config.ts` for the authoritative exclude list.
+**In scope:** app logic under `src/`, check scripts under `scripts/checks/`, custom lint rules under `eslint-rules/`, and admin CLI lib modules under `scripts/admin/lib/`. **Excluded from denominator:** see the authoritative exclude list in [`vitest.config.ts`](../../vitest.config.ts) — thin page/layout shells, vendored UI primitives, admin CLI entry shims, untested check scripts (F186), and other items called out there with comments.
 
 Before merge: run `pnpm test:ci`. If thresholds fail, add targeted high-value tests — not per-file 80% crusades. If useful tests cannot reach 80%, revisit threshold or exclude set (PM decision)—do not pad with filler.
 
