@@ -1,17 +1,21 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 
 import { getDisplayAuthClaims } from '@/supabase/require-auth'
 
 import { UsersTable } from './_components/users-table'
+import { UsersTableFallback } from './_components/users-table-fallback'
 
 export const metadata: Metadata = {
   title: 'Users',
 }
 
-export default async function UsersPage() {
+const UsersTableSlot = async () => {
   const claims = await getDisplayAuthClaims()
-  const currentAdminUserId = claims.sub
+  return <UsersTable currentAdminUserId={claims.sub} />
+}
 
+export default function UsersPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
@@ -20,7 +24,9 @@ export default async function UsersPage() {
           Admins can promote, demote, ban, or unban users from the table.
         </p>
       </div>
-      <UsersTable currentAdminUserId={currentAdminUserId} />
+      <Suspense fallback={<UsersTableFallback />}>
+        <UsersTableSlot />
+      </Suspense>
     </div>
   )
 }
