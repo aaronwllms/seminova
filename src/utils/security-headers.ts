@@ -47,6 +47,19 @@ export const getSecurityHeaders = (): SecurityHeader[] => [
   { key: 'X-Frame-Options', value: 'DENY' },
   {
     key: 'Strict-Transport-Security',
+    // Unconditional in dev: browsers ignore HSTS on HTTP (RFC 6797 §8.1); localhost is unaffected.
     value: 'max-age=31536000; includeSubDomains',
+  },
+  {
+    key: 'Referrer-Policy',
+    value: 'strict-origin-when-cross-origin',
+  },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  {
+    key: 'Permissions-Policy',
+    // clipboard-write omitted — use-copy-to-clipboard.ts needs navigator.clipboard.writeText.
+    // payment=() closed; fullscreen and publickey-credentials-get left open for spinoff passkeys / fullscreen.
+    value:
+      'camera=(), microphone=(), geolocation=(), browsing-topics=(), payment=(), usb=(), bluetooth=(), display-capture=()',
   },
 ]

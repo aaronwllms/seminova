@@ -91,9 +91,9 @@ For render-time scheme checks on DB-sourced URLs (avatars, banner links), use `s
 
 ### Security Headers
 
-Configure CSP, frame-ancestors (or X-Frame-Options), and HSTS via next.config headers. Start strict; `'unsafe-inline'` / `'unsafe-eval'` are temporary compatibility debt requiring a documented removal plan.
+Configure CSP, frame-ancestors (or X-Frame-Options), HSTS, Referrer-Policy, X-Content-Type-Options (nosniff), and Permissions-Policy via next.config headers. Start strict; `'unsafe-inline'` / `'unsafe-eval'` are temporary compatibility debt requiring a documented removal plan.
 
-**Reference (shipped pattern):** [`src/utils/security-headers.ts`](../../src/utils/security-headers.ts) wired through [`next.config.ts`](../../next.config.ts) — a single enforced `Content-Security-Policy` whose `script-src` is deliberately permissive (`'unsafe-inline'` so Next hydration works). Remaining gap is strict `script-src`; see the `// debt:` marker in that file.
+**Reference (shipped pattern):** [`src/utils/security-headers.ts`](../../src/utils/security-headers.ts) wired through [`next.config.ts`](../../next.config.ts) — a single enforced `Content-Security-Policy` (plus X-Frame-Options, HSTS, Referrer-Policy, nosniff, and a restrictive Permissions-Policy) whose `script-src` is deliberately permissive (`'unsafe-inline'` so Next hydration works). Remaining gap is strict `script-src`; see the `// debt:` marker in that file.
 
 **Reference:** [Next.js Security](https://nextjs.org/docs/app/building-your-application/configuring/security-headers)
 
