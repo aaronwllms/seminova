@@ -40,19 +40,19 @@ pnpm db:types
 
 ## Storage
 
-First bucket: **`avatars`** — public-read, owner-scoped writes. Pattern for all future product buckets.
+First bucket: **`avatars`** — public object URLs, owner-scoped listing and writes. Pattern for all future product buckets.
 
 | Concern | Convention |
 | ------- | ---------- |
 | Bucket naming | One bucket per concern (`avatars`, not `user-files`) |
 | Path | `{ownerId}/avatar.webp` — **first segment = `auth.uid()`** for `storage.foldername(name)` RLS |
-| Read access | Public bucket (`public: true`); render via `getPublicUrl` — no signed URLs for avatars |
-| Write access | `storage.objects` RLS: INSERT/UPDATE/DELETE only when first path segment matches `(select auth.uid())::text` |
-| Upsert | `upsert: true` also requires **SELECT** on `storage.objects` (public-read policy on `avatars` bucket) |
+| Read access | Public bucket (`public: true`); render via `getPublicUrl` — no signed URLs for avatars. No public SELECT on `storage.objects` (that would list every file). |
+| Write access | `storage.objects` RLS: SELECT/INSERT/UPDATE/DELETE only when first path segment matches `(select auth.uid())::text` |
+| Upsert | `upsert: true` requires owner-scoped **SELECT** on `storage.objects` (existence check before overwrite) |
 | Client upload | [`src/utils/avatar-storage.ts`](../../src/utils/avatar-storage.ts) — validate original file → canvas resize (256px cap) → WebP → `upload(..., { upsert: true })` |
 | Constants | [`src/constants/storage-paths.ts`](../../src/constants/storage-paths.ts) — bucket name, input MIME/size limits, canonical filename |
 
-**Migration reference:** [`supabase/migrations/20260623120000_create_avatars_bucket.sql`](../../supabase/migrations/20260623120000_create_avatars_bucket.sql)
+**Migration reference:** [`supabase/migrations/20260623120000_create_avatars_bucket.sql`](../../supabase/migrations/20260623120000_create_avatars_bucket.sql) (bucket + write policies); [`supabase/migrations/20260828190753_avatars_owner_select_policy.sql`](../../supabase/migrations/20260828190753_avatars_owner_select_policy.sql) (owner SELECT)
 
 **Shipped flow:** [`src/app/(app)/_components/profile/`](../../src/app/(app)/_components/profile/) calls `uploadUserAvatar` ([`avatar-storage.ts`](../../src/utils/avatar-storage.ts)), then [`src/app/(app)/_lib/profile/actions.ts`](../../src/app/(app)/_lib/profile/actions.ts) persists `publicUrl` to `profiles.avatar_url`.
 
