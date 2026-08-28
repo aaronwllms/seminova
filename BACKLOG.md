@@ -190,3 +190,33 @@ browsers and route them into `app_logs`, surfaced on the existing admin logs pag
 
 - **Sequencing:** cheap to fold into any phase already touching `/workflow`; not worth
   a phase of its own.
+
+---
+
+## Password security baseline
+
+**What:** Settle the template's password policy — minimum length, whether composition
+rules apply, and leaked-password protection — as a single coherent baseline mirrored
+between the Supabase dashboard and the repo.
+
+**Notes:**
+
+- **Current state:** dashboard minimum is 8, no composition rules. Audit finding S009.
+  The 6 → 8 mirror in `src/constants/auth.ts` is handled separately; this entry is the
+  baseline itself, not the mirror.
+
+- **Leaked-password protection is the highest-value piece and is blocked** — Supabase
+  gates it behind a paid plan. Revisit when the project is on a paid database.
+
+- **Composition rules considered and dropped:** NIST 800-63B recommends against them,
+  and enforcing them means dashboard settings and zod schemas holding four matching
+  regexes in sync across every spinoff. Length is one integer in one constant.
+
+- **Unverified:** whether `auth.admin.updateUserById` (the first-password path) applies
+  the project's password policy at all. If it does not, the app-side zod floor is the
+  only check on that route.
+
+- **Per-project, not just code:** the dashboard is authoritative and lives outside the
+  repo, so a spinoff inherits none of this. Whatever baseline is settled needs a
+  `project-kickoff` step and a README setup line, plus a comment on the constant naming
+  the dashboard as source of truth.
