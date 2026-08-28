@@ -37,22 +37,24 @@ export const UsersToolbar = ({
 
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start">
-      <div className="relative min-w-0 flex-1">
-        <Search
-          className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
-          aria-hidden
-        />
-        <Input
-          type="search"
-          value={searchInput}
-          onChange={(event) => onSearchInputChange(event.target.value)}
-          placeholder="Search by email…"
-          className="pl-9"
-          aria-label="Search users by email"
-          aria-describedby={
-            showSearchHint ? 'users-email-search-hint' : undefined
-          }
-        />
+      <div className="min-w-0 flex-1">
+        <div className="relative">
+          <Search
+            className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
+            aria-hidden
+          />
+          <Input
+            type="search"
+            value={searchInput}
+            onChange={(event) => onSearchInputChange(event.target.value)}
+            placeholder="Search by email…"
+            className="pl-9"
+            aria-label="Search users by email"
+            aria-describedby={
+              showSearchHint ? 'users-email-search-hint' : undefined
+            }
+          />
+        </div>
         {showSearchHint ? (
           <p
             id="users-email-search-hint"
