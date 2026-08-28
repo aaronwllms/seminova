@@ -99,6 +99,14 @@ export interface PageMetadataInput {
   path: string
 }
 
+/** Site-level Open Graph defaults — spread in any segment that sets its own `openGraph`. */
+export const siteOpenGraphBase = {
+  title: siteConfig.name,
+  description: siteConfig.description,
+  siteName: siteConfig.name,
+  type: 'website' as const,
+}
+
 export const getPageMetadata = ({
   title,
   description,
@@ -110,10 +118,10 @@ export const getPageMetadata = ({
     canonical: path,
   },
   openGraph: {
+    ...siteOpenGraphBase,
     title,
     description,
     url: path,
-    siteName: siteConfig.name,
   },
 })
 
@@ -124,9 +132,8 @@ export const getSiteMetadata = (metadataBase: URL): Metadata => ({
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
-  openGraph: {
-    title: siteConfig.name,
-    description: siteConfig.description,
-    siteName: siteConfig.name,
+  openGraph: siteOpenGraphBase,
+  twitter: {
+    card: 'summary_large_image',
   },
 })

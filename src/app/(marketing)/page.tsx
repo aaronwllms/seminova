@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 
+import { siteOpenGraphBase } from '@/config/site'
 import { getOrganizationWebSiteJsonLdScript } from '@/utils/structured-data'
 import { getSiteUrl } from '@/utils/site-url'
 
@@ -11,6 +12,10 @@ import { LandingTechStack } from './_components/landing-tech-stack'
 export const metadata: Metadata = {
   alternates: {
     canonical: '/',
+  },
+  openGraph: {
+    ...siteOpenGraphBase,
+    url: '/',
   },
 }
 

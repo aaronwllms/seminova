@@ -11,11 +11,28 @@ describe('buildRobotsConfig', () => {
     vi.resetModules()
   })
 
-  it('should allow all crawlers by default and disallow training crawlers', () => {
+  it('should allow all crawlers including training crawlers by default', () => {
     const rules = getRules(buildRobotsConfig())
 
     const defaultRule = rules.find((rule) => rule.userAgent === '*')
     expect(defaultRule).toMatchObject({ allow: '/' })
+
+    const trainingCrawlers = [
+      'GPTBot',
+      'ClaudeBot',
+      'CCBot',
+      'Google-Extended',
+      'Applebot-Extended',
+    ]
+
+    for (const userAgent of trainingCrawlers) {
+      const rule = rules.find((entry) => entry.userAgent === userAgent)
+      expect(rule).toBeUndefined()
+    }
+  })
+
+  it('should disallow training crawlers when ALLOW_TRAINING_CRAWLERS is false', () => {
+    const rules = getRules(buildRobotsConfig(false))
 
     const trainingCrawlers = [
       'GPTBot',
