@@ -12,9 +12,10 @@ Metadata defaults, crawler policy, structured data, and social-preview patterns 
 
 ## Metadata source of truth
 
-- Site-wide defaults: [`src/config/site.ts`](../../src/config/site.ts) (`getSiteMetadata`) — name, title template, description, root Open Graph defaults including `siteName`.
+- Site-wide defaults: [`src/config/site.ts`](../../src/config/site.ts) (`getSiteMetadata`) — name, title template, description, root Open Graph defaults via `siteOpenGraphBase` (including `siteName` and `type: 'website'`), and `twitter.card: 'summary_large_image'`.
 - Root wire-up: [`src/app/layout.tsx`](../../src/app/layout.tsx) calls `getSiteMetadata(getSiteUrl())`.
-- Per-page marketing metadata: `getPageMetadata` in [`src/config/site.ts`](../../src/config/site.ts) — sole source of `og:url` on indexable marketing routes; shared copy lives in [`src/app/(marketing)/_lib/page-meta.ts`](../../src/app/(marketing)/_lib/page-meta.ts).
+- Per-page marketing metadata: `getPageMetadata` in [`src/config/site.ts`](../../src/config/site.ts) — sole source of `og:url` on indexable marketing routes; shared copy lives in [`src/app/(marketing)/_lib/page-meta.ts`](../../src/app/(marketing)/_lib/page-meta.ts). Spreads `siteOpenGraphBase` so per-page `openGraph` retains site-level fields.
+- **Merge rule:** Next.js replaces nested `openGraph` / `twitter` objects rather than merging fields — any segment that sets its own must spread `siteOpenGraphBase` (and repeat `twitter.card` if it sets `twitter`).
 - Other per-page overrides: export `metadata` or `generateMetadata` on the page/layout; inherit the title template from root.
 
 ## Base URL
@@ -38,7 +39,7 @@ Defense-in-depth on top of the auth proxy — a route accidentally made public c
 
 ## Crawler surface
 
-- **Robots:** [`src/utils/robots-policy.ts`](../../src/utils/robots-policy.ts) + [`src/app/robots.ts`](../../src/app/robots.ts) — retrieval/user-fetch bots allowed; training crawlers (GPTBot, ClaudeBot, CCBot, Google-Extended, Applebot-Extended) blocked by default. **Review training-consent per product** — the commented reference bot roster in the policy file is the edit surface when a spinoff reverses the default.
+- **Robots:** [`src/utils/robots-policy.ts`](../../src/utils/robots-policy.ts) + [`src/app/robots.ts`](../../src/app/robots.ts) — retrieval/user-fetch bots allowed; training crawlers (GPTBot, ClaudeBot, CCBot, Google-Extended, Applebot-Extended) **allowed by default** via `ALLOW_TRAINING_CRAWLERS` in the policy file. Spinoffs that want to block training crawlers set the flag to `false`.
 - **Sitemap:** [`src/utils/sitemap-routes.ts`](../../src/utils/sitemap-routes.ts) via [`discoverMarketingRoutes()`](../../src/utils/discover-app-routes.ts) — `(marketing)` routes only; auth/app/admin never listed.
 
 ## Structured data

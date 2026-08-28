@@ -86,7 +86,7 @@ Audit each dimension against the cited files. Read `seo.mdc` and AGENTS.md § Ha
 
 **D3 — Per-surface indexing:** `(marketing)` is indexable; `auth/**`, `(app)`, and `admin/**` each carry `noindex` via their layout. A missing `noindex` on a non-marketing layout is high-severity — it's the defense-in-depth that stops an accidentally-public route from leaking into an index. Confirm the layout actually sets it; don't infer it from the route group.
 
-**D4 — Crawler surface:** `robots.ts` reflects `robots-policy.ts` (retrieval bots allowed, training crawlers blocked by default — if a spinoff reversed this it's intentional config, not a finding); the sitemap lists `(marketing)` routes only, via the marketing-route discovery helper; no auth/app/admin route appears in the sitemap; robots and sitemap reference the resolved base URL, never a literal.
+**D4 — Crawler surface:** `robots.ts` reflects `robots-policy.ts` (retrieval bots allowed; training crawlers allowed by default via `ALLOW_TRAINING_CRAWLERS` — spinoffs that block them set the flag to `false`); the sitemap lists `(marketing)` routes only, via the marketing-route discovery helper; no auth/app/admin route appears in the sitemap; robots and sitemap reference the resolved base URL, never a literal.
 
 **D5 — Structured data:** JSON-LD comes from `structured-data.ts`; `Organization` + `WebSite` on the landing page only; nothing inlines JSON-LD directly on a page; new schema types extend the helper rather than bypassing it.
 

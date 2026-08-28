@@ -6,16 +6,7 @@ const root = process.cwd()
 
 const SITE_URL_RESOLVER = join(root, 'src/utils/site-url.ts')
 
-const SCAN_ROOTS = [
-  join(root, 'src/app'),
-  join(root, 'src/config/site.ts'),
-  join(root, 'src/utils/robots-policy.ts'),
-  join(root, 'src/utils/sitemap-routes.ts'),
-  join(root, 'src/utils/structured-data.ts'),
-  join(root, 'src/utils/og-image.tsx'),
-  join(root, 'src/utils/discover-app-routes.ts'),
-  join(root, 'src/utils/proxy-matcher.ts'),
-]
+const SCAN_ROOTS = [join(root, 'src')]
 
 const TEST_FILE = /\.(unit\.)?test\.(ts|tsx|mjs)$/
 

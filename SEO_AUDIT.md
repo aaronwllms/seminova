@@ -1,0 +1,74 @@
+# SEO Audit — seminova
+
+Last full audit: 2026-08-28
+Last synced: 2026-08-28
+Scope: Full SEO surface (D1–D7 per `.cursor/skills/audit-seo/SKILL.md`). Excludes accessibility-owned checks (heading order, `<h1>` count, alt text — `ui-accessibility.mdc`) and content-marketing SEO (keyword research, Core Web Vitals, duplicate-content analysis).
+
+## Executive summary
+
+- **No critical or high findings.** Indexing policy, base-URL centralization, crawler surface, and structured data are all sound. `pnpm check:seo-base-url` passes across all of `src/`.
+- All three non-marketing surfaces (`auth/**`, `(app)`, `admin/**`) carry `robots: { index: false, follow: false }` at the layout level — the defense-in-depth layer over the auth proxy is intact.
+- The sitemap contains exactly the six `(marketing)` routes and nothing else; that set matches the AGENTS.md public-route list one-for-one.
+- **SEO001–SEO004 resolved (2026-08-28):** `twitter:card: summary_large_image` is declared at root; shared `siteOpenGraphBase` carries `og:type: website`, `og:url` on `/`, and per-page OG fields on marketing routes; `check:seo-base-url` now scans all of `src/`.
+- Training crawlers are allowed by default (`ALLOW_TRAINING_CRAWLERS = true` in `robots-policy.ts`); PM confirmed Seminova wants to be in training data.
+- Content standards are strong: every page in the app exports an intentional, unique `title`, including the `noindex` auth and admin surfaces.
+- There is no root `not-found.tsx`, so the 404 surface inherits the root default title (`Seminova`) — a duplicate tab label, not an indexing risk (404 status prevents indexing).
+
+## Surface map
+
+| Surface                  | Count                                                           | Key paths                                                                                                                                                                                                                                    |
+| ------------------------ | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Metadata source of truth | 3 files, 5 shared page-meta entries                             | `src/config/site.ts` (`getSiteMetadata`, `getPageMetadata`, `siteOpenGraphBase`), `src/app/layout.tsx:13`, `src/app/(marketing)/_lib/page-meta.ts`                                                                                           |
+| Base-URL resolver        | 1 resolver + 1 checker                                          | `src/utils/site-url.ts`, `scripts/checks/seo-base-url.mjs`                                                                                                                                                                                   |
+| Route groups & indexing  | 4 groups / 18 page surfaces                                     | `(marketing)` indexable (6 routes, no `robots` override); `auth/**` `noindex` (7 pages, `src/app/auth/layout.tsx:6`); `(app)` `noindex` (1 page, `src/app/(app)/layout.tsx:9`); `admin/**` `noindex` (4 pages, `src/app/admin/layout.tsx:8`) |
+| Crawler surface          | 5 files                                                         | `src/utils/robots-policy.ts`, `src/app/robots.ts`, `src/utils/sitemap-routes.ts`, `src/app/sitemap.ts`, `src/utils/discover-app-routes.ts`                                                                                                   |
+| Structured data          | 1 helper, 1 call site                                           | `src/utils/structured-data.ts`, `src/app/(marketing)/page.tsx:18`                                                                                                                                                                            |
+| Social previews          | 1 template + 7 segment files + 2 matcher files; favicon 2 files | `src/utils/og-image.tsx`; `opengraph-image.tsx` at root, 5 `(marketing)` routes, `auth/login`; `src/utils/proxy-matcher.ts` + `src/proxy.ts:21`; `src/utils/brand-mark-image.tsx` + `src/app/icon.tsx`                                       |
+
+Marketing routes discovered for the sitemap: `/`, `/features`, `/privacy`, `/reference`, `/terms`, `/workflow`. No `twitter-image.tsx` segment files exist (the proxy matcher covers the path prospectively).
+
+## Open
+
+Actionable backlog only. `Status`: `Do next` | `Deferred` | `Needs decision`.
+
+| ID     | Status   | Category | File:Line                                     | Severity | Description                                                                                                                                                                                                                                                                                                                                      | Recommendation                                                                                                                                                                                                                            |
+| ------ | -------- | -------- | --------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SEO005 | Deferred | D6       | `src/app/auth/login/opengraph-image.tsx:8,14` | Low      | The login OG image hardcodes `'Sign in'` for both `alt` and `title`, duplicating the title in `src/app/auth/login/page.tsx:7`. `seo.mdc` requires OG segment copy to read the same object as the page metadata, a pattern `(marketing)` follows via `page-meta.ts` but auth has no equivalent. A future title edit silently desyncs the preview. | Deferred — home is auth-surface metadata cleanup. Smallest fix: export a shared page-meta object for `auth/login` (or an `auth/_lib/page-meta.ts` if a second auth OG image ever appears) and read `title` from it in both files.         |
+| SEO007 | Deferred | D7       | No `src/app/not-found.tsx` (absent)           | Low      | No root `not-found.tsx` or `global-not-found.tsx`, so Next's built-in 404 renders inside the root layout and inherits the default title `Seminova` — the same tab label as the homepage. No indexing risk: the 404 status keeps it out of any index.                                                                                             | Deferred — this is a UI surface decision, not just metadata. If a branded 404 is added, give it `export const metadata = { title: 'Page not found' }` and keep it inside the root layout so the a11y single-`<h1>` check stays satisfied. |
+
+## Accepted
+
+Deliberately not doing now. Not a todo list.
+
+| ID     | Category | File:Line                                                                            | Severity | Description                                                                                             | Why accepted                                                                                                                                                                                                                                                                                                                   | Reopen when                                                                                                                              |
+| ------ | -------- | ------------------------------------------------------------------------------------ | -------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| SEO006 | D7       | `src/app/auth/*/page.tsx`, `src/app/admin/*/page.tsx`, `src/app/(app)/home/page.tsx` | Low      | The 12 `noindex` pages export a `title` but no `description`, so they inherit `siteConfig.description`. | Per the audit's indexable-weighted description rule, a description on a `noindex` page is near-noise: it is never a search snippet, and the only shareable one (`auth/login`) already gets the site description in its OG image deliberately. 12 near-duplicate strings would be maintenance cost for no discoverability gain. | Any of these surfaces becomes indexable, or a specific auth/app page starts being shared externally and needs its own link-preview copy. |
+
+## Verified OK
+
+- **D1 — Metadata wire-up.** `getSiteMetadata` in `src/config/site.ts` is the sole site-wide default source; `src/app/layout.tsx:13` wires it with `getSiteUrl()` as `metadataBase`. `siteOpenGraphBase` carries `siteName` and `type: 'website'`; `getPageMetadata` spreads it so per-page routes retain both. The landing page spreads the same base and adds `og:url: '/'`. No page redefines the title template or duplicates the site name/description defaults. All five non-landing marketing routes go through `getPageMetadata` with copy from `page-meta.ts`.
+- **D2 — Base URL.** `pnpm check:seo-base-url` passes across all of `src/` (`OK — no hardcoded dev origin, inline env read, or literal-origin new URL() outside site-url.ts`). `src/utils/site-url.ts` is the only resolver of `NEXT_PUBLIC_SITE_URL` / `VERCEL_URL` / the localhost fallback. Canonicals are relative paths resolved against `metadataBase` — no bare-string absolute canonicals anywhere. Bare external GitHub links in `src/config/site.ts:12` are correctly out of scope.
+- **D3 — Per-surface indexing.** `(marketing)` sets no `robots` override and is indexable. `auth/layout.tsx`, `(app)/layout.tsx`, and `admin/layout.tsx` each set `robots: { index: false, follow: false }` directly in the layout — verified in the files, not inferred from the route group. No page-level override re-enables indexing on a private surface.
+- **D4 — Crawler surface.** `src/app/robots.ts` is a bare re-export of `buildRobotsConfig`, which allows `*` on `/` and permits training crawlers by default (`ALLOW_TRAINING_CRAWLERS = true`). The sitemap reference uses `getSiteUrl()`. `buildSitemapEntries` derives URLs from `discoverMarketingRoutes`, which walks `src/app/(marketing)` only, so auth/app/admin/API routes cannot appear. Leaving `/admin` and `/home` crawlable in robots.txt is correct: `noindex` only works if the crawler is allowed to fetch the page and read the tag.
+- **D5 — Structured data.** `Organization` + `WebSite` JSON-LD comes from `getOrganizationWebSiteJsonLdScript` and is injected on the landing page only. The helper pre-serializes and unicode-escapes `<`, and the page passes the string straight into `dangerouslySetInnerHTML` without re-stringifying. No page inlines its own JSON-LD. Omitting `potentialAction`/`SearchAction` is correct — there is no site search.
+- **D6 — Social previews.** `getSiteMetadata` declares `twitter.card: 'summary_large_image'` at root; per-page routes inherit it. Every public marketing route has its own `opengraph-image.tsx` (5 routes) plus root, each reading `title`/`description`/`alt` from the same `page-meta.ts` object (root reads `siteConfig`). All go through `createOgImageResponse`. The OG template and the favicon util both respect the Satori constraints — inline styles only, explicit `width`/`height` and `stroke` on the Lucide logo, `display: 'flex'` on wrapping containers. `PROXY_MATCHER_PATTERN` in `src/utils/proxy-matcher.ts:9` is character-identical to the literal in `src/proxy.ts:21` and covers `/opengraph-image`, `/twitter-image`, `/icon`, and their nested variants — no auth leak, no broken preview.
+- **D7 — Titles.** All 18 page surfaces export an intentional, unique `title`; the auth and admin `noindex` pages follow the per-page title pattern the rule asks for. The landing page's inherited default (`Seminova`, from the title template's `default`) is correct for a homepage. One self-referential relative canonical per indexable page, no duplicate indexable URLs.
+
+## Human / tooling follow-ups
+
+- Validate the landing-page JSON-LD in Google's Rich Results Test / Schema Markup Validator against a deployed URL (the helper's output can't be validated from a read-only audit).
+- Preview OG cards in the platform debuggers: Facebook Sharing Debugger, LinkedIn Post Inspector, and the X card validator — confirm the large-image card actually renders on X and that `og:image` resolves on the production origin, not a preview URL.
+- Submit and verify `sitemap.xml` in Google Search Console, then confirm the `noindex` surfaces (`/home`, `/admin`, `/auth/login`) report as "Excluded by 'noindex' tag" rather than crawl errors.
+- Confirm `NEXT_PUBLIC_SITE_URL` is set on the production Vercel project; without it the base URL silently falls back to `VERCEL_URL`, which yields per-deployment origins in canonicals and OG image URLs.
+- Spot-check the rendered `<head>` of `/` and one `getPageMetadata` route in production view-source to confirm `og:url` matches `rel=canonical`.
+
+## Open questions
+
+- **Answer-first structure** — the marketing pages lead with an `h1` plus a one-paragraph summary before detail sections (`features`, `workflow`, `reference` all follow this shape), so nothing is egregiously buried. Whether the landing hero answers "what is this and why should I care" fast enough is a product-copy judgment call, not a template finding.
+
+## Resolved
+
+- 2026-08-28 — SEO001: Added `twitter.card: 'summary_large_image'` to `getSiteMetadata`; all routes inherit the large-image card type.
+- 2026-08-28 — SEO002: Landing page `openGraph` spreads `siteOpenGraphBase` and sets `url: '/'`.
+- 2026-08-28 — SEO003: Added `type: 'website'` to shared `siteOpenGraphBase`; inherited site-wide via `getSiteMetadata` and `getPageMetadata`.
+- 2026-08-28 — SEO004: Widened `SCAN_ROOTS` to all of `src/`; enforcement now matches the AGENTS.md hard-constraint claim.
