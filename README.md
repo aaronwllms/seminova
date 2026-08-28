@@ -54,11 +54,21 @@ The full workflow — every step, skill, and document explained — lives in [do
 
 ## Quick start
 
-1. Create your repository from this template — click **Use this template** on GitHub (or fork/clone if contributing to Seminova itself) — then install dependencies:
+1. Get the code — choose one path, then install dependencies:
+
+   **New product:** click **Use this template** on GitHub, then clone the repository GitHub created (use its clone URL in place of the example below):
 
    ```bash
-   git clone <your-new-repo-url> my-project
+   git clone https://github.com/YOUR_USERNAME/your-repo.git my-project
    cd my-project
+   pnpm install
+   ```
+
+   **Contribute to Seminova:** fork, then clone this repository:
+
+   ```bash
+   git clone https://github.com/aaronwllms/seminova.git seminova
+   cd seminova
    pnpm install
    ```
 
