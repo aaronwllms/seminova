@@ -190,3 +190,69 @@ browsers and route them into `app_logs`, surfaced on the existing admin logs pag
 
 - **Sequencing:** cheap to fold into any phase already touching `/workflow`; not worth
   a phase of its own.
+
+---
+
+## Opt-in EXECUTE for new database functions
+
+**What:** Stop Postgres and Supabase from auto-granting EXECUTE to client roles on newly
+created `public` functions, so a function is unreachable from the API until a migration
+grants it explicitly.
+
+**Notes:**
+
+- **Why it keeps coming up:** the same trap has been stepped in twice — migration
+  `20260720151459` revoked all three roles on the trigger functions because
+  `revoke … from public` was insufficient, then `purge_expired_app_logs` shipped with the
+  same mistake (S007). The `supabase-sql.mdc` convention is a prompt, not enforcement.
+
+- **Option A — platform default.**
+  `alter default privileges for role postgres [in schema public] revoke execute on
+  functions from public, anon, authenticated`. Two lines in a migration. Binds only
+  objects created by role `postgres`, so it needs a create-a-throwaway-function probe to
+  confirm it took, not just a `pg_default_acl` read.
+
+- **Option B — `check:*` scanner.** The audit's own preferred structural fix: a pre-push
+  check asserting every new `public` function carries explicit grants. Deterministic
+  enforcement, which the repo prefers over both prose rules and platform
+  reconfiguration. Costs a scanner.
+
+- **Argument against A:** the failure mode is `permission denied for function foo` at
+  runtime, with nothing pointing at a months-old migration. It also diverges from a
+  Supabase ecosystem default, so copy-pasted examples and AI-generated migrations will
+  all assume the standard behaviour — and every spinoff inherits the inversion.
+
+- **ADR if A is chosen:** meets all three `docs/adr/README.md` criteria — costly to unwind
+  once functions are written against it, surprising without context, and a real trade-off
+  accepted. B needs no ADR.
+
+- **Revisit when:** a third instance of the grant mistake appears, or a phase is already
+  touching `scripts/checks/`.
+
+---
+
+## Password security baseline
+
+**What:** Settle the template's password policy — minimum length, whether composition
+rules apply, and leaked-password protection — as a single coherent baseline mirrored
+between the Supabase dashboard and the repo.
+
+**Notes:**
+
+- **Current state:** dashboard minimum is 8, no composition rules. Audit finding S009.
+  The 6 → 8 mirror in `src/constants/auth.ts` is handled separately; this entry is the
+  baseline itself, not the mirror.
+
+- **Leaked-password protection is the highest-value piece and is blocked** — Supabase
+  gates it behind a paid plan. Revisit when the project is on a paid database.
+
+- **Composition rules considered and dropped:** NIST 800-63B recommends against them,
+  and enforcing them means dashboard settings and zod schemas holding four matching
+  regexes in sync across every spinoff. Length is one integer in one constant.
+
+- **Unverified:** whether `auth.admin.updateUserById` (the first-password path) applies
+  the project's password policy at all. If it does not, the app-side zod floor is the
+  only check on that route.
+
+- **Per-project, not just code:** the dashboard is authoritative and lives outside the
+  repo, so a spinoff inherits none of this.

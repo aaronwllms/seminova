@@ -51,12 +51,12 @@ describe('ProfilePasswordSection', () => {
 
     await user.clear(screen.getByLabelText(/^new password$/i))
     await user.clear(screen.getByLabelText(/confirm new password/i))
-    await user.type(screen.getByLabelText(/^new password$/i), '123')
-    await user.type(screen.getByLabelText(/confirm new password/i), '123')
+    await user.type(screen.getByLabelText(/^new password$/i), '1234567')
+    await user.type(screen.getByLabelText(/confirm new password/i), '1234567')
     await user.click(screen.getByRole('button', { name: /update password/i }))
 
     expect(
-      await screen.findByText(/at least 6 characters/i),
+      await screen.findByText(/at least 8 characters/i),
     ).toBeInTheDocument()
     expect(mockUpdateUser).not.toHaveBeenCalled()
   })

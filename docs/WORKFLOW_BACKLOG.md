@@ -6,7 +6,7 @@
 
 **How to use it.** Each entry is a deferred decision with its reason for deferral and the signal that should bring it back. Pull an item out when its trigger fires; delete it when it's resolved (record the resolution as an [ADR](adr/README.md) if it qualifies).
 
-**Last updated:** 2026-08-25
+**Last updated:** 2026-08-28
 
 ---
 
@@ -34,6 +34,7 @@
   - [Theme regeneration as skill vs mode](#theme-regeneration-as-skill-vs-mode)
   - [Retire `docs/archive/`](#retire-docsarchive)
   - [Pre-launch checklist for spinoffs](#pre-launch-checklist-for-spinoffs)
+  - [ADR immutability: define an in-place amendment carve-out](#adr-immutability-define-an-in-place-amendment-carve-out)
   - [~~Deterministic scripts in agent skills~~](#deterministic-scripts-in-agent-skills) *(resolved)*
 
 ---
@@ -296,6 +297,25 @@ swimlane-beta LR
 **Why deferred:** The item list isn't complete — the three confirmed entries are the ones that surfaced in conversation, not the result of a pass over the repo. Writing it now would ship a partial checklist that reads as authoritative. Nothing is launching yet, so there's no forcing function.
 
 **Revisit when:** The first spinoff approaches production, or during a workflow-improvement session with budget to sweep the repo for the full item set.
+
+### ADR immutability: define an in-place amendment carve-out
+
+**What:** [ADR-0012](adr/ADR-0012-first-password-elevated-write-gated-on-flag.md) was rewritten in place on 2026-08-28, overriding the absolute rule in [adr/README.md](adr/README.md) — "An accepted ADR is **immutable** … The only edit ever made to an existing ADR is that status change." The `has_password` server-stamping work was folded into the existing record rather than written as a superseding ADR-0013, on the grounds that the decision itself was unchanged: the elevated first-password write gated on a profile flag still stands, and only 0012's account of what remained open had moved. **The rule was deliberately left as written** — this is a logged one-off override, not a sanctioned exception. Decide whether the README should carry a carve-out and where its boundary sits.
+
+**Candidate boundary:** amend in place when the decision is unchanged and only its open/closed account moved; supersede when the decision itself changes; PM approval either way.
+
+**Known constraints on any carve-out:**
+
+- **No mechanical test works.** Every proxy considered — ADR age, whether the phase that introduced it has shipped, inbound citation count — either forbids this exact case or permits genuine retconning. ADR-0012 was created 2026-08-27 and Phase 20 shipped the same day, so a ship-gated test would have blocked it. Any carve-out rests on a PM gate, which cuts against the repo's preference for deterministic enforcement over prose guidance.
+- **Two files assert it.** [DOC_RULES.md](DOC_RULES.md) § Document roles also calls `adr/` "immutable decision history." A carve-out either edits both or softens DOC_RULES to a pointer so the rule lives in one place.
+- **Prior art in the same direction.** The README's own rename note records ADR-0005 being amended to a two-authority refresh model under the same number, described as a filename change. That is already an in-place amendment without a rule to sit under — a carve-out would give it one.
+- **In-place amendment keeps the number,** so inbound references (`SECURITY_AUDIT.md`, `TECH_DEBT_AUDIT.md`, `.cursor/rules/security.mdc`) survive untouched. The cost is to a reader who remembers the old text, not to link integrity.
+
+**Why deferred:** Nothing is broken, and a single override with no rule change is recoverable. Settling the boundary well is its own decision, and drafting it mid-epic would ship a rule written to justify one edit. The real risk is repetition — "immutable, except sometimes" weakens each time it is bent without definition.
+
+**Revisit when:** A second ADR needs an in-place edit; during a dedicated workflow-improvement session; or before forking the template, so spinoffs stop inheriting an absolute rule that the practice already contradicts.
+
+**Relationship to other items:** Touches the same file as [Retire `docs/archive/`](#retire-docsarchive) (DOC_RULES restructuring, rule renumbering) — worth pairing if either is picked up.
 
 ### ~~Deterministic scripts in agent skills~~
 

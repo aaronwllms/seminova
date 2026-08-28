@@ -39,10 +39,11 @@ Use `(select auth.uid()) = id` (or the owning column) in policy clauses. Canonic
 - One policy per operation — never `for all`.
 - Always specify role with `to authenticated` (or `anon` when intentionally public).
 - Policies are **PERMISSIVE** by default. `as restrictive` is a **rare documented exception** only (e.g. MFA enforcement via `auth.jwt()->>'aal'`); do not use restrictive policies for routine owner checks.
-- Wrap `auth.uid()` and `auth.jwt()` in `(select …)` for planner caching — see [RLS performance](https://supabase.com/docs/guides/auth/row-level-security#rls-performance-recommendations).
+- Wrap **only** the helper — `(select auth.uid())`, `(select auth.jwt())` — so the planner caches once per query. JSON operators stay **outside** that subquery; wrapping the whole expression trips lint `0003_auth_rls_initplan`. See [RLS performance](https://supabase.com/docs/guides/auth/row-level-security#rls-performance-recommendations).
+- Admin-gated tables: `((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin'`. Canonical: [`20260828190446_rls_auth_jwt_initplan.sql`](../../supabase/migrations/20260828190446_rls_auth_jwt_initplan.sql).
 - Index columns referenced in policy `using` / `with check` clauses.
 
-Storage bucket policies follow the same owner pattern via `(storage.foldername(name))[1] = (select auth.uid())::text` — see [`20260623120000_create_avatars_bucket.sql`](../../supabase/migrations/20260623120000_create_avatars_bucket.sql).
+Storage bucket policies follow the same owner pattern via `(storage.foldername(name))[1] = (select auth.uid())::text`, including SELECT (listing). Public object URLs do not need a public SELECT policy — see [`20260623120000_create_avatars_bucket.sql`](../../supabase/migrations/20260623120000_create_avatars_bucket.sql) and [`20260828190753_avatars_owner_select_policy.sql`](../../supabase/migrations/20260828190753_avatars_owner_select_policy.sql).
 
 ## Database functions
 
@@ -51,6 +52,8 @@ Project conventions beyond Supabase defaults:
 - Default **`security invoker`**; use **`security definer`** only when required (e.g. signup trigger writing across schemas) and document why.
 - Always **`set search_path = ''`** and use fully qualified object names inside the function body.
 - Trigger functions: `returns trigger`, `language plpgsql`, attach with explicit `create trigger … execute function`.
+- Postgres grants EXECUTE to `PUBLIC` on every new function, and Supabase additionally grants it to `anon` and `authenticated`. `revoke … from public` alone does **not** remove those per-role grants.
+- Every new `public` function must `revoke execute` from `public`, `anon`, and `authenticated` in the same migration that creates it, then `grant execute` only to the roles that should call it. Trigger- and cron-only functions get no client grant.
 
 **Canonical shipped example:** `handle_new_user()` in [`20260622120000_create_profiles.sql`](../../supabase/migrations/20260622120000_create_profiles.sql). General function patterns: [Supabase database functions](https://supabase.com/docs/guides/database/functions).
 

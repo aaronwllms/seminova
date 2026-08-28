@@ -2,6 +2,8 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
+import { tryToParsePath } from 'next/dist/lib/try-to-parse-path'
+
 import { PROXY_MATCHER_PATTERN } from './proxy-matcher'
 
 const matcher = new RegExp(PROXY_MATCHER_PATTERN)
@@ -32,6 +34,11 @@ describe('PROXY_MATCHER_PATTERN', () => {
     )
   })
 
+  it('should parse as a Next.js middleware matcher', () => {
+    const { error } = tryToParsePath(PROXY_MATCHER_PATTERN)
+    expect(error).toBeUndefined()
+  })
+
   it('should exclude metadata image paths from the auth proxy', () => {
     expect(matcher.test('/opengraph-image')).toBe(false)
     expect(matcher.test('/auth/login/opengraph-image')).toBe(false)
@@ -50,5 +57,15 @@ describe('PROXY_MATCHER_PATTERN', () => {
   it('should preserve existing static asset exclusions', () => {
     expect(matcher.test('/favicon.ico')).toBe(false)
     expect(matcher.test('/logo.png')).toBe(false)
+  })
+
+  it('should exclude route-group metadata images with a hash suffix', () => {
+    expect(matcher.test('/features/opengraph-image-959drp')).toBe(false)
+    expect(matcher.test('/features/opengraph-image-a1b2c')).toBe(false)
+    expect(matcher.test('/privacy/twitter-image-abc12')).toBe(false)
+  })
+
+  it('should still run the auth proxy for overlong or word-like suffixes', () => {
+    expect(matcher.test('/opengraph-image-anything')).toBe(true)
   })
 })

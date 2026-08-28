@@ -115,11 +115,11 @@ The full workflow — every step, skill, and document explained — lives in [do
 
 ## Initial setup
 
-After Quick start, grant yourself admin access so you can use the admin shell:
+After Quick start, configure your Supabase project in the dashboard, then grant yourself admin access so you can use the admin shell.
 
-### Email templates and redirect URLs
+### Supabase dashboard settings
 
-In the [Supabase Dashboard](https://app.supabase.com) for your linked project:
+These settings live in the Supabase Dashboard, not in the repo — a clone inherits none of them, so every spinoff sets all of them. In the [Supabase Dashboard](https://app.supabase.com) for your linked project:
 
 - **Email templates** — Authentication → Email Templates. Paste-ready reference HTML lives in [`supabase/templates/`](supabase/templates/). Replace the default verify link in each template so confirmation routes through this app. Bodies include `{{ .Token }}` for typed code entry alongside the link.
   - **Confirm signup body:** `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}`
@@ -128,7 +128,8 @@ In the [Supabase Dashboard](https://app.supabase.com) for your linked project:
   - **Magic Link subject:** `{{ .Token }} is your Seminova sign-in code`
   - **Reset Password body:** `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next={{ .RedirectTo }}`
   - **Reset Password subject:** `{{ .Token }} is your Seminova password reset code`
-- **OTP settings** — Authentication → Providers → Email. Code length, lifetime, and minimum send interval must match [`src/constants/auth.ts`](src/constants/auth.ts) (6 characters, 15 minutes, 30 seconds). The sign-in-link and password-recovery code-entry UIs read those constants for slot count, expiry messaging, and resend countdown — drift shows up as a wrong slot count or mismatched countdown. Seminova is configured this way as of 2026-08-26; spinoffs must set them in the dashboard.
+- **OTP settings** — Authentication → Providers → Email. Code length, lifetime, and minimum send interval must match [`src/constants/auth.ts`](src/constants/auth.ts) (6 characters, 15 minutes, 30 seconds). The sign-in-link and password-recovery code-entry UIs read those constants for slot count, expiry messaging, and resend countdown — drift shows up as a wrong slot count or mismatched countdown. Seminova is configured this way as of 2026-08-26.
+- **Password minimum** — Authentication → Settings → Password Requirements. Must match `MIN_PASSWORD_LENGTH` in [`src/constants/auth.ts`](src/constants/auth.ts) (8). Seminova's dashboard is 8 as of 2026-08-28. See the character-requirements warning below — composition rules break magic-link signup.
 - **Redirect URLs** — Authentication → URL Configuration → Redirect URLs. Add the patterns below (trailing glob matches any path under that origin):
 
 ```text
@@ -153,7 +154,7 @@ pnpm promote-admin your@email.com
 
 - **In-app (once an admin exists):** another admin promotes you from `/admin/users`
 
-1. **Configure Supabase Auth** (required before sign-up) — complete [Email templates and redirect URLs](#email-templates-and-redirect-urls) in the Supabase Dashboard.
+1. **Configure Supabase Auth** (required before sign-up) — complete [Supabase dashboard settings](#supabase-dashboard-settings) in the Supabase Dashboard.
 2. Start the dev server and sign up at [http://localhost:3000/auth/sign-up](http://localhost:3000/auth/sign-up).
 3. Add `SUPABASE_SECRET_KEY` to `.env.local` (from [Project Settings → API](https://app.supabase.com/project/_/settings/api) → **API Keys** → **secret key**, `sb_secret_...`):
 

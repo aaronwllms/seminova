@@ -1,8 +1,3 @@
-// debt: check:auth-boundary is not a pre-push or CI named step — these
-// discovered-route proxy tests pass only because test:ci runs this file;
-// upgrade path: add pnpm check:auth-boundary as a named step in package.json
-// pre-push and .github/workflows/pull-request.yaml when the union-vs-subset
-// contract for check:* scripts is stated.
 /**
  * @vitest-environment node
  */
@@ -10,10 +5,15 @@ import { join } from 'node:path'
 import { NextRequest } from 'next/server'
 import { ADMIN_ROLE } from '@/constants/admin-role'
 import { CLIENT_LOGS_RELAY_PATH } from '@/constants/app-paths'
-import { discoverAppRoutes } from '@/utils/discover-app-routes'
-import { updateSession } from './proxy'
+import {
+  discoverAppRoutes,
+  discoverMetadataImageFiles,
+  isAllowedMetadataImageHome,
+} from '@/utils/discover-app-routes'
+import { PROXY_MATCHER_PATTERN } from '@/utils/proxy-matcher'
+import { isPublicRoute, updateSession } from './proxy'
 
-const PUBLIC_EXACT = [
+const EXPECTED_PUBLIC_ROUTES = [
   '/',
   '/terms',
   '/privacy',
@@ -21,12 +21,17 @@ const PUBLIC_EXACT = [
   '/features',
   '/workflow',
   CLIENT_LOGS_RELAY_PATH,
+  '/auth/confirm',
+  '/auth/error',
+  '/auth/forgot-password',
+  '/auth/login',
+  '/auth/sign-in-link',
+  '/auth/sign-up',
+  '/auth/sign-up-success',
+  '/auth/update-password',
 ] as const
-const PUBLIC_PREFIXES = ['/auth'] as const
 
-const isDiscoveredPublicRoute = (pathname: string) =>
-  (PUBLIC_EXACT as readonly string[]).includes(pathname) ||
-  PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix))
+const proxyMatcher = new RegExp(PROXY_MATCHER_PATTERN)
 
 const mockGetClaims = vi.fn()
 const mockSignOut = vi.fn()
@@ -310,14 +315,25 @@ describe('updateSession', () => {
 
     expect(response.status).toBe(200)
   })
+
+  it('should not treat /authoring as a public route', () => {
+    expect(isPublicRoute('/authoring')).toBe(false)
+  })
+
+  it('should redirect unauthenticated users from /authoring to login', async () => {
+    const response = await updateSession(createRequest('/authoring'))
+
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toContain('/auth/login')
+  })
 })
 
 describe('auth boundary (discovered routes)', () => {
   const appDir = join(process.cwd(), 'src/app')
   const discoveredRoutes = discoverAppRoutes(appDir)
-  const publicRoutes = discoveredRoutes.filter(isDiscoveredPublicRoute)
+  const publicRoutes = discoveredRoutes.filter(isPublicRoute)
   const protectedRoutes = discoveredRoutes.filter(
-    (route) => !isDiscoveredPublicRoute(route),
+    (route) => !isPublicRoute(route),
   )
 
   beforeEach(() => {
@@ -341,6 +357,27 @@ describe('auth boundary (discovered routes)', () => {
     expect(discoveredRoutes).toContain(CLIENT_LOGS_RELAY_PATH)
     expect(discoveredRoutes).toContain('/terms')
     expect(discoveredRoutes).toContain('/privacy')
+  })
+
+  it('should match the explicit public-route allowlist', () => {
+    expect([...publicRoutes].sort()).toEqual([...EXPECTED_PUBLIC_ROUTES].sort())
+  })
+
+  it('should match every protected route through the proxy matcher', () => {
+    for (const pathname of protectedRoutes) {
+      expect(proxyMatcher.test(pathname)).toBe(true)
+    }
+  })
+
+  it('should keep metadata image files in allowed homes only', () => {
+    const metadataImageFiles = discoverMetadataImageFiles(appDir)
+
+    expect(metadataImageFiles.length).toBeGreaterThan(0)
+    expect(
+      metadataImageFiles.every((file) =>
+        isAllowedMetadataImageHome(file.dirSegments),
+      ),
+    ).toBe(true)
   })
 
   it.each(publicRoutes)(

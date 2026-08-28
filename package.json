@@ -32,7 +32,7 @@
     "check:checks-wired": "node scripts/checks/checks-wired.mjs",
     "check:no-shadcn-pkg": "eslint --cache --cache-location node_modules/.cache/eslint/ --max-warnings 0 --no-error-on-unmatched-pattern \"src/**/*.{ts,tsx}\" \"scripts/**/*.{ts,tsx}\"",
     "check:semantic-tokens": "eslint --cache --cache-location node_modules/.cache/eslint/ --max-warnings 0 --no-error-on-unmatched-pattern \"src/**/*.{ts,tsx}\"",
-    "check:auth-boundary": "vitest run src/supabase/proxy.unit.test.ts",
+    "check:auth-boundary": "vitest run src/supabase/proxy.unit.test.ts src/utils/proxy-matcher.unit.test.ts",
     "check:admin-gate": "node scripts/checks/no-profiles-role.mjs && vitest run src/utils/admin.unit.test.ts",
     "check:seo-base-url": "node scripts/checks/seo-base-url.mjs",
     "check:a11y-structure": "node scripts/checks/a11y-structure.mjs",

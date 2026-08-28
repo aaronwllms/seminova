@@ -48,7 +48,7 @@ describe('buildCspDirectives', () => {
 })
 
 describe('getSecurityHeaders', () => {
-  it('should emit a single enforced CSP header with frame and HSTS headers', () => {
+  it('should emit the baseline security header set with a single enforced CSP', () => {
     const headers = getSecurityHeaders()
     const cspHeaders = headers.filter((header) =>
       header.key.startsWith('Content-Security-Policy'),
@@ -62,6 +62,19 @@ describe('getSecurityHeaders', () => {
     expect(headers).toContainEqual({
       key: 'Strict-Transport-Security',
       value: 'max-age=31536000; includeSubDomains',
+    })
+    expect(headers).toContainEqual({
+      key: 'Referrer-Policy',
+      value: 'strict-origin-when-cross-origin',
+    })
+    expect(headers).toContainEqual({
+      key: 'X-Content-Type-Options',
+      value: 'nosniff',
+    })
+    expect(headers).toContainEqual({
+      key: 'Permissions-Policy',
+      value:
+        'camera=(), microphone=(), geolocation=(), browsing-topics=(), payment=(), usb=(), bluetooth=(), display-capture=()',
     })
   })
 })

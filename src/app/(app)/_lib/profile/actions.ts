@@ -8,8 +8,7 @@ import {
 } from '@/constants/storage-paths'
 import { createClient } from '@/supabase/server'
 import { createServiceClient } from '@/supabase/service'
-import type { ErrorKind } from '@/types/app-error'
-import { appLog } from '@/utils/app-logger'
+import type { AppError, ErrorKind } from '@/types/app-error'
 import {
   profileFieldsToView,
   profilePartialToUpdate,
@@ -17,11 +16,14 @@ import {
   type ProfileFieldsView,
   type ProfileUpdate,
 } from '@/types/profile'
+import { getPostAuthRedirectPath } from '@/utils/admin'
+import { appLog } from '@/utils/app-logger'
 import {
   extractAvatarCacheBust,
   isOwnedAvatarStorageUrl,
   withAvatarCacheBust,
 } from '@/utils/avatar-cache-bust'
+import { mapAuthError } from '@/utils/map-auth-error'
 import { removeAvatarStorage } from '@/utils/remove-avatar-storage'
 
 import { parseSetFirstPasswordInput } from './first-password-schema'
@@ -302,51 +304,101 @@ export const setFirstPasswordAction = async (
   return { success: true }
 }
 
-export type MarkHasPasswordActionResult =
-  | PasswordActionSuccess
-  | PasswordActionError
+type RecoveryPasswordActionError = {
+  success: false
+  error: AppError
+}
 
-export const markHasPasswordAction =
-  async (): Promise<MarkHasPasswordActionResult> => {
-    const supabase = await createClient()
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
-
-    if (userError || !user) {
-      return {
-        success: false,
-        error: {
-          message: 'You must be signed in.',
-          code: 'UNAUTHORIZED',
-          kind: 'operational',
-        },
-      }
-    }
-
-    const serviceClient = createServiceClient()
-
-    const { error: updateError } = await serviceClient
-      .from('profiles')
-      .update({ has_password: true })
-      .eq('id', user.id)
-
-    if (updateError) {
-      appLog.error(
-        'mark-has-password',
-        'Failed to set has_password after recovery',
-        updateError,
-      )
-      return {
-        success: false,
-        error: {
-          message: 'Could not update password status.',
-          code: 'INTERNAL_ERROR',
-          kind: 'fault',
-        },
-      }
-    }
-
-    return { success: true }
+type RecoveryPasswordActionSuccess = {
+  success: true
+  data: {
+    redirectTo: ReturnType<typeof getPostAuthRedirectPath>
   }
+}
+
+export type CompleteRecoveryPasswordActionResult =
+  | RecoveryPasswordActionSuccess
+  | RecoveryPasswordActionError
+
+export const completeRecoveryPasswordAction = async (
+  input: unknown,
+): Promise<CompleteRecoveryPasswordActionResult> => {
+  const supabase = await createClient()
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    return {
+      success: false,
+      error: {
+        message: 'You must be signed in to reset your password.',
+        code: 'UNAUTHORIZED',
+        kind: 'operational',
+      },
+    }
+  }
+
+  const parsed = parseSetFirstPasswordInput(input)
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      error: {
+        message: parsed.message,
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
+    }
+  }
+
+  const serviceClient = createServiceClient()
+
+  const { error: flagError } = await serviceClient
+    .from('profiles')
+    .update({ has_password: true })
+    .eq('id', user.id)
+
+  if (flagError) {
+    appLog.error(
+      'complete-recovery-password',
+      'Failed to set has_password flag',
+      flagError,
+    )
+    return {
+      success: false,
+      error: {
+        message: 'Could not update your password. Please try again.',
+        code: 'INTERNAL_ERROR',
+        kind: 'fault',
+      },
+    }
+  }
+
+  const { error: passwordError } = await supabase.auth.updateUser({
+    password: parsed.data.password,
+  })
+
+  if (passwordError) {
+    const { error: mappedError, mapped } = mapAuthError(passwordError)
+
+    if (!mapped || mappedError.kind === 'fault') {
+      appLog.error(
+        'complete-recovery-password',
+        'Failed to update password after flag write',
+        passwordError,
+      )
+    }
+
+    return { success: false, error: mappedError }
+  }
+
+  revalidatePath('/(app)', 'layout')
+  revalidatePath('/admin', 'layout')
+
+  return {
+    success: true,
+    data: { redirectTo: getPostAuthRedirectPath(user.app_metadata) },
+  }
+}
