@@ -51,6 +51,8 @@ Project conventions beyond Supabase defaults:
 - Default **`security invoker`**; use **`security definer`** only when required (e.g. signup trigger writing across schemas) and document why.
 - Always **`set search_path = ''`** and use fully qualified object names inside the function body.
 - Trigger functions: `returns trigger`, `language plpgsql`, attach with explicit `create trigger … execute function`.
+- Postgres grants EXECUTE to `PUBLIC` on every new function, and Supabase additionally grants it to `anon` and `authenticated`. `revoke … from public` alone does **not** remove those per-role grants.
+- Every new `public` function must `revoke execute` from `public`, `anon`, and `authenticated` in the same migration that creates it, then `grant execute` only to the roles that should call it. Trigger- and cron-only functions get no client grant.
 
 **Canonical shipped example:** `handle_new_user()` in [`20260622120000_create_profiles.sql`](../../supabase/migrations/20260622120000_create_profiles.sql). General function patterns: [Supabase database functions](https://supabase.com/docs/guides/database/functions).
 

@@ -59,7 +59,7 @@ Roadmap and active build scope: [ROADMAP.md](../../ROADMAP.md) and [docs/prds/](
 | `rule-authoring-pointer.mdc` | Auto attached | `.cursor/rules/**` | Stub → read rule-authoring skill before rule edits |
 | `security.mdc` | Auto attached | `src/**`, migrations | Auth, validation, RLS, OWASP patterns |
 | `seo.mdc` | Auto attached | `src/app/**`, SEO utils, `site.ts` | Metadata wire-up, crawler surface, favicon, social previews |
-| `supabase-sql.mdc` | Auto attached | `migrations/**` | Project SQL style, RLS, functions (deltas only) |
+| `supabase-sql.mdc` | Auto attached | `migrations/**` | Project SQL style, RLS, functions, EXECUTE grants (deltas only) |
 | `supabase.mdc` | Auto attached | `src/**`, `supabase/**` | `@supabase/ssr` clients, auth proxy |
 | `testing.mdc` | Auto attached | `*.test.*`, `src/test/**` | Vitest + RTL + MSW v2; 80% coverage gates |
 | `typescript.mdc` | Auto attached | `src/**`, `scripts/**` | Strict TS, named exports, shared types |
@@ -133,7 +133,7 @@ Per-rule detail (topics and cross-references):
 
 **Applies to:** `supabase/migrations/**/*.sql`
 
-- Project-specific SQL style, RLS, and function conventions (deltas only)
+- Project-specific SQL style, RLS, function conventions, and EXECUTE grants (deltas only)
 
 ### `do-migrations-agent.mdc`
 
