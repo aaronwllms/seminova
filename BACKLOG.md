@@ -193,6 +193,44 @@ browsers and route them into `app_logs`, surfaced on the existing admin logs pag
 
 ---
 
+## Opt-in EXECUTE for new database functions
+
+**What:** Stop Postgres and Supabase from auto-granting EXECUTE to client roles on newly
+created `public` functions, so a function is unreachable from the API until a migration
+grants it explicitly.
+
+**Notes:**
+
+- **Why it keeps coming up:** the same trap has been stepped in twice — migration
+  `20260720151459` revoked all three roles on the trigger functions because
+  `revoke … from public` was insufficient, then `purge_expired_app_logs` shipped with the
+  same mistake (S007). The `supabase-sql.mdc` convention is a prompt, not enforcement.
+
+- **Option A — platform default.**
+  `alter default privileges for role postgres [in schema public] revoke execute on
+  functions from public, anon, authenticated`. Two lines in a migration. Binds only
+  objects created by role `postgres`, so it needs a create-a-throwaway-function probe to
+  confirm it took, not just a `pg_default_acl` read.
+
+- **Option B — `check:*` scanner.** The audit's own preferred structural fix: a pre-push
+  check asserting every new `public` function carries explicit grants. Deterministic
+  enforcement, which the repo prefers over both prose rules and platform
+  reconfiguration. Costs a scanner.
+
+- **Argument against A:** the failure mode is `permission denied for function foo` at
+  runtime, with nothing pointing at a months-old migration. It also diverges from a
+  Supabase ecosystem default, so copy-pasted examples and AI-generated migrations will
+  all assume the standard behaviour — and every spinoff inherits the inversion.
+
+- **ADR if A is chosen:** meets all three `docs/adr/README.md` criteria — costly to unwind
+  once functions are written against it, surprising without context, and a real trade-off
+  accepted. B needs no ADR.
+
+- **Revisit when:** a third instance of the grant mistake appears, or a phase is already
+  touching `scripts/checks/`.
+
+---
+
 ## Password security baseline
 
 **What:** Settle the template's password policy — minimum length, whether composition
