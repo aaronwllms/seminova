@@ -6,7 +6,7 @@
 
 **Discipline:** Entries are short — a sentence or two of meaning, plus a pointer to the canonical home (a rule, `DESIGN.md`, [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints), an ADR) where the authoritative detail and any values live. Do not duplicate token values, rule wording, or schema here; point to the source of truth instead.
 
-**Last updated:** 2026-08-24
+**Last updated:** 2026-08-27
 
 ---
 
@@ -18,6 +18,7 @@
   - [Structure vs theme](#structure-vs-theme)
   - [Composited border](#composited-border)
   - [Auth boundary](#auth-boundary)
+  - [Sign in (user-facing copy)](#sign-in-user-facing-copy)
   - [Admin gate](#admin-gate)
   - [Defense in depth (admin)](#defense-in-depth-admin)
   - [Supabase clients](#supabase-clients-browser--server--service)
@@ -66,6 +67,10 @@ The line between public and authenticated routes. A small allowlist of paths is 
 The proxy reads session state via `getClaims()`, not `getUser()`. `getClaims()` reads the JWT locally with no network round-trip; `getUser()` hits the Supabase Auth server. The proxy comment warns explicitly against swapping them — doing so can cause users to be randomly logged out.
 
 When the Supabase env vars are absent (`hasPublicSupabaseEnv` is false), the proxy **fails closed in production** — it serves a 503 rather than any route — and skips enforcement only outside production, as a dev-setup affordance. The affordance is gated on `NODE_ENV`; there is no bypass to remove before deploying.
+
+### Sign in (user-facing copy)
+
+User-facing auth copy uses **Sign in** as the verb — not "Login". The route path stays `/auth/login` for URL stability; internal names like `LoginForm` are code-only. Marketing header, auth card headings, submit buttons, and cross-links all say "Sign in". Hyphenated **sign-in** for the noun or adjective ("sign-in link", "sign-in email"). Examples: [`login-form.tsx`](src/components/login-form.tsx), [`landing-auth-buttons.tsx`](src/app/(marketing)/_components/landing-auth-buttons.tsx).
 
 ### Admin gate
 

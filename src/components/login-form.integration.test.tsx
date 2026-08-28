@@ -61,7 +61,7 @@ describe('LoginForm', () => {
     nativeValue?.call(screen.getByLabelText(/email/i), 'keeper@example.com')
     nativeValue?.call(screen.getByLabelText(/^password$/i), 'keeper-password')
 
-    await user.click(screen.getByRole('button', { name: /^login$/i }))
+    await user.click(screen.getByRole('button', { name: /^sign in$/i }))
 
     await waitFor(() => {
       expect(mockSignInWithPassword).toHaveBeenCalledWith({
@@ -98,7 +98,7 @@ describe('LoginForm', () => {
 
     await user.type(screen.getByLabelText(/email/i), 'test@example.com')
     await user.type(screen.getByLabelText(/^password$/i), 'password123')
-    await user.click(screen.getByRole('button', { name: /^login$/i }))
+    await user.click(screen.getByRole('button', { name: /^sign in$/i }))
 
     await waitFor(() => {
       expect(mockRefresh).toHaveBeenCalledOnce()
@@ -117,7 +117,7 @@ describe('LoginForm', () => {
 
     await user.type(screen.getByLabelText(/email/i), 'test@example.com')
     await user.type(screen.getByLabelText(/^password$/i), 'password123')
-    await user.click(screen.getByRole('button', { name: /^login$/i }))
+    await user.click(screen.getByRole('button', { name: /^sign in$/i }))
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/home')
@@ -135,7 +135,7 @@ describe('LoginForm', () => {
 
     await user.type(screen.getByLabelText(/email/i), 'test@example.com')
     await user.type(screen.getByLabelText(/^password$/i), 'password123')
-    await user.click(screen.getByRole('button', { name: /^login$/i }))
+    await user.click(screen.getByRole('button', { name: /^sign in$/i }))
 
     await waitFor(() => {
       expect(mockSignOut).toHaveBeenCalledWith({ scope: 'local' })
@@ -159,7 +159,7 @@ describe('LoginForm', () => {
 
     await user.type(screen.getByLabelText(/email/i), 'admin@example.com')
     await user.type(screen.getByLabelText(/^password$/i), 'password123')
-    await user.click(screen.getByRole('button', { name: /^login$/i }))
+    await user.click(screen.getByRole('button', { name: /^sign in$/i }))
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(ADMIN_HOME)
@@ -176,7 +176,7 @@ describe('LoginForm', () => {
 
     await user.type(screen.getByLabelText(/email/i), 'banned@example.com')
     await user.type(screen.getByLabelText(/^password$/i), 'password123')
-    await user.click(screen.getByRole('button', { name: /^login$/i }))
+    await user.click(screen.getByRole('button', { name: /^sign in$/i }))
 
     expect(
       await screen.findByText(/your account has been suspended/i),
@@ -198,7 +198,7 @@ describe('LoginForm', () => {
 
     await user.type(screen.getByLabelText(/email/i), 'test@example.com')
     await user.type(screen.getByLabelText(/^password$/i), 'wrong-password')
-    await user.click(screen.getByRole('button', { name: /^login$/i }))
+    await user.click(screen.getByRole('button', { name: /^sign in$/i }))
 
     expect(
       await screen.findByText(/invalid email or password/i),

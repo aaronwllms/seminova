@@ -74,10 +74,10 @@ export function LoginForm({ next, className, ...props }: LoginFormProps) {
       <Card>
         <CardHeader>
           <CardTitle asChild>
-            <h1 className="text-2xl">Login</h1>
+            <h1 className="text-2xl">Sign in</h1>
           </CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Enter your email below to sign in to your account
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -103,7 +103,7 @@ export function LoginForm({ next, className, ...props }: LoginFormProps) {
                   <Link
                     href="/auth/forgot-password"
                     prefetch={false}
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                    className="ml-auto inline-block text-sm underline underline-offset-4"
                   >
                     Forgot your password?
                   </Link>
@@ -121,9 +121,17 @@ export function LoginForm({ next, className, ...props }: LoginFormProps) {
               </div>
               <AppErrorSurface error={formError} />
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Logging in...' : 'Login'}
+                {isLoading ? 'Signing in...' : 'Sign in'}
               </Button>
-              <div className="text-center text-sm">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="bg-card text-muted-foreground px-2">or</span>
+                </div>
+              </div>
+              <Button variant="outline" className="w-full" asChild>
                 <Link
                   href={
                     next
@@ -131,11 +139,10 @@ export function LoginForm({ next, className, ...props }: LoginFormProps) {
                       : '/auth/sign-in-link'
                   }
                   prefetch={false}
-                  className="underline underline-offset-4"
                 >
                   Email me a sign-in link
                 </Link>
-              </div>
+              </Button>
             </div>
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{' '}

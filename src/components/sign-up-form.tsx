@@ -127,7 +127,7 @@ export function SignUpForm({
                 prefetch={false}
                 className="underline underline-offset-4"
               >
-                Login
+                Sign in
               </Link>
             </div>
           </form>

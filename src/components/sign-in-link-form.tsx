@@ -54,7 +54,7 @@ export function SignInLinkForm({ next, ...props }: SignInLinkFormProps) {
       }}
       title="Sign in with email"
       successTitle="Complete sign-in"
-      description="Enter your email and we'll send you a sign in link"
+      description="Enter your email and we'll send you a sign-in link"
       successDescription="Use the link or code from your email"
       successBody={(email) => (
         <div className="flex flex-col gap-2">
@@ -74,7 +74,7 @@ export function SignInLinkForm({ next, ...props }: SignInLinkFormProps) {
             prefetch={false}
             className="underline underline-offset-4"
           >
-            Login
+            Sign in
           </Link>
         </>
       }
