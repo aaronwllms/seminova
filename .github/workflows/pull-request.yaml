@@ -30,14 +30,29 @@ jobs:
       - name: Run type check
         run: pnpm type-check
 
+      - name: Check linting
+        run: pnpm lint
+
       - name: Check pnpm only
         run: pnpm check:pnpm-only
+
+      - name: Check checks wired
+        run: pnpm check:checks-wired
 
       - name: Check no shadcn npm package
         run: pnpm check:no-shadcn-pkg
 
       - name: Check semantic tokens
         run: pnpm check:semantic-tokens
+
+      - name: Check no raw console
+        run: pnpm check:no-raw-console
+
+      - name: Check auth boundary
+        run: pnpm check:auth-boundary
+
+      - name: Check admin gate
+        run: pnpm check:admin-gate
 
       - name: Check SEO base URL
         run: pnpm check:seo-base-url
@@ -47,12 +62,6 @@ jobs:
 
       - name: Check a11y contrast
         run: pnpm check:a11y-contrast
-
-      - name: Check no raw console
-        run: pnpm check:no-raw-console
-
-      - name: Check linting
-        run: pnpm lint
 
       - name: Run format check
         run: pnpm format-check

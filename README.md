@@ -210,11 +210,17 @@ After that, the repo is a real project, not a template copy — and the phase-by
 | `pnpm test:watch` | Vitest watch mode (local dev) |
 | `pnpm test:file` | Run one test file or pattern (`pnpm test:file -- <path>`) |
 | `pnpm test:ci` | Vitest run once with coverage gates (CI / agents) |
-| `pnpm pre-push` | Full local CI mirror (type-check → hard-constraint checks → lint → format-check → test:ci) |
+| `pnpm pre-push` | Full local CI mirror (type-check → lint → hard-constraint checks → format-check → test:ci) |
+| `pnpm check:pnpm-only` | pnpm as exclusive package manager (hard constraint) |
+| `pnpm check:checks-wired` | Every `check:*` script runs in pre-push and CI |
+| `pnpm check:no-shadcn-pkg` | Primitive-first UI, no shadcn npm package (hard constraint) |
+| `pnpm check:semantic-tokens` | Theming via semantic tokens only (hard constraint) |
+| `pnpm check:no-raw-console` | Application logging via wrappers (hard constraint) |
+| `pnpm check:auth-boundary` | Public/protected route boundary (hard constraint) |
+| `pnpm check:admin-gate` | Admin role on `auth.users`, never `profiles` (hard constraint) |
 | `pnpm check:seo-base-url` | SEO base-URL centralization (hard constraint) |
 | `pnpm check:a11y-structure` | Deterministic a11y structure (hard constraint) |
 | `pnpm check:a11y-contrast` | Deterministic a11y token contrast (hard constraint) |
-| `pnpm check:no-raw-console` | Application logging via wrappers (hard constraint) |
 | `pnpm test:ui` | Vitest UI |
 | `pnpm analyze` | Bundle analyzer |
 | `pnpm promote-admin <email>` | Grant admin role via CLI (requires secret key; bootstrap / automation) |
@@ -280,9 +286,11 @@ The template ships an **unauthenticated write path** into `app_logs` at `/api/cl
 
 **Pre-commit** (Husky): lint-staged on staged files — ESLint + Prettier for JS/TS; Prettier for markdown, JSON, YAML, and CSS (agent-authored docs in `.prettierignore` are skipped) — plus full-project type-check.
 
-**Pre-push** (Husky): `pnpm pre-push` — type-check → hard-constraint checks → lint → format-check → `test:ci` (with 80% coverage thresholds). Mirrors CI exactly.
+**Pre-push** (Husky): `pnpm pre-push` — type-check → lint → hard-constraint checks → format-check → `test:ci` (with 80% coverage thresholds). Mirrors CI exactly.
 
-**CI** (pull requests to `main`): same order as pre-push (`check:pnpm-only`, `check:no-shadcn-pkg`, `check:semantic-tokens`, `check:seo-base-url`, `check:a11y-structure`, `check:a11y-contrast`, `check:no-raw-console` before lint). See [.github/workflows/pull-request.yaml](.github/workflows/pull-request.yaml).
+**CI** (pull requests to `main`): same order as pre-push — `type-check`, `lint`, then `check:pnpm-only`, `check:checks-wired`, `check:no-shadcn-pkg`, `check:semantic-tokens`, `check:no-raw-console`, `check:auth-boundary`, `check:admin-gate`, `check:seo-base-url`, `check:a11y-structure`, `check:a11y-contrast`, then `format-check` and `test:ci`. See [.github/workflows/pull-request.yaml](.github/workflows/pull-request.yaml).
+
+The ESLint-backed checks run with `--cache` (stored in `node_modules/.cache/eslint/`). Repo-wide `lint` runs first and populates the cache, so the narrower per-constraint passes reuse it instead of re-parsing the same files.
 
 Before opening a PR, run locally:
 
