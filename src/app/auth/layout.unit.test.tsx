@@ -17,5 +17,9 @@ describe('AuthLayout', () => {
       '/',
     )
     expect(screen.getByText('Child content')).toBeInTheDocument()
+
+    const main = screen.getByRole('main')
+    expect(main).toHaveAttribute('id', 'main-content')
+    expect(main).toContainElement(screen.getByText('Child content'))
   })
 })

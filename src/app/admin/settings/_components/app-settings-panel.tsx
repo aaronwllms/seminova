@@ -55,7 +55,7 @@ export const AppSettingsPanel = ({
             <Card className="overflow-hidden py-0">
               {visibleEntries.map((entry) => (
                 <AppSettingRow
-                  key={`${entry.key}-${savedSettings[entry.key]}`}
+                  key={entry.key}
                   entry={entry}
                   savedValue={savedSettings[entry.key]}
                   onSaved={handleSaved}
