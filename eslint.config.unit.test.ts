@@ -85,8 +85,9 @@ const getLocalRuleBlock = (
   ruleId: LocalRuleId,
 ): Linter.Config => {
   const configs = eslintConfig as Linter.Config[]
+  const namespace = ruleId.slice(0, ruleId.indexOf('/'))
   const pluginBlock = configs.find(
-    (block) => block.plugins?.local?.rules?.[pluginName],
+    (block) => block.plugins?.[namespace]?.rules?.[pluginName],
   )
   const ruleBlock = configs.find((block) => block.rules?.[ruleId] === 'error')
 
@@ -96,7 +97,7 @@ const getLocalRuleBlock = (
 
   return {
     files: ruleBlock.files,
-    ignores: ruleBlock.ignores,
+    ignores: ruleBlock.ignores ?? [],
     plugins: pluginBlock.plugins,
     rules: ruleBlock.rules,
   }
@@ -107,6 +108,15 @@ const getMotionTierBlock = (): Linter.Config =>
 
 const getSemanticTokensBlock = (): Linter.Config =>
   getLocalRuleBlock('semantic-tokens', 'local/semantic-tokens')
+
+const getNoUnquarantinedSkipsBlock = (): Linter.Config =>
+  getLocalRuleBlock(
+    'no-unquarantined-skips',
+    'seminova-test/no-unquarantined-skips',
+  )
+
+const getTestScopeNamingBlock = (): Linter.Config =>
+  getLocalRuleBlock('test-scope-naming', 'seminova-test/test-scope-naming')
 
 const createLocalRuleEslint = (block: Linter.Config, filePath: string) =>
   new ESLint({
@@ -335,5 +345,83 @@ describe('eslint local/semantic-tokens rule', () => {
     )
 
     expect(semanticTokensMessages).toEqual([])
+  })
+})
+
+describe('eslint seminova-test/no-unquarantined-skips rule', () => {
+  const skipBlock = getNoUnquarantinedSkipsBlock()
+  const filePath = 'src/components/skip-fail.unit.test.ts'
+
+  it('should report seminova-test/no-unquarantined-skips on a bare it.skip', async () => {
+    const eslint = createLocalRuleEslint(skipBlock, filePath)
+
+    const results = await eslint.lintText("it.skip('flaky', () => {})", {
+      filePath,
+    })
+
+    const skipMessages = results.flatMap((result) =>
+      result.messages.filter(
+        (message) => message.ruleId === 'seminova-test/no-unquarantined-skips',
+      ),
+    )
+
+    expect(skipMessages.length).toBeGreaterThan(0)
+    expect(skipMessages[0]?.message).toContain('QUARANTINE')
+  })
+
+  it('should pass seminova-test/no-unquarantined-skips when the skip is quarantined', async () => {
+    const eslint = createLocalRuleEslint(skipBlock, filePath)
+
+    const results = await eslint.lintText(
+      "// QUARANTINE: flaky https://github.com/aaronwllms/seminova/issues/1\nit.skip('flaky', () => {})",
+      { filePath },
+    )
+
+    const skipMessages = results.flatMap((result) =>
+      result.messages.filter(
+        (message) => message.ruleId === 'seminova-test/no-unquarantined-skips',
+      ),
+    )
+
+    expect(skipMessages).toEqual([])
+  })
+})
+
+describe('eslint seminova-test/test-scope-naming rule', () => {
+  const namingBlock = getTestScopeNamingBlock()
+  const filePath = 'src/components/scope-fail.unit.test.tsx'
+
+  it('should report seminova-test/test-scope-naming when a unit file mocks @/supabase/client', async () => {
+    const eslint = createLocalRuleEslint(namingBlock, filePath)
+
+    const results = await eslint.lintText(
+      "vi.mock('@/supabase/client', () => ({}))\nit('works', () => {})",
+      { filePath },
+    )
+
+    const namingMessages = results.flatMap((result) =>
+      result.messages.filter(
+        (message) => message.ruleId === 'seminova-test/test-scope-naming',
+      ),
+    )
+
+    expect(namingMessages.length).toBeGreaterThan(0)
+    expect(namingMessages[0]?.message).toContain('.integration.test')
+  })
+
+  it('should pass seminova-test/test-scope-naming when a unit file has no boundary mock', async () => {
+    const eslint = createLocalRuleEslint(namingBlock, filePath)
+
+    const results = await eslint.lintText("it('works', () => {})", {
+      filePath,
+    })
+
+    const namingMessages = results.flatMap((result) =>
+      result.messages.filter(
+        (message) => message.ruleId === 'seminova-test/test-scope-naming',
+      ),
+    )
+
+    expect(namingMessages).toEqual([])
   })
 })
