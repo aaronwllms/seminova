@@ -6,6 +6,7 @@ Scope: Full SEO surface (D1–D7 per `.cursor/skills/audit-seo/SKILL.md`). Exclu
 
 ## Executive summary
 
+- **Sync 2026-08-28:** Open SEO005 and SEO007 re-verified in code; both still deferred. Accepted SEO006 unchanged (noindex pages still have titles and no descriptions). `pnpm check:seo-base-url` still passes across all of `src/`.
 - **No critical or high findings.** Indexing policy, base-URL centralization, crawler surface, and structured data are all sound. `pnpm check:seo-base-url` passes across all of `src/`.
 - All three non-marketing surfaces (`auth/**`, `(app)`, `admin/**`) carry `robots: { index: false, follow: false }` at the layout level — the defense-in-depth layer over the auth proxy is intact.
 - The sitemap contains exactly the six `(marketing)` routes and nothing else; that set matches the AGENTS.md public-route list one-for-one.
