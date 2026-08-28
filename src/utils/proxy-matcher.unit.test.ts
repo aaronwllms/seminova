@@ -51,4 +51,14 @@ describe('PROXY_MATCHER_PATTERN', () => {
     expect(matcher.test('/favicon.ico')).toBe(false)
     expect(matcher.test('/logo.png')).toBe(false)
   })
+
+  it('should exclude route-group metadata images with a hash suffix', () => {
+    expect(matcher.test('/features/opengraph-image-959drp')).toBe(false)
+    expect(matcher.test('/features/opengraph-image-a1b2c')).toBe(false)
+    expect(matcher.test('/privacy/twitter-image-abc12')).toBe(false)
+  })
+
+  it('should still run the auth proxy for overlong or word-like suffixes', () => {
+    expect(matcher.test('/opengraph-image-anything')).toBe(true)
+  })
 })

@@ -47,6 +47,17 @@ const createForwardedResponse = (
   })
 }
 
+export const isPublicRoute = (pathname: string): boolean =>
+  pathname === '/' ||
+  pathname === '/auth' ||
+  pathname.startsWith('/auth/') ||
+  pathname === TERMS_PATH ||
+  pathname === PRIVACY_PATH ||
+  pathname === REFERENCE_PATH ||
+  pathname === FEATURES_PATH ||
+  pathname === WORKFLOW_PATH ||
+  pathname === CLIENT_LOGS_RELAY_PATH
+
 export async function updateSession(request: NextRequest) {
   const rawPathname = request.nextUrl.pathname
   const pathname =
@@ -56,22 +67,14 @@ export async function updateSession(request: NextRequest) {
 
   let supabaseResponse = createForwardedResponse(request, pathname)
 
-  const isPublicRoute =
-    pathname === '/' ||
-    pathname.startsWith('/auth') ||
-    pathname === TERMS_PATH ||
-    pathname === PRIVACY_PATH ||
-    pathname === REFERENCE_PATH ||
-    pathname === FEATURES_PATH ||
-    pathname === WORKFLOW_PATH ||
-    pathname === CLIENT_LOGS_RELAY_PATH
+  const isPublic = isPublicRoute(pathname)
 
   if (!hasPublicSupabaseEnv) {
     if (process.env.NODE_ENV === 'production') {
       return new NextResponse(MISSING_SUPABASE_ENV_MESSAGE, { status: 503 })
     }
 
-    if (!isPublicRoute) {
+    if (!isPublic) {
       return new NextResponse(MISSING_SUPABASE_ENV_MESSAGE, { status: 503 })
     }
 
@@ -115,7 +118,7 @@ export async function updateSession(request: NextRequest) {
     await supabase.auth.signOut({ scope: 'local' })
   }
 
-  if (!isPublicRoute && (error || !sessionClaims)) {
+  if (!isPublic && (error || !sessionClaims)) {
     if (error) {
       appLog.error(
         'proxy',
@@ -145,7 +148,7 @@ export async function updateSession(request: NextRequest) {
     return redirectWithAuthCookies(loginUrl, supabaseResponse)
   }
 
-  if (isPublicRoute && error) {
+  if (isPublic && error) {
     appLog.error(
       'proxy',
       'Clearing stale session on public route',
@@ -177,7 +180,7 @@ export async function updateSession(request: NextRequest) {
   // If this is not done, you may be causing the browser and server to go out
   // of sync and terminate the user's session prematurely!
 
-  if (!isPublicRoute && sessionClaims) {
+  if (!isPublic && sessionClaims) {
     appLog.debug(
       'proxy',
       authCookiesUpdated ? 'Session token refreshed' : 'Session token reused',

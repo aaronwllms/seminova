@@ -5,6 +5,8 @@ import { join } from 'node:path'
 import {
   discoverAppRoutes,
   discoverMarketingRoutes,
+  discoverMetadataImageFiles,
+  isAllowedMetadataImageHome,
 } from './discover-app-routes'
 
 describe('discoverAppRoutes', () => {
@@ -41,5 +43,32 @@ describe('discoverMarketingRoutes', () => {
           route === '/home',
       ),
     ).toBe(false)
+  })
+})
+
+describe('discoverMetadataImageFiles', () => {
+  const appDir = join(process.cwd(), 'src/app')
+
+  it('should discover metadata image files from src/app', () => {
+    const files = discoverMetadataImageFiles(appDir)
+
+    expect(files.length).toBeGreaterThan(0)
+    expect(
+      files.some((file) => file.relativePath === 'opengraph-image.tsx'),
+    ).toBe(true)
+    expect(
+      files.some(
+        (file) =>
+          file.relativePath === '(marketing)/features/opengraph-image.tsx',
+      ),
+    ).toBe(true)
+  })
+
+  it('should allow only marketing, auth, or app-root metadata image homes', () => {
+    const files = discoverMetadataImageFiles(appDir)
+
+    expect(
+      files.every((file) => isAllowedMetadataImageHome(file.dirSegments)),
+    ).toBe(true)
   })
 })
