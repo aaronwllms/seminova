@@ -39,11 +39,13 @@ if (checkNames.length === 0) {
 // A script counts as invoked when the command appears followed by a word
 // boundary, so "check:a11y" does not match "check:a11y-contrast".
 const isInvoked = (haystack, name) =>
-  new RegExp(`pnpm ${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\w:-])`).test(
-    haystack,
-  )
+  new RegExp(
+    `pnpm ${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\w:-])`,
+  ).test(haystack)
 
-const missingFromPrePush = checkNames.filter((name) => !isInvoked(prePush, name))
+const missingFromPrePush = checkNames.filter(
+  (name) => !isInvoked(prePush, name),
+)
 const missingFromCi = checkNames.filter((name) => !isInvoked(workflow, name))
 
 if (missingFromPrePush.length > 0 || missingFromCi.length > 0) {
