@@ -198,7 +198,7 @@ still gets the flow requiring their current one.
   person is actually doing
 - Cover both variants with tests
 
-### Epic 5: Close-out
+### Epic 5: Close-out `Complete`
 
 **Success criteria:** The template's feature inventory reflects passwordless
 sign-in, and a decision is on record about whether the two email-request screens
