@@ -91,7 +91,7 @@ export function LoginForm({ next, className, ...props }: LoginFormProps) {
                   name="username"
                   type="email"
                   autoComplete="username"
-                  placeholder="m@example.com"
+                  placeholder="you@example.com"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
