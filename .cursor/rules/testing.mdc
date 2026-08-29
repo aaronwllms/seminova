@@ -143,7 +143,7 @@ Avoid many near-duplicate edge-case or validation micro-tests, or asserting impl
 
 ## Coverage Requirements
 
-**Enforced:** 80% minimum thresholds (lines, functions, branches, statements) via [`vitest.config.ts`](../../vitest.config.ts). `pnpm test:ci` runs `vitest run --coverage` — failures block CI and pre-push.
+**Enforced:** 80% minimum global thresholds (lines, functions, branches, statements) plus per-glob floors on `eslint-rules/**` and `scripts/**` in [`vitest.config.ts`](../../vitest.config.ts). `pnpm test:ci` runs `vitest run --coverage` — failures block CI and pre-push.
 
 **In scope:** app logic under `src/`, check scripts under `scripts/checks/`, build guards under `scripts/build/`, custom lint rules under `eslint-rules/`, and admin CLI lib modules under `scripts/admin/lib/`. **Excluded from denominator:** see the authoritative exclude list in [`vitest.config.ts`](../../vitest.config.ts) — thin page/layout shells, vendored UI primitives, admin CLI entry shims, untested check scripts (F186), and other items called out there with comments.
 
@@ -181,5 +181,5 @@ Before submitting a PR with tests:
 - [ ] Behavior-level assertions (not implementation details)?
 - [ ] Not testing framework/library behavior?
 - [ ] Only system boundaries mocked?
-- [ ] Coverage thresholds met? (`pnpm test:ci` — 80% global on in-scope files)
+- [ ] Coverage thresholds met? (`pnpm test:ci` — 80% global plus per-glob floors on `eslint-rules/**` and `scripts/**`; numbers in `vitest.config.ts`)
 - [ ] No flaky or skipped tests without issue links?
