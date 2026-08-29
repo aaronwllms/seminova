@@ -36,10 +36,11 @@ export const landingContent = {
   proofCta: {
     heading: 'Explore the template',
     subhead: 'Live components to browse, and the process that builds them.',
+    // Fixed at two links — landing-proof-cta renders a primary and secondary button.
     links: [
       { label: 'Pattern reference', href: '/reference' },
       { label: 'How planning works', href: '/workflow' },
-    ] satisfies LandingProofCtaLink[],
+    ] satisfies readonly [LandingProofCtaLink, LandingProofCtaLink],
   },
   techStack: {
     label: 'Built with',

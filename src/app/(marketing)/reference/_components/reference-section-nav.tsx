@@ -7,10 +7,10 @@ import { Button } from '@/components/ui/button'
 
 import { REFERENCE_ANCHOR_LINKS } from '../_lib/reference-anchor-links'
 
+const DEFAULT_ACTIVE_ID = REFERENCE_ANCHOR_LINKS[0]?.id ?? 'forms'
+
 export const ReferenceSectionNav = () => {
-  const [activeId, setActiveId] = useState<string>(
-    REFERENCE_ANCHOR_LINKS[0]?.id ?? 'forms',
-  )
+  const [activeId, setActiveId] = useState<string>(DEFAULT_ACTIVE_ID)
 
   useEffect(() => {
     const elements = REFERENCE_ANCHOR_LINKS.map((link) =>
@@ -31,9 +31,7 @@ export const ReferenceSectionNav = () => {
           )
 
         if (intersecting.length > 0) {
-          setActiveId(
-            intersecting[0]?.target.id ?? REFERENCE_ANCHOR_LINKS[0].id,
-          )
+          setActiveId(intersecting[0]?.target.id ?? DEFAULT_ACTIVE_ID)
         }
       },
       { rootMargin: '-96px 0px -55% 0px', threshold: 0 },

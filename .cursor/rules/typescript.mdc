@@ -8,7 +8,7 @@ alwaysApply: false
 
 # TypeScript Standards
 
-Strict mode is enabled (`tsconfig.json`). This file covers project-specific conventions only.
+Strict mode is enabled (`tsconfig.json`), including `noUncheckedIndexedAccess`; `exactOptionalPropertyTypes` stays off (high churn, low value here). This file covers project-specific conventions only.
 
 ## Exports
 - **Prefer named exports** for all components and utilities (tree-shaking, easier refactoring)

@@ -7,10 +7,10 @@ import { Button } from '@/components/ui/button'
 
 import { WORKFLOW_ANCHOR_LINKS } from '../_lib/workflow-anchor-links'
 
+const DEFAULT_ACTIVE_ID = WORKFLOW_ANCHOR_LINKS[0]?.id ?? 'two-environments'
+
 export const WorkflowSectionNav = () => {
-  const [activeId, setActiveId] = useState<string>(
-    WORKFLOW_ANCHOR_LINKS[0]?.id ?? 'two-environments',
-  )
+  const [activeId, setActiveId] = useState<string>(DEFAULT_ACTIVE_ID)
 
   useEffect(() => {
     const elements = WORKFLOW_ANCHOR_LINKS.map((link) =>
@@ -31,7 +31,7 @@ export const WorkflowSectionNav = () => {
           )
 
         if (intersecting.length > 0) {
-          setActiveId(intersecting[0]?.target.id ?? WORKFLOW_ANCHOR_LINKS[0].id)
+          setActiveId(intersecting[0]?.target.id ?? DEFAULT_ACTIVE_ID)
         }
       },
       { rootMargin: '-96px 0px -55% 0px', threshold: 0 },

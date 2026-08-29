@@ -61,18 +61,29 @@ const DEPART_LABELS = [
   '06 Apr',
 ] as const
 
+const pick = <T>(items: readonly T[], index: number): T => {
+  if (items.length === 0) {
+    throw new Error('pick: empty list')
+  }
+  const item = items[index % items.length]
+  if (item === undefined) {
+    throw new Error('pick: missing index')
+  }
+  return item
+}
+
 export const REFERENCE_SHIPMENTS_FIXTURE: ReferenceShipment[] = Array.from(
   { length: 72 },
   (_, index) => {
-    const consignee = CONSIGNEES[index % CONSIGNEES.length]
-    const [origin, destination] = ROUTE_PAIRS[index % ROUTE_PAIRS.length]
+    const consignee = pick(CONSIGNEES, index)
+    const [origin, destination] = pick(ROUTE_PAIRS, index)
 
     return {
       id: `shipment-${index + 1}`,
       consignee,
       route: `${origin} → ${destination}`,
-      status: STATUSES[index % STATUSES.length],
-      departs: DEPART_LABELS[index % DEPART_LABELS.length],
+      status: pick(STATUSES, index),
+      departs: pick(DEPART_LABELS, index),
     }
   },
 )

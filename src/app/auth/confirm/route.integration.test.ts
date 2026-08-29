@@ -139,7 +139,9 @@ describe('GET /auth/confirm', () => {
     await expect(GET(request)).rejects.toThrow('NEXT_REDIRECT')
 
     expect(redirectMock).toHaveBeenCalledWith('/auth/error?source=confirm')
-    expect(redirectMock.mock.calls[0][0]).not.toContain('Invalid token')
+    const redirectedTo = redirectMock.mock.calls[0]?.[0]
+    expect(redirectedTo).toBeDefined()
+    expect(redirectedTo).not.toContain('Invalid token')
     expect(mockAppLogError).toHaveBeenCalledWith(
       'auth-confirm',
       'OTP verification failed',

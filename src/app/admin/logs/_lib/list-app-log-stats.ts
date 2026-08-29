@@ -40,11 +40,12 @@ const countWithFilter = async (
 export const listAppLogStats = async (
   client: SupabaseClient,
 ): Promise<AppLogStats> => {
-  const [total, unread, debug, info, warn, errorLevel] = await Promise.all([
-    countWithFilter(client),
-    countWithFilter(client, undefined, true),
-    ...LOG_LEVELS.map((level) => countWithFilter(client, level)),
-  ])
+  const [total, unread, debug = 0, info = 0, warn = 0, errorLevel = 0] =
+    await Promise.all([
+      countWithFilter(client),
+      countWithFilter(client, undefined, true),
+      ...LOG_LEVELS.map((level) => countWithFilter(client, level)),
+    ])
 
   return {
     total,
