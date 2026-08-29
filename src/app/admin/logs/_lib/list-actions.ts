@@ -8,7 +8,10 @@ import {
 } from '@/constants/data-table'
 import { mapAdminActionFault } from '@/app/admin/_lib/map-admin-action-fault'
 
-import { assertAdminCaller } from './assert-admin-caller'
+import {
+  assertAdminCaller,
+  type AdminActionError,
+} from '@/app/admin/_lib/assert-admin-caller'
 import {
   LOGS_SORT_DIRECTIONS,
   type AppLogCursor,
@@ -24,7 +27,6 @@ import { listAppLogTags } from './list-app-log-tags'
 import { isValidCursorCreatedAt } from './is-valid-cursor-created-at'
 import { countFilteredUnreadLogs } from './mark-app-logs-read'
 import { listAppLogStats, type AppLogStats } from './list-app-log-stats'
-import type { LogsActionError } from './assert-admin-caller'
 
 type ListLogsActionSuccess = {
   success: true
@@ -35,7 +37,7 @@ type ListLogsActionSuccess = {
   }
 }
 
-export type ListLogsActionResult = ListLogsActionSuccess | LogsActionError
+export type ListLogsActionResult = ListLogsActionSuccess | AdminActionError
 
 export interface ListLogsActionInput {
   cursor?: AppLogCursor | null
@@ -49,14 +51,14 @@ type StatsActionSuccess = {
   data: AppLogStats
 }
 
-export type GetLogStatsActionResult = StatsActionSuccess | LogsActionError
+export type GetLogStatsActionResult = StatsActionSuccess | AdminActionError
 
 type TagsActionSuccess = {
   success: true
   data: string[]
 }
 
-export type ListLogTagsActionResult = TagsActionSuccess | LogsActionError
+export type ListLogTagsActionResult = TagsActionSuccess | AdminActionError
 
 const isValidCursor = (cursor: AppLogCursor): boolean =>
   typeof cursor.createdAt === 'string' &&

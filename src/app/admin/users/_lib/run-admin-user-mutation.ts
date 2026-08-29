@@ -1,7 +1,10 @@
 import { createServiceClient } from '@/supabase/service'
 import { appLog } from '@/utils/app-logger'
 
-import { assertAdminCaller, type UsersActionError } from './assert-admin-caller'
+import {
+  assertAdminCaller,
+  type AdminActionError,
+} from '@/app/admin/_lib/assert-admin-caller'
 import { mapAdminActionFault } from '@/app/admin/_lib/map-admin-action-fault'
 
 export type AdminUserMutationResult<TStatus extends string> =
@@ -18,7 +21,7 @@ type AdminUserMutationActionSuccess<TStatus extends string> = {
 
 export type AdminUserMutationActionResult<TStatus extends string> =
   | AdminUserMutationActionSuccess<TStatus>
-  | UsersActionError
+  | AdminActionError
 
 type RunAdminUserMutationOptions<TStatus extends string> = {
   userId: string | undefined
@@ -32,7 +35,7 @@ type RunAdminUserMutationOptions<TStatus extends string> = {
   beforeMutation?: (
     callerUserId: string,
     userId: string,
-  ) => UsersActionError | null
+  ) => AdminActionError | null
 }
 
 const validateUserId = (userId: string | undefined): string | null => {

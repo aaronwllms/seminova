@@ -6,7 +6,7 @@ import {
   runDemoteUserMutation,
   runPromoteUserMutation,
 } from './run-role-mutation'
-import type { UsersActionError } from './assert-admin-caller'
+import type { AdminActionError } from '@/app/admin/_lib/assert-admin-caller'
 
 type RoleMutationActionSuccess = {
   success: true
@@ -18,10 +18,10 @@ type RoleMutationActionSuccess = {
 
 export type PromoteUserActionResult =
   | RoleMutationActionSuccess
-  | UsersActionError
+  | AdminActionError
 export type DemoteUserActionResult =
   | RoleMutationActionSuccess
-  | UsersActionError
+  | AdminActionError
 
 export interface RoleMutationActionInput {
   userId: string

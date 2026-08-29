@@ -6,7 +6,7 @@
 
 **Discipline:** Entries are short — a sentence or two of meaning, plus a pointer to the canonical home (a rule, `DESIGN.md`, [AGENTS.md § Hard constraints](AGENTS.md#hard-constraints), an ADR) where the authoritative detail and any values live. Do not duplicate token values, rule wording, or schema here; point to the source of truth instead.
 
-**Last updated:** 2026-08-27
+**Last updated:** 2026-08-29
 
 ---
 
@@ -78,7 +78,7 @@ Admin access is keyed on `app_metadata.role` on the Supabase user — **not** a 
 
 ### Defense in depth (admin)
 
-Admin privilege is re-verified at every layer that can reach elevated operations: proxy redirect → [`AdminAuthGate`](src/app/admin/_components/admin-auth-gate.tsx) in the layout → `assertAdminCaller()` in each server action before `createServiceClient()` runs. No single gate is considered sufficient. The service client is never reached without passing all three. Enforcement: [`src/proxy.ts`](src/proxy.ts), [`AdminAuthGate`](src/app/admin/_components/admin-auth-gate.tsx), and `assertAdminCaller()` in [`src/app/admin/users/_lib/assert-admin-caller.ts`](src/app/admin/users/_lib/assert-admin-caller.ts).
+Admin privilege is re-verified at every layer that can reach elevated operations: proxy redirect → [`AdminAuthGate`](src/app/admin/_components/admin-auth-gate.tsx) in the layout → `assertAdminCaller()` in each server action before `createServiceClient()` runs. No single gate is considered sufficient. The service client is never reached without passing all three. Enforcement: [`src/proxy.ts`](src/proxy.ts), [`AdminAuthGate`](src/app/admin/_components/admin-auth-gate.tsx), and `assertAdminCaller()` in [`src/app/admin/_lib/assert-admin-caller.ts`](src/app/admin/_lib/assert-admin-caller.ts).
 
 ### Supabase clients (browser / server / service)
 

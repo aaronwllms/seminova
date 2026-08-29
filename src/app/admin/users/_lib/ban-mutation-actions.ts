@@ -5,7 +5,7 @@ import { isAdminBanDuration } from '@/constants/admin-ban'
 
 import { runBanUserMutation, runUnbanUserMutation } from './run-ban-mutation'
 import type { RoleMutationActionInput } from './role-mutation-actions'
-import type { UsersActionError } from './assert-admin-caller'
+import type { AdminActionError } from '@/app/admin/_lib/assert-admin-caller'
 
 type BanMutationActionSuccess = {
   success: true
@@ -15,8 +15,8 @@ type BanMutationActionSuccess = {
   }
 }
 
-export type BanUserActionResult = BanMutationActionSuccess | UsersActionError
-export type UnbanUserActionResult = BanMutationActionSuccess | UsersActionError
+export type BanUserActionResult = BanMutationActionSuccess | AdminActionError
+export type UnbanUserActionResult = BanMutationActionSuccess | AdminActionError
 
 export interface BanUserActionInput {
   userId: string

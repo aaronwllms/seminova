@@ -1,4 +1,4 @@
-import type { UsersActionError } from '@/app/admin/users/_lib/assert-admin-caller'
+import type { AdminActionError } from './assert-admin-caller'
 import { appLog } from '@/utils/app-logger'
 
 export const mapAdminActionFault = (
@@ -6,7 +6,7 @@ export const mapAdminActionFault = (
   logMessage: string,
   userMessage: string,
   caught: unknown,
-): UsersActionError => {
+): AdminActionError => {
   appLog.error(logTag, logMessage, caught)
 
   return {

@@ -4,8 +4,8 @@ import { revalidateTag } from 'next/cache'
 
 import {
   assertAdminCaller,
-  type UsersActionError,
-} from '@/app/admin/users/_lib/assert-admin-caller'
+  type AdminActionError,
+} from '@/app/admin/_lib/assert-admin-caller'
 import { APP_SETTINGS_CACHE_TAG } from '@/constants/app-settings'
 import { createClient } from '@/supabase/server'
 import { appLog } from '@/utils/app-logger'
@@ -25,7 +25,7 @@ type SaveAppSettingActionSuccess<K extends AppSettingKey = AppSettingKey> = {
 
 export type SaveAppSettingActionResult<
   K extends AppSettingKey = AppSettingKey,
-> = SaveAppSettingActionSuccess<K> | UsersActionError
+> = SaveAppSettingActionSuccess<K> | AdminActionError
 
 export const saveAppSettingAction = async (
   input: unknown,

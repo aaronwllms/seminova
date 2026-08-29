@@ -3,7 +3,10 @@
 import { createClient } from '@/supabase/server'
 import { mapAdminActionFault } from '@/app/admin/_lib/map-admin-action-fault'
 
-import { assertAdminCaller } from './assert-admin-caller'
+import {
+  assertAdminCaller,
+  type AdminActionError,
+} from '@/app/admin/_lib/assert-admin-caller'
 import {
   EMPTY_LOG_LIST_FILTERS,
   parseLogListFiltersInput,
@@ -14,14 +17,15 @@ import {
   markLogRead,
   markLogUnread,
 } from './mark-app-logs-read'
-import type { LogsActionError } from './assert-admin-caller'
 
 type MarkLogReadActionSuccess = {
   success: true
   data: { id: number }
 }
 
-export type MarkLogReadActionResult = MarkLogReadActionSuccess | LogsActionError
+export type MarkLogReadActionResult =
+  | MarkLogReadActionSuccess
+  | AdminActionError
 
 type MarkLogUnreadActionSuccess = {
   success: true
@@ -30,7 +34,7 @@ type MarkLogUnreadActionSuccess = {
 
 export type MarkLogUnreadActionResult =
   | MarkLogUnreadActionSuccess
-  | LogsActionError
+  | AdminActionError
 
 type MarkAllLogsReadActionSuccess = {
   success: true
@@ -39,7 +43,7 @@ type MarkAllLogsReadActionSuccess = {
 
 export type MarkAllLogsReadActionResult =
   | MarkAllLogsReadActionSuccess
-  | LogsActionError
+  | AdminActionError
 
 const isValidLogId = (id: unknown): id is number =>
   typeof id === 'number' && Number.isInteger(id) && id > 0

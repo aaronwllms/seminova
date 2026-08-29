@@ -1,8 +1,3 @@
-export type {
-  AssertAdminCallerResult,
-  UsersActionError,
-} from './_lib/assert-admin-caller'
-
 export {
   listUsersAction,
   getUserStatsAction,

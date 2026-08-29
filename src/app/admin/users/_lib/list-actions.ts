@@ -8,7 +8,10 @@ import {
 } from '@/constants/data-table'
 import { mapAdminActionFault } from '@/app/admin/_lib/map-admin-action-fault'
 
-import { assertAdminCaller } from './assert-admin-caller'
+import {
+  assertAdminCaller,
+  type AdminActionError,
+} from '@/app/admin/_lib/assert-admin-caller'
 import {
   USERS_SORT_COLUMNS,
   USERS_SORT_DIRECTIONS,
@@ -21,7 +24,6 @@ import {
   type AdminUserStats,
 } from './list-admin-user-stats'
 import type { AdminUserRow } from './admin-user-row'
-import type { UsersActionError } from './assert-admin-caller'
 
 type ListUsersActionSuccess = {
   success: true
@@ -32,7 +34,7 @@ type ListUsersActionSuccess = {
   }
 }
 
-export type ListUsersActionResult = ListUsersActionSuccess | UsersActionError
+export type ListUsersActionResult = ListUsersActionSuccess | AdminActionError
 
 export interface ListUsersActionInput {
   page?: number
@@ -52,7 +54,7 @@ type UserStatsActionSuccess = {
   data: AdminUserStats
 }
 
-export type GetUserStatsActionResult = UserStatsActionSuccess | UsersActionError
+export type GetUserStatsActionResult = UserStatsActionSuccess | AdminActionError
 
 export const listUsersAction = async (
   input: ListUsersActionInput = {},

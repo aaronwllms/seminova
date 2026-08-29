@@ -4,17 +4,17 @@ import { createClient } from '@/supabase/server'
 import type { ErrorKind } from '@/types/app-error'
 import { isAdminFromAppMetadata } from '@/utils/admin'
 
-export type UsersActionErrorCode =
+type AdminActionErrorCode =
   | 'FORBIDDEN'
   | 'VALIDATION_ERROR'
   | 'INTERNAL_ERROR'
   | 'NOT_FOUND'
 
-export type UsersActionError = {
+export type AdminActionError = {
   success: false
   error: {
     message: string
-    code: UsersActionErrorCode
+    code: AdminActionErrorCode
     kind: ErrorKind
   }
 }
@@ -26,7 +26,7 @@ type AssertAdminCallerSuccess = {
 
 export type AssertAdminCallerResult =
   | AssertAdminCallerSuccess
-  | UsersActionError
+  | AdminActionError
 
 export const assertAdminCaller = async (): Promise<AssertAdminCallerResult> => {
   const sessionClient = await createClient()
