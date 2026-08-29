@@ -4,10 +4,13 @@ import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 
 import { syncAdminSettingsVisitKey } from '@/app/admin/settings/_lib/admin-settings-visit-key'
-import { APP_SETTINGS_REGISTRY } from '@/config/app-settings-registry'
+import {
+  APP_SETTINGS_REGISTRY,
+  type AppSettingKey,
+  type ResolvedAppSettings,
+} from '@/config/app-settings-registry'
 import { Accordion } from '@/components/ui/accordion'
 import { Card } from '@/components/ui/card'
-import type { AppSettingKey, ResolvedAppSettings } from '@/types/app-settings'
 import type { BannerSettingValue } from '@/types/banner'
 
 import { BannerSettingRow } from './banner-setting-row'

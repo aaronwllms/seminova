@@ -8,7 +8,7 @@ import {
   syncAdminSettingsVisitKey,
 } from '@/app/admin/settings/_lib/admin-settings-visit-key'
 import { DEFAULT_BANNER_SETTING } from '@/types/banner'
-import type { ResolvedAppSettings } from '@/types/app-settings'
+import type { ResolvedAppSettings } from '@/config/app-settings-registry'
 
 import { BannerSettingsSection } from './banner-settings-section'
 

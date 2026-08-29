@@ -2,9 +2,12 @@
 
 import { useState } from 'react'
 
-import { APP_SETTINGS_REGISTRY } from '@/config/app-settings-registry'
+import {
+  APP_SETTINGS_REGISTRY,
+  type AppSettingKey,
+  type ResolvedAppSettings,
+} from '@/config/app-settings-registry'
 import { Card } from '@/components/ui/card'
-import type { AppSettingKey, ResolvedAppSettings } from '@/types/app-settings'
 
 import { AppSettingRow } from './app-setting-row'
 import { BannerSettingsSection } from './banner-settings-section'

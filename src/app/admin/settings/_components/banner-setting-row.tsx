@@ -35,7 +35,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import type { AppSettingRegistryEntry } from '@/types/app-settings'
+import type { AppSettingRegistryEntry } from '@/config/app-settings-registry'
 import type {
   BannerPersistence,
   BannerSettingValue,

@@ -6,10 +6,13 @@ import {
   assertAdminCaller,
   type AdminActionError,
 } from '@/app/admin/_lib/assert-admin-caller'
+import type {
+  AppSettingKey,
+  AppSettingValueMap,
+} from '@/config/app-settings-registry'
 import { APP_SETTINGS_CACHE_TAG } from '@/constants/app-settings'
 import { createClient } from '@/supabase/server'
 import { appLog } from '@/utils/app-logger'
-import type { AppSettingKey, AppSettingValueMap } from '@/types/app-settings'
 import {
   parseAppSettingValue,
   saveAppSettingInputSchema,

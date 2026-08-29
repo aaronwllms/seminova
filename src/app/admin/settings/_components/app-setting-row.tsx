@@ -24,14 +24,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { LOG_LEVELS } from '@/types/app-settings'
 import type {
   AppSettingKey,
   AppSettingRegistryEntry,
   AppSettingRegistryEntryFor,
   AppSettingValueMap,
-  LogLevel,
-} from '@/types/app-settings'
+} from '@/config/app-settings-registry'
+import { LOG_LEVELS, type LogLevel } from '@/types/app-settings'
 import type { AppError } from '@/types/app-error'
 import { showSuccessToast } from '@/utils/app-toast'
 import {

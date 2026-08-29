@@ -25,4 +25,5 @@ Strict mode is enabled (`tsconfig.json`), including `noUncheckedIndexedAccess`; 
 
 ## Shared Types Placement
 - Create shared types in appropriate locations, not inline: `src/types/` for domain types, route `_lib/` for route-scoped shapes, `src/utils/` for utility-specific types
+- A type computed from a runtime module is imported from the module that derives it, not relocated to or re-exported through `src/types/` — `src/types/` holds hand-written domain types only (e.g. registry-derived settings types live on `@/config/app-settings-registry`, not `@/types/app-settings`)
 - See `project-standards.mdc` for `_lib/` vs `src/utils/` depth heuristic

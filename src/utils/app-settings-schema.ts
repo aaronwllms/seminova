@@ -3,8 +3,9 @@ import { z } from 'zod'
 import {
   getRegistryEntry,
   isAppSettingKey,
+  type AppSettingKey,
+  type AppSettingValueMap,
 } from '@/config/app-settings-registry'
-import type { AppSettingKey, AppSettingValueMap } from '@/types/app-settings'
 import { LOG_LEVELS } from '@/types/app-settings'
 import { parseBannerSettingValue } from '@/utils/banner-settings-schema'
 
