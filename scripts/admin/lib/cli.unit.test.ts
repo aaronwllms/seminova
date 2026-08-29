@@ -43,7 +43,7 @@ vi.mock('./prompt', () => ({
   confirmAction: (...args: unknown[]) => mockConfirmAction(...args),
 }))
 
-vi.mock('./service-client', () => ({
+vi.mock('@/supabase/service', () => ({
   createServiceClient: (...args: unknown[]) => mockCreateServiceClient(...args),
 }))
 

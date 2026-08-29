@@ -3,6 +3,7 @@ import {
   buildAvatarStoragePath,
 } from '@/constants/storage-paths'
 import { cliLog } from '@/utils/app-logger-cli'
+import { createServiceClient } from '@/supabase/service'
 
 import {
   deleteUserAvatarStorage,
@@ -14,7 +15,6 @@ import {
 } from './admin-users'
 import { loadAdminEnv } from './env'
 import { confirmAction } from './prompt'
-import { createServiceClient } from './service-client'
 
 const MISSING_EMAIL_MESSAGE =
   'Usage: pnpm <command> <email> — email is required'
@@ -54,7 +54,7 @@ export const runPromoteAdmin = async (args: string[]): Promise<void> => {
     return
   }
 
-  const client = createServiceClient(env)
+  const client = createServiceClient()
   const result = await promoteUser(client, email)
 
   if (result.status === 'not_found') {
@@ -94,7 +94,7 @@ export const runDemoteAdmin = async (args: string[]): Promise<void> => {
     return
   }
 
-  const client = createServiceClient(env)
+  const client = createServiceClient()
   const result = await demoteUser(client, email)
 
   if (result.status === 'not_found') {
@@ -130,7 +130,7 @@ export const runDeleteUser = async (args: string[]): Promise<void> => {
     return
   }
 
-  const client = createServiceClient(env)
+  const client = createServiceClient()
   const user = await findUserByEmail(client, email)
 
   if (!user) {
@@ -161,8 +161,9 @@ export const runDeleteUser = async (args: string[]): Promise<void> => {
 }
 
 export const runListAdmins = async (): Promise<void> => {
-  const env = loadAdminEnv()
-  const client = createServiceClient(env)
+  loadAdminEnv()
+  // loadAdminEnv must run first so a missing var exits with [admin-cli] Missing …, not a factory throw
+  const client = createServiceClient()
   const admins = await listAdminUsers(client)
 
   if (admins.length === 0) {
@@ -170,7 +171,6 @@ export const runListAdmins = async (): Promise<void> => {
     return
   }
 
-  await cliLog.info('list-admins', 'Admins:')
   for (const email of admins) {
     await cliLog.info('list-admins', email)
   }

@@ -50,7 +50,6 @@ export default defineConfig({
         'scripts/admin/*.ts',
         'scripts/admin/lib/env.ts',
         'scripts/admin/lib/prompt.ts',
-        'scripts/admin/lib/service-client.ts',
         'scripts/checks/vitest-file.mjs', // pnpm test:file spawn wrapper, not a check:* gate
       ],
       thresholds: {
