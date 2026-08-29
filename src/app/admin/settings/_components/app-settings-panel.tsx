@@ -2,10 +2,10 @@
 
 import { useState } from 'react'
 
-import {
-  APP_SETTINGS_REGISTRY,
-  type AppSettingKey,
-  type ResolvedAppSettings,
+import { GROUPED_NON_BANNER_REGISTRY_ENTRIES } from '@/app/admin/settings/_lib/app-settings-partition'
+import type {
+  AppSettingKey,
+  ResolvedAppSettings,
 } from '@/config/app-settings-registry'
 import { Card } from '@/components/ui/card'
 
@@ -16,23 +16,11 @@ type AppSettingsPanelProps = {
   initialSettings: ResolvedAppSettings
 }
 
-const GROUPED_REGISTRY_ENTRIES = (() => {
-  const groups = new Map<string, (typeof APP_SETTINGS_REGISTRY)[number][]>()
-
-  for (const entry of APP_SETTINGS_REGISTRY) {
-    const existing = groups.get(entry.group) ?? []
-    groups.set(entry.group, [...existing, entry])
-  }
-
-  return groups
-})()
-
 export const AppSettingsPanel = ({
   initialSettings,
 }: AppSettingsPanelProps) => {
   const [savedSettings, setSavedSettings] =
     useState<ResolvedAppSettings>(initialSettings)
-  const groupedEntries = GROUPED_REGISTRY_ENTRIES
 
   const handleSaved = <K extends AppSettingKey>(
     key: K,
@@ -43,20 +31,12 @@ export const AppSettingsPanel = ({
 
   return (
     <div className="flex max-w-3xl flex-col gap-6">
-      {[...groupedEntries.entries()].map(([group, entries]) => {
-        const visibleEntries = entries.filter(
-          (entry) => entry.valueType !== 'banner',
-        )
-
-        if (visibleEntries.length === 0) {
-          return null
-        }
-
-        return (
+      {[...GROUPED_NON_BANNER_REGISTRY_ENTRIES.entries()].map(
+        ([group, entries]) => (
           <section key={group} className="flex flex-col gap-3">
             <h2 className="text-base font-medium">{group}</h2>
             <Card className="overflow-hidden py-0">
-              {visibleEntries.map((entry) => (
+              {entries.map((entry) => (
                 <AppSettingRow
                   key={entry.key}
                   entry={entry}
@@ -66,8 +46,8 @@ export const AppSettingsPanel = ({
               ))}
             </Card>
           </section>
-        )
-      })}
+        ),
+      )}
       <BannerSettingsSection
         savedSettings={savedSettings}
         onSaved={handleSaved}

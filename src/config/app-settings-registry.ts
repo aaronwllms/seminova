@@ -78,6 +78,11 @@ export type NonBannerAppSettingRegistryEntry = Exclude<
   { valueType: 'banner' }
 >
 
+export type BannerAppSettingRegistryEntry = Extract<
+  AppSettingRegistryEntry,
+  { valueType: 'banner' }
+>
+
 export type AppSettingRegistryEntryFor<K extends AppSettingKey> = Extract<
   AppSettingRegistryEntry,
   { readonly key: K }

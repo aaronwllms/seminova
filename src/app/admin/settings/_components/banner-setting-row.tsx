@@ -2,12 +2,12 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTheme } from 'next-themes'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 
 import { BannerPreviewThemeWrapper } from '@/app/admin/settings/_components/banner-preview-theme-wrapper'
 import { BannerStartsAtField } from '@/app/admin/settings/_components/banner-starts-at-field'
-import { saveAppSettingAction } from '@/app/admin/settings/_lib/actions'
+import { useAppSettingSave } from '@/app/admin/settings/_lib/use-app-setting-save'
 import { AppBanner } from '@/components/app-banner'
 import { AppErrorSurface } from '@/components/app-error-surface'
 import {
@@ -35,7 +35,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import type { AppSettingRegistryEntry } from '@/config/app-settings-registry'
+import type { BannerAppSettingRegistryEntry } from '@/config/app-settings-registry'
 import type {
   BannerPersistence,
   BannerSettingValue,
@@ -46,8 +46,6 @@ import {
   BANNER_PERSISTENCES,
   BANNER_VARIANTS,
 } from '@/types/banner'
-import type { AppError } from '@/types/app-error'
-import { showSuccessToast } from '@/utils/app-toast'
 import {
   bannerSettingFormSchema,
   bannerSettingValuesEqual,
@@ -61,11 +59,6 @@ import {
 } from '@/utils/format-banner-status-badge'
 import { useMounted } from '@/hooks/use-mounted'
 import { cn } from '@/utils/tailwind'
-
-type BannerAppSettingRegistryEntry = Extract<
-  AppSettingRegistryEntry,
-  { readonly key: 'banner_public' | 'banner_authenticated' }
->
 
 type BannerSettingRowProps = {
   entry: BannerAppSettingRegistryEntry
@@ -106,8 +99,6 @@ export const BannerSettingRow = ({
   isExpanded,
   onSaved,
 }: BannerSettingRowProps) => {
-  const [isSaving, setIsSaving] = useState(false)
-  const [error, setError] = useState<AppError | null>(null)
   const [previewThemeOverride, setPreviewThemeOverride] = useState<
     'light' | 'dark' | null
   >(null)
@@ -126,6 +117,19 @@ export const BannerSettingRow = ({
     mode: 'onChange',
   })
 
+  const { isSaving, error, clearError, save } = useAppSettingSave({
+    key: entry.key,
+    label: entry.label,
+    savedValue,
+    parse: () => {
+      const parsed = bannerSettingFormSchema.safeParse(form.getValues())
+
+      return parsed.success ? formValuesToBannerValue(parsed.data) : null
+    },
+    onSaved,
+    resetForm: (value) => form.reset(bannerValueToFormValues(value)),
+  })
+
   const watchedValues = useWatch({ control: form.control })
   const draftMode = watchedValues?.mode ?? form.getValues('mode')
   const draftHeadline = watchedValues?.headline ?? form.getValues('headline')
@@ -138,42 +142,6 @@ export const BannerSettingRow = ({
   const isSaveDisabled = isSaving || !form.formState.isValid || isUnchanged
   const previewConfig = isExpanded ? draftBanner : savedValue
   const showPreview = hasBannerPreviewContent(previewConfig)
-
-  useEffect(() => {
-    form.reset(bannerValueToFormValues(savedValue))
-  }, [form, savedValue])
-
-  const handleSave = async () => {
-    if (isSaveDisabled) {
-      return
-    }
-
-    const parsed = bannerSettingFormSchema.safeParse(form.getValues())
-
-    if (!parsed.success) {
-      return
-    }
-
-    const nextValue = formValuesToBannerValue(parsed.data)
-
-    setIsSaving(true)
-    setError(null)
-
-    const result = await saveAppSettingAction({
-      key: entry.key,
-      value: nextValue,
-    })
-
-    setIsSaving(false)
-
-    if (!result.success) {
-      setError(result.error)
-      return
-    }
-
-    onSaved(entry.key, result.data.value as BannerSettingValue)
-    showSuccessToast(`${entry.label} saved`)
-  }
 
   return (
     <AccordionItem value={entry.key} className="border-b px-4 last:border-b-0">
@@ -220,7 +188,7 @@ export const BannerSettingRow = ({
                       onValueChange={(value) => {
                         if (value) {
                           field.onChange(value)
-                          setError(null)
+                          clearError()
                         }
                       }}
                       className="w-full"
@@ -257,7 +225,7 @@ export const BannerSettingRow = ({
                           disabled={isSaving}
                           onChange={(value) => {
                             field.onChange(value)
-                            setError(null)
+                            clearError()
                           }}
                         />
                       </FormControl>
@@ -279,7 +247,7 @@ export const BannerSettingRow = ({
                           disabled={isSaving}
                           onChange={(event) => {
                             field.onChange(event.target.value)
-                            setError(null)
+                            clearError()
                           }}
                         />
                       </FormControl>
@@ -302,7 +270,7 @@ export const BannerSettingRow = ({
                       disabled={isSaving}
                       onChange={(event) => {
                         field.onChange(event.target.value)
-                        setError(null)
+                        clearError()
                       }}
                     />
                   </FormControl>
@@ -329,7 +297,7 @@ export const BannerSettingRow = ({
                       disabled={isSaving}
                       onChange={(event) => {
                         field.onChange(event.target.value)
-                        setError(null)
+                        clearError()
                       }}
                     />
                   </FormControl>
@@ -355,7 +323,7 @@ export const BannerSettingRow = ({
                       value={field.value}
                       onValueChange={(value) => {
                         field.onChange(value)
-                        setError(null)
+                        clearError()
                       }}
                       disabled={isSaving}
                     >
@@ -388,7 +356,7 @@ export const BannerSettingRow = ({
                         disabled={isSaving}
                         onCheckedChange={(checked) => {
                           field.onChange(checked === true)
-                          setError(null)
+                          clearError()
                         }}
                       />
                     </FormControl>
@@ -412,7 +380,7 @@ export const BannerSettingRow = ({
                       onValueChange={(value) => {
                         if (value) {
                           field.onChange(value)
-                          setError(null)
+                          clearError()
                         }
                       }}
                       className="w-full"
@@ -475,7 +443,13 @@ export const BannerSettingRow = ({
             <Button
               type="button"
               disabled={isSaveDisabled}
-              onClick={() => void handleSave()}
+              onClick={() => {
+                if (isSaveDisabled) {
+                  return
+                }
+
+                void save()
+              }}
             >
               {isSaving ? 'Saving…' : 'Save'}
             </Button>

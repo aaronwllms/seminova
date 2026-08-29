@@ -1,11 +1,11 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useState, type ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import type { z } from 'zod'
 
-import { saveAppSettingAction } from '@/app/admin/settings/_lib/actions'
+import { useAppSettingSave } from '@/app/admin/settings/_lib/use-app-setting-save'
 import { AppErrorSurface } from '@/components/app-error-surface'
 import { Button } from '@/components/ui/button'
 import {
@@ -32,7 +32,6 @@ import type {
 } from '@/config/app-settings-registry'
 import { LOG_LEVELS, type LogLevel } from '@/types/app-settings'
 import type { AppError } from '@/types/app-error'
-import { showSuccessToast } from '@/utils/app-toast'
 import {
   appSettingLogLevelFormSchema,
   appSettingPositiveIntFormSchema,
@@ -78,52 +77,28 @@ const LogLevelSettingRow = ({
   savedValue,
   onSaved,
 }: LogLevelRowProps) => {
-  const [isSaving, setIsSaving] = useState(false)
-  const [error, setError] = useState<AppError | null>(null)
-
   const form = useForm<z.infer<typeof appSettingLogLevelFormSchema>>({
     resolver: zodResolver(appSettingLogLevelFormSchema),
     defaultValues: { value: savedValue },
     mode: 'onChange',
   })
 
+  const { isSaving, error, clearError, save } = useAppSettingSave({
+    key: entry.key,
+    label: entry.label,
+    savedValue,
+    parse: () => {
+      const parsed = appSettingLogLevelFormSchema.safeParse(form.getValues())
+
+      return parsed.success ? parsed.data.value : null
+    },
+    onSaved,
+    resetForm: (value) => form.reset({ value }),
+  })
+
   const draftValue = useWatch({ control: form.control, name: 'value' })
   const isUnchanged = draftValue === savedValue
   const isSaveDisabled = isSaving || !form.formState.isValid || isUnchanged
-
-  useEffect(() => {
-    form.reset({ value: savedValue })
-  }, [form, savedValue])
-
-  const handleSave = async () => {
-    if (isSaveDisabled) {
-      return
-    }
-
-    const parsed = appSettingLogLevelFormSchema.safeParse(form.getValues())
-
-    if (!parsed.success) {
-      return
-    }
-
-    setIsSaving(true)
-    setError(null)
-
-    const result = await saveAppSettingAction({
-      key: entry.key,
-      value: parsed.data.value,
-    })
-
-    setIsSaving(false)
-
-    if (!result.success) {
-      setError(result.error)
-      return
-    }
-
-    onSaved(entry.key, parsed.data.value)
-    showSuccessToast(`${entry.label} saved`)
-  }
 
   return (
     <SettingRowShell entry={entry} error={error}>
@@ -138,7 +113,7 @@ const LogLevelSettingRow = ({
                 value={field.value}
                 onValueChange={(value) => {
                   field.onChange(value)
-                  setError(null)
+                  clearError()
                 }}
                 disabled={isSaving}
               >
@@ -163,7 +138,13 @@ const LogLevelSettingRow = ({
       <SaveButton
         disabled={isSaveDisabled}
         isSaving={isSaving}
-        onSave={handleSave}
+        onSave={() => {
+          if (isSaveDisabled) {
+            return
+          }
+
+          void save()
+        }}
       />
     </SettingRowShell>
   )
@@ -176,55 +157,31 @@ const PositiveIntSettingRow = ({
   savedValue,
   onSaved,
 }: PositiveIntRowProps) => {
-  const [isSaving, setIsSaving] = useState(false)
-  const [error, setError] = useState<AppError | null>(null)
-
   const form = useForm<PositiveIntFormValues>({
     resolver: zodResolver(appSettingPositiveIntFormSchema),
     defaultValues: { value: String(savedValue) },
     mode: 'onChange',
   })
 
+  const { isSaving, error, clearError, save } = useAppSettingSave({
+    key: entry.key,
+    label: entry.label,
+    savedValue,
+    parse: () => {
+      const parsedValue = positiveIntFormValueSchema.safeParse(
+        form.getValues().value,
+      )
+
+      return parsedValue.success ? parsedValue.data : null
+    },
+    onSaved,
+    resetForm: (value) => form.reset({ value: String(value) }),
+  })
+
   const draftValue = useWatch({ control: form.control, name: 'value' })
   const parsedDraft = positiveIntFormValueSchema.safeParse(draftValue)
   const isUnchanged = parsedDraft.success && parsedDraft.data === savedValue
   const isSaveDisabled = isSaving || !form.formState.isValid || isUnchanged
-
-  useEffect(() => {
-    form.reset({ value: String(savedValue) })
-  }, [form, savedValue])
-
-  const handleSave = async () => {
-    if (isSaveDisabled) {
-      return
-    }
-
-    const parsedValue = positiveIntFormValueSchema.safeParse(
-      form.getValues().value,
-    )
-
-    if (!parsedValue.success) {
-      return
-    }
-
-    setIsSaving(true)
-    setError(null)
-
-    const result = await saveAppSettingAction({
-      key: entry.key,
-      value: parsedValue.data,
-    })
-
-    setIsSaving(false)
-
-    if (!result.success) {
-      setError(result.error)
-      return
-    }
-
-    onSaved(entry.key, parsedValue.data)
-    showSuccessToast(`${entry.label} saved`)
-  }
 
   return (
     <SettingRowShell entry={entry} error={error}>
@@ -244,7 +201,7 @@ const PositiveIntSettingRow = ({
                   disabled={isSaving}
                   onChange={(event) => {
                     field.onChange(event.target.value)
-                    setError(null)
+                    clearError()
                   }}
                 />
               </FormControl>
@@ -256,7 +213,13 @@ const PositiveIntSettingRow = ({
       <SaveButton
         disabled={isSaveDisabled}
         isSaving={isSaving}
-        onSave={handleSave}
+        onSave={() => {
+          if (isSaveDisabled) {
+            return
+          }
+
+          void save()
+        }}
       />
     </SettingRowShell>
   )

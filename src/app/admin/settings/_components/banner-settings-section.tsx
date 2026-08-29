@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 
+import { BANNER_REGISTRY_ENTRIES } from '@/app/admin/settings/_lib/app-settings-partition'
 import { syncAdminSettingsVisitKey } from '@/app/admin/settings/_lib/admin-settings-visit-key'
 import {
-  APP_SETTINGS_REGISTRY,
+  APP_SETTINGS_GROUP_BANNERS,
   type AppSettingKey,
   type ResolvedAppSettings,
 } from '@/config/app-settings-registry'
@@ -19,10 +20,6 @@ type BannerSettingsSectionProps = {
   savedSettings: ResolvedAppSettings
   onSaved: (key: AppSettingKey, value: BannerSettingValue) => void
 }
-
-const BANNER_REGISTRY_ENTRIES = APP_SETTINGS_REGISTRY.filter(
-  (entry) => entry.valueType === 'banner',
-)
 
 export const BannerSettingsSection = ({
   savedSettings,
@@ -51,7 +48,7 @@ export const BannerSettingsSection = ({
 
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-base font-medium">Banners</h2>
+      <h2 className="text-base font-medium">{APP_SETTINGS_GROUP_BANNERS}</h2>
       <Card className="overflow-hidden py-0">
         <Accordion
           type="single"
