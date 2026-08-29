@@ -35,6 +35,8 @@ declare module '@tanstack/react-table' {
     cellClassName?: string
     /** Tailwind classes for the Skeleton in each cell when loading (e.g. "h-5 w-16 rounded-full") */
     skeletonClassName?: string
+    /** Display title for a fallback header that cannot run the live `header` render function */
+    headerTitle?: string
   }
 }
 

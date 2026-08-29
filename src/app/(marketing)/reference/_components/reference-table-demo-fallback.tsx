@@ -21,20 +21,20 @@ import {
 
 import type { ReferenceShipment } from '../_lib/reference-shipment'
 
-const SKELETON_COLUMNS: Array<ColumnDef<ReferenceShipment, unknown>> = [
-  { id: 'consignee', meta: { skeletonClassName: 'h-4 w-40 max-w-full' } },
-  { id: 'route', meta: { skeletonClassName: 'h-4 w-24' } },
-  { id: 'status', meta: { skeletonClassName: 'h-5 w-20 rounded-full' } },
-  {
-    id: 'departs',
-    meta: {
-      cellClassName: 'text-right',
-      skeletonClassName: 'inline-block h-4 w-16',
-    },
-  },
-]
+import { referenceShipmentsColumns } from './reference-shipments-columns'
 
-const TABLE_HEADERS = ['Consignee', 'Route', 'Status', 'Departs'] as const
+const columnId = (column: ColumnDef<ReferenceShipment, unknown>) =>
+  column.id ?? ('accessorKey' in column ? String(column.accessorKey) : 'column')
+
+const SKELETON_COLUMNS: Array<ColumnDef<ReferenceShipment, unknown>> =
+  referenceShipmentsColumns.map((column) => ({
+    id: columnId(column),
+    meta: {
+      cellClassName: column.meta?.cellClassName,
+      skeletonClassName: column.meta?.skeletonClassName,
+      headerTitle: column.meta?.headerTitle,
+    },
+  }))
 
 export const ReferenceTableDemoFallback = () => (
   <div className="mx-auto mt-5 max-w-6xl px-4 sm:px-0">
@@ -56,13 +56,13 @@ export const ReferenceTableDemoFallback = () => (
           <Table>
             <TableHeader>
               <TableRow>
-                {SKELETON_COLUMNS.map((column, index) => (
+                {SKELETON_COLUMNS.map((column) => (
                   <TableHead
-                    key={TABLE_HEADERS[index]}
+                    key={column.id}
                     className={cn('px-3', column.meta?.cellClassName)}
                   >
                     <span className="text-foreground flex h-8 items-center text-sm font-medium">
-                      {TABLE_HEADERS[index]}
+                      {column.meta?.headerTitle}
                     </span>
                   </TableHead>
                 ))}

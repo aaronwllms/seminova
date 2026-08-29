@@ -19,6 +19,7 @@ import {
   Lock,
   Mail,
   MailCheck,
+  Map as MapIcon,
   Megaphone,
   Palette,
   Puzzle,
@@ -29,8 +30,7 @@ import {
   Settings,
   Shield,
   ShieldCheck,
-  Map,
-  Table,
+  Table as TableIcon,
   Terminal,
   Trash2,
   UserCog,
@@ -168,7 +168,7 @@ export const featuresContent = {
           name: 'Data table pattern',
           blurb:
             'Shared list-view shell with server sort, pagination, stat-tile filters, and skeleton loading.',
-          icon: Table,
+          icon: TableIcon,
           referenceAnchor: 'table',
         },
         {
@@ -247,7 +247,7 @@ export const featuresContent = {
           name: 'Sitemap and robots',
           blurb:
             'Auto-discovered marketing routes in the sitemap with training-crawler disallow policy.',
-          icon: Map,
+          icon: MapIcon,
         },
         {
           name: 'Structured data',
