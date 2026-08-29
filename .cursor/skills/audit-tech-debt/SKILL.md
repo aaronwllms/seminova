@@ -123,8 +123,8 @@ Write to `TECH_DEBT_AUDIT.md` in the repo root per the Output template below.
 
 Detect the stack from the manifest and run the relevant tools. Run them in parallel when possible. Prefer project scripts from `package.json` when they exist.
 
-- **TypeScript / JavaScript (pnpm)** — `pnpm audit`, `pnpm type-check`, `pnpm lint`, `pnpm test:ci`; optional if available: `npx knip`, `npx madge --circular`, `npx depcheck`
-- **TypeScript / JavaScript (npm)** — `npm audit`, `npx knip`, `npx madge --circular`, `npx depcheck`, `tsc --noEmit`
+- **TypeScript / JavaScript (pnpm)** — `pnpm audit`, `pnpm type-check`, `pnpm lint`, `pnpm test:ci`; optional if available: `npx knip`, `npx madge --circular --extensions ts,tsx --ts-config tsconfig.json src`, `npx depcheck`
+- **TypeScript / JavaScript (npm)** — `npm audit`, `npx knip`, `npx madge --circular --extensions ts,tsx --ts-config tsconfig.json src`, `npx depcheck`, `tsc --noEmit`
 - **Python** — `pip-audit`, `ruff check`, `vulture`, `pydeps --show-cycles`, `mypy --strict`
 - **Rust** — `cargo audit`, `cargo udeps`, `cargo machete`, `cargo clippy -- -W clippy::pedantic`
 - **Go** — `govulncheck`, `go vet`, `staticcheck`, `golangci-lint run`

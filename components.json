@@ -16,8 +16,5 @@
     "utils": "@/utils/tailwind",
     "ui": "@/components/ui",
     "hooks": "@/hooks"
-  },
-  "registries": {
-    "@shadcnblocks": "https://shadcnblocks.com/r/{name}.json"
   }
 }
