@@ -1,10 +1,16 @@
 'use client'
 
 import { InfoIcon } from 'lucide-react'
-import { toast } from 'sonner'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import {
+  showErrorToast,
+  showInfoToast,
+  showPromiseToast,
+  showSuccessToast,
+  showWarningToast,
+} from '@/utils/app-toast'
 import {
   TOAST_ICON_VARIANTS,
   type ToastIconVariant,
@@ -24,32 +30,24 @@ const TOAST_TRIGGER_LABEL: Record<ToastIconVariant, string> = {
   loading: 'Show loading toast',
 }
 
-const showReferenceToast = (variant: ToastIconVariant, message: string) => {
-  switch (variant) {
-    case 'success':
-      toast.success(message)
-      break
-    case 'info':
-      toast.info(message)
-      break
-    case 'warning':
-      toast.warning(message)
-      break
-    case 'error':
-      toast.error(message)
-      break
-    case 'loading':
-      toast.promise(
-        new Promise<void>((resolve) => {
-          window.setTimeout(resolve, LOADING_TOAST_DELAY_MS)
-        }),
-        {
-          loading: message,
-          success: 'Changes saved',
-        },
-      )
-      break
-  }
+const showReferenceToastByVariant: Record<
+  ToastIconVariant,
+  (message: string) => void
+> = {
+  success: showSuccessToast,
+  info: showInfoToast,
+  warning: showWarningToast,
+  error: showErrorToast,
+  loading: (message) =>
+    showPromiseToast(
+      new Promise<void>((resolve) => {
+        window.setTimeout(resolve, LOADING_TOAST_DELAY_MS)
+      }),
+      {
+        loading: message,
+        success: 'Changes saved',
+      },
+    ),
 }
 
 const ReferenceToastPreviewCard = ({
@@ -82,8 +80,8 @@ export const ReferenceToastSection = () => {
         <InfoIcon aria-hidden />
         <AlertDescription>
           Live demos of all five Sonner variants with production icons and
-          styling. Only success toasts are wired in the app today — the other
-          four are configured and ready to use.
+          styling. Helpers live in app-toast; production still only calls
+          success — the other four are this gallery.
         </AlertDescription>
       </Alert>
 
@@ -103,7 +101,7 @@ export const ReferenceToastSection = () => {
                 type="button"
                 variant="outline"
                 className="shrink-0 sm:w-52"
-                onClick={() => showReferenceToast(variant, message)}
+                onClick={() => showReferenceToastByVariant[variant](message)}
               >
                 {TOAST_TRIGGER_LABEL[variant]}
               </Button>

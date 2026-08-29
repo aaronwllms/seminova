@@ -11,13 +11,13 @@ import { SECTION_SCROLL_CLASS } from '@/constants/section-scroll'
 const OPERATIONAL_DEMO_ERROR: AppError = {
   kind: 'operational',
   message: "That username's already taken. Try another.",
-  code: 'USERNAME_TAKEN',
+  code: 'CONFLICT',
 }
 
 const FAULT_DEMO_ERROR: AppError = {
   kind: 'fault',
   message: 'Could not save your profile. Please try again.',
-  code: 'DEMO_FAULT',
+  code: 'INTERNAL_ERROR',
 }
 
 export const ReferenceFeedbackSection = () => {
