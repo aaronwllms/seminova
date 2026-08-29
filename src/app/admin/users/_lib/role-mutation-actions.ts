@@ -1,9 +1,6 @@
 'use server'
 
-import type {
-  DemoteUserByIdResult,
-  PromoteUserByIdResult,
-} from '@/utils/admin-user-mutations'
+import type { RoleMutationSuccessStatus } from '@/utils/admin-user-mutations'
 
 import {
   runDemoteUserMutation,
@@ -14,7 +11,7 @@ import type { UsersActionError } from './assert-admin-caller'
 type RoleMutationActionSuccess = {
   success: true
   data: {
-    status: PromoteUserByIdResult['status'] | DemoteUserByIdResult['status']
+    status: RoleMutationSuccessStatus
     email: string
   }
 }

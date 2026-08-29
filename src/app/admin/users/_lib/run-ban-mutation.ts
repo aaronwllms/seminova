@@ -3,29 +3,23 @@ import {
   banUserById,
   unbanUserById,
   type BanUserByIdResult,
+  type BanMutationSuccessStatus,
   type UnbanUserByIdResult,
 } from '@/utils/admin-user-mutations'
 
-import type { UsersActionError } from './assert-admin-caller'
-import { runAdminUserMutation } from './run-admin-user-mutation'
-
-type BanMutationActionSuccess = {
-  success: true
-  data: {
-    status: BanUserByIdResult['status'] | UnbanUserByIdResult['status']
-    email: string
-  }
-}
+import {
+  runAdminUserMutation,
+  type AdminUserMutationActionResult,
+} from './run-admin-user-mutation'
 
 export type BanMutationActionResult =
-  | BanMutationActionSuccess
-  | UsersActionError
+  AdminUserMutationActionResult<BanMutationSuccessStatus>
 
 export const runBanUserMutation = (
   userId: string | undefined,
   banDuration: AdminBanDuration,
 ): Promise<BanMutationActionResult> =>
-  runAdminUserMutation({
+  runAdminUserMutation<Exclude<BanUserByIdResult['status'], 'not_found'>>({
     userId,
     mutation: (client, id) => banUserById(client, id, banDuration),
     logTag: 'users-ban',
@@ -50,7 +44,7 @@ export const runBanUserMutation = (
 export const runUnbanUserMutation = (
   userId: string | undefined,
 ): Promise<BanMutationActionResult> =>
-  runAdminUserMutation({
+  runAdminUserMutation<Exclude<UnbanUserByIdResult['status'], 'not_found'>>({
     userId,
     mutation: unbanUserById,
     logTag: 'users-unban',

@@ -1,9 +1,6 @@
 'use server'
 
-import type {
-  BanUserByIdResult,
-  UnbanUserByIdResult,
-} from '@/utils/admin-user-mutations'
+import type { BanMutationSuccessStatus } from '@/utils/admin-user-mutations'
 import { isAdminBanDuration } from '@/constants/admin-ban'
 
 import { runBanUserMutation, runUnbanUserMutation } from './run-ban-mutation'
@@ -13,7 +10,7 @@ import type { UsersActionError } from './assert-admin-caller'
 type BanMutationActionSuccess = {
   success: true
   data: {
-    status: BanUserByIdResult['status'] | UnbanUserByIdResult['status']
+    status: BanMutationSuccessStatus
     email: string
   }
 }

@@ -3,27 +3,21 @@ import {
   promoteUserById,
   type DemoteUserByIdResult,
   type PromoteUserByIdResult,
+  type RoleMutationSuccessStatus,
 } from '@/utils/admin-user-mutations'
 
-import type { UsersActionError } from './assert-admin-caller'
-import { runAdminUserMutation } from './run-admin-user-mutation'
-
-type RoleMutationActionSuccess = {
-  success: true
-  data: {
-    status: PromoteUserByIdResult['status'] | DemoteUserByIdResult['status']
-    email: string
-  }
-}
+import {
+  runAdminUserMutation,
+  type AdminUserMutationActionResult,
+} from './run-admin-user-mutation'
 
 export type RoleMutationActionResult =
-  | RoleMutationActionSuccess
-  | UsersActionError
+  AdminUserMutationActionResult<RoleMutationSuccessStatus>
 
 export const runPromoteUserMutation = (
   userId: string | undefined,
 ): Promise<RoleMutationActionResult> =>
-  runAdminUserMutation({
+  runAdminUserMutation<Exclude<PromoteUserByIdResult['status'], 'not_found'>>({
     userId,
     mutation: promoteUserById,
     logTag: 'users-promote',
@@ -34,7 +28,7 @@ export const runPromoteUserMutation = (
 export const runDemoteUserMutation = (
   userId: string | undefined,
 ): Promise<RoleMutationActionResult> =>
-  runAdminUserMutation({
+  runAdminUserMutation<Exclude<DemoteUserByIdResult['status'], 'not_found'>>({
     userId,
     mutation: demoteUserById,
     logTag: 'users-demote',

@@ -4,9 +4,9 @@ import { appLog } from '@/utils/app-logger'
 import { assertAdminCaller, type UsersActionError } from './assert-admin-caller'
 import { mapAdminActionFault } from '@/app/admin/_lib/map-admin-action-fault'
 
-export type AdminUserMutationResult =
+export type AdminUserMutationResult<TStatus extends string> =
   | { status: 'not_found' }
-  | { status: Exclude<string, 'not_found'>; email: string }
+  | { status: TStatus; email: string }
 
 type AdminUserMutationActionSuccess<TStatus extends string> = {
   success: true
@@ -16,16 +16,16 @@ type AdminUserMutationActionSuccess<TStatus extends string> = {
   }
 }
 
-export type AdminUserMutationActionResult<TStatus extends string = string> =
+export type AdminUserMutationActionResult<TStatus extends string> =
   | AdminUserMutationActionSuccess<TStatus>
   | UsersActionError
 
-type RunAdminUserMutationOptions<TResult extends AdminUserMutationResult> = {
+type RunAdminUserMutationOptions<TStatus extends string> = {
   userId: string | undefined
   mutation: (
     client: ReturnType<typeof createServiceClient>,
     userId: string,
-  ) => Promise<TResult>
+  ) => Promise<AdminUserMutationResult<TStatus>>
   logTag: string
   logMessage: string
   faultMessage: string
@@ -40,22 +40,19 @@ const validateUserId = (userId: string | undefined): string | null => {
   return trimmed || null
 }
 
-const hasMutationEmail = (
-  result: AdminUserMutationResult,
-): result is Extract<AdminUserMutationResult, { email: string }> =>
-  result.status !== 'not_found'
+const hasMutationEmail = <TStatus extends string>(
+  result: AdminUserMutationResult<TStatus>,
+): result is { status: TStatus; email: string } => result.status !== 'not_found'
 
-export const runAdminUserMutation = async <
-  TResult extends AdminUserMutationResult,
->({
+export const runAdminUserMutation = async <TStatus extends string>({
   userId: rawUserId,
   mutation,
   logTag,
   logMessage,
   faultMessage,
   beforeMutation,
-}: RunAdminUserMutationOptions<TResult>): Promise<
-  AdminUserMutationActionResult<TResult['status']>
+}: RunAdminUserMutationOptions<TStatus>): Promise<
+  AdminUserMutationActionResult<TStatus>
 > => {
   const authResult = await assertAdminCaller()
 
