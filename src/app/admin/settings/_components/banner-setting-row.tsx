@@ -59,6 +59,7 @@ import {
   BANNER_STATUS_BADGE_CLASSES,
   formatBannerStatusBadge,
 } from '@/utils/format-banner-status-badge'
+import { useMounted } from '@/hooks/use-mounted'
 import { cn } from '@/utils/tailwind'
 
 type BannerAppSettingRegistryEntry = Extract<
@@ -110,13 +111,8 @@ export const BannerSettingRow = ({
   const [previewThemeOverride, setPreviewThemeOverride] = useState<
     'light' | 'dark' | null
   >(null)
-  const [mounted, setMounted] = useState(false)
+  const mounted = useMounted()
   const { resolvedTheme } = useTheme()
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration guard for next-themes
-    setMounted(true)
-  }, [])
 
   const resolvedPreviewTheme =
     mounted && resolvedTheme === 'dark' ? 'dark' : 'light'

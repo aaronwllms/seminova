@@ -2,12 +2,12 @@
 
 import { Check, Laptop, Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
-import { useEffect, useState } from 'react'
 
 import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
+import { useMounted } from '@/hooks/use-mounted'
 
 const THEME_OPTIONS = [
   { value: 'light', label: 'Light', Icon: Sun },
@@ -16,13 +16,8 @@ const THEME_OPTIONS = [
 ] as const
 
 export const ThemeDropdownMenuItems = () => {
-  const [mounted, setMounted] = useState(false)
+  const mounted = useMounted()
   const { theme, setTheme } = useTheme()
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration guard for next-themes
-    setMounted(true)
-  }, [])
 
   if (!mounted) {
     return null
