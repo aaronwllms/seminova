@@ -6,38 +6,6 @@ vi.mock('@/app/(app)/_lib/get-current-user-profile', () => ({
   getCurrentUserProfile: () => mockGetCurrentUserProfile(),
 }))
 
-vi.mock('@/app/(app)/_components/profile/profile-dialog-provider', () => ({
-  ProfileDialogProvider: ({
-    children,
-    userId,
-    email,
-    profileLoadFailed,
-    defaultValues,
-  }: {
-    children: React.ReactNode
-    userId: string
-    email: string
-    profileLoadFailed: boolean
-    defaultValues: {
-      displayName: string | null
-      bio: string | null
-      avatarUrl: string | null
-    }
-  }) => (
-    <div
-      data-testid="profile-dialog-provider"
-      data-user-id={userId}
-      data-email={email}
-      data-profile-load-failed={String(profileLoadFailed)}
-      data-display-name={defaultValues.displayName ?? ''}
-      data-bio={defaultValues.bio ?? ''}
-      data-avatar-url={defaultValues.avatarUrl ?? ''}
-    >
-      {children}
-    </div>
-  ),
-}))
-
 vi.mock('./admin-nav-user', () => ({
   AdminNavUser: ({
     displayName,
@@ -62,7 +30,7 @@ import { render, screen } from '@/test/test-utils'
 import { AdminSidebarNavUser } from './admin-sidebar-nav-user'
 
 describe('AdminSidebarNavUser', () => {
-  it('should load profile data and render AdminNavUser inside ProfileDialogProvider', async () => {
+  it('should load profile data and render AdminNavUser with chip props', async () => {
     mockGetCurrentUserProfile.mockResolvedValue({
       userId: 'admin-1',
       displayName: 'Admin User',
@@ -74,17 +42,6 @@ describe('AdminSidebarNavUser', () => {
     })
 
     render(await AdminSidebarNavUser())
-
-    const provider = screen.getByTestId('profile-dialog-provider')
-    expect(provider).toHaveAttribute('data-user-id', 'admin-1')
-    expect(provider).toHaveAttribute('data-email', 'admin@example.com')
-    expect(provider).toHaveAttribute('data-profile-load-failed', 'false')
-    expect(provider).toHaveAttribute('data-display-name', 'Admin User')
-    expect(provider).toHaveAttribute('data-bio', 'Admin bio')
-    expect(provider).toHaveAttribute(
-      'data-avatar-url',
-      'https://example.com/avatar.webp',
-    )
 
     const navUser = screen.getByTestId('admin-nav-user')
     expect(navUser).toHaveAttribute('data-display-name', 'Admin User')
@@ -108,10 +65,6 @@ describe('AdminSidebarNavUser', () => {
 
     render(await AdminSidebarNavUser())
 
-    expect(screen.getByTestId('profile-dialog-provider')).toHaveAttribute(
-      'data-email',
-      'Signed-in user',
-    )
     expect(screen.getByTestId('admin-nav-user')).toHaveAttribute(
       'data-email',
       'Signed-in user',

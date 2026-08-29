@@ -4,6 +4,7 @@ import { Suspense } from 'react'
 import { loadAuthenticatedBannerSlot } from '@/components/authenticated-banner-slot-entry'
 
 import { AppShell } from './_components/app-shell'
+import { ProfileDialogHost } from './_components/profile/profile-dialog-host'
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -25,14 +26,16 @@ const ResolvedAppShell = async ({ children }: AppLayoutProps) => {
 
 export default function AppLayout({ children }: AppLayoutProps) {
   return (
-    <Suspense
-      fallback={
-        <AppShell banner={null} pin={false}>
-          {children}
-        </AppShell>
-      }
-    >
-      <ResolvedAppShell>{children}</ResolvedAppShell>
-    </Suspense>
+    <ProfileDialogHost>
+      <Suspense
+        fallback={
+          <AppShell banner={null} pin={false}>
+            {children}
+          </AppShell>
+        }
+      >
+        <ResolvedAppShell>{children}</ResolvedAppShell>
+      </Suspense>
+    </ProfileDialogHost>
   )
 }

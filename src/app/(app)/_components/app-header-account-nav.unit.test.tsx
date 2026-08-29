@@ -6,38 +6,6 @@ vi.mock('@/app/(app)/_lib/get-current-user-profile', () => ({
   getCurrentUserProfile: () => mockGetCurrentUserProfile(),
 }))
 
-vi.mock('@/app/(app)/_components/profile/profile-dialog-provider', () => ({
-  ProfileDialogProvider: ({
-    children,
-    userId,
-    email,
-    profileLoadFailed,
-    defaultValues,
-  }: {
-    children: React.ReactNode
-    userId: string
-    email: string
-    profileLoadFailed: boolean
-    defaultValues: {
-      displayName: string | null
-      bio: string | null
-      avatarUrl: string | null
-    }
-  }) => (
-    <div
-      data-testid="profile-dialog-provider"
-      data-user-id={userId}
-      data-email={email}
-      data-profile-load-failed={String(profileLoadFailed)}
-      data-display-name={defaultValues.displayName ?? ''}
-      data-bio={defaultValues.bio ?? ''}
-      data-avatar-url={defaultValues.avatarUrl ?? ''}
-    >
-      {children}
-    </div>
-  ),
-}))
-
 vi.mock('./app-nav-user', () => ({
   AppNavUser: ({
     displayName,
@@ -68,7 +36,7 @@ import { render, screen } from '@/test/test-utils'
 import { AppHeaderAccountNav } from './app-header-account-nav'
 
 describe('AppHeaderAccountNav', () => {
-  it('should load profile data and render AppNavUser inside ProfileDialogProvider', async () => {
+  it('should load profile data and render AppNavUser with chip props', async () => {
     mockGetCurrentUserProfile.mockResolvedValue({
       userId: 'user-1',
       displayName: 'Alex',
@@ -80,17 +48,6 @@ describe('AppHeaderAccountNav', () => {
     })
 
     render(await AppHeaderAccountNav())
-
-    const provider = screen.getByTestId('profile-dialog-provider')
-    expect(provider).toHaveAttribute('data-user-id', 'user-1')
-    expect(provider).toHaveAttribute('data-email', 'alex@example.com')
-    expect(provider).toHaveAttribute('data-profile-load-failed', 'false')
-    expect(provider).toHaveAttribute('data-display-name', 'Alex')
-    expect(provider).toHaveAttribute('data-bio', 'Builder')
-    expect(provider).toHaveAttribute(
-      'data-avatar-url',
-      'https://example.com/avatar.webp',
-    )
 
     const navUser = screen.getByTestId('app-nav-user')
     expect(navUser).toHaveAttribute('data-display-name', 'Alex')

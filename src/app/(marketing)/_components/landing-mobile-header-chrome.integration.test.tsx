@@ -16,9 +16,6 @@ vi.mock('@/utils/env', () => ({
 }))
 
 vi.mock('@/app/(app)/_components/profile/profile-dialog-provider', () => ({
-  ProfileDialogProvider: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="profile-dialog-provider">{children}</div>
-  ),
   useProfileDialog: () => ({ openProfile: vi.fn() }),
 }))
 
