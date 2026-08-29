@@ -12,7 +12,7 @@ import {
 } from '@/utils/toast-icon-config'
 import { cn } from '@/utils/tailwind'
 
-import { REFERENCE_SECTION_SCROLL_CLASS } from '../_lib/reference-anchor-links'
+import { SECTION_SCROLL_CLASS } from '@/constants/section-scroll'
 
 const LOADING_TOAST_DELAY_MS = 2000
 
@@ -73,7 +73,7 @@ export const ReferenceToastSection = () => {
     <section className="border-t py-10">
       <h2
         id="toast"
-        className={`${REFERENCE_SECTION_SCROLL_CLASS} text-2xl font-semibold tracking-tight`}
+        className={`${SECTION_SCROLL_CLASS} text-2xl font-semibold tracking-tight`}
       >
         Toast
       </h2>

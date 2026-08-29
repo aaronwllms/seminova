@@ -7,7 +7,7 @@ import {
   WORKFLOW_GUIDE_URL,
   WORKFLOW_SETUP_URL,
 } from '../_lib/workflow-page-content'
-import { WORKFLOW_SECTION_SCROLL_CLASS } from '../_lib/workflow-anchor-links'
+import { SECTION_SCROLL_CLASS } from '@/constants/section-scroll'
 
 export const WorkflowGuideCta = () => (
   <section aria-labelledby="workflow-guide" className="bg-muted py-12 md:py-14">
@@ -15,7 +15,7 @@ export const WorkflowGuideCta = () => (
       <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 px-4 sm:px-0">
         <h2
           id="workflow-guide"
-          className={`${WORKFLOW_SECTION_SCROLL_CLASS} text-2xl font-semibold tracking-tight text-pretty md:text-3xl`}
+          className={`${SECTION_SCROLL_CLASS} text-2xl font-semibold tracking-tight text-pretty md:text-3xl`}
         >
           Go deeper
         </h2>

@@ -40,7 +40,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${jetbrainsMono.variable} ${merriweather.variable} scroll-pt-20`}
+      className={`${inter.variable} ${jetbrainsMono.variable} ${merriweather.variable} scroll-pt-20 scroll-smooth motion-reduce:scroll-auto`}
     >
       <body className="font-sans antialiased">
         <NextTopLoader showSpinner={false} height={2} color="var(--primary)" />

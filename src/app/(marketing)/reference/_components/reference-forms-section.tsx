@@ -1,4 +1,4 @@
-import { REFERENCE_SECTION_SCROLL_CLASS } from '../_lib/reference-anchor-links'
+import { SECTION_SCROLL_CLASS } from '@/constants/section-scroll'
 import { ReferenceFormsTabs } from './reference-forms-tabs'
 
 export const ReferenceFormsSection = () => {
@@ -6,7 +6,7 @@ export const ReferenceFormsSection = () => {
     <section className="border-t py-10">
       <h2
         id="forms"
-        className={`${REFERENCE_SECTION_SCROLL_CLASS} text-2xl font-semibold tracking-tight`}
+        className={`${SECTION_SCROLL_CLASS} text-2xl font-semibold tracking-tight`}
       >
         Forms and save models
       </h2>

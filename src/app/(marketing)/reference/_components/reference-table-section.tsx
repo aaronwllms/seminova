@@ -1,7 +1,7 @@
 import { connection } from 'next/server'
 import { Suspense } from 'react'
 
-import { REFERENCE_SECTION_SCROLL_CLASS } from '../_lib/reference-anchor-links'
+import { SECTION_SCROLL_CLASS } from '@/constants/section-scroll'
 
 import { ReferenceTableDemo } from './reference-table-demo'
 import { ReferenceTableDemoFallback } from './reference-table-demo-fallback'
@@ -16,7 +16,7 @@ export const ReferenceTableSection = () => (
     <div className="mx-auto max-w-3xl px-4 sm:px-0">
       <h2
         id="table"
-        className={`${REFERENCE_SECTION_SCROLL_CLASS} text-2xl font-semibold tracking-tight`}
+        className={`${SECTION_SCROLL_CLASS} text-2xl font-semibold tracking-tight`}
       >
         Data table
       </h2>

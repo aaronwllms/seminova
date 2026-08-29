@@ -6,7 +6,7 @@ import { AppErrorSurface } from '@/components/app-error-surface'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import type { AppError } from '@/types/app-error'
 
-import { REFERENCE_SECTION_SCROLL_CLASS } from '../_lib/reference-anchor-links'
+import { SECTION_SCROLL_CLASS } from '@/constants/section-scroll'
 
 const OPERATIONAL_DEMO_ERROR: AppError = {
   kind: 'operational',
@@ -25,7 +25,7 @@ export const ReferenceFeedbackSection = () => {
     <section className="border-t py-10">
       <h2
         id="feedback"
-        className={`${REFERENCE_SECTION_SCROLL_CLASS} text-2xl font-semibold tracking-tight`}
+        className={`${SECTION_SCROLL_CLASS} text-2xl font-semibold tracking-tight`}
       >
         InlineError and ErrorPanel
       </h2>

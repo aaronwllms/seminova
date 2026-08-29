@@ -1,4 +1,4 @@
-import { REFERENCE_SECTION_SCROLL_CLASS } from '../_lib/reference-anchor-links'
+import { SECTION_SCROLL_CLASS } from '@/constants/section-scroll'
 import { ReferenceDesignSystemTabs } from './reference-design-system-tabs'
 
 export const ReferenceDesignSystemSection = () => {
@@ -6,7 +6,7 @@ export const ReferenceDesignSystemSection = () => {
     <section className="py-10">
       <h2
         id="design-system"
-        className={`${REFERENCE_SECTION_SCROLL_CLASS} text-2xl font-semibold tracking-tight`}
+        className={`${SECTION_SCROLL_CLASS} text-2xl font-semibold tracking-tight`}
       >
         Design system
       </h2>
