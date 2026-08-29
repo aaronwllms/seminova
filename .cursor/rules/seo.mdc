@@ -39,12 +39,18 @@ Defense-in-depth on top of the auth proxy — a route accidentally made public c
 
 ## Crawler surface
 
-- **Robots:** [`src/utils/robots-policy.ts`](../../src/utils/robots-policy.ts) + [`src/app/robots.ts`](../../src/app/robots.ts) — retrieval/user-fetch bots allowed; training crawlers (GPTBot, ClaudeBot, CCBot, Google-Extended, Applebot-Extended) **allowed by default** via `ALLOW_TRAINING_CRAWLERS` in the policy file. Spinoffs that want to block training crawlers set the flag to `false`.
-- **Sitemap:** [`src/utils/sitemap-routes.ts`](../../src/utils/sitemap-routes.ts) via [`discoverMarketingRoutes()`](../../src/utils/discover-app-routes.ts) — `(marketing)` routes only; auth/app/admin never listed.
+- **Robots:** [`src/utils/robots-policy.ts`](../../src/utils/robots-policy.ts) + [`src/app/robots.ts`](../../src/app/robots.ts) — retrieval/user-fetch bots allowed; training crawlers **allowed by default** via `ALLOW_TRAINING_CRAWLERS` in the policy file. Spinoffs that want to block training crawlers set the flag to `false`. `/robots.txt` is on the auth-boundary public allowlist so crawlers can fetch the policy without a session.
+- **Two crawler classes, one policy flag.** `ALLOW_TRAINING_CRAWLERS` governs *training* crawlers only (GPTBot, ClaudeBot, CCBot, Bytespider, Meta-ExternalAgent, and the Google-Extended / Applebot-Extended robots.txt tokens). *Retrieval* and *user-fetch* bots — OAI-SearchBot, Claude-SearchBot, PerplexityBot, Googlebot, Bingbot, ChatGPT-User, Claude-User, Perplexity-User — stay allowed regardless of the flag. Blocking retrieval bots removes the site from AI answers entirely; blocking training crawlers is a policy choice with no citation cost. Never fold the two classes into one disallow.
+- **No `llms.txt`.** The template does not ship one and plans should not add one. Google states its Search systems ignore `llms.txt` and similar AI text files, and no major engine has committed to honoring it. Absence is not a finding.
+- **Sitemap:** [`src/utils/sitemap-routes.ts`](../../src/utils/sitemap-routes.ts) via [`discoverMarketingRoutes()`](../../src/utils/discover-app-routes.ts) — `(marketing)` routes only; auth/app/admin never listed. `/sitemap.xml` is on the auth-boundary public allowlist so crawlers can fetch it without a session.
 
 ## Structured data
 
 [`src/utils/structured-data.ts`](../../src/utils/structured-data.ts) — `Organization` + `WebSite` JSON-LD on the landing page ([`src/app/(marketing)/page.tsx`](../../src/app/(marketing)/page.tsx)). `getOrganizationWebSiteJsonLdScript` returns the escaped script body (`<` → `\u003c`), already serialized; pages inject it directly into `dangerouslySetInnerHTML` without stringifying. Extend the helper for new schema types; do not inline JSON-LD on pages.
+
+- **Markup must match visible page content.** Do not mark up facts, questions, or ratings the page does not actually render.
+- **Do not add schema types for rich-result eligibility alone.** Add a type because it describes the page. `FAQPage` and `HowTo` rich results are both retired in Google Search — the types remain valid schema.org vocabulary, but neither buys a search appearance. Do not propose them as an SEO win.
+- **Structured data is not required for AI search surfaces.** It helps rich-result eligibility; it is not a GEO lever.
 
 ## Social preview images
 
@@ -73,6 +79,7 @@ Defense-in-depth on top of the auth proxy — a route accidentally made public c
 
 - **Unique title + description** on every page — auth screens already export per-page titles; follow that pattern.
 - **Answer-first structure** — lead with the user's question or need, then detail.
+- **No content written for crawlers.** Content chunking, keyword-variant pages, and AI-targeted rewrites are not required by any current engine and read as scaled-content spam. Write for the reader.
 - **Canonical discipline** — one self-referential canonical per indexable page; no duplicate indexable URLs; prefer relative paths resolved via `metadataBase`.
 
 ## New public page checklist

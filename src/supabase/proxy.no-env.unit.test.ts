@@ -54,6 +54,8 @@ describe('updateSession without env vars', () => {
       '/privacy',
       '/reference',
       '/workflow',
+      '/robots.txt',
+      '/sitemap.xml',
     ]) {
       const response = await updateSession(createRequest(pathname))
 

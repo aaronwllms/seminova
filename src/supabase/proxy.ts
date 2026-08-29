@@ -6,6 +6,8 @@ import {
   FEATURES_PATH,
   PRIVACY_PATH,
   REFERENCE_PATH,
+  ROBOTS_PATH,
+  SITEMAP_PATH,
   TERMS_PATH,
   WORKFLOW_PATH,
 } from '@/constants/app-paths'
@@ -56,7 +58,9 @@ export const isPublicRoute = (pathname: string): boolean =>
   pathname === REFERENCE_PATH ||
   pathname === FEATURES_PATH ||
   pathname === WORKFLOW_PATH ||
-  pathname === CLIENT_LOGS_RELAY_PATH
+  pathname === CLIENT_LOGS_RELAY_PATH ||
+  pathname === ROBOTS_PATH ||
+  pathname === SITEMAP_PATH
 
 export async function updateSession(request: NextRequest) {
   const rawPathname = request.nextUrl.pathname

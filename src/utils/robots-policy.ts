@@ -11,14 +11,20 @@ const TRAINING_CRAWLERS = [
   'CCBot',
   'Google-Extended',
   'Applebot-Extended',
+  'Meta-ExternalAgent',
+  'Bytespider',
+  'cohere-ai',
+  'AI2Bot',
 ] as const
 
 /*
- * REFERENCE — retrieval / user-fetch bots (allowed by default via `*` rule).
- * When ALLOW_TRAINING_CRAWLERS is false, the bots above get per-agent disallow
- * rules. Add explicit allow rules only if you tighten the default `*` rule.
+ * REFERENCE — retrieval and user-fetch agents (allowed by default via `*` rule).
+ * These bots are never added to TRAINING_CRAWLERS. Disallowing them removes the
+ * site from AI-generated answers; blocking training crawlers alone does not.
+ * Add explicit allow rules only if you tighten the default `*` rule.
  *
  * Googlebot, Bingbot, OAI-SearchBot, Claude-SearchBot, PerplexityBot,
+ * Perplexity-User, Meta-ExternalFetcher, MistralAI-User, Amazonbot,
  * Applebot, DuckAssistBot, ChatGPT-User, Claude-User
  */
 

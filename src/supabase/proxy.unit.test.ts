@@ -4,7 +4,11 @@
 import { join } from 'node:path'
 import { NextRequest } from 'next/server'
 import { ADMIN_ROLE } from '@/constants/admin-role'
-import { CLIENT_LOGS_RELAY_PATH } from '@/constants/app-paths'
+import {
+  CLIENT_LOGS_RELAY_PATH,
+  ROBOTS_PATH,
+  SITEMAP_PATH,
+} from '@/constants/app-paths'
 import {
   discoverAppRoutes,
   discoverMetadataImageFiles,
@@ -199,6 +203,19 @@ describe('updateSession', () => {
     const response = await updateSession(createRequest('/privacy/'))
 
     expect(response.status).toBe(200)
+  })
+
+  it('should treat robots.txt and sitemap.xml as public routes', () => {
+    expect(isPublicRoute(ROBOTS_PATH)).toBe(true)
+    expect(isPublicRoute(SITEMAP_PATH)).toBe(true)
+  })
+
+  it('should allow unauthenticated access to robots.txt and sitemap.xml', async () => {
+    for (const pathname of [ROBOTS_PATH, SITEMAP_PATH]) {
+      const response = await updateSession(createRequest(pathname))
+
+      expect(response.status).toBe(200)
+    }
   })
 
   it('should clear stale sessions on auth routes when getClaims returns an auth error', async () => {
