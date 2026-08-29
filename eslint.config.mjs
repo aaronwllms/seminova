@@ -101,6 +101,7 @@ const eslintConfig = defineConfig([
       'src/app/admin/_lib/map-admin-action-fault.ts',
       'src/app/(app)/_lib/get-current-user-profile.ts',
       'src/app/(app)/_lib/profile/actions.ts',
+      'src/app/(app)/_lib/profile/probe-session-action.ts',
       'src/app/auth/_lib/sign-up/actions.ts',
       'src/app/admin/settings/_lib/actions.ts',
       'src/app/api/client-logs/route.ts',

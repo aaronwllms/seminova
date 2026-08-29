@@ -69,7 +69,7 @@ describe('mergePromoteMetadata', () => {
 
 describe('mergeDemoteMetadata', () => {
   it('should use role null for Supabase shallow-merge key deletion', () => {
-    expect(mergeDemoteMetadata({ role: ADMIN_ROLE, org: 'acme' })).toEqual({
+    expect(mergeDemoteMetadata()).toEqual({
       role: null,
     })
   })

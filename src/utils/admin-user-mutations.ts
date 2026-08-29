@@ -47,9 +47,7 @@ export const mergePromoteMetadata = (
 })
 
 /** Supabase shallow-merges app_metadata; omitting a key leaves it intact. `null` deletes the key from storage (not persisted as null). */
-export const mergeDemoteMetadata = (
-  _existing: AppMetadata | undefined,
-): AppMetadata => ({ role: null })
+export const mergeDemoteMetadata = (): AppMetadata => ({ role: null })
 
 export const getBanMutationToastMessage = (
   status: BanMutationSuccessStatus,
@@ -134,7 +132,7 @@ export const demoteUserById = async (
     const { error: updateError } = await client.auth.admin.updateUserById(
       user.id,
       {
-        app_metadata: mergeDemoteMetadata(user.app_metadata),
+        app_metadata: mergeDemoteMetadata(),
       },
     )
 
