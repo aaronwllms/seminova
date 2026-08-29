@@ -66,6 +66,7 @@ begin
     u.banned_until
   from (
     -- debt: identical inner subquery in admin_user_stats; extract to a shared SQL function or view if a third RPC needs the same shape
+    -- debt: full auth.users scan (no inner predicate), CASE sort, OFFSET — same ceiling on admin_user_stats. Revisit when a fork exceeds a few thousand users: push filters inward, keyset-paginate, materialize stats
     select
       u_inner.*,
       (u_inner.email_confirmed_at is not null) as is_verified,
