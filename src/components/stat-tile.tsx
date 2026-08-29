@@ -33,12 +33,7 @@ const statTileVariants = cva(
     },
     compoundVariants: [
       {
-        role: 'total',
-        selected: true,
-        className: 'border-2 border-muted-foreground',
-      },
-      {
-        role: 'debug',
+        role: ['total', 'debug'],
         selected: true,
         className: 'border-2 border-muted-foreground',
       },
