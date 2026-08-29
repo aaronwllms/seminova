@@ -31,6 +31,7 @@ const eslintConfig = defineConfig([
     'next-env.d.ts',
   ]),
   {
+    name: 'seminova/no-shadcn-pkg',
     files: ['src/**/*.{ts,tsx}', 'scripts/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-imports': [

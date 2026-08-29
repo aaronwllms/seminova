@@ -5,6 +5,7 @@ import { ESLint, type Linter } from 'eslint'
 import { describe, expect, it } from 'vitest'
 
 import eslintConfig, { noRawConsoleRule } from './eslint.config.mjs'
+import { namedGate } from './eslint.named-gate.mjs'
 
 const BOUNDARY_FIXTURE =
   'src/app/(app)/_lib/profile/client-server-boundary.fixture.ts'
@@ -135,6 +136,13 @@ const createLocalRuleEslint = (block: Linter.Config, filePath: string) =>
         rules: block.rules,
       },
     ],
+  })
+
+const createNamedGateEslint = (config: Linter.Config[]) =>
+  new ESLint({
+    cwd: process.cwd(),
+    overrideConfigFile: true,
+    overrideConfig: config,
   })
 
 describe('eslint server-only import boundary', () => {
@@ -423,5 +431,80 @@ describe('eslint seminova-test/test-scope-naming rule', () => {
     )
 
     expect(namingMessages).toEqual([])
+  })
+})
+
+describe('eslint named gate isolation', () => {
+  const semanticTokensGate = namedGate(eslintConfig, 'local/semantic-tokens')
+  const shadcnGate = namedGate(eslintConfig, 'no-restricted-imports', {
+    configName: 'seminova/no-shadcn-pkg',
+  })
+  const noRawConsoleGate = namedGate(eslintConfig, 'no-console')
+
+  it('should ignore console.log when scoped to the semantic-tokens gate', async () => {
+    const filePath = 'src/components/gate-isolation-console.tsx'
+    const eslint = createNamedGateEslint(semanticTokensGate)
+
+    const results = await eslint.lintText("console.log('x')", { filePath })
+
+    expect(results.flatMap((result) => result.messages)).toEqual([])
+  })
+
+  it('should report local/semantic-tokens when scoped to the semantic-tokens gate', async () => {
+    const filePath = 'src/components/gate-isolation-tokens-fail.tsx'
+    const eslint = createNamedGateEslint(semanticTokensGate)
+
+    const results = await eslint.lintText(
+      "export const X = () => <div className='bg-red-500' />",
+      { filePath },
+    )
+
+    const messages = results.flatMap((result) => result.messages)
+
+    expect(
+      messages.some((message) => message.ruleId === 'local/semantic-tokens'),
+    ).toBe(true)
+    expect(messages.some((message) => message.ruleId === 'no-console')).toBe(
+      false,
+    )
+  })
+
+  it('should ignore server-only imports when scoped to the shadcn gate', async () => {
+    const filePath = 'src/components/gate-isolation-service.tsx'
+    const eslint = createNamedGateEslint(shadcnGate)
+
+    const results = await eslint.lintText(
+      "import { createServiceClient } from '@/supabase/service'",
+      { filePath },
+    )
+
+    expect(results.flatMap((result) => result.messages)).toEqual([])
+  })
+
+  it('should report no-restricted-imports on shadcn packages when scoped to the shadcn gate', async () => {
+    const filePath = 'src/components/gate-isolation-shadcn-fail.tsx'
+    const eslint = createNamedGateEslint(shadcnGate)
+
+    const results = await eslint.lintText("import 'shadcn'", { filePath })
+
+    const messages = results.flatMap((result) => result.messages)
+
+    expect(
+      messages.some((message) => message.ruleId === 'no-restricted-imports'),
+    ).toBe(true)
+    expect(messages[0]?.message).toContain('Primitive-first UI')
+  })
+
+  it('should report no-console when scoped to the no-raw-console gate', async () => {
+    const filePath = 'src/components/gate-isolation-console-fail.tsx'
+    const eslint = createNamedGateEslint(noRawConsoleGate)
+
+    const results = await eslint.lintText("console.log('x')", { filePath })
+
+    const messages = results.flatMap((result) => result.messages)
+
+    expect(messages.some((message) => message.ruleId === 'no-console')).toBe(
+      true,
+    )
   })
 })

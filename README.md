@@ -301,7 +301,7 @@ The template ships an **unauthenticated write path** into `app_logs` at `/api/cl
 
 **CI** (pull requests to `main`): same order as pre-push — `type-check`, `lint`, then `check:pnpm-only`, `check:checks-wired`, `check:no-shadcn-pkg`, `check:semantic-tokens`, `check:no-raw-console`, `check:auth-boundary`, `check:admin-gate`, `check:seo-base-url`, `check:a11y-structure`, `check:a11y-contrast`, then `format-check` and `test:ci`. See [.github/workflows/pull-request.yaml](.github/workflows/pull-request.yaml).
 
-The ESLint-backed checks run with `--cache` (stored in `node_modules/.cache/eslint/`). Repo-wide `lint` runs first and populates the cache, so the narrower per-constraint passes reuse it instead of re-parsing the same files.
+The ESLint-backed checks run with `--cache`. Each check keeps its own cache under `node_modules/.cache/`, because the named gates run scoped configs that cannot share the repo-wide `lint` cache.
 
 Before opening a PR, run locally:
 
