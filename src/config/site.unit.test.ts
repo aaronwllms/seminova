@@ -21,8 +21,8 @@ describe('getSiteMetadata', () => {
       description: siteConfig.description,
       siteName: siteConfig.name,
       type: 'website',
+      url: '/',
     })
-    expect(metadata.openGraph?.url).toBeUndefined()
     expect(metadata.twitter).toEqual({ card: 'summary_large_image' })
   })
 })

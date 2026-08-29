@@ -1,7 +1,5 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
-
 import {
   AVATAR_BUCKET,
   buildAvatarStoragePath,
@@ -28,6 +26,7 @@ import { removeAvatarStorage } from '@/utils/remove-avatar-storage'
 
 import { parseSetFirstPasswordInput } from './first-password-schema'
 import { parseProfilePartialInput } from './profile-form-schema'
+import { revalidateProfileDialogHosts } from './revalidate-profile-dialog-hosts'
 
 type ProfileActionErrorCode =
   | 'UNAUTHORIZED'
@@ -157,7 +156,7 @@ export const updateProfileAction = async (
     }
   }
 
-  revalidatePath('/(app)', 'layout')
+  revalidateProfileDialogHosts()
 
   return {
     success: true,
@@ -298,8 +297,7 @@ export const setFirstPasswordAction = async (
     }
   }
 
-  revalidatePath('/(app)', 'layout')
-  revalidatePath('/admin', 'layout')
+  revalidateProfileDialogHosts()
 
   return { success: true }
 }
@@ -394,8 +392,7 @@ export const completeRecoveryPasswordAction = async (
     return { success: false, error: mappedError }
   }
 
-  revalidatePath('/(app)', 'layout')
-  revalidatePath('/admin', 'layout')
+  revalidateProfileDialogHosts()
 
   return {
     success: true,
