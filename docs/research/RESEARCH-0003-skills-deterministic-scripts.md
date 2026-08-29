@@ -168,6 +168,28 @@ Revisit scripting breadth when:
 - A **partial `initialize-project`** leaves mixed state again, or
 - An audit sync pass marks resolved without re-reading code (scripted verify could narrow file set — optional later).
 
+## Addendum — 2026-08-29: scoping the `initialize-project` script
+
+Recorded while triaging tech-debt work ahead of the first spinoff. Refines **Do now** item 1; does not change the recommendation.
+
+**The scrub is smaller than this brief assumes, and the deletions are bigger.** `src/config/site.ts` centralizes in-app identity — `name`, `description`, `GITHUB_URL`, `Logo` — and everything downstream (page metadata, OG defaults, footer, nav labels) derives from it. Substitution inside `src/` is therefore three values in one file: not a variance risk, and not worth a CLI flag.
+
+The substitution work that *is* large lives outside `src/` — README's pitch, ROADMAP reset, AGENTS.md, LEXICON pruning, `package.json`. But that is rewriting, not string replacement. A script cannot own it, and the agent is not the weak link there either.
+
+**Three categories, not two:**
+
+| Category | Example | Owner |
+| -------- | ------- | ----- |
+| Deletion | demo route groups, archive contents | **Script** — high volume, zero judgment, silent failure mode |
+| Substitution in `src/` | `siteConfig.name`, `description`, `GITHUB_URL` | Agent — one file, three values |
+| Edits forced by deletion | `siteConfig.nav` / `footer` entries, `constants/app-paths.ts` exports | **Script — and the actual risk** |
+
+The third category is what a naive `rm -rf` leaves broken. Deleting `/features`, `/reference`, and `/workflow` requires removing their entries from `siteConfig.nav` and from two `siteConfig.footer` columns, and dropping `FEATURES_PATH` / `REFERENCE_PATH` / `WORKFLOW_PATH` from `constants/app-paths.ts`.
+
+**Suggested spec:** delete the named route groups, remove their entries from the registries that reference them, and **fail loudly on any remaining reference it does not recognize** rather than proceeding. That last clause is what makes the script safer than the agent — not the deletion itself.
+
+**Related:** [WORKFLOW_BACKLOG.md › Where the template's demo pages belong](../WORKFLOW_BACKLOG.md#where-the-templates-demo-pages-belong) — whether those pages should ship inside the clone at all. If they move out, this addendum's third category shrinks.
+
 ## Open questions
 
 1. **Output schema** — Should shared orient scripts emit JSON (agent-parseable) or Markdown tables (human-readable in chat)? JSON is more deterministic; tables match current audit templates.

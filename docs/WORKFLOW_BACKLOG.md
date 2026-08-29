@@ -36,6 +36,8 @@
   - [Pre-launch checklist for spinoffs](#pre-launch-checklist-for-spinoffs)
   - [ADR immutability: define an in-place amendment carve-out](#adr-immutability-define-an-in-place-amendment-carve-out)
   - [Move root audit artifacts to `docs/audits/`](#move-root-audit-artifacts-to-docsaudits)
+  - [Where the template's demo pages belong](#where-the-templates-demo-pages-belong)
+  - [`audit-tech-debt`: define the sizing scales, add a Reach column](#audit-tech-debt-define-the-sizing-scales-add-a-reach-column)
   - [~~Deterministic scripts in agent skills~~](#deterministic-scripts-in-agent-skills) *(resolved)*
 
 ---
@@ -331,6 +333,64 @@ swimlane-beta LR
 **Relationship to other items:** Narrower than [Documentation surface area & context-bloat audit](#documentation-surface-area--context-bloat-audit). That item stays a read-only inventory. This item is the one concrete relocation already judged worth doing.
 
 **Out of scope:** Nesting Next/ESLint/Vitest configs. Moving the ESLint gate files (placed at root on purpose). Moving ROADMAP / BACKLOG / DESIGN / LEXICON.
+
+### Where the template's demo pages belong
+
+**What:** Decide the audience for `/reference`, `/workflow`, and `/features`, then decide where they should live — which determines whether a purge path is even the right mechanism. All three are template self-documentation that every spinoff deletes, but they are not the same kind of thing and may not share one answer.
+
+**The tension:** if `initialize-project` auto-purges them, a spinoff developer never reads them — which argues they did not need to ship inside the clone at all. But a hand sweep every fork is worse, and leaving them in place means demo code sits in the same `src/` tree, grep namespace, and lint scope as production code. Three options, not one.
+
+**Audience question first:** the content serves someone *evaluating* the template — before or at clone time, not during product development. If that is right, the home may be a deployed Seminova demo plus README rather than routes in every clone. That reframes purge-vs-keep into home-vs-home.
+
+**Not all three are the same:**
+
+- `/reference` — a live component showroom has ongoing value *during* development ("what variants does `ErrorPanel` have, what does it look like"). That is a dev tool, and a spinoff may want to keep it.
+
+- `/workflow` and `/features` — process documentation and marketing. Pre-clone audience only.
+
+**Options to weigh:** (a) keep all three and add an `initialize-project` purge bullet — precedent exists, it already purges `docs/archive/` contents; (b) move `/workflow` and `/features` out of the clone entirely (deployed demo + README) and keep `/reference` as a dev surface; (c) leave as-is and hand-sweep per fork — the status quo, and the only option with no upside.
+
+**Why it also distorts the audit:** tech-debt findings inside these pages score as duplication or drift against code that is about to be deleted, and the third copy that trips the 3+-site extraction threshold is sometimes a page nobody is keeping. F117, F118, F152, F155, F167, and F173 were all demoted on that reasoning during the 2026-08-28 batch-2 triage — correct calls, but ones that had to be made by hand because nothing in the repo marks these pages as throwaway.
+
+**Why deferred:** the first spinoff deletes them by hand regardless. Designing the seam — or relocating the pages — before doing that once would guess at where the couplings actually are.
+
+**Revisit when:** immediately after the first spinoff's manual purge, while the list of what fought back is still fresh; or before a second spinoff.
+
+**Relationship to other items:** [Pre-launch checklist for spinoffs](#pre-launch-checklist-for-spinoffs) covers what a spinoff must *do* before launch; this covers what it should not have inherited in the first place. Shares a deletable-seam pattern with BACKLOG.md's "Optional module contract", but that entry covers optional product features (Blog, Pricing) a spinoff might keep — these pages every spinoff deletes.
+
+### `audit-tech-debt`: define the sizing scales, add a Reach column
+
+**What:** Three changes to [`audit-tech-debt`](../.cursor/skills/audit-tech-debt/SKILL.md), surfaced while triaging the 2026-08-28 full pass.
+
+**1. Define Severity and Effort.** Neither scale is defined in `SKILL.md` or the output template today, so the model picks one per run and the reader inherits whatever it picked. Size Effort in **agent chats**, matching how the work is actually scheduled:
+
+- **S** — three fit in one chat with context to spare; one file, one seam.
+
+- **M** — one per chat; several files, one seam.
+
+- **L** — does not fit a chat; decompose into epics via `phase-planning` before starting.
+
+Capacity is a ceiling, not a quota — a small finding others depend on (F106 blocking F149 and F179) may still warrant its own chat. Rename the column header to `Effort (S/M/L)` in the Open and Accepted tables and in the output template, so the scale is legible at the point of use.
+
+**2. Add a `Reach` column** to the Open table, answering "what does this cost if never fixed" — which Severity does not. Two values to ship:
+
+- **`Multiplier`** — a fork inherits it, or it changes what agents generate: types that turn runtime failures into compile errors, gates that actually gate, patterns agents copy, conventions that shape the next generated file.
+
+- **`Contained`** — real, but the cost stops at this codebase.
+
+**3. Drop the finding-count target.** "Aim for 30–80 findings on a full pass" is a count target; the 2026-08-28 pass produced 79 and then wrote a paragraph apologizing for volume. Replace it with a value bar — a finding earns a row if its cost can be named — and let the count fall out.
+
+**4. Enforce the Deferred contract.** The skill's disposition table already requires `Deferred` rows to carry a named home (phase / release gate / ROADMAP item). The 2026-08-28 pass honoured that for roughly seven of ~34 rows — the security and performance items (F053, F082, F095, F123, F124, F125, F145) name a phase, a pre-production gate, or a scale trigger; the remaining tail (F163, F164, F165, F171, F172, F174, F178 and others) simply stops after the Recommendation. "Bundle with F106" is a dependency, not a home: it says what order, not whether. Make the contract a hard gate — a finding with no trigger either moves to **Accepted** with a `Reopen when`, or does not earn a row at all. A 27-row list with no trigger on any row is not a backlog; nothing will ever pull from it.
+
+**5. One row per unit of work, not per site.** F163, F164, F165, F171, F172, F174, and F178 are all convention drift — seven rows for one commit's worth of work, and a class a lint rule settles better than seven manual fixes. The audit already does this correctly in three places; **F145 is the shape to follow** — one row headed "Dead and duplicate exports, grouped," with every instance still named and cited inside the Description, so nothing is lost and any single instance stays actionable. The `File:Line` column carries the lead site; the Description enumerates the rest. Test for a legitimate group: would these be fixed in one sitting, in one commit? Convention drift and dead exports, yes. Two unrelated findings that happen to share an Effort value, no.
+
+**Held — a third `Reach` value, `Expiring`** (findings inside code slated for deletion). Correct in principle: F117, F118, F152, F155, F167, and F173 were all hand-demoted on exactly this basis during batch-2 triage. But **ungroundable today** — nothing in the repo marks a file as throwaway, so the agent would guess, and a false `Expiring` silently drops a real finding where a false `Contained` only under-prioritizes one. Blocked on [Where the template's demo pages belong](#where-the-templates-demo-pages-belong): if that resolves toward moving `/workflow` and `/features` out of the clone, the category evaporates; if the pages land in a bounded route group, membership makes it mechanical.
+
+**Rejected — excluding the demo pages from the audit outright.** Wider than `Expiring`, and it removes visibility rather than ranking it. F152 was found on that page, and the audit already records that the reference `_components/**` coverage exclusion is *why* F152 went unnoticed. Revisit only once the seam exists and the boundary is explicit.
+
+**Why deferred:** the first spinoff is the deadline; the skill runs again after it, not before.
+
+**Revisit when:** before the next full `audit-tech-debt` pass, or once the demo-pages question resolves.
 
 ### ~~Deterministic scripts in agent skills~~
 
