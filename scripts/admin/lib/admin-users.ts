@@ -101,8 +101,10 @@ export const listAdminUsers = async (
   const users = await listAllUsers(client)
 
   return users
-    .filter((user) => isUserAdmin(user.app_metadata) && user.email)
-    .map((user) => user.email!)
+    .filter((user): user is User & { email: string } =>
+      Boolean(isUserAdmin(user.app_metadata) && user.email),
+    )
+    .map((user) => user.email)
     .sort((a, b) => a.localeCompare(b))
 }
 

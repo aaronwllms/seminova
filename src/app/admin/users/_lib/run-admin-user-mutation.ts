@@ -9,13 +9,13 @@ import { mapAdminActionFault } from '@/app/admin/_lib/map-admin-action-fault'
 
 export type AdminUserMutationResult<TStatus extends string> =
   | { status: 'not_found' }
-  | { status: TStatus; email: string }
+  | { status: TStatus; email: string | null }
 
 type AdminUserMutationActionSuccess<TStatus extends string> = {
   success: true
   data: {
     status: TStatus
-    email: string
+    email: string | null
   }
 }
 
@@ -43,9 +43,10 @@ const validateUserId = (userId: string | undefined): string | null => {
   return trimmed || null
 }
 
-const hasMutationEmail = <TStatus extends string>(
+const isMutationFound = <TStatus extends string>(
   result: AdminUserMutationResult<TStatus>,
-): result is { status: TStatus; email: string } => result.status !== 'not_found'
+): result is { status: TStatus; email: string | null } =>
+  result.status !== 'not_found'
 
 export const runAdminUserMutation = async <TStatus extends string>({
   userId: rawUserId,
@@ -86,7 +87,7 @@ export const runAdminUserMutation = async <TStatus extends string>({
     const serviceClient = createServiceClient()
     const result = await mutation(serviceClient, userId)
 
-    if (!hasMutationEmail(result)) {
+    if (!isMutationFound(result)) {
       return {
         success: false,
         error: {
@@ -97,7 +98,7 @@ export const runAdminUserMutation = async <TStatus extends string>({
       }
     }
 
-    appLog.warn(logTag, `${result.email} — ${result.status}`)
+    appLog.warn(logTag, `${result.email ?? userId} — ${result.status}`)
 
     return {
       success: true,

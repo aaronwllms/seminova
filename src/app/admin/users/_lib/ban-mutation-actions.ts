@@ -11,7 +11,7 @@ type BanMutationActionSuccess = {
   success: true
   data: {
     status: BanMutationSuccessStatus
-    email: string
+    email: string | null
   }
 }
 

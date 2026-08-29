@@ -132,6 +132,24 @@ describe('promoteUserById', () => {
       app_metadata: { org: 'acme', role: ADMIN_ROLE },
     })
   })
+
+  it('should promote user with email null when email is undefined', async () => {
+    const user = createMockUser({
+      email: undefined,
+      app_metadata: { org: 'acme' },
+    })
+    const client = createMockClient(user)
+
+    const result = await promoteUserById(client, 'user-1')
+
+    expect(result).toEqual({
+      status: 'promoted',
+      email: null,
+    })
+    expect(client.auth.admin.updateUserById).toHaveBeenCalledWith('user-1', {
+      app_metadata: { org: 'acme', role: ADMIN_ROLE },
+    })
+  })
 })
 
 describe('getBanMutationToastMessage', () => {

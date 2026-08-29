@@ -12,7 +12,7 @@ type RoleMutationActionSuccess = {
   success: true
   data: {
     status: RoleMutationSuccessStatus
-    email: string
+    email: string | null
   }
 }
 
