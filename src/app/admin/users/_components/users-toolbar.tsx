@@ -1,8 +1,8 @@
 'use client'
 
-import { Loader2, RefreshCw, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
+import { AdminRefreshButton } from '@/app/admin/_components/admin-refresh-button'
 import { Input } from '@/components/ui/input'
 
 import { USERS_SEARCH_MIN_LENGTH } from '../_lib/admin-user-row'
@@ -33,8 +33,6 @@ export const UsersToolbar = ({
   const showSearchHint =
     searchInput.trim().length > 0 &&
     searchInput.trim().length < USERS_SEARCH_MIN_LENGTH
-  const showRefreshSpinner = isRefreshing || isFetching
-
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start">
       <div className="min-w-0 flex-1">
@@ -71,22 +69,12 @@ export const UsersToolbar = ({
         onClearAll={onClearAllFilters}
       />
 
-      <Button
-        type="button"
-        variant="outline"
-        size="icon"
-        className="shrink-0"
-        disabled={isRefreshing}
+      <AdminRefreshButton
+        label="Refresh users"
+        isRefreshing={isRefreshing}
+        isFetching={isFetching}
         onClick={onRefresh}
-        aria-label="Refresh users"
-        aria-busy={showRefreshSpinner}
-      >
-        {showRefreshSpinner ? (
-          <Loader2 className="size-4 animate-spin" aria-hidden />
-        ) : (
-          <RefreshCw className="size-4" aria-hidden />
-        )}
-      </Button>
+      />
     </div>
   )
 }
