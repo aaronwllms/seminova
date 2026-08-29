@@ -6,7 +6,7 @@
 
 **How to use it.** Each entry is a deferred decision with its reason for deferral and the signal that should bring it back. Pull an item out when its trigger fires; delete it when it's resolved (record the resolution as an [ADR](adr/README.md) if it qualifies).
 
-**Last updated:** 2026-08-28
+**Last updated:** 2026-08-29
 
 ---
 
@@ -35,6 +35,7 @@
   - [Retire `docs/archive/`](#retire-docsarchive)
   - [Pre-launch checklist for spinoffs](#pre-launch-checklist-for-spinoffs)
   - [ADR immutability: define an in-place amendment carve-out](#adr-immutability-define-an-in-place-amendment-carve-out)
+  - [Move root audit artifacts to `docs/audits/`](#move-root-audit-artifacts-to-docsaudits)
   - [~~Deterministic scripts in agent skills~~](#deterministic-scripts-in-agent-skills) *(resolved)*
 
 ---
@@ -133,6 +134,8 @@ swimlane-beta LR
 **Why deferred:** RESEARCH-0001 addressed the highest-volume indexing noise (archived plans, frozen docs). The remaining concern is qualitative — overlapping README routers, AGENTS.md growth, and rules that may have expanded beyond their attach globs — and needs a deliberate comparison pass across the doc stack, not ad hoc trims during a build.
 
 **Revisit when:** Between phases with a half-day budget, before forking the template (spinoffs inherit the full doc stack), when @Codebase or always-on rules start surfacing stale or contradictory guidance in build sessions, or after AGENTS.md or `.cursor/rules/README.md` grow meaningfully again.
+
+**Relationship to other items:** The "whether root audit artifacts should move" question is now a standalone item — [Move root audit artifacts to `docs/audits/`](#move-root-audit-artifacts-to-docsaudits) — not part of this research pass.
 
 ### Audit glob breadth on typical UI files
 
@@ -316,6 +319,18 @@ swimlane-beta LR
 **Revisit when:** A second ADR needs an in-place edit; during a dedicated workflow-improvement session; or before forking the template, so spinoffs stop inheriting an absolute rule that the practice already contradicts.
 
 **Relationship to other items:** Touches the same file as [Retire `docs/archive/`](#retire-docsarchive) (DOC_RULES restructuring, rule renumbering) — worth pairing if either is picked up.
+
+### Move root audit artifacts to `docs/audits/`
+
+**What:** Move the six regenerated audit snapshots (`TECH_DEBT_AUDIT.md`, `SECURITY_AUDIT.md`, `TEST_AUDIT.md`, `RULE_AUDIT.md`, `SEO_AUDIT.md`, `AGENTS_AUDIT.md`) from the repo root into `docs/audits/`. Update the six audit skills, [DOC_RULES.md](DOC_RULES.md) (role table + path language), [documentation.mdc](../.cursor/rules/documentation.mdc) (layout — this is a new `docs/` folder, which that rule currently forbids without a PM call), [`initialize-project`](../.cursor/skills/initialize-project/SKILL.md), and [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md). Leave README, AGENTS, CLAUDE, ROADMAP, BACKLOG, DESIGN, LEXICON, and all tool configs at root.
+
+**Why deferred:** The move is mechanical and touches a lot of pointers for a tidy, not a product change. Root placement is currently the documented contract. Worth doing only if the GitHub file list reading as a health-report dump starts to matter — especially before a public template browse or a spin-off.
+
+**Revisit when:** Before forking the template, or when the next audit-skill edit is already touching those path strings.
+
+**Relationship to other items:** Narrower than [Documentation surface area & context-bloat audit](#documentation-surface-area--context-bloat-audit). That item stays a read-only inventory. This item is the one concrete relocation already judged worth doing.
+
+**Out of scope:** Nesting Next/ESLint/Vitest configs. Moving the ESLint gate files (placed at root on purpose). Moving ROADMAP / BACKLOG / DESIGN / LEXICON.
 
 ### ~~Deterministic scripts in agent skills~~
 
