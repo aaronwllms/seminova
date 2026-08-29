@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  parseProfilePartialInput,
-  toProfileFormInput,
-  toProfileFormValues,
-} from './profile-form-schema'
+import { parseProfilePartialInput } from './profile-form-schema'
 
 describe('parseProfilePartialInput', () => {
   it('should accept a single valid field', () => {
@@ -61,36 +57,6 @@ describe('parseProfilePartialInput', () => {
         avatarUrl:
           'https://example.supabase.co/storage/v1/object/public/avatars/user-id/avatar.webp?v=1719158400000',
       },
-    })
-  })
-})
-
-describe('profile form mappers', () => {
-  it('should map empty form strings to null profile values', () => {
-    expect(
-      toProfileFormValues({
-        displayName: '  ',
-        bio: '',
-        avatarUrl: '',
-      }),
-    ).toEqual({
-      displayName: null,
-      bio: null,
-      avatarUrl: null,
-    })
-  })
-
-  it('should map null profile values to empty form strings', () => {
-    expect(
-      toProfileFormInput({
-        displayName: null,
-        bio: null,
-        avatarUrl: null,
-      }),
-    ).toEqual({
-      displayName: '',
-      bio: '',
-      avatarUrl: '',
     })
   })
 })

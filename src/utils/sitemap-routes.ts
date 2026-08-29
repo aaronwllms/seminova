@@ -12,5 +12,3 @@ export const buildSitemapEntries = (): MetadataRoute.Sitemap => {
     url: new URL(path, baseUrl).href,
   }))
 }
-
-export default buildSitemapEntries

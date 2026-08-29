@@ -90,7 +90,7 @@ const formatVariantLabel = (variant: BannerVariant): string =>
 const BANNER_COPY_SYNTAX_HINT =
   'Supports bold via **text** and links via [text](url).'
 
-export const hasBannerPreviewContent = (value: BannerSettingValue): boolean =>
+const hasBannerPreviewContent = (value: BannerSettingValue): boolean =>
   value.headline.trim().length > 0
 
 export const BannerSettingRow = ({

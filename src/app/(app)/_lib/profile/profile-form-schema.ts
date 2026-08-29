@@ -39,22 +39,6 @@ export const profileFormInputSchema = z.object({
 
 export type ProfileFormInputValues = z.infer<typeof profileFormInputSchema>
 
-export const toProfileFormValues = (
-  input: ProfileFormInputValues,
-): ProfileFormValues => ({
-  displayName: input.displayName.trim() || null,
-  bio: input.bio.trim() || null,
-  avatarUrl: input.avatarUrl === '' ? null : input.avatarUrl,
-})
-
-export const toProfileFormInput = (
-  values: ProfileFormValues,
-): ProfileFormInputValues => ({
-  displayName: values.displayName ?? '',
-  bio: values.bio ?? '',
-  avatarUrl: values.avatarUrl ?? '',
-})
-
 export const parseProfilePartialInput = (
   raw: unknown,
 ):

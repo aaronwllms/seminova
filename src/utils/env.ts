@@ -51,7 +51,7 @@ export const getServiceSupabaseEnv = (): ServiceSupabaseEnv => {
   return { supabaseUrl, secretKey }
 }
 
-export const getSupabaseUrlOptional = (): string | undefined =>
+const getSupabaseUrlOptional = (): string | undefined =>
   process.env.NEXT_PUBLIC_SUPABASE_URL
 
 export const getSupabaseOrigin = (): string | null => {

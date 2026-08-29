@@ -1,3 +1,3 @@
-import buildSitemapEntries from '@/utils/sitemap-routes'
+import { buildSitemapEntries } from '@/utils/sitemap-routes'
 
 export default buildSitemapEntries

@@ -1,6 +1,6 @@
 ---
 description: TanStack Query v5 patterns for client-side data fetching
-globs: src/hooks/**/*.ts, src/components/**/*.tsx, src/providers/ReactQueryProvider.tsx
+globs: src/hooks/**/*.ts, src/components/**/*.tsx, src/providers/react-query-provider.tsx
 ---
 
 # TanStack Query v5 (React Query) Patterns
@@ -48,12 +48,12 @@ For critical errors at the route level, use Next.js `error.tsx` with `InlineErro
 - Reference: [`src/app/(app)/_lib/profile/actions.ts`](../../src/app/(app)/_lib/profile/actions.ts), [`src/app/admin/users/actions.ts`](../../src/app/admin/users/actions.ts)
 
 ## Configuration
-- QueryClient is already configured in `src/providers/ReactQueryProvider.tsx`
+- QueryClient is already configured in `src/providers/react-query-provider.tsx`
 - Configure `staleTime` and `gcTime` based on data characteristics
 - Use optimistic updates where appropriate
 
 ## Reference Examples
 - Hook conventions: `src/hooks/use-sign-out.ts`
-- QueryClient provider: `src/providers/ReactQueryProvider.tsx`
+- QueryClient provider: `src/providers/react-query-provider.tsx`
 - Error UI: `src/components/inline-error.tsx`, `src/components/error-panel.tsx`
 - Error handling patterns: `.cursor/rules/error-handling.mdc`

@@ -1,4 +1,4 @@
-export const buildBannerDismissHash = (
+export const buildBannerDismissKey = (
   headline: string,
   detail: string | null,
 ): string => {
@@ -11,8 +11,3 @@ export const buildBannerDismissHash = (
 
   return (hash >>> 0).toString(36)
 }
-
-export const buildBannerDismissKey = (
-  headline: string,
-  detail: string | null,
-): string => buildBannerDismissHash(headline, detail)
