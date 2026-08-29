@@ -62,10 +62,10 @@ export default defineConfig({
         statements: 80,
         // Baseline 2026-08-29 — raise when tests land, never lower to paper over a drop
         'eslint-rules/**': {
-          lines: 48,
-          functions: 53,
-          branches: 57,
-          statements: 48,
+          lines: 71,
+          functions: 62,
+          branches: 60,
+          statements: 71,
         },
         // Baseline 2026-08-29 — raise when tests land, never lower to paper over a drop
         'scripts/**': {
