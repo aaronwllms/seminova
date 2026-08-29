@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+
+import { useResetOnChange } from '@/hooks/use-reset-on-change'
 import { usePathname } from 'next/navigation'
 
 import { BANNER_REGISTRY_ENTRIES } from '@/app/admin/settings/_lib/app-settings-partition'
@@ -28,12 +30,8 @@ export const BannerSettingsSection = ({
   const pathname = usePathname()
   const settingsVisitKey = syncAdminSettingsVisitKey(pathname)
   const [openItem, setOpenItem] = useState('')
-  const [boundVisitKey, setBoundVisitKey] = useState(settingsVisitKey)
 
-  if (settingsVisitKey !== boundVisitKey) {
-    setBoundVisitKey(settingsVisitKey)
-    setOpenItem('')
-  }
+  useResetOnChange(settingsVisitKey, () => setOpenItem(''))
 
   useEffect(() => {
     const handlePageShow = (event: PageTransitionEvent) => {
