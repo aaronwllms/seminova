@@ -1,36 +1,54 @@
 'use server'
 
-import type { RoleMutationSuccessStatus } from '@/utils/admin-user-mutations'
+import {
+  demoteUserById,
+  promoteUserById,
+  type DemoteUserByIdResult,
+  type PromoteUserByIdResult,
+  type RoleMutationSuccessStatus,
+} from '@/utils/admin-user-mutations'
 
 import {
-  runDemoteUserMutation,
-  runPromoteUserMutation,
-} from './run-role-mutation'
-import type { AdminActionError } from '@/app/admin/_lib/assert-admin-caller'
+  runAdminUserMutation,
+  type AdminUserMutationActionResult,
+  type AdminUserTargetInput,
+} from './run-admin-user-mutation'
 
-type RoleMutationActionSuccess = {
-  success: true
-  data: {
-    status: RoleMutationSuccessStatus
-    email: string | null
-  }
-}
-
-export type PromoteUserActionResult =
-  | RoleMutationActionSuccess
-  | AdminActionError
-export type DemoteUserActionResult =
-  | RoleMutationActionSuccess
-  | AdminActionError
-
-export interface RoleMutationActionInput {
-  userId: string
-}
+export type RoleMutationActionResult =
+  AdminUserMutationActionResult<RoleMutationSuccessStatus>
 
 export const promoteUserAction = async (
-  input: RoleMutationActionInput,
-): Promise<PromoteUserActionResult> => runPromoteUserMutation(input.userId)
+  input: AdminUserTargetInput,
+): Promise<RoleMutationActionResult> =>
+  runAdminUserMutation<Exclude<PromoteUserByIdResult['status'], 'not_found'>>({
+    userId: input.userId,
+    mutation: promoteUserById,
+    logTag: 'users-promote',
+    logMessage: 'Failed to mutate user role',
+    faultMessage: 'Something went wrong promoting this user. Please try again.',
+  })
 
 export const demoteUserAction = async (
-  input: RoleMutationActionInput,
-): Promise<DemoteUserActionResult> => runDemoteUserMutation(input.userId)
+  input: AdminUserTargetInput,
+): Promise<RoleMutationActionResult> =>
+  runAdminUserMutation<Exclude<DemoteUserByIdResult['status'], 'not_found'>>({
+    userId: input.userId,
+    mutation: demoteUserById,
+    logTag: 'users-demote',
+    logMessage: 'Failed to mutate user role',
+    faultMessage: 'Something went wrong demoting this user. Please try again.',
+    beforeMutation: (callerUserId, targetUserId) => {
+      if (targetUserId === callerUserId) {
+        return {
+          success: false,
+          error: {
+            message: 'You cannot demote your own admin account',
+            code: 'VALIDATION_ERROR',
+            kind: 'operational',
+          },
+        }
+      }
+
+      return null
+    },
+  })

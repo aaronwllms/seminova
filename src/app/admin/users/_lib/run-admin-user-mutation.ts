@@ -23,6 +23,10 @@ export type AdminUserMutationActionResult<TStatus extends string> =
   | AdminUserMutationActionSuccess<TStatus>
   | AdminActionError
 
+export interface AdminUserTargetInput {
+  userId: string
+}
+
 type RunAdminUserMutationOptions<TStatus extends string> = {
   userId: string | undefined
   mutation: (

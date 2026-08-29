@@ -10,15 +10,14 @@ export {
 export {
   promoteUserAction,
   demoteUserAction,
-  type RoleMutationActionInput,
-  type PromoteUserActionResult,
-  type DemoteUserActionResult,
+  type RoleMutationActionResult,
 } from './_lib/role-mutation-actions'
+
+export { type AdminUserTargetInput } from './_lib/run-admin-user-mutation'
 
 export {
   banUserAction,
   unbanUserAction,
   type BanUserActionInput,
-  type BanUserActionResult,
-  type UnbanUserActionResult,
+  type BanMutationActionResult,
 } from './_lib/ban-mutation-actions'
