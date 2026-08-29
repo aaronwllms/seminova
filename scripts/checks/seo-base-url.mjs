@@ -14,8 +14,10 @@ const LOCALHOST_LITERAL = /http:\/\/localhost:3000/
 const ENV_READ = /process\.env\.NEXT_PUBLIC_SITE_URL/
 const NEW_URL_LITERAL_ORIGIN = /new\s+URL\s*\(\s*['"]https?:\/\/[^'"]+['"]/
 
+const PREFIX = '[check:seo-base-url]'
+
 const fail = (message) => {
-  console.error(`[check:seo-base-url] ${message}`)
+  console.error(`${PREFIX} ${message}`)
   process.exit(1)
 }
 
@@ -96,8 +98,11 @@ if (isMain) {
 
   if (!result.ok) {
     for (const violation of result.violations) {
-      fail(violation)
+      console.error(`${PREFIX} ${violation}`)
     }
+    fail(
+      `${result.violations.length} violation(s) — fix the items listed above.`,
+    )
   }
 
   console.log(

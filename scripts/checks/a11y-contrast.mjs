@@ -71,8 +71,10 @@ const OKLCH_REGEX =
 const BLOCK_REGEX = /(?::root(?:\s*,\s*\.light)?|\.dark)\s*\{([^}]*)\}/g
 const TOKEN_DECL_REGEX = /--([a-z0-9-]+)\s*:\s*([^;]+);/g
 
+const PREFIX = '[check:a11y-contrast]'
+
 const fail = (message) => {
-  console.error(`[check:a11y-contrast] ${message}`)
+  console.error(`${PREFIX} ${message}`)
   process.exit(1)
 }
 
@@ -243,8 +245,11 @@ if (isMain) {
 
   if (!result.ok) {
     for (const violation of result.violations) {
-      fail(violation)
+      console.error(`${PREFIX} ${violation}`)
     }
+    fail(
+      `${result.violations.length} violation(s) — fix the items listed above.`,
+    )
   }
 
   console.log(
