@@ -5,7 +5,7 @@ const {
   mockFindUserByEmail,
   mockDeleteUserById,
   mockDeleteUserAvatarStorage,
-  mockLoadAdminEnv,
+  mockLoadServiceEnv,
   mockConfirmAction,
   mockCreateServiceClient,
   mockCliLog,
@@ -13,7 +13,7 @@ const {
   mockFindUserByEmail: vi.fn(),
   mockDeleteUserById: vi.fn(),
   mockDeleteUserAvatarStorage: vi.fn(),
-  mockLoadAdminEnv: vi.fn(),
+  mockLoadServiceEnv: vi.fn(),
   mockConfirmAction: vi.fn(),
   mockCreateServiceClient: vi.fn(),
   mockCliLog: {
@@ -35,8 +35,8 @@ vi.mock('./admin-users', () => ({
   findUserByEmail: (...args: unknown[]) => mockFindUserByEmail(...args),
 }))
 
-vi.mock('./env', () => ({
-  loadAdminEnv: () => mockLoadAdminEnv(),
+vi.mock('@/utils/env', () => ({
+  loadServiceEnvForCli: () => mockLoadServiceEnv(),
 }))
 
 vi.mock('./prompt', () => ({
@@ -62,7 +62,7 @@ describe('runDeleteUser', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mockLoadAdminEnv.mockReturnValue({
+    mockLoadServiceEnv.mockReturnValue({
       supabaseUrl: 'https://example.supabase.co',
       secretKey: 'secret',
     })

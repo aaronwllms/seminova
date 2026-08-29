@@ -48,7 +48,6 @@ export default defineConfig({
         '**/*.d.ts',
         // Admin CLI entry shims — logic lives in scripts/admin/lib/, which is measured
         'scripts/admin/*.ts',
-        'scripts/admin/lib/env.ts',
         'scripts/admin/lib/prompt.ts',
         'scripts/checks/vitest-file.mjs', // pnpm test:file spawn wrapper, not a check:* gate
       ],

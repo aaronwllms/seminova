@@ -3,6 +3,7 @@ import {
   buildAvatarStoragePath,
 } from '@/constants/storage-paths'
 import { cliLog } from '@/utils/app-logger-cli'
+import { loadServiceEnvForCli } from '@/utils/env'
 import { createServiceClient } from '@/supabase/service'
 
 import {
@@ -13,7 +14,6 @@ import {
   listAdminUsers,
   promoteUser,
 } from './admin-users'
-import { loadAdminEnv } from './env'
 import { confirmAction } from './prompt'
 
 const MISSING_EMAIL_MESSAGE =
@@ -41,7 +41,7 @@ export const runPromoteAdmin = async (args: string[]): Promise<void> => {
     process.exit(1)
   }
 
-  const env = loadAdminEnv()
+  const env = loadServiceEnvForCli()
 
   const confirmed = await confirmAction(
     env.supabaseUrl,
@@ -81,7 +81,7 @@ export const runDemoteAdmin = async (args: string[]): Promise<void> => {
     process.exit(1)
   }
 
-  const env = loadAdminEnv()
+  const env = loadServiceEnvForCli()
 
   const confirmed = await confirmAction(
     env.supabaseUrl,
@@ -121,7 +121,7 @@ export const runDeleteUser = async (args: string[]): Promise<void> => {
     process.exit(1)
   }
 
-  const env = loadAdminEnv()
+  const env = loadServiceEnvForCli()
 
   const confirmed = await confirmAction(env.supabaseUrl, 'Delete user', email)
 
@@ -161,8 +161,8 @@ export const runDeleteUser = async (args: string[]): Promise<void> => {
 }
 
 export const runListAdmins = async (): Promise<void> => {
-  loadAdminEnv()
-  // loadAdminEnv must run first so a missing var exits with [admin-cli] Missing …, not a factory throw
+  loadServiceEnvForCli()
+  // loadServiceEnvForCli must run first so a missing var exits with [admin-cli] Missing …, not a factory throw
   const client = createServiceClient()
   const admins = await listAdminUsers(client)
 
