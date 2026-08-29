@@ -27,8 +27,8 @@ import {
 import type {
   AppSettingKey,
   AppSettingRegistryEntry,
-  AppSettingRegistryEntryFor,
-  AppSettingValueMap,
+  NonBannerAppSettingRegistryEntry,
+  ResolvedAppSettings,
 } from '@/config/app-settings-registry'
 import { LOG_LEVELS, type LogLevel } from '@/types/app-settings'
 import type { AppError } from '@/types/app-error'
@@ -39,32 +39,45 @@ import {
   positiveIntFormValueSchema,
 } from '@/utils/app-settings-schema'
 
-type AppSettingRowProps<K extends AppSettingKey> = {
-  entry: AppSettingRegistryEntryFor<K>
-  savedValue: AppSettingValueMap[K]
-  onSaved: (key: K, value: AppSettingValueMap[K]) => void
+type AppSettingRowProps = {
+  entry: NonBannerAppSettingRegistryEntry
+  savedSettings: ResolvedAppSettings
+  onSaved: <K extends AppSettingKey>(
+    key: K,
+    value: ResolvedAppSettings[K],
+  ) => void
 }
 
-type LogLevelRowProps<K extends AppSettingKey> = {
-  entry: AppSettingRegistryEntryFor<K>
+type LogLevelRegistryEntry = Extract<
+  NonBannerAppSettingRegistryEntry,
+  { readonly valueType: 'log_level' }
+>
+
+type LogLevelRowProps = {
+  entry: LogLevelRegistryEntry
   savedValue: LogLevel
-  onSaved: (key: K, value: AppSettingValueMap[K]) => void
+  onSaved: (key: LogLevelRegistryEntry['key'], value: LogLevel) => void
 }
 
-type PositiveIntRowProps<K extends AppSettingKey> = {
-  entry: AppSettingRegistryEntryFor<K>
+type PositiveIntRegistryEntry = Extract<
+  NonBannerAppSettingRegistryEntry,
+  { readonly valueType: 'positive_int' }
+>
+
+type PositiveIntRowProps = {
+  entry: PositiveIntRegistryEntry
   savedValue: number
-  onSaved: (key: K, value: AppSettingValueMap[K]) => void
+  onSaved: (key: PositiveIntRegistryEntry['key'], value: number) => void
 }
 
 // Settings rows use explicit submit regardless of field count (cross-user, ambient,
 // sometimes-irreversible effects) — see forms.mdc save-model exception.
 
-const LogLevelSettingRow = <K extends AppSettingKey>({
+const LogLevelSettingRow = ({
   entry,
   savedValue,
   onSaved,
-}: LogLevelRowProps<K>) => {
+}: LogLevelRowProps) => {
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<AppError | null>(null)
 
@@ -98,7 +111,7 @@ const LogLevelSettingRow = <K extends AppSettingKey>({
 
     const result = await saveAppSettingAction({
       key: entry.key,
-      value: parsed.data.value as AppSettingValueMap[K],
+      value: parsed.data.value,
     })
 
     setIsSaving(false)
@@ -108,7 +121,7 @@ const LogLevelSettingRow = <K extends AppSettingKey>({
       return
     }
 
-    onSaved(entry.key, result.data.value as AppSettingValueMap[K])
+    onSaved(entry.key, parsed.data.value)
     showSuccessToast(`${entry.label} saved`)
   }
 
@@ -158,11 +171,11 @@ const LogLevelSettingRow = <K extends AppSettingKey>({
 
 type PositiveIntFormValues = z.infer<typeof appSettingPositiveIntFormSchema>
 
-const PositiveIntSettingRow = <K extends AppSettingKey>({
+const PositiveIntSettingRow = ({
   entry,
   savedValue,
   onSaved,
-}: PositiveIntRowProps<K>) => {
+}: PositiveIntRowProps) => {
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<AppError | null>(null)
 
@@ -199,7 +212,7 @@ const PositiveIntSettingRow = <K extends AppSettingKey>({
 
     const result = await saveAppSettingAction({
       key: entry.key,
-      value: parsedValue.data as AppSettingValueMap[K],
+      value: parsedValue.data,
     })
 
     setIsSaving(false)
@@ -209,7 +222,7 @@ const PositiveIntSettingRow = <K extends AppSettingKey>({
       return
     }
 
-    onSaved(entry.key, result.data.value as AppSettingValueMap[K])
+    onSaved(entry.key, parsedValue.data)
     showSuccessToast(`${entry.label} saved`)
   }
 
@@ -287,27 +300,33 @@ const SaveButton = ({ disabled, isSaving, onSave }: SaveButtonProps) => (
   </Button>
 )
 
-// debt: two-type switch in AppSettingRow, refactor to dispatch if a third non-banner valueType is added
-export const AppSettingRow = <K extends AppSettingKey>({
+export const AppSettingRow = ({
   entry,
-  savedValue,
+  savedSettings,
   onSaved,
-}: AppSettingRowProps<K>) => {
+}: AppSettingRowProps) => {
   if (entry.valueType === 'log_level') {
     return (
       <LogLevelSettingRow
         entry={entry}
-        savedValue={savedValue as LogLevel}
+        savedValue={savedSettings[entry.key]}
         onSaved={onSaved}
       />
     )
   }
 
-  return (
-    <PositiveIntSettingRow
-      entry={entry}
-      savedValue={savedValue as number}
-      onSaved={onSaved}
-    />
+  if (entry.valueType === 'positive_int') {
+    return (
+      <PositiveIntSettingRow
+        entry={entry}
+        savedValue={savedSettings[entry.key]}
+        onSaved={onSaved}
+      />
+    )
+  }
+
+  const exhaustive: never = entry
+  throw new Error(
+    `Unhandled app setting valueType: ${JSON.stringify(exhaustive)}`,
   )
 }

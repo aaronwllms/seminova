@@ -60,7 +60,7 @@ export const AppSettingsPanel = ({
                 <AppSettingRow
                   key={entry.key}
                   entry={entry}
-                  savedValue={savedSettings[entry.key]}
+                  savedSettings={savedSettings}
                   onSaved={handleSaved}
                 />
               ))}

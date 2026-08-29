@@ -73,6 +73,11 @@ export type ResolvedAppSettings = AppSettingValueMap
 
 export type AppSettingRegistryEntry = (typeof APP_SETTINGS_REGISTRY)[number]
 
+export type NonBannerAppSettingRegistryEntry = Exclude<
+  AppSettingRegistryEntry,
+  { valueType: 'banner' }
+>
+
 export type AppSettingRegistryEntryFor<K extends AppSettingKey> = Extract<
   AppSettingRegistryEntry,
   { readonly key: K }
