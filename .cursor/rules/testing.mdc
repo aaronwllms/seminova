@@ -145,7 +145,7 @@ Avoid many near-duplicate edge-case or validation micro-tests, or asserting impl
 
 **Enforced:** 80% minimum global thresholds (lines, functions, branches, statements) plus per-glob floors on `eslint-rules/**` and `scripts/**` in [`vitest.config.ts`](../../vitest.config.ts). `pnpm test:ci` runs `vitest run --coverage` — failures block CI and pre-push.
 
-**In scope:** app logic under `src/`, check scripts under `scripts/checks/`, build guards under `scripts/build/`, custom lint rules under `eslint-rules/`, and admin CLI lib modules under `scripts/admin/lib/`. **Excluded from denominator:** see the authoritative exclude list in [`vitest.config.ts`](../../vitest.config.ts) — thin page/layout shells, vendored UI primitives, admin CLI entry shims, untested check scripts (F186), and other items called out there with comments.
+**In scope:** app logic under `src/`, check scripts under `scripts/checks/`, build guards under `scripts/build/`, custom lint rules under `eslint-rules/`, and admin CLI lib modules under `scripts/admin/lib/`. **Excluded from denominator:** see the authoritative exclude list in [`vitest.config.ts`](../../vitest.config.ts) — thin page/layout shells, vendored UI primitives, admin CLI entry shims, and other items called out there with comments.
 
 Before merge: run `pnpm test:ci`. If thresholds fail, add targeted high-value tests — not per-file 80% crusades. If useful tests cannot reach 80%, revisit threshold or exclude set (PM decision)—do not pad with filler.
 
