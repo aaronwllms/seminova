@@ -89,7 +89,7 @@ The full workflow — every step, skill, and document explained — lives in [do
    | `VERCEL_URL` | Optional — auto-set on Vercel deploys; used as metadata base when `NEXT_PUBLIC_SITE_URL` is unset (do not set locally) |
 
 > [!WARNING]
-> **Development-only auth bypass:** if `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are not set, the auth proxy skips session checks in development so you can explore the UI before wiring Supabase. **Production deploys without those variables return 503** — configure env vars before shipping.
+> **Development-only auth bypass:** if `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are not set, the auth proxy skips session checks in development so you can explore the UI before wiring Supabase. **`pnpm build` fails without those variables, so a production deploy can't ship without them**; the auth proxy also returns 503 at runtime as a fallback. Configure env vars before shipping.
 
 4. Link your local repo to your Supabase project and apply the schema that ships with the template (this is what creates the `profiles` table [Initial setup](#initial-setup) below depends on):
 
