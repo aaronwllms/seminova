@@ -56,10 +56,10 @@ The full workflow — every step, skill, and document explained — lives in [do
 
 1. Get the code — choose one path, then install dependencies:
 
-   **New product:** click **Use this template** on GitHub, then clone the repository GitHub created (use its clone URL in place of the example below):
+   **New product:** clone this repository (or click **Use this template** on GitHub first if you want a new repo under your account, then use that repo's clone URL instead):
 
    ```bash
-   git clone https://github.com/YOUR_USERNAME/your-repo.git my-project
+   git clone https://github.com/aaronwllms/seminova.git my-project
    cd my-project
    pnpm install
    ```
