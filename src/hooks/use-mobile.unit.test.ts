@@ -16,10 +16,6 @@ const createMatchMedia = (matches: boolean) =>
 describe('useIsMobile', () => {
   it('should return true after mount when viewport is below the mobile breakpoint', () => {
     vi.stubGlobal('matchMedia', createMatchMedia(true))
-    Object.defineProperty(window, 'innerWidth', {
-      configurable: true,
-      value: 500,
-    })
 
     const { result } = renderHook(() => useIsMobile())
 
@@ -30,9 +26,9 @@ describe('useIsMobile', () => {
 
   it('should update when the media query changes', () => {
     let changeHandler: (() => void) | null = null
-    const matchMedia = vi.fn().mockImplementation((query: string) => ({
+    const mql = {
       matches: false,
-      media: query,
+      media: '',
       onchange: null,
       addEventListener: vi.fn((event, handler) => {
         if (event === 'change') {
@@ -41,13 +37,13 @@ describe('useIsMobile', () => {
       }),
       removeEventListener: vi.fn(),
       dispatchEvent: vi.fn(),
-    }))
+    }
+    const matchMedia = vi.fn().mockImplementation((query: string) => {
+      mql.media = query
+      return mql
+    })
 
     vi.stubGlobal('matchMedia', matchMedia)
-    Object.defineProperty(window, 'innerWidth', {
-      configurable: true,
-      value: 1024,
-    })
 
     const { result } = renderHook(() => useIsMobile())
 
@@ -55,10 +51,7 @@ describe('useIsMobile', () => {
 
     expect(result.current).toBe(false)
 
-    Object.defineProperty(window, 'innerWidth', {
-      configurable: true,
-      value: 500,
-    })
+    mql.matches = true
 
     act(() => {
       changeHandler?.()

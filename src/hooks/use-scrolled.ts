@@ -33,6 +33,9 @@ export const useScrolled = (sentinelRef: React.RefObject<Element | null>) => {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
+        if (!entry) {
+          return
+        }
         updateFromIntersection(entry.isIntersecting)
       },
       { threshold: 0 },

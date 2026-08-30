@@ -1,0 +1,1 @@
+export const TRANSIENT_SUCCESS_MS = 2000

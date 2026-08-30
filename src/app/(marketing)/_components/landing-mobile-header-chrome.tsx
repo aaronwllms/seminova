@@ -5,14 +5,7 @@ import { AppNavUserSkeleton } from '@/app/(app)/_components/app-nav-user-skeleto
 import { LandingAuthButtons } from '@/app/(marketing)/_components/landing-auth-buttons'
 import { hasServerAuthSession } from '@/supabase/require-auth'
 
-import { LandingAuthSlot } from './landing-auth-slot'
 import { LandingMobileNav } from './landing-mobile-nav'
-
-const mobileAuthSlot = (
-  <Suspense fallback={<LandingAuthButtons layout="stack" />}>
-    <LandingAuthSlot layout="stack" />
-  </Suspense>
-)
 
 export const LandingMobileHeaderChrome = async () => {
   const isAuthenticated = await hasServerAuthSession()
@@ -28,5 +21,5 @@ export const LandingMobileHeaderChrome = async () => {
     )
   }
 
-  return <LandingMobileNav authSlot={mobileAuthSlot} />
+  return <LandingMobileNav authSlot={<LandingAuthButtons layout="stack" />} />
 }

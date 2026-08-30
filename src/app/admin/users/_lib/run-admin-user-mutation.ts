@@ -1,38 +1,45 @@
 import { createServiceClient } from '@/supabase/service'
 import { appLog } from '@/utils/app-logger'
 
-import { assertAdminCaller, type UsersActionError } from './assert-admin-caller'
+import {
+  assertAdminCaller,
+  type AdminActionError,
+} from '@/app/admin/_lib/assert-admin-caller'
 import { mapAdminActionFault } from '@/app/admin/_lib/map-admin-action-fault'
 
-export type AdminUserMutationResult =
+export type AdminUserMutationResult<TStatus extends string> =
   | { status: 'not_found' }
-  | { status: Exclude<string, 'not_found'>; email: string }
+  | { status: TStatus; email: string | null }
 
 type AdminUserMutationActionSuccess<TStatus extends string> = {
   success: true
   data: {
     status: TStatus
-    email: string
+    email: string | null
   }
 }
 
-export type AdminUserMutationActionResult<TStatus extends string = string> =
+export type AdminUserMutationActionResult<TStatus extends string> =
   | AdminUserMutationActionSuccess<TStatus>
-  | UsersActionError
+  | AdminActionError
 
-type RunAdminUserMutationOptions<TResult extends AdminUserMutationResult> = {
+export interface AdminUserTargetInput {
+  userId: string
+}
+
+type RunAdminUserMutationOptions<TStatus extends string> = {
   userId: string | undefined
   mutation: (
     client: ReturnType<typeof createServiceClient>,
     userId: string,
-  ) => Promise<TResult>
+  ) => Promise<AdminUserMutationResult<TStatus>>
   logTag: string
   logMessage: string
   faultMessage: string
   beforeMutation?: (
     callerUserId: string,
     userId: string,
-  ) => UsersActionError | null
+  ) => AdminActionError | null
 }
 
 const validateUserId = (userId: string | undefined): string | null => {
@@ -40,22 +47,20 @@ const validateUserId = (userId: string | undefined): string | null => {
   return trimmed || null
 }
 
-const hasMutationEmail = (
-  result: AdminUserMutationResult,
-): result is Extract<AdminUserMutationResult, { email: string }> =>
+const isMutationFound = <TStatus extends string>(
+  result: AdminUserMutationResult<TStatus>,
+): result is { status: TStatus; email: string | null } =>
   result.status !== 'not_found'
 
-export const runAdminUserMutation = async <
-  TResult extends AdminUserMutationResult,
->({
+export const runAdminUserMutation = async <TStatus extends string>({
   userId: rawUserId,
   mutation,
   logTag,
   logMessage,
   faultMessage,
   beforeMutation,
-}: RunAdminUserMutationOptions<TResult>): Promise<
-  AdminUserMutationActionResult<TResult['status']>
+}: RunAdminUserMutationOptions<TStatus>): Promise<
+  AdminUserMutationActionResult<TStatus>
 > => {
   const authResult = await assertAdminCaller()
 
@@ -86,7 +91,7 @@ export const runAdminUserMutation = async <
     const serviceClient = createServiceClient()
     const result = await mutation(serviceClient, userId)
 
-    if (!hasMutationEmail(result)) {
+    if (!isMutationFound(result)) {
       return {
         success: false,
         error: {
@@ -97,7 +102,7 @@ export const runAdminUserMutation = async <
       }
     }
 
-    appLog.warn(logTag, `${result.email} — ${result.status}`)
+    appLog.warn(logTag, `${result.email ?? userId} — ${result.status}`)
 
     return {
       success: true,

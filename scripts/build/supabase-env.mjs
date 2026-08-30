@@ -1,3 +1,5 @@
+// Build-only guard — not a check:* gate. Invoked only from `pnpm build`.
+
 import nextEnv from '@next/env'
 import { pathToFileURL } from 'node:url'
 
@@ -7,8 +9,10 @@ const PLACEHOLDER_VALUES = new Set([
   '',
 ])
 
+const PREFIX = '[build:supabase-env]'
+
 const fail = (message) => {
-  console.error(`[check:supabase-env] ${message}`)
+  console.error(`${PREFIX} ${message}`)
   process.exit(1)
 }
 
@@ -41,11 +45,12 @@ if (isMain) {
 
   if (!result.ok) {
     for (const violation of result.violations) {
-      fail(violation)
+      console.error(`${PREFIX} ${violation}`)
     }
+    fail(
+      `${result.violations.length} violation(s) — fix the items listed above.`,
+    )
   }
 
-  console.log(
-    '[check:supabase-env] OK — Supabase public env vars are configured.',
-  )
+  console.log(`${PREFIX} OK — Supabase public env vars are configured.`)
 }

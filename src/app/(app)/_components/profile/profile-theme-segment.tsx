@@ -2,20 +2,15 @@
 
 import { Laptop, Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
-import { useEffect, useState } from 'react'
 
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { useMounted } from '@/hooks/use-mounted'
 
 const ICON_SIZE = 16
 
 export const ProfileThemeSegment = () => {
-  const [mounted, setMounted] = useState(false)
+  const mounted = useMounted()
   const { theme, setTheme } = useTheme()
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration guard for next-themes
-    setMounted(true)
-  }, [])
 
   if (!mounted) {
     return null

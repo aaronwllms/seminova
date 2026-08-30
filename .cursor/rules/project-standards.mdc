@@ -56,7 +56,7 @@ alwaysApply: false
 - Route-scoped helpers (used by one route group only) live in that route's `_lib/` directory (e.g. `src/app/admin/users/_lib/`), not in the shared `src/utils/`.
 - Code owned by a single surface — server actions, hooks, schemas — lives in a surface-named folder under the route group's `_lib/` (e.g. `src/app/(app)/_lib/profile/actions.ts`). One folder per surface; a surface is deleted by deleting its folder.
 - Helpers shared across the route group stay flat in `_lib/` (e.g. `src/app/(app)/_lib/get-current-user-profile.ts`). A file's position says who owns it: nested means one surface, flat means the group.
-- Shared types live in `src/types/`; cross-route custom hooks in `src/hooks/`; constants in `src/constants/`.
+- Shared types live in `src/types/`; derived types computed from runtime modules are the exception — see `typescript.mdc` § Shared Types Placement. Cross-route custom hooks in `src/hooks/`; constants in `src/constants/`.
 
 ## Cross-References
 

@@ -23,6 +23,10 @@ describe('buildRobotsConfig', () => {
       'CCBot',
       'Google-Extended',
       'Applebot-Extended',
+      'Meta-ExternalAgent',
+      'Bytespider',
+      'cohere-ai',
+      'AI2Bot',
     ]
 
     for (const userAgent of trainingCrawlers) {
@@ -40,6 +44,10 @@ describe('buildRobotsConfig', () => {
       'CCBot',
       'Google-Extended',
       'Applebot-Extended',
+      'Meta-ExternalAgent',
+      'Bytespider',
+      'cohere-ai',
+      'AI2Bot',
     ]
 
     for (const userAgent of trainingCrawlers) {

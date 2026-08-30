@@ -8,6 +8,16 @@ const mockPush = vi.fn()
 const mockRefresh = vi.fn()
 const mockCompleteRecoveryPasswordAction = vi.fn()
 const mockUpdateUser = vi.fn()
+const mockClientLogError = vi.fn()
+
+vi.mock('@/utils/client-logger', () => ({
+  clientLog: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: (...args: unknown[]) => mockClientLogError(...args),
+  },
+}))
 
 vi.mock('@/supabase/client', () => ({
   createClient: () => ({
@@ -34,6 +44,7 @@ describe('UpdatePasswordForm', () => {
     mockRefresh.mockReset()
     mockCompleteRecoveryPasswordAction.mockReset()
     mockUpdateUser.mockReset()
+    mockClientLogError.mockReset()
     mockGetUser.mockResolvedValue({
       data: { user: { email: 'recover@example.com' } },
       error: null,
@@ -53,6 +64,10 @@ describe('UpdatePasswordForm', () => {
     expect(screen.getByLabelText(/new password/i)).toHaveAttribute(
       'autocomplete',
       'new-password',
+    )
+    expect(screen.getByLabelText(/new password/i)).toHaveAttribute(
+      'name',
+      'password',
     )
   })
 
@@ -109,7 +124,7 @@ describe('UpdatePasswordForm', () => {
 
     render(<UpdatePasswordForm />)
 
-    await user.type(screen.getByLabelText(/new password/i), 'weak')
+    await user.type(screen.getByLabelText(/new password/i), 'weak-password')
     await user.click(screen.getByRole('button', { name: /save new password/i }))
 
     expect(
@@ -119,5 +134,57 @@ describe('UpdatePasswordForm', () => {
     ).toBeInTheDocument()
     expect(mockPush).not.toHaveBeenCalled()
     expect(mockRefresh).not.toHaveBeenCalled()
+  })
+
+  it('should show a length error when the password is too short', async () => {
+    const user = userEvent.setup({ delay: null })
+
+    render(<UpdatePasswordForm />)
+
+    await user.type(screen.getByLabelText(/new password/i), '1234567')
+    await user.click(screen.getByRole('button', { name: /save new password/i }))
+
+    expect(
+      await screen.findByText(/password must be at least 8 characters/i),
+    ).toBeInTheDocument()
+    expect(mockCompleteRecoveryPasswordAction).not.toHaveBeenCalled()
+  })
+
+  it('should submit password manager values read from FormData', async () => {
+    mockCompleteRecoveryPasswordAction.mockResolvedValue({
+      success: true,
+      data: { redirectTo: '/home' },
+    })
+
+    render(<UpdatePasswordForm />)
+
+    const passwordInput = screen.getByLabelText(/new password/i)
+    ;(passwordInput as HTMLInputElement).value = 'manager-set-password-123'
+
+    screen.getByRole('button', { name: /save new password/i }).click()
+
+    await waitFor(() => {
+      expect(mockCompleteRecoveryPasswordAction).toHaveBeenCalledWith({
+        password: 'manager-set-password-123',
+      })
+    })
+  })
+
+  it('should omit the hidden username field and show a note when email lookup fails', async () => {
+    mockGetUser.mockRejectedValue(new Error('network failure'))
+
+    render(<UpdatePasswordForm />)
+
+    await waitFor(() => {
+      expect(document.querySelector('input[name="username"]')).toBeNull()
+    })
+    expect(
+      await screen.findByText(/couldn't confirm your email/i),
+    ).toBeInTheDocument()
+    expect(mockClientLogError).toHaveBeenCalledWith(
+      'auth-form-error',
+      'Could not resolve account email',
+      expect.any(Error),
+    )
   })
 })

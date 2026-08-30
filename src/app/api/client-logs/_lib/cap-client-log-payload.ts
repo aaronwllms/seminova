@@ -22,7 +22,11 @@ export const truncateClientLogContext = (
   const truncated: Record<string, unknown> = { ...context }
 
   for (let index = keys.length - 1; index >= 0; index -= 1) {
-    delete truncated[keys[index]]
+    const key = keys[index]
+    if (!key) {
+      continue
+    }
+    delete truncated[key]
 
     const candidate = { ...truncated, contextTruncated: true }
     if (byteLength(JSON.stringify(candidate)) <= CLIENT_LOG_CONTEXT_MAX_BYTES) {

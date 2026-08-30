@@ -20,7 +20,7 @@ Conducts a deliberate, read-only audit of the repo's SEO implementation against 
 - **`audit-tech-debt`** — code health and architecture, not discoverability.
 - **Accessibility** — heading order, single `<h1>`, and alt text are `ui-accessibility.mdc`'s domain. `seo.mdc` deliberately delegates them there. Do **not** audit them here even though crawlers read them.
 
-**Scope:** this is a template-conventions audit, not content-marketing SEO. Keyword research, thin/duplicate content, cannibalization, Core Web Vitals, and orphan-page analysis are out of scope — Seminova is framework-only.
+**Scope:** this is a template-conventions audit, not content-marketing SEO. Keyword research, thin/duplicate content, cannibalization, and orphan-page analysis are out of scope — Seminova ships no content corpus. Core Web Vitals are out of scope for a different reason: they are CrUX field data, unmeasurable in a read-only repo pass. The code-level levers behind them — SSR, `next/image`, font loading — belong to `nextjs.mdc`.
 
 ## Run modes
 
@@ -86,9 +86,9 @@ Audit each dimension against the cited files. Read `seo.mdc` and AGENTS.md § Ha
 
 **D3 — Per-surface indexing:** `(marketing)` is indexable; `auth/**`, `(app)`, and `admin/**` each carry `noindex` via their layout. A missing `noindex` on a non-marketing layout is high-severity — it's the defense-in-depth that stops an accidentally-public route from leaking into an index. Confirm the layout actually sets it; don't infer it from the route group.
 
-**D4 — Crawler surface:** `robots.ts` reflects `robots-policy.ts` (retrieval bots allowed; training crawlers allowed by default via `ALLOW_TRAINING_CRAWLERS` — spinoffs that block them set the flag to `false`); the sitemap lists `(marketing)` routes only, via the marketing-route discovery helper; no auth/app/admin route appears in the sitemap; robots and sitemap reference the resolved base URL, never a literal.
+**D4 — Crawler surface:** `robots.ts` reflects `robots-policy.ts` (retrieval bots allowed; training crawlers allowed by default via `ALLOW_TRAINING_CRAWLERS` — spinoffs that block them set the flag to `false`); `TRAINING_CRAWLERS` holds training-class agents only, so that flipping the flag opts out of training alone — a retrieval or user-fetch bot (`OAI-SearchBot`, `Claude-SearchBot`, `PerplexityBot`, `ChatGPT-User`, `Claude-User`, `Perplexity-User`) listed there or disallowed anywhere removes the site from AI answers while the flag still reads as a training-only switch; the sitemap lists `(marketing)` routes only, via the marketing-route discovery helper; no auth/app/admin route appears in the sitemap; robots and sitemap reference the resolved base URL, never a literal.
 
-**D5 — Structured data:** JSON-LD comes from `structured-data.ts`; `Organization` + `WebSite` on the landing page only; nothing inlines JSON-LD directly on a page; new schema types extend the helper rather than bypassing it.
+**D5 — Structured data:** JSON-LD comes from `structured-data.ts`; `Organization` + `WebSite` on the landing page only; nothing inlines JSON-LD directly on a page; new schema types extend the helper rather than bypassing it; every marked-up claim appears in the page's rendered content.
 
 **D6 — Social previews:** the shared OG template `og-image.tsx` backs per-route `opengraph-image.tsx` segment files; every public marketing route has one; OG/twitter image paths in `proxy-matcher.ts` match the bypass list in `src/proxy.ts` (drift = a broken preview on a public page, or an auth leak). Preview titles/descriptions derive from page metadata + site config, not hardcoded strings.
 
@@ -104,7 +104,7 @@ For each finding: assign a stable **ID** (`SEO001`, `SEO002`, … — never renu
 **Severity calibration (discoverability impact, not exploitability):**
 
 - **Critical** — a `noindex` surface leaking into the index, or a base-URL break that corrupts production canonicals / sitemap / OG (wrong-origin URLs shipped)
-- **High** — missing `noindex` on a non-marketing layout; a public marketing page with no title or a broken canonical; robots or sitemap exposing a protected route
+- **High** — missing `noindex` on a non-marketing layout; a public marketing page with no title or a broken canonical; robots or sitemap exposing a protected route; a retrieval or user-fetch bot in `TRAINING_CRAWLERS` or otherwise disallowed
 - **Medium** — missing or duplicate description on an indexable page; JSON-LD inlined instead of via the helper; an OG segment missing on a public page
 - **Low** — bare-string absolute canonical where relative would resolve; blank title on a `noindex` page (tab-label polish); other guidance-tier drift
 
@@ -198,7 +198,7 @@ Deliberately not doing now. Not a todo list.
 
 ## Human / tooling follow-ups
 
-- (checks a read-only agent can't complete: validate JSON-LD in Google's Rich Results Test, preview OG cards in the social debuggers, submit/verify the sitemap in Search Console)
+- (checks a read-only agent can't complete: validate JSON-LD in Google's Rich Results Test, preview OG cards in the social debuggers, submit/verify the sitemap in Search Console, confirm the property is included in Search Console's generative-AI-features setting)
 
 ## Open questions
 

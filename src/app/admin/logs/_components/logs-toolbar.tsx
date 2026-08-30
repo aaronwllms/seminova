@@ -1,7 +1,8 @@
 'use client'
 
-import { Loader2, RefreshCw, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 
+import { AdminRefreshButton } from '@/app/admin/_components/admin-refresh-button'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -56,8 +57,6 @@ export const LogsToolbar = ({
   markAllTooltip,
   isMarkAllPending,
 }: LogsToolbarProps) => {
-  const showRefreshSpinner = isRefreshing || isFetching
-
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
       <div className="relative min-w-0 flex-1">
@@ -94,22 +93,12 @@ export const LogsToolbar = ({
           onLiveEnabledChange={onLiveEnabledChange}
         />
 
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          className="shrink-0"
-          disabled={isRefreshing}
+        <AdminRefreshButton
+          label="Refresh logs"
+          isRefreshing={isRefreshing}
+          isFetching={isFetching}
           onClick={onRefresh}
-          aria-label="Refresh logs"
-          aria-busy={showRefreshSpinner}
-        >
-          {showRefreshSpinner ? (
-            <Loader2 className="size-4 animate-spin" aria-hidden />
-          ) : (
-            <RefreshCw className="size-4" aria-hidden />
-          )}
-        </Button>
+        />
 
         <Tooltip>
           <TooltipTrigger asChild>

@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/checks/supabase-env.mjs && next build",
+    "build": "node scripts/build/supabase-env.mjs && next build",
     "start": "next start",
     "lint": "eslint . --cache --cache-location node_modules/.cache/eslint/",
     "lint-fix": "eslint . --fix",
@@ -30,14 +30,14 @@
     "test:ci": "vitest run --coverage",
     "check:pnpm-only": "node scripts/checks/pnpm-only.mjs",
     "check:checks-wired": "node scripts/checks/checks-wired.mjs",
-    "check:no-shadcn-pkg": "eslint --cache --cache-location node_modules/.cache/eslint/ --max-warnings 0 --no-error-on-unmatched-pattern \"src/**/*.{ts,tsx}\" \"scripts/**/*.{ts,tsx}\"",
-    "check:semantic-tokens": "eslint --cache --cache-location node_modules/.cache/eslint/ --max-warnings 0 --no-error-on-unmatched-pattern \"src/**/*.{ts,tsx}\"",
+    "check:no-shadcn-pkg": "eslint --config eslint.gate-no-shadcn-pkg.mjs --no-config-lookup --cache --cache-location node_modules/.cache/eslint-no-shadcn-pkg/ --max-warnings 0 --no-error-on-unmatched-pattern \"src/**/*.{ts,tsx}\" \"scripts/**/*.{ts,tsx}\"",
+    "check:semantic-tokens": "eslint --config eslint.gate-semantic-tokens.mjs --no-config-lookup --cache --cache-location node_modules/.cache/eslint-semantic-tokens/ --max-warnings 0 --no-error-on-unmatched-pattern \"src/**/*.{ts,tsx}\"",
     "check:auth-boundary": "vitest run src/supabase/proxy.unit.test.ts src/utils/proxy-matcher.unit.test.ts",
     "check:admin-gate": "node scripts/checks/no-profiles-role.mjs && vitest run src/utils/admin.unit.test.ts",
     "check:seo-base-url": "node scripts/checks/seo-base-url.mjs",
     "check:a11y-structure": "node scripts/checks/a11y-structure.mjs",
     "check:a11y-contrast": "node scripts/checks/a11y-contrast.mjs",
-    "check:no-raw-console": "eslint --cache --cache-location node_modules/.cache/eslint/ --max-warnings 0 --no-error-on-unmatched-pattern \"src/**/*.{ts,tsx}\" \"scripts/admin/**/*.{ts,tsx}\"",
+    "check:no-raw-console": "eslint --config eslint.gate-no-raw-console.mjs --no-config-lookup --cache --cache-location node_modules/.cache/eslint-no-raw-console/ --max-warnings 0 --no-error-on-unmatched-pattern \"src/**/*.{ts,tsx}\" \"scripts/admin/**/*.{ts,tsx}\"",
     "pre-push": "pnpm type-check && pnpm lint && pnpm check:pnpm-only && pnpm check:checks-wired && pnpm check:no-shadcn-pkg && pnpm check:semantic-tokens && pnpm check:no-raw-console && pnpm check:auth-boundary && pnpm check:admin-gate && pnpm check:seo-base-url && pnpm check:a11y-structure && pnpm check:a11y-contrast && pnpm format-check && pnpm test:ci",
     "test:ui": "vitest --ui",
     "analyze": "ANALYZE=true pnpm build",
@@ -103,11 +103,6 @@
     "typescript": "5.9.3",
     "vite": "^6.4.3",
     "vitest": "^3.2.6"
-  },
-  "msw": {
-    "workerDirectory": [
-      "public"
-    ]
   },
   "packageManager": "pnpm@11.0.9+sha512.34ce82e6780233cf9cad8685029a8f81d2e06196c5a9bad98879f7424940c6817c4e4524fb7d38b8553ceed48b9758b8ebaf1abd3600c232c4c8cf7366086f38"
 }

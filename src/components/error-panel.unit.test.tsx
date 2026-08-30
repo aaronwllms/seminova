@@ -2,61 +2,7 @@ import { render, screen, waitFor } from '@/test/test-utils'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 
-import { buildErrorCopyText, ErrorPanel } from './error-panel'
-
-describe('buildErrorCopyText', () => {
-  it('should format message with code when code is provided', () => {
-    expect(
-      JSON.parse(
-        buildErrorCopyText({
-          message: 'Something went wrong',
-          code: 'INTERNAL_ERROR',
-        }),
-      ),
-    ).toEqual({
-      message: 'Something went wrong',
-      code: 'INTERNAL_ERROR',
-    })
-  })
-
-  it('should return message only when code and digest are absent', () => {
-    expect(
-      JSON.parse(buildErrorCopyText({ message: 'Something went wrong' })),
-    ).toEqual({
-      message: 'Something went wrong',
-    })
-  })
-
-  it('should include digest when digest is provided', () => {
-    expect(
-      JSON.parse(
-        buildErrorCopyText({
-          message: 'Something went wrong',
-          digest: 'a91c4e',
-        }),
-      ),
-    ).toEqual({
-      message: 'Something went wrong',
-      digest: 'a91c4e',
-    })
-  })
-
-  it('should include code and digest when both are provided', () => {
-    expect(
-      JSON.parse(
-        buildErrorCopyText({
-          message: 'Something went wrong',
-          code: 'INTERNAL_ERROR',
-          digest: 'a91c4e',
-        }),
-      ),
-    ).toEqual({
-      message: 'Something went wrong',
-      code: 'INTERNAL_ERROR',
-      digest: 'a91c4e',
-    })
-  })
-})
+import { ErrorPanel } from './error-panel'
 
 describe('ErrorPanel', () => {
   it('should render title, description, visible code chip, and labeled copy button', () => {

@@ -3,6 +3,7 @@
 import { Check } from 'lucide-react'
 import { useEffect } from 'react'
 
+import { TRANSIENT_SUCCESS_MS } from '@/constants/transient-feedback'
 import type { FieldSaveState } from '@/types/field-save-state'
 
 type FieldSaveIndicatorProps = {
@@ -19,7 +20,7 @@ export const FieldSaveIndicator = ({
       return
     }
 
-    const timer = window.setTimeout(onSavedComplete, 2000)
+    const timer = window.setTimeout(onSavedComplete, TRANSIENT_SUCCESS_MS)
     return () => window.clearTimeout(timer)
   }, [state, onSavedComplete])
 

@@ -6,6 +6,8 @@ import {
   FEATURES_PATH,
   PRIVACY_PATH,
   REFERENCE_PATH,
+  ROBOTS_PATH,
+  SITEMAP_PATH,
   TERMS_PATH,
   WORKFLOW_PATH,
 } from '@/constants/app-paths'
@@ -26,8 +28,8 @@ function redirectWithAuthCookies(
 ) {
   const redirectResponse = NextResponse.redirect(url)
 
-  for (const { name, value } of supabaseResponse.cookies.getAll()) {
-    redirectResponse.cookies.set(name, value)
+  for (const cookie of supabaseResponse.cookies.getAll()) {
+    redirectResponse.cookies.set(cookie)
   }
 
   return redirectResponse
@@ -56,7 +58,9 @@ export const isPublicRoute = (pathname: string): boolean =>
   pathname === REFERENCE_PATH ||
   pathname === FEATURES_PATH ||
   pathname === WORKFLOW_PATH ||
-  pathname === CLIENT_LOGS_RELAY_PATH
+  pathname === CLIENT_LOGS_RELAY_PATH ||
+  pathname === ROBOTS_PATH ||
+  pathname === SITEMAP_PATH
 
 export async function updateSession(request: NextRequest) {
   const rawPathname = request.nextUrl.pathname
@@ -164,7 +168,7 @@ export async function updateSession(request: NextRequest) {
   if (isAdminPath && sessionClaims && !isAdmin(sessionClaims)) {
     const url = request.nextUrl.clone()
     url.pathname = APP_HOME
-    return NextResponse.redirect(url)
+    return redirectWithAuthCookies(url, supabaseResponse)
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.

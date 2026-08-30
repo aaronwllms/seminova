@@ -1,9 +1,7 @@
 import type { SupabaseClient, User } from '@supabase/supabase-js'
 
-import { ADMIN_ROLE } from '@/constants/admin-role'
 import {
   demoteUserById,
-  deleteUserById,
   promoteUserById,
   type DemoteUserByIdResult,
   type PromoteUserByIdResult,
@@ -14,21 +12,12 @@ import {
   type RemoveAvatarStorageResult,
 } from '@/utils/remove-avatar-storage'
 
-export { ADMIN_ROLE } from '@/constants/admin-role'
-export {
-  deleteUserById,
-  demoteUserById,
-  mergeDemoteMetadata,
-  mergePromoteMetadata,
-  promoteUserById,
-} from '@/utils/admin-user-mutations'
+export { deleteUserById } from '@/utils/admin-user-mutations'
 
 const USERS_PAGE_SIZE = 1000
 
 export type PromoteUserResult = PromoteUserByIdResult
 export type DemoteUserResult = DemoteUserByIdResult
-
-export const isUserAdmin = isAdminFromAppMetadata
 
 const listAllUsers = async (client: SupabaseClient): Promise<User[]> => {
   const users: User[] = []
@@ -101,8 +90,10 @@ export const listAdminUsers = async (
   const users = await listAllUsers(client)
 
   return users
-    .filter((user) => isUserAdmin(user.app_metadata) && user.email)
-    .map((user) => user.email!)
+    .filter((user): user is User & { email: string } =>
+      Boolean(isAdminFromAppMetadata(user.app_metadata) && user.email),
+    )
+    .map((user) => user.email)
     .sort((a, b) => a.localeCompare(b))
 }
 

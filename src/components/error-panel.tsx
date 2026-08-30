@@ -7,12 +7,6 @@ import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
 import { buildStructuredCopyText } from '@/utils/build-structured-copy-text'
 import { cn } from '@/utils/tailwind'
 
-interface BuildErrorCopyTextParams {
-  message: string
-  code?: string
-  digest?: string
-}
-
 interface ErrorPanelProps {
   title?: string
   message: string
@@ -20,13 +14,6 @@ interface ErrorPanelProps {
   digest?: string
   className?: string
 }
-
-export const buildErrorCopyText = ({
-  message,
-  code,
-  digest,
-}: BuildErrorCopyTextParams): string =>
-  buildStructuredCopyText({ message, code, digest })
 
 export const ErrorPanel = ({
   title,
@@ -36,7 +23,7 @@ export const ErrorPanel = ({
   className,
 }: ErrorPanelProps) => {
   const { didCopy, copy } = useCopyToClipboard(
-    buildErrorCopyText({ message, code, digest }),
+    buildStructuredCopyText({ message, code, digest }),
   )
 
   const chipLabel = code ?? digest

@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, waitFor } from '@/test/test-utils'
+import { act, render, screen, waitFor } from '@/test/test-utils'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -133,6 +133,34 @@ describe('UsersTable', () => {
       },
       { timeout: 1000 },
     )
+  })
+
+  it('should not refetch while search is under the 3-character gate', async () => {
+    const user = userEvent.setup({ delay: null })
+
+    renderTable()
+
+    await waitFor(() => {
+      expect(listUsersActionMock).toHaveBeenCalledTimes(1)
+      expect(screen.getByText('admin@example.com')).toBeInTheDocument()
+    })
+
+    await user.type(
+      screen.getByRole('searchbox', { name: /search users by email/i }),
+      'ab',
+    )
+
+    await act(async () => {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 400)
+      })
+    })
+
+    expect(listUsersActionMock).toHaveBeenCalledTimes(1)
+    expect(listUsersActionMock).toHaveBeenCalledWith({
+      ...defaultListParams,
+      emailFilter: undefined,
+    })
   })
 
   it('should reset page and refetch when Banned tile is toggled', async () => {

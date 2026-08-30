@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest'
 import { USERS_SEARCH_MIN_LENGTH } from './admin-user-row'
 import {
   buildUserListFilterChips,
-  buildUserListFilterLabels,
   hasActiveUserListFilters,
 } from './user-list-filters'
 
@@ -57,32 +56,6 @@ describe('hasActiveUserListFilters', () => {
         search: 'a'.repeat(USERS_SEARCH_MIN_LENGTH),
       }),
     ).toBe(true)
-  })
-})
-
-describe('buildUserListFilterLabels', () => {
-  it('should build labels for active filters', () => {
-    expect(
-      buildUserListFilterLabels({
-        filterUnverified: true,
-        filterBanned: true,
-        filterNew30d: true,
-        search: 'alice@example.com',
-      }),
-    ).toEqual(['Unverified', 'Banned', 'New (30d)', 'Email: alice@example.com'])
-  })
-
-  it('should truncate long search labels', () => {
-    const longSearch = 'a'.repeat(25)
-
-    expect(
-      buildUserListFilterLabels({
-        filterUnverified: false,
-        filterBanned: false,
-        filterNew30d: false,
-        search: longSearch,
-      }),
-    ).toEqual([`Email: ${'a'.repeat(17)}…`])
   })
 })
 

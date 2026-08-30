@@ -1,5 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+const { mockCreateClient } = vi.hoisted(() => ({
+  mockCreateClient: vi.fn(),
+}))
+
+vi.mock('@supabase/supabase-js', () => ({
+  createClient: (...args: unknown[]) => mockCreateClient(...args),
+}))
+
 import { createServiceClient } from './service'
 
 describe('createServiceClient', () => {
@@ -10,6 +18,7 @@ describe('createServiceClient', () => {
 
   afterEach(() => {
     vi.unstubAllEnvs()
+    vi.clearAllMocks()
   })
 
   it('should throw when NEXT_PUBLIC_SUPABASE_URL is missing', () => {
@@ -28,10 +37,22 @@ describe('createServiceClient', () => {
     )
   })
 
-  it('should return a client when env vars are set', () => {
+  it('should create a client with non-persisting auth options', () => {
+    const sentinel = { auth: {} }
+    mockCreateClient.mockReturnValue(sentinel)
+
     const client = createServiceClient()
 
-    expect(client).toBeDefined()
-    expect(client.auth).toBeDefined()
+    expect(mockCreateClient).toHaveBeenCalledWith(
+      'https://example.supabase.co',
+      'sb_secret_test',
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      },
+    )
+    expect(client).toBe(sentinel)
   })
 })

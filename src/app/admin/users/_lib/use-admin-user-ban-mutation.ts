@@ -3,10 +3,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import type { AdminBanDuration } from '@/constants/admin-ban'
-import {
-  getBanMutationToastMessage,
-  type BanMutationSuccessStatus,
-} from '@/utils/admin-user-mutations'
+import { getBanMutationToastMessage } from '@/utils/admin-user-mutations'
 import { showSuccessToast } from '@/utils/app-toast'
 
 import { banUserAction, unbanUserAction } from '../actions'
@@ -42,9 +39,7 @@ export const useAdminUserBanMutation = () => {
       return unwrapActionResult(result)
     },
     onSuccess: (data) => {
-      showSuccessToast(
-        getBanMutationToastMessage(data.status as BanMutationSuccessStatus),
-      )
+      showSuccessToast(getBanMutationToastMessage(data.status))
       void queryClient.invalidateQueries({ queryKey: adminUsersQueryKeys.all })
     },
   })

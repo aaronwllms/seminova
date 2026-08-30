@@ -25,9 +25,17 @@ type ProfileDialogContextValue = {
   openProfile: () => void
 }
 
+type ProfileDialogOpenContextValue = {
+  open: boolean
+  setOpen: (open: boolean) => void
+}
+
 const ProfileDialogContext = createContext<ProfileDialogContextValue | null>(
   null,
 )
+
+const ProfileDialogOpenContext =
+  createContext<ProfileDialogOpenContextValue | null>(null)
 
 export const useProfileDialog = () => {
   const context = useContext(ProfileDialogContext)
@@ -41,34 +49,57 @@ export const useProfileDialog = () => {
   return context
 }
 
-type ProfileDialogProviderProps = ProfileDialogProfile & {
+const useProfileDialogOpen = () => {
+  const context = useContext(ProfileDialogOpenContext)
+
+  if (!context) {
+    throw new Error(
+      'ProfileDialogBinder must be used within ProfileDialogProvider',
+    )
+  }
+
+  return context
+}
+
+type ProfileDialogProviderProps = {
   children: ReactNode
 }
 
 export const ProfileDialogProvider = ({
   children,
+}: ProfileDialogProviderProps) => {
+  const [open, setOpen] = useState(false)
+  const openProfile = useCallback(() => setOpen(true), [])
+  const value = useMemo(() => ({ openProfile }), [openProfile])
+  const openValue = useMemo(() => ({ open, setOpen }), [open, setOpen])
+
+  return (
+    <ProfileDialogOpenContext.Provider value={openValue}>
+      <ProfileDialogContext.Provider value={value}>
+        {children}
+      </ProfileDialogContext.Provider>
+    </ProfileDialogOpenContext.Provider>
+  )
+}
+
+export const ProfileDialogBinder = ({
   userId,
   email,
   hasPassword,
   profileLoadFailed,
   defaultValues,
-}: ProfileDialogProviderProps) => {
-  const [open, setOpen] = useState(false)
-  const openProfile = useCallback(() => setOpen(true), [])
-  const value = useMemo(() => ({ openProfile }), [openProfile])
+}: ProfileDialogProfile) => {
+  const { open, setOpen } = useProfileDialogOpen()
 
   return (
-    <ProfileDialogContext.Provider value={value}>
-      {children}
-      <ProfileSettingsDialog
-        open={open}
-        onOpenChange={setOpen}
-        userId={userId}
-        email={email}
-        hasPassword={hasPassword}
-        profileLoadFailed={profileLoadFailed}
-        defaultValues={defaultValues}
-      />
-    </ProfileDialogContext.Provider>
+    <ProfileSettingsDialog
+      open={open}
+      onOpenChange={setOpen}
+      userId={userId}
+      email={email}
+      hasPassword={hasPassword}
+      profileLoadFailed={profileLoadFailed}
+      defaultValues={defaultValues}
+    />
   )
 }

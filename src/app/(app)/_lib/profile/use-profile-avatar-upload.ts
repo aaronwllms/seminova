@@ -29,10 +29,10 @@ type UseProfileAvatarUploadOptions = {
   userId: string
   form: UseFormReturn<ProfileFormInputValues>
   persistField: PersistField
-  inFlightRef: React.MutableRefObject<Record<ProfileFieldKey, boolean>>
+  inFlightRef: React.RefObject<Record<ProfileFieldKey, boolean>>
   setFileError: (message: string | null) => void
   setFormError: (error: AppError | null) => void
-  lastSavedRef: React.MutableRefObject<{
+  lastSavedRef: React.RefObject<{
     displayName: string | null
     bio: string | null
     avatarUrl: string | null

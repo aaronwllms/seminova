@@ -155,6 +155,10 @@ describe('LogsTable', () => {
     await waitFor(() => {
       expect(markLogReadActionMock).toHaveBeenCalledWith({ id: 42 })
     })
+    await waitFor(() => {
+      expect(listLogsActionMock).toHaveBeenCalledTimes(2)
+    })
+    expect(listLogTagsActionMock).toHaveBeenCalledTimes(1)
   })
 
   it('should reset paging and refetch when an error tile is toggled', async () => {

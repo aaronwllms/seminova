@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/supabase/server'
+import { appLog } from '@/utils/app-logger'
 
 export type ProbeSessionResult = { success: true } | { success: false }
 
@@ -15,7 +16,14 @@ export const probeSessionAction = async (): Promise<ProbeSessionResult> => {
     error,
   } = await supabase.auth.getUser()
 
-  if (error || !user) {
+  if (error) {
+    appLog.warn('probe-session', 'Session probe failed', {
+      supabaseCode: error.code,
+    })
+    return { success: false }
+  }
+
+  if (!user) {
     return { success: false }
   }
 

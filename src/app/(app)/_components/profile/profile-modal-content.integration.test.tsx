@@ -1,5 +1,5 @@
 import userEvent from '@testing-library/user-event'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { render, screen, waitFor } from '@/test/test-utils'
 
@@ -61,6 +61,10 @@ const defaultProps = {
 }
 
 describe('ProfileModalContent', () => {
+  beforeAll(() => {
+    Element.prototype.scrollIntoView ??= () => {}
+  })
+
   beforeEach(() => {
     mockUpdateProfileAction.mockReset()
     mockSetFirstPasswordAction.mockReset()

@@ -34,12 +34,14 @@ export const parseBannerMessage = (message: string): BannerMessageSegment[] => {
       })
     } else {
       const linkMatch = /^\[([^\]]+)\]\(((?:[^()]|\([^()]*\))*)\)$/.exec(token)
+      const label = linkMatch?.[1]
+      const href = linkMatch?.[2]
 
-      if (linkMatch && isSafeUrlScheme(linkMatch[2])) {
+      if (label && href && isSafeUrlScheme(href)) {
         segments.push({
           type: 'link',
-          content: linkMatch[1],
-          href: linkMatch[2],
+          content: label,
+          href,
         })
       } else {
         segments.push({ type: 'text', content: token })

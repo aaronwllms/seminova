@@ -29,7 +29,7 @@ describe('listAdminUsersPage', () => {
     vi.clearAllMocks()
   })
 
-  it('should set hasNextPage when a full page is returned', async () => {
+  it('should clear hasNextPage on an exact full final page', async () => {
     const rows = Array.from(
       { length: DATA_TABLE_DEFAULT_PAGE_SIZE },
       (_, index) => createRpcRow(`user-${index}`),
@@ -39,7 +39,7 @@ describe('listAdminUsersPage', () => {
     const result = await listAdminUsersPage(client, { page: 1 })
 
     expect(result.rows).toHaveLength(DATA_TABLE_DEFAULT_PAGE_SIZE)
-    expect(result.hasNextPage).toBe(true)
+    expect(result.hasNextPage).toBe(false)
     expect(client.rpc).toHaveBeenCalledWith('admin_list_users', {
       p_sort_column: 'created_at',
       p_sort_direction: 'desc',
@@ -50,6 +50,25 @@ describe('listAdminUsersPage', () => {
       p_filter_banned: false,
       p_filter_new_30d: false,
     })
+  })
+
+  it('should set hasNextPage when an overflow row is returned', async () => {
+    const rows = Array.from(
+      { length: DATA_TABLE_DEFAULT_PAGE_SIZE + 1 },
+      (_, index) => createRpcRow(`user-${index}`),
+    )
+    const client = createClientMock(rows)
+
+    const result = await listAdminUsersPage(client, { page: 1 })
+
+    expect(result.rows).toHaveLength(DATA_TABLE_DEFAULT_PAGE_SIZE)
+    expect(result.hasNextPage).toBe(true)
+    expect(client.rpc).toHaveBeenCalledWith(
+      'admin_list_users',
+      expect.objectContaining({
+        p_per_page: DATA_TABLE_DEFAULT_PAGE_SIZE,
+      }),
+    )
   })
 
   it('should clear hasNextPage on a short final page', async () => {

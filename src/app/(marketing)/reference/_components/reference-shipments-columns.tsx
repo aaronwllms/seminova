@@ -1,6 +1,6 @@
 'use client'
 
-import type { ColumnDef } from '@tanstack/react-table'
+import type { Column, ColumnDef } from '@tanstack/react-table'
 
 import { DataTableColumnHeader } from '@/components/data-table-shell'
 import { Badge } from '@/components/ui/badge'
@@ -11,6 +11,17 @@ import {
   type ReferenceShipment,
   type ShipmentStatus,
 } from '../_lib/reference-shipment'
+
+const shipmentColumnHeader = ({
+  column,
+}: {
+  column: Column<ReferenceShipment, unknown>
+}) => (
+  <DataTableColumnHeader
+    column={column}
+    title={column.columnDef.meta?.headerTitle ?? ''}
+  />
+)
 
 const STATUS_BADGE_CLASS: Record<ShipmentStatus, string> = {
   Cleared: 'bg-secondary text-secondary-foreground',
@@ -24,10 +35,12 @@ export const referenceShipmentsColumns: ColumnDef<
 >[] = [
   {
     accessorKey: SEARCHABLE_COLUMN,
-    meta: { searchable: true, skeletonClassName: 'h-4 w-40 max-w-full' },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Consignee" />
-    ),
+    meta: {
+      searchable: true,
+      skeletonClassName: 'h-4 w-40 max-w-full',
+      headerTitle: 'Consignee',
+    },
+    header: shipmentColumnHeader,
     cell: ({ row }) => (
       <span className="font-medium">{row.getValue(SEARCHABLE_COLUMN)}</span>
     ),
@@ -35,10 +48,8 @@ export const referenceShipmentsColumns: ColumnDef<
   },
   {
     accessorKey: 'route',
-    meta: { skeletonClassName: 'h-4 w-24' },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Route" />
-    ),
+    meta: { skeletonClassName: 'h-4 w-24', headerTitle: 'Route' },
+    header: shipmentColumnHeader,
     cell: ({ row }) => (
       <span className="text-muted-foreground">{row.getValue('route')}</span>
     ),
@@ -46,10 +57,8 @@ export const referenceShipmentsColumns: ColumnDef<
   },
   {
     accessorKey: 'status',
-    meta: { skeletonClassName: 'h-5 w-20 rounded-full' },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Status" />
-    ),
+    meta: { skeletonClassName: 'h-5 w-20 rounded-full', headerTitle: 'Status' },
+    header: shipmentColumnHeader,
     cell: ({ row }) => {
       const status = row.getValue<ShipmentStatus>('status')
 
@@ -69,10 +78,9 @@ export const referenceShipmentsColumns: ColumnDef<
     meta: {
       cellClassName: 'text-right',
       skeletonClassName: 'inline-block h-4 w-16',
+      headerTitle: 'Departs',
     },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Departs" />
-    ),
+    header: shipmentColumnHeader,
     cell: ({ row }) => (
       <span className="text-muted-foreground">{row.getValue('departs')}</span>
     ),

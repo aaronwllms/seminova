@@ -1,8 +1,3 @@
-export type {
-  AssertAdminCallerResult,
-  LogsActionError,
-} from './_lib/assert-admin-caller'
-
 export type { LogListFilters } from './_lib/log-list-filters'
 export type { AppLogStats } from './_lib/list-app-log-stats'
 

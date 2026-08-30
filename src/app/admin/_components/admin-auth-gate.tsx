@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
+import { ProfileDialogHost } from '@/app/(app)/_components/profile/profile-dialog-host'
 import { AdminShell } from '@/app/admin/_components/admin-shell'
 import { AdminShellSkeleton } from '@/app/admin/_components/admin-shell-skeleton'
 import { AdminSidebarNavUserSlot } from '@/app/admin/_components/admin-sidebar-nav-user-slot'
@@ -36,11 +37,13 @@ export const AdminAuthGate = async ({ children }: AdminAuthGateProps) => {
   )
 
   return (
-    <AdminShell
-      defaultSidebarOpen={defaultSidebarOpen}
-      navUserSlot={<AdminSidebarNavUserSlot />}
-    >
-      {children}
-    </AdminShell>
+    <ProfileDialogHost>
+      <AdminShell
+        defaultSidebarOpen={defaultSidebarOpen}
+        navUserSlot={<AdminSidebarNavUserSlot />}
+      >
+        {children}
+      </AdminShell>
+    </ProfileDialogHost>
   )
 }

@@ -10,15 +10,13 @@ import { writeBannerDismissCookie } from '@/utils/banner-dismiss-cookie'
 interface PublicBannerSlotProps {
   config: BannerSettingValue
   dismissKey: string
-  initialDismissed?: boolean
 }
 
 export const PublicBannerSlot = ({
   config,
   dismissKey,
-  initialDismissed = false,
 }: PublicBannerSlotProps) => {
-  const [dismissed, setDismissed] = useState(initialDismissed)
+  const [dismissed, setDismissed] = useState(false)
 
   if (dismissed) {
     return null

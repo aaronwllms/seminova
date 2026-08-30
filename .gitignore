@@ -20,6 +20,7 @@ next-env.d.ts
 /build
 
 # misc
+/tmp
 .DS_Store
 *.pem
 

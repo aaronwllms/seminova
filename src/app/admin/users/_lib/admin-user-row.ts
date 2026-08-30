@@ -19,6 +19,8 @@ export type UsersSortDirection = (typeof USERS_SORT_DIRECTIONS)[number]
 
 export const USERS_SEARCH_MIN_LENGTH = 3
 
+export const USERS_EMAIL_FILTER_MAX_LENGTH = 200
+
 export const SEARCHABLE_COLUMN = 'email' as const
 
 export type BanStatus = null | { permanent: true } | { until: Date }

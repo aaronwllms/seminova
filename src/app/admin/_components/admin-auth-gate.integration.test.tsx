@@ -35,6 +35,12 @@ vi.mock('./admin-sidebar-nav-user-slot', () => ({
   ),
 }))
 
+vi.mock('@/app/(app)/_components/profile/profile-dialog-host', () => ({
+  ProfileDialogHost: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
+}))
+
 vi.mock('./admin-shell-skeleton', () => ({
   AdminShellSkeleton: () => <div data-testid="admin-shell-skeleton" />,
 }))

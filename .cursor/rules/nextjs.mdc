@@ -29,8 +29,10 @@ When building any user-facing form or feedback UI, read `forms.mdc` and `notific
 
 ## Performance Optimization
 
+- Push `'use client'` to the leaf that needs interactivity, never the page or layout — a client boundary high in the tree ships its whole subtree as browser JS. Fetch in a Server Component and pass plain data down as props to the client leaf (see [`app-header-account-nav.tsx`](../../src/app/(app)/_components/app-header-account-nav.tsx) → [`app-nav-user.tsx`](../../src/app/(app)/_components/app-nav-user.tsx))
 - Wrap client components in Suspense with meaningful fallbacks (see `LandingAuthSlot` pattern)
-- Use `next/image` with explicit dimensions
+- Use `next/image` with explicit dimensions; add `priority` to the LCP image — the largest above-the-fold image, one per page
+- Load every font through `next/font` with `display: 'swap'` and explicit `subsets` — see the three families wired in [`src/app/layout.tsx`](../../src/app/layout.tsx)
 
 ### Avoiding Data-Fetching Waterfalls
 - Fetch independent data in parallel (multiple awaited calls or `Promise.all`), not sequentially, when one fetch doesn't depend on another's result

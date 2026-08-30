@@ -1,13 +1,13 @@
 import { unstable_cache } from 'next/cache'
 
-import { APP_SETTINGS_REGISTRY } from '@/config/app-settings-registry'
+import {
+  APP_SETTINGS_REGISTRY,
+  type AppSettingKey,
+  type AppSettingValueMap,
+  type ResolvedAppSettings,
+} from '@/config/app-settings-registry'
 import { APP_SETTINGS_CACHE_TAG } from '@/constants/app-settings'
 import { createServiceClient } from '@/supabase/service'
-import type {
-  AppSettingKey,
-  AppSettingValueMap,
-  ResolvedAppSettings,
-} from '@/types/app-settings'
 import { parseAppSettingValue } from '@/utils/app-settings-schema'
 
 export { APP_SETTINGS_CACHE_TAG } from '@/constants/app-settings'

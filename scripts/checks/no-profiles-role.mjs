@@ -1,7 +1,3 @@
-// debt: this migration scanner runs in pre-push only — CI never invokes this
-// file (the Vitest half of check:admin-gate already rides test:ci); upgrade
-// path: add pnpm check:admin-gate as a named step in
-// .github/workflows/pull-request.yaml, mirroring pre-push.
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -9,8 +5,10 @@ import { pathToFileURL } from 'node:url'
 const root = process.cwd()
 const migrationsDir = join(root, 'supabase/migrations')
 
+const PREFIX = '[check:admin-gate]'
+
 const fail = (message) => {
-  console.error(`[check:admin-gate] ${message}`)
+  console.error(`${PREFIX} ${message}`)
   process.exit(1)
 }
 
@@ -59,8 +57,11 @@ if (isMain) {
 
   if (!result.ok) {
     for (const violation of result.violations) {
-      fail(violation)
+      console.error(`${PREFIX} ${violation}`)
     }
+    fail(
+      `${result.violations.length} violation(s) — fix the items listed above.`,
+    )
   }
 
   console.log(

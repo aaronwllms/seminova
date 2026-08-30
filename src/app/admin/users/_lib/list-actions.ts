@@ -1,27 +1,19 @@
 'use server'
 
 import { createClient } from '@/supabase/server'
-import {
-  DATA_TABLE_DEFAULT_PAGE_SIZE,
-  DATA_TABLE_PAGE_SIZE_OPTIONS,
-  type DataTablePageSize,
-} from '@/constants/data-table'
 import { mapAdminActionFault } from '@/app/admin/_lib/map-admin-action-fault'
 
-import { assertAdminCaller } from './assert-admin-caller'
 import {
-  USERS_SORT_COLUMNS,
-  USERS_SORT_DIRECTIONS,
-  type UsersSortColumn,
-  type UsersSortDirection,
-} from './admin-user-row'
+  assertAdminCaller,
+  type AdminActionError,
+} from '@/app/admin/_lib/assert-admin-caller'
 import { listAdminUsersPage } from './list-admin-users'
 import {
   listAdminUserStats,
   type AdminUserStats,
 } from './list-admin-user-stats'
 import type { AdminUserRow } from './admin-user-row'
-import type { UsersActionError } from './assert-admin-caller'
+import { listUsersActionInputSchema } from './list-users-input-schema'
 
 type ListUsersActionSuccess = {
   success: true
@@ -32,18 +24,9 @@ type ListUsersActionSuccess = {
   }
 }
 
-export type ListUsersActionResult = ListUsersActionSuccess | UsersActionError
+export type ListUsersActionResult = ListUsersActionSuccess | AdminActionError
 
-export interface ListUsersActionInput {
-  page?: number
-  emailFilter?: string
-  sortColumn?: UsersSortColumn
-  sortDirection?: UsersSortDirection
-  perPage?: DataTablePageSize
-  filterUnverified?: boolean
-  filterBanned?: boolean
-  filterNew30d?: boolean
-}
+export type { ListUsersActionInput } from './list-users-input-schema'
 
 export type { AdminUserStats } from './list-admin-user-stats'
 
@@ -52,10 +35,10 @@ type UserStatsActionSuccess = {
   data: AdminUserStats
 }
 
-export type GetUserStatsActionResult = UserStatsActionSuccess | UsersActionError
+export type GetUserStatsActionResult = UserStatsActionSuccess | AdminActionError
 
 export const listUsersAction = async (
-  input: ListUsersActionInput = {},
+  input: unknown = {},
 ): Promise<ListUsersActionResult> => {
   const authResult = await assertAdminCaller()
 
@@ -63,110 +46,36 @@ export const listUsersAction = async (
     return authResult
   }
 
-  const page = input.page ?? 1
+  const parsedInput = listUsersActionInputSchema.safeParse(input)
 
-  if (!Number.isInteger(page) || page < 1) {
+  if (!parsedInput.success) {
     return {
       success: false,
       error: {
-        message: 'Page must be a positive integer',
+        message: parsedInput.error.issues[0]?.message ?? 'Invalid input',
         code: 'VALIDATION_ERROR',
         kind: 'operational',
       },
     }
   }
 
-  const perPage = input.perPage ?? DATA_TABLE_DEFAULT_PAGE_SIZE
-
-  if (!DATA_TABLE_PAGE_SIZE_OPTIONS.includes(perPage)) {
-    return {
-      success: false,
-      error: {
-        message: 'Page size must be 10, 15, 25, or 50',
-        code: 'VALIDATION_ERROR',
-        kind: 'operational',
-      },
-    }
-  }
-
-  const sortColumn = input.sortColumn ?? 'created_at'
-
-  if (!USERS_SORT_COLUMNS.includes(sortColumn)) {
-    return {
-      success: false,
-      error: {
-        message: 'Invalid sort column',
-        code: 'VALIDATION_ERROR',
-        kind: 'operational',
-      },
-    }
-  }
-
-  const sortDirection = input.sortDirection ?? 'desc'
-
-  if (!USERS_SORT_DIRECTIONS.includes(sortDirection)) {
-    return {
-      success: false,
-      error: {
-        message: 'Sort direction must be asc or desc',
-        code: 'VALIDATION_ERROR',
-        kind: 'operational',
-      },
-    }
-  }
-
-  const filterUnverified = input.filterUnverified ?? false
-  const filterBanned = input.filterBanned ?? false
-  const filterNew30d = input.filterNew30d ?? false
-
-  if (
-    input.filterUnverified !== undefined &&
-    typeof input.filterUnverified !== 'boolean'
-  ) {
-    return {
-      success: false,
-      error: {
-        message: 'Unverified filter must be a boolean',
-        code: 'VALIDATION_ERROR',
-        kind: 'operational',
-      },
-    }
-  }
-
-  if (
-    input.filterBanned !== undefined &&
-    typeof input.filterBanned !== 'boolean'
-  ) {
-    return {
-      success: false,
-      error: {
-        message: 'Banned filter must be a boolean',
-        code: 'VALIDATION_ERROR',
-        kind: 'operational',
-      },
-    }
-  }
-
-  if (
-    input.filterNew30d !== undefined &&
-    typeof input.filterNew30d !== 'boolean'
-  ) {
-    return {
-      success: false,
-      error: {
-        message: 'New (30d) filter must be a boolean',
-        code: 'VALIDATION_ERROR',
-        kind: 'operational',
-      },
-    }
-  }
+  const {
+    page,
+    perPage,
+    emailFilter,
+    sortColumn,
+    sortDirection,
+    filterUnverified,
+    filterBanned,
+    filterNew30d,
+  } = parsedInput.data
 
   try {
     const client = await createClient()
     const result = await listAdminUsersPage(client, {
       page,
       perPage,
-      emailFilter: input.emailFilter?.trim(),
+      emailFilter,
       sortColumn,
       sortDirection,
       filterUnverified,

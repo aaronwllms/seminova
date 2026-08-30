@@ -12,6 +12,7 @@ import {
 } from '@/constants/data-table'
 import { useToggleFilterSet } from '@/hooks/use-toggle-filter-set'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
+import { useResetOnChange } from '@/hooks/use-reset-on-change'
 import { toAppError } from '@/utils/is-app-error'
 
 import {
@@ -58,8 +59,6 @@ export const useAdminUsersTableState = ({
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [searchInput, setSearchInput] = useState('')
   const debouncedSearch = useDebouncedValue(searchInput, 300)
-  const [trackedDebouncedSearch, setTrackedDebouncedSearch] =
-    useState(debouncedSearch)
   const {
     toggle: toggleFilter,
     clearAll: clearFilters,
@@ -97,10 +96,7 @@ export const useAdminUsersTableState = ({
     [appliedSearch, filterBanned, filterNew30d, filterUnverified],
   )
 
-  if (trackedDebouncedSearch !== debouncedSearch) {
-    setTrackedDebouncedSearch(debouncedSearch)
-    setPage(1)
-  }
+  useResetOnChange(debouncedSearch, () => setPage(1))
 
   const { refresh, isRefreshing } = useAdminUsersRefresh()
   const {
@@ -116,7 +112,7 @@ export const useAdminUsersTableState = ({
     error: listError,
   } = useAdminUsersList({
     page,
-    emailFilter: debouncedSearch.trim() || undefined,
+    emailFilter: appliedSearch ?? undefined,
     sortColumn,
     sortDirection,
     perPage,

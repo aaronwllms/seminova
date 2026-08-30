@@ -1,20 +1,22 @@
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
 import { render, RenderOptions } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
-const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: false } },
-})
+const Wrapper = ({ children }: { children: ReactNode }) => {
+  const [queryClient] = useState(
+    () => new QueryClient({ defaultOptions: { queries: { retry: false } } }),
+  )
 
-const Wrapper = ({ children }: { children: ReactNode }) => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>{children}</TooltipProvider>
-    <Toaster />
-  </QueryClientProvider>
-)
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>{children}</TooltipProvider>
+      <Toaster />
+    </QueryClientProvider>
+  )
+}
 
 // All the providers you need for tests can go here : Theme, Redux, etc.
 const customRender = (

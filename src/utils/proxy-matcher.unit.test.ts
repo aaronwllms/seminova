@@ -20,7 +20,11 @@ const extractProxyMatcherFromSource = (source: string): string => {
   if (!match) {
     throw new Error('src/proxy.ts matcher literal not found')
   }
-  return decodeJsStringLiteral(match[1])
+  const capture = match[1]
+  if (!capture) {
+    throw new Error('src/proxy.ts matcher literal not found')
+  }
+  return decodeJsStringLiteral(capture)
 }
 
 describe('PROXY_MATCHER_PATTERN', () => {

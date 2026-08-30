@@ -264,6 +264,63 @@ describe('listUsersAction', () => {
     expect(listAdminUsersPageMock).not.toHaveBeenCalled()
   })
 
+  it('should return VALIDATION_ERROR for non-string emailFilter', async () => {
+    const { listUsersAction } = await import('../actions')
+    const result = await listUsersAction({
+      emailFilter: 1 as unknown as string,
+    })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Email filter must be a string',
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
+    })
+    expect(listAdminUsersPageMock).not.toHaveBeenCalled()
+  })
+
+  it('should return VALIDATION_ERROR when emailFilter exceeds max length', async () => {
+    const { listUsersAction } = await import('../actions')
+    const result = await listUsersAction({
+      emailFilter: 'a'.repeat(201),
+    })
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        message: 'Email filter must be 200 characters or fewer',
+        code: 'VALIDATION_ERROR',
+        kind: 'operational',
+      },
+    })
+    expect(listAdminUsersPageMock).not.toHaveBeenCalled()
+  })
+
+  it('should forward a 200-character emailFilter', async () => {
+    const emailFilter = 'a'.repeat(200)
+    listAdminUsersPageMock.mockResolvedValue({
+      rows: [],
+      hasNextPage: false,
+      page: 1,
+    })
+
+    const { listUsersAction } = await import('../actions')
+    await listUsersAction({ emailFilter })
+
+    expect(listAdminUsersPageMock).toHaveBeenCalledWith(expect.any(Object), {
+      page: 1,
+      perPage: 15,
+      emailFilter,
+      sortColumn: 'created_at',
+      sortDirection: 'desc',
+      filterUnverified: false,
+      filterBanned: false,
+      filterNew30d: false,
+    })
+  })
+
   it('should forward banned_until sort column', async () => {
     listAdminUsersPageMock.mockResolvedValue({
       rows: [],

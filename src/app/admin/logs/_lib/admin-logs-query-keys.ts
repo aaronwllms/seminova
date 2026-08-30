@@ -4,6 +4,7 @@ import type { LogsSortDirection } from './app-log-row'
 
 export const adminLogsQueryKeys = {
   all: ['admin-logs'] as const,
+  lists: () => ['admin-logs', 'list'] as const,
   list: (
     cursor: AppLogCursor | null | undefined,
     sortDirection: LogsSortDirection,
@@ -11,8 +12,7 @@ export const adminLogsQueryKeys = {
     filters: LogListFilters,
   ) =>
     [
-      'admin-logs',
-      'list',
+      ...adminLogsQueryKeys.lists(),
       { cursor: cursor ?? null, sortDirection, perPage, filters },
     ] as const,
   stats: () => ['admin-logs', 'stats'] as const,

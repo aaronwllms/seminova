@@ -132,7 +132,10 @@ export const getSiteMetadata = (metadataBase: URL): Metadata => ({
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
-  openGraph: siteOpenGraphBase,
+  openGraph: {
+    ...siteOpenGraphBase,
+    url: '/',
+  },
   twitter: {
     card: 'summary_large_image',
   },

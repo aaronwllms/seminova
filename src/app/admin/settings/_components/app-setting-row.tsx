@@ -1,11 +1,11 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useState, type ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import type { z } from 'zod'
 
-import { saveAppSettingAction } from '@/app/admin/settings/_lib/actions'
+import { useAppSettingSave } from '@/app/admin/settings/_lib/use-app-setting-save'
 import { AppErrorSurface } from '@/components/app-error-surface'
 import { Button } from '@/components/ui/button'
 import {
@@ -24,94 +24,81 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { LOG_LEVELS } from '@/types/app-settings'
 import type {
   AppSettingKey,
   AppSettingRegistryEntry,
-  AppSettingRegistryEntryFor,
-  AppSettingValueMap,
-  LogLevel,
-} from '@/types/app-settings'
+  NonBannerAppSettingRegistryEntry,
+  ResolvedAppSettings,
+} from '@/config/app-settings-registry'
+import { LOG_LEVELS, type LogLevel } from '@/types/app-settings'
 import type { AppError } from '@/types/app-error'
-import { showSuccessToast } from '@/utils/app-toast'
 import {
   appSettingLogLevelFormSchema,
   appSettingPositiveIntFormSchema,
   positiveIntFormValueSchema,
 } from '@/utils/app-settings-schema'
 
-type AppSettingRowProps<K extends AppSettingKey> = {
-  entry: AppSettingRegistryEntryFor<K>
-  savedValue: AppSettingValueMap[K]
-  onSaved: (key: K, value: AppSettingValueMap[K]) => void
+type AppSettingRowProps = {
+  entry: NonBannerAppSettingRegistryEntry
+  savedSettings: ResolvedAppSettings
+  onSaved: <K extends AppSettingKey>(
+    key: K,
+    value: ResolvedAppSettings[K],
+  ) => void
 }
 
-type LogLevelRowProps<K extends AppSettingKey> = {
-  entry: AppSettingRegistryEntryFor<K>
+type LogLevelRegistryEntry = Extract<
+  NonBannerAppSettingRegistryEntry,
+  { readonly valueType: 'log_level' }
+>
+
+type LogLevelRowProps = {
+  entry: LogLevelRegistryEntry
   savedValue: LogLevel
-  onSaved: (key: K, value: AppSettingValueMap[K]) => void
+  onSaved: (key: LogLevelRegistryEntry['key'], value: LogLevel) => void
 }
 
-type PositiveIntRowProps<K extends AppSettingKey> = {
-  entry: AppSettingRegistryEntryFor<K>
+type PositiveIntRegistryEntry = Extract<
+  NonBannerAppSettingRegistryEntry,
+  { readonly valueType: 'positive_int' }
+>
+
+type PositiveIntRowProps = {
+  entry: PositiveIntRegistryEntry
   savedValue: number
-  onSaved: (key: K, value: AppSettingValueMap[K]) => void
+  onSaved: (key: PositiveIntRegistryEntry['key'], value: number) => void
 }
 
 // Settings rows use explicit submit regardless of field count (cross-user, ambient,
 // sometimes-irreversible effects) — see forms.mdc save-model exception.
 
-const LogLevelSettingRow = <K extends AppSettingKey>({
+const LogLevelSettingRow = ({
   entry,
   savedValue,
   onSaved,
-}: LogLevelRowProps<K>) => {
-  const [isSaving, setIsSaving] = useState(false)
-  const [error, setError] = useState<AppError | null>(null)
-
+}: LogLevelRowProps) => {
   const form = useForm<z.infer<typeof appSettingLogLevelFormSchema>>({
     resolver: zodResolver(appSettingLogLevelFormSchema),
     defaultValues: { value: savedValue },
     mode: 'onChange',
   })
 
+  const { isSaving, error, clearError, save } = useAppSettingSave({
+    key: entry.key,
+    label: entry.label,
+    savedValue,
+    parse: () => {
+      const parsed = appSettingLogLevelFormSchema.safeParse(form.getValues())
+
+      return parsed.success ? parsed.data.value : null
+    },
+    onSaved,
+    resetForm: (value) => form.reset({ value }),
+  })
+
   const draftValue = useWatch({ control: form.control, name: 'value' })
   const isUnchanged = draftValue === savedValue
   const isSaveDisabled = isSaving || !form.formState.isValid || isUnchanged
-
-  useEffect(() => {
-    form.reset({ value: savedValue })
-  }, [form, savedValue])
-
-  const handleSave = async () => {
-    if (isSaveDisabled) {
-      return
-    }
-
-    const parsed = appSettingLogLevelFormSchema.safeParse(form.getValues())
-
-    if (!parsed.success) {
-      return
-    }
-
-    setIsSaving(true)
-    setError(null)
-
-    const result = await saveAppSettingAction({
-      key: entry.key,
-      value: parsed.data.value as AppSettingValueMap[K],
-    })
-
-    setIsSaving(false)
-
-    if (!result.success) {
-      setError(result.error)
-      return
-    }
-
-    onSaved(entry.key, result.data.value as AppSettingValueMap[K])
-    showSuccessToast(`${entry.label} saved`)
-  }
 
   return (
     <SettingRowShell entry={entry} error={error}>
@@ -126,7 +113,7 @@ const LogLevelSettingRow = <K extends AppSettingKey>({
                 value={field.value}
                 onValueChange={(value) => {
                   field.onChange(value)
-                  setError(null)
+                  clearError()
                 }}
                 disabled={isSaving}
               >
@@ -151,7 +138,13 @@ const LogLevelSettingRow = <K extends AppSettingKey>({
       <SaveButton
         disabled={isSaveDisabled}
         isSaving={isSaving}
-        onSave={handleSave}
+        onSave={() => {
+          if (isSaveDisabled) {
+            return
+          }
+
+          void save()
+        }}
       />
     </SettingRowShell>
   )
@@ -159,60 +152,36 @@ const LogLevelSettingRow = <K extends AppSettingKey>({
 
 type PositiveIntFormValues = z.infer<typeof appSettingPositiveIntFormSchema>
 
-const PositiveIntSettingRow = <K extends AppSettingKey>({
+const PositiveIntSettingRow = ({
   entry,
   savedValue,
   onSaved,
-}: PositiveIntRowProps<K>) => {
-  const [isSaving, setIsSaving] = useState(false)
-  const [error, setError] = useState<AppError | null>(null)
-
+}: PositiveIntRowProps) => {
   const form = useForm<PositiveIntFormValues>({
     resolver: zodResolver(appSettingPositiveIntFormSchema),
     defaultValues: { value: String(savedValue) },
     mode: 'onChange',
   })
 
+  const { isSaving, error, clearError, save } = useAppSettingSave({
+    key: entry.key,
+    label: entry.label,
+    savedValue,
+    parse: () => {
+      const parsedValue = positiveIntFormValueSchema.safeParse(
+        form.getValues().value,
+      )
+
+      return parsedValue.success ? parsedValue.data : null
+    },
+    onSaved,
+    resetForm: (value) => form.reset({ value: String(value) }),
+  })
+
   const draftValue = useWatch({ control: form.control, name: 'value' })
   const parsedDraft = positiveIntFormValueSchema.safeParse(draftValue)
   const isUnchanged = parsedDraft.success && parsedDraft.data === savedValue
   const isSaveDisabled = isSaving || !form.formState.isValid || isUnchanged
-
-  useEffect(() => {
-    form.reset({ value: String(savedValue) })
-  }, [form, savedValue])
-
-  const handleSave = async () => {
-    if (isSaveDisabled) {
-      return
-    }
-
-    const parsedValue = positiveIntFormValueSchema.safeParse(
-      form.getValues().value,
-    )
-
-    if (!parsedValue.success) {
-      return
-    }
-
-    setIsSaving(true)
-    setError(null)
-
-    const result = await saveAppSettingAction({
-      key: entry.key,
-      value: parsedValue.data as AppSettingValueMap[K],
-    })
-
-    setIsSaving(false)
-
-    if (!result.success) {
-      setError(result.error)
-      return
-    }
-
-    onSaved(entry.key, result.data.value as AppSettingValueMap[K])
-    showSuccessToast(`${entry.label} saved`)
-  }
 
   return (
     <SettingRowShell entry={entry} error={error}>
@@ -232,7 +201,7 @@ const PositiveIntSettingRow = <K extends AppSettingKey>({
                   disabled={isSaving}
                   onChange={(event) => {
                     field.onChange(event.target.value)
-                    setError(null)
+                    clearError()
                   }}
                 />
               </FormControl>
@@ -244,7 +213,13 @@ const PositiveIntSettingRow = <K extends AppSettingKey>({
       <SaveButton
         disabled={isSaveDisabled}
         isSaving={isSaving}
-        onSave={handleSave}
+        onSave={() => {
+          if (isSaveDisabled) {
+            return
+          }
+
+          void save()
+        }}
       />
     </SettingRowShell>
   )
@@ -288,27 +263,33 @@ const SaveButton = ({ disabled, isSaving, onSave }: SaveButtonProps) => (
   </Button>
 )
 
-// debt: two-type switch in AppSettingRow, refactor to dispatch if a third valueType is added
-export const AppSettingRow = <K extends AppSettingKey>({
+export const AppSettingRow = ({
   entry,
-  savedValue,
+  savedSettings,
   onSaved,
-}: AppSettingRowProps<K>) => {
+}: AppSettingRowProps) => {
   if (entry.valueType === 'log_level') {
     return (
       <LogLevelSettingRow
         entry={entry}
-        savedValue={savedValue as LogLevel}
+        savedValue={savedSettings[entry.key]}
         onSaved={onSaved}
       />
     )
   }
 
-  return (
-    <PositiveIntSettingRow
-      entry={entry}
-      savedValue={savedValue as number}
-      onSaved={onSaved}
-    />
+  if (entry.valueType === 'positive_int') {
+    return (
+      <PositiveIntSettingRow
+        entry={entry}
+        savedValue={savedSettings[entry.key]}
+        onSaved={onSaved}
+      />
+    )
+  }
+
+  const exhaustive: never = entry
+  throw new Error(
+    `Unhandled app setting valueType: ${JSON.stringify(exhaustive)}`,
   )
 }

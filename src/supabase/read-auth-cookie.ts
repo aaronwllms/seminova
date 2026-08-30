@@ -60,9 +60,14 @@ export const readJwtExpFromAccessToken = (
     return null
   }
 
+  const payloadSegment = segments[1]
+  if (!payloadSegment) {
+    return null
+  }
+
   try {
     const payload = JSON.parse(
-      Buffer.from(segments[1], 'base64url').toString('utf-8'),
+      Buffer.from(payloadSegment, 'base64url').toString('utf-8'),
     ) as { exp?: unknown }
 
     return typeof payload.exp === 'number' ? payload.exp : null

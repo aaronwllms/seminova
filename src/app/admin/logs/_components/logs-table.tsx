@@ -40,7 +40,7 @@ export const LogsTable = () => {
     markAllTooltip,
     isMarkAllPending,
     handleRemoveFilterChip,
-    error,
+    listError,
     mutationAppError,
     table,
     columns,
@@ -103,7 +103,7 @@ export const LogsTable = () => {
 
       {statsError ? <AppErrorSurface error={statsError} /> : null}
 
-      {error ? <AppErrorSurface error={error} /> : null}
+      {listError ? <AppErrorSurface error={listError} /> : null}
 
       <AppErrorSurface error={mutationAppError} />
 

@@ -1,13 +1,13 @@
 'use client'
 
 // Showroom fixture — real production pieces: ProfileAvatarField, ProfileThemeSegment,
-// BlurSaveTextField, useBlurSaveField (parity with the live profile dialog).
-// Demo-only: local password accordion (not wired to Supabase), referenceDemoPersist stub
-// (_lib/reference-demo-persist.ts — simulated delay, no DB write), read-only demo email.
-// Non-persisting saves on this public page are correct behavior, not drift.
+// BlurSaveTextField, useBlurSaveField.
+// Intentional divergences: no first-password branch (always Change Password with
+// current-password field); password accordion uses local mock persist, not Supabase;
+// read-only demo email; non-persisting saves on this public page are correct, not drift.
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 
 import { ProfileAvatarField } from '@/app/(app)/_components/profile/profile-avatar-field'
@@ -34,6 +34,7 @@ import { Form } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import { MIN_PASSWORD_LENGTH } from '@/constants/auth'
 import { useBlurSaveField } from '@/hooks/use-blur-save-field'
 import { usePasswordAccordionScroll } from '@/hooks/use-password-accordion-scroll'
 import type { FieldSaveState } from '@/types/field-save-state'
@@ -44,7 +45,10 @@ import {
   type ReferenceDemoFormInputValues,
   type ReferenceDemoPartialValues,
 } from '../_lib/reference-demo-form-schema'
-import { referenceDemoPersist } from '../_lib/reference-demo-persist'
+import {
+  referenceDemoMockPersist,
+  referenceDemoPersist,
+} from '../_lib/reference-demo-persist'
 
 const DEFAULT_VALUES: ReferenceDemoFormInputValues = {
   displayName: 'Aaron Williams',
@@ -53,7 +57,6 @@ const DEFAULT_VALUES: ReferenceDemoFormInputValues = {
 
 const DEMO_EMAIL = 'demo@example.com'
 const DEMO_AVATAR_URL = '/images/aw-avatar.jpg'
-const MIN_PASSWORD_LENGTH = 8
 const PASSWORD_ACCORDION_VALUE = 'password'
 
 type ReferenceLastSaved = {
@@ -65,6 +68,7 @@ export const ReferenceProfileSettingsPreview = () => {
   const [open, setOpen] = useState(false)
   const { passwordSectionRef, handleAccordionValueChange } =
     usePasswordAccordionScroll()
+  const avatarUrlRef = useRef<string | null>(DEMO_AVATAR_URL)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(DEMO_AVATAR_URL)
   const [avatarSaveState, setAvatarSaveState] = useState<FieldSaveState>('idle')
   const [avatarFileError, setAvatarFileError] = useState<string | null>(null)
@@ -125,6 +129,19 @@ export const ReferenceProfileSettingsPreview = () => {
     },
   })
 
+  useEffect(() => {
+    avatarUrlRef.current = avatarUrl
+  }, [avatarUrl])
+
+  useEffect(() => {
+    return () => {
+      const url = avatarUrlRef.current
+      if (url?.startsWith('blob:')) {
+        URL.revokeObjectURL(url)
+      }
+    }
+  }, [])
+
   const handleAvatarUpload = async (file: File) => {
     setAvatarSaveState('saving')
 
@@ -170,12 +187,16 @@ export const ReferenceProfileSettingsPreview = () => {
 
     setIsSubmittingPassword(true)
 
-    showSuccessToast('Password updated')
-    setCurrentPassword('')
-    setNewPassword('')
-    setConfirmPassword('')
-    setPasswordSubmitAttempted(false)
-    setIsSubmittingPassword(false)
+    try {
+      await referenceDemoMockPersist({})
+      showSuccessToast('Password updated')
+      setCurrentPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+      setPasswordSubmitAttempted(false)
+    } finally {
+      setIsSubmittingPassword(false)
+    }
   }
 
   return (

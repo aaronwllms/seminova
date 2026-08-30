@@ -17,6 +17,7 @@ import {
 } from '@/constants/data-table'
 import { useToggleFilterSet } from '@/hooks/use-toggle-filter-set'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
+import { useResetOnChange } from '@/hooks/use-reset-on-change'
 import type { LogLevel } from '@/types/app-settings'
 import { toAppError } from '@/utils/is-app-error'
 
@@ -56,8 +57,6 @@ export const useAdminLogsTableState = () => {
   const [detailOpen, setDetailOpen] = useState(false)
   const [searchInput, setSearchInput] = useState('')
   const debouncedSearch = useDebouncedValue(searchInput, 300)
-  const [trackedDebouncedSearch, setTrackedDebouncedSearch] =
-    useState(debouncedSearch)
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
   const [unreadOnly, setUnreadOnly] = useState(false)
   const [liveEnabled, setLiveEnabled] = useState(false)
@@ -77,11 +76,10 @@ export const useAdminLogsTableState = () => {
     setLiveEnabled(readLogsLiveEnabledPreference())
   }, [])
 
-  if (trackedDebouncedSearch !== debouncedSearch) {
-    setTrackedDebouncedSearch(debouncedSearch)
+  useResetOnChange(debouncedSearch, () => {
     setCursorStack([null])
     setCursorStackIndex(0)
-  }
+  })
 
   const handleLiveEnabledChange = useCallback((enabled: boolean) => {
     setLiveEnabled(enabled)
@@ -125,7 +123,7 @@ export const useAdminLogsTableState = () => {
     filteredUnreadCount,
     isLoading,
     isFetching,
-    error,
+    error: listError,
   } = useAdminLogsList({
     cursor,
     sortDirection,
@@ -350,7 +348,7 @@ export const useAdminLogsTableState = () => {
     markAllTooltip,
     isMarkAllPending,
     handleRemoveFilterChip,
-    error,
+    listError,
     mutationAppError,
     table,
     columns,

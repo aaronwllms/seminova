@@ -11,14 +11,3 @@ export type AppSettingValueByType = {
   positive_int: number
   banner: BannerSettingValue
 }
-
-export type {
-  AppSettingKey,
-  AppSettingRegistryEntry,
-  AppSettingRegistryEntryFor,
-  AppSettingValueMap,
-} from '@/config/app-settings-registry'
-
-import type { AppSettingValueMap } from '@/config/app-settings-registry'
-
-export type ResolvedAppSettings = AppSettingValueMap

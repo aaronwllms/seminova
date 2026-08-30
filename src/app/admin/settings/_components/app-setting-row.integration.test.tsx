@@ -2,7 +2,11 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import { render, screen } from '@/test/test-utils'
 
-import { getRegistryEntry } from '@/config/app-settings-registry'
+import {
+  getRegistryEntry,
+  type ResolvedAppSettings,
+} from '@/config/app-settings-registry'
+import { DEFAULT_BANNER_SETTING } from '@/types/banner'
 
 import { AppSettingRow } from './app-setting-row'
 
@@ -17,6 +21,13 @@ vi.mock('@/app/admin/settings/_lib/actions', () => ({
 vi.mock('@/utils/app-toast', () => ({
   showSuccessToast: (...args: unknown[]) => showSuccessToastMock(...args),
 }))
+
+const savedSettingsFixture: ResolvedAppSettings = {
+  min_log_level: 'info',
+  log_retention_days: 30,
+  banner_public: DEFAULT_BANNER_SETTING,
+  banner_authenticated: DEFAULT_BANNER_SETTING,
+}
 
 describe('AppSettingRow', () => {
   const onSavedMock = vi.fn()
@@ -44,7 +55,11 @@ describe('AppSettingRow', () => {
     })
 
     render(
-      <AppSettingRow entry={entry} savedValue={30} onSaved={onSavedMock} />,
+      <AppSettingRow
+        entry={entry}
+        savedSettings={savedSettingsFixture}
+        onSaved={onSavedMock}
+      />,
     )
 
     const input = screen.getByRole('spinbutton', {
@@ -74,7 +89,11 @@ describe('AppSettingRow', () => {
     })
 
     render(
-      <AppSettingRow entry={entry} savedValue="info" onSaved={onSavedMock} />,
+      <AppSettingRow
+        entry={entry}
+        savedSettings={savedSettingsFixture}
+        onSaved={onSavedMock}
+      />,
     )
 
     await user.click(
@@ -95,7 +114,11 @@ describe('AppSettingRow', () => {
     const entry = getRegistryEntry('min_log_level')
 
     render(
-      <AppSettingRow entry={entry} savedValue="info" onSaved={onSavedMock} />,
+      <AppSettingRow
+        entry={entry}
+        savedSettings={savedSettingsFixture}
+        onSaved={onSavedMock}
+      />,
     )
 
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled()
@@ -115,7 +138,11 @@ describe('AppSettingRow', () => {
     })
 
     render(
-      <AppSettingRow entry={entry} savedValue={30} onSaved={onSavedMock} />,
+      <AppSettingRow
+        entry={entry}
+        savedSettings={savedSettingsFixture}
+        onSaved={onSavedMock}
+      />,
     )
 
     const input = screen.getByRole('spinbutton', {
@@ -136,7 +163,11 @@ describe('AppSettingRow', () => {
     const entry = getRegistryEntry('log_retention_days')
 
     render(
-      <AppSettingRow entry={entry} savedValue={30} onSaved={onSavedMock} />,
+      <AppSettingRow
+        entry={entry}
+        savedSettings={savedSettingsFixture}
+        onSaved={onSavedMock}
+      />,
     )
 
     const saveButton = screen.getByRole('button', { name: 'Save' })

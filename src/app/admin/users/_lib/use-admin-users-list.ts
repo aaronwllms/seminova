@@ -10,7 +10,7 @@ import { unwrapActionResult } from '@/app/admin/_lib/unwrap-action-result'
 import { type DataTablePageSize } from '@/constants/data-table'
 import { toAppError } from '@/utils/is-app-error'
 
-import { listUsersAction } from '../actions'
+import { listUsersAction, type ListUsersActionInput } from '../actions'
 import { adminUsersQueryKeys } from './admin-users-query-keys'
 import type { UsersSortColumn, UsersSortDirection } from './admin-user-row'
 
@@ -56,7 +56,7 @@ export const useAdminUsersList = ({
         filterUnverified,
         filterBanned,
         filterNew30d,
-      })
+      } satisfies ListUsersActionInput)
       return unwrapActionResult(result)
     },
     placeholderData: keepPreviousData,

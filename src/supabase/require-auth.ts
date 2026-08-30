@@ -1,3 +1,5 @@
+import { cache } from 'react'
+
 import { parseJwtClaims, type JwtClaims } from '@/utils/admin'
 import { appLog } from '@/utils/app-logger'
 import { withRequestPathnameLogContext } from '@/utils/request-log-context'
@@ -125,7 +127,7 @@ export const getDisplayAuthClaims = async (): Promise<AuthenticatedClaims> => {
  * is the server-side session gate; the browser client refreshes client-side.
  * This probe validates only; it does not refresh tokens.
  */
-export const hasServerAuthSession = async (): Promise<boolean> => {
+export const hasServerAuthSession = cache(async (): Promise<boolean> => {
   const accessToken = await readAccessTokenFromCookies()
   if (!accessToken) {
     return false
@@ -160,4 +162,4 @@ export const hasServerAuthSession = async (): Promise<boolean> => {
   } catch {
     return false
   }
-}
+})

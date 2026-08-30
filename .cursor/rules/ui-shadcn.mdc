@@ -22,9 +22,6 @@ pnpm dlx shadcn@latest add button -y -o
 # Add multiple components
 pnpm dlx shadcn@latest add button dialog form -y -o
 
-# shadcnblocks registry (see components.json registries)
-pnpm dlx shadcn@latest add @shadcnblocks/data-table/data-table-standard-2 -y -o
-
 # Preview before overwriting
 pnpm dlx shadcn@latest add button --dry-run
 pnpm dlx shadcn@latest add button --diff
@@ -40,6 +37,8 @@ pnpm dlx shadcn@latest add button --diff
 **When NOT to use `-o`:** the component in `src/components/ui/` has local customizations — use `--dry-run` or `--diff` first, then merge manually.
 
 **Do not** pipe `yes` into the CLI or run bare `shadcn add` in agent terminals.
+
+Components from any registry other than shadcn's own need review before landing in `src/components/ui/` — `check:no-shadcn-pkg` only blocks npm-package imports; a CLI-vendored file trips no gate.
 
 Components install to `src/components/ui/` with full source code.
 

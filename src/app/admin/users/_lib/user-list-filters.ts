@@ -53,6 +53,3 @@ export const buildUserListFilterChips = (
 
   return chips
 }
-
-export const buildUserListFilterLabels = (filters: UserListFilters): string[] =>
-  buildUserListFilterChips(filters).map((chip) => chip.label)

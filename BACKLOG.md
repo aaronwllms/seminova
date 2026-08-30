@@ -256,3 +256,45 @@ between the Supabase dashboard and the repo.
 
 - **Per-project, not just code:** the dashboard is authoritative and lives outside the
   repo, so a spinoff inherits none of this.
+
+---
+
+## Agent-readable content surface (`llms.txt` + `.md` route variants)
+
+**What:** Serve a clean markdown representation of public content — an `/llms.txt`
+catalog plus `.md` variants of public routes — so an agent pointed at a deployed site
+gets curated markdown instead of parsing rendered HTML.
+
+**Notes:**
+
+- **Spec:** [llmstxt.org](https://llmstxt.org/) v2 (Answer.AI, modified 2026-08-10)
+  carries two proposals: the `llms.txt` catalog, and `.md` versions of pages at the same
+  URL (`page.html.md` / `page.md`), discoverable via `rel="alternate"
+  type="text/markdown"` and `rel="describedby"` as `<link>` elements or an HTTP `Link:`
+  header. Files may sit at any subpath, covering the routes beneath them. Still a
+  community proposal, not a standards-body standard.
+
+- **Not an SEO play.** Google Search ignores these files and `seo.mdc` says so
+  explicitly — correlation studies find no AI-citation benefit. The case is agent
+  onboarding: Chrome Lighthouse audits for `llms.txt` under agentic browsing, and
+  OpenAI, Anthropic, and Gemini all publish one for their own developer docs.
+
+- **Shape constraint — the whole difficulty.** Marketing copy currently lives inline in
+  JSX, so there is no markdown source to serve. A hand-written parallel file rots on
+  contact; scraping our own rendered output is fragile. The version that holds inverts
+  the flow: content lives in one markdown source, the HTML page renders from it, the
+  `.md` route serves it raw. That is a content-architecture change, not a route
+  addition.
+
+- **Template multiplier:** every spinoff inherits whatever ships. A hand-authored file
+  describing Seminova would follow spinoffs into products that are not Seminova — the
+  same argument that makes `robots.ts` and `sitemap.ts` derive from
+  `discoverMarketingRoutes()` rather than hardcode routes. Generation is the precedent
+  to follow.
+
+- **Open — which half, or both:** the marketing pages are one surface; the repo's own
+  agent docs (`AGENTS.md`, `LEXICON.md`, `DOC_RULES.md`) are another. Those are already
+  markdown but live in git, unreachable from the deployed site. Possibly the more
+  valuable half, and it needs no content-architecture change.
+
+- **Research:** [RESEARCH-0007](docs/research/RESEARCH-0007-llms-txt-agent-readable-content.md)

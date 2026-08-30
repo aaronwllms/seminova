@@ -2,10 +2,7 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-import {
-  getRoleMutationToastMessage,
-  type RoleMutationSuccessStatus,
-} from '@/utils/admin-user-mutations'
+import { getRoleMutationToastMessage } from '@/utils/admin-user-mutations'
 import { showSuccessToast } from '@/utils/app-toast'
 
 import { demoteUserAction, promoteUserAction } from '../actions'
@@ -30,9 +27,7 @@ export const useAdminUserRoleMutation = () => {
       return unwrapActionResult(result)
     },
     onSuccess: (data) => {
-      showSuccessToast(
-        getRoleMutationToastMessage(data.status as RoleMutationSuccessStatus),
-      )
+      showSuccessToast(getRoleMutationToastMessage(data.status))
       void queryClient.invalidateQueries({ queryKey: adminUsersQueryKeys.all })
     },
   })

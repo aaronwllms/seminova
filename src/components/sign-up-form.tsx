@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { signUpWithPasswordAction } from '@/app/auth/_lib/sign-up/actions'
+import { MIN_PASSWORD_LENGTH } from '@/constants/auth'
 import type { AppError } from '@/types/app-error'
 
 export function SignUpForm({
@@ -31,12 +32,33 @@ export function SignUpForm({
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    // Password managers write to the DOM and often auto-submit without React
+    // onChange. Read the live fields so we don't send empty/stale state.
+    const formData = new FormData(e.currentTarget)
+    const submittedEmail = String(formData.get('username') ?? '')
+    const submittedPassword = String(formData.get('password') ?? '')
+    const submittedRepeatPassword = String(
+      formData.get('repeat-password') ?? '',
+    )
+    setEmail(submittedEmail)
+    setPassword(submittedPassword)
+    setRepeatPassword(submittedRepeatPassword)
+
     setIsLoading(true)
     setFormError(null)
 
-    if (password !== repeatPassword) {
+    if (submittedPassword.length < MIN_PASSWORD_LENGTH) {
+      setFormError({
+        message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
+        kind: 'operational',
+      })
+      setIsLoading(false)
+      return
+    }
+
+    if (submittedPassword !== submittedRepeatPassword) {
       setFormError({
         message: 'Passwords do not match',
         kind: 'operational',
@@ -46,7 +68,10 @@ export function SignUpForm({
     }
 
     try {
-      const result = await signUpWithPasswordAction({ email, password })
+      const result = await signUpWithPasswordAction({
+        email: submittedEmail,
+        password: submittedPassword,
+      })
 
       if (!result.success) {
         setFormError(result.error)
@@ -97,6 +122,7 @@ export function SignUpForm({
                 </div>
                 <Input
                   id="password"
+                  name="password"
                   type="password"
                   autoComplete="new-password"
                   required
@@ -110,6 +136,7 @@ export function SignUpForm({
                 </div>
                 <Input
                   id="repeat-password"
+                  name="repeat-password"
                   type="password"
                   autoComplete="new-password"
                   required

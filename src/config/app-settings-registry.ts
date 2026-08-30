@@ -3,13 +3,10 @@ import type {
   AppSettingValueType,
   LogLevel,
 } from '@/types/app-settings'
-import { LOG_LEVELS } from '@/types/app-settings'
 import { DEFAULT_BANNER_SETTING } from '@/types/banner'
 
 export const APP_SETTINGS_GROUP_LOGGING = 'Logging' as const
 export const APP_SETTINGS_GROUP_BANNERS = 'Banners' as const
-
-export { LOG_LEVELS }
 
 const LOG_LEVEL_RANK: Record<LogLevel, number> = {
   debug: 0,
@@ -72,7 +69,19 @@ export type AppSettingValueMap = {
   [Entry in (typeof APP_SETTINGS_REGISTRY)[number] as Entry['key']]: AppSettingValueByType[Entry['valueType']]
 }
 
+export type ResolvedAppSettings = AppSettingValueMap
+
 export type AppSettingRegistryEntry = (typeof APP_SETTINGS_REGISTRY)[number]
+
+export type NonBannerAppSettingRegistryEntry = Exclude<
+  AppSettingRegistryEntry,
+  { valueType: 'banner' }
+>
+
+export type BannerAppSettingRegistryEntry = Extract<
+  AppSettingRegistryEntry,
+  { valueType: 'banner' }
+>
 
 export type AppSettingRegistryEntryFor<K extends AppSettingKey> = Extract<
   AppSettingRegistryEntry,

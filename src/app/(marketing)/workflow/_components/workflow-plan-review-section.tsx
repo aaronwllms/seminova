@@ -1,11 +1,11 @@
 import { WorkflowDiagram } from './workflow-diagram'
-import { WORKFLOW_SECTION_SCROLL_CLASS } from '../_lib/workflow-anchor-links'
+import { SECTION_SCROLL_CLASS } from '@/constants/section-scroll'
 
 export const WorkflowPlanReviewSection = () => (
   <section aria-labelledby="plan-review-build" className="border-t py-10">
     <div className="mx-auto max-w-3xl px-4 sm:px-0">
       <h2
-        className={`${WORKFLOW_SECTION_SCROLL_CLASS} text-2xl font-semibold tracking-tight`}
+        className={`${SECTION_SCROLL_CLASS} text-2xl font-semibold tracking-tight`}
         id="plan-review-build"
       >
         Plan, review, build

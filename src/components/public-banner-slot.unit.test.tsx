@@ -12,24 +12,6 @@ describe('PublicBannerSlot', () => {
     document.cookie = `${BANNER_DISMISSED_PUBLIC_COOKIE}=; path=/; max-age=0`
   })
 
-  it('should render nothing when initialDismissed is true', () => {
-    const config = {
-      ...DEFAULT_BANNER_SETTING,
-      mode: 'on' as const,
-      headline: 'Public notice',
-    }
-
-    render(
-      <PublicBannerSlot
-        config={config}
-        dismissKey={buildBannerDismissKey(config.headline, config.detail)}
-        initialDismissed
-      />,
-    )
-
-    expect(screen.queryByRole('status')).not.toBeInTheDocument()
-  })
-
   it('should persist dismissal to the public dismiss cookie keyed by headline and detail', async () => {
     const user = userEvent.setup({ delay: null })
     const config = {

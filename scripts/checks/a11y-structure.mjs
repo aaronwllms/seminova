@@ -23,8 +23,10 @@ const NON_LITERAL_ALT_REGEX = /alt\s*=\s*{/
 const DECORATIVE_REGEX =
   /(?:role\s*=\s*["']presentation["']|aria-hidden(?:\s*=\s*["'][^"']*["'])?)/
 
+const PREFIX = '[check:a11y-structure]'
+
 const fail = (message) => {
-  console.error(`[check:a11y-structure] ${message}`)
+  console.error(`${PREFIX} ${message}`)
   process.exit(1)
 }
 
@@ -340,8 +342,11 @@ if (isMain) {
 
   if (!result.ok) {
     for (const violation of result.violations) {
-      fail(violation)
+      console.error(`${PREFIX} ${violation}`)
     }
+    fail(
+      `${result.violations.length} violation(s) — fix the items listed above.`,
+    )
   }
 
   console.log(

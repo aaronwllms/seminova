@@ -54,7 +54,9 @@ including the `useState` auth forms** — it is independent of the form library.
 - Pair password fields with a username field so the manager knows which credential to
   save/update — even in a change-password or post-recovery form where no email is otherwise
   shown, render it referencing the account email (visually hidden is fine, but it must be in
-  the DOM).
+  the DOM). When the account email cannot be resolved, omit the field rather than render it
+  empty — an empty username anchor is worse than none, because the manager binds the saved
+  password to it.
 - Forms must be real `<form>` elements so managers detect them as credential forms.
 
 ## Client pattern

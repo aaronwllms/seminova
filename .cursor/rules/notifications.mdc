@@ -46,11 +46,11 @@ use `InlineError` / `ErrorPanel` rendered at a page- or section-level region —
 
 ## API
 
-- Success toasts are implemented via [`showSuccessToast`](../../src/utils/app-toast.ts).
-  Feature code imports that helper; only `app-toast.ts` calls `toast.*` from sonner directly.
-- Info and warning toasts are sanctioned by the taxonomy above but **are not pre-built**.
-  Add a helper (`showInfoToast`, etc.) in `app-toast.ts` when a real feature needs one —
-  do not add unused variants.
+- Five helpers live in [`app-toast.ts`](../../src/utils/app-toast.ts): `showSuccessToast`,
+  `showInfoToast`, `showWarningToast`, `showErrorToast`, and `showPromiseToast`. Only
+  `app-toast.ts` calls `toast.*` from sonner directly. Production feature code still
+  calls only `showSuccessToast`; `/reference` is the other consumer. `showErrorToast` is
+  for the gallery and does not change "errors never surface as toasts."
 - Toaster is mounted once in the root layout
   ([`src/components/ui/sonner.tsx`](../../src/components/ui/sonner.tsx)); callers are client
   components or client callbacks after server actions.

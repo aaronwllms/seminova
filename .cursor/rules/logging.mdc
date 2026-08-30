@@ -50,6 +50,7 @@ Grouped by **why** each surface bypasses the wrappers. **Enforcement:** swept su
 | Test files spying on `console.*` | Test infrastructure |
 | [`scripts/admin/lib/prompt.ts`](../../scripts/admin/lib/prompt.ts) | Interactive prompt stdout UI |
 | `scripts/checks/*.mjs` | CI hard-constraint output |
+| `scripts/build/*.mjs` | Build-time guard output |
 
 ## Tag Convention
 

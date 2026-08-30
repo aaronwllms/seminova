@@ -21,7 +21,11 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
-      include: ['src/**/*.{ts,tsx}'],
+      include: [
+        'src/**/*.{ts,tsx}',
+        'scripts/**/*.{ts,mjs}',
+        'eslint-rules/**/*.mjs',
+      ],
       exclude: [
         'src/components/ui/**',
         'src/mocks/**',
@@ -42,12 +46,30 @@ export default defineConfig({
         'src/supabase/server.ts',
         'src/proxy.ts',
         '**/*.d.ts',
+        // Admin CLI entry shims — logic lives in scripts/admin/lib/, which is measured
+        'scripts/admin/*.ts',
+        'scripts/admin/lib/prompt.ts',
+        'scripts/checks/vitest-file.mjs', // pnpm test:file spawn wrapper, not a check:* gate
       ],
       thresholds: {
         lines: 80,
         functions: 80,
         branches: 80,
         statements: 80,
+        // Baseline 2026-08-29 — raise when tests land, never lower to paper over a drop
+        'eslint-rules/**': {
+          lines: 71,
+          functions: 62,
+          branches: 60,
+          statements: 71,
+        },
+        // Re-baselined 2026-08-29 — F186 added checks-wired.mjs and pnpm-only.mjs to the denominator; residual uncovered code is their isMain reporters
+        'scripts/**': {
+          lines: 70,
+          functions: 75,
+          branches: 82,
+          statements: 70,
+        },
       },
     },
   },

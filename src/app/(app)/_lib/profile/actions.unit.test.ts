@@ -76,6 +76,8 @@ vi.mock('next/cache', async (importOriginal) => {
   }
 })
 
+import { revalidatePath } from 'next/cache'
+
 import {
   completeRecoveryPasswordAction,
   setFirstPasswordAction,
@@ -99,6 +101,7 @@ describe('updateProfileAction', () => {
     mockServiceEq.mockReset()
     mockUpdateUserById.mockReset()
     mockUpdateUser.mockReset()
+    vi.mocked(revalidatePath).mockClear()
 
     mockServiceUpdate.mockReturnValue({ eq: mockServiceEq })
     mockServiceEq.mockResolvedValue({ error: null })
@@ -192,6 +195,7 @@ describe('updateProfileAction', () => {
         bio: 'Builder',
       },
     })
+    expect(revalidatePath).toHaveBeenCalledTimes(3)
   })
 
   it('should update a single field', async () => {
@@ -399,6 +403,7 @@ describe('setFirstPasswordAction', () => {
     mockServiceUpdate.mockClear()
     mockServiceEq.mockClear()
     mockUpdateUserById.mockClear()
+    vi.mocked(revalidatePath).mockClear()
   })
 
   it('should return operational error when unauthenticated', async () => {
@@ -437,6 +442,7 @@ describe('setFirstPasswordAction', () => {
       password: 'password123',
     })
     expect(result).toMatchObject({ success: true })
+    expect(revalidatePath).toHaveBeenCalledTimes(3)
   })
 
   it('should return fault when password update fails after flag write', async () => {
@@ -466,6 +472,7 @@ describe('completeRecoveryPasswordAction', () => {
     mockUpdateUserById.mockClear()
     mockAppLogError.mockClear()
     mockUpdateUser.mockResolvedValue({ error: null })
+    vi.mocked(revalidatePath).mockClear()
   })
 
   it('should return operational error when unauthenticated', async () => {
@@ -507,6 +514,7 @@ describe('completeRecoveryPasswordAction', () => {
       success: true,
       data: { redirectTo: '/home' },
     })
+    expect(revalidatePath).toHaveBeenCalledTimes(3)
   })
 
   it('should not return success when password update fails after flag write', async () => {

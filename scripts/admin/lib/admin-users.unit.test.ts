@@ -3,12 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { ADMIN_ROLE } from '@/constants/admin-role'
 
-import {
-  demoteUser,
-  isUserAdmin,
-  listAdminUsers,
-  promoteUser,
-} from './admin-users'
+import { demoteUser, listAdminUsers, promoteUser } from './admin-users'
 
 const createMockUser = (overrides: Partial<User> = {}): User =>
   ({
@@ -40,14 +35,6 @@ const createMockClient = (users: User[]): SupabaseClient => {
     },
   } as unknown as SupabaseClient
 }
-
-describe('isUserAdmin', () => {
-  it('should return true only when role is admin', () => {
-    expect(isUserAdmin({ role: ADMIN_ROLE })).toBe(true)
-    expect(isUserAdmin({ role: 'editor' })).toBe(false)
-    expect(isUserAdmin(undefined)).toBe(false)
-  })
-})
 
 describe('promoteUser', () => {
   it('should return not_found when email does not exist', async () => {

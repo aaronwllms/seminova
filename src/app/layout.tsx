@@ -3,7 +3,7 @@ import { ThemeProvider } from 'next-themes'
 import NextTopLoader from 'nextjs-toploader'
 import { Analytics } from '@vercel/analytics/react'
 import './globals.css'
-import ReactQueryProvider from '@/providers/ReactQueryProvider'
+import { ReactQueryProvider } from '@/providers/react-query-provider'
 import { ReactQueryDevtoolsPanel } from '@/providers/react-query-devtools'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -40,7 +40,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${jetbrainsMono.variable} ${merriweather.variable} scroll-pt-20`}
+      className={`${inter.variable} ${jetbrainsMono.variable} ${merriweather.variable} scroll-pt-20 scroll-smooth motion-reduce:scroll-auto`}
     >
       <body className="font-sans antialiased">
         <NextTopLoader showSpinner={false} height={2} color="var(--primary)" />

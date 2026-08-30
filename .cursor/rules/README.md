@@ -101,7 +101,7 @@ Per-rule detail (topics and cross-references):
 
 ### `react-tanstack-query.mdc`
 
-**Applies to:** `src/hooks/**/*`, `src/components/**/*`, `ReactQueryProvider.tsx`
+**Applies to:** `src/hooks/**/*`, `src/components/**/*`, `react-query-provider.tsx`
 
 - TanStack Query v5 patterns
 - Custom hook creation and query keys

@@ -90,6 +90,26 @@ describe('POST /api/client-logs', () => {
     )
   })
 
+  it('should drop forged userId from caller context when unauthenticated', async () => {
+    await POST(
+      createRequest({
+        key: 'auth-form-error',
+        level: 'error',
+        message: 'Supabase auth error',
+        context: {
+          userId: 'forged-id',
+          email: 'user@example.com',
+        },
+      }),
+    )
+
+    expect(mockAppLogError).toHaveBeenCalledWith(
+      'client-auth-form-error',
+      'Supabase auth error',
+      { email: 'user@example.com' },
+    )
+  })
+
   it('should reject unknown keys', async () => {
     const response = await POST(
       createRequest({

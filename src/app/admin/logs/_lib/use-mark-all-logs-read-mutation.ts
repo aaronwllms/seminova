@@ -24,7 +24,12 @@ export const useMarkAllLogsReadMutation = () => {
         )
       }
 
-      void queryClient.invalidateQueries({ queryKey: adminLogsQueryKeys.all })
+      void queryClient.invalidateQueries({
+        queryKey: adminLogsQueryKeys.lists(),
+      })
+      void queryClient.invalidateQueries({
+        queryKey: adminLogsQueryKeys.stats(),
+      })
     },
   })
 }

@@ -67,5 +67,8 @@ describe('AppSettingsPanel', () => {
     })
     expect(retentionInput).toHaveValue(45)
     expect(saveButtons[1]).toBeDisabled()
+    expect(
+      screen.getByRole('spinbutton', { name: 'Log retention window' }),
+    ).toBe(retentionInput)
   })
 })
